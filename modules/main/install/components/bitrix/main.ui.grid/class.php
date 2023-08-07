@@ -1,6 +1,8 @@
 <?
 
 use Bitrix\Main\Grid;
+use Bitrix\Main\Grid\Column\Column;
+use Bitrix\Main\Grid\Column\Factory\ColumnFactory;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text;
 use Bitrix\Main\Type\Collection;
@@ -16,6 +18,27 @@ Loc::loadMessages(__FILE__);
  */
 class CMainUIGrid extends CBitrixComponent
 {
+	use DeprecatedMethods;
+
+	/**
+	 * @see `::getResultColumns`
+	 *
+	 * @var Column[]
+	 */
+	private array $resultColumns;
+	/**
+	 * @see `::getResultColumnsAll`
+	 *
+	 * @var Column[]
+	 */
+	private array $resultColumnsAll;
+
+	/** @var ColumnFactory */
+	protected ColumnFactory $columnFactory;
+
+	/** @var bool */
+	protected bool $needSortColumns = false;
+
 	/** @var \CGridOptions $gridOptions */
 	protected $gridOptions;
 
@@ -72,6 +95,13 @@ class CMainUIGrid extends CBitrixComponent
 	protected $cssFolder = "/css/";
 
 	protected $defaultHeaderSectionId = '';
+
+	public function __construct($component = null)
+	{
+		parent::__construct($component);
+
+		$this->columnFactory = new ColumnFactory();
+	}
 
 	protected function validateColumn($column = array())
 	{
@@ -477,21 +507,19 @@ class CMainUIGrid extends CBitrixComponent
 	{
 		$this->arResult["GRID_ID"] = $this->arParams["GRID_ID"] ?? '';
 		$this->arResult["FORM_ID"] = $this->arParams["FORM_ID"] ?? '';
-		$this->arResult["COLUMNS_ALL"] = $this->prepareColumnsAll();
 
-		if (!empty($this->arParams['HEADERS_SECTIONS']) && is_array($this->arParams['HEADERS_SECTIONS']))
+		// for correct calls of overridden deprecated methods.
+		$isChildComponent = get_called_class() !== CMainUIGrid::class;
+		if ($isChildComponent)
 		{
-			$this->prepareHeaderSections();
-			$this->arResult["COLUMNS_ALL_WITH_SECTIONS"] = $this->getColumnsAllWithSections($this->arResult["COLUMNS_ALL"]);
+			$this->syncResultColumns();
 		}
+
 		$this->arResult["ENABLE_FIELDS_SEARCH"] = (
 			isset($this->arParams["ENABLE_FIELDS_SEARCH"])
 			&& $this->arParams["ENABLE_FIELDS_SEARCH"] === 'Y'
 		);
 
-		$this->arResult["HEADERS_ALL"] = $this->prepareColumnsAll();
-		$this->arResult["COLUMNS"] = $this->prepareColumns();
-		$this->arResult["HEADERS"] = $this->prepareColumns();
 		$this->arResult["OPTIONS"] = $this->getOptions();
 		$this->arResult["COLS_NAMES"] = $this->prepareColumnNames();
 		$this->arResult["COLS_RESIZE_META"] = $this->prepareColumnsResizeMeta();
@@ -622,16 +650,16 @@ class CMainUIGrid extends CBitrixComponent
 			}
 		}
 
-		foreach ($this->arParams["COLUMNS"] as $key => $column)
+		foreach ($this->getResultColumnsAll() as $columnId => $column)
 		{
-			$columns[$column["id"]] = $column;
-			$columns[$column["id"]]["sort_url"] = $this->arResult["COLUMNS_ALL"][$column["id"]]["sort_url"];
-			$columns[$column["id"]]["sort_by"] = $this->arResult["COLUMNS_ALL"][$column["id"]]["sort"];
-			$columns[$column["id"]]["sort_order"] = $this->arResult["COLUMNS_ALL"][$column["id"]]["next_sort_order"];
+			$columns[$columnId] = $this->convertColumnToArray($column);
+			$columns[$columnId]['sort_url'] = $column->getSortUrl();
+			$columns[$columnId]['sort_by'] = $column->getSort();
+			$columns[$columnId]['sort_order'] = $column->getNextSortOrder();
 
 			if (is_array($commonColumns))
 			{
-				$columns[$column["id"]]["default"] = in_array($column["id"], $commonColumns);
+				$columns[$columnId]["default"] = in_array($columnId, $commonColumns);
 			}
 		}
 
@@ -757,7 +785,6 @@ class CMainUIGrid extends CBitrixComponent
 		return $this;
 	}
 
-
 	protected function applyColumnsSticked()
 	{
 		$gridOptions = $this->getGridOptions();
@@ -767,28 +794,27 @@ class CMainUIGrid extends CBitrixComponent
 		{
 			$this->arResult["HAS_STICKED_COLUMNS"] = false;
 
-			foreach ($this->arResult["COLUMNS_ALL"] as $key => $column)
+			foreach ($this->getResultColumnsAll() as $column)
 			{
-				$this->arResult["COLUMNS_ALL"][$key]["sticked"] = in_array($column["id"], $stickedColumns);
-
-				if ($this->isShownColumn($column))
+				if (!$column->isSticked())
 				{
-					$this->arResult["COLUMNS"][$key]["sticked"] = in_array($column["id"], $stickedColumns);
+					$column->setSticked(
+						in_array($column->getId(), $stickedColumns)
+					);
+				}
 
-					if (!$this->arResult["HAS_STICKED_COLUMNS"] && $this->arResult["COLUMNS"][$key]["sticked"])
+				if ($column->isShown())
+				{
+					if (!$this->arResult["HAS_STICKED_COLUMNS"] && $column->isSticked())
 					{
 						$this->arResult["HAS_STICKED_COLUMNS"] = true;
 					}
 				}
 			}
+
+			$this->needSortColumns = $this->arResult["HAS_STICKED_COLUMNS"];
 		}
-
-		Collection::sortByColumn($this->arResult["COLUMNS"], [
-			"sticked" => SORT_DESC,
-			"sort_index" => SORT_ASC
-		]);
 	}
-
 
 	/**
 	 * Applies columns sort setting
@@ -797,18 +823,19 @@ class CMainUIGrid extends CBitrixComponent
 	{
 		if (!empty($this->getShowedColumnsList()))
 		{
-			$this->arResult["COLUMNS"] = array();
-
-			foreach ($this->getShowedColumnsList() as $key => $item)
+			$this->resultColumns = [];
+			foreach ($this->getShowedColumnsList() as $i => $columnId)
 			{
-				$this->arResult["COLUMNS"][$item] = $this->arResult["COLUMNS_ALL"][$item];
-				$this->arResult["COLUMNS"][$item]["sort_index"] = $key;
+				$column = $this->getResultColumn($columnId);
+				if ($column)
+				{
+					$column->setSortIndex($i);
+
+					$this->resultColumns[$columnId] = $column;
+				}
 			}
 
-			Collection::sortByColumn($this->arResult["COLUMNS"], [
-				"sticked" => SORT_DESC,
-				"sort_index" => SORT_ASC
-			]);
+			$this->needSortColumns = true;
 		}
 	}
 
@@ -819,6 +846,7 @@ class CMainUIGrid extends CBitrixComponent
 	protected function applyRowsSort()
 	{
 		$options = $this->getCurrentOptions();
+
 		$this->getUri()->addParams(array(
 			"by" => $options["last_sort_by"] ?? '',
 			"order" => $options["last_sort_order"] ?? ''
@@ -839,9 +867,12 @@ class CMainUIGrid extends CBitrixComponent
 		{
 			foreach ($this->getCustomNames() as $key => $value)
 			{
-				if ($this->columnExists($key))
+				$column = $this->getResultColumn($key);
+				if (isset($column))
 				{
-					$this->arResult["COLUMNS_ALL"][$key]["name"] = Bitrix\Main\Text\Converter::getHtmlConverter()->decode($value);
+					$column->setName(
+						(string)Bitrix\Main\Text\Converter::getHtmlConverter()->decode($value)
+					);
 				}
 			}
 		}
@@ -859,13 +890,18 @@ class CMainUIGrid extends CBitrixComponent
 	{
 		if (!empty($this->getShowedColumnsList()))
 		{
-			$this->arResult["COLUMNS"] = array();
+			$this->resultColumns = [];
 
-			foreach ($this->getShowedColumnsList() as $key => $id)
+			foreach ($this->getShowedColumnsList() as $i => $columnId)
 			{
-				$this->arResult["COLUMNS_ALL"][$id]["is_shown"] = true;
-				$this->arResult["COLUMNS"][$id] = $this->arResult["COLUMNS_ALL"][$id];
-				$this->arResult["COLUMNS"][$id]["sort_index"] = $key;
+				$column = $this->getResultColumn($columnId);
+				if (isset($column))
+				{
+					$column->setShown(true);
+					$column->setSortIndex($i);
+
+					$this->resultColumns[$columnId] = $column;
+				}
 			}
 		}
 
@@ -882,13 +918,12 @@ class CMainUIGrid extends CBitrixComponent
 		$options = $this->getCurrentOptions();
 		$colSizes = $options["columns_sizes"]["columns"];
 
-		foreach ($this->arResult["COLUMNS"] as $key => $item)
+		foreach ($this->getResultColumns() as $columnId => $column)
 		{
-			$colSize = $colSizes[$item["id"]] ?? null;
-
-			if (is_numeric($colSize) && $item["resizeable"] !== false)
+			$colSize = $colSizes[$columnId] ?? null;
+			if (isset($colSize) && $column->isResizeable())
 			{
-				$this->arResult["COLUMNS"][$key]["width"] = $colSize;
+				$column->setWidth($colSize);
 			}
 		}
 
@@ -903,11 +938,12 @@ class CMainUIGrid extends CBitrixComponent
 	 */
 	protected function prepareNextPageUrl()
 	{
-		$this->getUri()->addParams(array(
+		$uri = clone $this->getUri();
+		$uri->addParams(array(
 			$this->arParams["NAV_PARAM_NAME"] => $this->prepareNextPage()
 		));
 
-		$this->arResult["NEXT_PAGE_URL"] = $this->getUri()->getUri();
+		$this->arResult["NEXT_PAGE_URL"] = $uri->getUri();
 
 		return $this->arResult["NEXT_PAGE_URL"];
 	}
@@ -1079,18 +1115,22 @@ class CMainUIGrid extends CBitrixComponent
 
 				$rowId = $rowItem["id"];
 
-				foreach ($this->prepareColumnsAll() as $headerKey => $headerItem)
+				foreach ($this->getResultColumnsAll() as $column)
 				{
-					if (isset($headerItem["editable"]) && $headerItem["editable"] !== false)
+					if ($column->isEditable())
 					{
-						if (isset($rowItem["editable"][$headerKey]) && $rowItem["editable"][$headerKey] === false)
+						$columnId = $column->getId();
+						if (isset($rowItem['editable'][$columnId]) && $rowItem['editable'][$columnId] === false)
 						{
-							$this->arResult["DATA_FOR_EDIT"][$rowId][$headerKey] = false;
+							$this->arResult['DATA_FOR_EDIT'][$rowId][$columnId] = false;
 						}
 						else
 						{
-							$this->arResult["DATA_FOR_EDIT"][$rowId][$headerKey] =
-								$rowItem["data"]["~" . $headerKey] ?? ($rowItem["data"][$headerKey] ?? false);
+							$this->arResult['DATA_FOR_EDIT'][$rowId][$columnId] =
+								$rowItem['data']['~' . $columnId]
+								?? $rowItem['data'][$columnId]
+								?? false
+							;
 						}
 					}
 				}
@@ -1112,9 +1152,9 @@ class CMainUIGrid extends CBitrixComponent
 		{
 			$this->arResult["ALLOW_INLINE_EDIT_ALL"] = $this->allowInlineEditAll;
 
-			foreach ($this->prepareColumnsAll() as $key => $item)
+			foreach ($this->getResultColumnsAll() as $column)
 			{
-				if (isset($item["editable"]) && $item["editable"])
+				if ($column->isEditable())
 				{
 					$this->arResult["ALLOW_INLINE_EDIT_ALL"] = true;
 					break;
@@ -1200,14 +1240,13 @@ class CMainUIGrid extends CBitrixComponent
 		{
 			$this->arResult["EDIT_DATE"] = $this->editDate;
 
-			foreach ($this->prepareColumnsAll() as $key => $item)
+			foreach ($this->getResultColumnsAll() as $column)
 			{
 				if (
 					isset($this->arParams["EDITABLE"])
 					&& $this->arParams["EDITABLE"]
-					&& $item["editable"] !== false
-					&& isset($item["type"])
-					&& $item["type"] === "date"
+					&& $column->isEditable()
+					&& $column->getType() === "date"
 				)
 				{
 					$this->arResult["EDIT_DATE"] = true;
@@ -1368,14 +1407,13 @@ class CMainUIGrid extends CBitrixComponent
 		{
 			//Prepare default values
 			$actualRow = $this->compatibleRow($row, $key);
-			if(isset($this->arParams["COLUMNS"]) && (isset($actualRow["columns"]) || isset($actualRow["data"])))
+			if(isset($actualRow["columns"]) || isset($actualRow["data"]))
 			{
-				foreach($this->arParams["COLUMNS"] as $header)
+				foreach($this->getResultColumnsAll() as $columnId => $column)
 				{
-					$id = $header["id"];
-					if(!isset($actualRow["columns"][$id]) && isset($actualRow["data"][$id]))
+					if(!isset($actualRow["columns"][$columnId]) && isset($actualRow["data"][$columnId]))
 					{
-						$actualRow["columns"][$id] = $actualRow["data"][$id];
+						$actualRow["columns"][$columnId] = $actualRow["data"][$columnId];
 					}
 				}
 			}
@@ -1430,9 +1468,9 @@ class CMainUIGrid extends CBitrixComponent
 			$this->arResult["COLS_EDIT_META"] = $this->columnsEditMeta;
 			$columns = $this->prepareColumnsEditMetaAll();
 
-			foreach ($this->prepareColumns() as $key => $item)
+			foreach ($this->getResultColumns() as $columnId => $column)
 			{
-				$this->arResult["COLS_EDIT_META"][$key] = $columns[$key];
+				$this->arResult["COLS_EDIT_META"][$columnId] = $columns[$columnId];
 			}
 		}
 
@@ -1451,22 +1489,23 @@ class CMainUIGrid extends CBitrixComponent
 		{
 			$this->arResult["COLS_EDIT_META_ALL"] = $this->columnsEditMetaAll;
 
-			foreach ($this->prepareColumnsAll() as $key => $item)
+			foreach ($this->getResultColumnsAll() as $columnId => $column)
 			{
-				$this->arResult["COLS_EDIT_META_ALL"][$key] = array(
-					"editable" => $item["editable"] ? true : false,
-					"type" => $item["type"] ?? Grid\Types::GRID_TEXT
+				$this->arResult["COLS_EDIT_META_ALL"][$columnId] = array(
+					"editable" => $column->isEditable(),
+					"type" => $column->getType() ?? Grid\Types::GRID_TEXT
 				);
 
+				$editableConfig = $column->getEditable();
 				if (
 					isset($this->arParams["EDITABLE"])
 					&& $this->arParams["EDITABLE"]
-					&& is_array($item["editable"])
+					&& isset($editableConfig)
 				)
 				{
-					foreach ($item["editable"] as $attrKey => $attrValue)
+					foreach ($editableConfig->toArray() as $attrKey => $attrValue)
 					{
-						$this->arResult["COLS_EDIT_META_ALL"][$key][$attrKey] = $attrValue;
+						$this->arResult["COLS_EDIT_META_ALL"][$columnId][$attrKey] = $attrValue;
 					}
 				}
 			}
@@ -1503,9 +1542,9 @@ class CMainUIGrid extends CBitrixComponent
 		{
 			$this->arResult["COLS_NAMES"] = array();
 
-			foreach ($this->prepareColumnsAll() as $key => $item)
+			foreach ($this->getResultColumnsAll() as $columnId => $column)
 			{
-				$this->arResult["COLS_NAMES"][$key] = $item["name"];
+				$this->arResult["COLS_NAMES"][$columnId] = $column->getName();
 			}
 		}
 
@@ -1591,39 +1630,32 @@ class CMainUIGrid extends CBitrixComponent
 		return $this->uri;
 	}
 
-
 	/**
 	 * Gets sort url
-	 * @method getSortUrl
-	 * @param  array $headerItem
-	 * @return string sort url
+	 *
+	 * @param Column $column
+	 *
+	 * @return string|null
 	 */
-	protected function getSortUrl(array $headerItem)
+	protected function getSortUrlByColumn(Column $column): ?string
 	{
-		$this->getUri()->addParams(array(
-			"by" => $headerItem["sort"] ?? '',
-			"order" => $headerItem["next_sort_order"] ?? ''
-		));
+		if ($column->getSort() === null)
+		{
+			return null;
+		}
 
-		return $this->getUri()->getUri();
+		$uri = clone $this->getUri();
+		$uri->addParams([
+			'by' => $column->getSort(),
+			'order' => $column->getNextSortOrder(),
+		]);
+
+		return $uri->getUri();
 	}
 
 	protected function columnExists($id)
 	{
-		$result = false;
-
-		if (isset($this->arParams["COLUMNS"]) && is_array($this->arParams["COLUMNS"]) && !empty($this->arParams["COLUMNS"]))
-		{
-			foreach ($this->arParams["COLUMNS"] as $key => $column)
-			{
-				if ($column["id"] == $id)
-				{
-					$result = true;
-				}
-			}
-		}
-
-		return $result;
+		return $this->getResultColumn($id) !== null;
 	}
 
 	/**
@@ -1666,19 +1698,6 @@ class CMainUIGrid extends CBitrixComponent
 		return in_array($id, $this->getShowedColumnsList());
 	}
 
-
-	/**
-	 * Prepares align value
-	 * @method prepareAlign
-	 * @param  array $headerItem header item
-	 * @return string css align property value
-	 */
-	protected function prepareAlign($headerItem)
-	{
-		return $headerItem['align'] ?? "left";
-	}
-
-
 	/**
 	 * Prepares string
 	 * @method prepareString
@@ -1703,279 +1722,128 @@ class CMainUIGrid extends CBitrixComponent
 		return $options["custom_names"] ?? [];
 	}
 
-
-	/**
-	 * Prepares header name
-	 * @method prepareHeaderName
-	 * @param  array $headerItem header item
-	 * @return string prepared header name
-	 */
-	protected function prepareHeaderName(array $headerItem)
-	{
-		return $headerItem["name"] ?? '';
-	}
-
-
-	/**
-	 * Checks is shown header name for current header item
-	 * @method isShowHeaderName
-	 * @param  array $headerItem
-	 * @return boolean
-	 */
-	protected function isShowHeaderName(array $headerItem)
-	{
-		$isShow = true;
-
-		if (isset($headerItem['showname']) && ($headerItem['showname'] === false || $headerItem['showname'] === "N"))
-		{
-			$isShow = false;
-		}
-
-		return $isShow;
-	}
-
-
-	/**
-	 * Prepares sort order value
-	 * @method prepareSortOrder
-	 * @param  array $headerItem header item
-	 * @return string sort order value ["desc", "asc"]
-	 */
-	protected function prepareSortOrder(array $headerItem)
-	{
-		$sort = isset($headerItem["ORDER"]) && $headerItem["ORDER"] === "desc" ? "desc" : "asc";
-
-		if (isset($headerItem["first_order"]) && is_string($headerItem["first_order"]))
-		{
-			$sort = $headerItem["first_order"];
-		}
-
-		return $sort;
-	}
-
-
-	/**
-	 * Checks is shown current column
-	 * @method isShownColumn
-	 * @param  array $headerItem header item
-	 * @return boolean
-	 */
-	protected function isShownColumn(array $headerItem)
-	{
-		return isset($headerItem["default"]) && $headerItem["default"];
-	}
-
-
 	/**
 	 * Prepares sort state value
 	 * @method prepareSortState
 	 * @param  array $headerItem header item
 	 * @return string ["desc", "asc"]
 	 */
-	protected function prepareSortState(array $headerItem)
+
+	/**
+	 * Prepares sort state value
+	 *
+	 * @param Column $column
+	 *
+	 * @return string|null returns 'desc' and 'asc' value, or `null` if column does not have the current sorting state.
+	 */
+	protected function prepareSortStateByColumn(Column $column): ?string
 	{
 		$state = null;
 
-		if (isset($this->arParams["SORT"]) &&
-			is_array($this->arParams["SORT"]) &&
-			(isset($headerItem["sort"]) && (is_string($headerItem["sort"]) || is_int($headerItem["sort"]))) &&
-			array_key_exists($headerItem["sort"], $this->arParams["SORT"]))
+		$sort = $column->getSort();
+		if ($sort === null)
 		{
-			$state = $this->arParams["SORT"][$headerItem["sort"]];
+			return null;
+		}
+
+		if (isset($this->arParams['SORT'][$sort]))
+		{
+			$state = $this->arParams['SORT'][$sort];
 		}
 		else
 		{
 			$options = $this->getCurrentOptions();
 
 			if (
-				isset($headerItem["sort"])
-				&& isset($options["last_sort_by"])
-				&& $options["last_sort_by"] === $headerItem["sort"]
+				isset($options['last_sort_by'], $options['last_sort_order'])
+				&& (string)$options['last_sort_by'] === $sort
 			)
 			{
-				$state = $options["last_sort_order"];
+				$state = $options['last_sort_order'];
 			}
 		}
 
 		return $state;
 	}
 
-	protected function prepareNextSortOrder(array $headerItem)
+	protected function convertColumnToArray(Column $column): array
 	{
-		$sortState = $this->prepareSortState($headerItem);
-
-		if ($sortState)
+		$state = $this->prepareSortStateByColumn($column);
+		if (isset($state))
 		{
-			$nextSort = $sortState === "asc" ? "desc" : "asc";
-		}
-		else
-		{
-			$nextSort = $this->prepareSortOrder($headerItem);
+			$column->setSortState($state);
 		}
 
-		return $nextSort;
-	}
-
-	protected function prepareSort($sort)
-	{
-		return $sort;
-	}
-
-
-	protected function prepareEditable($column)
-	{
-		$result = $column["editable"] ?? false;
-		//For backward compatibility
-		if($result === true)
+		$sortUrl = $this->getSortUrlByColumn($column);
+		if (isset($sortUrl))
 		{
-			$result = array();
+			$column->setSortUrl($sortUrl);
 		}
 
-		if(is_array($result))
+		$editable = $column->getEditable();
+
+		$result = [
+			'id' => $column->getId(),
+			'type' => $column->getType(),
+			'name' => $column->getName(),
+			'original_name' => $column->getName(),
+			'title' => $column->getTitle(),
+			'default' => $column->isDefault(),
+			'is_shown' => $column->isShown(),
+			'sort' => $column->getSort(),
+			'default' => $column->isDefault(),
+			'editable' => isset($editable) ? $editable->toArray() : false,
+			'sort_state' => $column->getSortState(),
+			'sort_index' => $column->getSortIndex(),
+			'next_sort_order' => $column->getNextSortOrder(),
+			'first_order' => $column->getFirstOrder(),
+			'order' => $column->getSortOrder(),
+			'sort_url' => $column->getSortUrl(),
+			'showname' => $column->isShowname(),
+			'shift' => $column->isShift(),
+			'align' => $column->getAlign(),
+			'class' => $this->prepareHeaderClassByColumn($column),
+			'width' => $this->prepareColumnWidthByColumn($column),
+			'section_id' => $column->getSection() ?? $this->defaultHeaderSectionId,
+			'resizeable' => $column->isResizeable(),
+			'prevent_default' => $column->isPreventDefault(),
+			'sticked' => $column->isSticked(),
+			'sticked_default' => json_encode($column->isSticked()),
+			'layout' => $this->prepareColumnHeaderLayoutByColumn($column),
+		];
+
+		$icon = $column->getIcon();
+		if (isset($icon))
 		{
-			if(!(isset($result["NAME"]) && is_string($result["NAME"]) && $result["NAME"] !== ""))
-			{
-				$result["NAME"] = $column["id"];
-			}
-
-			$typeName = isset($result["TYPE"]) && is_string($result["TYPE"]) ? $result["TYPE"] : "";
-			if($typeName === "")
-			{
-				$columnTypeName = isset($column["type"]) && is_string($column["type"]) ? $column["type"] : "";
-				if($columnTypeName === "")
-				{
-					$columnTypeName = "text";
-				}
-
-				if($columnTypeName === "text")
-				{
-					$typeName = Grid\Editor\Types::TEXT;
-				}
-				elseif($columnTypeName === "int" || $columnTypeName === "double" || $columnTypeName === "number")
-				{
-					$typeName = Grid\Editor\Types::NUMBER;
-				}
-				elseif($columnTypeName === "checkbox")
-				{
-					$typeName = Grid\Editor\Types::CHECKBOX;
-				}
-				elseif($columnTypeName === "date")
-				{
-					$typeName = Grid\Editor\Types::DATE;
-				}
-				elseif($columnTypeName === "list")
-				{
-					$typeName = Grid\Editor\Types::DROPDOWN;
-				}
-				elseif($columnTypeName === "multiselect")
-				{
-					$typeName = Grid\Editor\Types::MULTISELECT;
-				}
-				elseif($columnTypeName === "money")
-				{
-					$typeName = Grid\Editor\Types::MONEY;
-				}
-				$result["TYPE"] = $typeName;
-			}
-
-			if($result["TYPE"] === Grid\Editor\Types::MONEY	&& is_array($result["CURRENCY_LIST"]))
-			{
-				$currencyList = $result["CURRENCY_LIST"];
-				$result["CURRENCY_LIST"] = [];
-				foreach ($currencyList as $k => $v)
-				{
-					$result["CURRENCY_LIST"][] = array("VALUE" => $k, "NAME" => $v);
-				}
-			}
-
-			if (
-				(
-					$result["TYPE"] === Grid\Editor\Types::DROPDOWN
-					|| $result["TYPE"] === Grid\Editor\Types::MULTISELECT
-				)
-				&& $result["items"] && is_array($result["items"])
-				&& !(
-					isset($result["DATA"])
-					&& isset($result["DATA"]["ITEMS"])
-					&& is_array($result["DATA"]["ITEMS"])
-				)
-			)
-			{
-				if(!isset($result["DATA"]))
-				{
-					$result["DATA"] = array();
-				}
-
-				if(!isset($result["DATA"]["ITEMS"]))
-				{
-					$result["DATA"]["ITEMS"] = array();
-				}
-
-				foreach($result["items"] as $k => $v)
-				{
-					$result["DATA"]["ITEMS"][] = array("VALUE" => $k, "NAME" => $v);
-				}
-
-				unset($result["items"]);
-			}
+			$result['iconUrl'] = $icon->getUrl();
+			$result['iconTitle'] = $icon->getTitle();
 		}
+
+		$hint = $column->getHint();
+		if (isset($hint))
+		{
+			$result['hint'] = $hint->getText();
+			$result['hintHtml'] = $hint->isHtml();
+			$result['hintInteractivity'] = $hint->isInteractivity();
+		}
+
+		$result['class'] .= ' ' . $result['layout']['cell']['class'];
+		$result['layout']['cell']['class'] = $result['class'];
 
 		return $result;
 	}
 
-	protected function prepareResizeable($column)
+	private function prepareColumnHeaderLayoutByColumn(Column $column): array
 	{
-		return !isset($column["resizeable"]) || $column["resizeable"] !== false;
-	}
+		$layout = clone $column->getLayout();
 
-	/**
-	 * Prepares each column
-	 * @method prepareColumn
-	 * @param  array $column header item
-	 * @return array prepared header item
-	 */
-	protected function prepareColumn(array $column)
-	{
-		$column["sort_state"] = $this->prepareSortState($column);
-		$column["next_sort_order"] = $this->prepareNextSortOrder($column);
-		$column["order"] = $this->prepareSortOrder($column);
-		$column["sort_url"] = $this->getSortUrl($column);
-		$column["sort"] = $this->prepareSort($column["sort"] ?? '');
-		$column["showname"] = $this->isShowHeaderName($column);
-		$column["original_name"] = $column["name"] ?? '';
-		$column["name"] = $this->prepareHeaderName($column);
-		$column["align"] = $this->prepareAlign($column);
-		$column["is_shown"] = $this->isShownColumn($column);
-		$column["class"] = $this->prepareHeaderClass($column);
-		$column["width"] = $this->prepareColumnWidth($column);
-		$column["editable"] = $this->prepareEditable($column);
-		$column["resizeable"] = $this->prepareResizeable($column);
-
-		$column["prevent_default"] = $this->preparePreventDefault($column);
-		$column["sticked"] = $this->prepareSticked($column);
-		$column["sticked_default"] = json_encode($this->prepareSticked($column));
-		return $column;
-	}
-
-	protected function prepareColumnHeaderLayout($column): array
-	{
 		return [
-			"cell" => [
-				"class" => $this->prepareColumnHeaderClass($column),
-				"attributes" => static::stringifyAttrs([
-					"data-edit" => $column["editable"],
-					"data-name" => $column["id"],
-					"data-sort-url" => $column["sort_url"],
-					"data-sort-by" => $column["sort"],
-					"data-sort-order" => $column["next_sort_order"],
-					"title" => $column["title"] ?? '',
-					"style" => $this->prepareColumnHeaderStyle($column),
-				]),
+			'cell' => [
+				'class' => (string)$layout->getCellAttributes()->remove('class'),
+				'attributes' => (string)$layout->getCellAttributes(),
 			],
-			"container" => [
-				"attributes" => static::stringifyAttrs([
-					"style" => $this->prepareColumnHeaderContainerStyle($column),
-				]),
+			'container' => [
+				'attributes' => (string)$layout->getContainerAttributes(),
 			],
 		];
 	}
@@ -2103,28 +1971,30 @@ class CMainUIGrid extends CBitrixComponent
 			],
 		];
 
-		foreach ($this->arResult["COLUMNS"] as $columnId => $column)
+		foreach ($this->getResultColumns() as $columnId => $column)
 		{
 			$cellClass = "main-grid-cell";
-			if (isset($column["align"]) && is_string($column["align"]))
+
+			$align = $column->getAlign();
+			if (isset($align))
 			{
-				$cellClass .= " main-grid-cell-{$column["align"]}";
+				$cellClass .= " main-grid-cell-{$align}";
 			}
+
 			if (
 				isset($row["columnClasses"])
 				&& is_array($row["columnClasses"])
-				&& array_key_exists($column["id"], $row["columnClasses"])
+				&& array_key_exists($columnId, $row["columnClasses"])
 			)
 			{
-				$cellClass .= " {$row["columnClasses"][$column["id"]]}";
+				$cellClass .= " {$row["columnClasses"][$columnId]}";
 			}
 
 			$cellAttributes = [];
 			$cellStyle = "";
 			if (
 				$this->arParams["ENABLE_COLLAPSIBLE_ROWS"]
-				&& isset($column["shift"])
-				&& $column["shift"] === true
+				&& $column->isShift()
 			)
 			{
 				$cellAttributes["data-shift"] = true;
@@ -2136,57 +2006,45 @@ class CMainUIGrid extends CBitrixComponent
 				}
 			}
 
-			if (
-				isset($column["color"])
-				&& is_string($column["color"])
-			)
+			$color = $column->getCssColorValue();
+			if (isset($color))
 			{
-				if (
-					strpos($column["color"], "#") === 0
-					|| strpos($column["color"], "rgb") === 0
-					|| strpos($column["color"], "hsl") === 0
-				)
-				{
-					$cellStyle .= "background-color: {$column["color"]}";
-				}
-				else
-				{
-					$cellClass .= " " . $column["color"];
-				}
+				$cellStyle .= "background-color: {$color}";
+			}
+			elseif ($column->getCssColorClassName() !== null)
+			{
+				$cellClass .= " " . $column->getCssColorClassName();
 			}
 
 			$cellAttributes["data-editable"] = (
-				!isset($row["editableColumns"][$column["id"]])
-				|| $row["editableColumns"][$column["id"]] === true
+				!isset($row["editableColumns"][$columnId])
+				|| $row["editableColumns"][$columnId] === true
 			);
 
 			$cellAttributes["style"] = $cellStyle;
 
 			$containerAttributes = [];
-			if (isset($column["prevent_default"]))
-			{
-				$containerAttributes["data-prevent-default"] = $column["prevent_default"] ? "true" : "false";
-			}
+			$containerAttributes["data-prevent-default"] = $column->isPreventDefault() ? "true" : "false";
 
 			$isPlusButtonEnabled = (
 				$this->arParams["ENABLE_COLLAPSIBLE_ROWS"]
 				&& isset($row["has_child"]) && $row["has_child"] === true
-				&& isset($column["shift"]) && $column["shift"] === true
+				&& $column->isShift()
 			);
 
 			$isCellActionsEnabled =
-				isset($options["hasCellActions"][$column['id']]) && $options["hasCellActions"][$column['id']] === true
+				isset($options["hasCellActions"][$columnId]) && $options["hasCellActions"][$columnId] === true
 			;
 
 			$cellActions = [];
 			if (
-				isset($row['cellActions'][$column['id']])
-				&& is_array($row['cellActions'][$column['id']])
-				&& !empty($row['cellActions'][$column['id']])
+				isset($row['cellActions'][$columnId])
+				&& is_array($row['cellActions'][$columnId])
+				&& !empty($row['cellActions'][$columnId])
 			)
 			{
 				$isCellActionsEnabled = true;
-				foreach ($row['cellActions'][$column['id']] as $action)
+				foreach ($row['cellActions'][$columnId] as $action)
 				{
 					$buttonClass = $action['class'];
 					if (is_array($buttonClass))
@@ -2232,14 +2090,14 @@ class CMainUIGrid extends CBitrixComponent
 			if (
 				isset($row["counters"])
 				&& is_array($row["counters"])
-				&& isset($row["counters"][$column["id"]])
-				&& is_array($row["counters"][$column["id"]])
-				&& !empty($row["counters"][$column["id"]])
+				&& isset($row["counters"][$columnId])
+				&& is_array($row["counters"][$columnId])
+				&& !empty($row["counters"][$columnId])
 			)
 			{
 				$counter["enabled"] = true;
 
-				$counterOptions = $row["counters"][$column["id"]];
+				$counterOptions = $row["counters"][$columnId];
 				if (isset($counterOptions["type"]) && is_string($counterOptions["type"]))
 				{
 					if ($counterOptions["type"] === Grid\Counter\Type::LEFT)
@@ -2301,7 +2159,7 @@ class CMainUIGrid extends CBitrixComponent
 					$counter["counter"]["class"] .= " " . $counterOptions["class"];
 				}
 			}
-			else if (isset($column["layout"]["hasLeftAlignedCounter"]) && $column["layout"]["hasLeftAlignedCounter"])
+			else if ($column->getLayout()->isHasLeftAlignedCounter())
 			{
 				$counter["enabled"] = true;
 				$counter["class"] = " main-grid-cell-counter-left-aligned";
@@ -2310,13 +2168,12 @@ class CMainUIGrid extends CBitrixComponent
 
 			$content = [];
 			if (
-				isset($column["type"])
-				&& $column["type"] === Grid\Column\Type::LABELS
-				&& isset($row["columns"][$column["id"]])
-				&& is_array($row["columns"][$column["id"]])
+				$column->getType() === Grid\Column\Type::LABELS
+				&& isset($row["columns"][$columnId])
+				&& is_array($row["columns"][$columnId])
 			)
 			{
-				foreach ($row["columns"][$column["id"]] as $labelKey => $label)
+				foreach ($row["columns"][$columnId] as $labelKey => $label)
 				{
 					$labelClass = "";
 					if (isset($label["color"]) && is_string($label["color"]))
@@ -2391,27 +2248,26 @@ class CMainUIGrid extends CBitrixComponent
 			}
 
 			if (
-				isset($column["type"])
-				&& $column["type"] === Grid\Column\Type::TAGS
-				&& isset($row["columns"][$column["id"]])
-				&& is_array($row["columns"][$column["id"]])
+				$column->getType() === Grid\Column\Type::TAGS
+				&& isset($row["columns"][$columnId])
+				&& is_array($row["columns"][$columnId])
 			)
 			{
 				$addButtonEvents = [];
 				$addButtonEnabled = false;
 				if (
-					isset($row["columns"][$column["id"]]["addButton"])
-					&& is_array($row["columns"][$column["id"]]["addButton"])
-					&& isset($row["columns"][$column["id"]]["addButton"]["events"])
-					&& is_array($row["columns"][$column["id"]]["addButton"]["events"])
+					isset($row["columns"][$columnId]["addButton"])
+					&& is_array($row["columns"][$columnId]["addButton"])
+					&& isset($row["columns"][$columnId]["addButton"]["events"])
+					&& is_array($row["columns"][$columnId]["addButton"]["events"])
 				)
 				{
-					$addButtonEvents = $row["columns"][$column["id"]]["addButton"]["events"];
+					$addButtonEvents = $row["columns"][$columnId]["addButton"]["events"];
 					$addButtonEnabled = true;
 				}
 
 				$items = [];
-				foreach ($row["columns"][$column["id"]]["items"] as $tagKey => $tag)
+				foreach ($row["columns"][$columnId]["items"] as $tagKey => $tag)
 				{
 					$item = [];
 					$item["class"] = "";
@@ -2463,7 +2319,7 @@ class CMainUIGrid extends CBitrixComponent
 				];
 			}
 
-			$columns[$column["id"]] = [
+			$columns[$columnId] = [
 				"cell" => [
 					"class" => $cellClass,
 					"attributes" => static::stringifyAttrs($cellAttributes),
@@ -2486,183 +2342,159 @@ class CMainUIGrid extends CBitrixComponent
 		return $columns;
 	}
 
-	protected static function stringifyAttrs($attrs): string
+	protected function prepareColumnWidthByColumn(Column $column): ?int
 	{
-		$attrsString = "";
-		if (is_array($attrs) && !empty($attrs))
+		$width = $column->getWidth();
+
+		if (!isset($width))
 		{
-			$attrsString = " ";
-			foreach ($attrs as $key => $value)
+			$resizeWidth = $this->prepareColumnsResizeMeta()['columns'][$column->getId()] ?? null;
+			if (is_numeric($resizeWidth))
 			{
-				if (is_array($value))
-				{
-					$escapedValue = "(" . Text\HtmlFilter::encode(CUtil::PhpToJSObject($value)) . ")";
-				}
-				else
-				{
-					if (is_bool($value))
-					{
-						$escapedValue = $value ? "true" : "false";
-					}
-					else
-					{
-						$escapedValue = Text\HtmlFilter::encode($value);
-					}
-				}
-
-				$escapedKey = Text\HtmlFilter::encode($key);
-				$attrsString .= $escapedKey."=\"".$escapedValue."\"";
+				$width = (int)$resizeWidth;
 			}
-
-			$attrsString .= " ";
-		}
-
-		return $attrsString;
-	}
-
-	protected function prepareColumnHeaderStyle($column): string
-	{
-		$style = "";
-		if (isset($column["width"]))
-		{
-			$style .= "width: {$column["width"]}px; ";
-		}
-
-		if (
-			isset($column["color"])
-			&& is_string($column["color"])
-			&& (
-				strpos($column["color"], "#") === 0
-				|| strpos($column["color"], "rgb") === 0
-				|| strpos($column["color"], "hsl") === 0
-			)
-		)
-		{
-			$style .= "background-color: {$column["color"]};";
-		}
-
-		return $style;
-	}
-
-	protected function prepareColumnHeaderContainerStyle($column): string
-	{
-		$style = "";
-		if (isset($column["width"]))
-		{
-			$style .= "width: {$column["width"]}px; ";
-		}
-
-		return $style;
-	}
-
-	protected function prepareColumnHeaderClass($column): string
-	{
-		$result = "";
-		if (isset($column["class"]) && is_string($column["class"]))
-		{
-			$result .= " " . $column["class"];
-		}
-
-		if ($this->arParams["ALLOW_COLUMNS_SORT"])
-		{
-			$result .= " main-grid-draggable";
-		}
-
-		if ($this->arParams["ALLOW_STICKED_COLUMNS"] && $column["sticked"])
-		{
-			$result .= " main-grid-sticked-column";
-		}
-
-		if (
-			isset($column["color"])
-			&& is_string($column["color"])
-			&& (
-				strpos($column["color"], "#") === false
-				&& strpos($column["color"], "rgb") === false
-				&& strpos($column["color"], "hsl") === false
-			)
-		)
-		{
-			$result .= " " . $column["color"];
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Prepares sticked value
-	 * @param array $column
-	 * @return bool
-	 */
-	protected function prepareSticked($column)
-	{
-		return isset($column["sticked"]) && is_bool($column["sticked"]) && $column["sticked"];
-	}
-
-	protected function preparePreventDefault(array $column)
-	{
-		$result = true;
-
-		if (isset($column["prevent_default"]))
-		{
-			$result = (bool) $column["prevent_default"];
-		}
-
-		return $result;
-	}
-
-	protected function prepareColumnWidth(array $column)
-	{
-		$width = null;
-
-		if (isset($column["width"]) && is_numeric($column["width"]))
-		{
-			$width = $column["width"];
-		}
-		else
-		{
-			$columns = $this->prepareColumnsResizeMeta();
-			if (isset($columns["columns"][$column["id"]]) && is_numeric($columns["columns"][$column["id"]]))
-			{
-				$width = $columns["columns"][$column["id"]];
-			}
-
 		}
 
 		return $width;
 	}
 
-
 	/**
 	 * Prepares additional class for column header
-	 * @param array $headerItem
+	 *
+	 * @param Column $column
 	 *
 	 * @return string
 	 */
-	protected function prepareHeaderClass(array $headerItem)
+	protected function prepareHeaderClassByColumn(Column $column): string
 	{
-		$classList = array();
+		$classList = [];
 
-		if (isset($headerItem["class"]))
+		$value = $column->getCssClassName();
+		if (isset($value))
 		{
-			$classList[] = $headerItem["class"];
+			$classList[] = $value;
 		}
 
-		if ($align = $this->prepareAlign($headerItem))
-		{
-			$classList[] = "main-grid-cell-".$align;
-		}
+		$classList[] = 'main-grid-cell-' . $column->getAlign();
 
-		if ($this->prepareSort($headerItem["sort"]) && $this->arParams["ALLOW_SORT"])
+		if ($this->arParams['ALLOW_SORT'] && $column->getSort() !== null)
 		{
-			$classList[] = "main-grid-col-sortable";
+			$classList[] = 'main-grid-col-sortable';
 		}
 		else
 		{
-			$classList[] = "main-grid-col-no-sortable";
+			$classList[] = 'main-grid-col-no-sortable';
 		}
 
-		return join(" ", $classList);
+		if ($this->arParams['ALLOW_COLUMNS_SORT'])
+		{
+			$classList[] = 'main-grid-draggable';
+		}
+
+		if ($this->arParams['ALLOW_STICKED_COLUMNS'] && $column->isSticked())
+		{
+			$classList[] = 'main-grid-sticked-column';
+		}
+
+		return ' ' . join(' ', $classList);
+	}
+
+	public function getResultColumn(string $columnId): ?Column
+	{
+		return $this->getResultColumnsAll()[$columnId] ?? null;
+	}
+
+	/**
+	 * @return Column[] in format `[id => column]`
+	 */
+	protected function getResultColumns(): array
+	{
+		if (!isset($this->resultColumns))
+		{
+			$this->resultColumns = [];
+
+			$sortIndex = 0;
+			foreach ($this->getResultColumnsAll() as $columnId => $column)
+			{
+				if ($column->isShown())
+				{
+					$this->resultColumns[$columnId] = $column;
+					$column->setSortIndex($sortIndex++);
+				}
+			}
+		}
+
+		return $this->resultColumns;
+	}
+
+	/**
+	 * @return Column[] in format `[id => column]`
+	 */
+	protected function getResultColumnsAll(): array
+	{
+		if (!isset($this->resultColumnsAll))
+		{
+			$this->resultColumnsAll = [];
+
+			foreach ($this->arParams['COLUMNS'] as $item)
+			{
+				if ($item instanceof Column)
+				{
+					$this->resultColumnsAll[$item->getId()] = $item;
+				}
+				elseif (is_array($item))
+				{
+					$column = $this->columnFactory->createFromArray($item);
+					if (isset($column))
+					{
+						$this->resultColumnsAll[$column->getId()] = $column;
+					}
+				}
+				else
+				{
+					continue;
+				}
+			}
+		}
+
+		return $this->resultColumnsAll;
+	}
+
+	protected function syncResultColumns(): void
+	{
+		// all
+		$this->arResult['COLUMNS_ALL'] = [];
+		foreach ($this->getResultColumnsAll() as $columnId => $column)
+		{
+			$this->arResult['COLUMNS_ALL'][$columnId] = $this->convertColumnToArray($column);
+		}
+		$this->arResult['HEADERS_ALL'] = $this->arResult['COLUMNS_ALL'];
+
+		// showed
+		$this->arResult['COLUMNS'] = [];
+		foreach ($this->getResultColumns() as $columnId => $column)
+		{
+			$this->arResult['COLUMNS'][$columnId] = $this->arResult['COLUMNS_ALL'][$columnId];
+		}
+		$this->arResult['HEADERS'] = $this->arResult['COLUMNS'];
+
+		// headers
+		if (!empty($this->arParams['HEADERS_SECTIONS']) && is_array($this->arParams['HEADERS_SECTIONS']))
+		{
+			$this->prepareHeaderSections();
+			$this->arResult['COLUMNS_ALL_WITH_SECTIONS'] = $this->getColumnsAllWithSections($this->arResult['COLUMNS_ALL']);
+		}
+	}
+
+	protected function sortResultColumns(): void
+	{
+		if ($this->needSortColumns && !empty($this->arResult['COLUMNS']))
+		{
+			Collection::sortByColumn($this->arResult['COLUMNS'], [
+				'sticked' => SORT_DESC,
+				'sort_index' => SORT_ASC,
+			]);
+		}
 	}
 
 	protected function getColumnsAllWithSections(array $columns): array
@@ -2695,73 +2527,6 @@ class CMainUIGrid extends CBitrixComponent
 		}
 	}
 
-	/**
-	 * Prepares each header items
-	 * @return array prepares header
-	 */
-	protected function prepareColumnsAll()
-	{
-		if (!isset($this->arResult["COLUMNS_ALL"]) || empty($this->arResult["COLUMNS_ALL"]))
-		{
-			$this->arResult["COLUMNS_ALL"] = array();
-
-			foreach ($this->arParams["COLUMNS"] as $key => $item)
-			{
-				$this->arResult["COLUMNS_ALL"][$item["id"]] = $this->prepareColumn($item);
-			}
-
-			$allColumns = array_keys($this->arResult["COLUMNS_ALL"]);
-			$allColumns = array_combine($allColumns, $allColumns);
-			$showedColumns = $this->getShowedColumnsList();
-			$resultColumns = array();
-			$counter = 0;
-
-			foreach ($allColumns as $allKey => $allColumn)
-			{
-				$key = $allKey;
-
-				if (in_array($allKey, $showedColumns))
-				{
-					$key = $showedColumns[$counter];
-					$counter++;
-				}
-
-				$resultColumns[$key] = $this->arResult["COLUMNS_ALL"][$key];
-			}
-
-			$this->arResult["COLUMNS_ALL"] = $resultColumns;
-		}
-
-		return $this->arResult["COLUMNS_ALL"];
-	}
-
-
-	/**
-	 * Prepares visible headers
-	 * @method prepareHeaders
-	 * @return array
-	 */
-	protected function prepareColumns()
-	{
-		if (!isset($this->arResult["COLUMNS"]) || empty($this->arResult["COLUMNS"]))
-		{
-			$this->arResult["COLUMNS"] = array();
-
-			$index = 0;
-			foreach ($this->prepareColumnsAll() as $key => $item)
-			{
-				if ($item["is_shown"])
-				{
-					$this->arResult["COLUMNS"][$key] = $item;
-					$this->arResult["COLUMNS"][$key]["sort_index"] = $index++;
-				}
-			}
-		}
-
-		return $this->arResult["COLUMNS"];
-	}
-
-
 	protected function prepareDefaultOptions()
 	{
 		$options = $this->getCurrentOptions();
@@ -2772,15 +2537,15 @@ class CMainUIGrid extends CBitrixComponent
 			empty($options["columns_sizes"]) ||
 			!is_array($options["columns_sizes"]))
 		{
-			$columns = $this->prepareColumns();
 			$columnsSizes = array();
 			$isNeedSave = true;
 
-			foreach ($columns as $key => $item)
+			foreach ($this->getResultColumns() as $columnId => $column)
 			{
-				if (is_numeric($item["width"]))
+				$width = $column->getWidth();
+				if (isset($width))
 				{
-					$columnsSizes[$key] = $item["width"];
+					$columnsSizes[$columnId] = $width;
 				}
 			}
 
@@ -2791,11 +2556,11 @@ class CMainUIGrid extends CBitrixComponent
 		{
 			$stickedColumns = [];
 
-			foreach ($this->arResult["COLUMNS_ALL"] as $key => $column)
+			foreach ($this->getResultColumnsAll() as $columnId => $column)
 			{
-				if ($column["sticked"] && $this->isShownColumn($column))
+				if ($column->isSticked() && $column->isShown())
 				{
-					$stickedColumns[] = $key;
+					$stickedColumns[] = $columnId;
 				}
 			}
 
@@ -2962,12 +2727,6 @@ class CMainUIGrid extends CBitrixComponent
 
 	protected function prepareTemplateData()
 	{
-		foreach ($this->arResult["COLUMNS"] as $columnId => $column)
-		{
-			$column["layout"] = $this->prepareColumnHeaderLayout($column);
-			$this->arResult["COLUMNS"][$columnId] = $column;
-		}
-
 		$options = [
 			"lastCollapsedGroupId" => null,
 			"hasCellActions" => [],
@@ -2996,13 +2755,11 @@ class CMainUIGrid extends CBitrixComponent
 						&& $counter["type"] === Grid\Counter\Type::LEFT_ALIGNED
 					)
 					{
-						foreach ($this->arResult["COLUMNS"] as $colKey => $column)
+						foreach ($this->getResultColumns() as $column)
 						{
-							$this->arResult["COLUMNS"][$colKey]["layout"]["hasLeftAlignedCounter"] = false;
-							if ($column["id"] === $columnId)
-							{
-								$this->arResult["COLUMNS"][$colKey]["layout"]["hasLeftAlignedCounter"] = true;
-							}
+							$column->getLayout()->setHasLeftAlignedCounter(
+								$column->getId() === $columnId
+							);
 						}
 					}
 				}
@@ -3013,7 +2770,7 @@ class CMainUIGrid extends CBitrixComponent
 		{
 			if (!empty($row["custom"]))
 			{
-				$options["lastCollapsedGroupId"] = $row["expand"] === false ? $row["group_id"] : null;
+				$options["lastCollapsedGroupId"] = isset($row["expand"]) && $row["expand"] === false ? $row["group_id"] : null;
 			}
 
 			$row["layout"] = $this->prepareRowLayout($row, $options);
@@ -3049,6 +2806,9 @@ class CMainUIGrid extends CBitrixComponent
 				$this->setTemplateName('tilegrid');
 			}
 
+			$this->syncResultColumns();
+			$this->sortResultColumns();
+
 			$this->includeComponentTemplate();
 
 			$templateName = $this->getTemplateName();
@@ -3058,5 +2818,608 @@ class CMainUIGrid extends CBitrixComponent
 				$this->includeComponentBlocks();
 			}
 		}
+	}
+}
+
+trait DeprecatedMethods
+{
+	/**
+	 * @deprecated use `Layout` class.
+	 *
+	 * @see \Bitrix\Main\Component\Grid\Column\Layout
+	 *
+	 * @param mixed $column
+	 *
+	 * @return string
+	 */
+	protected function prepareColumnHeaderContainerStyle($column): string
+	{
+		$style = "";
+		if (isset($column["width"]))
+		{
+			$style .= "width: {$column["width"]}px; ";
+		}
+
+		return $style;
+	}
+
+	/**
+	 * @deprecated use `Layout` class.
+	 *
+	 * @see \Bitrix\Main\Component\Grid\Column\Layout
+	 *
+	 * @param mixed $column
+	 *
+	 * @return string
+	 */
+	protected function prepareColumnHeaderClass($column): string
+	{
+		$result = "";
+		if (isset($column["class"]) && is_string($column["class"]))
+		{
+			$result .= " " . $column["class"];
+		}
+
+		if ($this->arParams["ALLOW_COLUMNS_SORT"])
+		{
+			$result .= " main-grid-draggable";
+		}
+
+		if ($this->arParams["ALLOW_STICKED_COLUMNS"] && $column["sticked"])
+		{
+			$result .= " main-grid-sticked-column";
+		}
+
+		if (
+			isset($column["color"])
+			&& is_string($column["color"])
+			&& (
+				strpos($column["color"], "#") === false
+				&& strpos($column["color"], "rgb") === false
+				&& strpos($column["color"], "hsl") === false
+			)
+		)
+		{
+			$result .= " " . $column["color"];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @deprecated use `Attributes` class.
+	 *
+	 * @see \Bitrix\Main\Html\Attributes
+	 *
+	 * @param mixed $attrs
+	 *
+	 * @return string
+	 */
+	protected static function stringifyAttrs($attrs): string
+	{
+		$attrsString = "";
+		if (is_array($attrs) && !empty($attrs))
+		{
+			$attrsString = " ";
+			foreach ($attrs as $key => $value)
+			{
+				if (is_array($value))
+				{
+					$escapedValue = "(" . Text\HtmlFilter::encode(CUtil::PhpToJSObject($value)) . ")";
+				}
+				else
+				{
+					if (is_bool($value))
+					{
+						$escapedValue = $value ? "true" : "false";
+					}
+					else
+					{
+						$escapedValue = Text\HtmlFilter::encode($value);
+					}
+				}
+
+				$escapedKey = Text\HtmlFilter::encode($key);
+				$attrsString .= $escapedKey."=\"".$escapedValue."\"";
+			}
+
+			$attrsString .= " ";
+		}
+
+		return $attrsString;
+	}
+
+	/**
+	 * @deprecated use `Layout` class.
+	 *
+	 * @see \Bitrix\Main\Component\Grid\Column\Layout
+	 *
+	 * @param mixed $attrs
+	 *
+	 * @return string
+	 */
+	protected function prepareColumnHeaderStyle($column): string
+	{
+		$style = "";
+		if (isset($column["width"]))
+		{
+			$style .= "width: {$column["width"]}px; ";
+		}
+
+		if (
+			isset($column["color"])
+			&& is_string($column["color"])
+			&& (
+				strpos($column["color"], "#") === 0
+				|| strpos($column["color"], "rgb") === 0
+				|| strpos($column["color"], "hsl") === 0
+			)
+		)
+		{
+			$style .= "background-color: {$column["color"]};";
+		}
+
+		return $style;
+	}
+
+	/**
+	 * @deprecated use `::prepareColumnHeaderLayoutByColumn` method.
+	 *
+	 * @param mixed $column
+	 *
+	 * @return array
+	 */
+	protected function prepareColumnHeaderLayout($column): array
+	{
+		return [
+			"cell" => [
+				"class" => $this->prepareColumnHeaderClass($column),
+				"attributes" => static::stringifyAttrs([
+					"data-edit" => $column["editable"],
+					"data-name" => $column["id"],
+					"data-sort-url" => $column["sort_url"],
+					"data-sort-by" => $column["sort"],
+					"data-sort-order" => $column["next_sort_order"],
+					"title" => $column["title"] ?? '',
+					"style" => $this->prepareColumnHeaderStyle($column),
+				]),
+			],
+			"container" => [
+				"attributes" => static::stringifyAttrs([
+					"style" => $this->prepareColumnHeaderContainerStyle($column),
+				]),
+			],
+		];
+	}
+
+	/**
+	 * @deprecated use `Column` class
+	 * @see \Bitrix\Main\Grid\Column\Column
+	 *
+	 * Prepares sticked value
+	 * @param array $column
+	 * @return bool
+	 */
+	protected function prepareSticked($column)
+	{
+		return isset($column["sticked"]) && is_bool($column["sticked"]) && $column["sticked"];
+	}
+
+	/**
+	 * @deprecated use `Column` class
+	 * @see \Bitrix\Main\Grid\Column\Column
+	 */
+	protected function preparePreventDefault(array $column)
+	{
+		$result = true;
+
+		if (isset($column["prevent_default"]))
+		{
+			$result = (bool) $column["prevent_default"];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @deprecated use `getResultColumnsAll` method.
+	 *
+	 * Prepares each header items
+	 * @return array prepares header
+	 */
+	protected function prepareColumnsAll()
+	{
+		if (!isset($this->arResult["COLUMNS_ALL"]) || empty($this->arResult["COLUMNS_ALL"]))
+		{
+			$this->arResult["COLUMNS_ALL"] = array();
+
+			foreach ($this->arParams["COLUMNS"] as $key => $item)
+			{
+				$this->arResult["COLUMNS_ALL"][$item["id"]] = $this->prepareColumn($item);
+			}
+
+			$allColumns = array_keys($this->arResult["COLUMNS_ALL"]);
+			$allColumns = array_combine($allColumns, $allColumns);
+			$showedColumns = $this->getShowedColumnsList();
+			$resultColumns = array();
+			$counter = 0;
+
+			foreach ($allColumns as $allKey => $allColumn)
+			{
+				$key = $allKey;
+
+				if (in_array($allKey, $showedColumns))
+				{
+					$key = $showedColumns[$counter];
+					$counter++;
+				}
+
+				$resultColumns[$key] = $this->arResult["COLUMNS_ALL"][$key];
+			}
+
+			$this->arResult["COLUMNS_ALL"] = $resultColumns;
+		}
+
+		return $this->arResult["COLUMNS_ALL"];
+	}
+
+	/**
+	 * @deprecated use `getResultColumns` method.
+	 *
+	 * Prepares visible headers
+	 * @method prepareHeaders
+	 * @return array
+	 */
+	protected function prepareColumns()
+	{
+		$result = [];
+
+		foreach ($this->getResultColumns() as $columnId => $column)
+		{
+			$result[$columnId] = $this->convertColumnToArray($column);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @deprecated use columns objects.
+	 *
+	 * Checks is shown current column
+	 * @method isShownColumn
+	 * @param  array $headerItem header item
+	 * @return boolean
+	 */
+	protected function isShownColumn(array $headerItem)
+	{
+		return isset($headerItem["default"]) && $headerItem["default"];
+	}
+
+	/**
+	 * @deprecated use `::convertColumnToArray` method.
+	 *
+	 * Prepares each column
+	 * @method prepareColumn
+	 * @param  array $column header item
+	 * @return array prepared header item
+	 */
+	protected function prepareColumn(array $column)
+	{
+		$column = $this->columnFactory->createFromArray($column);
+		if (isset($column))
+		{
+			return $this->convertColumnToArray($column);
+		}
+
+		return $column;
+	}
+
+	/**
+	 * @deprecated use `::prepareHeaderClassByColumn` method.
+	 *
+	 * Prepares additional class for column header
+	 * @param array $headerItem
+	 *
+	 * @return string
+	 */
+	protected function prepareHeaderClass(array $headerItem)
+	{
+		$classList = array();
+
+		if (isset($headerItem["class"]))
+		{
+			$classList[] = $headerItem["class"];
+		}
+
+		if ($align = $this->prepareAlign($headerItem))
+		{
+			$classList[] = "main-grid-cell-".$align;
+		}
+
+		if ($this->prepareSort($headerItem["sort"]) && $this->arParams["ALLOW_SORT"])
+		{
+			$classList[] = "main-grid-col-sortable";
+		}
+		else
+		{
+			$classList[] = "main-grid-col-no-sortable";
+		}
+
+		return join(" ", $classList);
+	}
+
+	/**
+	 * @deprecated use columns objects.
+	 *
+	 * Prepares align value
+	 * @method prepareAlign
+	 * @param  array $headerItem header item
+	 * @return string css align property value
+	 */
+	protected function prepareAlign($headerItem)
+	{
+		return $headerItem['align'] ?? "left";
+	}
+
+	/**
+	 * @deprecated use columns objects.
+	 *
+	 * Prepares header name
+	 * @method prepareHeaderName
+	 * @param  array $headerItem header item
+	 * @return string prepared header name
+	 */
+	protected function prepareHeaderName(array $headerItem)
+	{
+		return $headerItem["name"] ?? '';
+	}
+
+	/**
+	 * @deprecated use columns objects.
+	 *
+	 * Checks is shown header name for current header item
+	 * @method isShowHeaderName
+	 * @param  array $headerItem
+	 * @return boolean
+	 */
+	protected function isShowHeaderName(array $headerItem)
+	{
+		$isShow = true;
+
+		if (isset($headerItem['showname']) && ($headerItem['showname'] === false || $headerItem['showname'] === "N"))
+		{
+			$isShow = false;
+		}
+
+		return $isShow;
+	}
+
+	/**
+	 * @deprecated use columns objects.
+	 *
+	 * @param array $headerItem
+	 *
+	 * @return void
+	 */
+	protected function prepareNextSortOrder(array $headerItem)
+	{
+		$sortState = $this->prepareSortState($headerItem);
+
+		if ($sortState)
+		{
+			$nextSort = $sortState === "asc" ? "desc" : "asc";
+		}
+		else
+		{
+			$nextSort = $this->prepareSortOrder($headerItem);
+		}
+
+		return $nextSort;
+	}
+
+	/**
+	 * @deprecated use columns objects.
+	 *
+	 * @param mixed $sort
+	 *
+	 * @return void
+	 */
+	protected function prepareSort($sort)
+	{
+		return $sort;
+	}
+
+	/**
+	 * @deprecated use columns objects.
+	 *
+	 * Prepares sort order value
+	 * @method prepareSortOrder
+	 * @param  array $headerItem header item
+	 * @return string sort order value ["desc", "asc"]
+	 */
+	protected function prepareSortOrder(array $headerItem)
+	{
+		$sort = isset($headerItem["ORDER"]) && $headerItem["ORDER"] === "desc" ? "desc" : "asc";
+
+		if (isset($headerItem["first_order"]) && is_string($headerItem["first_order"]))
+		{
+			$sort = $headerItem["first_order"];
+		}
+
+		return $sort;
+	}
+
+	/**
+	 * @deprecated use columns objects.
+	 *
+	 * @param mixed $column
+	 *
+	 * @return void
+	 */
+	protected function prepareEditable($column)
+	{
+		$result = $column["editable"] ?? false;
+		//For backward compatibility
+		if($result === true)
+		{
+			$result = array();
+		}
+
+		if(is_array($result))
+		{
+			if(!(isset($result["NAME"]) && is_string($result["NAME"]) && $result["NAME"] !== ""))
+			{
+				$result["NAME"] = $column["id"];
+			}
+
+			$typeName = isset($result["TYPE"]) && is_string($result["TYPE"]) ? $result["TYPE"] : "";
+			if($typeName === "")
+			{
+				$columnTypeName =
+					isset($column["type"]) && is_string($column["type"])
+						? $column["type"]
+						: ""
+				;
+				$result["TYPE"] = Grid\Column\Type::getEditorType($columnTypeName) ?? '';
+			}
+
+			if($result["TYPE"] === Grid\Editor\Types::MONEY	&& is_array($result["CURRENCY_LIST"]))
+			{
+				$currencyList = is_array($result["CURRENCY_LIST"]) ? $result["CURRENCY_LIST"] : [];
+				$result["CURRENCY_LIST"] = [];
+				foreach($currencyList as $k => $v)
+				{
+					$result["CURRENCY_LIST"][] = array("VALUE" => $k, "NAME" => $v);
+				}
+			}
+
+			if (
+				(
+					$result["TYPE"] === Grid\Editor\Types::DROPDOWN
+					|| $result["TYPE"] === Grid\Editor\Types::MULTISELECT
+				)
+				&& $result["items"] && is_array($result["items"])
+				&& !(
+					isset($result["DATA"])
+					&& isset($result["DATA"]["ITEMS"])
+					&& is_array($result["DATA"]["ITEMS"])
+				)
+			)
+			{
+				if(!isset($result["DATA"]))
+				{
+					$result["DATA"] = array();
+				}
+
+				if(!isset($result["DATA"]["ITEMS"]))
+				{
+					$result["DATA"]["ITEMS"] = array();
+				}
+
+				foreach($result["items"] as $k => $v)
+				{
+					$result["DATA"]["ITEMS"][] = array("VALUE" => $k, "NAME" => $v);
+				}
+
+				unset($result["items"]);
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @deprecated use columns objects.
+	 *
+	 * @param mixed $column
+	 *
+	 * @return void
+	 */
+	protected function prepareResizeable($column)
+	{
+		return !isset($column["resizeable"]) || $column["resizeable"] !== false;
+	}
+
+	/**
+	 * @deprecated use `::prepareColumnWidthByColumn` method.
+	 *
+	 * @param array $column
+	 *
+	 * @return void
+	 */
+	protected function prepareColumnWidth(array $column)
+	{
+		$width = null;
+
+		if (isset($column["width"]) && is_numeric($column["width"]))
+		{
+			$width = $column["width"];
+		}
+		else
+		{
+			$columns = $this->prepareColumnsResizeMeta();
+			if (isset($columns["columns"][$column["id"]]) && is_numeric($columns["columns"][$column["id"]]))
+			{
+				$width = $columns["columns"][$column["id"]];
+			}
+
+		}
+
+		return $width;
+	}
+
+	/**
+	 * @deprecated use `::getSortUrlByColumn` method.
+	 *
+	 * Gets sort url
+	 * @method getSortUrl
+	 * @param  array $headerItem
+	 * @return string sort url
+	 */
+	protected function getSortUrl(array $headerItem)
+	{
+		$uri = clone $this->getUri();
+		$uri->addParams(array(
+			"by" => $headerItem["sort"] ?? '',
+			"order" => $headerItem["next_sort_order"] ?? ''
+		));
+
+		return $uri->getUri();
+	}
+
+	/**
+	 * @deprecated use `::prepareSortStateByColumn` method.
+	 *
+	 * Prepares sort state value
+	 * @method prepareSortState
+	 * @param  array $headerItem header item
+	 * @return string ["desc", "asc"]
+	 */
+	protected function prepareSortState(array $headerItem)
+	{
+		$state = null;
+
+		if (isset($this->arParams["SORT"]) &&
+			is_array($this->arParams["SORT"]) &&
+			(isset($headerItem["sort"]) && (is_string($headerItem["sort"]) || is_int($headerItem["sort"]))) &&
+			array_key_exists($headerItem["sort"], $this->arParams["SORT"]))
+		{
+			$state = $this->arParams["SORT"][$headerItem["sort"]];
+		}
+		else
+		{
+			$options = $this->getCurrentOptions();
+
+			if (
+				isset($headerItem["sort"])
+				&& isset($options["last_sort_by"])
+				&& $options["last_sort_by"] === $headerItem["sort"]
+			)
+			{
+				$state = $options["last_sort_order"];
+			}
+		}
+
+		return $state;
 	}
 }

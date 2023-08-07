@@ -13,11 +13,12 @@ const HOLD_VIDEO_SECONDS = 20;
 
 export class VideoStrategy
 {
-	static Type = Type
+	static Type = StrategyType
 
 	call: VoximplantCall
 	callView: View
-	strategyType: string
+	strategyType: $Keys<typeof StrategyType>
+	users: {[string]: User}
 
 	constructor(config)
 	{
@@ -72,7 +73,7 @@ export class VideoStrategy
 		}
 	};
 
-	setType(strategyType)
+	setType(strategyType: $Keys<typeof StrategyType>)
 	{
 		if (strategyType == this.strategyType)
 		{
@@ -94,8 +95,7 @@ export class VideoStrategy
 		}
 		else if (this.strategyType === StrategyType.CurrentlyTalking)
 		{
-			var talkingUsers = this.getActiveUsers();
-			console.log("talking users", talkingUsers);
+			let talkingUsers = this.getActiveUsers();
 			if (talkingUsers.length === 0)
 			{
 				this.call.allowVideoFrom(UserMnemonic.none);
@@ -112,10 +112,10 @@ export class VideoStrategy
 	 */
 	getActiveUsers()
 	{
-		var result = [];
-		for (var userId in this.users)
+		let result = [];
+		for (let userId in this.users)
 		{
-			var user = this.users[userId];
+			let user = this.users[userId];
 			if (user.active)
 			{
 				result.push(user.id)
@@ -135,7 +135,7 @@ export class VideoStrategy
 
 	onCallUserVoiceStarted(data)
 	{
-		var userId = data.userId;
+		const userId = data.userId;
 		if (!this.users[userId])
 		{
 			this.users[userId] = new User({
@@ -149,7 +149,7 @@ export class VideoStrategy
 
 	onCallUserVoiceStopped(data)
 	{
-		var userId = data.userId;
+		const userId = data.userId;
 		if (!this.users[userId])
 		{
 			this.users[userId] = new User({
@@ -163,7 +163,7 @@ export class VideoStrategy
 
 	onCallViewSetCentralUser(event)
 	{
-		var userId = event.data.userId;
+		const userId = event.data.userId;
 
 		if (this.strategyType === StrategyType.OnlySpeaker)
 		{
@@ -182,7 +182,7 @@ export class VideoStrategy
 		this.call = null;
 		this.callView = null;
 
-		for (var userId in this.users)
+		for (let userId in this.users)
 		{
 			if (this.users.hasOwnProperty(userId))
 			{
@@ -195,13 +195,14 @@ export class VideoStrategy
 
 class User
 {
+	id: number
+	talking = false
+	sharing = false
+	active = false
+
 	constructor(config)
 	{
 		this.id = config.id;
-		this.talking = false;
-		this.sharing = false;
-
-		this.active = false;
 
 		this.callbacks = {
 			onActiveChanged: Type.isFunction(config.onActiveChanged) ? config.onActiveChanged : BX.DoNothing
@@ -210,7 +211,7 @@ class User
 		this.turnOffVideoTimeout = null;
 	};
 
-	setTalking(talking)
+	setTalking(talking: boolean)
 	{
 		if (this.talking == talking)
 		{
@@ -228,7 +229,7 @@ class User
 		}
 	};
 
-	setSharing(sharing)
+	setSharing(sharing: boolean)
 	{
 		if (this.sharing == sharing)
 		{
@@ -248,8 +249,8 @@ class User
 
 	updateActive()
 	{
-		var newActive = !!(this.sharing || this.talking || this.turnOffVideoTimeout);
-		if (newActive != this.active)
+		const newActive = !!(this.sharing || this.talking || this.turnOffVideoTimeout);
+		if (newActive !== this.active)
 		{
 			this.active = newActive;
 		}

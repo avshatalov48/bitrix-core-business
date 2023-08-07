@@ -25,6 +25,21 @@ $actions[] = Controller\Action::create('remove')->setHandler(
 		$content->getErrorCollection()->add($entity->getErrors());
 	}
 );
+
+$actions[] = Controller\Action::create('copy')->setHandler(
+	function (HttpRequest $request, Controller\Response $response)
+	{
+		$entity = new Entity\Template($request->get('id'));
+		$entity->copy();
+
+		$content = $response->initContentJson();
+		if ($entity->hasErrors())
+		{
+			$content->getErrorCollection()->add($entity->getErrors());
+		}
+	}
+);
+
 $actions[] = Controller\Action::create('removeList')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{

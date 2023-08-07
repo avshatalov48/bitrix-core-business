@@ -407,7 +407,10 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		else
 		{
 			$settings[$id]['IBLOCK_ID'] = 0;
-			if (Loader::includeModule('crm'))
+			if (
+				Loader::includeModule('crm')
+				&& Loader::includeModule('catalog')
+			)
 			{
 				$settings[$id]['IBLOCK_ID'] = (int)\Bitrix\Crm\Product\Catalog::getDefaultId();
 			}

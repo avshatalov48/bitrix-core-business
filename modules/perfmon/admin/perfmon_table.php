@@ -1,12 +1,15 @@
-<?
-use Bitrix\Main\Loader;
-
-define("ADMIN_MODULE_NAME", "perfmon");
-define("PERFMON_STOP", true);
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+<?php
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
+
+use Bitrix\Main\Loader;
+
+const ADMIN_MODULE_NAME = "perfmon";
+const PERFMON_STOP = true;
+
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+
 Loader::includeModule('perfmon');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
 
@@ -18,7 +21,9 @@ $obTable->Init($table_name);
 
 $RIGHT = $APPLICATION->GetGroupRight("perfmon");
 if ($RIGHT == "D" || !$obTable->IsExists())
+{
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
 
 if (
 	$_SERVER["REQUEST_METHOD"] === "GET"
@@ -34,46 +39,58 @@ if (
 	$arData = $rsData->Fetch();
 	if ($arData)
 	{
-		?>
-		<table class="list"><?
-		?>
-		<tr>
-		<td align="left" colspan="2"><b><? echo htmlspecialcharsEx($table_name) ?></b></td></tr><?
-		foreach ($arData as $key => $value)
-		{
-			?>
-			<tr>
-			<td align="left"><? echo htmlspecialcharsEx($key) ?></td>
-			<td align="left">&nbsp;<? echo htmlspecialcharsEx($value) ?></td></tr><?
-		}
+		?><table class="list"><?
+			?><tr><?
+				?><td align="left" colspan="2"><b><? echo htmlspecialcharsEx($table_name) ?></b></td></tr><?
+				foreach ($arData as $key => $value)
+				{
+					?><tr><?
+						?><td align="left"><? echo htmlspecialcharsEx($key) ?></td><?
+						?><td align="left">&nbsp;<? echo htmlspecialcharsEx($value) ?></td></tr><?
+				}
 		?></table><?
 	}
 	else
 	{
 		?>no data found<?
 	}
+
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
 }
 
+$arFields = [];
 $arFieldsEx = $obTable->GetTableFields(false, true);
-$arFields = array();
+
 foreach ($arFieldsEx as $FIELD_NAME => $FIELD_INFO)
+{
 	$arFields[$FIELD_NAME] = $FIELD_INFO["type"];
+}
 
 $arUniqueIndexes = $obTable->GetUniqueIndexes();
 $sTableID = "tbl_perfmon_table".md5($table_name);
-$oSort = new CAdminSorting($sTableID, "ID", "asc");
-$lAdmin = new CAdminList($sTableID, $oSort);
+$oSort = new CAdminUiSorting($sTableID, "ID", "asc");
+$lAdmin = new CAdminUiList($sTableID, $oSort);
 
-if ($lAdmin->GroupAction() && $RIGHT >= "W")
+$arID = $lAdmin->GroupAction();
+if ($arID && $RIGHT >= "W")
 {
-	switch ($_REQUEST['action'])
+	foreach ($arID as $ID)
 	{
-	case "delete":
-		//Gather columns from request
-		$arRowPK = is_array($_REQUEST["pk"])? $_REQUEST["pk"]: array();
-		if (count($arRowPK))
+		if ($ID == '')
 		{
+			continue;
+		}
+
+		//Gather columns from request
+		$arRowPK = unserialize(base64_decode($ID), ['allowed_classes' => false]);
+		if (!is_array($arRowPK) || count($arRowPK) < 1)
+		{
+			continue;
+		}
+
+		switch ($_REQUEST['action'])
+		{
+		case "delete":
 			foreach ($arUniqueIndexes as $arIndexColumns)
 			{
 				$arMissed = array_diff($arIndexColumns, array_keys($arRowPK));
@@ -82,63 +99,115 @@ if ($lAdmin->GroupAction() && $RIGHT >= "W")
 					$strSql = "delete from ".$table_name." WHERE 1=1 ";
 					foreach ($arRowPK as $column => $value)
 					{
-						if($value <> '')
+						if ($value <> '')
 						{
-							$strSql .= " AND ".$column."='".$DB->ForSQL($value)."'";
+							$strSql .= " AND `" . $DB->ForSQL($column) . "` = '" . $DB->ForSQL($value) . "'";
 						}
 						else
 						{
-							$strSql .= " AND (".$column."='".$DB->ForSQL($value)."' or ".$column." is null)";
+							$strSql .= " AND (`" . $DB->ForSQL($column) . "` = '" . $DB->ForSQL($value) . "' OR `" . $DB->ForSQL($column) . "` is null)";
 						}
 					}
 					$DB->Query($strSql);
 					break;
 				}
 			}
+			break;
+		default:
+			$obSchema = new CPerfomanceSchema;
+			$arRowActions = $obSchema->GetRowActions($table_name);
+			if (
+				array_key_exists($_REQUEST['action'], $arRowActions)
+				&& is_callable($arRowActions[$_REQUEST['action']]['callback'])
+			)
+			{
+				foreach ($arUniqueIndexes as $arIndexColumns)
+				{
+					$arMissed = array_diff($arIndexColumns, array_keys($arRowPK));
+					if (count($arMissed) == 0)
+					{
+						$callbackArgs = [];
+						foreach ($arRowPK as $column => $value)
+						{
+							$callbackArgs[] = $value;
+						}
+						$callbackResult = call_user_func_array($arRowActions[$_REQUEST['action']]['callback'], $callbackArgs);
+						if (!$callbackResult->isSuccess())
+						{
+							$lAdmin->AddGroupError(implode('</br>', $callbackResult->getErrorMessages()), $ID);
+						}
+						break;
+					}
+				}
+			}
 		}
-		break;
 	}
 }
 
-$FilterArr = array(
-	"find",
-	"find_type",
-);
+$filterFields = [];
 foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
 {
 	if ($FIELD_TYPE != "unknown")
-		$FilterArr[] = "find_".$FIELD_NAME;
+	{
+		$filterFields[] = array(
+			"id" => $FIELD_NAME,
+			"name" => $FIELD_NAME,
+			"filterable" => "%=",
+		);
+	}
 }
 
-$lAdmin->InitFilter($FilterArr);
+$arFilterForm = array();
+$lAdmin->AddFilter($filterFields, $arFilterForm);
 
+$where = new CSQLWhere();
 $arFilter = array();
-foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
+foreach ($arFilterForm as $key => $filterValue)
 {
-	$filterValue = null;
-	if ($FIELD_TYPE != "unknown")
+	$FIELD_NAME = substr($key, 2);
+	$op = $where->MakeOperation($filterValue);
+
+	if ($filterValue === $op["FIELD"])
+		$op["OPERATOR"] = "%=";
+	else
+		$op["OPERATOR"] = mb_substr($filterValue, 0, mb_strlen($filterValue) - mb_strlen($op["FIELD"]));
+
+	if ($op["OPERATION"] === "B" || $op["OPERATION"] === "NB")
+		$op["FIELD"] = array_map('trim', explode(",", $op["FIELD"], 2));
+	elseif ($op["OPERATION"] === "IN" || $op["OPERATION"] === "NIN")
+		$op["FIELD"] = array_map('trim', explode(",", $op["FIELD"]));
+
+	$arFilter[$op["OPERATOR"].$FIELD_NAME] = $op["FIELD"] === "NULL" ? false : $op["FIELD"];
+}
+
+$filterOption = new Bitrix\Main\UI\Filter\Options($sTableID);
+$filterData = $filterOption->getFilter($filterFields);
+$find = trim($filterData["FIND"], " \t\n\r");
+if ($find)
+{
+	$c = count($filterFields);
+	for ($i = 0; $i < $c; $i++)
 	{
-		if (
-			isset($find_type) && $find_type == $FIELD_NAME
-			&& isset($find) && mb_strlen($find)
-		)
+		$field = $filterFields[$i];
+		if (preg_match('/^\s*' . $field['name'] . '\s*:\s*(.+)\s*$/i', $find, $match))
 		{
-			$filterValue = $find;
-		}
-		elseif (
-			isset($GLOBALS["find_".$FIELD_NAME]) && mb_strlen($GLOBALS["find_".$FIELD_NAME])
-		)
-		{
-			$filterValue = $GLOBALS["find_".$FIELD_NAME];
-		}
-		else
-		{
+			$filterValue = $match[1];
+
+			$op = $where->MakeOperation($filterValue);
+
+			if ($filterValue === $op["FIELD"])
+				$op["OPERATOR"] = "%=";
+			else
+				$op["OPERATOR"] = mb_substr($filterValue, 0, mb_strlen($filterValue) - mb_strlen($op["FIELD"]));
+
+			$arFilter[$op["OPERATOR"] . $field['name']] = $op["FIELD"] === "NULL" ? false : $op["FIELD"];
+			break;
 		}
 	}
-
-	if (isset($filterValue))
+	if ($i == $c)
 	{
-		$where = new CSQLWhere();
+		$field = $filterFields[0];
+		$filterValue = $find;
 
 		$op = $where->MakeOperation($filterValue);
 
@@ -147,12 +216,7 @@ foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
 		else
 			$op["OPERATOR"] = mb_substr($filterValue, 0, mb_strlen($filterValue) - mb_strlen($op["FIELD"]));
 
-		if ($op["OPERATION"] === "B" || $op["OPERATION"] === "NB")
-			$op["FIELD"] = array_map('trim', explode(",", $op["FIELD"], 2));
-		elseif ($op["OPERATION"] === "IN" || $op["OPERATION"] === "NIN")
-			$op["FIELD"] = array_map('trim', explode(",", $op["FIELD"]));
-
-		$arFilter[$op["OPERATOR"].$FIELD_NAME] = $op["FIELD"] === "NULL"? false: $op["FIELD"];
+		$arFilter[$op["OPERATOR"] . $field['name']] = $op["FIELD"] === "NULL" ? false : $op["FIELD"];
 	}
 }
 
@@ -164,6 +228,7 @@ foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
 		"content" => $FIELD_NAME,
 		"sort" => $arFieldsEx[$FIELD_NAME]["sortable"]? $FIELD_NAME: "",
 		"default" => true,
+		'prevent_default' => false,
 	);
 	if ($FIELD_TYPE == "int" || $FIELD_TYPE == "datetime" || $FIELD_TYPE == "date" || $FIELD_TYPE == "double")
 		$arHeaders[$FIELD_NAME]["align"] = "right";
@@ -176,9 +241,7 @@ $arPKColumns = array();
 $arSelectedFields = $lAdmin->GetVisibleHeaderColumns();
 if (!is_array($arSelectedFields) || (count($arSelectedFields) < 1))
 {
-	$arSelectedFields = array(
-		"*",
-	);
+	$arSelectedFields = ["*",];
 	$bDelete = count($arUniqueIndexes) > 0;
 	$arPKColumns = array_shift($arUniqueIndexes);
 }
@@ -201,9 +264,40 @@ $bDelete = $bDelete && $RIGHT >= "W";
 $obSchema = new CPerfomanceSchema;
 $arChildren = $obSchema->GetChildren($table_name);
 $arParents = $obSchema->GetParents($table_name);
+$arRowActions = $obSchema->GetRowActions($table_name);
+
+$nav = $lAdmin->getPageNavigation("nav-permon-table");
+if ($lAdmin->isTotalCountRequest())
+{
+	CTimeZone::Disable();
+	$count = $obTable->GetList(
+		array("ID"),
+		$arFilter,
+		array(),
+		array("bOnlyCount" => true)
+	);
+	CTimeZone::Enable();
+	$lAdmin->sendTotalCountResponse($count);
+}
+elseif ($_REQUEST["mode"] == "excel")
+{
+	$arNavParams = false;
+}
+else
+{
+	$arNavParams = array(
+		"nTopCount" => $nav->getLimit() + 1,
+		"nOffset" => $nav->getOffset(),
+	);
+}
 
 CTimeZone::Disable();
-$rsData = $obTable->GetList($arSelectedFields, $arFilter, array($by => $order), array("nPageSize" => CAdminResult::GetNavSize($sTableID)));
+$rsData = $obTable->GetList(
+	$arSelectedFields,
+	$arFilter,
+	array($by => $order),
+	$arNavParams
+);
 CTimeZone::Enable();
 
 function TableExists($tableName)
@@ -218,15 +312,47 @@ function TableExists($tableName)
 }
 
 $rsData = new CAdminResult($rsData, $sTableID);
-$rsData->NavStart();
-$lAdmin->NavText($rsData->GetNavPrint(GetMessage("PERFMON_TABLE_PAGE")));
 $precision = ini_get('precision') >= 0? ini_get('precision'): 2;
 $max_display_url = COption::GetOptionInt("perfmon", "max_display_url");
-while ($arRes = $rsData->Fetch()):
 
-	$row =& $lAdmin->AddRow($arRes["ID"], $arRes);
+$n = 0;
+$pageSize = $lAdmin->getNavSize();
+while ($arRes = $rsData->Fetch())
+{
+	$n++;
+	if ($n > $pageSize && !($_REQUEST["mode"] == "excel"))
+	{
+		break;
+	}
+
+	$ID = $arRes["ID"];
+	if ($arPKColumns)
+	{
+		$arRowPK = [];
+		foreach ($arPKColumns as $FIELD_NAME)
+		{
+			$arRowPK[$FIELD_NAME] = $arRes[$FIELD_NAME];
+		}
+		$ID = base64_encode(serialize($arRowPK));
+	}
 
 	$arRowPK = array();
+	foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
+	{
+		if ($bDelete && in_array($FIELD_NAME, $arPKColumns))
+		{
+			$arRowPK[] = urlencode("pk[".$FIELD_NAME."]")."=".urlencode($arRes[$FIELD_NAME]);
+		}
+	}
+
+	$editUrl = '';
+	if ($bDelete && (count($arPKColumns) == count($arRowPK)))
+	{
+		$editUrl = "perfmon_row_edit.php?lang=".LANGUAGE_ID."&table_name=".urlencode($table_name)."&".implode("&", $arRowPK);
+	}
+
+	$row =& $lAdmin->AddRow($ID, $arRes, $editUrl);
+
 	foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
 	{
 		if ($arRes[$FIELD_NAME] <> '')
@@ -253,32 +379,42 @@ while ($arRes = $rsData->Fetch()):
 			}
 
 			if (array_key_exists($FIELD_NAME, $arParents) && TableExists($arParents[$FIELD_NAME]["PARENT_TABLE"]))
-				$val = '<a onmouseover="addTimer(this)" onmouseout="removeTimer(this)" href="perfmon_table.php?set_filter=Y&table_name='.$arParents[$FIELD_NAME]["PARENT_TABLE"].'&find='.urlencode($arRes[$FIELD_NAME]).'&find_type='.$arParents[$FIELD_NAME]["PARENT_COLUMN"].'">'.$val.'</a>';
+			{
+				$href = 'perfmon_table.php?lang='.LANGUAGE_ID.'&table_name='.$arParents[$FIELD_NAME]["PARENT_TABLE"].'&apply_filter=Y&find='.urlencode($arRes[$FIELD_NAME]).'&find_type='.urlencode($arParents[$FIELD_NAME]["PARENT_COLUMN"]).'&'.urlencode($arParents[$FIELD_NAME]["PARENT_COLUMN"]).'='.urlencode($arRes[$FIELD_NAME]);
+				$val = '<a onmouseover="addTimer(this)" onmouseout="removeTimer(this)" href="'.htmlspecialcharsbx($href).'">'.$val.'</a>';
+			}
 
 			$row->AddViewField($FIELD_NAME, $val);
-		}
-
-		if ($bDelete && in_array($FIELD_NAME, $arPKColumns))
-		{
-			$arRowPK[] = urlencode("pk[".$FIELD_NAME."]")."=".urlencode($arRes[$FIELD_NAME]);
 		}
 	}
 
 	$arActions = array();
-	if ($bDelete && (count($arPKColumns) == count($arRowPK)))
+	if ($editUrl)
 	{
 		$arActions[] = array(
 			"ICON" => "edit",
 			"DEFAULT" => true,
 			"TEXT" => GetMessage("MAIN_EDIT"),
-			"ACTION" => $lAdmin->ActionRedirect("perfmon_row_edit.php?lang=".LANGUAGE_ID."&table_name=".urlencode($table_name)."&".implode("&", $arRowPK)),
+			"ACTION" => $lAdmin->ActionRedirect($editUrl),
 		);
 		$arActions[] = array(
 			"ICON" => "delete",
 			"DEFAULT" => false,
 			"TEXT" => GetMessage("MAIN_DELETE"),
-			"ACTION" => $lAdmin->ActionDoGroup($arRes["ID"], "delete", "table_name=".urlencode($table_name)."&".implode("&", $arRowPK)),
+			"ACTION" => $lAdmin->ActionDoGroup($ID, "delete", "table_name=".urlencode($table_name)),
 		);
+		if ($arRowActions)
+		{
+			$arActions[] = array("SEPARATOR" => true);
+			foreach ($arRowActions as $rowActionId => $rowAction)
+			{
+				$confirm = $rowAction['confirm'] ? "if(confirm('".CUtil::JSEscape($rowAction['confirm'])."')) " : '';
+				$arActions[] = array(
+					'TEXT' => $rowAction['title'],
+					'ACTION' => $confirm.$lAdmin->ActionDoGroup($ID, $rowActionId, 'table_name=' . urlencode($table_name)),
+				);
+			}
+		}
 	}
 
 	if (count($arChildren))
@@ -288,11 +424,12 @@ while ($arRes = $rsData->Fetch()):
 		{
 			if (TableExists($arChild["CHILD_TABLE"]))
 			{
+				$href = "perfmon_table.php?lang=".LANGUAGE_ID."&table_name=".urlencode($arChild["CHILD_TABLE"]).'&apply_filter=Y&'.urlencode($arChild["CHILD_COLUMN"]).'='.urlencode($arRes[$arChild["PARENT_COLUMN"]]);
 				$arActions[] = array(
 					"ICON" => "",
 					"DEFAULT" => false,
 					"TEXT" => $arChild["CHILD_TABLE"].".".$arChild["CHILD_COLUMN"]." = ".$arChild["PARENT_COLUMN"],
-					"ACTION" => $lAdmin->ActionRedirect("perfmon_table.php?set_filter=Y&table_name=".$arChild["CHILD_TABLE"]."&find=".urlencode($arRes[$arChild["PARENT_COLUMN"]])."&find_type=".$arChild["CHILD_COLUMN"]),
+					"ACTION" => $lAdmin->ActionRedirect($href),
 				);
 			}
 		}
@@ -301,7 +438,10 @@ while ($arRes = $rsData->Fetch()):
 	if (count($arActions))
 		$row->AddActions($arActions);
 
-endwhile;
+}
+
+$nav->setRecordCount($nav->getOffset() + $n);
+$lAdmin->setNavigation($nav, GetMessage("PERFMON_TABLE_PAGE"), false);
 
 $lAdmin->AddFooter(
 	array(
@@ -313,6 +453,29 @@ $lAdmin->AddFooter(
 );
 
 $aContext = array();
+
+if ($bDelete)
+{
+	foreach ($arFieldsEx as $Field => $arField)
+	{
+		if ($arField["increment"])
+		{
+			foreach ($arUniqueIndexes as $arIndexColumns)
+			{
+				$arMissed = array_diff($arIndexColumns, array($Field));
+				if (count($arMissed) == 0)
+				{
+					$aContext[] = array(
+						"TEXT" => GetMessage("MAIN_ADD"),
+						"LINK" => "/bitrix/admin/perfmon_row_edit.php?lang=".LANGUAGE_ID."&table_name=".urlencode($table_name),
+						"ICON" => "btn_new",
+					);
+					break;
+				}
+			}
+		}
+	}
+}
 
 $sLastTables = CUserOptions::GetOption("perfmon", "last_tables", "");
 if ($sLastTables <> '')
@@ -346,44 +509,9 @@ if (count($arLastTables) > 0)
 	$aContext[] = $ar;
 }
 
-if ($bDelete)
-{
-	foreach ($arFieldsEx as $Field => $arField)
-	{
-		if ($arField["increment"])
-		{
-			foreach ($arUniqueIndexes as $arIndexColumns)
-			{
-				$arMissed = array_diff($arIndexColumns, array($Field));
-				if (count($arMissed) == 0)
-				{
-					$aContext[] = array(
-						"TEXT" => GetMessage("MAIN_ADD"),
-						"LINK" => "/bitrix/admin/perfmon_row_edit.php?lang=".LANGUAGE_ID."&table_name=".urlencode($table_name),
-						"ICON" => "btn_new",
-					);
-					break;
-				}
-			}
-		}
-	}
-}
-
 $lAdmin->AddAdminContextMenu($aContext);
 
-$lAdmin->CheckListMode();
-
-$APPLICATION->SetTitle(GetMessage("PERFMON_TABLE_ALT_TITLE", array("#TABLE_NAME#" => $table_name)));
-
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-
-$arFilter = array();
-foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
-	if ($FIELD_TYPE != "unknown")
-		$arFilter[$FIELD_NAME] = $FIELD_NAME;
-$oFilter = new CAdminFilter($sTableID."_filter", $arFilter);
-
-CJSCore::Init(array("ajax", "popup"));
+$lAdmin->BeginPrologContent();
 ?>
 <script>
 	var toolTipCache = new Array;
@@ -433,44 +561,23 @@ CJSCore::Init(array("ajax", "popup"));
 		}
 	}
 </script>
-<form name="find_form" id="find_form" method="get" action="<? echo $APPLICATION->GetCurPage(); ?>">
-	<input type="hidden" value="<? echo htmlspecialcharsbx($table_name) ?>" name="table_name">
-	<? $oFilter->Begin(); ?>
-	<tr>
-		<td><b><?=GetMessage("PERFMON_TABLE_FIND")?>:</b></td>
-		<td>
-			<input type="text" size="25" name="find" value="<? echo htmlspecialcharsbx($find) ?>"
-				title="<?=GetMessage("PERFMON_TABLE_FIND")?>">
-			<?
-			$arr = array(
-				"reference" => array_keys($arFilter),
-				"reference_id" => array_keys($arFilter),
-			);
-			echo SelectBoxFromArray("find_type", $arr, $find_type, "", "");
-			?>
-		</td>
-	</tr>
-	<? foreach ($arFields as $FIELD_NAME => $FIELD_TYPE): ?>
-		<? if ($FIELD_TYPE != "unknown"): ?>
-			<tr>
-				<td><? echo htmlspecialcharsbx($FIELD_NAME) ?></td>
-				<td><input type="text" name="find_<? echo htmlspecialcharsbx($FIELD_NAME) ?>" size="47"
-					value="<? echo htmlspecialcharsbx(${"find_".$FIELD_NAME}) ?>"></td>
-			</tr>
-		<? endif ?>
-	<? endforeach ?>
-	<?
-	$oFilter->Buttons(array(
-		"table_id" => $sTableID,
-		"url" => $APPLICATION->GetCurPage(),
-		"form" => "find_form",
-	));
-	$oFilter->End();
-	?>
-</form>
-
 <?
-$lAdmin->DisplayList();
+$lAdmin->EndPrologContent();
+
+$lAdmin->CheckListMode();
+
+$APPLICATION->SetTitle(GetMessage("PERFMON_TABLE_ALT_TITLE", array("#TABLE_NAME#" => $table_name)));
+
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+
+CJSCore::Init(array("ajax", "popup"));
+
+$lAdmin->DisplayFilter($filterFields);
+$lAdmin->DisplayList([
+	"SHOW_COUNT_HTML" => true,
+	"SERVICE_URL" => "perfmon_table.php?lang=".LANGUAGE_ID."&table_name=".urlencode($table_name),
+]);
+
 echo BeginNote();
 echo '
 	<ul>
@@ -481,11 +588,12 @@ echo '
 	<li>&lt;= Less or Equal</li>
 	<li>% Substring</li>
 	<li>? Logic</li>
-	<li>&gt;lt;MIN,MAX Between</li>
-	<li>#64;N1,N2,...,NN IN</li>
+	<li>&gt;&lt;MIN,MAX Between</li>
+	<li>@N1,N2,...,NN IN</li>
 	<li>NULL Empty</li>
 	<li>! Negate any of above</li>
 	</ul>
 ';
 echo EndNote();
+
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

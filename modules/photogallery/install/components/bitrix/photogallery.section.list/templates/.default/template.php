@@ -70,7 +70,11 @@ endif;?>
 		}?>
 		<div>
 			<div class="album-top-section">
-				<a class="album-name" href="<?=$res["LINK"]?>" title="<?= $res["NAME"].$sTitle?>"><?= $res["NAME"]?></a>
+				<a
+					class="album-name"
+					href="<?=$res["LINK"]?>"
+					title="<?= $res["NAME"] . ($sTitle ?? '')?>"
+				><?= $res["NAME"]?></a>
 				<?if (!empty($res["PASSWORD"])):?>
 					<span class="album-passworded">(<?= GetMessage("P_ALBUM_IS_PASSWORDED_SHORT")?>)</span>
 				<?endif;?>
@@ -107,9 +111,9 @@ endif;?>
 		"SHOW_RATING" => "Y",
 		"SHOW_SHOWS" => "N",
 		"SHOW_COMMENTS" => "Y",
-		"MAX_VOTE" => $arParams["MAX_VOTE"],
+		"MAX_VOTE" => $arParams["MAX_VOTE"] ?? null,
 		"VOTE_NAMES" => array(),
-		"DISPLAY_AS_RATING" => $arParams["DISPLAY_AS_RATING"],
+		"DISPLAY_AS_RATING" => $arParams["DISPLAY_AS_RATING"] ?? null,
 		"SET_TITLE" => "N",
 		"CACHE_TYPE" => "A",
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
@@ -130,22 +134,22 @@ endif;?>
 		"PERMISSION" => $arParams["PERMISSION"],
 		"GROUP_PERMISSIONS" => array(),
 		"PAGE_ELEMENTS" => $arParams["SHOWN_ITEMS_COUNT"],
-		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
+		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"] ?? null,
 		"SET_STATUS_404" => "N",
 		"ADDITIONAL_SIGHTS" => array(),
 		"PICTURES_SIGHT" => "real",
-		"USE_COMMENTS" => $arParams["USE_COMMENTS"],
-		"COMMENTS_TYPE" => $arParams["COMMENTS_TYPE"],
-		"FORUM_ID" => $arParams["FORUM_ID"],
-		"USE_CAPTCHA" => $arParams["USE_CAPTCHA"],
-		"POST_FIRST_MESSAGE" => $arParams["POST_FIRST_MESSAGE"] == "N" ? "N" : "Y",
+		"USE_COMMENTS" => $arParams["USE_COMMENTS"] ?? null,
+		"COMMENTS_TYPE" => $arParams["COMMENTS_TYPE"] ?? null,
+		"FORUM_ID" => $arParams["FORUM_ID"] ?? null,
+		"USE_CAPTCHA" => $arParams["USE_CAPTCHA"] ?? null,
+		"POST_FIRST_MESSAGE" => ($arParams["POST_FIRST_MESSAGE"] ?? '') == "N" ? "N" : "Y",
 		"SHOW_LINK_TO_FORUM" => "N",
-		"BLOG_URL" => $arParams["~BLOG_URL"],
-		"PATH_TO_BLOG" => $arParams["~PATH_TO_BLOG"],
+		"BLOG_URL" => $arParams["~BLOG_URL"] ?? null,
+		"PATH_TO_BLOG" => $arParams["~PATH_TO_BLOG"] ?? null,
 		// Display user
-		"PATH_TO_USER" => $arParams["~PATH_TO_USER"],
-		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
-		"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
+		"PATH_TO_USER" => $arParams["~PATH_TO_USER"] ?? null,
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"] ?? null,
+		"SHOW_LOGIN" => $arParams["SHOW_LOGIN"] ?? null,
 		"~UNIQUE_COMPONENT_ID" => "bxfg_ucid_from_req_".$arParams["IBLOCK_ID"]."_".$res["ID"],
 		"ACTION_URL" => $res["~LINK"]
 	),

@@ -9,7 +9,9 @@ namespace Bitrix\Sender;
 
 use Bitrix\Main\Access\Entity\DataManager;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type;
+use Bitrix\Sender\Runtime\SegmentDataClearJob;
 
 Loc::loadMessages(__FILE__);
 
@@ -121,5 +123,30 @@ class SegmentDataTable extends DataManager
 				'reference' => array('=this.GROUP_ID' => 'ref.ID'),
 			),
 		);
+	}
+
+	public static function deleteByGroupId(int $groupId)
+	{
+		$entity = static::getEntity();
+		$connection = $entity->getConnection();
+
+		$selectedRows = SegmentDataTable::getList([
+			'select' => ['ID'],
+			'filter' => ['GROUP_ID' => $groupId],
+			'limit' => 1000,
+		])->fetchAll();
+
+		$idsToDelete = array_column($selectedRows, 'ID');
+		if (empty($idsToDelete))
+		{
+			return '';
+		}
+
+		$ids = implode(',', $idsToDelete);
+
+		$sql = "DELETE FROM b_sender_group_data WHERE ID IN ($ids)";
+		$connection->queryExecute($sql);
+
+		return SegmentDataClearJob::getAgentName($groupId);
 	}
 }

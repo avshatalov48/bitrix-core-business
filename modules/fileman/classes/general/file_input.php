@@ -136,7 +136,7 @@ class CFileInput
 		{
 			if (is_array($fileId))
 				continue;
-			if (mb_strlen($fileId) <= 1 && intval($fileId) === 0)
+			if (mb_strlen($fileId ?? '') <= 1 && intval($fileId) === 0)
 				continue;
 
 			self::$bFileExists = true;

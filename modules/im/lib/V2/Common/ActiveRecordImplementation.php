@@ -233,7 +233,7 @@ trait ActiveRecordImplementation
 
 		foreach (static::mirrorDataEntityFields() as $offset => $field)
 		{
-			if (isset($field['primary']) || isset($field['alias']))
+			if (isset($field['primary']) || isset($field['alias']) || (isset($field['skipSave']) && $field['skipSave'] === true))
 			{
 				continue;
 			}
@@ -393,6 +393,22 @@ trait ActiveRecordImplementation
 	public function isDeleted(): bool
 	{
 		return $this->markedDrop;
+	}
+
+	public function fillActual(array $fieldsToFill): self
+	{
+		foreach ($fieldsToFill as $fieldName)
+		{
+			if ($this->getDataEntity()->entity->hasField($fieldName))
+			{
+				$this->getDataEntity()->unset($fieldName);
+			}
+		}
+		$this->getDataEntity()->fill($fieldsToFill);
+
+		$this->updateState();
+
+		return $this;
 	}
 
 	/**

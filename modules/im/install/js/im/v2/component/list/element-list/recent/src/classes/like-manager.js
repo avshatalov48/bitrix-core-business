@@ -27,16 +27,16 @@ export class LikeManager
 
 	onDialogInited(event: BaseEvent<OnDialogInitedEvent>)
 	{
-		const {dialogId} = event.getData();
+		const { dialogId } = event.getData();
 		const recentItem = this.store.getters['recent/get'](dialogId);
 		if (!recentItem || !recentItem.liked)
 		{
-			return false;
+			return;
 		}
 
 		this.store.dispatch('recent/like', {
 			id: dialogId,
-			liked: false
+			liked: false,
 		});
 	}
 }

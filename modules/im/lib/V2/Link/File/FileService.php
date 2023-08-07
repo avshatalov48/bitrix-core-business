@@ -5,6 +5,7 @@ namespace Bitrix\Im\V2\Link\File;
 use Bitrix\Disk\Driver;
 use Bitrix\Disk\File;
 use Bitrix\Disk\Security\DiskSecurityContext;
+use Bitrix\Im\Model\MessageParamTable;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Link\Push;
 use Bitrix\Im\V2\Message;
@@ -41,6 +42,7 @@ class FileService
 		}
 
 		$entities = new \Bitrix\Im\V2\Entity\File\FileCollection($files, $message->getChatId());
+		/** @var FileCollection $links */
 		$links = FileCollection::linkEntityToMessage($entities, $message);
 
 		$saveResult = $this->saveFiles($links);
@@ -140,8 +142,8 @@ class FileService
 		];
 		$securityContext = new DiskSecurityContext($this->getContext()->getUserId());
 		$parameters = Driver::getInstance()->getRightsManager()->addRightsCheck($securityContext, $parameters, ['ID', 'CREATED_BY']);
-		$fileCollection = File::getModelList($parameters);
+		$diskFiles = File::getModelList($parameters);
 
-		return new \Bitrix\Im\V2\Entity\File\FileCollection($fileCollection, $chatId);
+		return new \Bitrix\Im\V2\Entity\File\FileCollection($diskFiles, $chatId);
 	}
 }

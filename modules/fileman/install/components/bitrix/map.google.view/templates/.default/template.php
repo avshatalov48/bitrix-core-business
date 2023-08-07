@@ -3,30 +3,32 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 $this->setFrameMode(true);
 
-if($arParams['BX_EDITOR_RENDER_MODE'] == 'Y')
+if(($arParams['BX_EDITOR_RENDER_MODE'] ?? null) == 'Y')
 {
 	echo '<img src="/bitrix/components/bitrix/map.google.view/templates/.default/images/preview.png" border="0" />';
 }
 else
 {
 	$arTransParams = array(
-		'INIT_MAP_TYPE' => $arParams['INIT_MAP_TYPE'],
-		'INIT_MAP_LON' => $arResult['POSITION']['google_lon'],
-		'INIT_MAP_LAT' => $arResult['POSITION']['google_lat'],
-		'INIT_MAP_SCALE' => $arResult['POSITION']['google_scale'],
-		'MAP_WIDTH' => $arParams['MAP_WIDTH'],
-		'MAP_HEIGHT' => $arParams['MAP_HEIGHT'],
-		'CONTROLS' => $arParams['CONTROLS'],
-		'OPTIONS' => $arParams['OPTIONS'],
-		'MAP_ID' => $arParams['MAP_ID'],
-		'API_KEY' => $arParams['API_KEY'],
+		'INIT_MAP_TYPE' => $arParams['INIT_MAP_TYPE'] ?? null,
+		'INIT_MAP_LON' => $arResult['POSITION']['google_lon'] ?? null,
+		'INIT_MAP_LAT' => $arResult['POSITION']['google_lat'] ?? null,
+		'INIT_MAP_SCALE' => $arResult['POSITION']['google_scale'] ?? null,
+		'MAP_WIDTH' => $arParams['MAP_WIDTH'] ?? null,
+		'MAP_HEIGHT' => $arParams['MAP_HEIGHT'] ?? null,
+		'CONTROLS' => $arParams['CONTROLS'] ?? null,
+		'OPTIONS' => $arParams['OPTIONS'] ?? null,
+		'MAP_ID' => $arParams['MAP_ID'] ?? null,
+		'API_KEY' => $arParams['API_KEY'] ?? null,
 	);
 
-	if ($arParams['DEV_MODE'] == 'Y')
+	if (($arParams['DEV_MODE'] ?? null) == 'Y')
 	{
 		$arTransParams['DEV_MODE'] = 'Y';
-		if ($arParams['WAIT_FOR_EVENT'])
+		if ($arParams['WAIT_FOR_EVENT'] ?? false)
+		{
 			$arTransParams['WAIT_FOR_EVENT'] = $arParams['WAIT_FOR_EVENT'];
+		}
 	}
 	?>
 	<div class="bx-yandex-view-layout">
@@ -37,7 +39,7 @@ else
 	?>
 		</div>
 	</div>
-	<?if (is_array($arResult['POSITION']['PLACEMARKS']) && ($cnt = count($arResult['POSITION']['PLACEMARKS']))):?>
+	<?if (is_array($arResult['POSITION']['PLACEMARKS'] ?? null) && ($cnt = count($arResult['POSITION']['PLACEMARKS']))):?>
 	<script type="text/javascript">
 
 	function BX_SetPlacemarks_<?echo $arParams['MAP_ID']?>()

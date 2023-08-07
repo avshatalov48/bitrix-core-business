@@ -292,6 +292,7 @@ class CashboxRobokassa extends CashboxPaySystem
 	 * @param string $url
 	 * @param Sale\Payment $payment
 	 * @param array $fields
+	 * @param string $method
 	 * @return Sale\Result
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ArgumentNullException
@@ -299,7 +300,7 @@ class CashboxRobokassa extends CashboxPaySystem
 	 * @throws \Bitrix\Main\ArgumentTypeException
 	 * @throws \Bitrix\Main\ObjectException
 	 */
-	protected function send(string $url, Sale\Payment $payment, array $fields): Sale\Result
+	protected function send(string $url, Sale\Payment $payment, array $fields, string $method = self::SEND_METHOD_HTTP_POST): Sale\Result
 	{
 		$result = new Sale\Result();
 
@@ -489,44 +490,6 @@ class CashboxRobokassa extends CashboxPaySystem
 	public static function getPaySystemCodeForKkm(): string
 	{
 		return 'ROBOXCHANGE_SHOPLOGIN';
-	}
-
-	/**
-	 * @return array
-	 */
-	public static function getSupportedKkmModels()
-	{
-		$paySystemCodeForKkm = static::getPaySystemCodeForKkm();
-		$supportedKkmModels = [];
-
-		$paySystemIterator = Sale\PaySystem\Manager::getList([
-			'filter' => [
-				'=ACTIVE' => 'Y',
-			]
-		]);
-		while ($paySystemItem = $paySystemIterator->fetch())
-		{
-			$paySystemService = new Sale\PaySystem\Service($paySystemItem);
-			if (
-				$paySystemService->isSupportPrintCheck()
-				&& $paySystemService->getCashboxClass() === '\\'.static::class
-			)
-			{
-				$supportedKkmModels[] = Sale\BusinessValue::getValuesByCode($paySystemService->getConsumerName(), $paySystemCodeForKkm);
-			}
-		}
-
-		$supportedKkmModels = array_unique(array_merge(...$supportedKkmModels));
-
-		$result = [];
-		foreach ($supportedKkmModels as $supportedKkm)
-		{
-			$result[$supportedKkm] = [
-				'NAME' => $supportedKkm
-			];
-		}
-
-		return $result;
 	}
 
 	/**

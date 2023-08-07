@@ -43,14 +43,6 @@ export const MeetingPreview = {
 		{
 			return this.dialog.chatId;
 		},
-		dialogInited()
-		{
-			return this.dialog.inited;
-		},
-		isLoadingState(): boolean
-		{
-			return !this.dialogInited || this.isLoading;
-		}
 	},
 	created()
 	{
@@ -96,7 +88,7 @@ export const MeetingPreview = {
 	},
 	template: `
 		<div class="bx-im-sidebar-meeting-preview__scope">
-			<div v-if="isLoadingState" class="bx-im-sidebar-meeting-preview__skeleton"></div>
+			<div v-if="isLoading" class="bx-im-sidebar-meeting-preview__skeleton"></div>
 			<div v-else class="bx-im-sidebar-meeting-preview__container">
 				<div
 					class="bx-im-sidebar-meeting-preview__header_container"

@@ -10,9 +10,11 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/prolog.php");
 
 $io = CBXVirtualIo::GetInstance();
 
+$logical = $logical ?? null;
 $addUrl = 'lang='.LANGUAGE_ID.($logical == "Y"?'&logical=Y':'');
 $strWarning = "";
 $strNotice = "";
+$site ??= $_REQUEST['site'] ?? null;
 $site = CFileMan::__CheckSite($site);
 $DOC_ROOT = CSite::GetSiteDocRoot($site);
 
@@ -29,6 +31,7 @@ $module_id = "fileman";
 $bMenuTypeExists = false;
 $arMenuTypes = Array();
 $armt = GetMenuTypes($site);
+$menutype = $menutype ?? null;
 foreach($armt as $key => $title)
 {
 	if(!$USER->CanDoFileOperation('fm_edit_existent_file',Array($site, $path."/.".$key.".menu.php")))
@@ -39,6 +42,17 @@ foreach($armt as $key => $title)
 }
 
 //check folder access
+$back_url = $back_url ?? null;
+$sectionname = $sectionname ?? null;
+$foldername = $foldername ?? null;
+$mkmenu = $mkmenu ?? null;
+$mkindex = $mkindex ?? null;
+$menuname = $menuname ?? null;
+$template = $template ?? null;
+$gotonewpage = $gotonewpage ?? null;
+$backnewurl = $backnewurl ?? null;
+$apply = $apply ?? null;
+$toedit = $toedit ?? null;
 if (!$USER->CanDoFileOperation('fm_create_new_folder',$arPath))
 	$strWarning = '<img src="/bitrix/images/fileman/deny.gif" width="28" height="28" border="0" align="left" alt="">'.GetMessage("ACCESS_DENIED");
 else if(!$io->DirectoryExists($abs_path))
@@ -83,7 +97,7 @@ else
 
 							if(COption::GetOptionString($module_id, "log_menu", "Y")=="Y")
 							{
-								$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
+								$mt = COption::GetOptionString("fileman", "menutypes", $default_value ?? null, $site);
 								$mt = unserialize(str_replace("\\", "", $mt), ['allowed_classes' => false]);
 								$res_log['menu_name'] = $mt[$menutype];
 								$res_log['path'] = mb_substr($path, 1);
@@ -193,7 +207,7 @@ if ($USER->CanDoFileOperation('fm_create_new_folder',$arPath))
 	<input type="hidden" name="save" value="Y">
 	<input type="hidden" name="back_url" value="<?= htmlspecialcharsex($back_url)?>">
 	<input type="hidden" name="lang" value="<?=LANG ?>">
-	<input type="hidden" name="ID" value="<?= htmlspecialcharsex($ID)?>">
+	<input type="hidden" name="ID" value="<?= htmlspecialcharsex(($ID ?? null))?>">
 	<input type="hidden"  id="bxfm_linked" name="bxfm_linked" value="Y" />
 	<?if($gotonewpage=="Y"):?><input type="hidden" name="gotonewpage" value="Y"><?endif?>
 	<?if($backnewurl=="Y"):?><input type="hidden" name="backnewurl" value="Y"><?endif?>
@@ -289,7 +303,7 @@ if ($USER->CanDoFileOperation('fm_create_new_folder',$arPath))
 			'fromInputId' => 'bxfm_sectionname',
 			'toInputId' => 'bxfm_foldername',
 			'linkedId' => 'bxfm_linked',
-			'linked' => $_REQUEST['bxfm_linked'] != "N",
+			'linked' => ($_REQUEST['bxfm_linked'] ?? null) != "N",
 			'linkedTitle' => GetMessage('FILEMAN_TRANS_LINKED'),
 			'unlinkedTitle' => GetMessage('FILEMAN_TRANS_UNLINKED')
 		));

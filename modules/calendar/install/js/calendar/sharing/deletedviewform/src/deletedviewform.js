@@ -36,12 +36,13 @@ export class DeletedViewForm
 					owner: {
 						name: entry.HOST_NAME,
 						lastName: '',
+						id: link.externalUserId,
 					},
 					event: {
 						timestampFromUTC: entry.timestampFromUTC,
 						timestampToUTC: entry.timestampToUTC,
 						canceledTimestamp: link.canceledTimestamp,
-						externalUserName: `<a href="/company/personal/user/${link.externalUserId}/" target="_blank" class="calendar-sharing-deletedviewform_open-profile">${entry.HOST_NAME}</a>`,
+						externalUserName: entry.HOST_NAME,
 					},
 					timezone: userTimezone,
 					state: 'declined',

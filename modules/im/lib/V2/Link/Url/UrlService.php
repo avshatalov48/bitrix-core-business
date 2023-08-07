@@ -89,8 +89,6 @@ class UrlService
 
 	public function deleteUrls(UrlCollection $urls): Result
 	{
-		$urls->rewind();
-		$chatId = $urls->current()->getChatId();
 		$deleteResult = $urls->delete();
 
 		if (!$deleteResult->isSuccess())
@@ -102,7 +100,7 @@ class UrlService
 		{
 			Push::getInstance()
 				->setContext($this->context)
-				->sendIdOnly($url, UrlService::DELETE_URL_EVENT, ['CHAT_ID' => $chatId])
+				->sendIdOnly($url, UrlService::DELETE_URL_EVENT, ['CHAT_ID' => $url->getChatId()])
 			;
 		}
 

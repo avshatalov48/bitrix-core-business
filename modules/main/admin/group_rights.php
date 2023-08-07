@@ -302,8 +302,10 @@ foreach($arGROUPS as $value)
 		if(!is_array($ref_id))
 			$ref_id = $ar["REFERENCE_ID"];
 
-		if ($useDefault)
-			$strReturnBox .= '<option value="">'.GetMessage("MAIN_DEFAULT").'</option>';
+		if (isset($useDefault) && $useDefault)
+		{
+			$strReturnBox .= '<option value="">' . GetMessage("MAIN_DEFAULT") . '</option>';
+		}
 
 		for($i=0,$n=count($ref); $i<$n; $i++)
 			$strReturnBox .= '<option value="'.htmlspecialcharsbx($ref_id[$i]).'">'.htmlspecialcharsbx($ref[$i]).'</option>';

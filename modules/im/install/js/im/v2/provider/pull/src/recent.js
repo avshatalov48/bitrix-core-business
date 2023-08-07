@@ -1,9 +1,11 @@
-import {Type, Loc} from 'main.core';
+import { Type, Loc } from 'main.core';
 
-import {Core} from 'im.v2.application.core';
-import {Logger} from 'im.v2.lib.logger';
-import {UserManager} from 'im.v2.lib.user';
-import {MessageStatus} from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
+import { Logger } from 'im.v2.lib.logger';
+import { UserManager } from 'im.v2.lib.user';
+import { MessageStatus } from 'im.v2.const';
+
+import type { AddReactionParams, MessageDeleteCompleteParams } from './types/message';
 
 export class RecentPullHandler
 {
@@ -13,7 +15,7 @@ export class RecentPullHandler
 		this.userManager = new UserManager();
 	}
 
-	getModuleId()
+	getModuleId(): string
 	{
 		return 'im';
 	}
@@ -32,13 +34,13 @@ export class RecentPullHandler
 	{
 		if (params.lines)
 		{
-			return false;
+			return;
 		}
 
 		const currentUserId = Core.getUserId();
 		if (currentUserId && params.userInChat[params.chatId] && !params.userInChat[params.chatId].includes(currentUserId))
 		{
-			return false;
+			return;
 		}
 
 		let attach = false;
@@ -65,7 +67,7 @@ export class RecentPullHandler
 				sending: false,
 				attach,
 				file,
-			}
+			},
 		};
 
 		const recentItem = this.store.getters['recent/get'](params.dialogId);
@@ -77,15 +79,15 @@ export class RecentPullHandler
 
 			this.store.dispatch('recent/like', {
 				id: params.dialogId,
-				liked: false
+				liked: false,
 			});
 		}
 
-		const {senderId} = params.message;
+		const { senderId } = params.message;
 		const usersModel = this.store.state.users;
 		if (usersModel?.botList[senderId] && usersModel.botList[senderId].type === 'human')
 		{
-			const {text} = params.message;
+			const { text } = params.message;
 			setTimeout(() => {
 				this.store.dispatch('recent/setRecent', newRecentItem);
 			}, this.getWaitTimeForHumanBot(text));
@@ -101,7 +103,7 @@ export class RecentPullHandler
 		const recentItem = this.store.getters['recent/get'](params.dialogId);
 		if (!recentItem || recentItem.message.id !== params.id)
 		{
-			return false;
+			return;
 		}
 
 		Logger.warn('RecentPullHandler: handleMessageUpdate', params, command);
@@ -117,22 +119,38 @@ export class RecentPullHandler
 			fields: {
 				message: {
 					id: params.id,
-					text: text,
+					text,
 					date: recentItem.message.date,
 					status: recentItem.message.status,
 					senderId: params.senderId,
 					params: {
 						withFile: false,
 						withAttach: false,
-					}
-				}
-			}
+					},
+				},
+			},
 		});
 	}
 
 	handleMessageDelete(params, extra, command)
 	{
 		this.handleMessageUpdate(params, extra, command);
+	}
+
+	handleMessageDeleteComplete(params: MessageDeleteCompleteParams)
+	{
+		const lastMessageWasDeleted = Boolean(params.newLastMessage);
+		if (lastMessageWasDeleted)
+		{
+			this.store.dispatch('recent/update', {
+				id: params.dialogId,
+				fields: {
+					message: params.newLastMessage,
+				},
+			});
+		}
+
+		this.updateUnloadedChatCounter(params);
 	}
 
 	/* region Counters handling */
@@ -169,12 +187,12 @@ export class RecentPullHandler
 			chatId: params.chatId,
 			counter: params.counter,
 			muted: params.muted,
-			unread: params.active
+			unread: params.active,
 		});
 
 		this.store.dispatch('recent/unread', {
 			id: params.dialogId,
-			action: params.active
+			action: params.active,
 		});
 	}
 	/* endregion Counters handling */
@@ -186,14 +204,14 @@ export class RecentPullHandler
 		const lastReadMessage = Number.parseInt(params.lastId, 10);
 		if (!recentItem || recentItem.message.id !== lastReadMessage)
 		{
-			return false;
+			return;
 		}
 
 		this.store.dispatch('recent/update', {
 			id: params.dialogId,
 			fields: {
-				message: {...recentItem.message, status: MessageStatus.delivered}
-			}
+				message: { ...recentItem.message, status: MessageStatus.delivered },
+			},
 		});
 	}
 
@@ -208,14 +226,14 @@ export class RecentPullHandler
 		const recentItem = this.store.getters['recent/get'](params.dialogId);
 		if (!recentItem)
 		{
-			return false;
+			return;
 		}
 
 		this.store.dispatch('recent/update', {
 			id: params.dialogId,
 			fields: {
-				message: {...recentItem.message, status: MessageStatus.received}
-			}
+				message: { ...recentItem.message, status: MessageStatus.received },
+			},
 		});
 	}
 
@@ -225,43 +243,43 @@ export class RecentPullHandler
 		const recentItem = this.store.getters['recent/get'](params.dialogId);
 		if (!recentItem)
 		{
-			return false;
+			return;
 		}
 
 		this.store.dispatch('recent/update', {
 			id: params.dialogId,
 			fields: {
-				message: {...recentItem.message, status: params.chatMessageStatus}
-			}
+				message: { ...recentItem.message, status: params.chatMessageStatus }
+			},
 		});
 	}
 
-	handleAddReaction(params)
+	handleAddReaction(params: AddReactionParams)
 	{
 		Logger.warn('RecentPullHandler: handleAddReaction', params);
 		const recentItem = this.store.getters['recent/get'](params.dialogId);
 		if (!recentItem)
 		{
-			return false;
+			return;
 		}
 
 		const chatIsOpened = this.store.getters['application/isChatOpen'](params.dialogId);
 		if (chatIsOpened)
 		{
-			return false;
+			return;
 		}
 
-		const isOwnLike = Core.getUserId() === params.senderId;
+		const isOwnLike = Core.getUserId() === params.userId;
 		const isOwnLastMessage = Core.getUserId() === recentItem.message.senderId;
 		if (isOwnLike || !isOwnLastMessage)
 		{
-			return false;
+			return;
 		}
 
 		this.store.dispatch('recent/like', {
 			id: params.dialogId,
-			messageId: params.id,
-			liked: true
+			messageId: params.actualReactions.reaction.messageId,
+			liked: true,
 		});
 	}
 
@@ -281,12 +299,12 @@ export class RecentPullHandler
 		const recentItem = this.store.getters['recent/get'](params.dialogId);
 		if (!recentItem)
 		{
-			return false;
+			return;
 		}
 
 		this.store.dispatch('recent/pin', {
 			id: params.dialogId,
-			action: params.active
+			action: params.active,
 		});
 	}
 
@@ -296,11 +314,11 @@ export class RecentPullHandler
 		const recentItem = this.store.getters['recent/get'](params.dialogId);
 		if (!recentItem)
 		{
-			return false;
+			return;
 		}
 
 		this.store.dispatch('recent/delete', {
-			id: params.dialogId
+			id: params.dialogId,
 		});
 	}
 
@@ -310,16 +328,16 @@ export class RecentPullHandler
 		const recentItem = this.store.getters['recent/get'](params.dialogId);
 		if (!recentItem)
 		{
-			return false;
+			return;
 		}
 
 		if (params.userId !== Core.getUserId())
 		{
-			return false;
+			return;
 		}
 
 		this.store.dispatch('recent/delete', {
-			id: params.dialogId
+			id: params.dialogId,
 		});
 	}
 
@@ -328,12 +346,12 @@ export class RecentPullHandler
 		Logger.warn('RecentPullHandler: handleUserInvite', params);
 		this.store.dispatch('recent/setRecent', {
 			id: params.user.id,
-			invited: params.invited ?? false
+			invited: params.invited ?? false,
 		});
 		this.userManager.setUsersToModel([params.user]);
 	}
 
-	getWaitTimeForHumanBot(text)
+	getWaitTimeForHumanBot(text): number
 	{
 		const INITIAL_WAIT = 1000;
 		const WAIT_PER_WORD = 300;
@@ -356,15 +374,15 @@ export class RecentPullHandler
 		unread: boolean
 	})
 	{
-		const {dialogId, chatId, counter, muted, unread} = params;
+		const { dialogId, chatId, counter, muted, unread } = params;
 		const recentItem = this.store.getters['recent/get'](dialogId);
 		if (recentItem)
 		{
 			return;
 		}
-		Logger.warn('RecentPullHandler: updateUnloadedChatCounter:', {dialogId, chatId, counter, muted, unread});
+		Logger.warn('RecentPullHandler: updateUnloadedChatCounter:', { dialogId, chatId, counter, muted, unread });
 
-		let newCounter;
+		let newCounter = 0;
 		if (muted)
 		{
 			newCounter = 0;
@@ -381,6 +399,6 @@ export class RecentPullHandler
 		{
 			newCounter = counter;
 		}
-		this.store.dispatch('recent/setUnloadedChatCounters', {[chatId]: newCounter});
+		this.store.dispatch('recent/setUnloadedChatCounters', { [chatId]: newCounter });
 	}
 }

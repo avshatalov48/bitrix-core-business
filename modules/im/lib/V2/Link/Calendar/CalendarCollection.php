@@ -13,9 +13,8 @@ use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Main\ORM\Query\Query;
 
 /**
- * @method CalendarItem next()
- * @method CalendarItem current()
- * @method CalendarItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,CalendarItem>
+ * @method CalendarItem offsetGet($key)
  */
 class CalendarCollection extends BaseLinkCollection
 {

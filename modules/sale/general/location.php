@@ -1961,21 +1961,24 @@ class CAllSaleLocation
 	{
 		global $DB;
 
-		$additionalFilter = "";
-		if (isset($arFilter["LID"]) || $arFilter["LID"] <> '')
+		$additionalFilterLCL = '';
+		$additionalFilterLRL = '';
+		$additionalFilterLGL = '';
+		$siteId = (string)($arFilter['LID'] ?? '');
+		if ($siteId !== '')
 		{
-
+			$siteId = $DB->ForSql($siteId, 2);
 			if(self::isLocationProMigrated())
 			{
-				$additionalFilterLCL = " AND COL.LANGUAGE_ID = '".$DB->ForSql($arFilter["LID"], 2)."'";
-				$additionalFilterLRL = " AND REL.LANGUAGE_ID = '".$DB->ForSql($arFilter["LID"], 2)."'";
-				$additionalFilterLGL = " AND CIL.LANGUAGE_ID = '".$DB->ForSql($arFilter["LID"], 2)."'";
+				$additionalFilterLCL = " AND COL.LANGUAGE_ID = '".$siteId."'";
+				$additionalFilterLRL = " AND REL.LANGUAGE_ID = '".$siteId."'";
+				$additionalFilterLGL = " AND CIL.LANGUAGE_ID = '".$siteId."'";
 			}
 			else
 			{
-				$additionalFilterLCL = " AND LCL.LID = '".$DB->ForSql($arFilter["LID"], 2)."'";
-				$additionalFilterLRL = " AND LRL.LID = '".$DB->ForSql($arFilter["LID"], 2)."'";
-				$additionalFilterLGL = " AND LGL.LID = '".$DB->ForSql($arFilter["LID"], 2)."'";
+				$additionalFilterLCL = " AND LCL.LID = '".$siteId."'";
+				$additionalFilterLRL = " AND LRL.LID = '".$siteId."'";
+				$additionalFilterLGL = " AND LGL.LID = '".$siteId."'";
 			}
 		}
 		if(self::isLocationProMigrated())

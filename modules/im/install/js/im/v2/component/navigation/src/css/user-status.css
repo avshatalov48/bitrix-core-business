@@ -43,7 +43,7 @@
 .bx-im-user-status-popup__text {
 	max-width: calc(100% - 45px);
 	margin-left: 4px;
-	font: var(--im-font-size-sm)/var(--im-font-line-height-lg) var(--im-font-family-open-sans);
+	font: var(--im-font-size-sm)/var(--im-font-line-height-lg) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-semi-bold);
 	color: var(--im-user-status-popup__font-color_text);
 	text-overflow: ellipsis;

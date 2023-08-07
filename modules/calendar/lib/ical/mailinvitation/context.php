@@ -3,7 +3,6 @@
 
 namespace Bitrix\Calendar\ICal\MailInvitation;
 
-
 class Context
 {
 	private $addresser;

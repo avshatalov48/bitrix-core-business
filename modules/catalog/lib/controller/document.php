@@ -4,6 +4,7 @@ namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\Model\StoreDocument;
+use Bitrix\Catalog\Config\Feature;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Main\Engine\Response\DataType\Page;
@@ -33,6 +34,13 @@ class Document extends Controller
 	 */
 	public function conductListAction(array $documentIds): ?bool
 	{
+		if (!Feature::isInventoryManagementEnabled())
+		{
+			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_NO_INVENTORY_MANAGEMENT_ENABLED_ERROR')));
+
+			return null;
+		}
+
 		if (!\Bitrix\Catalog\Component\UseStore::isUsed())
 		{
 			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_MANAGEMENT_NOT_ENABLED')));
@@ -124,6 +132,13 @@ class Document extends Controller
 	 */
 	public function cancelListAction(array $documentIds): ?bool
 	{
+		if (!Feature::isInventoryManagementEnabled())
+		{
+			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_NO_INVENTORY_MANAGEMENT_ENABLED_ERROR')));
+
+			return null;
+		}
+
 		if (!\Bitrix\Catalog\Component\UseStore::isUsed())
 		{
 			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_MANAGEMENT_NOT_ENABLED')));
@@ -244,6 +259,13 @@ class Document extends Controller
 	 */
 	public function addAction(array $fields): ?array
 	{
+		if (!Feature::isInventoryManagementEnabled())
+		{
+			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_NO_INVENTORY_MANAGEMENT_ENABLED_ERROR')));
+
+			return null;
+		}
+
 		$docType = $fields['DOC_TYPE'] ?? null;
 
 		$availableTypes = self::getAvailableRestDocumentTypes();
@@ -302,6 +324,13 @@ class Document extends Controller
 	 */
 	public function updateAction(int $id, array $fields): ?array
 	{
+		if (!Feature::isInventoryManagementEnabled())
+		{
+			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_NO_INVENTORY_MANAGEMENT_ENABLED_ERROR')));
+
+			return null;
+		}
+
 		if (!$this->checkDocumentAccess(ActionDictionary::ACTION_STORE_DOCUMENT_MODIFY, $id))
 		{
 			return null;
@@ -338,6 +367,13 @@ class Document extends Controller
 	public function deleteListAction(array $documentIds): ?bool
 	{
 		global $APPLICATION;
+
+		if (!Feature::isInventoryManagementEnabled())
+		{
+			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_NO_INVENTORY_MANAGEMENT_ENABLED_ERROR')));
+
+			return null;
+		}
 
 		/**
 		 * @var CMain $APPLICATION
@@ -423,6 +459,13 @@ class Document extends Controller
 	 */
 	public function deleteAction(int $id): ?bool
 	{
+		if (!Feature::isInventoryManagementEnabled())
+		{
+			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_NO_INVENTORY_MANAGEMENT_ENABLED_ERROR')));
+
+			return null;
+		}
+
 		if (!$this->checkDocumentAccess(ActionDictionary::ACTION_STORE_DOCUMENT_DELETE, $id))
 		{
 			return null;
@@ -540,6 +583,13 @@ class Document extends Controller
 	 */
 	public function confirmAction(int $id): ?bool
 	{
+		if (!Feature::isInventoryManagementEnabled())
+		{
+			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_NO_INVENTORY_MANAGEMENT_ENABLED_ERROR')));
+
+			return null;
+		}
+
 		if (!$this->checkDocumentAccess(ActionDictionary::ACTION_STORE_DOCUMENT_CONDUCT, $id))
 		{
 			return null;
@@ -606,6 +656,13 @@ class Document extends Controller
 	 */
 	public function unconfirmAction(int $id): ?bool
 	{
+		if (!Feature::isInventoryManagementEnabled())
+		{
+			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_NO_INVENTORY_MANAGEMENT_ENABLED_ERROR')));
+
+			return null;
+		}
+
 		if (!$this->checkDocumentAccess(ActionDictionary::ACTION_STORE_DOCUMENT_CONDUCT, $id))
 		{
 			return null;

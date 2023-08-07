@@ -107,6 +107,10 @@ foreach ($this->basketItems as $row)
 		foreach($row['PROPS'] as $prop)
 		{
 			$propMap[$prop['CODE']] = !empty($prop['~VALUE']) ? $prop['~VALUE'] : $prop['VALUE'];
+			if ($propMap[$prop['CODE']] == '')
+			{
+				$propMap[$prop['CODE']] = '-';
+			}
 		}
 
 		$notSelectable = true;

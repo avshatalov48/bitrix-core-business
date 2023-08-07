@@ -607,7 +607,7 @@ class Numerator
 				if ($generator instanceof UserConfigurable)
 				{
 					/** @var UserConfigurable $generator */
-					$generator->setConfig($config[$this->getTypeOfGenerator($generator)]);
+					$generator->setConfig($config[$this->getTypeOfGenerator($generator)] ?? null);
 				}
 			}
 		};

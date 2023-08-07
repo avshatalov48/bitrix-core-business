@@ -5,7 +5,15 @@ export const MessageType = Object.freeze({
 });
 
 export const MessageComponent = Object.freeze({
-	base: 'BaseMessage'
+	base: 'BaseMessage',
+	chatCreation: 'ChatCreationMessage',
+});
+
+export const MessageExtension = Object.freeze({
+	text: 'TextExtension',
+	deleted: 'DeletedExtension',
+	unsupported: 'UnsupportedExtension',
+	callInvite: 'CallInviteExtension',
 });
 
 export const MessageMentionType = Object.freeze({
@@ -17,5 +25,5 @@ export const MessageMentionType = Object.freeze({
 export const OwnMessageStatus = Object.freeze({
 	sending: 'sending',
 	sent: 'sent',
-	viewed: 'viewed'
+	viewed: 'viewed',
 });

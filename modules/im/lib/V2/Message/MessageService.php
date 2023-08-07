@@ -12,19 +12,19 @@ class MessageService
 {
 	use ContextCustomer;
 
-	protected bool $isConvertText;
+	private Message $message;
 
-	public function __construct(bool $isConvertText = true)
+	public function __construct(Message $message)
 	{
-		$this->isConvertText = $isConvertText;
+		$this->message = $message;
 	}
 
-	public function getMessageContext(Message $message, int $range, array $select = []): Result
+	public function getMessageContext(int $range, array $select = []): Result
 	{
 		$result = new Result();
 
-		$messageId = $message->getMessageId() ?? 0;
-		$chat = $message->getChat();
+		$messageId = $this->message->getMessageId() ?? 0;
+		$chat = $this->message->getChat();
 
 		$startId = $chat->getStartId();
 
@@ -56,6 +56,11 @@ class MessageService
 
 		$ids = array_merge($idsBefore, $targetMessage, $idsAfter);
 
+		if (empty($ids))
+		{
+			return $result->setResult(new MessageCollection());
+		}
+
 		if (empty($select))
 		{
 			return $result->setResult(new MessageCollection($ids));
@@ -64,5 +69,35 @@ class MessageService
 		$ormCollection = MessageTable::query()->whereIn('ID', $ids)->setSelect($select)->fetchCollection();
 
 		return $result->setResult(new MessageCollection($ormCollection));
+	}
+
+	public function fillContextPaginationData(array $rest, MessageCollection $messages, int $range): array
+	{
+		$rest['hasPrevPage'] = $this->getCountHigherMessages($messages, $this->message->getId() ?? 0) >= $range;
+		$lastSelectedId = $this->getLastSelectedId($messages);
+		$lastMessageIdInChat = $this->message->getChat()->getLastMessageId();
+		$rest['hasNextPage'] = $lastSelectedId > 0 && $lastMessageIdInChat > 0 && $lastSelectedId < $lastMessageIdInChat;
+
+		return $rest;
+	}
+
+	private function getCountHigherMessages(MessageCollection $messages, int $id): int
+	{
+		$count = 0;
+
+		foreach ($messages as $message)
+		{
+			if ($message->getId() < $id)
+			{
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	private function getLastSelectedId(MessageCollection $messages): int
+	{
+		return max($messages->getIds() ?: [0]);
 	}
 }

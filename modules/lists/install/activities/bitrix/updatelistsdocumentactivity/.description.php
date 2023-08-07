@@ -16,6 +16,12 @@ $arActivityDescription = [
 	'CATEGORY' => [
 		'ID' => 'document',
 	],
+	'RETURN' => [
+		'ErrorMessage' => [
+			'NAME' => GetMessage('BPULDA_DESCR_ERROR_MESSAGE'),
+			'TYPE' => 'string',
+		],
+	],
 	'ROBOT_SETTINGS' => [
 		'CATEGORY' => 'employee',
 		'GROUP' => ['modificationData'],

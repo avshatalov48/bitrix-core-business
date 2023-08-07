@@ -8,6 +8,8 @@
 
 namespace Bitrix\Main;
 
+use Throwable;
+
 class Error implements \JsonSerializable
 {
 	/** @var int|string */
@@ -33,6 +35,15 @@ class Error implements \JsonSerializable
 		$this->message = $message;
 		$this->code = $code;
 		$this->customData = $customData;
+	}
+
+	/**
+	 * @param Throwable $exception
+	 * @return static
+	 */
+	public static function createFromThrowable(Throwable $exception): self
+	{
+		return new static($exception->getMessage(), $exception->getCode());
 	}
 
 	/**

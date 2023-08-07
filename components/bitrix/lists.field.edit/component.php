@@ -26,7 +26,7 @@ $lists_perm = CListPermissions::CheckAccess(
 	$USER,
 	$arParams["~IBLOCK_TYPE_ID"],
 	intval($arParams["~IBLOCK_ID"]),
-	$arParams["~SOCNET_GROUP_ID"]
+	$arParams["~SOCNET_GROUP_ID"] ?? null
 );
 if($lists_perm < 0)
 {
@@ -147,11 +147,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 			"SORT" => $_POST["SORT"],
 			"NAME" => trim($_POST["NAME"], " \n\r\t\x0"),
 			"IS_REQUIRED" => $_POST["IS_REQUIRED"],
-			"MULTIPLE" => $_POST["MULTIPLE"],
-			"CODE" => $_POST["CODE"],
+			"MULTIPLE" => $_POST["MULTIPLE"] ?? 'N',
+			"CODE" => $_POST["CODE"] ?? null,
 			"TYPE" => $_POST["TYPE"],
-			"DEFAULT_VALUE" => $_POST["DEFAULT_VALUE"],
-			"USER_TYPE_SETTINGS" => $_POST["USER_TYPE_SETTINGS"],
+			"DEFAULT_VALUE" => $_POST["DEFAULT_VALUE"] ?? '',
+			"USER_TYPE_SETTINGS" => $_POST["USER_TYPE_SETTINGS"] ?? null,
 			"SETTINGS" => $_POST["SETTINGS"],
 		);
 
@@ -223,8 +223,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 
 		if(isset($_POST["LIST"]))
 			$arField["LIST"] = $_POST["LIST"];
-		if(!is_array($arField["LIST"]))
-			$arField["LIST"] = array();
+		if (!isset($arField["LIST"]) || !is_array($arField["LIST"]))
+		{
+			$arField["LIST"] = [];
+		}
 
 		//Import values from textarea
 		if(isset($_POST["LIST_TEXT_VALUES"]) && mb_strlen($_POST["LIST_TEXT_VALUES"]))
@@ -359,15 +361,15 @@ if($bVarsFromForm)
 	$data["SORT"] = $_POST["SORT"];
 	$data["NAME"] = $_POST["NAME"];
 	$data["IS_REQUIRED"] = $_POST["IS_REQUIRED"];
-	$data["MULTIPLE"] = $_POST["MULTIPLE"];
-	$data["CODE"] = $_POST["CODE"];
+	$data["MULTIPLE"] = $_POST["MULTIPLE"] ?? 'N';
+	$data["CODE"] = $_POST["CODE"] ?? '';
 	$data["TYPE"] = $_POST["TYPE"];
 	$data["ROW_COUNT"] = (isset($_POST["ROW_COUNT"]) ? $_POST["ROW_COUNT"] : 1);
 	$data["COL_COUNT"] = (isset($_POST["COL_COUNT"]) ? $_POST["COL_COUNT"] : 30);
 	if (isset($_POST["COL_COUNT"]))
 		$data["COL_COUNT"] = $_POST["COL_COUNT"];
 
-	if($data["TYPE"] !== $arResult["FIELD"]["TYPE"])
+	if(!$arResult["FIELD"] || $data["TYPE"] !== $arResult["FIELD"]["TYPE"])
 	{
 		//field type was changed so it needs adjustment
 		$arMatch = array();
@@ -380,14 +382,14 @@ if($bVarsFromForm)
 	if(
 		$data["TYPE"] !== "PREVIEW_PICTURE"
 		&& $data["TYPE"] !== "DETAIL_PICTURE"
-		&& is_array($_POST["DEFAULT_VALUE"])
+		&& is_array($_POST["DEFAULT_VALUE"] ?? null)
 	)
 	{
 		$data["DEFAULT_VALUE"] = "";
 	}
 	else
 	{
-		$data["DEFAULT_VALUE"] = $_POST["DEFAULT_VALUE"];
+		$data["DEFAULT_VALUE"] = $_POST["DEFAULT_VALUE"] ?? null;
 	}
 
 	$data["SETTINGS"] = $_POST["SETTINGS"];
@@ -442,7 +444,7 @@ if($bVarsFromForm)
 		$arResult["LIST"] = false;
 	}
 
-	$data["LIST_TEXT_VALUES"] = $_POST["LIST_TEXT_VALUES"];
+	$data["LIST_TEXT_VALUES"] = $_POST["LIST_TEXT_VALUES"] ?? '';
 
 	if(isset($_POST["LIST_DEF"]) && is_array($_POST["LIST_DEF"]))
 	{
@@ -473,13 +475,13 @@ elseif($arResult["FIELD_ID"])
 	$data["SORT"] = $arResult["FIELD"]["SORT"];
 	$data["NAME"] = $arResult["FIELD"]["NAME"];
 	$data["IS_REQUIRED"] = $arResult["FIELD"]["IS_REQUIRED"];
-	$data["MULTIPLE"] = $arResult["FIELD"]["MULTIPLE"];
-	$data["CODE"] = $arResult["FIELD"]["CODE"];
+	$data["MULTIPLE"] = $arResult["FIELD"]["MULTIPLE"] ?? 'N';
+	$data["CODE"] = $arResult["FIELD"]["CODE"] ?? '';
 	$data["TYPE"] = $arResult["FIELD"]["TYPE"];
 	$data["DEFAULT_VALUE"] = $arResult["FIELD"]["DEFAULT_VALUE"];
 	$data["SETTINGS"] = $arResult["FIELD"]["SETTINGS"];
-	$data["ROW_COUNT"] = $arResult["FIELD"]["ROW_COUNT"];
-	$data["COL_COUNT"] = $arResult["FIELD"]["COL_COUNT"];
+	$data["ROW_COUNT"] = $arResult["FIELD"]["ROW_COUNT"] ?? 0;
+	$data["COL_COUNT"] = $arResult["FIELD"]["COL_COUNT"] ?? 0;
 
 	if(isset($arResult["FIELD"]["LINK_IBLOCK_ID"]))
 	{
@@ -528,7 +530,7 @@ else
 
 if(preg_match("/^(G|G:|E|E:)/", $data["TYPE"]))
 {
-	$arResult["LINK_IBLOCKS"] = CLists::GetIBlocks($arParams["~IBLOCK_TYPE_ID"], !$arParams["CAN_EDIT"], $arParams["~SOCNET_GROUP_ID"]);
+	$arResult["LINK_IBLOCKS"] = CLists::GetIBlocks($arParams["~IBLOCK_TYPE_ID"], !$arParams["CAN_EDIT"], $arParams["~SOCNET_GROUP_ID"] ?? false);
 	if(mb_substr($data["TYPE"], 0, 1) == "G")
 		unset($arResult["LINK_IBLOCKS"][$arResult["IBLOCK_ID"]]);
 }

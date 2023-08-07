@@ -25,7 +25,7 @@ export class FavoriteMenu extends SidebarMenu
 	getDeleteFromFavoriteItem(): MenuItem
 	{
 		return {
-			text: Loc.getMessage('IM_SIDEBAR_MENU_REMOVE_FROM_SAVED'),
+			text: Loc.getMessage('IM_SIDEBAR_MENU_REMOVE_FROM_SAVED_V2'),
 			onclick: function() {
 				const messageService = new MessageService({chatId: this.context.chatId});
 				messageService.removeMessageFromFavorite(this.context.messageId);

@@ -14,6 +14,7 @@ use Bitrix\Main\Grid\Panel\Types;
 class Checkbox
 {
 	protected $id = "";
+	protected $type = "";
 	protected $name = "";
 	protected $class = "";
 	protected $text = "";

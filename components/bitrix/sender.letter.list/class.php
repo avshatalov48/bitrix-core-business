@@ -414,8 +414,12 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		{
 			Entity\Letter::getSearchBuilder()->applyFilter($filter, $searchString);
 		}
-		if (isset($requestFilter['CREATED_BY']) && $requestFilter['CREATED_BY'])
+		if (
+			((int) $requestFilter['CREATED_BY'] > 0)
+			&& isset($requestFilter['CREATED_BY'])
+			&& $requestFilter['CREATED_BY'])
 		{
+			$requestFilter['CREATED_BY'] = (int) $requestFilter['CREATED_BY'];
 			$filter['=CREATED_BY'] = $requestFilter['CREATED_BY'];
 		}
 		if (isset($requestFilter['STATE']) && $requestFilter['STATE'])

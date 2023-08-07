@@ -60,7 +60,7 @@ export default class CustomUploadController extends AbstractUploadController
 			if (chunkOffset >= fileSize)
 			{
 				clearInterval(this.xhr);
-				this.emit('onUpload', { fileInfo: { serverId: 'serverId' } });
+				this.emit('onUpload', { fileInfo: { serverFileId: 'serverFileId' } });
 			}
 			else if (this.raiseError && uploadInvokes === this.raiseErrorStep)
 			{

@@ -16,22 +16,20 @@ class Helper
 	public static function getTemplateOptionSelector(): array
 	{
 		return array_map(
-			function ($item)
-			{
+			function ($item) {
 				return [
 					'id' => '#' . $item['CODE'] . '#',
 					'text' => $item['NAME'],
 					'title' => $item['DESC'],
-					'items' => $item['ITEMS']?array_map(
-						function ($item)
-						{
+					'items' => $item['ITEMS'] ? array_map(
+						function ($item) {
 							return [
 								'id' => '#' . $item['CODE'] . '#',
 								'text' => $item['NAME'],
-								'title' => $item['DESC']
+								'title' => $item['DESC'],
 							];
 						}, $item['ITEMS']
-					) : []
+					) : [],
 				];
 			},
 			array_merge(

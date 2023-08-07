@@ -1333,6 +1333,23 @@ if ('' == $strImportErrorMessage)
 					if (!empty($processedProductPriceCache[$previousProductId]))
 						unset($processedProductPriceCache[$previousProductId]);
 
+					if (isset($arIBlockPropertyValue[$previousProductId]))
+					{
+						unset($arIBlockPropertyValue[$previousProductId]);
+					}
+					if (isset($multiplePropertyValuesCheck[$previousProductId]))
+					{
+						unset($multiplePropertyValuesCheck[$previousProductId]);
+					}
+					if (isset($currentProductSection[$previousProductId]))
+					{
+						unset($currentProductSection[$previousProductId]);
+					}
+					if (isset($arProductGroups[$previousProductId]))
+					{
+						unset($arProductGroups[$previousProductId]);
+					}
+
 					$previousProductId = $PRODUCT_ID;
 				}
 			}
@@ -1558,7 +1575,17 @@ if ('' == $strImportErrorMessage)
 	{
 		$bAllDataLoaded = false;
 
-		$INTERNAL_VARS_LIST = "tmpid,line_num,correct_lines,error_lines,killed_lines,arIBlockProperty,bThereIsGroups,arProductGroups,arIBlockPropertyValue,bDeactivationStarted,bUpdatePrice";
+		$INTERNAL_VARS_LIST =
+			"tmpid,line_num,correct_lines,"
+			. "error_lines,killed_lines,"
+			. "arIBlockProperty,arIBlockPropertyValue,"
+			. "multiplePropertyValuesCheck,"
+			. "bThereIsGroups,"
+			. "bDeactivationStarted,"
+			. "arProductGroups,"
+			. "currentProductSection,"
+			. "bUpdatePrice"
+		;
 		$SETUP_VARS_LIST = "IBLOCK_ID,URL_DATA_FILE,fields_type,first_names_r,delimiter_r,delimiter_other_r,first_names_f,metki_f,PATH2IMAGE_FILES,outFileAction,inFileAction,max_execution_time,IMAGE_RESIZE,USE_TRANSLIT,TRANSLIT_LANG,CLEAR_EMPTY_PRICE,CML2_LINK_IS_XML";
 		for ($i = 0; $i < $NUM_FIELDS; $i++)
 			$SETUP_VARS_LIST .= ",field_".$i;

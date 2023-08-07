@@ -16,14 +16,12 @@ this.BX = this.BX || {};
 	      basicBlock: null
 	    };
 	  }
-
 	  babelHelpers.createClass(TextCrop, [{
 	    key: "getText",
 	    value: function getText() {
 	      if (!this.text) {
-	        this.text = this.target ? this.target.innerText : null;
+	        this.text = BX.util.htmlspecialchars(this.target ? this.target.innerText : null);
 	      }
-
 	      return this.text;
 	    }
 	  }, {
@@ -32,7 +30,6 @@ this.BX = this.BX || {};
 	      if (!this.layout.wrapper) {
 	        this.layout.wrapper = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div>", "</div>\n\t\t\t"])), this.getText());
 	      }
-
 	      return this.layout.wrapper;
 	    }
 	  }, {
@@ -41,7 +38,6 @@ this.BX = this.BX || {};
 	      if (!this.layout.basicBlock) {
 	        this.layout.basicBlock = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div>a</div>\n\t\t\t"])));
 	      }
-
 	      return this.layout.basicBlock;
 	    }
 	  }, {
@@ -49,7 +45,6 @@ this.BX = this.BX || {};
 	    value: function getRowHeight() {
 	      if (!this.rowHeight) {
 	        var styleAtt = getComputedStyle(this.getWrapper());
-
 	        if (styleAtt.lineHeight === 'normal') {
 	          var firstHeight = this.getWrapper().offsetHeight;
 	          this.layout.wrapper.appendChild(this.getBasicBlock());
@@ -60,21 +55,18 @@ this.BX = this.BX || {};
 	          this.rowHeight = styleAtt.lineHeight;
 	        }
 	      }
-
 	      return this.rowHeight;
 	    }
 	  }, {
 	    key: "cropResize",
 	    value: function cropResize() {
 	      var _this = this;
-
 	      if (this.resize) {
 	        var timer;
 	        window.addEventListener('resize', function () {
 	          if (!timer) {
 	            timer = setTimeout(function () {
 	              _this.init();
-
 	              clearTimeout(timer);
 	            }, 100);
 	          }
@@ -92,7 +84,6 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isDomNode(this.target)) {
 	        return;
 	      }
-
 	      this.getText();
 	      this.target.innerText = '';
 	      this.layout.wrapper = '';
@@ -100,16 +91,13 @@ this.BX = this.BX || {};
 	      var rowHeight = this.getRowHeight();
 	      var cropText = '';
 	      var numberRows = this.getWrapper().offsetHeight / parseInt(rowHeight);
-
 	      if (numberRows > this.rows) {
 	        this.target.setAttribute('title', this.getText());
-
 	        while (this.getWrapper().offsetHeight / parseInt(rowHeight) > this.rows) {
 	          cropText = this.layout.wrapper.textContent.substring(0, this.layout.wrapper.textContent.length - 4);
-	          this.layout.wrapper.innerHTML = cropText + '...';
+	          this.layout.wrapper.textContent = cropText + '...';
 	        }
 	      }
-
 	      this.cropResize();
 	    }
 	  }]);

@@ -153,11 +153,15 @@ final class DirectoryItemsProvider extends BaseProvider
 
 				$info = $userFieldsInfo[$item['id']] ?? null;
 
-				$item['name'] =
-					$info['EDIT_FORM_LABEL']
-					?: Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_DIRECTORY_ITEMS_PROVIDER_FIELD_' . $item['id'])
-					?: $item['id']
-				;
+				$item['name'] = trim((string)($info['EDIT_FORM_LABEL'] ?? ''));
+				if ($item['name'] === '')
+				{
+					$item['name'] = (string)Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_DIRECTORY_ITEMS_PROVIDER_FIELD_' . $item['id']);
+				}
+				if ($item['name'] === '')
+				{
+					$item['name'] = $item['id'];
+				}
 
 				if (isset($info))
 				{

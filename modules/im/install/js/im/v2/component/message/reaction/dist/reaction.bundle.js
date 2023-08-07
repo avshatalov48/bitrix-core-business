@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -133,12 +134,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div
+			@click="onIconClick"
 			@mouseenter="startShowTimer"
 			@mouseleave="clearShowTimer"
 			class="bx-im-reaction-selector__container"
 			ref="container"
 		>
-			<div @click="onIconClick" class="bx-im-reaction-selector__icon" :class="{'--active': ownReactionSet}"></div>
+			<div  class="bx-im-reaction-selector__icon" :class="{'--active': ownReactionSet}"></div>
 		</div>
 	`
 	};
@@ -164,7 +166,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    avatarStyle() {
 	      if (!this.user.avatar) {
-	        return;
+	        return {};
 	      }
 	      return {
 	        backgroundImage: `url('${this.user.avatar}')`
@@ -173,7 +175,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-reaction-list__user_avatar">
-			<Avatar :dialogId="userId" :size="AvatarSize.XS" :withAvatarLetters="false" :withStatus="false" />
+			<Avatar 
+				:dialogId="userId" 
+				:size="AvatarSize.XS" 
+				:withAvatarLetters="false" 
+				:withStatus="false" 
+				:withTooltip="false"
+			/>
 		</div>
 	`
 	};
@@ -364,7 +372,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    playAnimation() {
 	      this.animation = ui_lottie.Lottie.loadAnimation({
 	        animationData: ui_reactionsSelect.ReactionsSelect.getLottieAnimation(this.type),
-	        container: this.$refs['reactionIcon'],
+	        container: this.$refs.reactionIcon,
 	        loop: false,
 	        autoplay: false,
 	        renderer: 'svg',
@@ -382,9 +390,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    startShowUsersTimer() {
 	      this.showUsersTimeout = setTimeout(() => {
-	        if (this.showUsers) {
-	          return;
-	        }
 	        this.showAdditionalUsers = true;
 	      }, SHOW_USERS_DELAY);
 	    },
@@ -407,7 +412,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			:class="{'--selected': selected}"
 		>
 			<div class="bx-im-reaction-list__item_icon" :class="reactionClass" ref="reactionIcon"></div>
-			<div v-if="showUsers" class="bx-im-reaction-list__user_container">
+			<div v-if="showUsers" class="bx-im-reaction-list__user_container" ref="users">
 				<TransitionGroup name="bx-im-reaction-list__user_animation">
 					<ReactionUser v-for="user in preparedUsers" :key="user" :userId="user" />
 				</TransitionGroup>
@@ -415,7 +420,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<div v-else class="bx-im-reaction-list__item_counter" ref="counter">{{ counter }}</div>
 			<AdditionalUsers
 				:show="showAdditionalUsers"
-				:bindElement="$refs['counter'] || {}"
+				:bindElement="$refs['users'] || $refs['counter'] || {}"
 				:messageId="messageId"
 				:reaction="type"
 				@close="showAdditionalUsers = false"

@@ -322,39 +322,14 @@ class Chunk
 		$height = 0;
 		if (\CFile::isImage($this->getName(), $this->getType()))
 		{
-			if ($config->getImageMaxFileSize() !== null && $this->getFileSize() > $config->getImageMaxFileSize())
-			{
-				return $result->addError(
-					new UploaderError(
-						UploaderError::IMAGE_MAX_FILE_SIZE_EXCEEDED,
-						[
-							'imageMaxFileSize' => \CFile::formatSize($config->getImageMaxFileSize()),
-							'imageMaxFileSizeInBytes' => $config->getImageMaxFileSize(),
-						]
-					)
-				);
-			}
-
-			if ($this->getFileSize() < $config->getImageMinFileSize())
-			{
-				return $result->addError(
-					new UploaderError(
-						UploaderError::IMAGE_MIN_FILE_SIZE_EXCEEDED,
-						[
-							'imageMinFileSize' => \CFile::formatSize($config->getImageMinFileSize()),
-							'imageMinFileSizeInBytes' => $config->getImageMinFileSize(),
-						]
-					)
-				);
-			}
-
 			$image = new File\Image($this->getFile()->getPhysicalPath());
 			$imageInfo = $image->getInfo(false);
-
 			if (!$imageInfo)
 			{
 				if ($config->getIgnoreUnknownImageTypes())
 				{
+					$result->setData(['width' => $width, 'height' => $height]);
+
 					return $result;
 				}
 				else
@@ -365,7 +340,6 @@ class Chunk
 
 			$width = $imageInfo->getWidth();
 			$height = $imageInfo->getHeight();
-
 			if ($imageInfo->getFormat() === File\Image::FORMAT_JPEG)
 			{
 				$exifData = $image->getExifData();
@@ -375,37 +349,21 @@ class Chunk
 				}
 			}
 
-			if ($width < $config->getImageMinWidth() || $height < $config->getImageMinHeight())
+			if (!$config->shouldTreatOversizeImageAsFile())
 			{
-				return $result->addError(
-					new UploaderError(
-						UploaderError::IMAGE_IS_TOO_SMALL,
-						[
-							'minWidth' => $config->getImageMinWidth(),
-							'minHeight' => $config->getImageMinHeight(),
-						]
-					)
-				);
-			}
+				$imageData = new FileData($this->getName(), $this->getType(), $this->getSize());
+				$imageData->setWidth($width);
+				$imageData->setHeight($height);
 
-			if ($width > $config->getImageMaxWidth() || $height > $config->getImageMaxHeight())
-			{
-				return $result->addError(
-					new UploaderError(
-						UploaderError::IMAGE_IS_TOO_BIG,
-						[
-							'maxWidth' => $config->getImageMaxWidth(),
-							'maxHeight' => $config->getImageMaxHeight(),
-						]
-					)
-				);
+				$validationResult = $config->validateImage($imageData);
+				if (!$validationResult->isSuccess())
+				{
+					return $result->addErrors($validationResult->getErrors());
+				}
 			}
 		}
 
-		$result->setData([
-			'width' => $width,
-			'height' => $height,
-		]);
+		$result->setData(['width' => $width, 'height' => $height]);
 
 		return $result;
 	}

@@ -42,24 +42,17 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 
 	protected function initParams()
 	{
-		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
+		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] === 'Y' : true;
 		$this->arParams['IS_CRM_MARKETING_TITLE'] = $this->arParams['IS_CRM_MARKETING_TITLE'] ?? false;
-		$this->arParams['PATH_TO_ADS_ADD'] = isset($this->arParams['PATH_TO_ADS_ADD'])
-			?
-			$this->arParams['PATH_TO_ADS_ADD']
-			:
-			str_replace('letter', 'ads', $this->arParams['PATH_TO_LETTER_ADD']);
-		$this->arParams['PATH_TO_RC_ADD'] = isset($this->arParams['PATH_TO_RC_ADD'])
-			?
-			$this->arParams['PATH_TO_RC_ADD']
-			:
-			str_replace('letter', 'rc', $this->arParams['PATH_TO_LETTER_ADD']);
 
-		$this->arParams['PATH_TO_TOLOKA_ADD'] = $this->arParams['PATH_TO_TOLOKA_ADD']??
-			str_replace('letter', 'toloka', $this->arParams['PATH_TO_LETTER_ADD']);
-
-		$this->arParams['PATH_TO_MASTER_YANDEX_ADD'] = $this->arParams['PATH_TO_MASTER_YANDEX_ADD'] ??
-			str_replace('letter', 'master-yandex', $this->arParams['PATH_TO_LETTER_ADD'])
+		$this->arParams['PATH_TO_ADS_ADD'] = $this->arParams['PATH_TO_ADS_ADD']
+			?? str_replace('letter', 'ads', $this->arParams['PATH_TO_LETTER_ADD']);
+		$this->arParams['PATH_TO_RC_ADD'] = $this->arParams['PATH_TO_RC_ADD']
+			?? str_replace('letter', 'rc', $this->arParams['PATH_TO_LETTER_ADD']);
+		$this->arParams['PATH_TO_TOLOKA_ADD'] = $this->arParams['PATH_TO_TOLOKA_ADD']
+			?? str_replace('letter', 'toloka', $this->arParams['PATH_TO_LETTER_ADD']);
+		$this->arParams['PATH_TO_MASTER_YANDEX_ADD'] = $this->arParams['PATH_TO_MASTER_YANDEX_ADD']
+			?? str_replace('letter', 'master-yandex', $this->arParams['PATH_TO_LETTER_ADD'])
 		;
 	}
 
@@ -76,16 +69,16 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 			Integration\Seo\Ads\MessageMarketingFb::CODE => 'ui-icon-service-fb',
 			Integration\Seo\Ads\MessageMarketingInstagram::CODE => 'ui-icon-service-instagram',
 			Integration\Seo\Ads\MessageBase::CODE_ADS_FB => 'ui-icon-service-fb',
-			Integration\Seo\Ads\MessageBase::CODE_ADS_YA => 'ui-icon-service-ya-direct',
+			Integration\Seo\Ads\MessageBase::CODE_ADS_YA => 'sender-ui-tile-icon-service-yandex-master',
 			Integration\Seo\Ads\MessageBase::CODE_ADS_GA => 'ui-icon-service-google-ads',
-			Integration\Seo\Ads\MessageBase::CODE_ADS_VK => 'ui-icon-service-vk',
+			Integration\Seo\Ads\MessageBase::CODE_ADS_VK => 'ui-icon-service-vkads',
 			Integration\Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_FB => 'ui-icon-service-fb',
 			Integration\Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_VK => 'ui-icon-service-vk',
-			Integration\Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_YANDEX => 'ui-icon-service-ya-direct',
+			Integration\Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_YANDEX => 'sender-ui-tile-icon-service-yandex-master',
 			Integration\Crm\ReturnCustomer\MessageBase::CODE_RC_DEAL => 'ui-icon-service-deal',
 			Integration\Crm\ReturnCustomer\MessageBase::CODE_RC_LEAD => 'ui-icon-service-lead',
 			Message\iBase::CODE_TOLOKA => 'ui-icon-service-ya-toloka',
-			Message\iBase::CODE_MASTER_YANDEX => 'ui-icon-service-ya-direct',
+			Message\iBase::CODE_MASTER_YANDEX => 'sender-ui-tile-icon-service-yandex-master',
 		];
 
 		return 'ui-icon ' . $map[$code];
@@ -95,26 +88,26 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 	{
 		$pathToLetterAdd = $this->arParams['PATH_TO_LETTER_ADD'];
 		$uri = new Uri($pathToLetterAdd);
-		$uri->addParams(array('code' => '#code#'));
+		$uri->addParams(['code' => '#code#']);
 		$pathToLetterAdd = $uri->getLocator();
 
 		$pathToAdsAdd = $this->arParams['PATH_TO_ADS_ADD'];
 		$uri = new Uri($pathToAdsAdd);
-		$uri->addParams(array('code' => '#code#'));
+		$uri->addParams(['code' => '#code#']);
 		$pathToAdsAdd = $uri->getLocator();
 
 		$pathToRcAdd = $this->arParams['PATH_TO_RC_ADD'];
 		$uri = new Uri($pathToRcAdd);
-		$uri->addParams(array('code' => '#code#'));
+		$uri->addParams(['code' => '#code#']);
 		$pathToRcAdd = $uri->getLocator();
 
 		$pathToTolokaAdd = $this->arParams['PATH_TO_TOLOKA_ADD'];
 		$uri = new Uri($pathToTolokaAdd);
-		$uri->addParams(array('code' => '#code#'));
+		$uri->addParams(['code' => '#code#']);
 		$pathToTolokaAdd = $uri->getLocator();
 
 		$uri = new Uri($this->arParams['PATH_TO_MASTER_YANDEX_ADD']);
-		$uri->addParams(array('code' => '#code#'));
+		$uri->addParams(['code' => '#code#']);
 		$pathToMasterYandexAdd = $uri->getLocator();
 
 		$list = [];
@@ -135,11 +128,11 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 			{
 				$pathToAdd = $pathToRcAdd;
 			}
-			elseif($message->isMailing())
+			elseif ($message->isMailing())
 			{
 				$pathToAdd = $pathToLetterAdd;
 			}
-			elseif($message->isMarketing())
+			elseif ($message->isMarketing())
 			{
 				$pathToAdd = $pathToAdsAdd;
 			}
@@ -152,31 +145,32 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 				$pathToAdd = $pathToTolokaAdd;
 			}
 
-			$list[] = array(
+			$list[] = [
 				'CODE' => $message->getCode(),
 				'NAME' => $message->getName(),
 				'IS_AVAILABLE' => $message->isAvailable(),
 				'ICON_CLASS' => $this->getSenderMessageIcon($message),
+				'BACKGROUND_COLOR' => $this->getSenderMessageBackgroundColor($message),
 				'URL' => str_replace(
-					array('#code#', urlencode('#code#')),
+					['#code#', urlencode('#code#')],
 					$message->getCode(),
 					$pathToAdd
 				),
 				'EXTENSION' => $message->getCode() === 'toloka' ? '' : null,
-			);
+			];
 		}
 
-		$featured = array(
+		$featured = [
 			Message\iBase::CODE_MAIL,
 			Message\iBase::CODE_SMS,
 			Message\iBase::CODE_IM,
 			Message\iBase::CODE_CALL,
 			Message\iBase::CODE_AUDIO_CALL,
-			Message\iBase::CODE_WEB_HOOK
-		);
+			Message\iBase::CODE_WEB_HOOK,
+		];
 
-		$featuredList = array();
-		$otherList = array();
+		$featuredList = [];
+		$otherList = [];
 
 		foreach ($list as $message)
 		{
@@ -207,11 +201,11 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 			}
 		}
 
-		return array(
+		return [
 			'LIST' => $list,
 			'FEATURED_LIST' => $featuredList,
 			'OTHER_LIST' => $otherList,
-		);
+		];
 	}
 
 	private function filterMessages($messages, $map): array
@@ -291,6 +285,7 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 						'name' => $item['NAME'],
 						'selected' => $item['IS_AVAILABLE'],
 						'iconClass' => $item['ICON_CLASS'],
+						'bgColor' => $item['BACKGROUND_COLOR'] ?? null,
 						'data' => [
 							'url' => $item['URL'],
 							'extension' => $item['EXTENSION']
@@ -306,6 +301,9 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 		$this->arResult['MESSAGES']['CONVERSION'] = \Bitrix\Sender\Integration\Crm\CrmTileMap::getFacebookConversion();
 
 		Integration\Bitrix24\Service::initLicensePopup();
+		$this->arResult['SHOW_MASTER_YANDEX_INITIAL_TOUR'] = $this->isMasterYandexInitialTourAvailable();
+		$this->arResult['MASTER_YANDEX_INITIAL_TOUR_ID'] = $this->getMasterYandexTourInitialId();
+		$this->arResult['MASTER_YANDEX_INITIAL_TOUR_HELPDESK_CODE'] = $this->getMasterYandexTourInitialHelpdeskCode();
 
 		return true;
 	}
@@ -333,4 +331,34 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 	{
 		return ActionDictionary::ACTION_START_VIEW;
 	}
+
+	private function isMasterYandexInitialTourAvailable(): bool
+	{
+		return
+			\Bitrix\Sender\Integration\Bitrix24\Service::isMasterYandexVisibleInRegion()
+			&& \CUserOptions::GetOption('ui-tour', 'view_date_' . $this->getMasterYandexTourInitialId(), null) === null
+		;
+	}
+
+	private function getMasterYandexTourInitialId(): string
+	{
+		return 'sender-start-yandex-master-initial-tour';
+	}
+
+	private function getMasterYandexTourInitialHelpdeskCode(): int
+	{
+		return 17277896;
+	}
+
+	private function getSenderMessageBackgroundColor(Message\Adapter $message): ?string
+	{
+		static $map = [
+			Message\iBase::CODE_MASTER_YANDEX => '#6A89B0',
+			Integration\Seo\Ads\MessageBase::CODE_ADS_YA => '#A77BDE',
+			Integration\Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_YANDEX => '#A77BDE',
+			Integration\Seo\Ads\MessageBase::CODE_ADS_VK => '#0077FF',
+		];
+		return $map[$message->getCode()] ?? null;
+	}
+
 }

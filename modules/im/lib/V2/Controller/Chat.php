@@ -3,17 +3,29 @@
 namespace Bitrix\Im\V2\Controller;
 
 use Bitrix\Im\Common;
+use Bitrix\Im\Dialog;
 use Bitrix\Im\Recent;
+use Bitrix\Im\V2\Chat\ChatError;
 use Bitrix\Im\V2\Chat\ChatFactory;
+use Bitrix\Im\V2\Chat\PrivateChat;
+use Bitrix\Im\V2\Controller\Chat\Pin;
 use Bitrix\Im\V2\Controller\Filter\CheckAvatarId;
 use Bitrix\Im\V2\Controller\Filter\CheckAvatarIdInFields;
 use Bitrix\Im\V2\Controller\Filter\CheckChatAccess;
 use Bitrix\Im\V2\Controller\Filter\CheckChatAddParams;
+use Bitrix\Im\V2\Controller\Filter\CheckChatCanPost;
 use Bitrix\Im\V2\Controller\Filter\CheckChatManageUpdate;
 use Bitrix\Im\V2\Controller\Filter\CheckChatOwner;
 use Bitrix\Im\V2\Controller\Filter\CheckChatUpdate;
+use Bitrix\Im\V2\Controller\Filter\CheckDisappearingDuration;
+use Bitrix\Im\V2\Entity\User\UserPopupItem;
+use Bitrix\Im\V2\Link\Pin\PinCollection;
+use Bitrix\Im\V2\Message;
+use Bitrix\Im\V2\Message\Delete\DeleteService;
+use Bitrix\Im\V2\Message\MessageService;
+use Bitrix\Im\V2\Rest\PopupData;
+use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Intranet\ActionFilter\IntranetUser;
-use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Pull\Event;
@@ -116,6 +128,20 @@ class Chat extends BaseController
 					new CheckChatUpdate(),
 				]
 			],
+			'setDisappearingDuration' => [
+				'+prefilters' => [
+					new CheckChatAccess(),
+					new CheckChatUpdate(),
+					new CheckDisappearingDuration(),
+				]
+			],
+			'setCanPost' => [
+				'+prefilters' => [
+					new CheckChatAccess(),
+					new CheckChatCanPost(),
+					new CheckChatUpdate(),
+				]
+			],
 		];
 	}
 
@@ -128,6 +154,80 @@ class Chat extends BaseController
 				return \Bitrix\Im\V2\Chat::getInstance((int)$id);
 			}
 		);
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.shallowLoad
+	 */
+	public function shallowLoadAction(\Bitrix\Im\V2\Chat $chat): ?array
+	{
+		return $this->toRestFormat($chat);
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.load
+	 */
+	public function loadAction(
+		\Bitrix\Im\V2\Chat $chat,
+		CurrentUser $user,
+		int $messageLimit = Chat\Message::DEFAULT_LIMIT,
+		int $pinLimit = Pin::DEFAULT_LIMIT
+	): ?array
+	{
+		$result = $this->load($chat, $user, $messageLimit, $pinLimit);
+
+		if (!empty($this->getErrors()))
+		{
+			return null;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.loadInContext
+	 */
+	public function loadInContextAction(
+		Message $message,
+		CurrentUser $user,
+		int $messageLimit = Chat\Message::DEFAULT_LIMIT,
+		int $pinLimit = Pin::DEFAULT_LIMIT
+	): ?array
+	{
+		$result = $this->load($message->getChat(), $user, $messageLimit, $pinLimit, $message);
+
+		if (!empty($this->getErrors()))
+		{
+			return null;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.get
+	 */
+	public function getAction(\Bitrix\Im\V2\Chat $chat): ?array
+	{
+		return (new RestAdapter($chat))->toRestFormat(['POPUP_DATA_EXCLUDE' => [UserPopupItem::class]]);
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.getDialogId
+	 * @internal
+	 */
+	public function getDialogIdAction(string $externalId): ?array
+	{
+		$chatId = Dialog::getChatId($externalId);
+
+		if ($chatId === false || $chatId === 0)
+		{
+			$this->addError(new ChatError(ChatError::NOT_FOUND));
+
+			return null;
+		}
+
+		return ['dialogId' => "chat{$chatId}"];
 	}
 
 	/**
@@ -251,6 +351,10 @@ class Chat extends BaseController
 			if (isset($fields['manageSettings']))
 			{
 				$chat->setManageSettings($fields['manageSettings']);
+			}
+			if (isset($fields['canPost']))
+			{
+				$chat->setCanPost($fields['canPost']);
 			}
 			if (isset($fields['managers']))
 			{
@@ -480,6 +584,20 @@ class Chat extends BaseController
 
 	//region Manage Settings
 	/**
+	 * @restMethod im.v2.Chat.setDisappearingDuration
+	 */
+	public function setDisappearingDurationAction(\Bitrix\Im\V2\Chat $chat, int $hours)
+	{
+		$result = Message\Delete\DisappearService::disappearChat($chat, $hours);
+		if (!$result->isSuccess())
+		{
+			return $this->convertKeysToCamelCase($result->getErrors());
+		}
+
+		return $result->isSuccess();
+	}
+
+	/**
 	 * @restMethod im.v2.Chat.setOwner
 	 */
 	public function setOwnerAction(\Bitrix\Im\V2\Chat $chat, int $ownerId)
@@ -522,7 +640,6 @@ class Chat extends BaseController
 		}
 
 		return $result->isSuccess();
-
 	}
 
 	/**
@@ -538,7 +655,6 @@ class Chat extends BaseController
 		}
 
 		return $result->isSuccess();
-
 	}
 
 	/**
@@ -555,6 +671,39 @@ class Chat extends BaseController
 
 		return $result->isSuccess();
 
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.setCanPost
+	 */
+	public function setCanPostAction(\Bitrix\Im\V2\Chat $chat, string $rightsLevel)
+	{
+		$chat->setCanPost($rightsLevel);
+		$result = $chat->save();
+		if (!$result->isSuccess())
+		{
+			return $this->convertKeysToCamelCase($result->getErrors());
+		}
+
+		return $result->isSuccess();
+	}
+
+	private function load(\Bitrix\Im\V2\Chat $chat, CurrentUser $user, int $messageLimit, int $pinLimit, ?Message $targetMessage = null): array
+	{
+		$messageLimit = $this->getLimit($messageLimit);
+		$pinLimit = $this->getLimit($pinLimit);
+		$messageService = new MessageService($targetMessage ?? $chat->getLoadContextMessage());
+		$messages = $messageService->getMessageContext($messageLimit, Message::REST_FIELDS)->getResult();
+		$pins = PinCollection::find(
+			['CHAT_ID' => $chat->getChatId(), 'START_ID' => $chat->getStartId() ?: null],
+			['ID' => 'DESC'],
+			$pinLimit
+		);
+		$restAdapter = new RestAdapter($chat, $messages, $pins);
+
+		$rest = $restAdapter->toRestFormat();
+
+		return $messageService->fillContextPaginationData($rest, $messages, $messageLimit);
 	}
 	//endregion
 	//endregion

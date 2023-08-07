@@ -84,6 +84,8 @@ class HighloadBlockRightsTable extends Entity\DataManager
 	{
 		$operations = array();
 		$uid = $GLOBALS['USER']->getId();//@fixme
+		$acc = new \CAccess;
+		$acc->UpdateCodes();
 
 		$res = \Bitrix\HighloadBlock\HighloadBlockRightsTable::getList(array(
 				'select' => array(

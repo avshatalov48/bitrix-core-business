@@ -2,6 +2,8 @@
 
 namespace Bitrix\Socialnetwork\Controller\Livefeed;
 
+use Bitrix\Disk\Driver;
+use Bitrix\Disk\Security\DiskSecurityContext;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -545,5 +547,61 @@ class BlogPost extends Base
 		return $result;
 	}
 
+	// todo
+	public function uploadAIImageAction(string $imageUrl): ?array
+	{
+		$urlData = parse_url($imageUrl);
+		if ($urlData['scheme'] !== 'https')
+		{
+			$this->addError(new Error('System error. Only https.'));
+
+			return null;
+		}
+
+		if (!Loader::includeModule('disk'))
+		{
+			$this->addError(new Error('System error. Disk is not installed.'));
+
+			return null;
+		}
+
+		$client = new \Bitrix\Main\Web\HttpClient();
+		$tempPath = \CFile::getTempName('', bx_basename($imageUrl));
+		$isDownloaded = $client->download($imageUrl, $tempPath);
+		if (!$isDownloaded)
+		{
+			$this->addError(new Error('System error. File cannot be downloaded.'));
+
+			return null;
+		}
+
+		$currentUserId = $this->getCurrentUser()->getId();
+
+		$fileType = $client->getHeaders()->getContentType() ?: \CFile::getContentType($tempPath);
+		$recordFile = \CFile::makeFileArray($tempPath, $fileType);
+		$recordFile['MODULE_ID'] = 'socialnetwork';
+
+		$storage = Driver::getInstance()->getStorageByUserId($currentUserId);
+		$folder = $storage->getFolderForUploadedFiles();
+
+		if (!$folder->canAdd(new DiskSecurityContext($currentUserId)))
+		{
+			$this->addError(new Error('System error. Access denied.'));
+
+			return null;
+		}
+
+		/** @var \Bitrix\Disk\File */
+		$file = $folder->uploadFile(
+			$recordFile,
+			[
+				'CREATED_BY' => $currentUserId,
+			],
+			[],
+			true
+		);
+
+		return ['fileId' => 'n' . $file->getId()];
+	}
 }
 

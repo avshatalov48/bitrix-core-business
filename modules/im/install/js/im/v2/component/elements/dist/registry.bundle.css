@@ -17,6 +17,8 @@
 
 .bx-im-avatar__container {
 	position: relative;
+	-webkit-user-select: none;
+	        user-select: none;
 }
 
 .bx-im-avatar__content {
@@ -566,7 +568,7 @@
 .bx-im-button__scope {
 	--im-button__size_s: 18px;
 	--im-button__size_m: 26px;
-	--im-button__size_l: 33px;
+	--im-button__size_l: 31px;
 	--im-button__size_xl: 39px;
 	--im-button__size_xxl: 47px;
 
@@ -643,7 +645,7 @@
 	border-color: var(--im-button__border-color);
 
 	font-size: var(--im-button__font-size);
-	font-family: var(--im-font-family-open-sans), var(--im-font-family-helvetica);
+	font-family: var(--im-font-family-system);
 	font-weight: var(--im-font-weight-bold, 700);
 	-webkit-user-select: none;
 	        user-select: none;
@@ -1167,7 +1169,8 @@
 }
 
 .bx-im-elements-spinner__container {
-	--im-elements-spinner__background-color_spinner: #00ace3;
+	--im-elements-spinner__border-color_spinner-blue: #00ace3;
+	--im-elements-spinner__border-color_spinner-grey: #C0C3C8;
 
 	width: 100%;
 	display: flex;
@@ -1187,11 +1190,30 @@
 	opacity: 0.2;
 	border-radius: 50%;
 	border-style: solid;
-	border-top-color: var(--im-elements-spinner__background-color_spinner);
-	border-right-color: var(--im-elements-spinner__background-color_spinner);
-	border-bottom-color: var(--im-elements-spinner__background-color_spinner);
+
+	border-top-color: var(--im-elements-spinner__border-color_spinner-blue);
+	border-right-color: var(--im-elements-spinner__border-color_spinner-blue);
+	border-bottom-color: var(--im-elements-spinner__border-color_spinner-blue);
+
 	border-left-color: transparent;
 	animation: spinner-animation 1s infinite linear;
+}
+
+.bx-im-elements-spinner__spinner.--color-grey {
+	opacity: 1;
+	margin-bottom: 0;
+
+	border-top-color: var(--im-elements-spinner__border-color_spinner-grey);
+	border-right-color: var(--im-elements-spinner__border-color_spinner-grey);
+	border-bottom-color: var(--im-elements-spinner__border-color_spinner-grey);
+}
+
+
+.bx-im-elements-spinner__spinner.--size-xxs {
+	width: 16px;
+	height: 16px;
+	border-width: 2px;
+	box-sizing: border-box;
 }
 
 .bx-im-elements-spinner__spinner.--size-s {
@@ -1445,16 +1467,20 @@
 	color: var(--im-elements-tabs__color_selected-tab);
 }
 
+
 .bx-im-elements-tabs__item-title {
 	font: var(--im-font-size-lg)/var(--im-font-line-height-reset) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-medium);
 	color: var(--im-elements-tabs__color_nonselected-tab);
+	line-height: var(--im-font-line-height-3xs);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
-	transition: color 0.2s linear;
 	-webkit-user-select: none;
 	        user-select: none;
+}
+.bx-im-elements-tabs__item-title.--transition {
+	transition: color 0.2s linear;
 }
 
 .bx-im-elements-tabs__control {
@@ -1513,7 +1539,10 @@
 	border-top-right-radius: 3px;
 	bottom: 0;
 	background-color: var(--im-elements-tabs__background-color_selected-tab);
-	transition: .3s cubic-bezier(.25,.8,.5,1);
+}
+
+.bx-im-elements-tabs__highlight.--transition {
+	transition: .3s cubic-bezier(.25,.8,.5,1)
 }
 
 .bx-im-elements-tabs__elements::-webkit-scrollbar {
@@ -1676,6 +1705,14 @@
 
 .bx-im-menu_item__icon.--vote {
 	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='20' height='21' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M9.985 3.123c.461 0 .848.315.95.74V9.95c0 .1.08.182.18.185H11.203c.102 0 .184-.08.188-.179V5.587a.95.95 0 01.87-.56c.447 0 .822.305.923.717v5.186c0 .1.08.181.18.185H13.45c.101 0 .184-.08.187-.18V8.204c0-.446.366-.807.816-.807.451 0 .73.361.73.807v2.382s-.011 1.692-.098 2.497c-.087.805-.406 2.941-1.612 4.818a.348.348 0 01-.284.16h-5.37a.35.35 0 01-.273-.132l-.006-.007-3.969-5.29a.394.394 0 01.065-.54c.19-.159.39-.253.598-.284l.107-.015c.398-.058.665-.076 1.22.248.396.232.757.647 1.08 1.246l.013.023v-7.74c0-.534.437-.966.977-.966h.026c.461 0 .848.316.95.74v4.183c0 .1.08.182.181.186h.087c.101 0 .184-.08.187-.18V3.706a.977.977 0 01.896-.582h.027z' fill='%2355D0E0'/%3E%3C/svg%3E");
+}
+
+.bx-im-menu_item__icon.--ai-text {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M14.475 5.493a.639.639 0 01-.639-.638v-.177c0-.353.286-.639.639-.639h4.835c.353 0 .639.286.639.639v.177a.639.639 0 01-.64.638h-1.371V18.59H19.31c.353 0 .639.286.639.639v.183a.639.639 0 01-.64.639h-4.834a.639.639 0 01-.639-.64v-.183c0-.352.286-.638.639-.638H15.847V5.493H14.475zm.005 11.914v-6.28L12.046 5.33l-1.163-.007a2.543 2.543 0 00-2.366 1.565A758.553 758.553 0 005.901 13.3c-.494 1.22-.988 2.442-1.486 3.662-.25.611-.454 1.127-.454 1.147 0 .035.795.042 1.553.042.794 0 1.506-.494 1.79-1.235l.277-.722.357-.942 2.67-.01 2.67-.007.53 1.313.127.319.217.54h.328zm-2.982-6.673c.49 1.26.885 2.298.878 2.305-.007.007-.819.01-1.8.007l-1.782-.01.884-2.322c.49-1.277.898-2.312.909-2.299.01.014.423 1.055.912 2.319z' fill='%23C15FD2'/%3E%3C/svg%3E");
+}
+
+.bx-im-menu_item__icon.--ai-image {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.857 2.098a.183.183 0 01.345 0l.223.625c.018.052.059.093.11.111l.625.223a.183.183 0 010 .345l-.625.222a.183.183 0 00-.11.111l-.224.625a.183.183 0 01-.345 0l-.222-.625a.183.183 0 00-.111-.111l-.624-.223a.183.183 0 010-.345l.624-.222a.183.183 0 00.111-.111l.223-.625zM5.348 2.68a.183.183 0 01.345 0l.772 2.17c.019.053.06.093.111.112l2.17.775a.183.183 0 010 .345l-2.17.772a.183.183 0 00-.112.111l-.775 2.17a.183.183 0 01-.345 0l-.772-2.17a.183.183 0 00-.111-.112l-2.17-.775a.183.183 0 010-.345l2.17-.772a.183.183 0 00.112-.111l.775-2.17z' fill='%23C15FD2'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M5.884 18.378l.004-7.273a6.62 6.62 0 005.066-5.089l7.302.004c.91 0 1.648.74 1.647 1.65l-.006 10.716c0 .91-.739 1.648-1.65 1.648l-10.715-.006c-.91-.001-1.648-.74-1.648-1.65zm1.692-.286c0 .135.109.244.244.244l10.19.006c.135 0 .245-.109.245-.244v-.486a.244.244 0 00-.06-.16l-2.601-3.006a.244.244 0 00-.37 0l-1.055 1.217a.244.244 0 01-.37 0l-3.188-3.684a.244.244 0 00-.369 0L7.637 14.98a.244.244 0 00-.06.16l-.001 2.951zM15.75 8.4a.183.183 0 01.345 0l.366 1.03c.018.05.059.092.11.11l1.029.367a.183.183 0 010 .345l-1.029.366a.183.183 0 00-.11.111l-.368 1.028a.183.183 0 01-.345 0l-.366-1.028a.183.183 0 00-.111-.111l-1.028-.368a.183.183 0 010-.344l1.029-.367a.183.183 0 00.11-.11l.368-1.029z' fill='%23C15FD2'/%3E%3C/svg%3E");
 }
 .bx-im-attach-delimiter__container {
 	display: block;

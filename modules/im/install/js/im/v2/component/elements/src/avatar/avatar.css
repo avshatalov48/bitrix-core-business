@@ -17,6 +17,7 @@
 
 .bx-im-avatar__container {
 	position: relative;
+	user-select: none;
 }
 
 .bx-im-avatar__content {

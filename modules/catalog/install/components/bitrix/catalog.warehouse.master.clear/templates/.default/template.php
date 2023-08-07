@@ -193,6 +193,13 @@ $APPLICATION->SetPageProperty(
 				},
 				handleInstallPresetClick()
 				{
+					if (this.isPlanRestricted)
+					{
+						this.showRestrictionSlider();
+
+						return;
+					}
+
 					this.showLoader = true;
 					var controller = new BX.Catalog.StoreUse.Controller();
 					controller

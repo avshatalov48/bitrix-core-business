@@ -1030,7 +1030,7 @@ class CAdminUiList extends CAdminList
 				{
 					if (!is_array($row->arRes[$columnId]))
 					{
-						$value = trim($row->arRes[$columnId]);
+						$value = trim((string)$row->arRes[$columnId]);
 					}
 					else
 					{
@@ -1101,7 +1101,7 @@ class CAdminUiList extends CAdminList
 								$field["view"]["showInfo"], $field["view"]["inputs"]) : "";
 							break;
 						case "html":
-							$value = $field["view"]["value"];
+							$value = $field["view"]["value"] ?? '';
 							break;
 						default:
 							$value = htmlspecialcharsex($value);
@@ -1192,6 +1192,7 @@ class CAdminUiList extends CAdminList
 			return;
 		}
 
+		// TODO: use \Bitrix\Main\Grid\Column\Type::getEditorType
 		switch ($field["edit"]["type"])
 		{
 			case "input":

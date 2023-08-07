@@ -125,6 +125,21 @@ class ChatFactory
 	}
 
 	/**
+	 * @param string $entityType
+	 * @param int|string $entityId
+	 * @return Chat|GeneralChat|null
+	 */
+	public function getGeneralChat(): ?GeneralChat
+	{
+		$params = [
+			'TYPE' => Chat::IM_TYPE_OPEN,
+			'ENTITY_TYPE' => Chat::ENTITY_TYPE_GENERAL
+		];
+
+		return $this->getChat($params);
+	}
+
+	/**
 	 * @return Chat|Chat\PrivateChat|null
 	 */
 	public function getPrivateChat($fromUserId, $toUserId): ?Chat\PrivateChat
@@ -409,6 +424,14 @@ class ChatFactory
 
 			case Chat::IM_TYPE_CHAT:
 			case Chat::IM_TYPE_OPEN:
+				if (
+					isset($params['ENTITY_TYPE'])
+					&& $params['ENTITY_TYPE'] == Chat::ENTITY_TYPE_GENERAL
+				)
+				{
+					$result = GeneralChat::find($params);
+					break;
+				}
 			case Chat::IM_TYPE_OPEN_LINE:
 				$result = Chat::find($params, $this->context);
 				break;

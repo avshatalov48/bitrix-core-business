@@ -106,7 +106,7 @@ class CUserCounter extends CAllUserCounter
 			ON DUPLICATE KEY UPDATE CNT = CNT + ".$increment;
 		$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
-		if (self::$counters && self::$counters[$user_id])
+		if (isset(self::$counters[$user_id]) && is_array(self::$counters[$user_id]))
 		{
 			if ($site_id === self::ALL_SITES)
 			{

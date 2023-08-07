@@ -300,8 +300,10 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 					$this->listPropertyIdWithoutPrefix[] = $property['ID'];
 				if ($property['USER_TYPE_SETTINGS'][$this->arParams['ENTITY_TYPE_NAME']] == 'Y')
 				{
-					if(!is_array($listProperty[$property['IBLOCK_ID']]))
-						$listProperty[$property['IBLOCK_ID']] = array();
+					if (!isset($listProperty[$property['IBLOCK_ID']]) || !is_array($listProperty[$property['IBLOCK_ID']]))
+					{
+						$listProperty[$property['IBLOCK_ID']] = [];
+					}
 					$listProperty[$property['IBLOCK_ID']][] = $property['ID'];
 				}
 			}
@@ -350,7 +352,7 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 				[],
 				$elementFilter,
 				false,
-				$this->listGridOptions[$iblockId]['navParams'],
+				$this->listGridOptions[$iblockId]['navParams'] ?? null,
 				['ID'],
 			);
 
@@ -511,8 +513,10 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 				if(!is_array($element))
 					continue;
 
-				if(!is_array($this->listFieldsValue[$element['ID']]))
-					$this->listFieldsValue[$element['ID']] = array();
+				if (!isset($this->listFieldsValue[$element['ID']]) || !is_array($this->listFieldsValue[$element['ID']]))
+				{
+					$this->listFieldsValue[$element['ID']] = [];
+				}
 
 				foreach($element as $fieldId => $fieldValue)
 				{

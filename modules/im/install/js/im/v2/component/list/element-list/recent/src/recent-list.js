@@ -250,7 +250,7 @@ export const RecentList = {
 		},
 		managePreloadedList()
 		{
-			const {preloadedList} = Core.getApplicationData(ApplicationName.quickAccess);
+			const {preloadedList} = Core.getApplicationData();
 			if (!preloadedList || !this.compactMode)
 			{
 				return false;

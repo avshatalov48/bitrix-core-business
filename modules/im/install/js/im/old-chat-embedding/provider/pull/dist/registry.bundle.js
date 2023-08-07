@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
@@ -63,9 +64,15 @@ this.BX.Messenger.Embedding.Provider = this.BX.Messenger.Embedding.Provider || {
 	    this.execMessageUpdateOrDelete(params, extra, command);
 	  }
 	  handleMessageDeleteComplete(params, extra) {
-	    this.execMessageUpdateOrDelete(params, extra, command);
+	    this.execMessageUpdateOrDelete(params);
+	    this.store.dispatch('dialogues/update', {
+	      dialogId: params.dialogId,
+	      fields: {
+	        counter: params.counter
+	      }
+	    });
 	  }
-	  execMessageUpdateOrDelete(params, extra, command) {
+	  execMessageUpdateOrDelete(params) {
 	    this.store.dispatch('dialogues/stopWriting', {
 	      dialogId: params.dialogId,
 	      userId: params.senderId
@@ -300,6 +307,17 @@ this.BX.Messenger.Embedding.Provider = this.BX.Messenger.Embedding.Provider || {
 	  }
 	  handleMessageDelete(params, extra, command) {
 	    this.handleMessageUpdate(params, extra, command);
+	  }
+	  handleMessageDeleteComplete(params, extra) {
+	    const lastMessageWasDeleted = Boolean(params.newLastMessage);
+	    if (lastMessageWasDeleted) {
+	      this.store.dispatch('recent/update', {
+	        id: params.dialogId,
+	        fields: {
+	          message: params.newLastMessage
+	        }
+	      });
+	    }
 	  }
 	  handleReadMessageOpponent(params) {
 	    im_oldChatEmbedding_lib_logger.Logger.warn('RecentPullHandler: handleReadMessageOpponent', params);

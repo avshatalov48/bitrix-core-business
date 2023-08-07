@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,im_lib_animation,ui_forms,ui_designTokens,im_view_element_attach,im_view_element_keyboard,ui_vue,main_core,ui_vue_vuex,im_lib_logger,ui_vue_portal,im_view_popup,main_popup,im_lib_utils,im_const,im_lib_timer,main_core_events) {
 	'use strict';

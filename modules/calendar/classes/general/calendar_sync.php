@@ -1098,8 +1098,9 @@ class CCalendarSync
 					'DESCRIPTION' => $value["DESCRIPTION"] ?? null,
 					'COLOR' => $value["COLOR"] ?? null,
 					'EXPORT' => ['ALLOW' => false],
-					"CREATED_BY" => $entityType === 'user' ? $entityId : 0,
+					'CREATED_BY' => $entityType === 'user' ? $entityId : 0,
 					'ACCESS' => [],
+					'EXTERNAL_TYPE' => $connectionType,
 					$xmlIdField => $key,
 					$xmlIdModLabel => $value["MODIFICATION_LABEL"] ?? null
 				];
@@ -1112,7 +1113,7 @@ class CCalendarSync
 				{
 					$arFields["CREATED_BY"] = $entityId;
 				}
-				if ($connectionType === 'exchange')
+				if ($connectionType === Bitrix\Calendar\Sync\Caldav\Helper::EXCHANGE_TYPE)
 				{
 					$arFields["IS_EXCHANGE"] = 1;
 				}

@@ -10,8 +10,8 @@ return [
 	],
 	'rel' => [
 		'main.core.events',
-		'im.v2.lib.logger',
 		'ui.reactions-select',
+		'im.v2.lib.logger',
 		'im.v2.application.core',
 		'im.v2.lib.utils',
 		'main.core',

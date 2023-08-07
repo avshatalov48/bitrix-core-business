@@ -10,30 +10,29 @@ namespace Bitrix\Sender\Message;
 
 class ConfigurationOption
 {
-	const TYPE_DATE_TIME = 'datetime';
-	const TYPE_TIME = 'time';
-	const TYPE_NUMBER = 'number';
-	const TYPE_CUSTOM = 'custom';
-	const TYPE_PRESET_STRING = 'preset-string';
-	const TYPE_STRING = 'string';
-	const TYPE_CHECKBOX = 'checkbox';
-	const TYPE_CONSENT = 'user-consent';
-	const TYPE_CONSENT_CONTENT = 'user-consent-content';
-	const TYPE_EMAIL = 'email';
-	const TYPE_LIST = 'list';
-	const TYPE_HTML = 'html';
-	const TYPE_TEXT = 'text';
-	const TYPE_FILE = 'file';
-	const TYPE_TITLE= 'title';
-	const TYPE_TEMPLATE_TYPE = 'template-type';
-	const TYPE_TEMPLATE_ID = 'template-id';
-	const TYPE_MAIL_EDITOR = 'mail-editor';
-	const TYPE_AUDIO = 'audio';
-	const TYPE_SMS_EDITOR = 'sms-editor';
-	const TYPE_USER_LIST = 'user-list';
-
-	const GROUP_DEFAULT = 0;
-	const GROUP_ADDITIONAL = 1;
+	public const TYPE_DATE_TIME = 'datetime';
+	public const TYPE_TIME = 'time';
+	public const TYPE_NUMBER = 'number';
+	public const TYPE_PRESET_STRING = 'preset-string';
+	public const TYPE_CUSTOM = 'custom';
+	public const TYPE_STRING = 'string';
+	public const TYPE_CHECKBOX = 'checkbox';
+	public const TYPE_CONSENT = 'user-consent';
+	public const TYPE_CONSENT_CONTENT = 'user-consent-content';
+	public const TYPE_EMAIL = 'email';
+	public const TYPE_LIST = 'list';
+	public const TYPE_HTML = 'html';
+	public const TYPE_TEXT = 'text';
+	public const TYPE_FILE = 'file';
+	public const TYPE_TITLE = 'title';
+	public const TYPE_TEMPLATE_TYPE = 'template-type';
+	public const TYPE_TEMPLATE_ID = 'template-id';
+	public const TYPE_MAIL_EDITOR = 'mail-editor';
+	public const TYPE_AUDIO = 'audio';
+	public const TYPE_SMS_EDITOR = 'sms-editor';
+	public const TYPE_USER_LIST = 'user-list';
+	public const GROUP_DEFAULT = 0;
+	public const GROUP_ADDITIONAL = 1;
 
 	/** @var string $type Type. */
 	protected $type;
@@ -51,7 +50,7 @@ class ConfigurationOption
 	protected $value;
 
 	/** @var array $items Items. */
-	protected $items = array();
+	protected $items = [];
 
 	/** @var integer $group Group. */
 	protected $group = self::GROUP_DEFAULT;
@@ -93,7 +92,7 @@ class ConfigurationOption
 	 * Configuration constructor.
 	 * @param array $data Data.
 	 */
-	public function __construct(array $data = array())
+	public function __construct(array $data = [])
 	{
 		if (isset($data['type']))
 		{
@@ -176,7 +175,7 @@ class ConfigurationOption
 	 */
 	public function getArray()
 	{
-		return array(
+		return [
 			'type' => $this->getType(),
 			'code' => $this->getCode(),
 			'name' => $this->getName(),
@@ -193,7 +192,7 @@ class ConfigurationOption
 			'show_in_list' => $this->getShowInList(),
 			'show_preview' => $this->getShowPreview(),
 			'show_helper' => $this->getShowHelper(),
-		);
+		];
 	}
 
 	/**
@@ -297,7 +296,7 @@ class ConfigurationOption
 	 */
 	public function hasValue()
 	{
-		return is_array($this->value) ? count($this->value) > 0 : !!$this->value;
+		return is_array($this->value) ? count($this->value) > 0 : (bool)$this->value;
 	}
 
 	/**
@@ -352,10 +351,10 @@ class ConfigurationOption
 	{
 		if (!is_numeric(implode('', array_keys($items))))
 		{
-			$this->items = array();
+			$this->items = [];
 			foreach ($items as $code => $value)
 			{
-				$this->items[] = array('code' => $code, 'value' => $value);
+				$this->items[] = ['code' => $code, 'value' => $value];
 			}
 		}
 		else
@@ -382,7 +381,7 @@ class ConfigurationOption
 	 */
 	public function setRequired($required)
 	{
-		$this->required = (bool) $required;
+		$this->required = (bool)$required;
 	}
 
 	/**
@@ -403,7 +402,7 @@ class ConfigurationOption
 	 */
 	public function setTemplated($templated)
 	{
-		$this->templated = (bool) $templated;
+		$this->templated = (bool)$templated;
 	}
 
 	/**

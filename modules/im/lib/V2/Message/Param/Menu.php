@@ -25,7 +25,7 @@ class Menu extends Param
 			$this->menu = Im\Bot\ContextMenu::getByJson($value);
 		}
 
-		if ($this->menu)
+		if (isset($this->menu))
 		{
 			$this->value = $this->menu->getArray();
 			$this->jsonValue = $this->menu->getJson();

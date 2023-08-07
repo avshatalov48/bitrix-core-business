@@ -1817,6 +1817,9 @@ this.BX = this.BX || {};
 	      main_core.Dom.addClass(wrapper, 'catalog-product-edit');
 	      main_core.Dom.removeClass(wrapper, 'catalog-product-view');
 	    }
+	    if (this.isImageFieldEnabled()) {
+	      main_core.Dom.addClass(wrapper, '--with-images');
+	    }
 	  }
 	  getNameBlockView() {
 	    const productName = main_core.Text.encode(this.model.getField('NAME'));

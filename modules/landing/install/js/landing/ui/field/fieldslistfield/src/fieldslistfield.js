@@ -10,6 +10,7 @@ import {ActionPanel} from 'landing.ui.component.actionpanel';
 import {TextField} from 'landing.ui.field.textfield';
 import {BaseEvent} from 'main.core.events';
 import {FormSettingsForm} from 'landing.ui.form.formsettingsform';
+import {FileLimit} from 'crm.form.file-limit';
 import {FormClient} from 'crm.form.client';
 import {ListSettingsField} from 'landing.ui.field.listsettingsfield';
 import {SeparatorPanel} from 'landing.ui.panel.separatorpanel';
@@ -419,6 +420,187 @@ export class FieldsListField extends BaseField
 		return defaultValueField;
 	}
 
+	createFileLimitationFields(field): Array<BaseField>
+	{
+		let limitationFields: Array<BaseField> = [];
+
+		if (Type.isInteger(this.options.dictionary.defaultMaxFileFieldSizeMbValue))
+		{
+			const defaultSizeValue = this.options.dictionary.defaultMaxFileFieldSizeMbValue;
+			let lastSizeValue = field.maxSizeMb || defaultSizeValue;
+			if (lastSizeValue < 0)
+			{
+				lastSizeValue = '';
+			}
+
+			const sizeField = new TextField({
+				id: 'maxSizeMb',
+				selector: 'maxSizeMb',
+				title: Loc.getMessage('LANDING_FIELDS_ITEM_FORM_MAX_FILE_SIZE'),
+				content: String(lastSizeValue),
+				textOnly: true,
+				help: Loc.getMessage('LANDING_FIELDS_ITEM_FORM_MAX_FILE_SIZE_HINT'),
+				onValueChange: (e) => {
+					if (e.getValue() === '')
+					{
+						return;
+					}
+
+					if (e.getValue() === lastSizeValue)
+						return;
+
+					const value = Number(e.getValue());
+					if (Number.isNaN(value))
+					{
+						e.setValue(lastSizeValue);
+						return;
+					}
+					if (String(value) !== e.getValue())
+					{
+						e.setValue(String(value));
+						return;
+					}
+					field.maxSizeMb = value;
+					lastSizeValue = e.getValue();
+				}
+			});
+
+			let titleText = '';
+			let configureNodeText = Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_CONFIGURE_FULL');
+			if (Type.isInteger(this.options.dictionary.dailyFileLimitSizeMbValue))
+			{
+				titleText = Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_TITLE')
+					.replace('%size%', this.options.dictionary.dailyFileLimitSizeMbValue)
+				;
+				configureNodeText = Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_CONFIGURE');
+			}
+
+			const dailyLimitTitleNode = Tag.render
+				`<span style="margin-right: 5px">${titleText}</span>
+			`;
+			const dailyLimitConfigureNode = Tag.render`
+					<div class="landing-ui-field-fields-list-item-button">${configureNodeText}</div>
+			`;
+
+			const dailyLimitNode = Tag.render`
+					<div class="ui-color-light ui-text-4" style="margin-top: 4px"> 
+							${dailyLimitTitleNode}
+							${dailyLimitConfigureNode}
+					</div>
+			`;
+			dailyLimitConfigureNode.addEventListener('click', () => {
+				FileLimit.instance()
+					.subscribe('onSuccessLimitChanged', (event) => {
+						if (Type.isUndefined(event.data.limit))
+							return;
+
+						this.options.dictionary.dailyFileLimitSizeMbValue = event.data.limit;
+						if (Type.isInteger(event.data.limit))
+						{
+							dailyLimitTitleNode.innerText =
+								Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_TITLE')
+									.replace('%size%', event.data.limit)
+							;
+							dailyLimitConfigureNode.innerText = Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_CONFIGURE');
+						}
+
+						if (Type.isNull(event.data.limit))
+						{
+							dailyLimitTitleNode.innerText = '';
+							dailyLimitConfigureNode.innerText = Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_CONFIGURE_FULL');
+						}
+					})
+					.open()
+				;
+			});
+			sizeField.getLayout().appendChild(dailyLimitNode);
+			limitationFields.push(sizeField);
+		}
+
+		if (Type.isArrayFilled(this.options.dictionary.contentTypes))
+		{
+			const adjustContentTypesField = (value) => {
+				if (value.includes('any'))
+				{
+					const inputs = [...contentTypesField.layout
+						.querySelectorAll('.landing-ui-field-checkbox-item-checkbox')];
+					inputs.forEach((input) => {
+						if (Dom.attr(input, 'value') === 'any')
+						{
+							Dom.removeClass(input.closest('.landing-ui-field-checkbox-item'), 'landing-ui-disabled');
+						}
+						else
+						{
+							Dom.addClass(input.closest('.landing-ui-field-checkbox-item'), 'landing-ui-disabled');
+						}
+					});
+				}
+				else
+				{
+					const inputs = [...contentTypesField.layout
+						.querySelectorAll('.landing-ui-field-checkbox-item-checkbox')];
+					inputs.forEach((input) => {
+						Dom.removeClass(input.closest('.landing-ui-field-checkbox-item'), 'landing-ui-disabled');
+					});
+				}
+			};
+
+			const selectedContentTypes = Type.isArrayFilled(field.contentTypes) ? field.contentTypes : ['any'];
+			let lastValue = selectedContentTypes;
+			const contentTypesField = new BX.Landing.UI.Field.Checkbox({
+				selector: 'contentTypes',
+				title: Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_FILE_TYPE'),
+				value: selectedContentTypes,
+				items: [
+					(() => {
+						if (Loc.hasMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE'))
+						{
+							return {
+								name: Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE'),
+								value: 'any',
+							};
+						}
+
+						return undefined;
+					})(),
+					...this.options.dictionary.contentTypes.map((item) => {
+						const hint = item.hint
+							? `<span class="ui-hint" data-hint="${Text.encode(item.hint)}"></span>`
+							: ''
+						;
+						return {
+							html: `<span style="display: flex; align-items: center;">${Text.encode(item.name)} ${hint}</span>`,
+							name: '',
+							value: item.id
+						};
+					}),
+				],
+				onValueChange: () => {
+					const value = contentTypesField.getValue();
+
+					if (value.includes('any'))
+					{
+						if (lastValue.includes('any'))
+						{
+							contentTypesField.setValue(value.filter((item) => item !== 'any'));
+						}
+						else
+						{
+							contentTypesField.setValue(['any']);
+						}
+					}
+
+					lastValue = contentTypesField.getValue();
+				},
+			});
+
+			BX.UI.Hint.init(contentTypesField.getLayout());
+			limitationFields.push(contentTypesField);
+		}
+
+		return limitationFields;
+	}
+
 	createDefaultValueField(field): BX.Landing.UI.Field.Dropdown
 	{
 		return new BX.Landing.UI.Field.Dropdown({
@@ -786,90 +968,6 @@ export class FieldsListField extends BaseField
 			);
 		}
 
-		if (
-			field.type === 'file'
-			&& Type.isArrayFilled(this.options.dictionary.contentTypes)
-		)
-		{
-			const adjustContentTypesField = (value) => {
-				if (value.includes('any'))
-				{
-					const inputs = [...contentTypesField.layout
-						.querySelectorAll('.landing-ui-field-checkbox-item-checkbox')];
-					inputs.forEach((input) => {
-						if (Dom.attr(input, 'value') === 'any')
-						{
-							Dom.removeClass(input.closest('.landing-ui-field-checkbox-item'), 'landing-ui-disabled');
-						}
-						else
-						{
-							Dom.addClass(input.closest('.landing-ui-field-checkbox-item'), 'landing-ui-disabled');
-						}
-					});
-				}
-				else
-				{
-					const inputs = [...contentTypesField.layout
-						.querySelectorAll('.landing-ui-field-checkbox-item-checkbox')];
-					inputs.forEach((input) => {
-						Dom.removeClass(input.closest('.landing-ui-field-checkbox-item'), 'landing-ui-disabled');
-					});
-				}
-			};
-
-			const selectedContentTypes = Type.isArrayFilled(field.contentTypes) ? field.contentTypes : ['any'];
-			let lastValue = selectedContentTypes;
-			const contentTypesField = new BX.Landing.UI.Field.Checkbox({
-				selector: 'contentTypes',
-				title: Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_FILE_TYPE'),
-				value: selectedContentTypes,
-				items: [
-					(() => {
-						if (Loc.hasMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE'))
-						{
-							return {
-								name: Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE'),
-								value: 'any',
-							};
-						}
-
-						return undefined;
-					})(),
-					...this.options.dictionary.contentTypes.map((item) => {
-						const hint = item.hint
-							? `<span class="ui-hint" data-hint="${Text.encode(item.hint)}"></span>`
-							: ''
-						;
-						return {
-							html: `<span style="display: flex; align-items: center;">${Text.encode(item.name)} ${hint}</span>`,
-							name: '',
-							value: item.id
-						};
-					}),
-				],
-				onValueChange: () => {
-					const value = contentTypesField.getValue();
-
-					if (value.includes('any'))
-					{
-						if (lastValue.includes('any'))
-						{
-							contentTypesField.setValue(value.filter((item) => item !== 'any'));
-						}
-						else
-						{
-							contentTypesField.setValue(['any']);
-						}
-					}
-
-					lastValue = contentTypesField.getValue();
-				},
-			});
-
-			BX.UI.Hint.init(contentTypesField.getLayout());
-			fields.push(contentTypesField);
-		}
-
 		if (Text.toBoolean(field.editing.supportAutocomplete) === true)
 		{
 			fields.push(new BX.Landing.UI.Field.Checkbox({
@@ -921,6 +1019,15 @@ export class FieldsListField extends BaseField
 					value: field.hintOnFocus ? ['hintOnFocus'] : false,
 				}),
 			);
+		}
+
+		if (field.type === 'file')
+		{
+			const limitationFields = this.createFileLimitationFields(field);
+
+			limitationFields.forEach((item: BaseField) => {
+				fields.push(item);
+			});
 		}
 
 		fields.forEach((currentField) => {

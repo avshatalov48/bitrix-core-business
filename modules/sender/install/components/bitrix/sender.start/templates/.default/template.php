@@ -16,9 +16,15 @@ Extension::load(
 		"ui.icons",
 		"ui.info-helper",
 		'ui.feedback.form',
-		'crm.ads.conversion'
+		'crm.ads.conversion',
+		'ui.tour'
 	]
 );
+
+$APPLICATION->IncludeComponent("bitrix:ui.tile.list", "", [
+	'ID' => 'sender-start-helper',
+	'LIST' => [],
+]);
 
 $containerId = 'sender-start-container';
 ?>
@@ -137,13 +143,15 @@ $containerId = 'sender-start-container';
 			</div>
 		</div>
 	</div>
-
 	<script type="text/javascript">
-		BX.ready(function () {
-			BX.Sender.Start.init(<?=Json::encode(array(
-				'containerId' => $containerId
-			))?>);
+		BX.ready(() => {
+			BX.message(<?= CUtil::phpToJsObject(Loc::loadLanguageFile(__FILE__)) ?>);
+			BX.Sender.Start.init(<?= CUtil::PhpToJSObject([
+				'containerId' => $containerId,
+				'needShowMasterYandexInitialTour' => $arResult['SHOW_MASTER_YANDEX_INITIAL_TOUR'] ?? false,
+				'masterYandexInitialTourId' => $arResult['MASTER_YANDEX_INITIAL_TOUR_ID'],
+				'masterYandexInitialTourHelpdeskCode' => $arResult['MASTER_YANDEX_INITIAL_TOUR_HELPDESK_CODE'],
+			]) ?>);
 		});
 	</script>
-
 </div>

@@ -113,6 +113,12 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 			</div>
 		<? endif ?>
 
+		<? if ($arParams['SHOW_TOP_ALERT']): ?>
+			<div class="mail-connect-section-block">
+				<div class="mailbox-config-top-alert"></div>
+			</div>
+		<? endif ?>
+
 		<? if (!empty($mailbox)): ?>
 			<div class="mail-connect-section-block">
 				<div class="mail-connect-mailbox-block">
@@ -680,6 +686,28 @@ $arJsParams = array(
 
 	BX.ready(function() {
 		BX.MailClientConfig.Edit.init(<?=CUtil::PhpToJSObject($arJsParams)?>);
+		const topAlertBlock = document.querySelector('.mailbox-config-top-alert');
+		if (topAlertBlock)
+		{
+			const message = '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MAILBOX_TEMPORARY_ALERT_MSG_2', ['#LINK#' => '<a href="https://mail.google.com" target="_blank">Gmail</a>'])) ?>';
+			const alert = new BX.UI.Alert({
+				text: message,
+				closeBtn: true,
+				animate: true,
+				color: BX.UI.Alert.Color.WARNING,
+			});
+
+			alert.getCloseBtn().addEventListener('click', function () {
+				BX.ajax.runComponentAction('bitrix:mail.client.config', 'closeTemporaryDangerButton', {
+					mode: 'class',
+					data: {
+						type: 'temp_alert_google',
+					}
+				});
+			});
+
+			alert.renderTo(topAlertBlock);
+		}
 	});
 
 	BX.message({

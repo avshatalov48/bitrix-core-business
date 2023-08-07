@@ -56,7 +56,7 @@ class WarehouseMasterClear extends CBitrixComponent implements Bitrix\Main\Engin
 
 		$this->arResult['IS_USED_ONEC'] = \Bitrix\Catalog\Component\UseStore::isUsedOneC();
 		$this->arResult['IS_PLAN_RESTRICTED'] = \Bitrix\Catalog\Component\UseStore::isPlanRestricted();
-		$this->arResult['IS_USED'] = \Bitrix\Catalog\Component\UseStore::isUsed();
+		$this->arResult['IS_USED'] = \Bitrix\Catalog\Config\State::isEnabledInventoryManagement();
 		$this->arResult['IS_EMPTY'] = \Bitrix\Catalog\Component\UseStore::isEmpty();
 		$this->arResult['IS_RESTRICTED_ACCESS'] = !$this->checkRights();
 		$this->arResult['MODE'] = $this->arParams['MODE'];

@@ -11,8 +11,10 @@ use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Data;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Diag;
+use Bitrix\Main\Routing\CompileCache;
 use Bitrix\Main\Routing\Route;
 use Bitrix\Main\Routing\Router;
+use Bitrix\Main\Routing\RoutingConfigurator;
 use Bitrix\Main\Session\CompositeSessionManager;
 use Bitrix\Main\Session\KernelSessionProxy;
 use Bitrix\Main\Session\SessionConfigurationResolver;
@@ -182,6 +184,11 @@ abstract class Application
 	 */
 	public function getRouter(): Router
 	{
+		if ($this->router === null)
+		{
+			$this->router = $this->initializeRouter();
+		}
+
 		return $this->router;
 	}
 
@@ -212,6 +219,59 @@ abstract class Application
 	public function setCurrentRoute(Route $currentRoute): void
 	{
 		$this->currentRoute = $currentRoute;
+	}
+
+	protected function initializeRouter()
+	{
+		$routes = new RoutingConfigurator();
+		$router = new Router();
+		$routes->setRouter($router);
+
+		$this->setRouter($router);
+
+		// files with routes
+		$files = [];
+
+		// user files
+		$routingConfig = Configuration::getInstance()->get('routing');
+		$documentRoot = $this->context->getServer()->getDocumentRoot();
+
+		if (!empty($routingConfig['config']))
+		{
+			$fileNames = $routingConfig['config'];
+
+			foreach ($fileNames as $fileName)
+			{
+				foreach (['local', 'bitrix'] as $vendor)
+				{
+					$filename = $documentRoot . '/' . $vendor . '/routes/' . basename($fileName);
+
+					if (file_exists($filename))
+					{
+						$files[] = $filename;
+					}
+				}
+			}
+		}
+
+		// system files
+		if (file_exists($documentRoot.'/bitrix/routes/web_bitrix.php'))
+		{
+			$files[] = $documentRoot.'/bitrix/routes/web_bitrix.php';
+		}
+
+		foreach ($files as $file)
+		{
+			$callback = include $file;
+			$callback($routes);
+		}
+
+		$router->releaseRoutes();
+
+		// cache for route compiled data
+		CompileCache::handle($files, $router);
+
+		return $router;
 	}
 
 	/**

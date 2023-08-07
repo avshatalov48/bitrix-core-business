@@ -4,21 +4,27 @@ namespace Bitrix\Im\V2\Rest;
 
 class RestAdapter
 {
-	protected RestConvertible $entity;
+	/**
+	 * @var array<RestConvertible>
+	 */
+	protected array $entities;
 	protected ?PopupData $additionalPopupData = null;
 
-	public function __construct(RestConvertible $entity)
+	public function __construct(RestConvertible ...$entities)
 	{
-		$this->entity = $entity;
+		$this->entities = $entities;
 	}
 
 	public function toRestFormat(array $options = []): array
 	{
 		$popupData = new PopupData([]);
 
-		if ($this->entity instanceof PopupDataAggregatable)
+		foreach ($this->entities as $entity)
 		{
-			$popupData->merge($this->entity->getPopupData());
+			if ($entity instanceof PopupDataAggregatable)
+			{
+				$popupData->merge($entity->getPopupData($options['POPUP_DATA_EXCLUDE'] ?? []));
+			}
 		}
 
 		if (isset($this->additionalPopupData))
@@ -30,10 +36,16 @@ class RestAdapter
 
 		if (empty($rest))
 		{
-			return $this->entity->toRestFormat($options);
+			if (count($this->entities) === 1)
+			{
+				return $this->entities[0]->toRestFormat($options);
+			}
 		}
 
-		$rest[$this->entity::getRestEntityName()] = $this->entity->toRestFormat($options);
+		foreach ($this->entities as $entity)
+		{
+			$rest[$entity::getRestEntityName()] = $entity->toRestFormat($options);
+		}
 
 		return $rest;
 	}

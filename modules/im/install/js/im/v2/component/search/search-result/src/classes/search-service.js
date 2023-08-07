@@ -1,16 +1,17 @@
-import {Logger} from 'im.v2.lib.logger';
-import {Config} from './search-config';
-import {SearchItem} from './search-item';
-import {StoreUpdater} from './store-updater';
-import {SortingResult} from './sorting-result';
-import {RecentStateSearchService} from './entity-services/recent-state-search-service';
-import {IndexedDbSearchService} from './entity-services/indexed-db-search-service';
-import {BaseServerSearchService} from './entity-services/base-server-search-service';
-import {NetworkSearchService} from './entity-services/network-search-service';
-import {DepartmentSearchService} from './entity-services/department-search-service';
-import {SearchUtils} from './search-utils';
+import { Logger } from 'im.v2.lib.logger';
 
-import type {ImSearchProviderItem} from '../types/rest';
+import { Config } from './search-config';
+import { SearchItem } from './search-item';
+import { StoreUpdater } from './store-updater';
+import { SortingResult } from './sorting-result';
+import { RecentStateSearchService } from './entity-services/recent-state-search-service';
+import { IndexedDbSearchService } from './entity-services/indexed-db-search-service';
+import { BaseServerSearchService } from './entity-services/base-server-search-service';
+import { NetworkSearchService } from './entity-services/network-search-service';
+import { DepartmentSearchService } from './entity-services/department-search-service';
+import { SearchUtils } from './search-utils';
+
+import type { ImSearchProviderItem } from '../types/rest';
 
 export class SearchService
 {
@@ -30,12 +31,12 @@ export class SearchService
 
 	loadRecentSearchFromCache(): Promise<Map<string, SearchItem>>
 	{
-		return this.indexedDbSearchService.load().then(result => {
-			const {recentItems, itemMap} = result;
+		return this.indexedDbSearchService.load().then((result) => {
+			const { recentItems, itemMap } = result;
 
 			return this.#getItemsFromRecentItems(recentItems, itemMap);
-		}).then(items => {
-			return this.#processResponse({items, onlyAdd: true});
+		}).then((items) => {
+			return this.#processResponse({ items, onlyAdd: true });
 		});
 	}
 
@@ -44,23 +45,23 @@ export class SearchService
 		const recentUsers = this.recentStateSearchService.load();
 		const items = SearchUtils.createItemMap(recentUsers);
 
-		return this.#processResponse({items, updateStore: false});
+		return this.#processResponse({ items, updateStore: false });
 	}
 
 	loadRecentSearchFromServer(): Promise<Map<string, SearchItem>>
 	{
-		return this.baseServerSearchService.loadRecentFromServer().then(responseFromServer => {
+		return this.baseServerSearchService.loadRecentFromServer().then((responseFromServer) => {
 			this.indexedDbSearchService.save(responseFromServer);
 
 			Logger.warn('Im.Search: Recent search loaded from server');
-			const {items, recentItems} = responseFromServer;
+			const { items, recentItems } = responseFromServer;
 
 			const itemMap = SearchUtils.createItemMap(items);
 			const preparedRecentItems = SearchUtils.prepareRecentItems(recentItems);
 
 			return this.#getItemsFromRecentItems(preparedRecentItems, itemMap);
-		}).then(items => {
-			return this.#processResponse({items});
+		}).then((items) => {
+			return this.#processResponse({ items });
 		});
 	}
 
@@ -69,14 +70,14 @@ export class SearchService
 		const searchInCachePromise = this.indexedDbSearchService.search(query);
 		const searchInRecentListPromise = this.recentStateSearchService.search(query);
 
-		return Promise.all([searchInCachePromise, searchInRecentListPromise]).then(result => {
+		return Promise.all([searchInCachePromise, searchInRecentListPromise]).then((result) => {
 			const [itemsFromCache, itemsFromRecent] = result;
 
 			return Promise.all([
-				this.#processResponse({items: itemsFromCache, onlyAdd: false}),
-				this.#processResponse({items: itemsFromRecent, updateStore: false})
+				this.#processResponse({ items: itemsFromCache, onlyAdd: false }),
+				this.#processResponse({ items: itemsFromRecent, updateStore: false }),
 			]);
-		}).then(result => {
+		}).then((result) => {
 			const [itemsFromCacheProcessed, itemsFromRecentProcessed] = result;
 			// Spread order is important, because we have more data in cache than in recent list
 			// (for example contextSort field)
@@ -88,13 +89,13 @@ export class SearchService
 
 	searchOnServer(query: string): Promise
 	{
-		return this.baseServerSearchService.searchRequest(query).then(itemsFromServer => {
-			this.indexedDbSearchService.save({items: itemsFromServer});
+		return this.baseServerSearchService.searchRequest(query).then((itemsFromServer) => {
+			this.indexedDbSearchService.save({ items: itemsFromServer });
 
 			return SearchUtils.createItemMap(itemsFromServer);
-		}).then(items => {
-			return this.#processResponse({items});
-		}).then(items => {
+		}).then((items) => {
+			return this.#processResponse({ items });
+		}).then((items) => {
 			return this.sortingResult.allocateSearchResults(items, query);
 		});
 	}
@@ -103,27 +104,27 @@ export class SearchService
 	{
 		this.searchConfig.enableNetworkSearch();
 
-		return this.networkSearchService.search(query).then(items => {
+		return this.networkSearchService.search(query).then((items) => {
 			return SearchUtils.createItemMap(items);
 		});
 	}
 
 	loadDepartmentUsers(parentItem: ImSearchProviderItem): Promise<Map<string, SearchItem>>
 	{
-		return this.departmentSearchService.loadUsers(parentItem).then(responseFromServer => {
-			this.indexedDbSearchService.save({items: responseFromServer});
+		return this.departmentSearchService.loadUsers(parentItem).then((responseFromServer) => {
+			this.indexedDbSearchService.save({ items: responseFromServer });
 			const items = SearchUtils.createItemMap(responseFromServer);
 
-			return this.#processResponse({items});
+			return this.#processResponse({ items });
 		});
 	}
 
 	loadNetworkItem(networkCode: string): Promise
 	{
-		return this.networkSearchService.loadItem(networkCode).then(responseFromServer => {
+		return this.networkSearchService.loadItem(networkCode).then((responseFromServer) => {
 			const items = SearchUtils.createItemMap([responseFromServer]);
 
-			return this.#processResponse({items});
+			return this.#processResponse({ items });
 		});
 	}
 
@@ -140,7 +141,7 @@ export class SearchService
 		this.baseServerSearchService.addItemsToRecentSearchResults(item);
 	}
 
-	#processResponse({items, updateStore = true, onlyAdd = false}): Promise<Map<string, SearchItem>>
+	#processResponse({ items, updateStore = true, onlyAdd = false }): Promise<Map<string, SearchItem>>
 	{
 		const filteredItems = this.#filterByConfig(items);
 		if (!updateStore)
@@ -148,15 +149,16 @@ export class SearchService
 			return Promise.resolve(filteredItems);
 		}
 
-		return this.storeUpdater.update({items: filteredItems, onlyAdd: onlyAdd}).then(() => {
+		return this.storeUpdater.update({ items: filteredItems, onlyAdd }).then(() => {
 			return filteredItems;
 		});
 	}
 
 	#filterByConfig(items: Map<string, SearchItem>): Map<string, SearchItem>
 	{
-		const filteredItems = [...items].filter(item => {
+		const filteredItems = [...items].filter((item) => {
 			const [, value] = item;
+
 			return this.searchConfig.isItemAllowed(value);
 		});
 
@@ -166,7 +168,7 @@ export class SearchService
 	#getItemsFromRecentItems(recentItems: Array<Object>, items: Map<string, SearchItem>): Map<string, SearchItem>
 	{
 		const filledRecentItems = new Map();
-		recentItems.forEach(recentItem => {
+		recentItems.forEach((recentItem) => {
 			const itemFromMap = items.get(recentItem.cacheId);
 			if (itemFromMap && !itemFromMap.isOpeLinesType())
 			{

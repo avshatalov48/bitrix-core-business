@@ -151,7 +151,9 @@ class AddressType extends BaseType
 
 	public static function getDbColumnType(): string
 	{
-		return 'text';
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\TextField('x'));
 	}
 
 	public static function prepareSettings(array $userField): array
@@ -178,7 +180,7 @@ class AddressType extends BaseType
 			}
 		}
 
-		$fieldName = $userField['FIELD_NAME'];
+		$fieldName = ($userField['FIELD_NAME'] ?? null);
 		unset($_POST[$fieldName . '_manual_edit']);
 
 		return $result;
@@ -203,7 +205,7 @@ class AddressType extends BaseType
 		{
 			// if the value hasn't been set manually (e.g. from bizproc), then we have to remove the
 			// address' id because otherwise we'll end up with multiple UF values pointing to a single address
-			$fieldName = $userField['FIELD_NAME'];
+			$fieldName = ($userField['FIELD_NAME'] ?? null);
 			$isManualAddressEdit = $_POST[$fieldName . '_manual_edit'] ?? null;
 			if (!$isManualAddressEdit)
 			{
@@ -265,8 +267,8 @@ class AddressType extends BaseType
 
 	private static function clearManualEditFlag(array $userField): void
 	{
-		$fieldName = $userField['FIELD_NAME'];
-		if ($userField['MULTIPLE'] !== 'Y')
+		$fieldName = ($userField['FIELD_NAME'] ?? null);
+		if (($userField['MULTIPLE'] ?? null) !== 'Y')
 		{
 			unset($_POST[$fieldName . '_manual_edit']);
 		}
@@ -401,8 +403,8 @@ class AddressType extends BaseType
 		[$address, $coords] = self::parseValue($addressString);
 
 		return [
-			'latitude' => $coords[0],
-			'longitude' => $coords[1],
+			'latitude' => $coords[0] ?? null,
+			'longitude' => $coords[1] ?? null,
 			'fieldCollection' => [
 				Address\FieldType::ADDRESS_LINE_2 => $address,
 			],

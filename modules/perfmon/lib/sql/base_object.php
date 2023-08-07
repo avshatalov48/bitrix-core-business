@@ -109,14 +109,21 @@ abstract class BaseObject
 	 */
 	final public static function getCompareName($name)
 	{
-		if ($name[0] == '`')
-			return $name;
-		elseif ($name[0] == '"')
-			return $name;
-		elseif ($name[0] == '[')
-			return $name;
+		if ($name)
+		{
+			if ($name[0] == '`')
+				return substr($name, 1, -1);
+			elseif ($name[0] == '"')
+				return substr($name, 1, -1);
+			elseif ($name[0] == '[')
+				return substr($name, 1, -1);
+			else
+				return mb_strtoupper($name);
+		}
 		else
-			return mb_strtoupper($name);
+		{
+			return $name;
+		}
 	}
 
 	/**

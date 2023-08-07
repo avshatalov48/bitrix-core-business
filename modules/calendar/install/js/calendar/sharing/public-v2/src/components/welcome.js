@@ -32,9 +32,16 @@ export default class Welcome
 			label: null,
 		};
 
-		if (this.#link && this.#link.type === 'crm_deal' && this.#link.active === true)
+		if (
+			this.#link
+			&& this.#link.type === 'crm_deal'
+			&& this.#link.active === true
+			&& this.#link.lastStatus !== 'viewed'
+			&& this.#link.lastStatus !== 'notViewed'
+		)
 		{
 			this.#handleTimelineNotify('notViewed');
+			this.#link.lastStatus = 'notViewed';
 		}
 	}
 
@@ -60,9 +67,15 @@ export default class Welcome
 			return;
 		}
 
-		if (this.#link && this.#link.type === 'crm_deal' && this.#link.active === true)
+		if (
+			this.#link
+			&& this.#link.type === 'crm_deal'
+			&& this.#link.active === true
+			&& this.#link.lastStatus === 'notViewed'
+		)
 		{
 			this.#handleTimelineNotify('viewed');
+			this.#link.lastStatus = 'viewed';
 		}
 
 		this.disableButton();

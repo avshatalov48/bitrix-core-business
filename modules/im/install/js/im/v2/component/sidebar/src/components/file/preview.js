@@ -47,14 +47,6 @@ export const FilePreview = {
 		{
 			return this.dialog.chatId;
 		},
-		dialogInited()
-		{
-			return this.dialog.inited;
-		},
-		isLoadingState(): boolean
-		{
-			return !this.dialogInited || this.isLoading;
-		}
 	},
 	methods:
 	{
@@ -73,7 +65,7 @@ export const FilePreview = {
 	},
 	template: `
 		<div class="bx-im-sidebar-file-preview__scope">
-			<div v-if="isLoadingState" class="bx-im-sidebar-file-preview__skeleton"></div>
+			<div v-if="isLoading" class="bx-im-sidebar-file-preview__skeleton"></div>
 			<div v-else class="bx-im-sidebar-file-preview__container">
 				<div 
 					class="bx-im-sidebar-file-preview__header_container" 

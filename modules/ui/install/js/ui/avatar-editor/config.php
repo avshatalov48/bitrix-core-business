@@ -3,7 +3,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
-use \Bitrix\UI;
+
+\Bitrix\Main\Loader::includeModule('ui');
+
 return [
 	'css' => 'dist/main.avatar-editor.bundle.css',
 	'js' => 'dist/main.avatar-editor.bundle.js',

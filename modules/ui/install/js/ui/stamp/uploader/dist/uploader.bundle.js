@@ -782,6 +782,7 @@ this.BX.UI = this.BX.UI || {};
 	          event.stopImmediatePropagation();
 	        }
 	      });
+	      const acceptedFileTypes = ['image/png', 'image/jpeg'];
 	      return new ui_uploader_core.Uploader({
 	        controller: this.getOptions().controller.upload,
 	        assignAsFile: true,
@@ -790,14 +791,14 @@ this.BX.UI = this.BX.UI || {};
 	        imagePreviewHeight: 556,
 	        imagePreviewWidth: 1000,
 	        autoUpload: false,
-	        acceptedFileTypes: ['image/png', 'image/jpeg'],
+	        acceptedFileTypes,
 	        events: {
 	          [ui_uploader_core.UploaderEvent.FILE_ADD]: event => {
 	            const {
 	              file,
 	              error
 	            } = event.getData();
-	            if (main_core.Type.isNil(error)) {
+	            if (main_core.Type.isNil(error) && ui_uploader_core.Helpers.isValidFileType(file.getBinary(), acceptedFileTypes)) {
 	              this.getPreview().show(file.getClientPreview());
 	              this.setUploaderFile(file);
 	              if (this.getMode() === Uploader.Mode.SLIDER) {
@@ -1105,7 +1106,10 @@ this.BX.UI = this.BX.UI || {};
 	                    saveButton.setWaiting(false);
 	                    saveButton.setDisabled(true);
 	                    this.getActionPanel().disable();
-	                    BX.SidePanel.Instance.close();
+	                    const topSlider = BX.SidePanel.Instance.getTopSlider();
+	                    if (topSlider && topSlider.url === 'stampUploader') {
+	                      topSlider.close();
+	                    }
 	                  }, 500);
 	                });
 	              }

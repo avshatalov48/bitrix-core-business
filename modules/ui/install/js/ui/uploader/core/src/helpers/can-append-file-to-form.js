@@ -1,6 +1,6 @@
 let result = null;
 
-const canAppendFileToForm = () => {
+const canAppendFileToForm = (): boolean => {
 	if (result === null)
 	{
 		try

@@ -22,6 +22,7 @@ $request = Context::getCurrent()->getRequest();
 
 $strWarning = "";
 
+$logical = $logical ?? null;
 $addUrl = 'lang='.LANGUAGE_ID.($logical == "Y"?'&logical=Y':'');
 
 $io = CBXVirtualIo::GetInstance();
@@ -29,6 +30,7 @@ $path = (string)($request->get('path') ?? '');
 $path = $io->CombinePath("/", $path);
 
 $bVarsFromForm = false;		//flag, witch points were get content from: file or post form
+$filename = $filename ?? null;
 if ($filename <> '' && ($mess = CFileMan::CheckFileName($filename)) !== true)
 {
 	$filename2 = $filename;
@@ -38,9 +40,11 @@ if ($filename <> '' && ($mess = CFileMan::CheckFileName($filename)) !== true)
 }
 
 //if new file & sets new name
+$new = $new ?? null;
 if($new <> '' && $filename <> '')
 	$path = $path."/".$filename; // let's set this new name to us path
 
+$site ??= $_REQUEST['site'] ?? null;
 $site = CFileMan::__CheckSite($site);
 if(!$site)
 	$site = CSite::GetSiteByFullPath($_SERVER["DOCUMENT_ROOT"].$path);
@@ -76,6 +80,7 @@ if(($new == '' || $filename == '') && !$io->FileExists($abs_path))
 }
 $originalPath = $path;
 
+$full_src = $full_src ?? null;
 $bFullPHP = ($full_src=="Y") && $USER->CanDoOperation('edit_php');
 $NEW_ROW_CNT = 1;
 
@@ -153,6 +158,9 @@ else
 	}
 }
 
+$propeditmore = $propeditmore ?? null;
+$back_url = $back_url ?? null;
+$template = $template ?? null;
 if($strWarning == '')
 {
 	if($bEdit)
@@ -302,7 +310,7 @@ if($strWarning == '')
 
 			if ($strWarning == '')
 			{
-				if($apply == '')
+				if(($apply ?? null) == '')
 				{
 					if($back_url <> '' && mb_strpos($back_url, "/bitrix/admin/fileman_file_edit.php") !== 0)
 						LocalRedirect("/".ltrim($back_url, "/"));
@@ -429,6 +437,7 @@ $mode = ($bFullPHP && $USER->CanDoOperation('edit_php')) ? 'php' : 'text';
 $ismenu = preg_match('/^\.(.*)?\.menu\.(php|html|php3|php4|php5|phtml)$/i', $arParsedPath["LAST"], $regs);
 
 $aDDMenuEdit = array();
+$templateID = $templateID ?? null;
 if (!$ismenu)
 {
 	$aDDMenuEdit[] = array(
@@ -620,7 +629,7 @@ $tabControl->BeginNextTab();?>
 				'fromInputId' => 'bxfm_title',
 				'toInputId' => 'bxfm_filename',
 				'linkedId' => 'bxfm_linked',
-				'linked' => $_REQUEST['bxfm_linked'] == "Y",
+				'linked' => ($_REQUEST['bxfm_linked'] ?? null) == "Y",
 				'linkedTitle' => GetMessage('FILEMAN_FILE_TRANS_LINKED'),
 				'unlinkedTitle' => GetMessage('FILEMAN_FILE_TRANS_UNLINKED'),
 				'ext' => $USER->CanDoOperation('edit_php') || $limit_php_access ? 'php' : 'html'
@@ -743,6 +752,7 @@ $tabControl->BeginNextTab();?>
 						for($i = 0, $l = count($arAllPropFields); $i < $l; $i++)
 						{
 							$arProp = $arAllPropFields[$i];
+							$arProp["NAME"] = $arProp["NAME"] ?? null;
 							?>
 							<tr>
 								<td  valign="top" <?if(!$arProp["NAME"]) echo 'nowrap';?>>

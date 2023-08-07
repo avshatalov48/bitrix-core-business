@@ -9,7 +9,7 @@ $result = new Result();
 if ($request->get('FILE_ID') && $request->get('SIGN'))
 {
 	$diskFileId = (int)$request->get('FILE_ID');
-	$sign = htmlspecialcharsbx($request->get('SIGN'));
+	$sign = $request->get('SIGN');
 
 	try
 	{
@@ -39,7 +39,7 @@ if ($request->get('FILE_ID') && $request->get('SIGN'))
 		if ($file !== null)
 		{
 			$fileId = $file->getFileId();
-			CFile::ViewByUser($fileId);
+			\CFile::ViewByUser($fileId);
 		}
 		else
 		{
@@ -64,12 +64,15 @@ else
 
 if (!$result->isSuccess())
 {
+	$lastError = '';
 	foreach ($result->getErrorMessages() as $errorMessage)
 	{
 		$lastError = $errorMessage;
 	}
-	CHTTP::SetStatus('403 Forbidden');
-	header("BX-File-Error: $lastError");
+	\CHTTP::SetStatus('403 Forbidden');
+	if ($lastError)
+	{
+		header("BX-File-Error: {$lastError}");
+	}
 }
-CMain::FinalActions();
-die();
+\CMain::FinalActions();

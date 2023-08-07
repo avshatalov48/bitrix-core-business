@@ -79,7 +79,7 @@ class StringHelper
 				}
 			}
 		}
-		else
+		elseif (is_scalar($str))
 		{
 			$str = str_replace($search, $replace, $str);
 		}

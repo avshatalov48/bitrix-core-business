@@ -1,4 +1,4 @@
-export const UploaderEvent = {
+export const UploaderEvent: Object<string, string> = {
 	UPLOAD_START: 'onUploadStart',
 	UPLOAD_COMPLETE: 'onUploadComplete',
 	ERROR: 'onError',

@@ -33,6 +33,7 @@ export type DialogOptions = {
 	events?: { [eventName: string]: (event: BaseEvent) => void },
 	hideOnSelect?: boolean,
 	hideOnDeselect?: boolean,
+	addTagOnSelect?: boolean,
 	clearSearchOnSelect?: boolean,
 	width?: number,
 	height?: number,

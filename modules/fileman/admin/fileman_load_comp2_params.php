@@ -18,14 +18,29 @@ function GetProperties($componentName, $curTemplate = '')
 	{
 		foreach ($arTemplates as $k => $arTemplate)
 		{
-			push2arComp2Templates($arTemplate['NAME'], $arTemplate['TEMPLATE'], $arTemplate['TITLE'], $arTemplate['DESCRIPTION']);
-			$tName = (!$arTemplate['NAME'] || $arTemplate['NAME'] == '.default') ? '' : $arTemplate['NAME'];
+			$template = [
+				'name' => $arTemplate['NAME'] ?? null,
+				'template' => $arTemplate['TEMPLATE'] ?? null,
+				'title' => $arTemplate['TITLE'] ?? null,
+				'description' => $arTemplate['DESCRIPTION'] ?? null,
+			];
+			push2arComp2Templates(
+				$template['name'],
+				$template['template'],
+				$template['title'],
+				$template['description']
+			);
+			$tName = (!$template['name'] || $template['name'] == '.default') ? '' : $template['name'];
 			if ($tName == $curTemplate)
 			{
-				$arTemplateProps = CComponentUtil::GetTemplateProps($componentName, $arTemplate['NAME'], $stid, $arCurVals);
+				$arTemplateProps = CComponentUtil::GetTemplateProps($componentName, $template['name'], $stid, $arCurVals);
 				if (is_array($arTemplateProps))
+				{
 					foreach ($arTemplateProps as $k => $arTemplateProp)
+					{
 						push2arComp2TemplateProps($componentName,$k,$arTemplateProp);
+					}
+				}
 			}
 		}
 	}

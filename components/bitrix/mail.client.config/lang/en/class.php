@@ -106,3 +106,4 @@ Your current plan allows #LIMIT# shared mailboxes.";
 $MESS["MAIL_MAILBOX_LICENSE_SHARED_LIMIT_TITLE"] = "Shared mailboxes in Bitrix24";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM"] = "Disconnect mailbox?";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM_TEXT"] = "Are you sure you want to disconnect the mailbox?";
+$MESS["MAIL_MAILBOX_TEMPORARY_ALERT_MSG_2"] = "Gmail integration is currently unavailable. Service will be available soon, sorry for the inconvenience. You could use any other mail service in the meantime.";

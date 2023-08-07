@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -147,12 +148,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getRestClient() {
 	    return this.restClient;
 	  }
-	  setApplicationData(applicationName, applicationData) {
-	    this.applicationData[applicationName] = applicationData;
+	  getPullClient() {
+	    return this.pullClient;
 	  }
-	  getApplicationData(applicationName) {
-	    var _this$applicationData;
-	    return (_this$applicationData = this.applicationData[applicationName]) != null ? _this$applicationData : {};
+	  setApplicationData(data) {
+	    this.applicationData = {
+	      ...this.applicationData,
+	      ...data
+	    };
+	  }
+	  getApplicationData() {
+	    return this.applicationData;
 	  }
 	  isOnline() {
 	    return !this.offline;

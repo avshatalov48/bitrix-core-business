@@ -527,6 +527,7 @@ class CIMMessenger
 
 				$relations = CIMChat::GetRelationById($chatId, false, true, false);
 				$message = new \Bitrix\Im\V2\Message($arParams);
+				$message->setParams($arFields['PARAMS'] ?? []);
 				$message->setMessageId($messageID);
 				foreach ($relations as $relation)
 				{
@@ -1106,6 +1107,7 @@ class CIMMessenger
 						}
 					}
 					$message = new \Bitrix\Im\V2\Message($arParams);
+					$message->setParams($arFields['PARAMS'] ?? []);
 					$message->setMessageId($messageID);
 					$counters = (new \Bitrix\Im\V2\Message\ReadService((int)$arFields["FROM_USER_ID"]))
 						->onAfterMessageSend($message, $relationCollection)
@@ -1771,16 +1773,31 @@ class CIMMessenger
 			}
 		}
 
-		\Bitrix\Im\Model\MessageTable::update($message['ID'], $arUpdate);
-
 		$isOnlyEmoji = \Bitrix\Im\Text::isOnlyEmoji($arUpdate['MESSAGE']);
+		$newParams = [
+			'IS_EDITED' => $editFlag ?'Y' : 'N',
+			'URL_ID' => $urlId,
+			'URL_ONLY' => $urlOnly ? 'Y' : 'N',
+			'LARGE_FONT' => $isOnlyEmoji ? 'Y' : 'N',
+			'DATE_TEXT' => $dateText,
+			'DATE_TS' => $dateTs,
+		];
 
-		CIMMessageParam::Set($message['ID'], Array('IS_EDITED' => $editFlag?'Y':'N', 'URL_ID' => $urlId, 'URL_ONLY' => $urlOnly?'Y':'N', 'LARGE_FONT' => $isOnlyEmoji?'Y':'N', 'DATE_TEXT' => $dateText, 'DATE_TS' => $dateTs));
+		$uploadResult = self::UploadFileFromText(['MESSAGE' => $arUpdate['MESSAGE'], 'CHAT_ID' => (int)$message['CHAT_ID']]);
+		$arUpdate['MESSAGE'] = $uploadResult['MESSAGE'];
+		$fileIds = [];
+		if (!empty($uploadResult['PARAMS']['FILE_ID']))
+		{
+			$newParams['FILE_ID'] = array_merge($message['PARAMS']['FILE_ID'] ?? [], $uploadResult['PARAMS']['FILE_ID'] ?? []);
+		}
+
+		\Bitrix\Im\Model\MessageTable::update($message['ID'], $arUpdate);
+		CIMMessageParam::Set($message['ID'], $newParams);
 
 		if (!$convert)
 		{
 			$arFields = $message;
-			$arFields['MESSAGE'] = $text;
+			$arFields['MESSAGE'] = $arUpdate['MESSAGE'];
 			$arFields['DATE_MODIFY'] = new \Bitrix\Main\Type\DateTime();
 
 			$pullMessage = \Bitrix\Im\Text::parse($arFields['MESSAGE']);
@@ -1934,6 +1951,7 @@ class CIMMessenger
 				->setAuthorId((int)$arFields['AUTHOR_ID'])
 			;
 			(new \Bitrix\Im\V2\Link\Url\UrlService())->updateUrlsFromMessage($message);
+			(new \Bitrix\Im\V2\Link\File\FileService())->saveFilesFromMessage($uploadResult['FILES_FROM_TEXT'] ?? [], $message);
 		}
 
 		\Bitrix\Im\Model\MessageTable::indexRecord($id);
@@ -1968,6 +1986,30 @@ class CIMMessenger
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Disappear message
+	 *
+	 * @param int $messageId
+	 * @param int $hours
+	 * @return bool
+	 */
+	public static function disappearMessage(int $messageId, int $hours, ?int $userId = null): bool
+	{
+		if (!self::CheckPossibilityUpdateMessage(IM_CHECK_DELETE, $messageId, $userId))
+		{
+			return false;
+		}
+
+		$message = new \Bitrix\Im\V2\Message($messageId);
+		if (!$message->getMessageId())
+		{
+			return false;
+		}
+
+		$result = \Bitrix\Im\V2\Message\Delete\DisappearService::disappearMessage($message, $hours);
+		return $result->isSuccess();
 	}
 
 	public static function Delete($id, $userId = null, $completeDelete = false, $byEvent = false)
@@ -2110,11 +2152,14 @@ class CIMMessenger
 			$result = \Bitrix\Im\Model\RecentTable::getList(Array('filter' => Array('=ITEM_MID' => $message['ID'])))->fetchAll();
 			if (!empty($result))
 			{
-				$message = \Bitrix\Im\Model\MessageTable::getList(Array(
-					'filter' => Array('=CHAT_ID' => $message['CHAT_ID']),
+				$message = \Bitrix\Im\Model\MessageTable::getList([
+					'filter' => ['=CHAT_ID' => $message['CHAT_ID']],
 					'limit' => 1,
-					'order' => Array('ID' => 'DESC')
-				))->fetch();
+					'order' => [
+						'DATE_CREATE' => 'DESC',
+						'ID' => 'DESC'
+					]
+				])->fetch();
 				if ($message)
 				{
 					foreach ($result as $recent)
@@ -3597,6 +3642,7 @@ class CIMMessenger
 						'turnServerFirefox' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_FIREFOX'])."',
 						'turnServerLogin' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_LOGIN'])."',
 						'turnServerPassword' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_PASSWORD'])."',
+						'betaEnabled': ".(\Bitrix\Im\Settings::isCallBetaAvailable()? 'true': 'false').",
 						'mobileSupport': false,
 						'phoneEnabled': ".($phoneEnabled? 'true': 'false').",
 						'phoneDeviceActive': '".($phoneDeviceActive? 'Y': 'N')."',
@@ -3620,7 +3666,7 @@ class CIMMessenger
 		return $sJS;
 	}
 
-	public static function GetV2TemplateJS(): string
+	public static function GetV2TemplateJS($arResult): string
 	{
 		global $USER;
 
@@ -3642,12 +3688,16 @@ class CIMMessenger
 			'EXTRA_FIELDS' => 'Y',
 			'DATE_ATOM' => 'Y'
 		])['users'][$USER->GetID()];
+		$currentUser['isAdmin'] = self::IsAdmin();
 		$loggerConfig = \Bitrix\Im\Settings::getLoggerConfig();
 		$settings = (new \Bitrix\Im\V2\Settings\UserConfiguration($USER->GetID()))->getGeneralSettings();
 
+		$isDesktop = $arResult['DESKTOP'] === true;
+		$applicationName = $isDesktop ? 'messenger' : 'quickAccess';
+
 		$jsString = "
 			BX.ready(function() {
-				BX.Messenger.v2.Application.Launch('quickAccess', {
+				BX.Messenger.v2.Application.Launch('" . $applicationName . "', {
 					node: '#bx-im-external-recent-list',
 					preloadedList: " . \Bitrix\Main\Web\Json::encode($recentList) . ",
 					chatOptions: " . \Bitrix\Main\Web\Json::encode($chatOptions) . ",
@@ -3656,11 +3706,41 @@ class CIMMessenger
 					loggerConfig: " . \Bitrix\Main\Web\Json::encode($loggerConfig) . ",
 					counters: " . \Bitrix\Main\Web\Json::encode($counters) . ",
 					settings: " . \Bitrix\Main\Web\Json::encode($settings) . ",
+					phoneSettings: " . \Bitrix\Main\Web\Json::encode(self::getPhoneSettings()) . ",
+				}).then((application) => {
+					" . ($isDesktop ? "application.initComponent('body')" : '') . "
 				});
 			});
 		";
 
 		return $jsString;
+	}
+
+	public static function getPhoneSettings()
+	{
+		global $USER;
+
+		$phoneEnabled = self::CheckPhoneStatus();
+		$phoneDeviceActive = false;
+		$phoneCanPerformCalls = false;
+		$phoneCanCallUserNumber = false;
+		if ($phoneEnabled && CModule::IncludeModule('voximplant'))
+		{
+			$phoneDeviceActive = CVoxImplantUser::GetPhoneActive($USER->GetId());
+			$phoneCanPerformCalls = self::CanUserPerformCalls();
+			$phoneCanCallUserNumber = self::CanUserCallUserNumber();
+		}
+
+		return [
+			'phoneEnabled' => $phoneEnabled,
+			'deviceActive' => $phoneDeviceActive,
+			'defaultLineId' => self::GetDefaultTelephonyLine(),
+			'availableLines' => self::GetTelephonyAvailableLines(),
+			'canInterceptCall' => self::CanInterceptCall(),
+			'canPerformCalls' => $phoneCanPerformCalls,
+			'canCallUserNumber' => $phoneCanCallUserNumber,
+			'restApps' => self::GetCallCardRestApps()
+		];
 	}
 
 	public static function GetMobileDialogTemplateJS($arParams, $arTemplate)

@@ -25,7 +25,10 @@ $arJSCoreConfig = array(
 		'lang' => $pathLang.'/js_core_admin_interface.php',
 		'css' => $pathCSSPanel.'/admin-public.css',
 		'rel' => array('ui.design-tokens', 'ui.fonts.opensans', 'ajax', 'popup', 'window', 'date', 'fx'),
-		'lang_additional' => array('TITLE_PREFIX' => CUtil::JSEscape(COption::GetOptionString("main", "site_name", $_SERVER["SERVER_NAME"]))." - ")
+		'lang_additional' => array(
+			'TITLE_PREFIX' => CUtil::JSEscape(COption::GetOptionString("main", "site_name", $_SERVER["SERVER_NAME"] ?? ''))
+				. " - ",
+		),
 	),
 	"admin_login" => array(
 		'js' => $pathJS."/core_admin_login.js",

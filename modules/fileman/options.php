@@ -24,7 +24,7 @@ function isValidLang($lang)
 	return $is_valid_lang;
 }
 
-if ($REQUEST_METHOD=="GET" && $USER->CanDoOperation('fileman_edit_all_settings') && $RestoreDefaults <> '' && check_bitrix_sessid())
+if ($REQUEST_METHOD=="GET" && $USER->CanDoOperation('fileman_edit_all_settings') && ($RestoreDefaults ?? null) <> '' && check_bitrix_sessid())
 {
 	COption::RemoveOption("fileman");
 	$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -45,17 +45,17 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 		$default_edit="text";
 	COption::SetOptionString($module_id, "default_edit", $default_edit);
 
-	COption::SetOptionString($module_id, "use_medialib", $use_medialib == 'Y' ? 'Y' : 'N');
+	COption::SetOptionString($module_id, "use_medialib", ($use_medialib ?? null) == 'Y' ? 'Y' : 'N');
 
-	COption::SetOptionString($module_id, "use_editor_3", $use_editor_3 == 'Y' ? 'Y' : 'N');
-	$useEditor3 = $use_editor_3 == "Y";
+	COption::SetOptionString($module_id, "use_editor_3", ($use_editor_3 ?? null) == 'Y' ? 'Y' : 'N');
+	$useEditor3 = ($use_editor_3 ?? null) == "Y";
 
 	if (!$useEditor3)
 	{
-		COption::SetOptionString($module_id, "htmleditor_fullscreen", $htmleditor_fullscreen == "Y" ? "Y" : "N");
-		COption::SetOptionString($module_id, "show_untitled_styles", $show_untitled_styles);
-		COption::SetOptionString($module_id, "render_styles_in_classlist", $render_styles_in_classlist);
-		COption::SetOptionString($module_id, "allow_render_components", $allow_render_components == 'Y' ? 'Y' : 'N');
+		COption::SetOptionString($module_id, "htmleditor_fullscreen", ($htmleditor_fullscreen ?? null) == "Y" ? "Y" : "N");
+		COption::SetOptionString($module_id, "show_untitled_styles", ($show_untitled_styles ?? null));
+		COption::SetOptionString($module_id, "render_styles_in_classlist", ($render_styles_in_classlist ?? null));
+		COption::SetOptionString($module_id, "allow_render_components", ($allow_render_components ?? null) == 'Y' ? 'Y' : 'N');
 
 
 		/* **********  Toolbars config ************/
@@ -67,15 +67,23 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 					COption::RemoveOption($module_id, "toolbar_config_".$type);
 
 				// Global toolbar
-				if (count($arToolbars) == 1 && is_array($arToolbars['global']))
+				if (
+					is_array($arToolbars)
+					&& count($arToolbars) === 1
+					&& is_array($arToolbars['global'] ?? null)
+				)
+				{
 					COption::SetOptionString($module_id, "toolbar_config_".$type, serialize($arToolbars['global']));
+				}
 				else // Standart mode
+				{
 					COption::SetOptionString($module_id, "toolbar_config_".$type, serialize($arToolbars));
+				}
 			}
 		}
 
 		// LCA - limit component access
-		COption::SetOptionString($module_id, "use_lca", ($use_lca == 'Y' ? 'Y' : 'N'));
+		COption::SetOptionString($module_id, "use_lca", (($use_lca ?? null) == 'Y' ? 'Y' : 'N'));
 	}
 	COption::SetOptionString($module_id, "replace_new_lines", isset($_POST['replace_new_lines'])? "Y" : "N");
 
@@ -245,7 +253,7 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 
 	foreach ($_POST['ML_TYPE'] as $key => $type)
 	{
-		if ($type["DEL"] == "Y")
+		if (($type["DEL"] ?? null) == "Y")
 		{
 			$arMLDelTypes[] = $key;
 		}
@@ -263,7 +271,7 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 			else
 			{
 				$arMLTypes[] = array(
-					'NEW' => $type["NEW"] == "Y",
+					'NEW' => ($type["NEW"] ?? null) == "Y",
 					'ID' => $key,
 					'NAME' => $type["NAME"],
 					'CODE' => $type["CODE"],
@@ -294,7 +302,7 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 	/* MEDIALIB END*/
 
 	// Using medialib (or file dialog) by default in HTML-editor and other...
-	COption::SetOptionString($module_id, "ml_use_default", $medialib_use_default == 'Y');
+	COption::SetOptionString($module_id, "ml_use_default", ($medialib_use_default ?? null) == 'Y');
 
 	//File extensions
 	if ($USER->CanDoOperation('edit_php'))
@@ -334,6 +342,7 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 			$arPT = Array();
 			for($i=0; $i<${"propstypes_".$siteList_ID[$j]["ID"]."_count"}; $i++)
 			{
+				${"propstypes_".$siteList_ID[$j]["ID"]."_".$i."_type"} = ${"propstypes_".$siteList_ID[$j]["ID"]."_".$i."_type"} ?? null;
 				if(${"propstypes_".$siteList_ID[$j]["ID"]."_".$i."_type"} <> '')
 					$arPT[${"propstypes_".$siteList_ID[$j]["ID"]."_".$i."_type"}] = ${"propstypes_".$siteList_ID[$j]["ID"]."_".$i."_name"};
 			}
@@ -361,7 +370,7 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 			$armt[$menutypes_new_type] = $menutypes_new_name;
 
 		if (mb_strlen(addslashes(serialize($armt))) <= 2000)
-			SetMenuTypes($armt, $siteList_ID[$j]["ID"]);
+			SetMenuTypes($armt, $siteList_ID[$j ?? null]["ID"] ?? null);
 		else
 			$addError = GetMessage("FILEMAN_OPTION_ADD_ERROR_MENU").'<br />';
 
@@ -369,7 +378,7 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 		$arPT = Array();
 		for($i=0; $i<$propstypes_count; $i++)
 		{
-			if(${"propstypes_".$i."_type"} <> '')
+			if((${"propstypes_".$i."_type"} ?? null) <> '')
 				$arPT[${"propstypes_".$i."_type"}] = ${"propstypes_".$i."_name"};
 		}
 		if($propstypes_new_type <> '')
@@ -425,7 +434,7 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 
 	//default groups
 	$sGroups = '';
-	if(is_array($_POST["DEFAULT_EDIT_GROUPS"]))
+	if(is_array($_POST["DEFAULT_EDIT_GROUPS"] ?? null))
 		foreach($_POST["DEFAULT_EDIT_GROUPS"] as $gr)
 			$sGroups .= ($sGroups <> ''? ',':'').intval($gr);
 	COption::SetOptionString('fileman', 'default_edit_groups', $sGroups);
@@ -478,7 +487,7 @@ if($USER->isAdmin())
 	unset($rsSites);
 	unset($arRes);
 
-	if ($addError)
+	if ($addError ?? null)
 	{
 		CAdminMessage::ShowMessage(array(
 			"DETAILS" => $addError,
@@ -1502,13 +1511,13 @@ function _MLGetTypeHTML($type = array())
 ?>
 <div class="bx-ml-type"  id="type_cont_<?= $type["id"]?>">
 <div class="bx-ml-type-label">
-	<?if ($type["b_new"]):?>
+	<?if ($type["b_new"] ?? false):?>
 		<input type="hidden" name="<?= $name."[NEW]"?>" value="Y" />
 	<?endif;?>
 
-	<input type="hidden" name="<?= $name."[SYS]"?>" value="<?= $type["system"] ? "Y" : "N"?>" />
+	<input type="hidden" name="<?= $name."[SYS]"?>" value="<?= $type["system"] ?? false ? "Y" : "N"?>" />
 
-	<? if($type["system"]):?>
+	<? if($type["system"] ?? false):?>
 		<div><?= htmlspecialcharsex($type["name"])?></div>
 	<? else:?>
 		<div id="type_name_<?= $type["id"]?>" class="bx-ml-editable"><?= htmlspecialcharsex($type["name"])?></div>
@@ -1530,10 +1539,10 @@ function _MLGetTypeHTML($type = array())
 
 <div class="bx-ml-type-params">
 	<table border="0" width="100%">
-		<tr<?if(!$type["system"]):?> class="adm-detail-required-field"<?endif;?>><td class="adm-detail-content-cell-l bx-ml-td-left" width="40%">
+		<tr<?if(!($type["system"] ?? null)):?> class="adm-detail-required-field"<?endif;?>><td class="adm-detail-content-cell-l bx-ml-td-left" width="40%">
 			<label for="type_name_inp_<?= $type["id"]?>"><?= GetMessage('FILEMAN_OPTION_PROPS_NAME')?>:</label>
 		</td><td class="adm-detail-content-cell-r" width="60%">
-			<? if($type["system"]):?>
+			<? if($type["system"] ?? false):?>
 				<span class="bx-sys-value"><?= htmlspecialcharsex($type["name"])?></span>
 				<input type="hidden" id="type_name_inp_<?= $type["id"]?>" value="<?= htmlspecialcharsbx($type["name"])?>" />
 
@@ -1542,11 +1551,11 @@ function _MLGetTypeHTML($type = array())
 			<?endif;?>
 		</td></tr>
 
-		<tr<?if(!$type["system"]):?> class="adm-detail-content-cell-l adm-detail-required-field"<?endif;?>><td class="bx-ml-td-left" width="40%">
+		<tr<?if(!($type["system"] ?? null)):?> class="adm-detail-content-cell-l adm-detail-required-field"<?endif;?>><td class="bx-ml-td-left" width="40%">
 			<input type="hidden" name="<?= $name."[CODE]"?>" value="<?= $type["code"]?>" />
-			<label for="type_code_inp_<?= htmlspecialcharsbx($type["id"])?>"><?= GetMessage('FILEMAN_ML_ADD_TYPE_CODE')?><? if(!$type["system"]):?><span class="required"><sup>1</sup></span><?endif;?>:</label>
+			<label for="type_code_inp_<?= htmlspecialcharsbx($type["id"])?>"><?= GetMessage('FILEMAN_ML_ADD_TYPE_CODE')?><? if(!($type["system"] ?? null)):?><span class="required"><sup>1</sup></span><?endif;?>:</label>
 		</td><td class="adm-detail-content-cell-r" width="60%">
-			<? if($type["system"]):?>
+			<? if($type["system"] ?? false):?>
 				<span class="bx-sys-value"><?= htmlspecialcharsex($type["code"])?></span>
 				<input type="hidden" name="<?= $name."[CODE]"?>" value="<?= htmlspecialcharsbx($type["code"])?>" />
 			<? else:?>
@@ -1562,7 +1571,7 @@ function _MLGetTypeHTML($type = array())
 		<tr><td class="adm-detail-content-cell-l bx-ml-td-left" width="40%">
 			<label for="type_desc_inp_<?= htmlspecialcharsbx($type["id"])?>"><?= GetMessage('FILEMAN_ML_ADD_TYPE_DESC')?>:</label>
 		</td><td class="adm-detail-content-cell-r" style="height: 50px;" width="60%">
-			<? if($type["system"]):?>
+			<? if($type["system"] ?? false):?>
 				<input name="<?= $name."[DESC]"?>" type="hidden" value="<?= htmlspecialcharsbx($type["desc"])?>" />
 				<span><?= htmlspecialcharsbx($type["desc"])?></span>
 			<? else:?>

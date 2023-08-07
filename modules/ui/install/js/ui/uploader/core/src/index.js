@@ -1,14 +1,14 @@
 import Uploader from './uploader';
-import VueUploaderWidget from './adapters/vue-uploader-widget';
-import VueUploaderAdapter from './adapters/vue-uploader-adapter';
 import UploaderError from './uploader-error';
 import Server from './backend/server';
 
-import { VueUploaderComponent } from './adapters/vue-uploader-component';
+import AbstractLoadController from './backend/abstract-load-controller';
+import AbstractUploadController from './backend/abstract-upload-controller';
+import AbstractRemoveController from './backend/abstract-remove-controller';
 
 import { UploaderStatus } from './enums/uploader-status';
 import { UploaderEvent } from  './enums/uploader-event';
-import { FileStatus } from './enums/file-status';
+import { FileStatus, FileStatusType } from './enums/file-status';
 import { FileOrigin } from './enums/file-origin';
 import { FileEvent } from './enums/file-event';
 import { FilterType } from './enums/filter-type';
@@ -17,8 +17,9 @@ import * as Helpers from './helpers/index';
 
 import type { UploaderOptions } from './types/uploader-options';
 import type { UploaderFileOptions } from './types/uploader-file-options';
-import type { FileInfo } from './types/file-info';
 import type { ServerOptions } from './types/server-options';
+import type { UploaderFileInfo } from './types/uploader-file-info';
+
 import type UploaderFile from './uploader-file';
 
 import type { ResizeImageResult } from './types/resize-image-result';
@@ -39,18 +40,21 @@ export {
 	FilterType,
 	Helpers,
 	UploaderError,
-	VueUploaderAdapter,
-	VueUploaderWidget,
-	VueUploaderComponent,
 	Server,
+	AbstractLoadController,
+	AbstractUploadController,
+	AbstractRemoveController,
 };
+
+export * from './helpers/index';
 
 export type {
 	UploaderOptions,
 	UploaderFile,
 	UploaderFileOptions,
+	UploaderFileInfo,
+	FileStatusType,
 	ServerOptions,
-	FileInfo,
 	ResizeImageOptions,
 	ResizeImageMode,
 	ResizeImageMimeType,

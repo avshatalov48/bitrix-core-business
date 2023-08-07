@@ -123,7 +123,7 @@ class EntityChat extends GroupChat
 
 				RelationTable::add([
 					'CHAT_ID' => $chat->getChatId(),
-					'MESSAGE_TYPE' => \IM_MESSAGE_CHAT,
+					'MESSAGE_TYPE' => $chat->getType(),
 					'USER_ID' => $userId,
 					'STATUS' => \IM_STATUS_READ,
 					'MANAGER' => $isManager,
@@ -134,7 +134,7 @@ class EntityChat extends GroupChat
 					\Bitrix\Im\Bot::changeChatMembers($chat->getChatId(), $userId);
 					\Bitrix\Im\Bot::onJoinChat('chat' . $chat->getChatId(), [
 						'CHAT_TYPE' => $chat->getType(),
-						'MESSAGE_TYPE' => \IM_MESSAGE_CHAT,
+						'MESSAGE_TYPE' => $chat->getType(),
 						'BOT_ID' => $userId,
 						'USER_ID' => $params['USER_ID'],
 						'CHAT_AUTHOR_ID' => $chat->getAuthorId(),
@@ -176,7 +176,7 @@ class EntityChat extends GroupChat
 		}
 
 		$row = ChatTable::query()
-			->setSelect(['ID'])
+			->setSelect(['ID', 'TYPE', 'ENTITY_TYPE', 'ENTITY_ID'])
 			->where('ENTITY_TYPE', $params['ENTITY_TYPE'])
 			->where('ENTITY_ID', $params['ENTITY_ID'])
 			->fetch()
@@ -185,7 +185,10 @@ class EntityChat extends GroupChat
 		if ($row)
 		{
 			$result->setResult([
-				'ID' => (int)$row['ID']
+				'ID' => (int)$row['ID'],
+				'TYPE' => $row['TYPE'],
+				'ENTITY_TYPE' => $row['ENTITY_TYPE'],
+				'ENTITY_ID' => $row['ENTITY_ID'],
 			]);
 		}
 

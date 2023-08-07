@@ -71,6 +71,8 @@ if (($arID = $lAdmin->GroupAction()) && $sonetModulePermissions >= "W")
 				}
 				else
 				{
+					$DB->Commit();
+
 					if ($arOldSmile)
 					{
 						$strDirNameOld = $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/socialnetwork/";
@@ -82,8 +84,6 @@ if (($arID = $lAdmin->GroupAction()) && $sonetModulePermissions >= "W")
 						@unlink($strDirNameOld);
 					}
 				}
-
-				$DB->Commit();
 
 				break;
 		}

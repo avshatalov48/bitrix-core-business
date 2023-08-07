@@ -2881,6 +2881,11 @@
 				var i;
 				for (i = 0; i < images.length; i++)
 				{
+					const isInlineVideo = BX.hasClass(images[i], 'bxhtmled-player-surrogate');
+					if (isInlineVideo)
+					{
+						continue;
+					}
 					if (!images[i].getAttribute('data-bx-paste-check'))
 					{
 						if (images[i].complete)
@@ -3937,6 +3942,38 @@
 				win = this.document.defaultView || this.document.parentWindow,
 				selection = rangy.getSelection(win);
 			return selection.setSingleRange(range);
+		},
+
+		TrimRange: function()
+		{
+			const text = this.editor.selection.GetText();
+
+			if (BX.util.trim(text).length !== text.length)
+			{
+				const trimStart = text.length - text.trimStart().length;
+				const trimEnd = text.length - text.trimEnd().length;
+
+				this.MoveRange(this.GetRange().startOffset + trimStart, this.GetRange().endOffset - trimEnd);
+			}
+
+			return this.GetRange();
+		},
+
+		MoveRange: function(start, end)
+		{
+			if (end < 0)
+			{
+				end = 0;
+			}
+
+			const startNode = this.GetRange().startContainer;
+			const endNode = this.GetRange().endContainer;
+			const range = this.GetRange();
+			range.setStart(startNode, start);
+			range.setEnd(endNode, end);
+			this.GetSelection().removeAllRanges();
+			this.SetSelection(range);
+			return this.GetRange();
 		},
 
 		GetStructuralTags: function()

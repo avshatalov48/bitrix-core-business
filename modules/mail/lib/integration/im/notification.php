@@ -6,12 +6,14 @@ use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Web\Uri;
 use \Bitrix\Mail\Internals\MailboxAccessTable;
+use \Bitrix\Mail\MailboxTable;
 
 Loc::loadMessages(__FILE__);
 
 class Notification
 {
 	const notifierSchemeTypeMail = 'new_message';
+	const notifierSchemeTypeMailTariffRestrictions = 'tariff_restrictions';
 
 	public static function getSchema()
 	{
@@ -28,6 +30,18 @@ class Notification
 					'DISABLED' => [
 						IM_NOTIFY_FEATURE_PUSH,
 						IM_NOTIFY_FEATURE_MAIL,
+					],
+				],
+				'imposed_tariff_restrictions_on_the_mailbox' => [
+					'NAME' => Loc::getMessage('MAIL_NOTIFY_IMPOSE_TARIFF_RESTRICTIONS_ON_THE_MAILBOX'),
+					'SITE' => 'Y',
+					'SYSTEM' => 'Y',
+					'MAIL' => 'Y',
+					'PUSH' => 'Y',
+					'DISABLED' => [
+						IM_NOTIFY_FEATURE_PUSH,
+						IM_NOTIFY_FEATURE_MAIL,
+						IM_NOTIFY_FEATURE_SITE,
 					],
 				],
 			],
@@ -81,6 +95,35 @@ class Notification
 		}
 	}
 
+	private static function getNotifyMessageForTariffRestrictionsMailbox($mailboxId, $email, $forEmailNotification = false): string
+	{
+		$url = htmlspecialcharsbx(sprintf("/mail/list/%u", $mailboxId));
+
+		if ($forEmailNotification)
+		{
+			$uri = new Uri($url);
+			$url = $uri->toAbsolute()->getLocator();
+
+			$text = Loc::getMessage('MAIL_NOTIFY_FULL_MAILBOX_TARIFF_RESTRICTIONS_HAVE_BEEN_IMPOSED',
+				[
+					'#EMAIL#' => $email,
+					'#VIEW_URL#' => $url,
+				]
+			);
+		}
+		else
+		{
+			$text = Loc::getMessage('MAIL_NOTIFY_MAILBOX_TARIFF_RESTRICTIONS_HAVE_BEEN_IMPOSED',
+				[
+					'#EMAIL#' => $email,
+					'#VIEW_URL#' => $url,
+				]
+			);
+		}
+
+		return $text;
+	}
+
 	private static function notifyForNewMessagesInMail($userId, $fields): void
 	{
 		$message = $fields['message'];
@@ -101,11 +144,39 @@ class Notification
 		]);
 	}
 
-	public static function add($userId, $type, $fields)
+	private static function notifyForTariffRestrictions($mailboxId): void
+	{
+		$mailbox = MailboxTable::getList([
+			'select' => [
+				'USER_ID',
+				'EMAIL'
+			],
+			'filter' => [
+				'=ID' => $mailboxId,
+			],
+			'limit' => 1,
+		])->fetch();
+
+		if (isset($mailbox['USER_ID']) && isset($mailbox['EMAIL']))
+		{
+			\CIMNotify::add([
+				'MESSAGE_TYPE' => IM_MESSAGE_SYSTEM,
+				'NOTIFY_TYPE' => IM_NOTIFY_SYSTEM,
+				'NOTIFY_MODULE' => 'mail',
+				'NOTIFY_EVENT' => self::notifierSchemeTypeMailTariffRestrictions,
+				'NOTIFY_TITLE' => Loc::getMessage('MAIL_NOTIFY_NEW_MESSAGE_TITLE'),
+				'NOTIFY_MESSAGE_OUT' => self::getNotifyMessageForTariffRestrictionsMailbox($mailboxId, $mailbox['EMAIL'], true),
+				'NOTIFY_MESSAGE' => self::getNotifyMessageForTariffRestrictionsMailbox($mailboxId, $mailbox['EMAIL']),
+				'TO_USER_ID' => $mailbox['USER_ID'],
+			]);
+		}
+	}
+
+	public static function add($userId, $type, $fields, $mailboxId = null)
 	{
 		if (Main\Loader::includeModule('im'))
 		{
-			if ('new_message' == $type)
+			if ($type == 'new_message')
 			{
 				$mailboxId = $fields['mailboxId'];
 
@@ -126,6 +197,10 @@ class Notification
 				{
 					self::notifyForNewMessagesInMail($id, $fields);
 				}
+			}
+			else if ($type == 'imposed_tariff_restrictions_on_the_mailbox')
+			{
+				self::notifyForTariffRestrictions($mailboxId);
 			}
 		}
 	}

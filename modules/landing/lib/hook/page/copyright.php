@@ -336,7 +336,7 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 		];
 		$region = Application::getInstance()->getLicense()->getRegion();
 		$hrefLinkReport = $setLinks[$region]['report'] ?? $setLinks['com']['report'];
-		$url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$url = "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		$siteId = $this->getSiteId();
 		$portalName = \COption::GetOptionString("main", "server_name", '');
 		$senderPage = strtoupper(Landing::getSiteType());
@@ -347,11 +347,16 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 			'from_url' => urlencode($url),
 		];
 		$hrefLinkReportWithParams = $hrefLinkReport . '?' . http_build_query($urlParams);
-		$linkReport = '<a class="bitrix-footer-link bitrix-footer-link-report" target="_blank" href="' . $hrefLinkReportWithParams . '">'. Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_CONTENT_LINK_REPORT', null, $lang) . '</a>';
+		$linkReport = '<a class="bitrix-footer-link bitrix-footer-link-report" target="_blank" href="'
+			. $hrefLinkReportWithParams
+			. '">'
+			. Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_CONTENT_LINK_REPORT', null, $lang)
+			. '</a>';
 		$hintText = Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_CONTENT_LINK_REPORT_HINT', null, $lang);
 		$hint = '<span class="bitrix-footer-hint" data-hint="' . $hintText . '"></span>';
 		$content .= $linkReport . $hint;
 		$content .= '</div>';
+
 		return $content;
 	}
 

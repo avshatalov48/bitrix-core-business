@@ -19,6 +19,7 @@ use \Bitrix\Main\Page\Asset;
 	'ui.design-tokens',
 	'ui.fonts.opensans',
 	'lists',
+	'ui.entity-selector',
 ]);
 
 Asset::getInstance()->addJs('/bitrix/components/bitrix/ui.tile.selector/templates/.default/script.js');

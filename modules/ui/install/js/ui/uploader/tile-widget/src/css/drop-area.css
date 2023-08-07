@@ -19,7 +19,6 @@
 	transition: height .3s, border .3s;
 	box-sizing: border-box;
 	cursor: pointer;
-	z-index: 100;
 }
 
 .ui-tile-uploader-drop-label:hover {
@@ -59,6 +58,7 @@
 	cursor: pointer;
 }
 
-.ui-tile-uploader-settings:hover {
+.ui-tile-uploader-settings:hover,
+.ui-tile-uploader-settings.--selected {
 	opacity: 1;
 }

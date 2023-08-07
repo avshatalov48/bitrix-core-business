@@ -5,6 +5,7 @@ if(isset($_REQUEST["test"]) && $_REQUEST["test"] === "Y")
 {
 	define("NOT_CHECK_PERMISSIONS", true);
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
+	\Bitrix\Main\Application::getInstance()->getCompositeSessionManager()->start();
 	/** @global CMain $APPLICATION */
 	/** @global CDatabase $DB */
 	/** @global CUser $USER */
@@ -314,14 +315,11 @@ elseif(isset($_REQUEST["test"]))
 			echo COption::GetOptionString("perfmon", "mark_db_update_value");
 			break;
 		case "php":
-			$bPHPIsGood = version_compare(phpversion(), "5.1.0", ">=");
+			$bPHPIsGood = true;
 
-			if($bPHPIsGood)
+			if(ini_get('open_basedir') <> '')
 			{
-				if(ini_get('open_basedir') <> '')
-				{
-					$bPHPIsGood = false;
-				}
+				$bPHPIsGood = false;
 			}
 
 			if($bPHPIsGood)
@@ -1305,32 +1303,8 @@ else
 		</tr>
 		<?endif?>
 		<tr>
-			<td nowrap><?echo GetMessage("PERFMON_PANEL_CACHE_STORAGE")?></td>
-			<?
-			$cache_type = GetMessage("PERFMON_PANEL_CACHE_STORAGE_UNKNOWN");
-			switch(\Bitrix\Main\Data\Cache::getCacheEngineType())
-			{
-			case "cacheenginememcache":
-				$cache_type = GetMessage("PERFMON_PANEL_CACHE_STORAGE_MEMCACHE");
-				break;
-			case "cacheengineapc":
-				$cache_type = GetMessage("PERFMON_PANEL_CACHE_STORAGE_APC");
-				break;
-			case "cacheenginexcache":
-				$cache_type = GetMessage("PERFMON_PANEL_CACHE_STORAGE_XCACHE");
-				break;
-			case "cacheenginefiles":
-				$cache_type = GetMessage("PERFMON_PANEL_CACHE_STORAGE_FILES");
-				break;
-			case "cacheenginememcachecluster":
-				$cache_type = GetMessage("PERFMON_PANEL_CACHE_STORAGE_CLUSTER");
-				break;
-			default:
-				$cache_type = \Bitrix\Main\Data\Cache::getCacheEngineType();
-				break;
-			}
-			?>
-			<td class="bx-digit-cell"><?echo $cache_type?></td>
+			<td nowrap><?echo GetMessage("PERFMON_PANEL_CACHE_STORAGE")?></td><?
+			?><td class="bx-digit-cell"><?echo \Bitrix\Main\Data\Cache::getCacheEngineType();?></td>
 			<td><?echo GetMessage("PERFMON_PANEL_CACHE_STORAGE_REC");?></td>
 		</tr>
 		<tr>

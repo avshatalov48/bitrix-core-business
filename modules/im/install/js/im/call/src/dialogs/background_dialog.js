@@ -1,5 +1,6 @@
-import {Type} from 'main.core'
+import {Type} from 'main.core';
 import {Utils as MessengerUtils} from 'im.lib.utils';
+import {DesktopApi} from 'im.v2.lib.desktop-api';
 
 export class BackgroundDialog
 {
@@ -46,7 +47,7 @@ export class BackgroundDialog
 				}).mount("#placeholder");
 			});`;
 
-		(opener || top).BX.desktop.createWindow("callBackground", (controller) =>
+		DesktopApi.createWindow("callBackground", (controller) =>
 		{
 			const title = this.isMaskAvailable() ? BX.message('BXD_CALL_BG_MASK_TITLE') : BX.message('BXD_CALL_BG_TITLE');
 			controller.SetProperty("title", title);
@@ -54,7 +55,7 @@ export class BackgroundDialog
 			controller.SetProperty("minClientSize", {Width: 943, Height: 670});
 			controller.SetProperty("backgroundColor", "#2B3038");
 			controller.ExecuteCommand("center");
-			controller.ExecuteCommand("html.load", (opener || top).BXIM.desktop.getHtmlPage(html, js, false));
+			controller.ExecuteCommand("html.load", DesktopApi.prepareHtml(html, js));
 		});
 
 		return true;

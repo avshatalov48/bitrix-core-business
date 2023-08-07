@@ -13,13 +13,17 @@ class BasketComponentHelper
 	static $cacheRatioData = array();
 
 	/**
-	 * @param int $fuserId
+	 * @param null|int $fuserId
 	 * @param string|null $siteId
 	 *
 	 * @return int|float
 	 */
 	public static function getFUserBasketQuantity($fuserId, $siteId = null)
 	{
+		if ($fuserId === null)
+		{
+			return 0;
+		}
 		if ($siteId === null)
 		{
 			$siteId = SITE_ID;
@@ -42,13 +46,17 @@ class BasketComponentHelper
 	}
 
 	/**
-	 * @param int $fuserId
+	 * @param null|int $fuserId
 	 * @param string|null $siteId
 	 *
 	 * @return int|float
 	 */
 	public static function getFUserBasketPrice($fuserId, $siteId = null)
 	{
+		if ($fuserId === null)
+		{
+			return 0;
+		}
 		if ($siteId === null)
 		{
 			$siteId = SITE_ID;

@@ -16,9 +16,8 @@ use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Main\ORM\Query\Query;
 
 /**
- * @method FavoriteItem next()
- * @method FavoriteItem current()
- * @method FavoriteItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,FavoriteItem>
+ * @method FavoriteItem offsetGet($key)
  */
 class FavoriteCollection extends BaseLinkCollection
 {

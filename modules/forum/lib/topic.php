@@ -321,6 +321,7 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 				$this->data["STATE"] = self::STATE_OPENED;
 				\CForumEventLog::Log("topic", "open", $this->getId(), serialize($this->data));
 				$result->setData(["STATE" => self::STATE_OPENED]);
+				(new Main\Event("forum", "onTopicOpen", [$this->getId(), $this->data]))->send();
 			}
 			else
 			{
@@ -340,6 +341,7 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 				$this->data["STATE"] = self::STATE_CLOSED;
 				\CForumEventLog::Log("topic", "close", $this->getId(), serialize($this->data));
 				$result->setData(["STATE" => self::STATE_CLOSED]);
+				(new Main\Event("forum", "onTopicClose", [$this->getId(), $this->data]))->send();
 			}
 			else
 			{

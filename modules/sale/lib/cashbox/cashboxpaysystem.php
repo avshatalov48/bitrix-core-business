@@ -4,6 +4,7 @@ namespace Bitrix\Sale\Cashbox;
 
 use Bitrix\Main;
 use Bitrix\Sale;
+use Bitrix\Sale\BusinessValue;
 
 Main\Localization\Loc::loadMessages(__FILE__);
 
@@ -15,12 +16,14 @@ abstract class CashboxPaySystem extends Cashbox implements IPrintImmediately, IC
 {
 	public const CACHE_ID = '';
 	private const TTL = 31536000;
+	protected const SEND_METHOD_HTTP_POST = 'POST';
+	protected const SEND_METHOD_HTTP_GET = 'GET';
 
 	abstract protected function getPrintUrl(): string;
 
 	abstract protected function getCheckUrl(): string;
 
-	abstract protected function send(string $url, Sale\Payment $payment, array $fields): Sale\Result;
+	abstract protected function send(string $url, Sale\Payment $payment, array $fields, string $method = self::SEND_METHOD_HTTP_POST): Sale\Result;
 
 	abstract protected function processPrintResult(Sale\Result $result): Sale\Result;
 
@@ -31,6 +34,43 @@ abstract class CashboxPaySystem extends Cashbox implements IPrintImmediately, IC
 	abstract protected function onAfterProcessCheck(Sale\Result $result, Sale\Payment $payment): Sale\Result;
 
 	abstract public static function getPaySystemCodeForKkm(): string;
+
+	/**
+	 * @return array
+	 */
+	public static function getSupportedKkmModels()
+	{
+		$supportedKkmModels = [];
+
+		$paySystemIterator = Sale\PaySystem\Manager::getList([
+			'filter' => [
+				'=ACTIVE' => 'Y',
+			]
+		]);
+		while ($paySystemItem = $paySystemIterator->fetch())
+		{
+			$paySystemService = new Sale\PaySystem\Service($paySystemItem);
+			if (
+				$paySystemService->isSupportPrintCheck()
+				&& $paySystemService->getCashboxClass() === '\\'.static::class
+			)
+			{
+				$supportedKkmModels[] = static::getKkmValue($paySystemService);
+			}
+		}
+
+		$supportedKkmModels = array_unique(array_merge(...$supportedKkmModels));
+
+		$result = [];
+		foreach ($supportedKkmModels as $supportedKkm)
+		{
+			$result[$supportedKkm] = [
+				'NAME' => $supportedKkm
+			];
+		}
+
+		return $result;
+	}
 
 	/**
 	 * @param Sale\Payment $payment
@@ -203,8 +243,9 @@ abstract class CashboxPaySystem extends Cashbox implements IPrintImmediately, IC
 
 		$url = $this->getCheckUrl();
 		$fields = $this->getDataForCheck($payment);
+		$sendMethod = $this->getCheckHttpMethod();
 
-		$sendResult = $this->send($url, $payment, $fields);
+		$sendResult = $this->send($url, $payment, $fields, $sendMethod);
 		if (!$sendResult->isSuccess())
 		{
 			$result->addErrors($sendResult->getErrors());
@@ -229,10 +270,33 @@ abstract class CashboxPaySystem extends Cashbox implements IPrintImmediately, IC
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function getCheckHttpMethod(): string
+	{
+		return self::SEND_METHOD_HTTP_POST;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public static function getFfdVersion(): ?float
 	{
 		return 1.05;
+	}
+
+	/**
+	 * @param Sale\PaySystem\Service $service
+	 * @return string[]
+	 */
+	public static function getKkmValue(Sale\PaySystem\Service $service): array
+	{
+		$paySystemCodeForKkm = static::getPaySystemCodeForKkm();
+		$supportedKkmModels = BusinessValue::getValuesByCode(
+			$service->getConsumerName(),
+			$paySystemCodeForKkm
+		);
+
+		return $supportedKkmModels;
 	}
 }

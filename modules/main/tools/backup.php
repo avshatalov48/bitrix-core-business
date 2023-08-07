@@ -6,7 +6,11 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED & ~E_WARNING);
 define('START_TIME', microtime(1));
 define('BX_FORCE_DISABLE_SEPARATED_SESSION_MODE', true);
 define('CLI', defined('BX_CRONTAB') && BX_CRONTAB === true || !$_SERVER['DOCUMENT_ROOT']);
-define('NOT_CHECK_PERMISSIONS', true);
+
+if (!defined('NOT_CHECK_PERMISSIONS'))
+{
+	define('NOT_CHECK_PERMISSIONS', true);
+}
 
 $NS = array(); // NewState
 
@@ -445,6 +449,11 @@ if ($NS['step'] == 4)
 
 			$r = $DirScan->Scan($DOCUMENT_ROOT_SITE);
 			$tar->close();
+
+			if (!isset($NS["data_size"]))
+			{
+				$NS["data_size"] = 0;
+			}
 			$NS["data_size"] += 512 * ($tar->Block - $Block);
 
 			if ($r === false)
@@ -453,6 +462,11 @@ if ($NS['step'] == 4)
 			$NS["ReadBlockCurrent"] = $tar->ReadBlockCurrent;
 			$NS["ReadFileSize"] = $tar->ReadFileSize;
 			$NS["startPath"] = $DirScan->nextPath;
+
+			if (!isset($NS["cnt"]))
+			{
+				$NS["cnt"] = 0;
+			}
 			$NS["cnt"] += $DirScan->FileCount;
 
 			$last_files_count = IntOption('last_files_count');
@@ -503,7 +517,7 @@ if ($NS['step'] == 5)
 			RaiseErrorAndDie(GetMessage('DUMP_NO_PERMS_READ').'<br>'.implode('<br>',$tar->err), 510, $NS['arc_name']);
 		else
 		{
-			if(($Block = intval($NS['Block'])) && !$tar->SkipTo($Block))
+			if(($Block = intval($NS['Block'] ?? 0)) && !$tar->SkipTo($Block))
 				RaiseErrorAndDie(implode('<br>',$tar->err), 520, $tar->file, true);
 			while(($r = $tar->extractFile()) && haveTime());
 			$NS["Block"] = $tar->Block;

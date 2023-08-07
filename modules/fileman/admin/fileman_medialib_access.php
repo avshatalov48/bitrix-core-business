@@ -111,7 +111,7 @@ $tabControl->Begin();
 				<td>
 					<select name="g_<?= $arGroup['ID']?>" class="typeselect">
 						<?foreach ($arTasks as $id => $ar):?>
-							<option value="<?=$id?>"<?if ($arGroupTask[$arGroup['ID']] == $id) echo" selected";?>><?= htmlspecialcharsex($ar['title']);?></option>
+							<option value="<?=$id?>"<?if (($arGroupTask[$arGroup['ID']] ?? null) == $id) echo" selected";?>><?= htmlspecialcharsex($ar['title']);?></option>
 						<?endforeach;?>
 					</select>
 				</td>
@@ -131,7 +131,7 @@ $tabControl->Begin();
 $tabControl->Buttons(
 	array(
 		"disabled" => false,
-		"back_url" => "fileman_medialib_admin.php?".$addUrl."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()
+		"back_url" => "fileman_medialib_admin.php?".($addUrl ?? '')."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()
 	)
 );
 ?>

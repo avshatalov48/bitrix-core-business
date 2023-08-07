@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Main\Mail;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Mail\Internal as MailInternal;
 use Bitrix\Main\Config as Config;
 use Bitrix\Main\IO as IO;
@@ -383,8 +384,11 @@ class EventMessageThemeCompiler
 			$arParams = $this->params;
 			$result = eval('use \Bitrix\Main\Mail\EventMessageThemeCompiler; ob_start();?>' . $template . '<? return ob_get_clean();');
 		}
-		catch(StopException $e)
+		catch (\Exception $e)
 		{
+			$application = Application::getInstance();
+			$exceptionHandler = $application->getExceptionHandler();
+			$exceptionHandler->writeToLog($e);
 			ob_clean();
 			throw $e;
 		}

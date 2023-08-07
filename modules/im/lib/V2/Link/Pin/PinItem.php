@@ -14,7 +14,7 @@ use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Im\V2\Service\Context;
 
 /**
- * @method Message getEntity()()
+ * @method Message getEntity()
  */
 class PinItem extends BaseLinkItem
 {
@@ -47,7 +47,7 @@ class PinItem extends BaseLinkItem
 
 	public static function getRestEntityName(): string
 	{
-		return 'link';
+		return 'pin';
 	}
 
 	public static function initByEntity(EO_LinkPin $entity): self
@@ -106,7 +106,6 @@ class PinItem extends BaseLinkItem
 			'chatId' => $this->getChatId(),
 			'authorId' => $this->getAuthorId(),
 			'dateCreate' => $this->getDateCreate()->format('c'),
-			'message' => $this->getEntity()->toRestFormat(),
 		];
 	}
 
@@ -131,8 +130,9 @@ class PinItem extends BaseLinkItem
 
 	public function getPopupData(array $excludedList = []): PopupData
 	{
-		$data = new PopupData([new UserPopupItem(), new FilePopupItem(), new ReminderPopupItem()], $excludedList);
-
-		return $data->merge(parent::getPopupData($excludedList));
+		return new PopupData(
+			[new Message\AdditionalMessagePopupItem([$this->getEntityId()]), new UserPopupItem([$this->getAuthorId()])],
+			$excludedList
+		);
 	}
 }

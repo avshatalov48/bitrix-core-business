@@ -5633,23 +5633,32 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	/**
 	 * Returns true if block's content contains needed string.
 	 *
-	 * @param int $blockId Block id.
+	 * @param int $entityId Block or landing id.
 	 * @param string $needed String for search.
+	 * @param bool $isLanding Set to true, if entity id is landing id.
 	 * @return bool
 	 */
-	public static function isContains(int $blockId, string $needed): bool
+	public static function isContains(int $entityId, string $needed, bool $isLanding = false): bool
 	{
+		$filter = [
+			'=ACTIVE' => 'Y',
+			'=DELETED' => 'N',
+			'CONTENT' => '%' . $needed . '%',
+		];
+		if ($isLanding)
+		{
+			$filter['LID'] = $entityId;
+		}
+		else
+		{
+			$filter['ID'] = $entityId;
+		}
 		$res = parent::getList([
 			'select' => [
 				'LID',
-				'SITE_ID' => 'LANDING.SITE_ID'
+				'SITE_ID' => 'LANDING.SITE_ID',
 			],
-			'filter' => [
-				'ID' => $blockId,
-				'=ACTIVE' => 'Y',
-				'=DELETED' => 'N',
-				'CONTENT' => '%' . $needed . '%'
-			]
+			'filter' => $filter,
 		]);
 		if ($row = $res->fetch())
 		{

@@ -1,6 +1,6 @@
 module.exports = {
 	input: 'src/advice.js',
 	output: 'dist/advice.bundle.js',
-	namespace: 'BX.Ui',
+	namespace: 'BX.UI',
 	browserslist: true,
 };

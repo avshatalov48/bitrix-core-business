@@ -1,30 +1,33 @@
-import {hint} from 'ui.vue3.directives.hint';
-import {Avatar, AvatarSize, ChatTitle, Button, ButtonColor, ButtonSize} from 'im.v2.component.elements';
-import {ChatOption} from 'im.v2.const';
-import {ImModelDialog} from 'im.v2.model';
-import {Utils} from 'im.v2.lib.utils';
-import {AddToChat} from 'im.v2.component.entity-selector';
-import {Settings} from './settings';
+import { hint } from 'ui.vue3.directives.hint';
+
+import { Avatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
+import { ChatOption } from 'im.v2.const';
+import { ImModelDialog } from 'im.v2.model';
+import { Utils } from 'im.v2.lib.utils';
+import { AddToChat } from 'im.v2.component.entity-selector';
+
+import { Settings } from './settings';
+
 import '../../css/main/preview-personal-chat.css';
 
 // @vue/component
 export const PersonalChatPreview = {
 	name: 'PersonalChatPreview',
-	directives: {hint},
-	components: {Avatar, ChatTitle, Button, AddToChat, Settings},
+	directives: { hint },
+	components: { Avatar, ChatTitle, MessengerButton, AddToChat, Settings },
 	props: {
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		isLoading: {
 			type: Boolean,
-			default: false
+			default: false,
 		},
 	},
 	data() {
 		return {
-			showAddToChatPopup: false
+			showAddToChatPopup: false,
 		};
 	},
 	computed:
@@ -39,10 +42,6 @@ export const PersonalChatPreview = {
 		dialog(): ImModelDialog
 		{
 			return this.$store.getters['dialogues/get'](this.dialogId, true);
-		},
-		dialogInited(): boolean
-		{
-			return this.dialog.inited;
 		},
 		chatId(): number
 		{
@@ -62,11 +61,11 @@ export const PersonalChatPreview = {
 		onAddClick()
 		{
 			this.showAddToChatPopup = true;
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-main-preview__scope">
-			<div v-if="!dialogInited" class="bx-im-sidebar-main-preview-personal-chat__avatar-skeleton"></div>
+			<div v-if="isLoading" class="bx-im-sidebar-main-preview-personal-chat__avatar-skeleton"></div>
 			<div v-else class="bx-im-sidebar-main-preview-personal-chat__avatar-container">
 				<Avatar
 					:size="AvatarSize.XXXL"
@@ -81,10 +80,9 @@ export const PersonalChatPreview = {
 					{{ userPosition }}
 				</div>
 			</div>
-			
 			<div v-if="isLoading" class="bx-im-sidebar-main-preview-personal-chat__invite-button-skeleton"></div>
 			<div v-else class="bx-im-sidebar-main-preview-personal-chat__invite-button-container" ref="add-members">
-				<Button
+				<MessengerButton
 					v-if="canInviteMembers"
 					:text="$Bitrix.Loc.getMessage('IM_SIDEBAR_INVITE_BUTTON_TEXT')"
 					:size="ButtonSize.S"
@@ -105,5 +103,5 @@ export const PersonalChatPreview = {
 				@close="showAddToChatPopup = false"
 			/>
 		</div>
-	`
+	`,
 };

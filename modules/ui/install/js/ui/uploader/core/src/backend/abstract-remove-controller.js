@@ -1,4 +1,5 @@
 import { EventEmitter } from 'main.core.events';
+
 import type Server from './server';
 import type UploaderFile from '../uploader-file';
 

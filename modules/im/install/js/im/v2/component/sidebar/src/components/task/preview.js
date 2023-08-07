@@ -44,14 +44,6 @@ export const TaskPreview = {
 		{
 			return this.dialog.chatId;
 		},
-		dialogInited()
-		{
-			return this.dialog.inited;
-		},
-		isLoadingState(): boolean
-		{
-			return !this.dialogInited || this.isLoading;
-		}
 	},
 	created()
 	{
@@ -97,7 +89,7 @@ export const TaskPreview = {
 	},
 	template: `
 		<div class="bx-im-sidebar-task-preview__scope">
-			<div v-if="isLoadingState" class="bx-im-sidebar-task-preview__skeleton"></div>
+			<div v-if="isLoading" class="bx-im-sidebar-task-preview__skeleton"></div>
 			<div v-else class="bx-im-sidebar-task-preview__container">
 				<div 
 					class="bx-im-sidebar-task-preview__header_container"

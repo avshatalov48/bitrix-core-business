@@ -11,7 +11,7 @@ export {Keyboard} from './keyboard/keyboard';
 export {UserStatus, UserStatusSize} from './user-status/user-status';
 export {Dropdown} from './dropdown/dropdown';
 export {Loader} from './loader/loader';
-export {Spinner, SpinnerSize} from './loader/spinner';
+export {Spinner, SpinnerSize, SpinnerColor} from './loader/spinner';
 export {Toggle, ToggleSize} from './toggle/toggle';
 export {File} from './media/file';
 export {Image} from './media/image';

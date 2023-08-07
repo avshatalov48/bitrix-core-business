@@ -8,6 +8,7 @@ use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\MessageCollection;
+use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\Type\DateTime;
@@ -29,68 +30,39 @@ class ViewedService
 	public function add(MessageCollection $messages): void
 	{
 		$insertFields = $this->prepareInsertFields($messages);
-		MessageViewedTable::multiplyInsertWithoutDuplicate($insertFields);
+		MessageViewedTable::multiplyInsertWithoutDuplicate($insertFields, ['DEADLOCK_SAFE' => true]);
 	}
 
-	public function addTo(Message $message): void
+	public function addTo(Message $message): Result
 	{
 		$lowerBound = $this->getLastViewedMessageId($message->getChatId());
+		$includeBound = false;
 		if ($lowerBound === null)
 		{
 			$lowerBound = $message->getChat()->getStartId($this->getContext()->getUserId());
+			$includeBound = true;
 		}
-		$query = MessageTable::query()
-			->setSelect(['ID'])
-			->where('CHAT_ID', $message->getChatId())
-			->where('ID', '<=', $message->getMessageId())
-			->where('ID', '>=', $lowerBound)
-			->setLimit(100)
-		;
-		if ($message->getChat()->getType() !== \IM_MESSAGE_SYSTEM)
-		{
-			$query->whereNot('AUTHOR_ID', $this->getContext()->getUserId());
-		}
+
+		$messageIds = $this->getLastMessageIdsBetween($message, $lowerBound, $includeBound);
 		$dateViewed = new DateTime();
 		$userId = $this->getContext()->getUserId();
 		$chatId = $message->getChatId();
 		$insertFields = [];
-		$result = $query->fetchAll();
-		foreach ($result as $row)
+
+		foreach ($messageIds as $messageId)
 		{
 			$insertFields[] = [
 				'USER_ID' => $userId,
 				'CHAT_ID' => $chatId,
-				'MESSAGE_ID' => (int)$row['ID'],
+				'MESSAGE_ID' => $messageId,
 				'DATE_CREATE' => $dateViewed,
 			];
 		}
-		MessageViewedTable::multiplyInsertWithoutDuplicate($insertFields);
-	}
 
-	/*public function addAllFromChat(int $chatId): void
-	{
-		$lowerBound = $this->getLastViewedMessageId($chatId);
-		if ($lowerBound === null)
-		{
-			$lowerBound = Chat::getInstance($chatId)->getStartId($this->getContext()->getUserId());
-		}
-		$query = MessageTable::query()
-			->setSelect([
-				'ID_CONST' => new ExpressionField('ID_CONST', '0'),
-				'USER_ID_CONST' => new ExpressionField('USER_ID_CONST', (string)$this->getContext()->getUserId()),
-				'CHAT_ID_CONST' => new ExpressionField('CHAT_ID', (string)$chatId),
-				'MESSAGE_ID' => 'ID',
-				'DATE_CREATE_CONST' => new ExpressionField('DATE_CREATE_CONST', 'CURRENT_TIMESTAMP')
-			])
-			->where('CHAT_ID', $chatId)
-			->where('MESSAGE_ID', '>=', $lowerBound)
-		;
-		if (Chat::getInstance($chatId)->getType() !== \IM_MESSAGE_SYSTEM)
-		{
-			$query->whereNot('AUTHOR_ID', $this->getContext()->getUserId());
-		}
-		MessageViewedTable::insertSelect($query);
-	}*/
+		MessageViewedTable::multiplyInsertWithoutDuplicate($insertFields, ['DEADLOCK_SAFE' => true]);
+
+		return (new Result())->setResult(['VIEWED_MESSAGES' => $messageIds]);
+	}
 
 	public function getLastViewedMessageId(int $chatId): ?int
 	{
@@ -101,7 +73,7 @@ class ViewedService
 			->fetch()
 		;
 
-		return $result ? (int)$result['LAST_VIEWED'] : null;
+		return ($result && isset($result['LAST_VIEWED'])) ? (int)$result['LAST_VIEWED'] : null;
 	}
 
 	public function getDateViewedByMessageId(int $messageId): ?DateTime
@@ -157,6 +129,7 @@ class ViewedService
 		$query = MessageViewedTable::query()
 			->setSelect(['USER_ID'])
 			->where('MESSAGE_ID', $messageId)
+			->setOrder(['ID' => 'ASC'])
 		;
 
 		if (isset($limit))
@@ -271,5 +244,25 @@ class ViewedService
 		}
 
 		return $insertFields;
+	}
+
+	private function getLastMessageIdsBetween(Message $message, int $lowerBound, bool $includeBound): array
+	{
+		$operator = $includeBound ? '>=' : '>';
+
+		$query = MessageTable::query()
+			->setSelect(['ID'])
+			->where('CHAT_ID', $message->getChatId())
+			->where('ID', '<=', $message->getMessageId())
+			->where('ID', $operator, $lowerBound)
+			->setOrder(['ID' => 'DESC'])
+			->setLimit(100)
+		;
+		if ($message->getChat()->getType() !== \IM_MESSAGE_SYSTEM)
+		{
+			$query->whereNot('AUTHOR_ID', $this->getContext()->getUserId());
+		}
+
+		return $query->fetchCollection()->getIdList();
 	}
 }

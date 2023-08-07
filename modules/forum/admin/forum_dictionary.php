@@ -27,10 +27,10 @@ $TYPE = mb_strtoupper(trim($_REQUEST["TYPE"]));
 	{
 		foreach ($FIELDS as $ID => $arFields)
 		{
-			$DB->StartTransaction();
 			$ID = intval($ID);
 			if (!$lAdmin->IsUpdated($ID))
 				continue;
+			$DB->StartTransaction();
 			if (!CFilterDictionary::Update($ID, array("TITLE" => $arFields["TITLE"])))
 			{
 				if ($ex = $APPLICATION->GetException())
@@ -39,7 +39,10 @@ $TYPE = mb_strtoupper(trim($_REQUEST["TYPE"]));
 					$lAdmin->AddUpdateError(str_replace("##", $ID, GetMessage("FLT_NOT_UPDATE")), $ID);
 				$DB->Rollback();
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 		}
 	}
 /*******************************************************************/

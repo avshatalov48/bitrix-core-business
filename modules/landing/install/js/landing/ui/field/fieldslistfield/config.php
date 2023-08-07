@@ -17,6 +17,7 @@ return [
 		'landing.ui.field.textfield',
 		'main.core.events',
 		'landing.ui.form.formsettingsform',
+		'crm.form.file-limit',
 		'crm.form.client',
 		'landing.ui.field.listsettingsfield',
 		'landing.ui.panel.separatorpanel',

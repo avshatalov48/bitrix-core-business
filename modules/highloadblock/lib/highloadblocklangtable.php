@@ -41,6 +41,7 @@ class HighloadBlockLangTable extends Entity\DataManager
 				'primary' => true
 			)),
 			'LID' => new Entity\StringField('LID', array(
+				'primary' => true,
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateLid'),
 			)),

@@ -39,6 +39,20 @@ Manager::setPageView(
 	'<link rel="icon" type="image/x-icon" href="' . ($arResult['SITE_RELATIVE_URL'] ?: '/').'favicon.ico">'
 );
 
+if (\Bitrix\Landing\Connector\Mobile::isMobileHit())
+{
+	$scope = \Bitrix\Landing\Site\Type::getCurrentScopeId();
+	$landingId = $arResult['LANDING']->getId();
+	Manager::setPageView(
+		'BodyTag',
+		'data-landing-id="' . $landingId . '"'
+	);
+	Manager::setPageView(
+		'BodyTag',
+		'data-scope="'. $scope .'"'
+	);
+}
+
 // we set canonical, only if user no setup it before
 $headBlock = \Bitrix\Landing\Hook\Page\HeadBlock::getLastInsertedCode();
 if (mb_strpos($headBlock, '"canonical"') === false)

@@ -1,11 +1,13 @@
-import {Loc, Tag, Dom, Event, Type} from 'main.core';
-import {EventEmitter, BaseEvent} from 'main.core.events';
+import {Dom, Event, Loc, Tag, Type} from 'main.core';
+import {EventEmitter} from 'main.core.events';
+import {Button, ButtonSize, ButtonColor, ButtonIcon} from 'ui.buttons';
+import {MessageBox} from 'ui.dialogs.messagebox';
 import {Util} from 'calendar.util';
 import DialogNew from './dialog-new';
 import 'ui.switcher';
 import 'spotlight';
 import {Guide} from "ui.tour";
-import { Counter } from 'ui.cnt';
+import {Counter} from 'ui.cnt';
 
 export default class SharingButton
 {
@@ -29,16 +31,18 @@ export default class SharingButton
 		this.sharingConfig = Util.getSharingConfig();
 		this.sharingUrl = this.sharingConfig?.url || null;
 		this.payAttentionToNewFeatureMode = options.payAttentionToNewFeature;
+		this.sharingFeatureLimit = options.sharingFeatureLimit;
 	}
 
 	show()
 	{
 		Dom.addClass(this.wrap, 'calendar-sharing__btn-wrap');
-		this.button = new BX.UI.Button({
+		this.button = new Button({
 			text: Loc.getMessage('SHARING_BUTTON_TITLE'),
 			round: true,
-			size: BX.UI.Button.Size.EXTRA_SMALL,
-			color: BX.UI.Button.Color.LIGHT_BORDER,
+			size: ButtonSize.EXTRA_SMALL,
+			color: ButtonColor.LIGHT_BORDER,
+			icon: this.sharingFeatureLimit ? ButtonIcon.LOCK : null,
 			className: 'ui-btn-themes calendar-sharing__btn',
 			onclick: (button, event) => {
 				if (!this.switcher.getNode().contains(event.target))
@@ -60,6 +64,13 @@ export default class SharingButton
 
 	handleSharingButtonClick()
 	{
+		if (this.sharingFeatureLimit)
+		{
+			top.BX.UI.InfoHelper.show('limit_office_calendar_free_slots');
+
+			return;
+		}
+
 		if (!this.isSharingEnabled())
 		{
 			this.switcher.toggle();
@@ -72,22 +83,16 @@ export default class SharingButton
 
 	getSwitcherContainer()
 	{
-		const switcherContainer = Tag.render`
-			<div class="calendar-sharing__switcher">
-				
-			</div>
+		return Tag.render`
+			<div class="calendar-sharing__switcher"></div>
 		`;
-
-		return switcherContainer;
 	}
 
 	getSwitcherDivider()
 	{
-		const switcherDivider = Tag.render`
+		return Tag.render`
 			<div class="calendar-sharing__switcher_divider"></div>
 		`;
-
-		return switcherDivider;
 	}
 
 	renderSwitcher()
@@ -99,7 +104,7 @@ export default class SharingButton
 
 		this.switcher = new BX.UI.Switcher({
 			node: this.getSwitcherContainer(),
-			checked: this.isSharingEnabled(),
+			checked: this.isSharingEnabled() && !this.sharingFeatureLimit,
 			color: 'green',
 			size: 'small',
 			handlers: {
@@ -118,12 +123,22 @@ export default class SharingButton
 			event.stopPropagation();
 		}
 	}
+
 	handleSwitcherToggled()
 	{
+		if (this.sharingFeatureLimit && this.switcher.isChecked())
+		{
+			top.BX.UI.InfoHelper.show('limit_office_calendar_free_slots');
+			this.switcher.toggle();
+
+			return;
+		}
+
 		if (this.isToggledAfterErrorOccurred())
 		{
 			return;
 		}
+
 		if (this.switcher.isChecked())
 		{
 			this.enableSharing();
@@ -215,17 +230,18 @@ export default class SharingButton
 	{
 		if (!this.warningPopup)
 		{
-			this.warningPopup = new BX.UI.Dialogs.MessageBox({
-				title: Loc.getMessage('SHARING_WARNING_POPUP_TITLE'),
-				message: Loc.getMessage('SHARING_WARNING_POPUP_CONTENT'),
+			this.warningPopup = new MessageBox({
+				title: Loc.getMessage('SHARING_WARNING_POPUP_TITLE_1'),
+				message: Loc.getMessage('SHARING_WARNING_POPUP_CONTENT_1'),
 				buttons: this.getWarningPopupButtons(),
 				popupOptions: {
 					autoHide: true,
 					closeByEsc: true,
-					draggable: true,
+					draggable: false,
 					closeIcon: true,
 					minWidth: 365,
 					maxWidth: 365,
+					minHeight: 180,
 				},
 			});
 		}
@@ -240,9 +256,9 @@ export default class SharingButton
 
 	getSubmitButton()
 	{
-		return new BX.UI.Button({
-			size: BX.UI.Button.Size.MEDIUM,
-			color: BX.UI.Button.Color.DANGER,
+		return new Button({
+			size: ButtonSize.MEDIUM,
+			color: ButtonColor.DANGER,
 			text: Loc.getMessage('SHARING_WARNING_POPUP_SUBMIT_BUTTON'),
 			events: {
 				click: () => this.handleSubmitButtonClick(),
@@ -252,9 +268,9 @@ export default class SharingButton
 
 	getCancelButton()
 	{
-		return new BX.UI.Button({
-			size: BX.UI.Button.Size.MEDIUM,
-			color: BX.UI.Button.Color.LIGHT_BORDER,
+		return new Button({
+			size: ButtonSize.MEDIUM,
+			color: ButtonColor.LIGHT_BORDER,
 			text: Loc.getMessage('SHARING_WARNING_POPUP_CANCEL_BUTTON'),
 			events: {
 				click: () => this.handleCancelButtonClick(),

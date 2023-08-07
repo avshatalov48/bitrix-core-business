@@ -2,14 +2,18 @@
 
 use Bitrix\Mail;
 use Bitrix\Mail\Helper\Mailbox;
+use Bitrix\Mail\Helper\Message;
 use Bitrix\Mail\Internals\MessageAccessTable;
+use Bitrix\Mail\MessageView\AvatarManager;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Mail\Address;
 use Bitrix\Main\ORM;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Context;
 use Bitrix\Mail\Internals;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Mail\Helper\LicenseManager;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -186,7 +190,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 		$this->arResult['userHasCrmActivityPermission'] = Main\Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled();
 
-		$mailboxesUnseen = \Bitrix\Mail\Helper\Message::getCountersForUserMailboxes(
+		$mailboxesUnseen = Message::getCountersForUserMailboxes(
 			Main\Engine\CurrentUser::get()->getId()
 		);
 
@@ -334,7 +338,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 			{
 				$filterData['FIND'] = Main\Text\Emoji::encode($filterData['FIND']);
 				$filterKey = (Mail\MailMessageTable::getEntity()->fullTextIndexEnabled('SEARCH_CONTENT') ? '*' : '*%')."SEARCH_CONTENT";
-				$filter[$filterKey] = Mail\Helper\Message::prepareSearchString($filterData['FIND']);
+				$filter[$filterKey] = Message::prepareSearchString($filterData['FIND']);
 			}
 		}
 
@@ -480,7 +484,18 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 		$this->arResult['gridActionsData'] = $this->getGridActionsData();
 
-		$this->arResult['ROWS'] = $this->getRows($items, $navigation);
+		$mailboxIsSyncAvailability = LicenseManager::checkTheMailboxForSyncAvailability($this->mailbox['ID']);
+		$this->arResult['MAILBOX_IS_SYNC_AVAILABILITY'] = $mailboxIsSyncAvailability;
+
+		if ($mailboxIsSyncAvailability)
+		{
+			$this->arResult['ROWS'] = $this->getRows($items, $navigation);
+		}
+		else
+		{
+			$this->arResult['ROWS'] = [];
+		}
+
 		$this->arResult['NAV_OBJECT'] = $navigation;
 		$this->arResult['DIRECTORY_HIERARCHY_WITH_UNSEEN_MAIL_COUNTERS'] = $this->getDirectoryHierarchyForContextMenuAction($this->mailbox['ID']);
 		$this->arResult['DIRS_WITH_UNSEEN_MAIL_COUNTERS'] = $this->mailboxHelper->getDirsWithUnseenMailCounters();
@@ -524,11 +539,32 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 			$this->arResult['draftsDir']
 		];
 
-		$this->arResult['MAX_ALLOWED_CONNECTED_MAILBOXES'] = Mail\Helper\LicenseManager::getUserMailboxesLimit();
+		$this->arResult['MAX_ALLOWED_CONNECTED_MAILBOXES'] = LicenseManager::getUserMailboxesLimit();
 
 		$this->saveDateOpening($this->mailbox['ID']);
 
+		$this->arParams['SHOW_TOP_ALERT'] = ($this->mailbox['SERVER'] === 'imap.gmail.com')
+			&& !\CUserOptions::GetOption('mail', 'temp_alert_google')
+		;
+
 		$this->includeComponentTemplate();
+	}
+
+	private static function getContactList($fieldValue): array
+	{
+		$addressList = Message::parseAddressList($fieldValue);
+		$processedAddressesList = [];
+
+		foreach ($addressList as $address)
+		{
+			$processedAddress = new Address($address);
+			if ($processedAddress->validate())
+			{
+				$processedAddressesList[] = $processedAddress;
+			}
+		}
+
+		return $processedAddressesList;
 	}
 
 	/**
@@ -592,24 +628,45 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 				$item['SUBJECT'] ? : Loc::getMessage('MAIL_MESSAGE_EMPTY_SUBJECT_PLACEHOLDER')
 			);
 
-			$from = new \Bitrix\Main\Mail\Address($item['FIELD_FROM']);
-			if ($from->validate())
+			$from = static::getContactList($item['FIELD_FROM']);
+			$avatarKey = AvatarManager::getAvatarKeyByString($item['FIELD_FROM']);
+
+			if (count($from))
 			{
 				//Outcome message
-				if ($from->getEmail() == $this->mailbox['EMAIL'] && !empty($item['FIELD_TO']))
+				if ($from[0]->getEmail() == $this->mailbox['EMAIL'] && !empty($item['FIELD_TO']))
 				{
 					$columns['FROM'] = htmlspecialcharsbx($item['FIELD_TO']);
-					$from = new \Bitrix\Main\Mail\Address(current(\Bitrix\Mail\Helper\Message::parseAddressList($item['FIELD_TO'])));
+					$avatarKey = AvatarManager::getAvatarKeyByString($item['FIELD_TO']);
+					$from = static::getContactList($item['FIELD_TO']);
 				}
 			}
 
-			$avatarParams = !empty($from->getEmail()) && !empty($avatarConfigs[$from->getEmail()])
-				? $avatarConfigs[$from->getEmail()] : [];
+			$avatarParams = !empty($avatarKey) && !empty($avatarConfigs[$avatarKey])
+				? $avatarConfigs[$avatarKey] : [];
 
-			if ($from->validate())
+			$fromValues = [];
+
+			if (count($from))
 			{
-				$columns['FROM'] = $this->getSenderColumnCell($avatarParams)."<a onclick='".$onclickEventOpenMessageMethod.$onclickOpenMessageViewMethod."' class='mail-msg-from-title' title='".htmlspecialcharsbx((!empty($from->getName())?$from->getName().' / ':'').$from->getEmail())."'>".htmlspecialcharsbx($from->getName() ? $from->getName() : $from->getEmail())."</a>";
+				foreach ($from as $contact)
+				{
+					$name = !empty($contact->getName()) ? Mail\Message::stripQuotes($contact->getName()) : null;
+					$email = !empty($contact->getEmail()) ? Mail\Message::stripQuotes($contact->getEmail()) : null;
+					$fromValues[] = "<a onclick='".$onclickEventOpenMessageMethod.$onclickOpenMessageViewMethod."' class='mail-msg-from-title' title='".htmlspecialcharsbx($name ? $name.' / ' : '').$email."'>".htmlspecialcharsbx($name ?: $email)."</a>";
+				}
 			}
+			else
+			{
+				$emails = explode(",", $columns['FROM']);
+				foreach ($emails as $email)
+				{
+					$email = htmlspecialcharsbx(trim($email));
+					$fromValues[] = "<a onclick='".$onclickEventOpenMessageMethod.$onclickOpenMessageViewMethod."' class='mail-msg-from-title' title='".$email."'/>".$email."</a>";
+				}
+			}
+			$columns['FROM'] = $this->getSenderColumnCell($avatarParams);
+			$columns['FROM'] .= implode(Loc::getMessage('MAIL_MESSAGE_SEPARATOR_OF_NAMES_AND_EMAILS_IN_LISTS'), $fromValues);
 
 			$columns['SUBJECT'] = "<a class='mail-msg-list-subject' onclick='".$onclickEventOpenMessageMethod.$onclickOpenMessageViewMethod."' title='".$columns['SUBJECT']."'>".$columns['SUBJECT']."</a>";
 
@@ -1015,7 +1072,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 			}
 		}
 		$emails = array_values($emails);
-		$configs = (new Mail\MessageView\AvatarManager(
+		$configs = (new AvatarManager(
 			Main\Engine\CurrentUser::get()->getId()
 		))->getAvatarParamsFromEmails($emails);
 

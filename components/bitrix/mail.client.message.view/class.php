@@ -817,9 +817,12 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 		}
 		if ($message['MSG_UID'] && !in_array($message['IS_SEEN'], ['Y', 'S']))
 		{
-			$mailMarkerManager = new \Bitrix\Mail\ImapCommands\MailsFlagsManager($message['MAILBOX_ID'], $message['UID']);
-			$mailMarkerManager->setMessages([$message]);
-			$mailMarkerManager->markMailsSeen();
+			\Bitrix\Main\Application::getInstance()->addBackgroundJob(function () use ($message)
+			{
+				$mailMarkerManager = new \Bitrix\Mail\ImapCommands\MailsFlagsManager($message['MAILBOX_ID'], $message['UID']);
+				$mailMarkerManager->setMessages([$message]);
+				$mailMarkerManager->markMailsSeen();
+			});
 		}
 	}
 }

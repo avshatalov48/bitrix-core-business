@@ -6,8 +6,10 @@ class Column extends BaseObject
 {
 	public $type = '';
 	public $length = '';
+	public $precision = 0;
 	public $nullable = true;
 	public $default = null;
+	public $enum = [];
 
 	protected static $types = array(
 		'INT' => true,
@@ -22,7 +24,6 @@ class Column extends BaseObject
 		'SMALLINT' => true,
 		'MEDIUMINT' => true,
 		'VARCHAR' => true,
-		'VARCHAR2' => true,
 		'CHAR' => true,
 		'TIMESTAMP' => true,
 		'DATETIME' => true,
@@ -31,13 +32,16 @@ class Column extends BaseObject
 		'TEXT' => true,
 		'LONGTEXT' => true,
 		'MEDIUMTEXT' => true,
-		'CLOB' => true,
+		'TINYTEXT' => true,
 		'BLOB' => true,
 		'MEDIUMBLOB' => true,
 		'LONGBLOB' => true,
+		'TINYBLOB' => true,
+		'BINARY' => true,
 		'VARBINARY' => true,
-		'IMAGE' => true,
 		'ENUM' => true,
+		'SET' => true,
+		'BOOLEAN' => true,
 	);
 
 	/**
@@ -54,7 +58,6 @@ class Column extends BaseObject
 	 * - SMALLINT
 	 * - MEDIUMINT
 	 * - VARCHAR
-	 * - VARCHAR2
 	 * - CHAR
 	 * - TIMESTAMP
 	 * - DATETIME
@@ -63,13 +66,16 @@ class Column extends BaseObject
 	 * - TEXT
 	 * - LONGTEXT
 	 * - MEDIUMTEXT
-	 * - CLOB
+	 * - TINYTEXT
 	 * - BLOB
 	 * - MEDIUMBLOB
 	 * - LONGBLOB
+	 * - TINYBLOB
+	 * - BINARY
 	 * - VARBINARY
-	 * - IMAGE
 	 * - ENUM
+	 * - SET
+	 * - BOOLEAN
 	 *
 	 * @param string $type Type of a column.
 	 *
@@ -78,6 +84,78 @@ class Column extends BaseObject
 	public static function checkType($type)
 	{
 		return isset(self::$types[$type]);
+	}
+
+	/**
+	 * Returns storage size for the column.
+	 *
+	 * @param int $charWidth Collation defined maximum charachter size in bytes.
+	 * @param int $maxLength Overwrite column definition length.
+	 *
+	 * @return int
+	 * @throws NotSupportedException
+	 */
+	public function getLength($charWidth, $maxLength = null)
+	{
+		$length = $maxLength ?? intval($this->length);
+		static $fixed = [
+			'INT' => 4,
+			'INTEGER' => 4,
+			'TINYINT' => 1,
+			'FLOAT' => 4,
+			'DOUBLE' => 8,
+			'BIGINT' => 8,
+			'SMALLINT' => 2,
+			'MEDIUMINT' => 3,
+			'TIMESTAMP' => 4,
+			'DATETIME' => 8,
+			'YEAR' => 1,
+			'DATE' => 3,
+			'TIME' => 3,
+			'NUMERIC' => 4, //up to
+			'NUMBER' => 4, //up to
+			'DECIMAL' => 4, //up to
+			'ENUM' => 2, //up to
+			'SET' => 8, //up to
+			'BOOLEAN' => 1,
+		];
+		if (isset($fixed[$this->type]))
+		{
+			return $fixed[$this->type];
+		}
+		if ($this->type == 'BINARY')
+		{
+			return $length;
+		}
+		if ($this->type == 'VARBINARY')
+		{
+			return $length + ($length > 255 ? 2 : 1);
+		}
+		if ($this->type == 'TINYBLOB' || $this->type == 'TINYTEXT')
+		{
+			return ($length ?: pow(2, 8)) + 1;
+		}
+		if ($this->type == 'BLOB' || $this->type == 'TEXT')
+		{
+			return ($length ?: pow(2, 16)) + 2;
+		}
+		if ($this->type == 'MEDIUMBLOB' || $this->type == 'MEDIUMTEXT')
+		{
+			return ($length ?: pow(2, 24)) + 3;
+		}
+		if ($this->type == 'LONGBLOB' || $this->type == 'LONGTEXT')
+		{
+			return ($length ?: pow(2, 32)) + 3;
+		}
+		if ($this->type == 'CHAR')
+		{
+			return $length * $charWidth;
+		}
+		if ($this->type == 'VARCHAR')
+		{
+			return ($length * $charWidth) + ($length > 255 ? 2 : 1);
+		}
+		throw new NotSupportedException("column type [".$this->type."].");
 	}
 
 	/**
@@ -138,18 +216,52 @@ class Column extends BaseObject
 			{
 				if ($token->text == '(')
 				{
-					$lengthLevel = $token->level;
-					$column->length = '';
-					while (!$tokenizer->endOfInput())
+					if ($column->type === 'ENUM')
 					{
-						$columnDefinition .= $token->text;
+						$lengthLevel = $token->level;
+						while (!$tokenizer->endOfInput())
+						{
+							$columnDefinition .= $token->text;
 
-						$token = $tokenizer->nextToken();
+							$token = $tokenizer->nextToken();
 
-						if ($token->level == $lengthLevel && $token->text == ')')
-							break;
-							
-						$column->length .= $token->text;
+							if ($token->level == $lengthLevel && $token->text == ')')
+								break;
+
+							if ($token->type == Token::T_SINGLE_QUOTE)
+							{
+								$column->enum[] = trim($token->text, "'");
+							}
+							elseif ($token->type == Token::T_DOUBLE_QUOTE)
+							{
+								$column->enum[] = trim($token->text, '"');
+							}
+						}
+					}
+					else
+					{
+						$lengthLevel = $token->level;
+						while (!$tokenizer->endOfInput())
+						{
+							$columnDefinition .= $token->text;
+
+							$token = $tokenizer->nextToken();
+
+							if ($token->level == $lengthLevel && $token->text == ')')
+								break;
+
+							if ($token->type == Token::T_STRING)
+							{
+								if (!$column->length)
+								{
+									$column->length = (int)$token->text;
+								}
+								else
+								{
+									$column->precision = (int)$token->text;
+								}
+							}
+						}
 					}
 				}
 				elseif ($token->type !== Token::T_WHITESPACE && $token->type !== Token::T_COMMENT)
@@ -214,12 +326,12 @@ class Column extends BaseObject
 	 * <p>
 	 * Implemented only for MySQL database. For Oracle or MS SQL returns commentary.
 	 *
-	 * @param Column $target Target object.
+	 * @param BaseObject $target Column object.
 	 * @param string $dbType Database type (MYSQL, ORACLE or MSSQL).
 	 *
 	 * @return array|string
 	 */
-	public function getModifyDdl(Column $target, $dbType = '')
+	public function getModifyDdl(BaseObject $target, $dbType = '')
 	{
 		switch ($dbType)
 		{

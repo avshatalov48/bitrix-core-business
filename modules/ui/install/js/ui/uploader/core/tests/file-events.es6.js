@@ -91,6 +91,7 @@ describe('File Events', () => {
 			name: 'image.png',
 			size: 452,
 			type: 'image/png',
+			preload: true,
 			events: {
 				[FileEvent.LOAD_PROGRESS]: handleProgress,
 				[FileEvent.LOAD_COMPLETE]: (event: BaseEvent) => {
@@ -241,6 +242,7 @@ describe('File Events', () => {
 			name: 'image.png',
 			size: 1041,
 			type: 'image/png',
+			preload: true,
 			events: {
 				[FileEvent.LOAD_ERROR]: (event: BaseEvent) => {
 					try
@@ -281,6 +283,7 @@ describe('File Events', () => {
 			name: 'image.png',
 			size: 452,
 			type: 'image/png',
+			preload: true,
 			events: {
 				[FileEvent.LOAD_PROGRESS]: (event: BaseEvent) => {
 					const file: UploaderFile = event.getTarget();
@@ -501,6 +504,7 @@ describe('File Events', () => {
 			name: 'image.png',
 			size: 452,
 			type: 'image/png',
+			preload: true,
 			events: {
 				[FileEvent.LOAD_CONTROLLER_INIT]: (event: BaseEvent) => {
 					const file: UploaderFile = event.getTarget();
@@ -563,12 +567,10 @@ describe('File Events', () => {
 
 		const changes = {
 			name: 'new name',
-			originalName: 'my new originalName',
 			type: 'image/tiff',
 			size: 1000,
-			serverId: 123,
+			serverFileId: 123,
 			downloadUrl: '/dddd/',
-			removeUrl: '/reeeeee/',
 			width: 100,
 			height: 200,
 			clientPreviewUrl: null,
@@ -596,12 +598,10 @@ describe('File Events', () => {
 		assert.equal(file.getStatus(), FileStatus.INIT);
 
 		file.setName(changes.name);
-		file.setOriginalName(changes.originalName);
 		file.setType(changes.type);
 		file.setSize(changes.size);
-		file.setServerId(changes.serverId);
+		file.setServerFileId(changes.serverFileId);
 		file.setDownloadUrl(changes.downloadUrl);
-		file.setRemoveUrl(changes.removeUrl);
 
 		file.setWidth(changes.width);
 		file.setHeight(changes.height);

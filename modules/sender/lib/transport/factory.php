@@ -41,7 +41,7 @@ class Factory extends CodeBasedFactory
 
 	protected static function getInterface()
 	{
-		return __NAMESPACE__ . '\iBase';
+		return iBase::class;
 	}
 
 	protected static function getClasses()

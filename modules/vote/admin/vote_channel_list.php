@@ -72,9 +72,10 @@ if ($lAdmin->EditAction() && $VOTE_RIGHT>="W" && check_bitrix_sessid())
 			$DB->Rollback();
 		}
 		else
+		{
+			$DB->Commit();
 			$bupdate = true;
-
-		$DB->Commit();
+		}
 	}
 
 	if ($bupdate)
@@ -104,10 +105,13 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT=="W" && check_bitrix_sessid()
 						$DB->StartTransaction();
 						if(!CVoteChannel::Delete($ID))
 						{
-								$DB->Rollback();
-								$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
+							$DB->Rollback();
+							$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
 						}
-						$DB->Commit();
+						else
+						{
+							$DB->Commit();
+						}
 						break;
 				case "activate":
 				case "deactivate":

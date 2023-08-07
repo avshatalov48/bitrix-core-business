@@ -1,7 +1,8 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,rest_client,im_v2_application_core,im_v2_const) {
+(function (exports,main_core_events,rest_client,ai_picker,calendar_sliderloader,im_v2_application_core,im_v2_const) {
 	'use strict';
 
 	const REQUEST_METHODS = Object.freeze({
@@ -14,6 +15,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _onCalendarEntrySaveHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onCalendarEntrySaveHandler");
 	var _calendarSliderId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("calendarSliderId");
 	var _createMeeting = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createMeeting");
+	var _createAiText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createAiText");
 	var _createTask = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createTask");
 	var _requestPreparedParams = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestPreparedParams");
 	var _openTaskSlider = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("openTaskSlider");
@@ -36,6 +38,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _createTask, {
 	      value: _createTask2
 	    });
+	    Object.defineProperty(this, _createAiText, {
+	      value: _createAiText2
+	    });
 	    Object.defineProperty(this, _createMeeting, {
 	      value: _createMeeting2
 	    });
@@ -57,6 +62,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _restClient)[_restClient] = im_v2_application_core.Core.getRestClient();
 	    babelHelpers.classPrivateFieldLooseBase(this, _chatId)[_chatId] = chatId;
+	  }
+	  createAiTextForChat(startMessage) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _createAiText)[_createAiText](startMessage);
 	  }
 	  createTaskForChat() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _createTask)[_createTask]();
@@ -86,6 +94,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core_events.EventEmitter.subscribeOnce(CALENDAR_ON_ENTRY_SAVE_EVENT, babelHelpers.classPrivateFieldLooseBase(this, _onCalendarEntrySaveHandler)[_onCalendarEntrySaveHandler]);
 	    return babelHelpers.classPrivateFieldLooseBase(this, _openCalendarSlider)[_openCalendarSlider](params);
 	  });
+	}
+	function _createAiText2(startMessage) {
+	  const picker = new ai_picker.Picker({
+	    startMessage: startMessage,
+	    moduleId: 'im',
+	    contextId: 'im_menu_plus',
+	    history: true,
+	    onSelect: item => {
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertText, {
+	        text: item.data,
+	        replace: true
+	      });
+	    }
+	  });
+	  picker.setLangSpace(ai_picker.Picker.LangSpace.text).text();
 	}
 	function _createTask2(messageId) {
 	  const queryParams = {
@@ -138,5 +161,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.EntityCreator = EntityCreator;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX,BX.AI,BX.Calendar,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
 //# sourceMappingURL=entity-creator.bundle.js.map

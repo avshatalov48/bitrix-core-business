@@ -636,7 +636,7 @@ class CounterService
 			->where('CHAT_ID', $chatId)
 			->where('USER_ID', $this->getContext()->getUserId())
 			->registerRuntimeField('COUNT', new ExpressionField('COUNT', 'COUNT(*)'))
-			->fetch()['COUNT']
+			->fetch()['COUNT'] ?? 0
 		;
 	}
 

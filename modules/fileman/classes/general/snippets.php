@@ -37,7 +37,7 @@ class CSnippets
 			$CACHE_MANAGER->Set("fileman_snippet_array", $CACHE_SNIPPETS);
 		}
 
-		if ($Params['returnArray'])
+		if ($Params['returnArray'] ?? null)
 		{
 			return $arSNIPPETS;
 		}
@@ -154,7 +154,7 @@ class CSnippets
 				if ($ar[$f_name.".snp"])
 				{
 					$ar[$f_name.".snp"]['title'] = stripslashes($SNIPPETS[$name]['title']);
-					$ar[$f_name.".snp"]['description'] = stripslashes($SNIPPETS[$name]['description']);
+					$ar[$f_name.".snp"]['description'] = stripslashes($SNIPPETS[$name]['description'] ?? '');
 				}
 			}
 		}
@@ -237,7 +237,7 @@ class CSnippets
 			foreach ($SNIPPETS as $k=>$_arSn)
 			{
 				if (CSnippets::CheckFile(array('site' => $Params["site"], 'template' => $Params['template'], 'path' => $k)))
-					$contentSrc .= '$SNIPPETS[\''.CUtil::addslashes($k).'\'] = Array("title"=>\''.Cutil::addslashes($_arSn['title']).'\', "description"=>\''.Cutil::addslashes($_arSn['description']).'\');'.chr(10);
+					$contentSrc .= '$SNIPPETS[\''.CUtil::addslashes($k).'\'] = Array("title"=>\''.Cutil::addslashes($_arSn['title'] ?? null).'\', "description"=>\''.Cutil::addslashes($_arSn['description'] ?? null).'\');'.chr(10);
 			}
 			$contentSrc .= '?>';
 

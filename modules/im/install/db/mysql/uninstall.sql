@@ -44,3 +44,4 @@ DROP TABLE IF EXISTS `b_im_link_calendar_index`;
 DROP TABLE IF EXISTS `b_im_link_reminder`;
 DROP TABLE IF EXISTS `b_im_file_temporary`;
 DROP TABLE IF EXISTS `b_im_reaction`;
+DROP TABLE IF EXISTS `b_im_message_disappearing`;

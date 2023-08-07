@@ -19,11 +19,17 @@ CJSCore::Init(array('window', 'ajax', 'tooltip', 'popup'));
 				Input params
 ********************************************************************/
 // PICTURE
-$temp = array("STRING" => preg_replace("/[^0-9]/is", "/", $arParams["THUMBNAIL_SIZE"]));
-[$temp["WIDTH"], $temp["HEIGHT"]] = explode("/", $temp["STRING"]);
+$temp = array("STRING" => preg_replace("/[^0-9]/is", "/", $arParams["THUMBNAIL_SIZE"] ?? ''));
+$explodeResult = explode("/", $temp["STRING"]);
+$temp["WIDTH"] = $explodeResult[0] ?? 0;
+$temp["HEIGHT"] = $explodeResult[1] ?? 0;
 $arParams["THUMBNAIL_SIZE"] = (intval($temp["WIDTH"]) > 0 ? intval($temp["WIDTH"]) : 120);
 
-if ($arParams["PICTURES_SIGHT"] != "standart" && intval($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]) > 0)
+if (
+	$arParams["PICTURES_SIGHT"] != "standart"
+	&& isset($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]])
+	&& intval($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]) > 0
+)
 	$arParams["THUMBNAIL_SIZE"] = $arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"];
 
 $arParams["ID"] = md5(serialize(array("default", $arParams["FILTER"], $arParams["SORTING"])));
@@ -31,16 +37,19 @@ $arParams["SHOW_RATING"] = ($arParams["SHOW_RATING"] == "N" ? "N" : "Y");
 $arParams["SHOW_SHOWS"] = ($arParams["SHOW_SHOWS"] == "N" ? "N" : "Y");
 $arParams["SHOW_COMMENTS"] = ($arParams["SHOW_COMMENTS"] == "N" ? "N" : "Y");
 $arParams["COMMENTS_TYPE"] = (mb_strtolower($arParams["COMMENTS_TYPE"]) == "blog" ? "blog" : "forum");
-$arParams["SHOW_DATETIME"] = ($arParams["SHOW_DATETIME"] == "Y" ? "Y" : "N");
-$arParams["SHOW_DESCRIPTION"] = ($arParams["SHOW_DESCRIPTION"] == "Y" ? "Y" : "N");
+$arParams["SHOW_DATETIME"] = (($arParams["SHOW_DATETIME"] ?? '') == "Y" ? "Y" : "N");
+$arParams["SHOW_DESCRIPTION"] = (($arParams["SHOW_DESCRIPTION"] ?? '') == "Y" ? "Y" : "N");
 
 // PAGE
-$arParams["SHOW_PAGE_NAVIGATION"] = (in_array($arParams["SHOW_PAGE_NAVIGATION"], array("none", "top", "bottom", "both")) ?
-		$arParams["SHOW_PAGE_NAVIGATION"] : "bottom");
+$arParams["SHOW_PAGE_NAVIGATION"] = (
+	in_array($arParams["SHOW_PAGE_NAVIGATION"] ?? [], ["none", "top", "bottom", "both"])
+		? $arParams["SHOW_PAGE_NAVIGATION"]
+		: "bottom"
+);
 $arParams["NEW_DATE_TIME_FORMAT"] = trim(!empty($arParams["NEW_DATE_TIME_FORMAT"]) ? $arParams["NEW_DATE_TIME_FORMAT"] :
 	$DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")));
 
-$arParams["GROUP_DATE"] = ($arParams["GROUP_DATE"] == "Y" ? "Y" : "N");
+$arParams["GROUP_DATE"] = (($arParams["GROUP_DATE"] ?? '') == "Y" ? "Y" : "N");
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -67,11 +76,11 @@ $current_date = "";
 
 <div class="photo-items-list photo-photo-list" id="photo_list_<?= htmlspecialcharsEx($arParams["~UNIQUE_COMPONENT_ID"])?>">
 <?/* Used to show 'More photos' in js*/
-if($_REQUEST['get_elements_html']){ob_start();}?>
+if($_REQUEST['get_elements_html'] ?? null){ob_start();}?>
 <?
 foreach ($arResult["ELEMENTS_LIST"] as $key => $arItem)
 {
-	if ($arParams["SHOW_DATE"] == "Y")
+	if (($arParams["SHOW_DATE"] ?? '') == "Y")
 	{
 		$this_date = PhotoFormatDate($arItem["~DATE_CREATE"], "DD.MM.YYYY HH:MI:SS", "d.m.Y");
 		if ($this_date != $current_date)
@@ -126,7 +135,7 @@ foreach ($arResult["ELEMENTS_LIST"] as $key => $arItem)
 		<div id="photo_cont_<?=$arItem["ID"]?>" class="photo-item-cont <?if ($arParams["PERMISSION"] >= "X"){echo ' photo-item-cont-moder';}?>" title="<?= $arItem["TITLE"]?>">
 			<a class="photo-item-inner" style="width: <?= $arParams['THUMBNAIL_SIZE']?>px; height: <?= $arParams['THUMBNAIL_SIZE']?>px;" href="<?=$arItem["URL"]?>" id="photo_<?=$arItem["ID"]?>">
 				<img src="<?= $src?>" border="0" style="<?= $item_w?> <?= $item_h?> <?= $item_left?> <?= $item_top?>;" alt="<?= $alt?>"/>
-				<?if($bNotActive):?>
+				<?if($bNotActive ?? null):?>
 				<img class="bxph-warn-icon" src="/bitrix/components/bitrix/photogallery.detail.list.ex/templates/.default/images/not-approved.png" />
 					<?if ($arParams["PERMISSION"] >= "X" && false /* TODO : add buttons for fast approving a deleting for moderators*/):?>
 						<span class="bxph-warn-link" style="top: <?= (round($arParams['THUMBNAIL_SIZE'] / 2) - 25)?>px; width: <?= $arParams['THUMBNAIL_SIZE']?>px;"><?= GetMessage("P_ACTIVATE")?></span>
@@ -138,7 +147,7 @@ foreach ($arResult["ELEMENTS_LIST"] as $key => $arItem)
 <?
 };
 
-if($_REQUEST['get_elements_html']){$elementsHTML = ob_get_clean();}
+if($_REQUEST['get_elements_html'] ?? null){$elementsHTML = ob_get_clean();}
 ?>
 </div>
 <div class="empty-clear"></div>
@@ -151,7 +160,7 @@ if($_REQUEST['get_elements_html']){$elementsHTML = ob_get_clean();}
 <?endif;?>
 
 <?
-if ($_REQUEST["return_array"] == "Y" && $_REQUEST["UCID"] == $arParams["~UNIQUE_COMPONENT_ID"])
+if (($_REQUEST["return_array"] ?? '') == "Y" && $_REQUEST["UCID"] == $arParams["~UNIQUE_COMPONENT_ID"])
 {
 	$APPLICATION->RestartBuffer();
 	?><script>window.bxphres = {
@@ -161,7 +170,7 @@ if ($_REQUEST["return_array"] == "Y" && $_REQUEST["UCID"] == $arParams["~UNIQUE_
 		itemsCount: '<?= intval($arResult["ALL_ELEMENTS_CNT"])?>',
 		pageCount: '<?= intval($arResult["NAV_RESULT_NavPageCount"])?>'
 	};
-	<?if($_REQUEST['get_elements_html']):?>
+	<?if ($_REQUEST['get_elements_html'] ?? null):?>
 		window.bxphres.elementsHTML = '<?= CUtil::JSEscape(trim($elementsHTML))?>';
 	<?endif;?>
 	</script><?
@@ -181,7 +190,7 @@ BX.ready(function(){
 	top.oBXPhotoList['<?= $ucid?>'] = new window.BXPhotoList({
 		uniqueId: '<?= $ucid?>',
 		actionUrl: '<?= CUtil::JSEscape($arParams["ACTION_URL"])?>',
-		actionPostUrl: <?= ($arParams['CHECK_ACTION_URL'] == 'Y' ? 'false' : 'true')?>,
+		actionPostUrl: <?= (($arParams['CHECK_ACTION_URL'] ?? null) == 'Y' ? 'false' : 'true')?>,
 		itemsCount: '<?= intval($arResult["ALL_ELEMENTS_CNT"])?>',
 		itemsPageSize: '<?= intval($arResult["NAV_RESULT_NavPageSize"])?>',
 		navName: 'PAGEN_<?= intval($arResult["NAV_RESULT_NavNum"])?>',
@@ -190,7 +199,7 @@ BX.ready(function(){
 		items: <?= CUtil::PhpToJSObject($arResult["ELEMENTS_LIST_JS"])?>,
 		pElementsCont: pPhotoCont<?= $ucid?>,
 		initDragSorting: '<?= $arParams["DRAG_SORT"]?>',
-		sortedBySort: '<?= $arParams["SORTED_BY_SORT"]?>',
+		sortedBySort: '<?= ($arParams["SORTED_BY_SORT"] ?? '')?>',
 		morePhotoNav: '<?= $arResult["MORE_PHOTO_NAV"]?>',
 		thumbSize: '<?= $arParams["THUMBNAIL_SIZE"]?>',
 		canModerate: <?= ($arParams['MODERATION'] == "Y" && $arParams["PERMISSION"] >= 'X' ? "true" : "false")?>
@@ -203,7 +212,7 @@ BX.ready(function(){
 		userSettings: <?= CUtil::PhpToJSObject($arParams["USER_SETTINGS"])?>,
 		actionUrl: '<?= CUtil::JSEscape($arParams["ACTION_URL"])?>',
 		responderUrl: '/bitrix/components/bitrix/photogallery.detail.list.ex/responder.php?analyticsLabel[action]=viewPhoto',
-		actionPostUrl: <?= ($arParams['CHECK_ACTION_URL'] == 'Y' ? 'false' : 'true')?>,
+		actionPostUrl: <?= (($arParams['CHECK_ACTION_URL'] ?? null) == 'Y' ? 'false' : 'true')?>,
 		sections: <?= CUtil::PhpToJSObject(array(array(
 				"ID" => $arResult['SECTION']["ID"],
 				"NAME" => $arResult['SECTION']['NAME']
@@ -217,7 +226,7 @@ BX.ready(function(){
 		showViewsCont: '<?= $arParams["SHOW_SHOWS"]?>',
 		commentsCount: '<?= $arParams["COMMENTS_COUNT"]?>',
 		pElementsCont: pPhotoCont<?=$ucid?>,
-		reloadItemsOnload: <?= ($arResult["MIN_ID"] > 0 ? $arResult["MIN_ID"] : 'false')?>,
+		reloadItemsOnload: <?= (($arResult["MIN_ID"] ?? 0) > 0 ? $arResult["MIN_ID"] : 'false')?>,
 		itemUrl: '<?= CUtil::JSEscape($arParams["DETAIL_ITEM_URL"])?>',
 		itemUrlHash: 'photo_<?=$arParams['SECTION_ID']?>_#ELEMENT_ID#',
 		sectionUrl: '<?= CUtil::JSEscape($arParams["ALBUM_URL"])?>',
@@ -226,8 +235,8 @@ BX.ready(function(){
 				view: '<?= $arParams["PERMISSION"] >= 'R'?>',
 				edit:  '<?= $arParams["PERMISSION"] >= 'U'?>',
 				moderate:  '<?= $arParams["PERMISSION"] >= 'X'?>',
-				viewComment: <?= $arParams["COMMENTS_PERM_VIEW"] == "Y" ? 'true' : 'false'?>,
-				addComment: <?= $arParams["COMMENTS_PERM_ADD"] == "Y" ? 'true' : 'false'?>
+				viewComment: <?= ($arParams["COMMENTS_PERM_VIEW"] ?? null) == "Y" ? 'true' : 'false'?>,
+				addComment: <?= ($arParams["COMMENTS_PERM_ADD"] ?? null) == "Y" ? 'true' : 'false'?>
 			},
 		userUrl: '<?= $arParams["PATH_TO_USER"]?>',
 		showTooltipOnUser: 'N',

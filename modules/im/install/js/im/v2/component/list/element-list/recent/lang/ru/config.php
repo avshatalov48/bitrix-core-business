@@ -1,5 +1,4 @@
 <?
-$MESS['IM_LIST_RECENT_MESSAGE_DRAFT'] = "Черновик: ";
 $MESS['IM_LIST_RECENT_MESSAGE_DRAFT_2'] = "Черновик: #TEXT#";
 $MESS['IM_LIST_RECENT_BIRTHDAY'] = "Празднует сегодня день рождения!"; //
 $MESS['IM_LIST_RECENT_VACATION'] = "В отпуске до #VACATION_END_DATE#"; //

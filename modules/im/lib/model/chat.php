@@ -189,19 +189,20 @@ class ChatTable extends Entity\DataManager
 				'default_value' => array(__CLASS__, 'getCurrentDate'),
 			),
 			'MANAGE_USERS' => array(
-				'data_type' => 'enum',
-				'values' => [Chat::MANAGE_RIGHTS_ALL, Chat::MANAGE_RIGHTS_OWNER, Chat::MANAGE_RIGHTS_MANAGERS],
+				'data_type' => 'string',
 				'default_value' => Chat::MANAGE_RIGHTS_ALL,
 			),
 			'MANAGE_UI' => array(
-				'data_type' => 'enum',
-				'values' =>[Chat::MANAGE_RIGHTS_ALL, Chat::MANAGE_RIGHTS_OWNER, Chat::MANAGE_RIGHTS_MANAGERS],
+				'data_type' => 'string',
 				'default_value' => Chat::MANAGE_RIGHTS_ALL,
 			),
 			'MANAGE_SETTINGS' => array(
-				'data_type' => 'enum',
-				'values' => [Chat::MANAGE_RIGHTS_OWNER, Chat::MANAGE_RIGHTS_MANAGERS],
+				'data_type' => 'string',
 				'default_value' => Chat::MANAGE_RIGHTS_OWNER,
+			),
+			'CAN_POST' => array(
+				'data_type' => 'string',
+				'default_value' => Chat::MANAGE_RIGHTS_ALL,
 			),
 			'INDEX' => array(
 				'data_type' => 'Bitrix\Im\Model\ChatIndex',
@@ -212,6 +213,9 @@ class ChatTable extends Entity\DataManager
 				'data_type' => 'Bitrix\Im\Model\AliasTable',
 				'reference' => array('=this.ID' => 'ref.ENTITY_ID', '=this.ENTITY_TYPE' => 'ref.ENTITY_TYPE'),
 				'join_type' => 'LEFT',
+			),
+			'DISAPPEARING_TIME' => array(
+				'data_type' => 'integer'
 			),
 		);
 	}
@@ -313,6 +317,10 @@ class ChatTable extends Entity\DataManager
 			'ENTITY_DATA_2',
 			'ENTITY_DATA_3',
 			'DISK_FOLDER_ID',
+			'MANAGE_USERS',
+			'MANAGE_UI',
+			'MANAGE_SETTINGS',
+			'CAN_POST',
 		];
 
 		return !empty(array_intersect($cacheInvalidatingFields, array_keys($updatedFields)));

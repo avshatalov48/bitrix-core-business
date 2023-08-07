@@ -5,6 +5,7 @@ $MESS["CEN_DELETE_ALT"] = "Delete";
 $MESS["CEN_DELETE_CONF"] = "Are you sure you want to delete this markup?";
 $MESS["CEN_ERROR_UPDATE"] = "Error updating the markup parameters";
 $MESS["CEN_UPDATE_ALT"] = "Edit";
+$MESS["CEN_VIEW_ALT"] = "View";
 $MESS["EXTRA_ACTIONS"] = "Delete";
 $MESS["EXTRA_DELETE_ERROR"] = "Error when deleting the markup";
 $MESS["EXTRA_NAME"] = "Markup";

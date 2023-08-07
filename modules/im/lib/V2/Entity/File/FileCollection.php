@@ -16,9 +16,8 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\ORM\Query\Query;
 
 /**
- * @method FileItem next()
- * @method FileItem current()
- * @method FileItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,FileItem>
+ * @method FileItem offsetGet($key)
  */
 class FileCollection extends EntityCollection
 {
@@ -79,6 +78,16 @@ class FileCollection extends EntityCollection
 		}
 
 		return $copies;
+	}
+
+	public function getAny(): ?FileItem
+	{
+		foreach ($this as $file)
+		{
+			return $file;
+		}
+
+		return null;
 	}
 
 	public function addToTmp(string $source): Result

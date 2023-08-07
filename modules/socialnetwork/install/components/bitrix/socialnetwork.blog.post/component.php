@@ -1381,7 +1381,10 @@ if(
 										$link = ($arTmp["URLS"]["GROUP_URL"] <> '' ? $arTmp["SERVER_NAME"].$arTmp["URLS"]["GROUP_URL"] : $link);
 									}
 
-									$isExtranet = (is_array($GLOBALS["arExtranetGroupID"]) && in_array($vv["ENTITY_ID"], $GLOBALS["arExtranetGroupID"]));
+									$isExtranet = (
+										is_array($GLOBALS["arExtranetGroupID"] ?? null)
+										&& in_array($vv["ENTITY_ID"], $GLOBALS["arExtranetGroupID"])
+									);
 									if (defined("BX_COMP_MANAGED_CACHE"))
 									{
 										$CACHE_MANAGER->RegisterTag("sonet_group_".(int)$vv["ENTITY_ID"]);

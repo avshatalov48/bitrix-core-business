@@ -7,6 +7,7 @@
  */
 
 use Bitrix\Main;
+use Bitrix\Main\Diag;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Text;
 use Bitrix\Main\Application;
@@ -348,6 +349,12 @@ function CheckDateTime($datetime, $format=false)
 		$format = FORMAT_DATETIME;
 
 	$ar = ParseDateTime($datetime, $format);
+
+	if ($ar === false)
+	{
+		return false;
+	}
+
 	$day = intval($ar["DD"]);
 	$hour = $month = 0;
 
@@ -538,6 +545,10 @@ function MakeTimeStamp($datetime, $format=false)
  */
 function ParseDateTime($datetime, $format=false)
 {
+	if ($datetime === null)
+	{
+		return false;
+	}
 	if ($format===false && defined("FORMAT_DATETIME"))
 		$format = FORMAT_DATETIME;
 
@@ -2682,7 +2693,7 @@ function GetPagePath($page=false, $get_index_page=null)
 			$get_index_page = true;
 	}
 
-	if($page===false && $_SERVER["REQUEST_URI"]<>"")
+	if($page===false && !empty($_SERVER["REQUEST_URI"]))
 		$page = $_SERVER["REQUEST_URI"];
 	if($page===false)
 		$page = $_SERVER["SCRIPT_NAME"];
@@ -2722,7 +2733,7 @@ function GetPagePath($page=false, $get_index_page=null)
 
 function GetRequestUri()
 {
-	$uriPath = "/".ltrim($_SERVER["REQUEST_URI"], "/");
+	$uriPath = "/".ltrim($_SERVER["REQUEST_URI"] ?? '', "/");
 	if (($index = mb_strpos($uriPath, "?")) !== false)
 	{
 		$uriPath = mb_substr($uriPath, 0, $index);
@@ -3421,9 +3432,13 @@ function AddMessage2Log($text, $module = '', $traceDepth = 6, $showArgs = false)
 {
 	if (defined('LOG_FILENAME') && LOG_FILENAME <> '')
 	{
-		$logger = new Main\Diag\FileLogger(LOG_FILENAME, 0);
-		$formatter = new Main\Diag\LogFormatter($showArgs);
-		$logger->setFormatter($formatter);
+		$logger = Diag\Logger::create('main.Default', [LOG_FILENAME, $showArgs]);
+		if ($logger === null)
+		{
+			$logger = new Diag\FileLogger(LOG_FILENAME, 0);
+			$formatter = new Diag\LogFormatter($showArgs);
+			$logger->setFormatter($formatter);
+		}
 
 		$trace = '';
 		if ($traceDepth > 0)
@@ -4501,8 +4516,8 @@ function bx_accelerator_reset()
 		return;
 	if(function_exists("accelerator_reset"))
 		accelerator_reset();
-	elseif(function_exists("wincache_refresh_if_changed"))
-		wincache_refresh_if_changed();
+	elseif(function_exists("opcache_reset"))
+		opcache_reset();
 }
 
 /**

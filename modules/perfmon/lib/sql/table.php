@@ -102,6 +102,27 @@ class Table extends BaseObject
 	}
 
 	/**
+	 * Alters column object from tokens.
+	 *
+	 * @param Tokenizer $tokenizer Tokens collection.
+	 *
+	 * @return Table
+	 * @see Column::create
+	 */
+	public function modifyColumn(Tokenizer $tokenizer)
+	{
+		$column = Column::create($tokenizer);
+		$column->setParent($this);
+		$columnIndex = $this->columns->searchIndex($column->name);
+		if ($columnIndex === null)
+		{
+			throw new NotSupportedException("Column ".$this->name.".".$column->name." not found line:".$tokenizer->getCurrentToken()->line);
+		}
+		$this->columns->set($columnIndex, $column);
+		return $this;
+	}
+
+	/**
 	 * Creates table object from tokens.
 	 * <p>
 	 * Current position should point to the name of the sequence or 'if not exists' clause.
@@ -264,27 +285,22 @@ class Table extends BaseObject
 		{
 			$items[] = $column->name." ".$column->body;
 		}
-		if ($dbType !== 'MSSQL')
-		{
-			/** @var Constraint $constraint */
-			foreach ($this->constraints->getList() as $constraint)
-			{
-				if ($constraint->name === '')
-					$items[] = $constraint->body;
-				else
-					$items[] = "CONSTRAINT ".$constraint->name." ".$constraint->body;
-			}
-		}
-		$result[] = "CREATE TABLE ".$this->name."(\n\t".implode(",\n\t", $items)."\n)".$this->body;
 
-		if ($dbType === 'MSSQL')
+		foreach ($this->indexes->getList() as $index)
 		{
-			/** @var Constraint $constraint */
-			foreach ($this->constraints->getList() as $constraint)
-			{
-				$result[] = $constraint->getCreateDdl($dbType);
-			}
+			$items[] = ($index->fulltext? "FULLTEXT ": "").($index->unique? "UNIQUE ": "")."KEY ".$index->name." (".$index->body.")";
 		}
+
+		/** @var Constraint $constraint */
+		foreach ($this->constraints->getList() as $constraint)
+		{
+			if ($constraint->name === '')
+				$items[] = $constraint->body;
+			else
+				$items[] = "CONSTRAINT ".$constraint->name." ".$constraint->body;
+		}
+
+		$result[] = "CREATE TABLE ".$this->name."(\n\t".implode(",\n\t", $items)."\n)".$this->body;
 
 		return $result;
 	}

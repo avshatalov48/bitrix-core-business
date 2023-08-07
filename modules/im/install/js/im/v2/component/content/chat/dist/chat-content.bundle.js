@@ -1,8 +1,9 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_component_dialog_chat,im_v2_component_textarea,im_v2_lib_logger,im_v2_lib_localStorage,im_v2_lib_theme,im_v2_provider_service,im_v2_component_entitySelector,im_v2_lib_utils,im_v2_lib_call,im_public,im_v2_component_elements,im_v2_const,im_v2_component_sidebar,main_core,main_core_events) {
+(function (exports,ui_uploader_core,im_v2_component_dialog_chat,im_v2_component_textarea,im_v2_lib_logger,im_v2_lib_localStorage,im_v2_lib_theme,im_v2_provider_service,im_v2_component_entitySelector,im_v2_lib_utils,im_v2_component_elements,im_v2_const,im_public,im_v2_lib_menu,im_v2_lib_call,im_v2_component_sidebar,main_core,main_core_events) {
 	'use strict';
 
 	const INPUT_PADDING = 5;
@@ -112,6 +113,132 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	var _getVideoCallItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getVideoCallItem");
+	var _getAudioCallItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getAudioCallItem");
+	var _getBetaCallItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getBetaCallItem");
+	var _isCallBetaAvailable = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCallBetaAvailable");
+	class CallMenu extends im_v2_lib_menu.BaseMenu {
+	  constructor() {
+	    super();
+	    Object.defineProperty(this, _isCallBetaAvailable, {
+	      value: _isCallBetaAvailable2
+	    });
+	    Object.defineProperty(this, _getBetaCallItem, {
+	      value: _getBetaCallItem2
+	    });
+	    Object.defineProperty(this, _getAudioCallItem, {
+	      value: _getAudioCallItem2
+	    });
+	    Object.defineProperty(this, _getVideoCallItem, {
+	      value: _getVideoCallItem2
+	    });
+	    this.id = 'bx-im-chat-header-call-menu';
+	  }
+	  getMenuOptions() {
+	    return {
+	      ...super.getMenuOptions(),
+	      className: this.getMenuClassName(),
+	      angle: true,
+	      offsetLeft: 4,
+	      offsetTop: 5
+	    };
+	  }
+	  getMenuItems() {
+	    return [babelHelpers.classPrivateFieldLooseBase(this, _getVideoCallItem)[_getVideoCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getAudioCallItem)[_getAudioCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getBetaCallItem)[_getBetaCallItem]()];
+	  }
+	}
+	function _getVideoCallItem2() {
+	  return {
+	    text: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_VIDEOCALL_HD'),
+	    onclick: () => {
+	      im_public.Messenger.startVideoCall(this.context.dialogId);
+	      this.menuInstance.close();
+	    }
+	  };
+	}
+	function _getAudioCallItem2() {
+	  return {
+	    text: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_AUDIO'),
+	    onclick: () => {
+	      im_public.Messenger.startVideoCall(this.context.dialogId, false);
+	      this.menuInstance.close();
+	    }
+	  };
+	}
+	function _getBetaCallItem2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isCallBetaAvailable)[_isCallBetaAvailable]()) {
+	    return null;
+	  }
+	  return {
+	    text: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_BETA'),
+	    onclick: () => {
+	      im_v2_lib_call.CallManager.getInstance().createBetaCallRoom(this.context.chatId);
+	      this.menuInstance.close();
+	    }
+	  };
+	}
+	function _isCallBetaAvailable2() {
+	  const settings = main_core.Extension.getSettings('im.v2.component.content.chat');
+	  return settings.get('isCallBetaAvailable');
+	}
+
+	// @vue/component
+	const CallButton = {
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  emits: [],
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    dialog() {
+	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	    },
+	    isActive() {
+	      return im_v2_lib_call.CallManager.getInstance().chatCanBeCalled(this.dialogId);
+	    }
+	  },
+	  methods: {
+	    startVideoCall() {
+	      if (!this.isActive) {
+	        return;
+	      }
+	      im_public.Messenger.startVideoCall(this.dialogId);
+	    },
+	    getCallMenu() {
+	      if (!this.callMenu) {
+	        this.callMenu = new CallMenu();
+	      }
+	      return this.callMenu;
+	    },
+	    onMenuClick() {
+	      this.getCallMenu().openMenu(this.dialog, this.$refs.menu);
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div
+			class="bx-im-chat-header-call-button__container"
+			:class="{'--disabled': !isActive}"
+			@click="startVideoCall"
+		>
+			<div class="bx-im-chat-header-call-button__text">
+				{{ loc('IM_CONTENT_CHAT_HEADER_VIDEOCALL_HD') }}
+			</div>
+			<div class="bx-im-chat-header-call-button__separator"></div>
+			<div class="bx-im-chat-header-call-button__chevron_container" @click.stop="onMenuClick">
+				<div class="bx-im-chat-header-call-button__chevron" ref="menu"></div>
+			</div>
+		</div>
+	`
+	};
+
 	// @vue/component
 	const ChatHeader = {
 	  name: 'ChatHeader',
@@ -119,7 +246,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    Avatar: im_v2_component_elements.Avatar,
 	    ChatTitle: im_v2_component_elements.ChatTitle,
 	    EditableChatTitle,
-	    AddToChat: im_v2_component_entitySelector.AddToChat
+	    AddToChat: im_v2_component_entitySelector.AddToChat,
+	    CallButton
 	  },
 	  props: {
 	    dialogId: {
@@ -174,9 +302,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    userLastOnline() {
 	      return this.$store.getters['users/getLastOnline'](this.dialogId);
-	    },
-	    chatCanBeCalled() {
-	      return im_v2_lib_call.CallManager.getInstance().chatCanBeCalled(this.dialog.dialogId);
 	    }
 	  },
 	  methods: {
@@ -206,12 +331,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    openInvitePopup() {
 	      this.showAddToChatPopup = true;
-	    },
-	    startVideoCall() {
-	      if (!this.chatCanBeCalled) {
-	        return;
-	      }
-	      im_public.Messenger.startVideoCall(this.dialog.dialogId);
 	    },
 	    loc(phraseCode, replacements = {}) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
@@ -243,9 +362,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				</div>
 			</div>
 			<div class="bx-im-chat-header__right">
-				<div class="bx-im-chat-header__button" :class="{'--disabled': !chatCanBeCalled}" @click="startVideoCall">
-					{{ loc('IM_CONTENT_CHAT_HEADER_VIDEOCALL_HD') }}
-				</div>
+				<CallButton :dialogId="dialogId" />
 				<div 
 					class="bx-im-chat-header__icon --add-people"
 					:class="{'--active': showAddToChatPopup}"
@@ -349,6 +466,20 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  onHeightChange: 'onHeightChange'
 	};
 
+	// @vue/component
+	const DropArea = {
+	  template: `
+		<div class="bx-im-content-chat-drop-area__container bx-im-content-chat-drop-area__scope">
+			<div class="bx-im-content-chat-drop-area__box">
+				<span class="bx-im-content-chat-drop-area__icon"></span>
+				<label class="bx-im-content-chat-drop-area__label-text">
+					{{ $Bitrix.Loc.getMessage('IM_CONTENT_DROP_AREA') }}
+				</label>
+			</div>
+		</div>
+	`
+	};
+
 	const CHAT_HEADER_HEIGHT = 64;
 
 	// @vue/component
@@ -358,7 +489,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    ChatHeader,
 	    ChatDialog: im_v2_component_dialog_chat.ChatDialog,
 	    ChatTextarea: im_v2_component_textarea.ChatTextarea,
-	    SidebarWrapper
+	    SidebarWrapper,
+	    DropArea
 	  },
 	  directives: {
 	    'textarea-observer': {
@@ -385,7 +517,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      needSidebarTransition: false,
 	      sidebarOpened: false,
 	      sidebarDetailBlock: null,
-	      textareaHeight: 0
+	      textareaHeight: 0,
+	      showDropArea: false,
+	      lastDropAreaEnterTarget: null
 	    };
 	  },
 	  computed: {
@@ -394,6 +528,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    dialog() {
 	      return this.$store.getters['dialogues/get'](this.entityId, true);
+	    },
+	    hasPinnedMessages() {
+	      return this.$store.getters['messages/pin/getPinned'](this.dialog.chatId).length > 0;
 	    },
 	    sidebarTransitionName() {
 	      return this.needSidebarTransition ? 'sidebar-transition' : '';
@@ -404,6 +541,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    dialogContainerStyle() {
 	      return {
 	        height: `calc(100% - ${CHAT_HEADER_HEIGHT}px - ${this.textareaHeight}px)`
+	      };
+	    },
+	    dropAreaStyles() {
+	      const PINNED_MESSAGES_HEIGHT = 53;
+	      const DROP_AREA_OFFSET = 16 + CHAT_HEADER_HEIGHT;
+	      const dropAreaTopOffset = this.hasPinnedMessages ? PINNED_MESSAGES_HEIGHT + DROP_AREA_OFFSET : DROP_AREA_OFFSET;
+	      return {
+	        top: `${dropAreaTopOffset}px`
 	      };
 	    }
 	  },
@@ -422,7 +567,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  created() {
 	    this.restoreSidebarOpenState();
-	    this.chatService = new im_v2_provider_service.ChatService();
 	    if (this.entityId) {
 	      this.onChatChange();
 	    }
@@ -437,17 +581,26 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.sidebar.close, this.onSidebarClose);
 	  },
 	  methods: {
-	    onChatChange() {
+	    async onChatChange() {
 	      if (this.entityId === '') {
-	        return true;
+	        return;
+	      }
+	      if (im_v2_lib_utils.Utils.dialog.isExternalId(this.entityId)) {
+	        const realDialogId = await this.getChatService().prepareDialogId(this.entityId);
+	        this.$store.dispatch('application/setLayout', {
+	          layoutName: im_v2_const.Layout.chat.name,
+	          entityId: realDialogId,
+	          contextId: this.layout.contextId
+	        });
+	        return;
 	      }
 	      if (this.dialog.inited) {
 	        im_v2_lib_logger.Logger.warn(`ChatContent: chat ${this.entityId} is already loaded`);
-	        return true;
+	        return;
 	      }
 	      if (this.dialog.loading) {
 	        im_v2_lib_logger.Logger.warn(`ChatContent: chat ${this.entityId} is loading`);
-	        return true;
+	        return;
 	      }
 	      if (this.layout.contextId) {
 	        this.loadChatWithContext();
@@ -459,22 +612,21 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    loadChatWithContext() {
 	      im_v2_lib_logger.Logger.warn(`ChatContent: loading chat ${this.entityId} with context - ${this.layout.contextId}`);
-	      this.chatService.loadChatWithContext(this.entityId, this.layout.contextId).then(() => {
+	      this.getChatService().loadChatWithContext(this.entityId, this.layout.contextId).then(() => {
 	        im_v2_lib_logger.Logger.warn(`ChatContent: chat ${this.entityId} is loaded with context of ${this.layout.contextId}`);
 	      }).catch(error => {
 	        if (error.code === 'ACCESS_ERROR') {
 	          this.showNotification(this.loc('IM_CONTENT_CHAT_ACCESS_ERROR'));
 	        }
-	        console.error(error);
+	        im_v2_lib_logger.Logger.error(error);
 	        im_public.Messenger.openChat();
 	      });
 	    },
 	    loadChat() {
 	      im_v2_lib_logger.Logger.warn(`ChatContent: loading chat ${this.entityId}`);
-	      return this.chatService.loadChatWithMessages(this.entityId).then(() => {
+	      return this.getChatService().loadChatWithMessages(this.entityId).then(() => {
 	        im_v2_lib_logger.Logger.warn(`ChatContent: chat ${this.entityId} is loaded`);
-	      }).catch(error => {
-	        console.error(error);
+	      }).catch(() => {
 	        im_public.Messenger.openChat();
 	      });
 	    },
@@ -527,11 +679,48 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    },
+	    onDragEnter(event) {
+	      ui_uploader_core.hasDataTransferOnlyFiles(event.dataTransfer, false).then(success => {
+	        if (success) {
+	          this.lastDropAreaEnterTarget = event.target;
+	          this.showDropArea = true;
+	        }
+	      });
+	    },
+	    onDragLeave(event) {
+	      if (this.lastDropAreaEnterTarget === event.target) {
+	        this.showDropArea = false;
+	      }
+	    },
+	    onDrop(event) {
+	      ui_uploader_core.getFilesFromDataTransfer(event.dataTransfer).then(files => {
+	        this.getSendingService().sendFilesFromInput(files, this.entityId);
+	      });
+	      this.showDropArea = false;
+	    },
+	    getChatService() {
+	      if (!this.chatService) {
+	        this.chatService = new im_v2_provider_service.ChatService();
+	      }
+	      return this.chatService;
+	    },
+	    getSendingService() {
+	      if (!this.sendingService) {
+	        this.sendingService = im_v2_provider_service.SendingService.getInstance();
+	      }
+	      return this.sendingService;
 	    }
 	  },
 	  template: `
 		<div class="bx-im-content-chat__scope bx-im-content-chat__container" :style="backgroundStyle">
-			<div class="bx-im-content-chat__content">
+			<div 
+				class="bx-im-content-chat__content"
+				@drop.prevent="onDrop"
+				@dragleave.stop.prevent="onDragLeave"
+				@dragenter.stop.prevent="onDragEnter"
+				@dragover.prevent
+			>
 				<template v-if="entityId">
 					<ChatHeader 
 						:dialogId="entityId" 
@@ -547,6 +736,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					<div v-textarea-observer class="bx-im-content-chat__textarea_container">
 						<ChatTextarea :dialogId="entityId" :key="entityId" />
 					</div>
+					<Transition name="drop-area-fade">
+						<DropArea v-if="showDropArea" :style="dropAreaStyles" />
+					</Transition>
 				</template>
 				<div v-else class="bx-im-content-chat__start_message">
 					<div class="bx-im-content-chat__start_message_icon"></div>
@@ -569,5 +761,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.ChatContent = ChatContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Const,BX.Messenger.v2.Component,BX,BX.Event));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.UI.Uploader,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX,BX.Event));
 //# sourceMappingURL=chat-content.bundle.js.map

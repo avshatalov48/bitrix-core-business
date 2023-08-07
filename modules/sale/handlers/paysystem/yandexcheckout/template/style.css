@@ -85,39 +85,12 @@
 	display: none !important;
 }
 
-.gray-theme .qr-code {
-	border-radius: 12px;
-	padding: 14px;
-	background-color: #ffffff;
-}
-
-.gray-theme .qr-code-container {
-	margin-top: 35px;
-	display: flex;
-	justify-content: center;
+.qr-code-image {
+	width: 350px;
 }
 
 .widget-paysystem-name {
 	font-weight: bold;
-}
-
-.gray-theme .widget-paysystem-name {
-	color: #ffffff;
-}
-
-.gray-theme .widget-paysystem-checkout-sum {
-	color: #ffffff;
-}
-
-.gray-theme .widget-payment-checkout-info {
-	margin-bottom: 5px;
-	color: #A8ADB4;
-	font-family: "SF UI Display", "SF UI Text", "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	line-height: 21px;
-	letter-spacing: -0.35px;
-	font-size: 15px;
-	font-weight: 400;
-	word-wrap: break-word;
 }
 
 .gray-theme .btn {

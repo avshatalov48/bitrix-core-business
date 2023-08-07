@@ -9,9 +9,11 @@ use Bitrix\Main\Result;
 
 final class Enum extends Controller
 {
-	public const PROPERTY_USER_TYPE_DATETIME = 'DateTime';
+	/** @deprecated  */
+	public const PROPERTY_USER_TYPE_DATETIME = PropertyTable::USER_TYPE_DATETIME;
 	public const PROPERTY_USER_TYPE_MONEY = 'Money';
-	public const PROPERTY_USER_TYPE_SKU = 'SKU';
+	/** @deprecated  */
+	public const PROPERTY_USER_TYPE_SKU = PropertyTable::USER_TYPE_SKU;
 	public const PROPERTY_USER_TYPE_BOOL_ENUM = 'BoolEnum';
 
 	public function getProductTypesAction(): array
@@ -85,7 +87,7 @@ final class Enum extends Controller
 			],
 			'DATETIME' => [
 				'PROPERTY_TYPE' => PropertyTable::TYPE_STRING,
-				'USER_TYPE' => self::PROPERTY_USER_TYPE_DATETIME,
+				'USER_TYPE' => PropertyTable::USER_TYPE_DATETIME,
 			],
 			'MONEY' => [
 				'PROPERTY_TYPE' => PropertyTable::TYPE_STRING,
@@ -93,7 +95,7 @@ final class Enum extends Controller
 			],
 			'SKU' => [
 				'PROPERTY_TYPE' => PropertyTable::TYPE_ELEMENT,
-				'USER_TYPE' => self::PROPERTY_USER_TYPE_SKU,
+				'USER_TYPE' => PropertyTable::USER_TYPE_SKU,
 			],
 		];
 	}

@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Mail\Helper;
+use Bitrix\Mail\Message;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -156,6 +157,7 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 				$messageHtml
 			);
 			$quote = $messageHtml;
+			$messageQuote = Message::wrapTheMessageWithAQuote($quote, $message['SUBJECT'], $message['FIELD_DATE'], $message['__from'], $message['__to'], $message['__cc']);
 
 			$attachedFiles = [];
 			foreach ((array)$message['__files'] as $item)
@@ -255,20 +257,7 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 						[
 							'name' => 'data[message]',
 							'type' => 'editor',
-							'value' => !empty($message['MSG_ID']) ? sprintf(
-								'<br><br>%s, %s:<br><blockquote style="margin: 0 0 0 5px; padding: 5px 5px 5px 8px; border-left: 4px solid #e2e3e5; ">%s</blockquote>',
-								formatDate(
-									preg_replace(
-										'/[\/.,\s:][s]/',
-										'',
-										$GLOBALS['DB']->dateFormatToPhp(FORMAT_DATETIME)
-									),
-									$message['FIELD_DATE']->getTimestamp() + \CTimeZone::getOffset(),
-									time() + \CTimeZone::getOffset()
-								),
-								htmlspecialcharsbx(reset($message['__from'])['formated']),
-								$quote
-							) : '',
+							'value' => !empty($message['MSG_ID']) ? $messageQuote : '',
 						],
 						[
 							'name' => 'data[__diskfiles]',

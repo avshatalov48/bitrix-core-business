@@ -31,12 +31,19 @@ class Geo extends \Bitrix\Main\UserField\TypeBase
 
 	public static function getDBColumnType($arUserField)
 	{
-		global $DB;
-		switch($DB->type)
-		{
-			case "MYSQL":
-				return "varchar(100)";
-		}
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(
+			new \Bitrix\Main\ORM\Fields\StringField('x',  [
+				'size' => 100,
+				'validation' => function()
+				{
+					return [
+						new \Bitrix\Main\Entity\Validator\Length(null, 100),
+					];
+				},
+			])
+		);
 	}
 
 	function prepareSettings($arUserField)
@@ -74,7 +81,7 @@ class Geo extends \Bitrix\Main\UserField\TypeBase
 		return $fetched['VALUE'];
 	}
 
-	function getSettingsHtml($arUserField = false, $arHtmlControl, $bVarsFromForm)
+	function getSettingsHtml($arUserField, $arHtmlControl, $bVarsFromForm)
 	{
 		global $APPLICATION;
 

@@ -1,6 +1,9 @@
 import { Type } from 'main.core';
-import { UploaderOptions, VueUploaderWidget } from 'ui.uploader.core';
+import { VueUploaderWidget } from 'ui.uploader.vue';
+
 import { StackWidgetComponent } from './components/stack-widget-component';
+
+import type { UploaderOptions } from 'ui.uploader.core';
 import type { StackWidgetOptions } from './stack-widget-options';
 
 /**
@@ -14,7 +17,7 @@ export default class StackWidget extends VueUploaderWidget
 		super(uploaderOptions, widgetOptions);
 	}
 
-	getRootComponent(): Function
+	defineComponent(): Function
 	{
 		return StackWidgetComponent;
 	}

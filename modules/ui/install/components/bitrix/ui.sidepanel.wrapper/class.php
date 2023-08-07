@@ -68,6 +68,8 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 			$this->arParams["POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID"] = $USER->GetID();
 		}
 
+		$this->arParams['USE_FAST_WAY_CLOSE_LOADER'] = ($this->arParams['USE_FAST_WAY_CLOSE_LOADER'] ?? false) === true;
+
 		$notification = [
 			'content' => null,
 			'autoHideDelay' => 5000,

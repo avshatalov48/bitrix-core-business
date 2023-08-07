@@ -10,6 +10,11 @@ use Bitrix\Catalog\Access\ActionDictionary;
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."cat_extra.php?lang=".LANGUAGE_ID;
 $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
@@ -184,7 +189,6 @@ $aTabs = array(
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $tabControl->Begin();
-
 $tabControl->BeginNextTab();
 	$disabledAttribute = $bReadOnly ? ' disabled ' : '';
 	if ($ID > 0)
@@ -224,7 +228,12 @@ $tabControl->BeginNextTab();
 	}
 
 $tabControl->EndTab();
-$tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));
+$tabControl->Buttons([
+	'btnSave' => !$bReadOnly,
+	'btnApply' => !$bReadOnly,
+	'disabled' => false,
+	'back_url' => $listUrl,
+]);
 $tabControl->End();
 ?>
 </form>

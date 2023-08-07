@@ -12,7 +12,7 @@ class AudienceVkads extends Audience
 
 	const MAX_CONTACTS_PER_PACKET = 1000;
 	const MIN_CONTACTS_FOR_ACTIVATING = 20;
-	const URL_AUDIENCE_LIST = 'https://vk.com/ads?act=retargeting';
+	const URL_AUDIENCE_LIST = 'https://ads.vk.com/hq/audience/user_lists';
 
 	protected static $listRowMap = array(
 		'ID' => 'ID',

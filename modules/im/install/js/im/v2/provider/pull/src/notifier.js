@@ -55,7 +55,7 @@ export class NotifierPullHandler
 
 	handleNotifyAdd(params: NotifyAddParams)
 	{
-		if (params.onlyFlash === true || this.#isUserDnd() || this.#isDesktopActive())
+		if (params.onlyFlash === true || this.#isUserDnd() || this.#desktopWillShowNotification())
 		{
 			return;
 		}
@@ -91,7 +91,7 @@ export class NotifierPullHandler
 			!params.notify
 			|| params.message?.params?.NOTIFY === 'N'
 			|| this.#isUserDnd()
-			|| this.#isDesktopActive()
+			|| this.#desktopWillShowNotification()
 		)
 		{
 			return false;
@@ -132,8 +132,10 @@ export class NotifierPullHandler
 		return currentUser.status === UserStatus.dnd;
 	}
 
-	#isDesktopActive(): boolean
+	#desktopWillShowNotification(): boolean
 	{
-		return DesktopManager.getInstance().isDesktopActive();
+		const isDesktopChatWindow = DesktopManager.isDesktop() && DesktopManager.isChatWindow();
+
+		return !isDesktopChatWindow && DesktopManager.getInstance().isDesktopActive();
 	}
 }

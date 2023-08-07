@@ -1,46 +1,62 @@
-<?
-use Bitrix\Main,
-	Bitrix\Main\Loader;
-define("ADMIN_MODULE_NAME", "perfmon");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-/** @global CMain $APPLICATION */
-/** @global CDatabase $DB */
+<?php
+
 /** @global CUser $USER */
+/** @global CDatabase $DB */
+/** @global CMain $APPLICATION */
+
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\StringHelper;
+
+const ADMIN_MODULE_NAME = 'perfmon';
+
+require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/prolog.php');
+
 Loader::includeModule('perfmon');
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
 IncludeModuleLangFile(__FILE__);
 
 $RIGHT = $APPLICATION->GetGroupRight("perfmon");
 if ($RIGHT == "D")
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+{
+	$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED"));
+}
 
-$arEngines = array(
-	"MYISAM" => array("NAME" => "MyISAM"),
-	"INNODB" => array("NAME" => "InnoDB"),
-);
+$request = Main\Context::getCurrent()->getRequest();
 
-$sTableID = "t_perfmon_all_tables";
-$oSort = new CAdminSorting($sTableID, "TABLE_NAME", "asc");
-$lAdmin = new CAdminList($sTableID, $oSort);
+$engines = [
+	'MYISAM' => ['NAME' => 'MyISAM'],
+	'INNODB' => ['NAME' => 'InnoDB'],
+];
+
+$tableID = "t_perfmon_all_tables";
+$sort = new CAdminSorting($tableID, "TABLE_NAME", "asc");
+$lAdmin = new CAdminList($tableID, $sort);
+$by = mb_strtoupper($sort->getField());
+$order = mb_strtolower($sort->getOrder());
 
 if (
-	isset($_GET['orm']) && $_GET['orm'] === 'y'
+	$request->get('orm')  === 'y'
 	&& Main\Config\Option::get('perfmon', 'enable_tablet_generator') !== 'Y'
 )
 {
 	Main\Config\Option::set('perfmon', 'enable_tablet_generator', 'Y', '');
 }
 
-if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
+$tables = $lAdmin->GroupAction();
+if ($tables && $RIGHT >= "W")
 {
-	if ($_REQUEST['action_target'] == 'selected')
+	if ($lAdmin->IsGroupActionToAll())
 	{
-		$rsData = CPerfomanceTableList::GetList();
-		while ($ar = $rsData->Fetch())
-			$arTABLES[] = $ar["TABLE_NAME"];
+		$data = CPerfomanceTableList::GetList();
+		while ($ar = $data->Fetch())
+		{
+			$tables[] = $ar["TABLE_NAME"];
+		}
 	}
 
-	foreach ($arEngines as $id => $ar)
+	foreach ($engines as $id => $ar)
 	{
 		if ($_REQUEST['action'] == "convert_to_".$id)
 		{
@@ -52,32 +68,44 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 
 	$to = mb_strtoupper($_REQUEST["to"]);
 
-	foreach ($arTABLES as $table_name)
+	$action = $lAdmin->GetAction();
+	foreach ($tables as $table_name)
 	{
-		$table_name = (string)$table_name;
+		$table_name = (string) $table_name;
 		if ($table_name === '')
+		{
 			continue;
+		}
 
 		$res = $DB->Query("show table status like '".$DB->ForSql($table_name)."'", false);
-		$arStatus = $res->Fetch();
-		if (!$arStatus || $arStatus["Comment"] === "VIEW")
+		$status = $res->Fetch();
+		if (!$status || $status["Comment"] === "VIEW")
+		{
 			continue;
+		}
 
-		switch ($_REQUEST['action'])
+		switch ($action)
 		{
 		case "convert":
-			if ($to != mb_strtoupper($arStatus["Engine"]))
+			if ($to != mb_strtoupper($status["Engine"]))
 			{
 				if ($to == "MYISAM")
-					$res = $DB->Query("alter table ".CPerfomanceTable::escapeTable($table_name)." ENGINE = MyISAM", false);
+				{
+					$res = $DB->Query("alter table " . CPerfomanceTable::escapeTable($table_name) . " ENGINE = MyISAM", false);
+				}
 				elseif ($to == "INNODB")
-					$res = $DB->Query("alter table ".CPerfomanceTable::escapeTable($table_name)." ENGINE = InnoDB", false);
+				{
+					$res = $DB->Query("alter table " . CPerfomanceTable::escapeTable($table_name) . " ENGINE = InnoDB", false);
+				}
 				else
+				{
 					$res = true;
+				}
 			}
+
 			if (!$res)
 			{
-				$lAdmin->AddGroupError(GetMessage("PERFMON_TABLES_CONVERT_ERROR"), $table_name);
+				$lAdmin->AddGroupError(Loc::getMessage("PERFMON_TABLES_CONVERT_ERROR"), $table_name);
 			}
 			break;
 		case "optimize":
@@ -89,8 +117,10 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 			$moduleNamespace = ucfirst($tableParts[0]);
 			$moduleName = mb_strtolower($tableParts[0]);
 			if (count($tableParts) > 1)
+			{
 				array_shift($tableParts);
-			$className = \Bitrix\Main\Text\StringHelper::snake2camel(implode("_", $tableParts));
+			}
+			$className = StringHelper::snake2camel(implode("_", $tableParts));
 
 			$obTable = new CPerfomanceTable;
 			$obTable->Init($table_name);
@@ -100,8 +130,10 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 			$hasID = false;
 			foreach ($arUniqueIndexes as $indexName => $indexColumns)
 			{
-				if(array_values($indexColumns) === array("ID"))
+				if (array_values($indexColumns) === array("ID"))
+				{
 					$hasID = $indexName;
+				}
 			}
 
 			if ($hasID)
@@ -111,14 +143,15 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 
 			$obSchema = new CPerfomanceSchema;
 			$arParents = $obSchema->GetParents($table_name);
-			$arValidators = array();
-			$arMessages = array();
+			$arValidators = [];
+			$arMessages = [];
 
-			$shortAliases = Main\Config\Option::get('perfmon', 'tablet_short_aliases') == 'Y';
-			$objectSettings = Main\Config\Option::get('perfmon', 'tablet_object_settings') == 'Y';
-			$useMapIndex = Main\Config\Option::get('perfmon', 'tablet_use_map_index') == 'Y';
+			$shortAliases = Main\Config\Option::get('perfmon', 'tablet_short_aliases') === 'Y';
+			$objectSettings = Main\Config\Option::get('perfmon', 'tablet_object_settings') === 'Y';
+			$useMapIndex = Main\Config\Option::get('perfmon', 'tablet_use_map_index') === 'Y';
+			$useValidationClosure = Main\Config\Option::get('perfmon', 'tablet_validation_closure') === 'Y';
 
-			$dateFunctions = array(
+			$dateFunctions = [
 				'curdate' => true,
 				'current_date' => true,
 				'current_time' => true,
@@ -127,18 +160,19 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 				'localtime' => true,
 				'localtimestamp' => true,
 				'now' => true
-			);
+			];
 
-			$descriptions = array();
-			$fields = array();
+			$descriptions = [];
+			$fields = [];
 			$fieldClassPrefix = '';
 			$validatorPrefix = '';
 			$referencePrefix = '';
 			$datetimePrefix = '';
-			$aliases = array(
+			$aliases = [
 				'Bitrix\Main\Localization\Loc',
 				'Bitrix\Main\ORM\Data\DataManager'
-			);
+			];
+
 			if (!$shortAliases)
 			{
 				$fieldClassPrefix = 'Fields\\';
@@ -216,7 +250,7 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 						break;
 					case 'date':
 					case 'datetime':
-					if ($columnInfo["default"] !== '' && !is_numeric($columnInfo["default"]))
+						if ($columnInfo["default"] !== '' && !is_numeric($columnInfo["default"]))
 						{
 							$defaultValue = mb_strtolower($columnInfo["default"]);
 							if (mb_strlen($defaultValue) > 2)
@@ -288,74 +322,132 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 					)
 					." ".($columnInfo["nullable"] ? "optional": "mandatory")
 					.($columnInfo["default"] !== ''
-						? " default ".(isset($columnInfo["default_text"])
-							? $columnInfo["default_text"]
-							: $columnInfo["default"]
-						)
+						? " default ".($columnInfo["default_text"] ?? $columnInfo["default"])
 						: ""
 					)
 					."\n";
 
+				$useValidator = false;
 				$validateFunctionName = '';
-				if ($columnInfo["orm_type"] == "string" && $columnInfo["length"] > 0)
+				if (
+					$columnInfo["orm_type"] === "string"
+					&& $columnInfo["length"] > 0
+				)
 				{
+					$useValidator = true;
 					if ($shortAliases)
 					{
 						$aliases[] = 'Bitrix\Main\ORM\Fields\Validators\LengthValidator';
 					}
-					$validateFunctionName = "validate".Main\Text\StringHelper::snake2camel($columnName);
-					$arValidators[$validateFunctionName] = array(
-						"length" => $columnInfo["length"],
-						"field" => $columnName,
-					);
+					if (!$useValidationClosure)
+					{
+						$validateFunctionName = "validate" . StringHelper::snake2camel($columnName);
+						$arValidators[$validateFunctionName] = [
+							"length" => $columnInfo["length"],
+							"field" => $columnName,
+						];
+					}
 				}
 
 				if ($objectSettings)
 				{
 					$offset = ($useMapIndex ? "\t\t\t\t" : "\t\t\t");
-					$fields[$columnName] = "\t\t\t"
-						.($useMapIndex ? "'".$columnName."' => " : "")
-						."(new ".$fieldClassPrefix.$fieldClasses[$type]."('".$columnName."',\n"
-						.($validateFunctionName !== ''
-							? $offset."\t[\n"
-								.$offset."\t\t'validation' => [_"."_CLASS_"."_, '".$validateFunctionName."']\n"
-								.$offset."\t]\n"
-							: $offset."\t[]\n"
+					$initParams = $offset . "\t[]\n";
+					if ($useValidator)
+					{
+						if ($useValidationClosure)
+						{
+							$initParams =
+								$offset."\t[\n"
+								. $offset . "\t\t'validation' => function()\n"
+								. $offset . "\t\t{\n"
+								. $offset . "\t\t\treturn[\n"
+								. $offset . "\t\t\t\tnew " . $validatorPrefix . "LengthValidator(null, " . $columnInfo["length"] . "),\n"
+								. $offset . "\t\t\t];\n"
+								. $offset . "\t\t},\n"
+								. $offset . "\t]\n"
+							;
+						}
+						else
+						{
+							$initParams =
+								$offset."\t[\n"
+								. $offset . "\t\t'validation' => [_" . "_CLASS_" ."_, '" . $validateFunctionName . "']\n"
+								. $offset . "\t]\n"
+							;
+						}
+					}
+
+					$fields[$columnName] =
+						"\t\t\t"
+						. ($useMapIndex ? "'" . $columnName . "' => " : "")
+						. "(new " . $fieldClassPrefix . $fieldClasses[$type] . "('" . $columnName . "',\n"
+						. $initParams
+						. $offset . "))->configureTitle(Loc::getMessage('" . $messageId . "'))\n"
+						. ($primary ? $offset ."\t\t->configurePrimary(true)\n" : "")
+						. ($columnInfo["increment"] ? $offset . "\t\t->configureAutocomplete(true)\n" : "")
+						. (!$primary && $columnInfo["nullable"] === false ? $offset . "\t\t->configureRequired(true)\n" : "")
+						. ($columnInfo["orm_type"] === "boolean"
+								? $offset . "\t\t->configureValues(" . implode(", ", $columnInfo["enum_values"]) . ")\n"
+								: ""
 						)
-						.$offset."))->configureTitle(Loc::getMessage('".$messageId."'))\n"
-						.($primary ? $offset."\t\t->configurePrimary(true)\n" : "")
-						.($columnInfo["increment"] ? $offset."\t\t->configureAutocomplete(true)\n" : "")
-						.(!$primary && $columnInfo["nullable"] === false ? $offset."\t\t->configureRequired(true)\n" : "")
-						.($columnInfo["orm_type"] === "boolean"
-							? $offset."\t\t->configureValues(".implode(", ", $columnInfo["enum_values"]).")\n"
-							: ""
+						. ($columnInfo["orm_type"] === "enum"
+								? $offset . "\t\t->configureValues([" . implode(", ", $columnInfo["enum_values"]) . "])\n"
+								: ""
 						)
-						.($columnInfo["orm_type"] === "enum"
-							? $offset."\t\t->configureValues([".implode(", ", $columnInfo["enum_values"])."])\n"
-							: ""
+						. ($columnInfo["default"] !== ''
+								? $offset . "\t\t->configureDefaultValue(" . $columnInfo["default"] . ")\n"
+								: ""
 						)
-						.($columnInfo["default"] !== '' ? $offset."\t\t->configureDefaultValue(".$columnInfo["default"].")\n" : "");
-					$fields[$columnName] = mb_substr($fields[$columnName], 0, -1).",\n";
+					;
+					$fields[$columnName] =
+						mb_substr($fields[$columnName], 0, -1)
+						. "\n"
+						. "\t\t\t,\n"
+					;
 				}
 				else
 				{
-					$fields[$columnName] = "\t\t\t"
-						.($useMapIndex ? "'".$columnName."' => " : "")
-						."new ".$fieldClassPrefix.$fieldClasses[$type]."(\n"
-						."\t\t\t\t'".$columnName."',\n"
-						."\t\t\t\t[\n"
-						.($primary ? "\t\t\t\t\t'primary' => true,\n" : "")
-						.($columnInfo["increment"] ? "\t\t\t\t\t'autocomplete' => true,\n" : "")
-						.(!$primary && $columnInfo["nullable"] === false ? "\t\t\t\t\t'required' => true,\n" : "")
-						.($columnInfo["orm_type"] === "boolean" || $columnInfo["orm_type"] === "enum"
-							? "\t\t\t\t\t'values' => array(".implode(", ", $columnInfo["enum_values"])."),\n"
-							: ""
+					$validator = '';
+					if ($useValidator)
+					{
+						if ($useValidationClosure)
+						{
+							$offset = "\t\t\t\t\t";
+							$validator =
+								$offset . "'validation' => function()\n"
+								. $offset . "{\n"
+								. $offset . "\treturn[\n"
+								. $offset . "\t\tnew " . $validatorPrefix . "LengthValidator(null, " . $columnInfo["length"] . "),\n"
+								. $offset . "\t];\n"
+								. $offset . "},\n"
+							;
+						}
+						else
+						{
+							$validator = "\t\t\t\t\t'validation' => [_" . "_CLASS_" . "_, '" . $validateFunctionName . "'],\n";
+						}
+					}
+
+					$fields[$columnName] =
+						"\t\t\t"
+						. ($useMapIndex ? "'" . $columnName . "' => " : "")
+						. "new " . $fieldClassPrefix . $fieldClasses[$type] . "(\n"
+						. "\t\t\t\t'" . $columnName . "',\n"
+						. "\t\t\t\t[\n"
+						. ($primary ? "\t\t\t\t\t'primary' => true,\n" : "")
+						. ($columnInfo["increment"] ? "\t\t\t\t\t'autocomplete' => true,\n" : "")
+						. (!$primary && $columnInfo["nullable"] === false ? "\t\t\t\t\t'required' => true,\n" : "")
+						. ($columnInfo["orm_type"] === "boolean" || $columnInfo["orm_type"] === "enum"
+								? "\t\t\t\t\t'values' => array(" . implode(", ", $columnInfo["enum_values"]) . "),\n"
+								: ""
 						)
-						.($columnInfo["default"] !== '' ? "\t\t\t\t\t'default' => ".$columnInfo["default"].",\n" : "")
-						.($validateFunctionName !== '' ? "\t\t\t\t\t'validation' => [_"."_CLASS_"."_, '".$validateFunctionName."'],\n" : "")
-						."\t\t\t\t\t'title' => Loc::getMessage('".$messageId."')\n"
-						."\t\t\t\t]\n"
-						."\t\t\t),\n";
+						. ($columnInfo["default"] !== '' ? "\t\t\t\t\t'default' => " . $columnInfo["default"] . ",\n" : "")
+						. $validator
+						. "\t\t\t\t\t'title' => Loc::getMessage('" . $messageId . "'),\n"
+						. "\t\t\t\t]\n"
+						. "\t\t\t),\n"
+					;
 				}
 			}
 			foreach ($arParents as $columnName => $parentInfo)
@@ -368,7 +460,7 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 				$parentTableParts = explode("_", $parentInfo["PARENT_TABLE"]);
 				array_shift($parentTableParts);
 				$parentModuleNamespace = ucfirst($parentTableParts[0]);
-				$parentClassName = \Bitrix\Main\Text\StringHelper::snake2camel(implode("_", $parentTableParts));
+				$parentClassName = StringHelper::snake2camel(implode("_", $parentTableParts));
 
 				$columnNameEx = preg_replace("/_ID\$/", "", $columnName);
 				if (isset($descriptions[$columnNameEx]))
@@ -399,9 +491,10 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 			echo "&lt;", "?", "php\n";
 			echo "namespace Bitrix\\".$moduleNamespace.";\n";
 			echo "\n";
-			echo "use ".implode(",\n\t", $aliases).";\n";
-			echo "\n";
-			echo "Loc::loadMessages(_"."_FILE_"."_);\n";
+			foreach ($aliases as $row)
+			{
+				echo "use ".$row.";\n";
+			}
 			echo "\n";
 			echo "/"."**\n";
 			echo " * Class ".$className."Table\n";
@@ -444,7 +537,7 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 				echo "\t *\n";
 				echo "\t * @return array\n";
 				echo "\t */\n";
-				echo "\tpublic static function ".$validateFunctionName."()\n";
+				echo "\tpublic static function ".$validateFunctionName."(): array\n";
 				echo "\t{\n";
 				echo "\t\treturn [\n";
 				echo "\t\t\tnew ".$validatorPrefix."LengthValidator(null, ".$validator["length"]."),\n";
@@ -456,12 +549,11 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 			echo "File: /bitrix/modules/".$moduleName."/lang/ru/lib/".mb_strtolower($className)."table.php";
 			echo "<hr>";
 			echo "<pre>";
-			echo "&lt;", "?\n";
+			echo "&lt;", "?", "php\n";
 			foreach ($arMessages as $messageId => $messageText)
 			{
-				echo "\$MESS[\"".$messageId."\"] = \"".EscapePHPString($messageText)."\";\n";
+				echo "\$MESS['".$messageId."'] = \"".EscapePHPString($messageText)."\";\n";
 			}
-			echo "?", "&gt;\n";
 			echo "</pre>";
 			break;
 		}
@@ -469,160 +561,166 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 }
 
 $lAdmin->BeginPrologContent();
-?>
-<h4><? echo GetMessage("PERFMON_TABLES_ALL") ?></h4>
+
+?><h4><?=Loc::getMessage("PERFMON_TABLES_ALL") ?></h4>
 <script>
 	hrefs = "";
 	rows = [];
 	prev = '';
-</script>
-<?
-$lAdmin->EndPrologContent();
+</script><?php
 
-$arHeaders = array();
-$arHeaders[] = array(
-	"id" => "TABLE_NAME",
-	"content" => GetMessage("PERFMON_TABLES_NAME"),
-	"default" => true,
-	"sort" => "TABLE_NAME",
-);
-
-if ($DB->type == "MYSQL")
-{
-	$arHeaders[] = array(
+$headers = [
+	0 => [
+		"id" => "TABLE_NAME",
+		"content" => Loc::getMessage("PERFMON_TABLES_NAME"),
+		"default" => true,
+		"sort" => "TABLE_NAME",
+	],
+	1 => [
 		"id" => "ENGINE_TYPE",
-		"content" => GetMessage("PERFMON_TABLES_ENGINE_TYPE"),
+		"content" => Loc::getMessage("PERFMON_TABLES_ENGINE_TYPE"),
 		"default" => true,
 		"sort" => "ENGINE_TYPE",
-	);
-}
+	],
+	2 => [
+		"id" => "NUM_ROWS",
+		"content" => Loc::getMessage("PERFMON_TABLES_NUM_ROWS"),
+		"default" => true,
+		"align" => "right",
+		"sort" => "NUM_ROWS",
+	],
+	3 => [
+		"id" => "BYTES",
+		"content" => Loc::getMessage("PERFMON_TABLES_BYTES"),
+		"default" => true,
+		"align" => "right",
+		"sort" => "BYTES",
+	],
+	4 => [
+		"id" => "BYTES_INDEX",
+		"content" => Loc::getMessage("PERFMON_TABLES_BYTES_INDEX"),
+		"default" => true,
+		"align" => "right",
+		"sort" => "BYTES_INDEX",
+	]
+];
 
-$arHeaders[] = array(
-	"id" => "NUM_ROWS",
-	"content" => GetMessage("PERFMON_TABLES_NUM_ROWS"),
-	"default" => true,
-	"align" => "right",
-	"sort" => "NUM_ROWS",
-);
+$lAdmin->EndPrologContent();
+$lAdmin->AddHeaders($headers);
 
-$arHeaders[] = array(
-	"id" => "BYTES",
-	"content" => GetMessage("PERFMON_TABLES_BYTES"),
-	"default" => true,
-	"align" => "right",
-	"sort" => "BYTES",
-);
-
-$lAdmin->AddHeaders($arHeaders);
-
-$bShowFullInfo = ($DB->type == "MYSQL")
-	&& (
-		(isset($_REQUEST["full_info"]) && $_REQUEST["full_info"] == "Y")
+$bShowFullInfo = (
+		($request->get('full_info') === 'Y')
 		|| (COption::GetOptionInt("perfmon", "tables_show_time", 0) <= 5)
 	);
 
 if ($bShowFullInfo)
+{
 	session_write_close();
+}
 
 $stime = time();
 $arAllTables = array();
-$rsData = CPerfomanceTableList::GetList($bShowFullInfo);
-while ($ar = $rsData->Fetch())
+$data = CPerfomanceTableList::GetList($bShowFullInfo);
+while ($ar = $data->Fetch())
+{
 	$arAllTables[] = $ar;
+}
+
 sortByColumn($arAllTables, array($by => $order == "desc"? SORT_DESC: SORT_ASC));
 $etime = time();
 
 if ($bShowFullInfo)
-	COption::SetOptionInt("perfmon", "tables_show_time", $etime - $stime);
-
-$rsData = new CDBResult;
-$rsData->InitFromArray($arAllTables);
-$rsData = new CAdminResult($rsData, $sTableID);
-
-$generateOrm = (string)Main\Config\Option::get('perfmon', 'enable_tablet_generator') == 'Y';
-
-while ($arRes = $rsData->GetNext())
 {
-	$row =& $lAdmin->AddRow($arRes["TABLE_NAME"], $arRes);
-	$row->AddViewField("TABLE_NAME", '<a class="table_name" data-table-name="'.$arRes["TABLE_NAME"].'" href="perfmon_table.php?lang='.LANGUAGE_ID.'&amp;table_name='.urlencode($arRes["TABLE_NAME"]).'">'.$arRes["TABLE_NAME"].'</a>');
-	$row->AddViewField("BYTES", CFile::FormatSize($arRes["BYTES"]));
-	$arActions = array();
-	if ($DB->type == "MYSQL" && $arRes["ENGINE_TYPE"] !== "VIEW")
+	COption::SetOptionInt("perfmon", "tables_show_time", $etime - $stime);
+}
+
+$data = new CDBResult;
+$data->InitFromArray($arAllTables);
+$data = new CAdminResult($data, $tableID);
+
+$generateOrm = Main\Config\Option::get('perfmon', 'enable_tablet_generator') == 'Y';
+
+while ($result = $data->GetNext())
+{
+	$row =& $lAdmin->AddRow($result["TABLE_NAME"], $result);
+	$row->AddViewField("TABLE_NAME", '<a class="table_name" data-table-name="'.$result["TABLE_NAME"].'" href="perfmon_table.php?lang='.LANGUAGE_ID.'&amp;table_name='.urlencode($result["TABLE_NAME"]).'">'.$result["TABLE_NAME"].'</a>');
+	$row->AddViewField("BYTES", CFile::FormatSize($result["BYTES"]));
+	$row->AddViewField("BYTES_INDEX", CFile::FormatSize($result["BYTES_INDEX"]));
+
+	$actions = array();
+	if ($DB->type == "MYSQL" && $result["ENGINE_TYPE"] !== "VIEW")
 	{
 		if ($bShowFullInfo)
 		{
-			foreach ($arEngines as $id => $ar)
+			foreach ($engines as $id => $ar)
 			{
-				if (mb_strtoupper($arRes["ENGINE_TYPE"]) != $id)
-					$arActions[] = array(
+				if (mb_strtoupper($result["ENGINE_TYPE"]) != $id)
+					$actions[] = array(
 						"ICON" => "edit",
 						"DEFAULT" => false,
-						"TEXT" => GetMessage("PERFMON_TABLES_ACTION_CONVERT", array("#ENGINE_TYPE#" => $ar["NAME"])),
-						"ACTION" => $lAdmin->ActionDoGroup($arRes["TABLE_NAME"], "convert", "to=".$id),
+						"TEXT" => Loc::getMessage("PERFMON_TABLES_ACTION_CONVERT", array("#ENGINE_TYPE#" => $ar["NAME"])),
+						"ACTION" => $lAdmin->ActionDoGroup($result["TABLE_NAME"], "convert", "to=".$id),
 					);
 			}
 		}
 
-		$arActions[] = array(
+		$actions[] = array(
 			"DEFAULT" => false,
-			"TEXT" => GetMessage("PERFMON_TABLES_ACTION_OPTIMIZE"),
-			"ACTION" => $lAdmin->ActionDoGroup($arRes["TABLE_NAME"], "optimize"),
+			"TEXT" => Loc::getMessage("PERFMON_TABLES_ACTION_OPTIMIZE"),
+			"ACTION" => $lAdmin->ActionDoGroup($result["TABLE_NAME"], "optimize"),
 		);
 	}
 	if ($generateOrm)
 	{
-		$arActions[] = array(
+		$actions[] = array(
 			"DEFAULT" => false,
 			"TEXT" => "ORM",
-			"ACTION" => $lAdmin->ActionDoGroup($arRes["TABLE_NAME"], "orm"),
+			"ACTION" => $lAdmin->ActionDoGroup($result["TABLE_NAME"], "orm"),
 		);
 	}
-	if (!empty($arActions))
-		$row->AddActions($arActions);
+	if (!empty($actions))
+		$row->AddActions($actions);
 }
 
 $lAdmin->AddFooter(
-	array(
-		array(
-			"title" => GetMessage("MAIN_ADMIN_LIST_SELECTED"),
-			"value" => $rsData->SelectedRowsCount(),
-		),
-		array(
-			"counter" => true,
-			"title" => GetMessage("MAIN_ADMIN_LIST_CHECKED"),
-			"value" => "0",
-		),
-	)
+	[
+		[
+			'title' => Loc::getMessage('MAIN_ADMIN_LIST_SELECTED'),
+			'value' => $data->SelectedRowsCount(),
+		],
+		[
+			'counter' => true,
+			'title' => Loc::getMessage('MAIN_ADMIN_LIST_CHECKED'),
+			'value' => '0',
+		],
+	]
 );
 
-if ($DB->type == "MYSQL")
+$arGroupActions = ['optimize' => Loc::getMessage('PERFMON_TABLES_ACTION_OPTIMIZE')];
+foreach ($engines as $id => $ar)
 {
-	$arGroupActions = array(
-		"optimize" => GetMessage("PERFMON_TABLES_ACTION_OPTIMIZE")
-	);
-	foreach ($arEngines as $id => $ar)
-		$arGroupActions["convert_to_".$id] = GetMessage("PERFMON_TABLES_ACTION_CONVERT", array("#ENGINE_TYPE#" => $ar["NAME"]));
+	$arGroupActions["convert_to_" . $id] = Loc::getMessage("PERFMON_TABLES_ACTION_CONVERT", array("#ENGINE_TYPE#" => $ar["NAME"]));
+}
 
-	$lAdmin->AddGroupActionTable($arGroupActions);
+$lAdmin->AddGroupActionTable($arGroupActions);
 
-	if (!$bShowFullInfo)
-	{
-		$lAdmin->BeginEpilogContent();
-		?>
-		<script>
-			BX.ready(function ()
-			{
-				<?=$sTableID?>.
-				GetAdminList('<?echo $APPLICATION->GetCurPage();?>?lang=<?=LANGUAGE_ID?>&full_info=Y');
-			});
-		</script><?
-		$lAdmin->EndEpilogContent();
-	}
+if (!$bShowFullInfo)
+{
+	$lAdmin->BeginEpilogContent();
+	?>
+	<script>
+		BX.ready(function ()
+		{
+			<?=$tableID?>.
+			GetAdminList('<?= $APPLICATION->GetCurPage();?>?lang=<?= LANGUAGE_ID?>&full_info=Y');
+		});
+	</script><?php
+	$lAdmin->EndEpilogContent();
 }
 
 $lAdmin->CheckListMode();
 
-$APPLICATION->SetTitle(GetMessage("PERFMON_TABLES_TITLE"));
+$APPLICATION->SetTitle(Loc::getMessage("PERFMON_TABLES_TITLE"));
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
@@ -638,9 +736,7 @@ if ($strLastTables <> '')
 		{
 			if ($DB->TableExists($table_name))
 			{
-				$arLastTables[$i] = array(
-					"NAME" => '<a href="perfmon_table.php?lang='.LANGUAGE_ID.'&amp;table_name='.urlencode($table_name).'">'.$table_name.'</a>',
-				);
+				$arLastTables[$i] = ["NAME" => '<a href="perfmon_table.php?lang='.LANGUAGE_ID.'&amp;table_name='.urlencode($table_name).'">'.$table_name.'</a>'];
 			}
 			else
 			{
@@ -653,26 +749,24 @@ if ($strLastTables <> '')
 		$lAdmin2 = new CAdminList($sTableID2);
 
 		$lAdmin2->BeginPrologContent();
-		echo "<h4>".GetMessage("PERFMON_TABLES_RECENTLY_BROWSED")."</h4>\n";
+		echo "<h4>".Loc::getMessage("PERFMON_TABLES_RECENTLY_BROWSED")."</h4>\n";
+
 		$lAdmin2->EndPrologContent();
-
-		$lAdmin2->AddHeaders(array(
-			array(
+		$lAdmin2->AddHeaders([[
 				"id" => "NAME",
-				"content" => GetMessage("PERFMON_TABLES_NAME"),
+				"content" => Loc::getMessage("PERFMON_TABLES_NAME"),
 				"default" => true,
-			),
-		));
+		]]);
 
-		$rsData = new CDBResult;
-		$rsData->InitFromArray($arLastTables);
-		$rsData = new CAdminResult($rsData, $sTableID2);
+		$data = new CDBResult;
+		$data->InitFromArray($arLastTables);
+		$data = new CAdminResult($data, $sTableID2);
 
 		$j = 0;
-		while ($arRes = $rsData->NavNext(true, "f_"))
+		while ($result = $data->NavNext(true, "f_"))
 		{
-			$row =& $lAdmin2->AddRow($j++, $arRes);
-			foreach ($arRes as $key => $value)
+			$row =& $lAdmin2->AddRow($j++, $result);
+			foreach ($result as $key => $value)
 				$row->AddViewField($key, $value);
 		}
 
@@ -681,7 +775,7 @@ if ($strLastTables <> '')
 	}
 }
 ?>
-<h4><? echo GetMessage("PERFMON_TABLES_QUICK_SEARCH") ?></h4>
+<h4><?= Loc::getMessage("PERFMON_TABLES_QUICK_SEARCH") ?></h4>
 <input type="text" id="instant-search">
 <script>
 	BX.ready(function ()
@@ -706,7 +800,7 @@ if ($strLastTables <> '')
 			else
 				location.hash = 'empty';
 
-			var tbody = BX('<?echo $sTableID?>').getElementsByTagName("tbody")[0];
+			var tbody = BX('<?= $tableID?>').getElementsByTagName("tbody")[0];
 			if (!hrefs)
 			{
 				hrefs = BX.findChildren(tbody, {tag: 'a', className: 'table_name'}, true);
@@ -753,8 +847,7 @@ if ($strLastTables <> '')
 		var expr = new RegExp(pattern, 'i');
 		return !!haystack.match(expr);
 	}
-</script>
-<?
-$lAdmin->DisplayList();
+</script><?php
 
+$lAdmin->DisplayList();
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

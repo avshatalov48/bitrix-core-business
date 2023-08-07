@@ -142,7 +142,7 @@ class MoneyType extends BaseType
 	 */
 	public static function prepareSettings(array $userField): array
 	{
-		[$value, $currency] = static::unFormatFromDb($userField['SETTINGS']['DEFAULT_VALUE']);
+		[$value, $currency] = static::unFormatFromDb($userField['SETTINGS']['DEFAULT_VALUE'] ?? null);
 		if ($value !== '')
 		{
 			if($currency === '')
@@ -164,14 +164,15 @@ class MoneyType extends BaseType
 	 */
 	public static function formatToDb(string $value, ?string $currency): string
 	{
-		if($value === '')
+		if ($value === '')
 		{
 			return '';
 		}
 
 		$value = (string)((float)$value);
+		$currency = trim((string)$currency);
 
-		return $value . static::DB_SEPARATOR . trim($currency);
+		return $value . static::DB_SEPARATOR . $currency;
 	}
 
 	/**
@@ -180,7 +181,7 @@ class MoneyType extends BaseType
 	 */
 	public static function unFormatFromDb(?string $value): array
 	{
-		if ($value === null)
+		if ($value === null || $value === '')
 		{
 			return [
 				'',
@@ -188,7 +189,13 @@ class MoneyType extends BaseType
 			];
 		}
 
-		return explode(static::DB_SEPARATOR, $value);
+		$result = explode(static::DB_SEPARATOR, $value);
+		if (count($result) === 1)
+		{
+			$result[] = '';
+		}
+
+		return $result;
 	}
 
 	private static function checkValueFormat(array $userField, $value): bool

@@ -3,8 +3,11 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
+
+use Bitrix\Main\Application;
+use Bitrix\Main\Type\DateTime;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -69,7 +72,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		");
 	}
 
-	public static function OnBeforeGroupUpdate($ID, &$arFields)
+	public static function OnBeforeGroupUpdate($ID, $arFields)
 	{
 		if(array_key_exists("ACTIVE", $arFields) || array_key_exists("USER_ID", $arFields))
 		{
@@ -78,7 +81,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		return true;
 	}
 
-	public static function OnAfterGroupAdd(&$arFields)
+	public static function OnAfterGroupAdd($arFields)
 	{
 		if(is_array($arFields["USER_ID"]) && !empty($arFields["USER_ID"]))
 		{
@@ -92,19 +95,71 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		return true;
 	}
 
-	public static function OnAfterSetUserGroup($USER_ID)
+	public static function OnAfterSetUserGroup($USER_ID, $groups)
 	{
-		CAccess::RecalculateForUser($USER_ID, self::ID);
+		$dates = [];
+		foreach ($groups as $group)
+		{
+			if ($group['DATE_ACTIVE_FROM'] == '' && $group['DATE_ACTIVE_TO'] == '')
+			{
+				if (!isset($dates['']))
+				{
+					$dates[''] = new DateTime();
+				}
+			}
+			else
+			{
+				if ($group['DATE_ACTIVE_FROM'] != '')
+				{
+					if (!isset($dates['DATE_ACTIVE_FROM']))
+					{
+						$dates[$group['DATE_ACTIVE_FROM']] = DateTime::createFromUserTime($group['DATE_ACTIVE_FROM']);
+					}
+				}
+				if ($group['DATE_ACTIVE_TO'] != '')
+				{
+					if (!isset($dates['DATE_ACTIVE_TO']))
+					{
+						$dates[$group['DATE_ACTIVE_TO']] = DateTime::createFromUserTime($group['DATE_ACTIVE_TO']);
+					}
+				}
+			}
+		}
+
+		foreach ($dates as $date)
+		{
+			CAccess::RecalculateForUser($USER_ID, self::ID, $date);
+		}
 	}
 
 	protected static function RecalculateForGroup($ID)
 	{
 		global $DB;
 
-		$users = $DB->Query("select USER_ID from b_user_group where GROUP_ID=".intval($ID));
-		while($user = $users->Fetch())
+		$helper = Application::getConnection()->getSqlHelper();
+
+		$groups = $DB->Query("
+			select USER_ID, DATE_ACTIVE_FROM, DATE_ACTIVE_TO
+			from b_user_group 
+			where GROUP_ID = " . intval($ID)
+		);
+		while ($group = $groups->Fetch())
 		{
-			CAccess::RecalculateForUser($user["USER_ID"], self::ID);
+			if ($group['DATE_ACTIVE_FROM'] == '' && $group['DATE_ACTIVE_TO'] == '')
+			{
+				CAccess::RecalculateForUser($group["USER_ID"], self::ID);
+			}
+			else
+			{
+				if ($group['DATE_ACTIVE_FROM'] != '')
+				{
+					CAccess::RecalculateForUser($group["USER_ID"], self::ID, $helper->convertFromDbDateTime($group['DATE_ACTIVE_FROM']));
+				}
+				if ($group['DATE_ACTIVE_TO'] != '')
+				{
+					CAccess::RecalculateForUser($group["USER_ID"], self::ID, $helper->convertFromDbDateTime($group['DATE_ACTIVE_TO']));
+				}
+			}
 		}
 	}
 

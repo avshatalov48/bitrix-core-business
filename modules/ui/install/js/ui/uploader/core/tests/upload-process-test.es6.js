@@ -1,8 +1,12 @@
+import { BaseEvent } from 'main.core.events';
+import { FileStatus } from 'ui.uploader.core';
 import Uploader from '../src/uploader';
 import createFileByType from './utils/create-file-by-type.es6';
 import CustomUploadController from './utils/custom-upload-controller.es6';
 import { UploaderEvent } from '../src/enums/uploader-event';
 // import mock from 'xhr-mock';
+
+const png = createFileByType('png'); // 100 x 100
 
 describe('Upload Controller', () => {
 	describe('Custom Upload Controller', () => {
@@ -72,6 +76,38 @@ describe('Upload Controller', () => {
 			});
 
 			uploader.addFile(createFileByType('gif'));
+		});
+
+		it('validate a file before', (done) => {
+			const uploader = new Uploader({
+				serverOptions: {
+					chunkSize: 7,
+					forceChunkSize: true,
+					uploadControllerClass: CustomUploadController,
+				},
+				imageMinWidth: 10,
+				imageMinHeight: 10,
+				imageMaxWidth: 90,
+				imageMaxHeight: 90,
+				events: {
+					[UploaderEvent.FILE_ADD]: (event: BaseEvent) => {
+						try
+						{
+							const { file, error } = event.getData();
+							assert.equal(file.isFailed(), true);
+							assert.equal(file.getStatus(), FileStatus.LOAD_FAILED);
+
+							done();
+						}
+						catch(exception)
+						{
+							done(exception);
+						}
+					},
+				},
+			});
+
+			uploader.addFile(png);
 		});
 	});
 

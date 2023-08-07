@@ -1,7 +1,8 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_desktop,main_date,im_v2_lib_dateFormatter,im_v2_const,main_core) {
+(function (exports,im_v2_lib_desktopApi,main_date,im_v2_lib_dateFormatter,im_v2_const,main_core) {
 	'use strict';
 
 	const UA = navigator.userAgent.toLowerCase();
@@ -76,6 +77,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  isToday(date) {
 	    return this.cast(date).toDateString() === new Date().toDateString();
+	  },
+	  isSameDay(firstDate, secondDate) {
+	    return firstDate.getFullYear() === secondDate.getFullYear() && firstDate.getMonth() === secondDate.getMonth() && firstDate.getDate() === secondDate.getDate();
 	  }
 	};
 
@@ -116,13 +120,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return UA$2.includes('bitrixmobile');
 	  },
 	  isBitrixDesktop() {
-	    return im_v2_lib_desktop.DesktopManager.isDesktop();
+	    return im_v2_lib_desktopApi.DesktopApi.isDesktop();
 	  },
 	  getDesktopVersion() {
-	    return im_v2_lib_desktop.DesktopManager.getInstance().getDesktopVersion();
+	    return im_v2_lib_desktopApi.DesktopApi.getApiVersion();
 	  },
 	  isDesktopFeatureEnabled(code) {
-	    return im_v2_lib_desktop.DesktopManager.getInstance().isDesktopFeatureEnabled(code);
+	    return im_v2_lib_desktopApi.DesktopApi.isFeatureEnabled(code);
 	  },
 	  isMobile() {
 	    return this.isAndroid() || this.isIos() || this.isBitrixMobile();
@@ -504,12 +508,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      case 'plist':
 	        icon = 'set';
 	        break;
+	      default:
+	        icon = 'empty';
 	    }
 	    return icon;
 	  },
 	  getFileTypeByExtension(extension) {
 	    let type = im_v2_const.FileType.file;
-	    switch (extension) {
+	    const normalizedExtension = extension.toLowerCase();
+	    switch (normalizedExtension) {
 	      case 'png':
 	      case 'jpe':
 	      case 'jpg':
@@ -537,22 +544,25 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      case 'mp3':
 	        type = im_v2_const.FileType.audio;
 	        break;
+	      default:
+	        type = im_v2_const.FileType.file;
 	    }
 	    return type;
 	  },
 	  formatFileSize(fileSize) {
-	    if (!fileSize || fileSize <= 0) {
-	      fileSize = 0;
+	    let resultFileSize = fileSize;
+	    if (!resultFileSize || resultFileSize <= 0) {
+	      resultFileSize = 0;
 	    }
 	    const sizes = ['BYTE', 'KB', 'MB', 'GB', 'TB'];
 	    const KILOBYTE_SIZE = 1024;
 	    let position = 0;
-	    while (fileSize >= KILOBYTE_SIZE && position < sizes.length - 1) {
-	      fileSize /= KILOBYTE_SIZE;
+	    while (resultFileSize >= KILOBYTE_SIZE && position < sizes.length - 1) {
+	      resultFileSize /= KILOBYTE_SIZE;
 	      position++;
 	    }
 	    const phrase = main_core.Loc.getMessage(`IM_UTILS_FILE_SIZE_${sizes[position]}`);
-	    const roundedSize = Math.round(fileSize);
+	    const roundedSize = Math.round(resultFileSize);
 	    return `${roundedSize} ${phrase}`;
 	  },
 	  getShortFileName(fileName, maxLength) {
@@ -578,6 +588,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      dataAttributes[`data-${main_core.Text.toKebabCase(key)}`] = value;
 	    });
 	    return dataAttributes;
+	  },
+	  createDownloadLink(text, urlDownload, fileName) {
+	    const anchorTag = main_core.Dom.create('a', {
+	      text
+	    });
+	    main_core.Dom.style(anchorTag, 'display', 'block');
+	    main_core.Dom.style(anchorTag, 'color', 'inherit');
+	    main_core.Dom.style(anchorTag, 'text-decoration', 'inherit');
+	    anchorTag.setAttribute('href', urlDownload);
+	    anchorTag.setAttribute('download', fileName);
+	    return anchorTag;
 	  },
 	  isImage(fileName) {
 	    const extension = FileUtil.getFileExtension(fileName);
@@ -621,7 +642,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  if (combination.includes(ALT) && !event.altKey) {
 	    return false;
 	  }
-	  if (combination.includes(CTRL) && !this.isCmdOrCtrl(event)) {
+	  if (combination.includes(CTRL) && !KeyUtil.isCmdOrCtrl(event)) {
 	    return false;
 	  }
 	  const keys = combination.split('+').filter(key => {
@@ -664,6 +685,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const DialogUtil = {
 	  isDialogId(dialogId) {
 	    return /(chat\d+)|\d+/i.test(dialogId);
+	  },
+	  isExternalId(dialogId) {
+	    return this.isGroupExternalId(dialogId) || this.isCrmExternalId(dialogId);
+	  },
+	  isGroupExternalId(dialogId) {
+	    const GROUP_PREFIX = 'sg';
+	    return dialogId.startsWith(GROUP_PREFIX);
+	  },
+	  isCrmExternalId(dialogId) {
+	    const CRM_PREFIX = 'crm|';
+	    return dialogId.startsWith(CRM_PREFIX);
+	  },
+	  isLinesExternalId(dialogId) {
+	    const LINES_PREFIX = 'imol|';
+	    return dialogId.startsWith(LINES_PREFIX);
 	  }
 	};
 

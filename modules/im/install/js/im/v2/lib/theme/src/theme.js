@@ -1,14 +1,13 @@
-import {Core} from 'im.v2.application.core';
-import {Settings} from 'im.v2.const';
-import {ThemeColorScheme, ThemeType} from './color-scheme';
+import { Core } from 'im.v2.application.core';
+import { Settings } from 'im.v2.const';
+import { ThemeColorScheme, ThemeType } from './color-scheme';
 
-import type {ThemeItem} from './color-scheme';
-
-export type {ThemeItem} from './color-scheme';
+import type { ThemeItem } from './color-scheme';
+export type { ThemeItem } from './color-scheme';
 
 const IMAGE_FOLDER_PATH = '/bitrix/js/im/images/chat-v2-background';
 
-type BackgroundStyle = {
+export type BackgroundStyle = {
 	backgroundColor: string,
 	backgroundImage: string,
 	backgroundRepeat: string,
@@ -17,7 +16,7 @@ type BackgroundStyle = {
 
 const BackgroundPatternColor = Object.freeze({
 	white: 'white',
-	gray: 'gray'
+	gray: 'gray',
 });
 
 const ThemeManager = {
@@ -26,7 +25,7 @@ const ThemeManager = {
 		const selectedBackgroundId = Core.getStore().getters['application/settings/get'](Settings.dialog.background);
 		const selectedColorScheme: ThemeItem = ThemeColorScheme[selectedBackgroundId];
 
-		return selectedColorScheme.type === ThemeType.light;
+		return selectedColorScheme?.type === ThemeType.light;
 	},
 
 	isDarkTheme(): boolean
@@ -34,7 +33,7 @@ const ThemeManager = {
 		const selectedBackgroundId = Core.getStore().getters['application/settings/get'](Settings.dialog.background);
 		const selectedColorScheme: ThemeItem = ThemeColorScheme[selectedBackgroundId];
 
-		return selectedColorScheme.type === ThemeType.dark;
+		return selectedColorScheme?.type === ThemeType.dark;
 	},
 
 	getCurrentBackgroundStyle(): BackgroundStyle
@@ -52,7 +51,10 @@ const ThemeManager = {
 			return {};
 		}
 
-		const patternColor = colorScheme.type === ThemeType.light ? BackgroundPatternColor.gray : BackgroundPatternColor.white;
+		const patternColor = colorScheme.type === ThemeType.light
+			? BackgroundPatternColor.gray
+			: BackgroundPatternColor.white
+		;
 		const patternImage = `url('${IMAGE_FOLDER_PATH}/pattern-${patternColor}.svg')`;
 		const highlightImage = `url('${IMAGE_FOLDER_PATH}/${backgroundId}.png')`;
 
@@ -61,9 +63,9 @@ const ThemeManager = {
 			backgroundImage: `${patternImage}, ${highlightImage}`,
 			backgroundPosition: 'top right, center',
 			backgroundRepeat: 'repeat, no-repeat',
-			backgroundSize: 'auto, cover'
+			backgroundSize: 'auto, cover',
 		};
-	}
+	},
 };
 
-export {ThemeColorScheme, ThemeType, ThemeManager};
+export { ThemeColorScheme, ThemeType, ThemeManager };

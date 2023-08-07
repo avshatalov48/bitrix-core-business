@@ -104,12 +104,13 @@ export const ReactionSelector = {
 	},
 	template: `
 		<div
+			@click="onIconClick"
 			@mouseenter="startShowTimer"
 			@mouseleave="clearShowTimer"
 			class="bx-im-reaction-selector__container"
 			ref="container"
 		>
-			<div @click="onIconClick" class="bx-im-reaction-selector__icon" :class="{'--active': ownReactionSet}"></div>
+			<div  class="bx-im-reaction-selector__icon" :class="{'--active': ownReactionSet}"></div>
 		</div>
-	`
+	`,
 };

@@ -33,7 +33,7 @@ class CoreApplication
 	siteId: string;
 	siteDir: string;
 	languageId: string;
-	applicationData: {[applicationName: string]: {string: any}} = {};
+	applicationData: {[key]: any} = {};
 
 	/* region 01. Initialize and store data */
 	constructor()
@@ -245,14 +245,19 @@ class CoreApplication
 		return this.restClient;
 	}
 
-	setApplicationData(applicationName: string, applicationData: {string: any})
+	getPullClient(): Pull
 	{
-		this.applicationData[applicationName] = applicationData;
+		return this.pullClient;
 	}
 
-	getApplicationData(applicationName: string)
+	setApplicationData(data: {string: any})
 	{
-		return this.applicationData[applicationName] ?? {};
+		this.applicationData = {...this.applicationData, ...data};
+	}
+
+	getApplicationData(): {[key]: any}
+	{
+		return this.applicationData;
 	}
 
 	isOnline()

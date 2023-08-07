@@ -1355,6 +1355,14 @@ class _CMessageDBResult extends CDBResult
 						$res[$k] = $this->arUserFields[$k];
 						$res[$k]["ENTITY_VALUE_ID"] = $res["ID"];
 						$res[$k]["VALUE"] = $v;
+
+						if (method_exists($GLOBALS['USER_FIELD_MANAGER'], 'getCustomData'))
+						{
+							$res[$k]["CUSTOM_DATA"] = $GLOBALS['USER_FIELD_MANAGER']->getCustomData(
+								$res[$k],
+								(int)$res["ID"]
+							);
+						}
 					}
 				}
 			}

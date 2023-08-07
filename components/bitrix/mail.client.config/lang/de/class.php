@@ -106,3 +106,4 @@ In Ihrem aktuellen Tarif können #LIMIT# Mailboxen gemeinsam genutzt werden.";
 $MESS["MAIL_MAILBOX_LICENSE_SHARED_LIMIT_TITLE"] = "Gemeinsam genutzte Mailboxen in Bitrix24";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM"] = "Soll das Mail-Konto deaktiviert werden?";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM_TEXT"] = "Möchten Sie dieses Mail-Konto wirklich löschen?";
+$MESS["MAIL_MAILBOX_TEMPORARY_ALERT_MSG_2"] = "Gmail-Integration ist vorübergehend nicht verfügbar. Der Service wird bald wieder verfügbar sein, wir bitten um Entschuldigung für etwaige Unannehmlichkeiten. In der Zwischenzeit können Sie einen anderen Mail-Service nutzen.";

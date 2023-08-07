@@ -883,5 +883,49 @@ undefined class4 class5"><span>test</span></div>`
 				assert.ok(isElementCollected, 'Memory leak detected! "element" is not collected');
 			});
 		});
+
+		describe('Render with refs', () => {
+			it('Render single element with refs', () => {
+				const {
+					root,
+					user,
+					avatar,
+					username,
+					firstName,
+					lastName,
+				} = Tag.render`
+					<div class="user" ref="user">
+						<div class="avatar" ref="avatar"></div>
+						<div class="username" ref="username">
+							<span class="firstName" ref="firstName"></span>
+							<span class="lastName" ref="lastName"></span>
+						</div>
+					</div>
+				`;
+
+				assert.ok(root === user);
+				assert.ok(root.className === 'user');
+				assert.ok(avatar.className === 'avatar');
+				assert.ok(username.className === 'username');
+				assert.ok(firstName.className === 'firstName');
+				assert.ok(lastName.className === 'lastName');
+			});
+
+			it('Render multiple elements with refs', function () {
+				const {root, firstName, lastName, firstNameText} = Tag.render`
+					<div class="firstName" ref="firstName">
+						<span class="firstNameText" ref="firstNameText"></span>
+					</div>
+					<div class="lastName" ref="lastName"></div>
+				`;
+
+				assert.ok(Array.isArray(root) && root.length === 2);
+				assert.ok(root[0] === firstName);
+				assert.ok(root[1] === lastName);
+				assert.ok(firstName.className === 'firstName');
+				assert.ok(lastName.className === 'lastName');
+				assert.ok(firstNameText.className === 'firstNameText');
+			});
+		});
 	});
 });

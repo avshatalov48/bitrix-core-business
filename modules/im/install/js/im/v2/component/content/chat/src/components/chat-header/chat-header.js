@@ -1,41 +1,40 @@
-import {Loc} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Loc } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
-import {Avatar, AvatarSize, ChatTitle} from 'im.v2.component.elements';
-import {ChatService} from 'im.v2.provider.service';
-import {DialogType, EventType, SidebarDetailBlock} from 'im.v2.const';
-import {AddToChat} from 'im.v2.component.entity-selector';
-import {Utils} from 'im.v2.lib.utils';
-import {CallManager} from 'im.v2.lib.call';
-import {Messenger} from 'im.public';
+import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { ChatService } from 'im.v2.provider.service';
+import { DialogType, EventType, SidebarDetailBlock } from 'im.v2.const';
+import { AddToChat } from 'im.v2.component.entity-selector';
+import { Utils } from 'im.v2.lib.utils';
 
 import 'ui.notification';
 
-import {EditableChatTitle} from './editable-chat-title';
+import { EditableChatTitle } from './editable-chat-title';
+import { CallButton } from './call-button';
 
 import '../../css/chat-header.css';
 
-import type {ImModelUser, ImModelDialog} from 'im.v2.model';
+import type { ImModelUser, ImModelDialog } from 'im.v2.model';
 
 // @vue/component
 export const ChatHeader = {
 	name: 'ChatHeader',
-	components: {Avatar, ChatTitle, EditableChatTitle, AddToChat},
+	components: { Avatar, ChatTitle, EditableChatTitle, AddToChat, CallButton },
 	props:
 	{
 		dialogId: {
 			type: String,
-			default: ''
+			default: '',
 		},
 		sidebarOpened: {
 			type: Boolean,
-			required: true
-		}
+			required: true,
+		},
 	},
 	data()
 	{
 		return {
-			showAddToChatPopup: false
+			showAddToChatPopup: false,
 		};
 	},
 	computed:
@@ -63,7 +62,7 @@ export const ChatHeader = {
 		},
 		avatarStyle(): {backgroundImage: string}
 		{
-			return {backgroundImage: `url('${this.dialog.avatar}')`};
+			return { backgroundImage: `url('${this.dialog.avatar}')` };
 		},
 		chatId(): number
 		{
@@ -77,7 +76,7 @@ export const ChatHeader = {
 			}
 
 			return Loc.getMessagePlural('IM_CONTENT_CHAT_HEADER_USER_COUNT', this.dialog.userCounter, {
-				'#COUNT#': this.dialog.userCounter
+				'#COUNT#': this.dialog.userCounter,
 			});
 		},
 		userLink(): string
@@ -88,10 +87,6 @@ export const ChatHeader = {
 		{
 			return this.$store.getters['users/getLastOnline'](this.dialogId);
 		},
-		chatCanBeCalled(): boolean
-		{
-			return CallManager.getInstance().chatCanBeCalled(this.dialog.dialogId);
-		}
 	},
 	methods:
 	{
@@ -112,7 +107,7 @@ export const ChatHeader = {
 		{
 			this.getChatService().renameChat(this.dialogId, newTitle).catch(() => {
 				BX.UI.Notification.Center.notify({
-					content: this.loc('IM_CONTENT_CHAT_HEADER_RENAME_ERROR')
+					content: this.loc('IM_CONTENT_CHAT_HEADER_RENAME_ERROR'),
 				});
 			});
 		},
@@ -129,19 +124,10 @@ export const ChatHeader = {
 		{
 			this.showAddToChatPopup = true;
 		},
-		startVideoCall()
-		{
-			if (!this.chatCanBeCalled)
-			{
-				return;
-			}
-
-			Messenger.startVideoCall(this.dialog.dialogId);
-		},
 		loc(phraseCode: string, replacements: {[string]: string} = {}): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-chat-header__scope bx-im-chat-header__container">
@@ -169,9 +155,7 @@ export const ChatHeader = {
 				</div>
 			</div>
 			<div class="bx-im-chat-header__right">
-				<div class="bx-im-chat-header__button" :class="{'--disabled': !chatCanBeCalled}" @click="startVideoCall">
-					{{ loc('IM_CONTENT_CHAT_HEADER_VIDEOCALL_HD') }}
-				</div>
+				<CallButton :dialogId="dialogId" />
 				<div 
 					class="bx-im-chat-header__icon --add-people"
 					:class="{'--active': showAddToChatPopup}"

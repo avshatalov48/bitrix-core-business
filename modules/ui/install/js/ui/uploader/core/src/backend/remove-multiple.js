@@ -49,9 +49,9 @@ function removeInternal()
 	const fileIds = [];
 	tasks.forEach(task => {
 		const file: UploaderFile = task.file;
-		if (file.getServerId() !== null)
+		if (file.getServerFileId() !== null)
 		{
-			fileIds.push(file.getServerId());
+			fileIds.push(file.getServerFileId());
 		}
 	});
 
@@ -83,7 +83,7 @@ function removeInternal()
 
 				tasks.forEach(task => {
 					const { controller, file } = task;
-					const fileResult = fileResults[file.getServerId()] || null;
+					const fileResult = fileResults[file.getServerFileId()] || null;
 
 					if (fileResult && fileResult.success)
 					{

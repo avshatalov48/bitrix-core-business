@@ -128,7 +128,7 @@ class CSeoPageChecker
 	{
 		if($this->pcre_backtrack_limit === false)
 			$this->pcre_backtrack_limit = intval(ini_get("pcre.backtrack_limit"));
-		$text_len = function_exists('mb_strlen')? mb_strlen($this->__result_data, 'latin1') : mb_strlen($this->__result_data);
+		$text_len = strlen($this->__result_data);
 		$text_len++;
 		if($this->pcre_backtrack_limit > 0 && $this->pcre_backtrack_limit < $text_len)
 		{
@@ -350,7 +350,7 @@ class CSeoPageChecker
 
 		return array(
 			'URL' => $this->__url,
-			'TOTAL_LENGTH' => function_exists('mb_strlen')? mb_strlen($this->__result_data, 'latin1') : mb_strlen($this->__result_data),
+			'TOTAL_LENGTH' => strlen($this->__result_data),
 			'TOTAL_WORDS_COUNT' => $this->__index_total_len ? $this->__index_total_len : '-',
 			'UNIQUE_WORDS_COUNT' => $this->__index_total_len ? count($this->__index['TOTAL']) : '-',
 			'META_KEYWORDS' => $this->__result_meta['KEYWORDS'],

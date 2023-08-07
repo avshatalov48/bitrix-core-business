@@ -23,6 +23,7 @@
 }
 
 .mail-msg-list-grid-empty {
+	line-height: 30px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -33,7 +34,7 @@
 }
 
 .mail-msg-list-grid-empty-inner {
-	max-width: 330px;
+	max-width: 730px;
 }
 
 .mail-msg-list-grid-empty-title {

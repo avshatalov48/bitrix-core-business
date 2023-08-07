@@ -388,14 +388,20 @@ class Helper
 
 	/**
 	 * returns the expiration date of sharing link according to the date of need and the type of link
-	 * @param DateTime $dateTime
+	 * @param DateTime|null $dateTime
 	 * @param string $linkType
 	 * @return DateTime|null
 	 */
-	public static function createSharingLinkExpireDate(DateTime $dateTime, string $linkType): ?DateTime
+	public static function createSharingLinkExpireDate(?DateTime $dateTime, string $linkType): ?DateTime
 	{
 		$result = null;
-		if (key_exists($linkType, Sharing\Link\Helper::LIFETIME_AFTER_NEED))
+
+		if (!$dateTime)
+		{
+			return null;
+		}
+
+		if (array_key_exists($linkType, Sharing\Link\Helper::LIFETIME_AFTER_NEED))
 		{
 			$result = $dateTime->add(Sharing\Link\Helper::LIFETIME_AFTER_NEED[$linkType]);
 		}

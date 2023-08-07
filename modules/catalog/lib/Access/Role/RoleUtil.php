@@ -42,15 +42,21 @@ class RoleUtil extends \Bitrix\Main\Access\Role\RoleUtil
 	 */
 	public static function insertPermissions(array $valuesData): void
 	{
+		if (empty($valuesData))
+		{
+			return;
+		}
+
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$query = '
 			INSERT INTO b_catalog_permission
-				(ROLE_ID, PERMISSION_ID, `VALUE`)
-				VALUES ' . implode(',', $valuesData). '
-				ON DUPLICATE KEY UPDATE
-			PERMISSION_ID = VALUES(PERMISSION_ID)
-		';
+				(ROLE_ID, PERMISSION_ID, ' . $helper->quote('VALUE') . ')
+				VALUES ' . implode(',', $valuesData)
+		;
 
-		Application::getConnection()->query($query);
+		$connection->query($query);
 	}
 
 	public function getPermissions(): array

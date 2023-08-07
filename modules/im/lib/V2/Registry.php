@@ -2,7 +2,7 @@
 
 namespace Bitrix\Im\V2;
 
-class Registry extends \ArrayIterator
+class Registry extends \ArrayObject
 {
 
 

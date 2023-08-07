@@ -212,7 +212,7 @@ abstract class Result implements \IteratorAggregate
 			}
 		}
 
-		if ($converter != null)
+		if ($converter !== null)
 		{
 			foreach ($data as $key => $val)
 			{

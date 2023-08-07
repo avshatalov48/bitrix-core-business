@@ -13,12 +13,12 @@ class CCodeEditor // CE
 		$id = (isset($params['id']) && $params['id'] <> '') ? $params['id'] : 'bxce-'.mb_substr(uniqid(mt_rand(), true), 0, 4);
 		$theme = isset($params['defaultTheme']) ? $params['defaultTheme'] : 'light';
 		$highlight = isset($params['defaultHighlight']) ? $params['defaultHighlight'] : true;
-		$saveSettings = $params['saveSettings'] !== false && $USER && $USER->IsAuthorized();
+		$saveSettings = ($params['saveSettings'] ?? null) !== false && $USER && $USER->IsAuthorized();
 
 		if ($saveSettings)
 		{
 			$Settings = CUserOptions::GetOption("fileman", "code_editor");
-			$theme = $Settings['theme'] == 'dark' ? 'dark' : 'light';
+			$theme = ($Settings['theme'] ?? null) == 'dark' ? 'dark' : 'light';
 			$highlight = !isset($Settings['highlight']) || $Settings['highlight'];
 		}
 

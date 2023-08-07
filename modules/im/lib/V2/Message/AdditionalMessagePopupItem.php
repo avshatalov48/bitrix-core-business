@@ -3,14 +3,17 @@
 namespace Bitrix\Im\V2\Message;
 
 use Bitrix\Im\V2\MessageCollection;
+use Bitrix\Im\V2\Rest\PopupData;
+use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Rest\PopupDataItem;
 
-class AdditionalMessagePopupItem implements PopupDataItem
+class AdditionalMessagePopupItem implements PopupDataItem, PopupDataAggregatable
 {
 	/**
 	 * @var int[]
 	 */
 	private array $messageIds;
+	private ?MessageCollection $messages = null;
 
 	public function __construct(array $messageIds)
 	{
@@ -34,6 +37,18 @@ class AdditionalMessagePopupItem implements PopupDataItem
 
 	public function toRestFormat(array $option = []): array
 	{
-		return (new MessageCollection(array_unique($this->messageIds)))->toRestFormat($option);
+		return $this->getMessages()->toRestFormat($option);
+	}
+
+	public function getPopupData(array $excludedList = []): PopupData
+	{
+		return $this->getMessages()->getPopupData($excludedList);
+	}
+
+	private function getMessages(): MessageCollection
+	{
+		$this->messages ??= new MessageCollection(array_unique($this->messageIds));
+
+		return $this->messages;
 	}
 }

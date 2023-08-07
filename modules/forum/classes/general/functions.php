@@ -711,6 +711,8 @@ class CForumCacheManager
 
 			AddEventHandler("forum", "onAfterTopicAdd", array(&$this, "OnTopicAdd"));
 			AddEventHandler("forum", "onAfterTopicUpdate", array(&$this, "OnTopicUpdate"));
+			AddEventHandler("forum", "onTopicOpen", array(&$this, "OnTopicUpdate"));
+			AddEventHandler("forum", "onTopicClose", array(&$this, "OnTopicUpdate"));
 			AddEventHandler("forum", "onAfterTopicDelete", array(&$this, "OnTopicDelete"));
 
 			//AddEventHandler("forum", "onAfterForumAdd", array(&$this, "OnForumAdd"));

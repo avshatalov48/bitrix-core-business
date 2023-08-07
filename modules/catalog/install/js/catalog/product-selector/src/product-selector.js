@@ -577,6 +577,11 @@ export class ProductSelector extends EventEmitter
 			Dom.addClass(wrapper, 'catalog-product-edit');
 			Dom.removeClass(wrapper, 'catalog-product-view');
 		}
+
+		if (this.isImageFieldEnabled())
+		{
+			Dom.addClass(wrapper, '--with-images');
+		}
 	}
 
 	getNameBlockView(): HTMLElement

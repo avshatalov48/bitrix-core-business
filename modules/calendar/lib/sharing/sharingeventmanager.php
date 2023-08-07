@@ -10,6 +10,8 @@ use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\Util;
 use Bitrix\Crm;
+use Bitrix\Crm\Integration\NotificationsManager;
+use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
@@ -182,7 +184,6 @@ class SharingEventManager
 	 */
 	public static function prepareEventForSave($data, $userId): Event
 	{
-		global $DB;
 		$ownerId = (int)($data['ownerId'] ?? null);
 		$sectionId = self::getSectionId($userId);
 		$attendeesCodes = ['U' . $userId, 'U' . $ownerId];
@@ -197,7 +198,7 @@ class SharingEventManager
 
 		$eventData = [
 			'OWNER_ID' => $userId,
-			'NAME' => $DB->ForSql(trim($data['eventName'] ?? '')),
+			'NAME' => (string)($data['eventName'] ?? ''),
 			'DATE_FROM' => (string)($data['dateFrom'] ?? ''),
 			'DATE_TO' => (string)($data['dateTo'] ?? ''),
 			'TZ_FROM' => (string)($data['timezone'] ?? ''),
@@ -211,7 +212,7 @@ class SharingEventManager
 			'MEETING_HOST' => $userId,
 			'IS_MEETING' => true,
 			'MEETING' => $meeting,
-			'DESCRIPTION' => $DB->ForSql(trim($data['description'] ?? '')),
+			'DESCRIPTION' => (string)($data['description'] ?? ''),
 		];
 
 		return (new EventBuilderFromArray($eventData))->build();
@@ -283,6 +284,9 @@ class SharingEventManager
 	/**
 	 * @param array $fields
 	 * @return void
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function onSharingEventEdit(array $fields): void
 	{
@@ -294,6 +298,13 @@ class SharingEventManager
 		}
 	}
 
+	/**
+	 * @param int $eventId
+	 * @return void
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public static function setCanceledTimeOnSharedLink(int $eventId): void
 	{
 		$eventLink = (new Sharing\Link\Factory())->getEventLinkByEventId($eventId);
@@ -304,6 +315,13 @@ class SharingEventManager
 		}
 	}
 
+	/**
+	 * @param int $parentEventId
+	 * @param int $userId
+	 * @param string $currentMeetingStatus
+	 * @return void
+	 * @throws LoaderException
+	 */
 	public static function onSharingEventMeetingStatusChange(
 		int $parentEventId,
 		int $userId,
@@ -372,7 +390,7 @@ class SharingEventManager
 
 		if ($crmDealLink && $activity)
 		{
-			(new Sharing\Crm\NotifyManager($crmDealLink, Sharing\Crm\NotifyManager::NOTIFY_EVENT_CONFIRMED))
+			(new Sharing\Crm\NotifyManager($crmDealLink, Sharing\Crm\NotifyManager::NOTIFY_TYPE_EVENT_CONFIRMED))
 				->sendSharedCrmActionsEvent(
 					Util::getDateTimestamp($dateFrom, $timezone),
 					$activity['ID'],
@@ -384,6 +402,11 @@ class SharingEventManager
 
 	public static function onSharingCrmEventDeclined(int $eventId): void
 	{
+		if (!Loader::includeModule('crm'))
+		{
+			return;
+		}
+
 		(new Sharing\Crm\ActivityManager($eventId))
 			->completeSharedCrmActivity(Sharing\Crm\ActivityManager::STATUS_CANCELED_BY_MANAGER)
 		;
@@ -401,7 +424,7 @@ class SharingEventManager
 
 		if ($crmDealLink->getContactId() > 0)
 		{
-			(new Crm\Integration\Calendar\Notification\NotificationService())
+			Crm\Integration\Calendar\Notification\Manager::getSenderInstance($crmDealLink)
 				->setCrmDealLink($crmDealLink)
 				->setEventLink($eventLink)
 				->setEvent($event)

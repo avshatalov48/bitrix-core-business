@@ -149,8 +149,8 @@ class ListsSelectElementComponent extends CBitrixComponent
 				'type' => 'list',
 				'items' => [
 					'A' => Loc::getMessage('CC_BLL_FILTER_STATUS_ALL'),
-					'R' => Loc::getMessage('CC_BLL_FILTER_STATUS_RUNNING'),
-					'C' => Loc::getMessage('CC_BLL_FILTER_STATUS_COMPLETE'),
+					'R' => Loc::getMessage('CC_BLL_FILTER_STATUS_RUNNING_1'),
+					'C' => Loc::getMessage('CC_BLL_FILTER_STATUS_COMPLETE_1'),
 				],
 				'default' => true,
 			],

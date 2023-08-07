@@ -1,5 +1,8 @@
 import { BaseError, Type, Loc } from 'main.core';
 
+/**
+ * @namespace BX.UI.Uploader
+ */
 export default class UploaderError extends BaseError
 {
 	static Origin = {
@@ -17,6 +20,14 @@ export default class UploaderError extends BaseError
 	origin: $Values<UploaderError.Origin> = UploaderError.Origin.CLIENT;
 	type: $Values<UploaderError.Type> = UploaderError.Type.USER;
 
+	/**
+	 * new UploaderError(code)
+	 * new UploaderError(code, customData)
+	 * new UploaderError(code, message)
+	 * new UploaderError(code, message, description)
+	 * new UploaderError(code, message, customData)
+	 * new UploaderError(code, message, description, customData)
+	 */
 	constructor(code: string, ...args)
 	{
 		let message = Type.isString(args[0]) ? args[0] : null;
@@ -57,7 +68,7 @@ export default class UploaderError extends BaseError
 		{
 			// Take the First Uploader User Error
 			const { code, message, description, customData } = uploaderError;
-			const error = new this(code, message, description, customData);
+			const error: UploaderError = new this(code, message, description, customData);
 			error.setOrigin(UploaderError.Origin.SERVER);
 			error.setType(UploaderError.Type.USER);
 
@@ -84,7 +95,7 @@ export default class UploaderError extends BaseError
 
 			console.error('Uploader', errors);
 
-			const error = new this(code, message, description, customData);
+			const error: UploaderError = new this(code, message, description, customData);
 			error.setOrigin(UploaderError.Origin.SERVER);
 
 			if (type === 'file-uploader')

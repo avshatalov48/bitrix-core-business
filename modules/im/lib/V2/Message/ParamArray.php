@@ -15,8 +15,7 @@ use Bitrix\Im\V2\Common\RegistryEntryImplementation;
 /**
  * Message Parameter Class.
  *
- * @method MessageParameter|Param next()
- * @method MessageParameter|Param current()
+ * @implements \IteratorAggregate<int,MessageParameter|Param>
  * @method MessageParameter|Param offsetGet($offset)
  */
 class ParamArray extends Collection implements MessageParameter, RegistryEntry

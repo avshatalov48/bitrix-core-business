@@ -425,7 +425,13 @@ this.BX.Fileman = this.BX.Fileman || {};
 	  }
 
 	  getRawValueForHiddenFormattedInput(address) {
-	    return `${this.getFormattedAddress(address)}|${address.latitude};${address.longitude}`;
+	    const formattedAddress = this.getFormattedAddress(address);
+
+	    if ((parseInt(address.latitude) !== 0 || parseInt(address.longitude) !== 0) && address.latitude !== '' && address.longitude !== '') {
+	      return `${formattedAddress}|${address.latitude};${address.longitude}`;
+	    }
+
+	    return formattedAddress;
 	  }
 
 	  onInputIconClick() {

@@ -2,6 +2,7 @@
 
 namespace Bitrix\UI\FileUploader;
 
+use Bitrix\Main\HttpApplication;
 use Bitrix\Main\Loader;
 
 class ControllerResolver
@@ -56,6 +57,9 @@ class ControllerResolver
 		}
 		catch (\ReflectionException $exception)
 		{
+			$application = HttpApplication::getInstance();
+			$exceptionHandler = $application->getExceptionHandler();
+			$exceptionHandler->writeToLog($exception);
 		}
 
 		return null;

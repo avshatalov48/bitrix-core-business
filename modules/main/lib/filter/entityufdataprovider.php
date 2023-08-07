@@ -48,7 +48,6 @@ class EntityUFDataProvider extends DataProvider
 			$result[$entityId] = $USER_FIELD_MANAGER->getUserFields($entityId, 0, LANGUAGE_ID, false);
 			$result[$entityId] = $this->postFilterFields($result[$entityId]);
 		}
-
 		return $result[$entityId];
 	}
 

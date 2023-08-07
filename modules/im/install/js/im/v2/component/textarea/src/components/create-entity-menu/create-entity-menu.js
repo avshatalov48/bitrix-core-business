@@ -1,23 +1,33 @@
-import {MessengerMenu, MenuItem, MenuItemIcon} from 'im.v2.component.elements';
-import {EntityCreator} from 'im.v2.lib.entity-creator';
+import { MessengerMenu, MenuItem, MenuItemIcon } from 'im.v2.component.elements';
+import { EntityCreator } from 'im.v2.lib.entity-creator';
+import { Extension } from 'main.core';
 
-import type {PopupOptions} from 'main.popup';
-import type {ImModelDialog} from 'im.v2.model';
+import type { PopupOptions } from 'main.popup';
+import type { ImModelDialog } from 'im.v2.model';
 
 // @vue/component
 export const CreateEntityMenu = {
-	components: {MessengerMenu, MenuItem},
+	components:
+	{
+		MessengerMenu,
+		MenuItem,
+	},
 	props:
 	{
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
+		},
+		textareaValue: {
+			type: String,
+			required: false,
+			default: '',
 		},
 	},
-	data()
+	data(): Object
 	{
 		return {
-			showMenu: false
+			showMenu: false,
 		};
 	},
 	computed:
@@ -35,18 +45,33 @@ export const CreateEntityMenu = {
 		{
 			return {
 				width: 288,
-				bindElement: this.$refs['createEntity'] || {},
+				bindElement: this.$refs.createEntity || {},
 				bindOptions: {
-					position: 'top'
+					position: 'top',
 				},
 				offsetTop: 30,
 				offsetLeft: -139,
 				padding: 0,
 			};
-		}
+		},
+		isAiBetaAvailable(): boolean
+		{
+			const settings = Extension.getSettings('im.v2.component.textarea');
+
+			return settings.get('isAiBetaAvailable');
+		},
 	},
 	methods:
 	{
+		onCreateAiTextClick()
+		{
+			this.getEntityCreator().createAiTextForChat(this.textareaValue);
+			this.showMenu = false;
+		},
+		onCreateAiImageClick()
+		{
+			//
+		},
 		onCreateTaskClick()
 		{
 			this.getEntityCreator().createTaskForChat();
@@ -73,18 +98,33 @@ export const CreateEntityMenu = {
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
-		}
+		},
 	},
 	template: `
 		<div
 			@click="showMenu = true"
 			:title="loc('IM_TEXTAREA_ICON_CREATE')"
 			class="bx-im-textarea__icon --create"
-			:class="{'--active': showMenu}"
+			:class="{'--active': showMenu, '--with-ai': isAiBetaAvailable}"
 			ref="createEntity"
 		>
 		</div>
 		<MessengerMenu v-if="showMenu" :config="menuConfig" @close="showMenu = false">
+			<MenuItem
+				v-if="isAiBetaAvailable"
+				:icon="MenuItemIcon.aiText"
+				:title="loc('IM_TEXTAREA_CREATE_AI_TEXT_TITLE')"
+				:subtitle="loc('IM_TEXTAREA_CREATE_AI_TEXT_SUBTITLE')"
+				@click="onCreateAiTextClick"
+			/>
+			<MenuItem
+				v-if="isAiBetaAvailable"
+				:icon="MenuItemIcon.aiImage"
+				:title="loc('IM_TEXTAREA_CREATE_AI_IMAGE_TITLE')"
+				:subtitle="loc('IM_TEXTAREA_CREATE_AI_IMAGE_SUBTITLE')"
+				@click="onCreateAiImageClick"
+				:disabled="true"
+			/>
 			<MenuItem
 				:icon="MenuItemIcon.task"
 				:title="loc('IM_TEXTAREA_CREATE_TASK_TITLE')"
@@ -110,5 +150,5 @@ export const CreateEntityMenu = {
 				:disabled="true"
 			/>
 		</MessengerMenu>
-	`
+	`,
 };

@@ -64,12 +64,18 @@ class FieldAdapter
 				}
 				else
 				{
-					if (empty($items[0]['VALUE']) && empty($items[0]['NAME']))
+					if (empty($items))
+					{
+						$items[] = [
+							'NAME' => Loc::getMessage('MAIN_UI_FILTER__NOT_SET'),
+							'VALUE' => '',
+						];
+					}
+					elseif (empty($items[0]['VALUE']) && empty($items[0]['NAME']))
 					{
 						$items[0]['NAME'] = Loc::getMessage('MAIN_UI_FILTER__NOT_SET');
 					}
-
-					if (!empty($items[0]['VALUE']) && !empty($items[0]['NAME']))
+					elseif (!empty($items[0]['VALUE']) && !empty($items[0]['NAME']))
 					{
 						array_unshift(
 							$items,

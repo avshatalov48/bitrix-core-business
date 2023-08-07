@@ -1210,6 +1210,13 @@ abstract class BaseForm
 				$description['data']['items'] = $vatList;
 				$description['type'] = 'list';
 			}
+			elseif ($fieldName === 'VAT_INCLUDED')
+			{
+				if (Option::get('catalog', 'default_product_vat_included') === 'Y')
+				{
+					$description['defaultValue'] = ProductTable::STATUS_YES;
+				}
+			}
 
 			$descriptions[] = $description;
 		}

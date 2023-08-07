@@ -7,6 +7,7 @@ use Bitrix\Im\Notify;
 use Bitrix\Im\Color;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Entity\User\UserPopupItem;
 use Bitrix\Im\V2\Link\Url\UrlService;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\MessageError;
@@ -18,12 +19,14 @@ use Bitrix\Im\V2\Message\Send\MentionService;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Message\ReadService;
 use Bitrix\Im\V2\Bot\BotService;
+use Bitrix\Im\V2\Rest\PopupData;
+use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Main\Localization\Loc;
 use CPullWatch;
 
-class GroupChat extends Chat
+class GroupChat extends Chat implements PopupDataAggregatable
 {
 	protected function getDefaultType(): string
 	{
@@ -460,7 +463,11 @@ class GroupChat extends Chat
 			return $result->addError(new ChatError(ChatError::WRONG_TARGET_CHAT));
 		}
 
-		if (!$message instanceof Message)
+		if (is_string($message))
+		{
+			$message = (new Message)->setMessage($message);
+		}
+		elseif (!$message instanceof Message)
 		{
 			$message = new Message($message);
 		}
@@ -687,5 +694,12 @@ class GroupChat extends Chat
 			'FROM_USER_ID' => $author->getId(),
 			'MESSAGE' => htmlspecialcharsback($this->getDescription()),
 		]);
+	}
+
+	public function getPopupData(array $excludedList = []): PopupData
+	{
+		$userIds = [$this->getContext()->getUserId()];
+
+		return new PopupData([new UserPopupItem($userIds)], $excludedList);
 	}
 }

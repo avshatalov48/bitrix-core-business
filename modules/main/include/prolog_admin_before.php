@@ -51,4 +51,7 @@ require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/init_adm
 
 CMain::PrologActions();
 
-define("START_EXEC_PROLOG_BEFORE_2", microtime(true));
+if (!defined('START_EXEC_PROLOG_BEFORE_2'))
+{
+	define("START_EXEC_PROLOG_BEFORE_2", microtime(true));
+}

@@ -38,6 +38,11 @@ export class ChatService
 	{
 		return this.#loadService.loadChatWithContext(dialogId, messageId);
 	}
+
+	prepareDialogId(dialogId: string): Promise<string>
+	{
+		return this.#loadService.prepareDialogId(dialogId);
+	}
 	// endregion 'load'
 
 	// region 'create'

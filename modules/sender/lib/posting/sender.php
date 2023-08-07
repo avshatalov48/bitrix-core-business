@@ -196,6 +196,18 @@ class Sender
 		// lock posting for exclude double parallel sending
 		if (is_null($threadId))
 		{
+			if (!$this->threadStrategy->hasUnprocessedThreads())
+			{
+				// update status of posting
+				$status = self::updateActualStatus(
+					$this->postingId,
+					$this->isPrevented()
+				);
+
+				$this->finalizePosting($status);
+				return;
+			}
+
 			$this->resultCode = static::RESULT_CONTINUE;
 			return;
 		}
@@ -289,31 +301,7 @@ class Sender
 			return;
 		}
 
-		if (!PostingRecipientTable::hasUnprocessed($this->postingId))
-		{
-			$onAfterEndResult = $this->message->onAfterEnd();
-			if (!$onAfterEndResult->isSuccess())
-			{
-				$this->resultCode = static::RESULT_CONTINUE;
-
-				return;
-			}
-			$errorMessage = implode(', ', $onAfterEndResult->getErrorMessages());
-			if (strlen($errorMessage))
-			{
-				Model\LetterTable::update($this->letterId, ['ERROR_MESSAGE' => $errorMessage]);
-			}
-		}
-
-		// set result code to continue or end of sending
-		$isContinue       = $status == PostingTable::STATUS_PART;
-		$this->resultCode = $isContinue ? static::RESULT_CONTINUE : static::RESULT_SENT;
-
-		if ($this->resultCode == static::RESULT_SENT)
-		{
-			$this->resultCode = !$this->threadStrategy->finalize() ? static::RESULT_CONTINUE : static::RESULT_SENT;
-			TimeLineJob::addEventAgent($this->letterId);
-		}
+		$this->finalizePosting($status);
 	}
 
 	/**
@@ -1032,5 +1020,39 @@ class Sender
 			{
 				return $recipient['STATUS'] === PostingRecipientTable::SEND_RESULT_NONE;
 			});
+	}
+
+	/**
+	 * @param string $status
+	 * @return void
+	 * @throws \Exception
+	 */
+	private function finalizePosting(string $status): void
+	{
+		if (!PostingRecipientTable::hasUnprocessed($this->postingId))
+		{
+			$onAfterEndResult = $this->message->onAfterEnd();
+			if (!$onAfterEndResult->isSuccess())
+			{
+				$this->resultCode = static::RESULT_CONTINUE;
+
+				return;
+			}
+			$errorMessage = implode(', ', $onAfterEndResult->getErrorMessages());
+			if (strlen($errorMessage))
+			{
+				Model\LetterTable::update($this->letterId, ['ERROR_MESSAGE' => $errorMessage]);
+			}
+		}
+
+		// set result code to continue or end of sending
+		$isContinue = $status == PostingTable::STATUS_PART;
+		$this->resultCode = $isContinue ? static::RESULT_CONTINUE : static::RESULT_SENT;
+
+		if ($this->resultCode == static::RESULT_SENT)
+		{
+			$this->resultCode = !$this->threadStrategy->finalize() ? static::RESULT_CONTINUE : static::RESULT_SENT;
+			TimeLineJob::addEventAgent($this->letterId);
+		}
 	}
 }

@@ -1,28 +1,30 @@
-import {ImModelDialog} from 'im.v2.model';
-import {ChatOption} from 'im.v2.const';
-import {AddToChat} from 'im.v2.component.entity-selector';
-import {Avatar, AvatarSize, ChatTitle, Button, ButtonSize, ButtonColor} from 'im.v2.component.elements';
-import {Settings} from './settings';
+import { ImModelDialog } from 'im.v2.model';
+import { ChatOption } from 'im.v2.const';
+import { AddToChat } from 'im.v2.component.entity-selector';
+import { Avatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
+
+import { Settings } from './settings';
+
 import '../../css/main/preview-group-chat.css';
 
 // @vue/component
 export const GroupChatPreview = {
 	name: 'GroupChatPreview',
-	components: {Avatar, ChatTitle, Button, AddToChat, Settings},
+	components: { Avatar, ChatTitle, MessengerButton, AddToChat, Settings },
 	props: {
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		isLoading: {
 			type: Boolean,
-			default: false
+			default: false,
 		},
 	},
 	emits: ['openDetail'],
 	data() {
 		return {
-			showAddToChatPopup: false
+			showAddToChatPopup: false,
 		};
 	},
 	computed:
@@ -38,16 +40,12 @@ export const GroupChatPreview = {
 		{
 			return this.dialog.chatId;
 		},
-		dialogInited(): boolean
-		{
-			return this.dialog.inited;
-		},
 		dialogIds(): string[]
 		{
 			const PREVIEW_USERS_COUNT = 4;
 			const userIds = this.$store.getters['sidebar/members/get'](this.chatId);
 
-			return userIds.map(id => id.toString()).slice(0, PREVIEW_USERS_COUNT);
+			return userIds.map((id) => id.toString()).slice(0, PREVIEW_USERS_COUNT);
 		},
 		usersInChatCount(): number
 		{
@@ -75,11 +73,11 @@ export const GroupChatPreview = {
 		onOpenInvitePopup()
 		{
 			this.showAddToChatPopup = true;
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-main-preview__scope">
-			<div v-if="!dialogInited" class="bx-im-sidebar-main-preview-group-chat__avatar-skeleton"></div>
+			<div v-if="isLoading" class="bx-im-sidebar-main-preview-group-chat__avatar-skeleton"></div>
 			<div v-else class="bx-im-sidebar-main-preview-group-chat__avatar-container">
 				<div class="bx-im-sidebar-main-preview-group-chat__avatar">
 					<Avatar :size="AvatarSize.XXXL" :withStatus="false" :dialogId="dialogId" />
@@ -103,7 +101,7 @@ export const GroupChatPreview = {
 					</div>
 				</div>
 				<div ref="add-members">
-					<Button
+					<MessengerButton
 						v-if="canInviteMembers"
 						:text="$Bitrix.Loc.getMessage('IM_SIDEBAR_INVITE_BUTTON_TEXT')"
 						:size="ButtonSize.S"
@@ -125,5 +123,5 @@ export const GroupChatPreview = {
 				@close="showAddToChatPopup = false"
 			/>
 		</div>
-	`
+	`,
 };

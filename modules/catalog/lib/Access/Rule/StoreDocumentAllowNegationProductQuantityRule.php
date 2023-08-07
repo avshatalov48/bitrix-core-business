@@ -4,24 +4,18 @@ namespace Bitrix\Catalog\Access\Rule;
 
 use Bitrix\Catalog\Access\Model\StoreDocument;
 use Bitrix\Catalog\Access\Permission\PermissionDictionary;
-use Bitrix\Catalog\Config\Feature;
-use Bitrix\Main\Access\AccessibleItem;
-use Bitrix\Main\Access\Rule\AbstractRule;
 
 /**
  * Rule for action `ACTION_STORE_DOCUMENT_ALLOW_NEGATION_PRODUCT_QUANTITY`
  */
-class StoreDocumentAllowNegationProductQuantityRule extends AbstractRule
+class StoreDocumentAllowNegationProductQuantityRule extends BaseRule
 {
 	/**
 	 * @inheritDoc
 	 */
-	public function execute(AccessibleItem $item = null, $params = null): bool
+	public function check($params): bool
 	{
-		if (!Feature::isAccessControllerCheckingEnabled())
-		{
-			return true;
-		}
+		$item = $params['item'];
 
 		if ($item instanceof StoreDocument)
 		{

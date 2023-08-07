@@ -18,6 +18,6 @@ class EventResult extends MainResult
 {
 	public function setSuccess($isSuccess)
 	{
-		$this->isSuccess = !!$isSuccess;
+		$this->isSuccess = (bool)$isSuccess;
 	}
 }

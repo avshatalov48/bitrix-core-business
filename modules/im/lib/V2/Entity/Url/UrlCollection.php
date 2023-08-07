@@ -6,9 +6,8 @@ use Bitrix\Im\V2\Entity\EntityCollection;
 use Bitrix\Main\UrlPreview\UrlPreview;
 
 /**
- * @method UrlItem next()
- * @method UrlItem current()
- * @method UrlItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,UrlItem>
+ * @method UrlItem offsetGet($key)
  */
 class UrlCollection extends EntityCollection
 {

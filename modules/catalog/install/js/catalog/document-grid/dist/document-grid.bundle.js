@@ -10,9 +10,10 @@ this.BX = this.BX || {};
 	    this.grid = BX.Main.gridManager.getInstanceById(this.gridId);
 	    this.isConductDisabled = options.isConductDisabled;
 	    this.masterSliderUrl = options.masterSliderUrl;
+	    this.isInventoryManagementDisabled = options.isInventoryManagementDisabled;
+	    this.inventoryManagementFeatureCode = options.inventoryManagementFeatureCode;
 	    this.inventoryManagementSource = options.inventoryManagementSource;
 	  }
-
 	  babelHelpers.createClass(DocumentGridManager, [{
 	    key: "getSelectedIds",
 	    value: function getSelectedIds() {
@@ -22,7 +23,10 @@ this.BX = this.BX || {};
 	    key: "deleteDocument",
 	    value: function deleteDocument(documentId) {
 	      var _this = this;
-
+	      if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode) {
+	        top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+	        return;
+	      }
 	      var popup = new main_popup.Popup({
 	        id: 'catalog_delete_document_popup',
 	        titleBar: main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_TITLE'),
@@ -41,7 +45,6 @@ this.BX = this.BX || {};
 	              }
 	            }).then(function (response) {
 	              popup.destroy();
-
 	              _this.grid.reload();
 	            })["catch"](function (response) {
 	              if (response.errors) {
@@ -49,7 +52,6 @@ this.BX = this.BX || {};
 	                  content: response.errors[0].message
 	                });
 	              }
-
 	              popup.destroy();
 	            });
 	          }
@@ -67,26 +69,25 @@ this.BX = this.BX || {};
 	    key: "conductDocument",
 	    value: function conductDocument(documentId) {
 	      var _this2 = this;
-
 	      var documentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-
+	      if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode) {
+	        top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+	        return;
+	      }
 	      if (this.isConductDisabled) {
 	        this.openStoreMasterSlider();
 	        return;
 	      }
-
 	      var actionConfig = {
 	        data: {
 	          documentIds: [documentId]
 	        }
 	      };
-
 	      if (documentType !== '') {
 	        actionConfig.analyticsLabel = {
 	          documentType: documentType
 	        };
 	      }
-
 	      actionConfig.analyticsLabel.inventoryManagementSource = this.inventoryManagementSource;
 	      actionConfig.analyticsLabel.mode = 'single';
 	      var popup = new main_popup.Popup({
@@ -100,7 +101,6 @@ this.BX = this.BX || {};
 	            button.setDisabled();
 	            main_core.ajax.runAction('catalog.document.conductList', actionConfig).then(function (response) {
 	              popup.destroy();
-
 	              _this2.grid.reload();
 	            })["catch"](function (response) {
 	              if (response.errors) {
@@ -108,7 +108,6 @@ this.BX = this.BX || {};
 	                  content: response.errors[0].message
 	                });
 	              }
-
 	              popup.destroy();
 	            });
 	          }
@@ -126,26 +125,25 @@ this.BX = this.BX || {};
 	    key: "cancelDocument",
 	    value: function cancelDocument(documentId) {
 	      var _this3 = this;
-
 	      var documentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-
+	      if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode) {
+	        top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+	        return;
+	      }
 	      if (this.isConductDisabled) {
 	        this.openStoreMasterSlider();
 	        return;
 	      }
-
 	      var actionConfig = {
 	        data: {
 	          documentIds: [documentId]
 	        }
 	      };
-
 	      if (documentType !== '') {
 	        actionConfig.analyticsLabel = {
 	          documentType: documentType
 	        };
 	      }
-
 	      actionConfig.analyticsLabel.mode = 'single';
 	      actionConfig.analyticsLabel.inventoryManagementSource = this.inventoryManagementSource;
 	      var popup = new main_popup.Popup({
@@ -159,7 +157,6 @@ this.BX = this.BX || {};
 	            button.setDisabled();
 	            main_core.ajax.runAction('catalog.document.cancelList', actionConfig).then(function (response) {
 	              popup.destroy();
-
 	              _this3.grid.reload();
 	            })["catch"](function (response) {
 	              if (response.errors) {
@@ -167,7 +164,6 @@ this.BX = this.BX || {};
 	                  content: response.errors[0].message
 	                });
 	              }
-
 	              popup.destroy();
 	            });
 	          }
@@ -185,7 +181,10 @@ this.BX = this.BX || {};
 	    key: "deleteSelectedDocuments",
 	    value: function deleteSelectedDocuments() {
 	      var _this4 = this;
-
+	      if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode) {
+	        top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+	        return;
+	      }
 	      var documentIds = this.getSelectedIds();
 	      main_core.ajax.runAction('catalog.document.deleteList', {
 	        data: {
@@ -206,7 +205,6 @@ this.BX = this.BX || {};
 	            }
 	          });
 	        }
-
 	        _this4.grid.reload();
 	      });
 	    }
@@ -214,12 +212,14 @@ this.BX = this.BX || {};
 	    key: "conductSelectedDocuments",
 	    value: function conductSelectedDocuments() {
 	      var _this5 = this;
-
+	      if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode) {
+	        top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+	        return;
+	      }
 	      if (this.isConductDisabled) {
 	        this.openStoreMasterSlider();
 	        return;
 	      }
-
 	      var documentIds = this.getSelectedIds();
 	      main_core.ajax.runAction('catalog.document.conductList', {
 	        data: {
@@ -241,7 +241,6 @@ this.BX = this.BX || {};
 	            }
 	          });
 	        }
-
 	        _this5.grid.reload();
 	      });
 	    }
@@ -249,12 +248,14 @@ this.BX = this.BX || {};
 	    key: "cancelSelectedDocuments",
 	    value: function cancelSelectedDocuments() {
 	      var _this6 = this;
-
+	      if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode) {
+	        top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+	        return;
+	      }
 	      if (this.isConductDisabled) {
 	        this.openStoreMasterSlider();
 	        return;
 	      }
-
 	      var documentIds = this.getSelectedIds();
 	      main_core.ajax.runAction('catalog.document.cancelList', {
 	        data: {
@@ -276,7 +277,6 @@ this.BX = this.BX || {};
 	            }
 	          });
 	        }
-
 	        _this6.grid.reload();
 	      });
 	    }
@@ -284,12 +284,10 @@ this.BX = this.BX || {};
 	    key: "processApplyButtonClick",
 	    value: function processApplyButtonClick() {
 	      var actionValues = this.grid.getActionsPanel().getValues();
-	      var selectedAction = actionValues['action_button_' + this.gridId];
-
+	      var selectedAction = actionValues["action_button_".concat(this.gridId)];
 	      if (selectedAction === 'conduct') {
 	        this.conductSelectedDocuments();
 	      }
-
 	      if (selectedAction === 'cancel') {
 	        this.cancelSelectedDocuments();
 	      }
@@ -298,18 +296,16 @@ this.BX = this.BX || {};
 	    key: "applyFilter",
 	    value: function applyFilter(options) {
 	      var filterManager = BX.Main.filterManager.getById(this.filterId);
-
 	      if (!filterManager) {
 	        return;
 	      }
-
 	      filterManager.getApi().extendFilter(options);
 	    }
 	  }, {
 	    key: "openHowToStart",
 	    value: function openHowToStart() {
 	      if (top.BX.Helper) {
-	        top.BX.Helper.show("redirect=detail&code=14566618");
+	        top.BX.Helper.show('redirect=detail&code=14566618');
 	        event.preventDefault();
 	      }
 	    }
@@ -317,7 +313,7 @@ this.BX = this.BX || {};
 	    key: "openHowToTransfer",
 	    value: function openHowToTransfer() {
 	      if (top.BX.Helper) {
-	        top.BX.Helper.show("redirect=detail&code=14566610");
+	        top.BX.Helper.show('redirect=detail&code=14566610');
 	        event.preventDefault();
 	      }
 	    }
@@ -325,7 +321,7 @@ this.BX = this.BX || {};
 	    key: "openHowToControlGoodsMovement",
 	    value: function openHowToControlGoodsMovement() {
 	      if (top.BX.Helper) {
-	        top.BX.Helper.show("redirect=detail&code=14566670");
+	        top.BX.Helper.show('redirect=detail&code=14566670');
 	        event.preventDefault();
 	      }
 	    }
@@ -333,7 +329,7 @@ this.BX = this.BX || {};
 	    key: "openHowToAccountForLosses",
 	    value: function openHowToAccountForLosses() {
 	      if (top.BX.Helper) {
-	        top.BX.Helper.show("redirect=detail&code=14566652");
+	        top.BX.Helper.show('redirect=detail&code=14566652');
 	        event.preventDefault();
 	      }
 	    }
@@ -347,11 +343,9 @@ this.BX = this.BX || {};
 	        events: {
 	          onCloseComplete: function onCloseComplete(event) {
 	            var slider = event.getSlider();
-
 	            if (!slider) {
 	              return;
 	            }
-
 	            if (slider.getData().get('isInventoryManagementEnabled')) {
 	              document.location.reload();
 	            }

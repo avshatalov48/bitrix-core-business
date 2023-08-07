@@ -299,8 +299,7 @@
 	        user-select: none;
 }
 
-.bx-firefox .sonet-ui-members-popup .sonet-ui-members-popup-container,
-.bx-ie .sonet-ui-members-popup .sonet-ui-members-popup-container {
+.bx-firefox .sonet-ui-members-popup .sonet-ui-members-popup-container {
 	min-width: 220px;
 }
 

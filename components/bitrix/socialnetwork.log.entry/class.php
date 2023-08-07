@@ -153,7 +153,12 @@ final class SocialnetworkLogEntry extends LogEntry
 				}
 				else
 				{
-					throw new SystemException($action === 'EDIT' ? Loc::getMessage('SONET_LOG_ENTRY_COMMENT_EDIT_ERROR') : Loc::getMessage('SONET_LOG_ENTRY_COMMENT_ADD_ERROR'));
+					$message = $action === 'EDIT'
+						? Loc::getMessage('SONET_LOG_ENTRY_COMMENT_EDIT_ERROR')
+						: Loc::getMessage('SONET_LOG_ENTRY_COMMENT_ADD_ERROR')
+					;
+
+					throw new SystemException($res['strMessage'] ?? $message);
 				}
 
 				break;

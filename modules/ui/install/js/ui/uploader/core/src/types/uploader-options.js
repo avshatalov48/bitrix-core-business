@@ -3,17 +3,26 @@ import type { FilterType } from '../enums/filter-type';
 import type { ServerOptions } from './server-options';
 import type { UploaderFileOptions } from './uploader-file-options';
 import type Filter from '../filters/filter';
-import type { ResizeImageMode, ResizeImageMimeType, ResizeImageMimeTypeMode } from '../types/resize-image-options';
+import type UploaderFile from '../uploader-file';
+import type {
+	ResizeImageMode,
+	ResizeImageMimeType,
+	ResizeImageMimeTypeMode,
+	ResizeImageOptions,
+} from '../types/resize-image-options';
+
 
 export type UploaderOptions = {
 	controller?: string,
 	controllerOptions?: { [key: string]: string | number },
+	id?: string,
 	browseElement?: HTMLElement | HTMLElement[],
 	dropElement?: HTMLElement | HTMLElement[],
 	pasteElement?: HTMLElement | HTMLElement[],
 	hiddenFieldsContainer?: string | HTMLElement,
 	hiddenFieldName?: string,
 	assignAsFile?: boolean,
+	assignServerFile?: boolean,
 	autoUpload?: boolean,
 	multiple?: boolean,
 	allowReplaceSingle?: boolean,
@@ -32,6 +41,8 @@ export type UploaderOptions = {
 	imageMaxHeight?: number,
 	imageMaxFileSize?: number,
 	imageMinFileSize?: number,
+	ignoreUnknownImageTypes?: boolean,
+	treatOversizeImageAsFile?: boolean,
 
 	imageResizeWidth?: number,
 	imageResizeHeight?: number,
@@ -39,6 +50,7 @@ export type UploaderOptions = {
 	imageResizeMimeType?: ResizeImageMimeType,
 	imageResizeMimeTypeMode?: ResizeImageMimeTypeMode,
 	imageResizeQuality?: number,
+	imageResizeFilter?: (file: UploaderFile) => true | ResizeImageOptions,
 
 	imagePreviewWidth?: number,
 	imagePreviewHeight?: number,
@@ -47,6 +59,7 @@ export type UploaderOptions = {
 	imagePreviewMimeTypeMode?: ResizeImageMimeTypeMode,
 	imagePreviewQuality?: number,
 	imagePreviewUpscale?: boolean,
+	imagePreviewFilter?: (file: UploaderFile) => true | ResizeImageOptions,
 
 	ignoredFileNames?: string[],
 	serverOptions: ServerOptions,

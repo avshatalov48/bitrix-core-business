@@ -8,6 +8,7 @@ use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Calendar\ICal\IcsManager;
 use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\Util;
+use Bitrix\Crm\Integration\NotificationsManager;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Calendar\Sharing\SharingEventManager;
@@ -416,6 +417,11 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 		/** @var DateTime $eventStart */
 		$eventStart = Util::getDateObject($dateFrom, false, $timezone);
 		$activityName = Loc::getMessage('EC_SHARINGAJAX_ACTIVITY_SUBJECT');
+
+		$crmDealLink->setLastStatus(null);
+		(new Sharing\Link\CrmDealLinkMapper())->update($crmDealLink);
+
+		// Create calendar sharing activity in deal
 		(new Sharing\Crm\ActivityManager($event->getId(), $crmDealLink, $userName))
 			->createCalendarSharingActivity($activityName, $event->getDescription(), $eventStart)
 		;
@@ -432,7 +438,7 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 		//notify client about meeting is auto-accepted
 		if ($crmDealLink->getContactId() > 0)
 		{
-			(new Crm\Integration\Calendar\Notification\NotificationService())
+			Crm\Integration\Calendar\Notification\Manager::getSenderInstance($crmDealLink)
 				->setCrmDealLink($crmDealLink)
 				->setEvent($event)
 				->setEventLink($eventLink)
@@ -526,10 +532,13 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 	}
 
 	/**
-	 * @param int $linkId
+	 * @param string $eventLinkHash
 	 * @return array
-	 * @throws \Bitrix\Main\LoaderException|\Bitrix\Main\ArgumentException
+	 * @throws ArgumentException
 	 * @throws BaseException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function getConferenceLinkAction(string $eventLinkHash): array
 	{
@@ -659,8 +668,14 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 			return $result;
 		}
 
-		(new Sharing\Crm\NotifyManager($link, $notifyType))
-			->sendSharedCrmActionsEvent(Util::getDateTimestamp($dateFrom, $timezone));
+		if (in_array($notifyType, Sharing\Crm\NotifyManager::NOTIFY_TYPES, true))
+		{
+			(new Sharing\Crm\NotifyManager($link, $notifyType))
+				->sendSharedCrmActionsEvent(Util::getDateTimestamp($dateFrom, $timezone));
+
+			$link->setLastStatus($notifyType);
+			(new Sharing\Link\CrmDealLinkMapper())->update($link);
+		}
 
 		return $result;
 	}

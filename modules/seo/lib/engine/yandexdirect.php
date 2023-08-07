@@ -1099,7 +1099,15 @@ class YandexDirect extends Engine\YandexBase implements IEngine
 	
 	public static function updateAgent()
 	{
-		$engine = new self();
+		try
+		{
+			$engine = new self();
+		}
+		catch (\Bitrix\Main\SystemException $e)
+		{
+			return __CLASS__ . "::updateAgent();";
+		}
+
 		if ($engine->getAuthSettings())
 		{
 			try

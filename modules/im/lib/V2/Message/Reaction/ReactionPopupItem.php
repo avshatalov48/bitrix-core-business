@@ -2,9 +2,11 @@
 
 namespace Bitrix\Im\V2\Message\Reaction;
 
+use Bitrix\Im\V2\Rest\PopupData;
+use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Rest\PopupDataItem;
 
-class ReactionPopupItem implements PopupDataItem
+class ReactionPopupItem implements PopupDataItem, PopupDataAggregatable
 {
 	private ReactionMessages $reactions;
 
@@ -46,5 +48,10 @@ class ReactionPopupItem implements PopupDataItem
 	public function toRestFormat(array $option = []): array
 	{
 		return $this->reactions->toRestFormat($option);
+	}
+
+	public function getPopupData(array $excludedList = []): PopupData
+	{
+		return $this->reactions->getPopupData($excludedList);
 	}
 }

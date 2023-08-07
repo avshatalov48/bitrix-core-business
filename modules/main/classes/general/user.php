@@ -1399,7 +1399,7 @@ class CAllUser extends CDBResult
 				"XML_ID" => $arUser["XML_ID"],
 				"ADMIN" => false,
 				"POLICY" => static::getPolicy($arUser["ID"])->getValues(),
-				"AUTO_TIME_ZONE" => trim($arUser["AUTO_TIME_ZONE"]),
+				"AUTO_TIME_ZONE" => trim((string)$arUser["AUTO_TIME_ZONE"]),
 				"TIME_ZONE" => $arUser["TIME_ZONE"],
 				"GROUPS" => Main\UserTable::getUserGroupIds($arUser["ID"]),
 				"CONTEXT" => json_encode($context),
@@ -1469,7 +1469,7 @@ class CAllUser extends CDBResult
 				$tz = '';
 				if (CTimeZone::Enabled())
 				{
-					if (!CTimeZone::IsAutoTimeZone(trim($arUser["AUTO_TIME_ZONE"])) || CTimeZone::getTzCookie() !== null)
+					if (!CTimeZone::IsAutoTimeZone(trim((string)$arUser["AUTO_TIME_ZONE"])) || CTimeZone::getTzCookie() !== null)
 					{
 						$tz = ', TIME_ZONE_OFFSET = ' . CTimeZone::GetOffset();
 					}

@@ -544,7 +544,7 @@ final class Engine
 			header("X-Bitrix-Composite: Ajax ".($htmlCacheChanged ? "(changed)" : "(stable)"));
 
 			$content = array(
-				"js" => $APPLICATION->arHeadScripts,
+				"js" => array_unique($APPLICATION->arHeadScripts),
 				"lang" => \CJSCore::GetCoreMessages(),
 				"css" => $APPLICATION->GetCSSArray(),
 				"htmlCacheChanged" => $htmlCacheChanged,

@@ -286,6 +286,14 @@
 	transition: .1s;
 }
 
+.calendar-pub-action-btn {
+	margin: 10px 0 0 0;
+}
+
+.calendar-pub-action-btn:first-child {
+	margin-top: 0;
+}
+
 .calendar-pub-ui__btn.--secondary {
 	background: var(--ui-color-palette-orange-50);
 	color: #fff;
@@ -453,6 +461,10 @@
 	margin-bottom: 18px;
 	-webkit-user-select: none;
 	        user-select: none;
+}
+
+.calendar-sharing__calendar-bar.--arrow {
+	display: none;
 }
 
 .calendar-sharing__calendar-bar.--no-margin {
@@ -974,6 +986,10 @@
 	.calendar-sharing__calendar-block.--month {
 		min-height: unset;
 		margin-bottom: unset;
+	}
+
+	.calendar-sharing__calendar-bar.--arrow {
+		display: flex;
 	}
 }
 

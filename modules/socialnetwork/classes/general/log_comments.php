@@ -833,7 +833,7 @@ class CAllSocNetLogComments
 				foreach ($arMention as $mentionUserID)
 				{
 					$bHaveRights = (
-						$arTitleRes["IS_CRM"] != "Y"
+						($arTitleRes["IS_CRM"] ?? null) != "Y"
 						|| COption::GetOptionString("crm", "enable_livefeed_merge", "N") == "Y"
 							? CSocNetLogRights::CheckForUserOnly($arCommentFields["LOG_ID"], $mentionUserID)
 							: false
@@ -866,7 +866,7 @@ class CAllSocNetLogComments
 
 					if (
 						!$bHaveRights
-						&& $arTitleRes["IS_CRM"] == "Y"
+						&& ($arTitleRes["IS_CRM"] ?? null) == "Y"
 					)
 					{
 						$dbLog = CSocNetLog::GetList(

@@ -94,7 +94,7 @@ var JCBXGoogleSearch = function(map_id, obOut, jsMess)
 	
 	this.__showSearchResult = function(index)
 	{
-		if (null == index || index.constructor == window.Event);
+		if (null == index || index.constructor == window.Event)
 			index = this.BXSearchIndex;
 	
 		if (null != index && null != _this.arSearchResults[index])

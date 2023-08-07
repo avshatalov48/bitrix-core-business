@@ -8,6 +8,7 @@ use Bitrix\Im\Notify;
 use Bitrix\Im\V2\Bot\BotService;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Entity\User\NullUser;
+use Bitrix\Im\V2\Entity\User\UserPopupItem;
 use Bitrix\Im\V2\Link\Url\UrlService;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Params;
@@ -19,13 +20,15 @@ use Bitrix\Im\V2\Message\Send\SendingConfig;
 use Bitrix\Im\V2\Message\Send\SendingService;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Relation;
+use Bitrix\Im\V2\Rest\PopupData;
+use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 
-class PrivateChat extends Chat
+class PrivateChat extends Chat implements PopupDataAggregatable
 {
 	protected function getDefaultType(): string
 	{
@@ -66,6 +69,28 @@ class PrivateChat extends Chat
 	public function getStartId(?int $userId = null): int
 	{
 		return 0;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getOpponentId(): int
+	{
+		/** @var Relation $relation */
+		$opponentUserId = 0;
+		foreach ($this->getRelations() as $relation)
+		{
+			if (
+				User::getInstance($relation->getUserId())->isActive()
+				&& $this->getAuthorId() != $relation->getUserId()
+			)
+			{
+				$opponentUserId = $relation->getUserId();
+				break;
+			}
+		}
+
+		return $opponentUserId;
 	}
 
 	/**
@@ -128,7 +153,7 @@ class PrivateChat extends Chat
 		return new NullUser();
 	}
 
-	public function getTitle(): ?string
+	public function getDisplayedTitle(): ?string
 	{
 		return Loc::getMessage(
 			'IM_PRIVATE_CHAT_TITLE',
@@ -259,7 +284,11 @@ class PrivateChat extends Chat
 			return $result->addError(new ChatError(ChatError::WRONG_TARGET_CHAT));
 		}
 
-		if (!$message instanceof Message)
+		if (is_string($message))
+		{
+			$message = (new Message)->setMessage($message);
+		}
+		elseif (!$message instanceof Message)
 		{
 			$message = new Message($message);
 		}
@@ -550,7 +579,12 @@ class PrivateChat extends Chat
 		");
 		if ($row = $res->fetch())
 		{
-			$result->setResult($row);
+			$result->setResult([
+				'ID' => (int)$row['ID'],
+				'TYPE' => $row['TYPE'],
+				'ENTITY_TYPE' => $row['ENTITY_TYPE'],
+				'ENTITY_ID' => $row['ENTITY_ID'],
+			]);
 		}
 
 		return $result;
@@ -675,5 +709,12 @@ class PrivateChat extends Chat
 		$result->setResult($params);
 
 		return $result;
+	}
+
+	public function getPopupData(array $excludedList = []): PopupData
+	{
+		$userIds = [$this->getContext()->getUserId(), $this->getCompanion()->getId()];
+
+		return new PopupData([new UserPopupItem($userIds)], $excludedList);
 	}
 }

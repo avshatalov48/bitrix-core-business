@@ -19,9 +19,9 @@ $APPLICATION->IncludeComponent(
 		"PATH_TO_DRAFT" => $arResult["PATH_TO_USER_BLOG_DRAFT"],
 		"PATH_TO_TAGS" => $arResult["PATH_TO_USER_BLOG_TAGS"],
 		"USER_ID" => $arResult["VARIABLES"]["user_id"],
-		"USER_VAR" => $arResult["ALIASES"]["user_id"],
-		"PAGE_VAR" => $arResult["ALIASES"]["blog_page"],
-		"POST_VAR" => $arResult["ALIASES"]["post_id"],
+		"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? null,
+		"PAGE_VAR" => $arResult["ALIASES"]["blog_page"] ?? null,
+		"POST_VAR" => $arResult["ALIASES"]["post_id"] ?? null,
 		"PATH_TO_BLOG" => $arResult["PATH_TO_USER_BLOG"],
 		"SET_NAV_CHAIN" => $arResult["SET_NAV_CHAIN"],
 		"GROUP_ID" => $arParams["BLOG_GROUP_ID"],
@@ -53,16 +53,16 @@ $arComponentParams = [
 	"SET_TITLE" => $arResult["SET_TITLE"],
 	"NAV_TEMPLATE" => "",
 	"POST_PROPERTY_LIST" => array(),
-	"USER_VAR" => $arResult["ALIASES"]["user_id"],
-	"PAGE_VAR" => $arResult["ALIASES"]["blog_page"],
-	"POST_VAR" => $arResult["ALIASES"]["post_id"],
-	"GROUP_ID" => $arParams["BLOG_GROUP_ID"],
-	"IMAGE_MAX_WIDTH" => $arParams["BLOG_IMAGE_MAX_WIDTH"],
-	"IMAGE_MAX_HEIGHT" => $arParams["BLOG_IMAGE_MAX_HEIGHT"],
+	"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? null,
+	"PAGE_VAR" => $arResult["ALIASES"]["blog_page"] ?? null,
+	"POST_VAR" => $arResult["ALIASES"]["post_id"] ?? null,
+	"GROUP_ID" => $arParams["BLOG_GROUP_ID"] ?? null,
+	"IMAGE_MAX_WIDTH" => $arParams["BLOG_IMAGE_MAX_WIDTH"] ?? null,
+	"IMAGE_MAX_HEIGHT" => $arParams["BLOG_IMAGE_MAX_HEIGHT"] ?? null,
 	"ALLOW_POST_CODE" => $arParams["BLOG_ALLOW_POST_CODE"],
-	"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
-	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
-	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"]
+	"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"] ?? null,
+	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"] ?? null,
+	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"] ?? null
 ];
 
 $APPLICATION->IncludeComponent(

@@ -572,16 +572,6 @@ input.bxu-file-input{
 	position: relative;
 }
 
-.bx-ie8 .bxu-item-block {
-	border: 1px solid #eaeced;
-}
-
-.bx-ie8 .bxu-item-block:hover {
-	border: 1px solid #cfd0d1;
-}
-
-
-
 .bxu-item-block-top {
 	background-color: #fff;
 	display: block;
@@ -691,11 +681,6 @@ input.bxu-file-input{
 	height: 36px;
 	overflow: hidden;
 }
-
-.bx-ie8 .bxu-item-block-bottom {
-	background: none;
-}
-
 
 .bxu-item-block-desc {
 	display: block;

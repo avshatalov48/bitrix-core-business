@@ -701,7 +701,8 @@ else
 		'PROP_COUNT_ID': 'generator_price_table_max_id',
 		'AR_ALL_PROPERTIES': <?=CUtil::PhpToJSObject($arResult)?>,
 		'IMAGE_TABLE_ID': "adm-shop-table",
-		'AR_FILE_PROPERTIES': <?=CUtil::PhpToJSObject($arFileProperties)?>
+		'AR_FILE_PROPERTIES': <?=CUtil::PhpToJSObject($arFileProperties)?>,
+		'subIBlockId': <?= $subIBlockId; ?>
 	});
 
 	function addProperty(arFileProperties)

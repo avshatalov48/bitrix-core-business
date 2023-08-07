@@ -59,6 +59,7 @@
 	padding: 11px;
 	background: none;
 	border: none;
+	outline: none;
 	border-bottom: 1px solid var(--im-content-create-chat__background-color_input-border);
 	font: var(--im-content-create-chat__font_input);
 	font-weight: var(--im-font-weight-semi-bold);

@@ -8,8 +8,8 @@ use Bitrix\Main\Localization\Loc;
 class CIMChat
 {
 	const CHAT_ALL = 'all';
-	const GENERAL_MESSAGE_TYPE_JOIN = 'join';
-	const GENERAL_MESSAGE_TYPE_LEAVE = 'leave';
+	const GENERAL_MESSAGE_TYPE_JOIN = IM\V2\Chat\GeneralChat::GENERAL_MESSAGE_TYPE_JOIN;
+	const GENERAL_MESSAGE_TYPE_LEAVE = IM\V2\Chat\GeneralChat::GENERAL_MESSAGE_TYPE_LEAVE;
 
 	private $user_id = 0;
 	private $bHideLink = false;
@@ -152,13 +152,19 @@ class CIMChat
 		if (!$bTimeZone)
 			CTimeZone::Disable();
 
+		$lineId = 0;
 		$crmEntityType = null;
 		$crmEntityId = null;
-		if ($chatData['TYPE'] == IM_MESSAGE_OPEN_LINE && \Bitrix\Main\Loader::includeModule('imopenlines'))
+		if (
+			$chatData['TYPE'] == IM_MESSAGE_OPEN_LINE
+			&& \Bitrix\Main\Loader::includeModule('imopenlines')
+		)
 		{
 			$explodeData = explode('|', $chatData['ENTITY_DATA_1']);
 			$crmEntityType = ($explodeData[0] == 'Y') ? $explodeData[1] : null;
 			$crmEntityId = ($explodeData[0] == 'Y') ? intval($explodeData[2]) : null;
+
+			$lineId = \Bitrix\ImOpenLines\Chat::parseLinesChatEntityId($chatData['ENTITY_ID'])['lineId'];
 		}
 
 		$strSql = "";
@@ -187,7 +193,7 @@ class CIMChat
 		else if (
 			$chatData['TYPE'] == IM_MESSAGE_OPEN_LINE
 			&& \Bitrix\Main\Loader::includeModule('imopenlines')
-			&& \Bitrix\ImOpenLines\Config::canJoin($toChatId, $crmEntityType, $crmEntityId)
+			&& \Bitrix\ImOpenLines\Config::canJoin($lineId, $crmEntityType, $crmEntityId)
 		)
 		{
 			$strSql = "
@@ -804,164 +810,55 @@ class CIMChat
 		return $arResult;
 	}
 
+	// region General Chat
+	/**
+	 * @deprecated Use \Bitrix\Im\V2\Chat\GeneralChat::getGeneralChatId()
+	 */
 	public static function GetGeneralChatId()
 	{
-		return COption::GetOptionString("im", "general_chat_id");
+		return IM\V2\Chat\GeneralChat::getGeneralChatId();
 	}
 
+	/**
+	 * @deprecated Use \Bitrix\Im\V2\Chat\GeneralChat::add()
+	 */
 	public static function InstallGeneralChat($agentMode = false)
 	{
-		global $DB;
-
-		$chatId = self::GetGeneralChatId();
-		if ($chatId > 0)
-		{
-			if ($DB->query('SELECT ID FROM b_im_chat WHERE ID = '.$chatId)->fetch())
-			{
-				return $agentMode? '': true;
-			}
-
-			COption::RemoveOption("im", "general_chat_id");
-		}
-
-		if (!IsModuleInstalled('intranet'))
-		{
-			return $agentMode? '': false;
-		}
-
-		$userCount = 0;
-
-		$types = \Bitrix\Main\UserTable::getExternalUserTypes();
-		$silentInstall = false;
-
-		$sqlCounter = "
-			SELECT COUNT(ID) as CNT
-			FROM b_user
-			WHERE ACTIVE = 'Y' AND (EXTERNAL_AUTH_ID NOT IN ('".implode("','", $types)."') OR EXTERNAL_AUTH_ID IS NULL OR b_user.EXTERNAL_AUTH_ID = '')";
-		$dbRes = $DB->Query($sqlCounter, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		if ($row = $dbRes->Fetch())
-		{
-			$userCount = $row['CNT'];
-			if ($userCount > 50)
-			{
-				if (\Bitrix\Main\Loader::includeModule('bitrix24'))
-				{
-					$perms = Array();
-					$admins = \CBitrix24::getAllAdminId();
-					foreach ($admins as $userId)
-					{
-						$perms[] = 'U'.$userId;
-					}
-					CIMChat::SetAccessToGeneralChat(false, $perms);
-					$silentInstall = true;
-				}
-				else if ($userCount > 500)
-				{
-					return $agentMode? '': false;
-				}
-			}
-		}
-
-		$res = $DB->Query("select ID from b_user_field where entity_id='USER' AND field_name='UF_DEPARTMENT'");
-		if ($result = $res->Fetch())
-		{
-			$fieldId = intval($result['ID']);
-		}
-		else
-		{
-			return $agentMode? '': false;
-		}
-
-		$CIMChat = new self(0);
-		$chatId = $CIMChat->Add(Array(
-			'TYPE' => IM_MESSAGE_OPEN,
-			'COLOR' => "AZURE",
-			'USERS' => false,
-			'TITLE' => GetMessage('IM_GENERAL_TITLE'),
-			'DESCTIPTION' => GetMessage('IM_GENERAL_DESCRIPTION')
-		));
-		if (!$chatId)
-		{
-			return $agentMode? '': false;
-		}
-
-		$messageId = $CIMChat->AddMessage(Array(
-			"TO_CHAT_ID" => $chatId,
-			"MESSAGE" => GetMessage('IM_GENERAL_DESCRIPTION'),
-			"FROM_USER_ID" => 0,
-			"SYSTEM" => 'Y',
-			"PUSH" => 'N',
-		));
-
-		$sql = "
-			insert into b_im_relation (USER_ID, MESSAGE_TYPE, CHAT_ID, STATUS)
-			select distinct b_user.ID, '".IM_MESSAGE_OPEN."', ".intval($chatId).", ".IM_STATUS_READ."
-			from b_user
-			inner join b_utm_user on b_utm_user.VALUE_ID = b_user.ID and b_utm_user.FIELD_ID = ".$fieldId." and b_utm_user.VALUE_INT > 0
-			WHERE b_user.ACTIVE = 'Y' AND (b_user.EXTERNAL_AUTH_ID NOT IN ('".implode("','", $types)."') OR b_user.EXTERNAL_AUTH_ID IS NULL OR b_user.EXTERNAL_AUTH_ID = '')
-		";
-		$result = $DB->Query($sql);
-		if (!$result)
-		{
-			return $agentMode? '': false;
-		}
-
-		self::linkGeneralChatId($chatId);
-
-		return $agentMode? '': true;
+		(new IM\V2\Chat\GeneralChat())->add([]);
 	}
 
+	/**
+	 * @deprecated Use \Bitrix\Im\V2\Chat\GeneralChat::getAutoMessageStatus()
+	 */
 	public static function GetGeneralChatAutoMessageStatus($type)
 	{
-		$status = false;
-		if ($type == self::GENERAL_MESSAGE_TYPE_JOIN)
-		{
-			$status = COption::GetOptionString("im", "general_chat_message_join");
-		}
-		else if ($type == self::GENERAL_MESSAGE_TYPE_LEAVE)
-		{
-			$status = COption::GetOptionString("im", "general_chat_message_leave");
-		}
-
-		return $status;
+		return \Bitrix\Im\V2\Chat\GeneralChat::getAutoMessageStatus((string)$type);
 	}
 
+	/**
+	 * @deprecated Use \Bitrix\Im\V2\Chat\GeneralChat::hasPostAccess()
+	 */
 	public static function CanSendMessageToGeneralChat($userId = null)
 	{
-		global $USER;
-
-		$userId = \Bitrix\Im\Common::getUserId($userId);
-		if ($userId <= 0)
+		$generalChat = IM\V2\Chat\ChatFactory::getInstance()->getGeneralChat();
+		if ($generalChat)
 		{
-			return false;
+			return $generalChat->hasPostAccess($userId);
 		}
 
-		if (COption::GetOptionString("im", "allow_send_to_general_chat_all", "Y") == "Y")
+		$generalChatId = \COption::GetOptionString('im', 'general_chat_id');
+		$generalChat = IM\V2\Chat\ChatFactory::getInstance()->getChat($generalChatId);
+		if ($generalChat)
 		{
-			return true;
-		}
-
-		$chatRights = COption::GetOptionString("im", "allow_send_to_general_chat_rights");
-
-		if (!empty($chatRights))
-		{
-			$arUserGroupCode = $USER->GetAccessCodes();
-			$chatRights = explode(",", $chatRights);
-
-			foreach($chatRights as $right)
-			{
-				if (in_array($right, $arUserGroupCode))
-				{
-					return true;
-				}
-			}
-
-			return false;
+			return $generalChat->hasPostAccess($userId);
 		}
 
 		return false;
 	}
 
+	/**
+	 * @deprecated Use \Bitrix\Im\V2\Chat::setCanPost()
+	 */
 	public static function SetAccessToGeneralChat($allowAll = true, $allowCodes = Array())
 	{
 		$prevAllow = COption::GetOptionString("im", "allow_send_to_general_chat_all");
@@ -1006,83 +903,45 @@ class CIMChat
 		return true;
 	}
 
+	/**
+	 * @deprecated Use \Bitrix\Im\V2\Chat\GeneralChat::canJoinGeneralChat()
+	 */
 	public static function CanJoinGeneralChatId($userId)
 	{
-		$userId = intval($userId);
-		if ($userId <= 0)
-			return false;
+		$generalChat = IM\V2\Chat\ChatFactory::getInstance()->getGeneralChat();
 
-		$chatId = self::GetGeneralChatId();
-		if ($chatId <= 0)
-			return false;
-
-		if (!IsModuleInstalled('intranet'))
-			return false;
-
-		global $DB;
-
-		$res = $DB->Query("select ID from b_user_field where entity_id='USER' AND field_name='UF_DEPARTMENT'");
-		if ($result = $res->Fetch())
+		if ($generalChat)
 		{
-			$fieldId = intval($result['ID']);
-		}
-		else
-		{
-			return false;
+			return $generalChat->canJoinGeneralChat((int)$userId);
 		}
 
-		$result = false;
-
-		$sql = "
-			SELECT UU.ID, U.ACTIVE, U.EXTERNAL_AUTH_ID
-			FROM b_utm_user UU LEFT JOIN b_user U ON U.ID = UU.VALUE_ID
-			WHERE UU.VALUE_ID = ".$userId." and UU.FIELD_ID = ".$fieldId." and UU.VALUE_INT > 0";
-		$res = $DB->Query($sql);
-		if ($row = $res->Fetch())
-		{
-			$result = $row['ACTIVE'] == 'Y';
-		}
-
-		return $result;
+		return false;
 	}
 
+	/**
+	 * @deprecated Use \Bitrix\Im\V2\Chat\GeneralChat::linkGeneralChat()
+	 */
 	public static function linkGeneralChatId($chatId)
 	{
-		COption::SetOptionInt("im", "general_chat_id", $chatId);
-
-		if (CModule::IncludeModule('pull'))
-		{
-			CPullStack::AddShared(Array(
-				'module_id' => 'im',
-				'command' => 'generalChatId',
-				'params' => Array(
-					"id" => $chatId
-				),
-				'extra' => \Bitrix\Im\Common::getPullExtra()
-			));
-		}
-
-		return true;
+		return IM\V2\Chat\GeneralChat::linkGeneralChat((int) $chatId);
 	}
 
+	/**
+	 * @deprecated Use \Bitrix\Im\V2\Chat\GeneralChat::unlinkGeneralChat()
+	 */
 	public static function UnlinkGeneralChatId()
 	{
-		COption::RemoveOption("im", "general_chat_id");
-
-		if (CModule::IncludeModule('pull'))
-		{
-			CPullStack::AddShared(Array(
-				'module_id' => 'im',
-				'command' => 'generalChatId',
-				'params' => Array(
-					"id" => 0
-				),
-				'extra' => \Bitrix\Im\Common::getPullExtra()
-			));
-		}
-
-		return true;
+		return IM\V2\Chat\GeneralChat::unlinkGeneralChat();
 	}
+
+	public static function AddGeneralMessage($arFields)
+	{
+		$arFields['MESSAGE_TYPE'] = IM_MESSAGE_OPEN;
+		$arFields['TO_CHAT_ID'] = self::GetGeneralChatId();
+
+		return CIMMessenger::Add($arFields);
+	}
+	// endregion
 
 	public static function GetChatData($arParams = Array())
 	{
@@ -1134,6 +993,8 @@ class CIMChat
 			$whereGeneral = "WHERE R1.CHAT_ID IN (".implode(',', $arFilter['ID']).") ";
 		}
 
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 		$strSql = "
 			SELECT
 				C.ID CHAT_ID,
@@ -1159,7 +1020,7 @@ class CIMChat
 				".(isset($arParams['USER_ID'])? ", R2.ID RID": "")."
 			".$from."
 			".$innerJoin."
-			LEFT JOIN b_im_alias A ON A.ENTITY_ID = C.ID AND A.ENTITY_TYPE = C.ENTITY_TYPE
+			LEFT JOIN b_im_alias A ON A.ENTITY_ID = " . $helper->castToChar("C.ID") . " AND A.ENTITY_TYPE = C.ENTITY_TYPE
 			".$whereGeneral."
 		";
 
@@ -1435,12 +1296,15 @@ class CIMChat
 
 		$startId = $readService->getLastIdByChatId($chatId);
 		$counter = 0;
+		$viewedMessages = [];
 
 		if (isset($lastId))
 		{
 			$message = new \Bitrix\Im\V2\Message();
 			$message->setMessageId((int)$lastId)->setChatId($chatId);
-			$counter = $readService->readTo($message)->getResult()['COUNTER'];
+			$readResult = $readService->readTo($message);
+			$counter = $readResult->getResult()['COUNTER'];
+			$viewedMessages = $readResult->getResult()['VIEWED_MESSAGES'];
 		}
 		else
 		{
@@ -1481,7 +1345,7 @@ class CIMChat
 						'muted' => $relation['NOTIFY_BLOCK'] === 'Y',
 						'unread' => Im\Recent::isUnread($this->user_id, $relation['MESSAGE_TYPE'], 'chat'.$chatId),
 						'lines' => $relation['MESSAGE_TYPE'] === IM_MESSAGE_OPEN_LINE,
-						'viewedMessages' => [(int)$lastId],
+						'viewedMessages' => $viewedMessages,
 					),
 					'extra' => \Bitrix\Im\Common::getPullExtra()
 				));
@@ -1501,7 +1365,7 @@ class CIMChat
 					'userName' => \Bitrix\Im\User::getInstance($this->user_id)->getFullName(false),
 					'lastId' => $endId,
 					'date' => date('c', time()),
-					'viewedMessages' => [(int)$lastId],
+					'viewedMessages' => $viewedMessages,
 					'chatMessageStatus' => $relation['CHAT_MESSAGE_STATUS'],
 				),
 				'extra' => \Bitrix\Im\Common::getPullExtra()
@@ -2902,14 +2766,6 @@ class CIMChat
 		return CIMMessenger::Add($arFields);
 	}
 
-	public static function AddGeneralMessage($arFields)
-	{
-		$arFields['MESSAGE_TYPE'] = IM_MESSAGE_OPEN;
-		$arFields['TO_CHAT_ID'] = self::GetGeneralChatId();
-
-		return CIMMessenger::Add($arFields);
-	}
-
 	public function Join($chatId)
 	{
 		$chatId = intval($chatId);
@@ -4003,6 +3859,21 @@ class CIMChat
 				'LEAVE_OWNER' => false,
 				'PATH' => '',
 				'PATH_TITLE' => ''
+			);
+		}
+
+		if (\Bitrix\Main\Loader::includeModule('voximplant'))
+		{
+			self::$entityOption['CALL'] = Array(
+				'AVATAR' => true,
+				'RENAME' => true,
+				'EXTEND' => false,
+				'CALL' => false,
+				'MUTE' => false,
+				'LEAVE' => false,
+				'LEAVE_OWNER' => false,
+				'SEND' => true,
+				'USER_LIST' => true,
 			);
 		}
 

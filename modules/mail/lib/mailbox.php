@@ -38,6 +38,25 @@ class MailboxTable extends Entity\DataManager
 	}
 
 	/**
+	 * ( A user can connect the same mailbox only once )
+	 *
+	 * @param $email
+	 * @return mixed
+	 */
+	public static function getUserMailboxWithEmail($email): mixed
+	{
+		foreach (static::getUserMailboxes() as $mailbox)
+		{
+			if ($mailbox['EMAIL'] == $email)
+			{
+				return $mailbox;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * @param $email
 	 * @return ArrayResult
 	 * @throws \Bitrix\Main\ArgumentException
@@ -66,6 +85,26 @@ class MailboxTable extends Entity\DataManager
 		$dbResult->setCount($list->getSelectedRowsCount());
 
 		return $dbResult;
+	}
+
+	public static function getOwnerId($mailboxId): int
+	{
+		$mailbox = self::getList([
+			'select' => [
+				'USER_ID',
+			],
+			'filter' => [
+				'=ID' => $mailboxId,
+			],
+			'limit' => 1,
+		])->fetch();
+
+		if (isset($mailbox['USER_ID']))
+		{
+			return (int) $mailbox['USER_ID'];
+		}
+
+		return 0;
 	}
 
 	public static function getUserMailbox($mailboxId, $userId = null)

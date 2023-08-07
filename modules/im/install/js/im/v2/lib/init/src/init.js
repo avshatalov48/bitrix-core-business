@@ -1,13 +1,13 @@
-import {Core} from 'im.v2.application.core';
-import {CallManager} from 'im.v2.lib.call';
-import {SmileManager} from 'im.v2.lib.smile-manager';
-import {UserManager} from 'im.v2.lib.user';
-import {CounterManager} from 'im.v2.lib.counter';
-import {Logger} from 'im.v2.lib.logger';
-import {NotifierManager} from 'im.v2.lib.notifier';
-import {ApplicationName} from 'im.v2.const';
-import {MarketManager} from 'im.v2.lib.market';
-import {DesktopManager} from 'im.v2.lib.desktop';
+import { Core } from 'im.v2.application.core';
+import { CallManager } from 'im.v2.lib.call';
+import { PhoneManager } from 'im.v2.lib.phone';
+import { SmileManager } from 'im.v2.lib.smile-manager';
+import { UserManager } from 'im.v2.lib.user';
+import { CounterManager } from 'im.v2.lib.counter';
+import { Logger } from 'im.v2.lib.logger';
+import { NotifierManager } from 'im.v2.lib.notifier';
+import { MarketManager } from 'im.v2.lib.market';
+import { DesktopManager } from 'im.v2.lib.desktop';
 
 export class InitManager
 {
@@ -27,6 +27,7 @@ export class InitManager
 		this.#initCounters();
 		this.#initMarket();
 		this.#initSettings();
+		this.#initPhoneManager();
 
 		CallManager.init();
 		SmileManager.init();
@@ -38,10 +39,10 @@ export class InitManager
 
 	static #initCurrentUser()
 	{
-		const {currentUser} = Core.getApplicationData(ApplicationName.quickAccess);
+		const { currentUser } = Core.getApplicationData();
 		if (!currentUser)
 		{
-			return false;
+			return;
 		}
 
 		new UserManager().setUsersToModel([currentUser]);
@@ -49,10 +50,10 @@ export class InitManager
 
 	static #initLogger()
 	{
-		const {loggerConfig} = Core.getApplicationData(ApplicationName.quickAccess);
+		const { loggerConfig } = Core.getApplicationData();
 		if (!loggerConfig)
 		{
-			return false;
+			return;
 		}
 
 		Logger.setConfig(loggerConfig);
@@ -60,10 +61,10 @@ export class InitManager
 
 	static #initChatRestrictions()
 	{
-		const {chatOptions} = Core.getApplicationData(ApplicationName.quickAccess);
+		const { chatOptions } = Core.getApplicationData();
 		if (!chatOptions)
 		{
-			return false;
+			return;
 		}
 
 		Core.getStore().dispatch('dialogues/setChatOptions', chatOptions);
@@ -71,10 +72,10 @@ export class InitManager
 
 	static #initCounters()
 	{
-		const {counters} = Core.getApplicationData(ApplicationName.quickAccess);
+		const { counters } = Core.getApplicationData();
 		if (!counters)
 		{
-			return false;
+			return;
 		}
 
 		Logger.warn('InitManager: counters', counters);
@@ -83,7 +84,7 @@ export class InitManager
 
 	static #initMarket()
 	{
-		const {marketApps} = Core.getApplicationData(ApplicationName.quickAccess);
+		const { marketApps } = Core.getApplicationData();
 		if (!marketApps)
 		{
 			return;
@@ -95,7 +96,7 @@ export class InitManager
 
 	static #initSettings()
 	{
-		const {settings} = Core.getApplicationData(ApplicationName.quickAccess);
+		const { settings } = Core.getApplicationData();
 		if (!settings)
 		{
 			return;
@@ -103,5 +104,17 @@ export class InitManager
 
 		Logger.warn('InitManager: settings', settings);
 		Core.getStore().dispatch('application/settings/set', settings);
+	}
+
+	static #initPhoneManager()
+	{
+		const { phoneSettings } = Core.getApplicationData();
+		if (!phoneSettings)
+		{
+			return;
+		}
+
+		Logger.warn('InitManager: phone', phoneSettings);
+		PhoneManager.init(phoneSettings);
 	}
 }

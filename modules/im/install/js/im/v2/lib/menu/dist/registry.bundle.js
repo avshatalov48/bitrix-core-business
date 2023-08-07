@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -5,9 +6,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	'use strict';
 
 	const EVENT_NAMESPACE = 'BX.Messenger.v2.Lib.Menu';
+	var _prepareMenuItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareMenuItems");
+	var _filterExcessDelimiters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("filterExcessDelimiters");
+	var _filterDuplicateDelimiters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("filterDuplicateDelimiters");
+	var _filterFinishingDelimiter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("filterFinishingDelimiter");
+	var _isDelimiter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDelimiter");
 	class BaseMenu extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
+	    Object.defineProperty(this, _isDelimiter, {
+	      value: _isDelimiter2
+	    });
+	    Object.defineProperty(this, _filterFinishingDelimiter, {
+	      value: _filterFinishingDelimiter2
+	    });
+	    Object.defineProperty(this, _filterDuplicateDelimiters, {
+	      value: _filterDuplicateDelimiters2
+	    });
+	    Object.defineProperty(this, _filterExcessDelimiters, {
+	      value: _filterExcessDelimiters2
+	    });
+	    Object.defineProperty(this, _prepareMenuItems, {
+	      value: _prepareMenuItems2
+	    });
 	    this.id = 'im-base-context-menu';
 	    this.setEventNamespace(EVENT_NAMESPACE);
 	    this.store = im_v2_application_core.Core.getStore();
@@ -40,7 +61,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      bindElement: this.target,
 	      cacheable: false,
 	      className: this.getMenuClassName(),
-	      items: this.getMenuItems(),
+	      items: babelHelpers.classPrivateFieldLooseBase(this, _prepareMenuItems)[_prepareMenuItems](),
 	      events: {
 	        onClose: () => {
 	          this.emit(BaseMenu.events.onCloseMenu);
@@ -72,6 +93,40 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getCurrentUserId() {
 	    return im_v2_application_core.Core.getUserId();
 	  }
+	}
+	function _prepareMenuItems2() {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _filterExcessDelimiters)[_filterExcessDelimiters](this.getMenuItems());
+	}
+	function _filterExcessDelimiters2(menuItems) {
+	  const menuItemsWithoutDuplicates = babelHelpers.classPrivateFieldLooseBase(this, _filterDuplicateDelimiters)[_filterDuplicateDelimiters](menuItems);
+	  return babelHelpers.classPrivateFieldLooseBase(this, _filterFinishingDelimiter)[_filterFinishingDelimiter](menuItemsWithoutDuplicates);
+	}
+	function _filterDuplicateDelimiters2(menuItems) {
+	  let previousElement = null;
+	  return menuItems.filter(element => {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDelimiter)[_isDelimiter](previousElement) && babelHelpers.classPrivateFieldLooseBase(this, _isDelimiter)[_isDelimiter](element)) {
+	      return false;
+	    }
+	    if (element !== null) {
+	      previousElement = element;
+	    }
+	    return true;
+	  });
+	}
+	function _filterFinishingDelimiter2(menuItems) {
+	  let previousElement = null;
+	  return menuItems.reverse().filter(element => {
+	    if (previousElement === null && babelHelpers.classPrivateFieldLooseBase(this, _isDelimiter)[_isDelimiter](element)) {
+	      return false;
+	    }
+	    if (element !== null) {
+	      previousElement = element;
+	    }
+	    return true;
+	  }).reverse();
+	}
+	function _isDelimiter2(element) {
+	  return main_core.Type.isObjectLike(element) && element.delimiter === true;
 	}
 	BaseMenu.events = {
 	  onCloseMenu: 'onCloseMenu'

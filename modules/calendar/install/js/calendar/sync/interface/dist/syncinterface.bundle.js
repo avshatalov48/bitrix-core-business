@@ -362,6 +362,10 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  setSyncStatus(mode) {
 	    this.unitNode.className = 'calendar-sync__calendar-item';
 	    switch (mode) {
+	      case this.connectionProvider.STATUS_REFUSED:
+	        main_core.Dom.addClass(this.unitNode, '--refused');
+	        this.setSyncInfoStatusText(main_core.Loc.getMessage('CAL_SYNC_INFO_STATUS_REFUSED'), false);
+	        break;
 	      case this.connectionProvider.STATUS_SUCCESS:
 	        main_core.Dom.addClass(this.unitNode, '--complete');
 	        this.setSyncInfoStatusText(this.formatSyncTime(this.connectionProvider.getSyncDate()));
@@ -379,14 +383,19 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        this.setSyncInfoStatusText(main_core.Loc.getMessage('CAL_SYNC_INFO_STATUS_SYNCHRONIZING'));
 	        break;
 	      case this.connectionProvider.STATUS_NOT_CONNECTED:
-	        this.setSyncInfoStatusText('');
+	        if (this.connectionProvider.isGoogleApplicationRefused) {
+	          main_core.Dom.addClass(this.unitNode, '--off');
+	          this.setSyncInfoStatusText(main_core.Loc.getMessage('CAL_SYNC_INFO_STATUS_REFUSED'), false);
+	        } else {
+	          this.setSyncInfoStatusText('');
+	        }
 	        break;
 	    }
 	  }
-	  setSyncInfoStatusText(text) {
+	  setSyncInfoStatusText(text, upperCase = true) {
 	    const syncInfoStatusText = this.syncInfoWrap.querySelector('[data-role="sync_info_text"]');
 	    if (main_core.Type.isElementNode(syncInfoStatusText)) {
-	      syncInfoStatusText.innerHTML = main_core.Text.encode(text).toUpperCase();
+	      syncInfoStatusText.innerHTML = upperCase ? main_core.Text.encode(text).toUpperCase() : main_core.Text.encode(text);
 	    }
 	  }
 	  getButtonsWrap() {
@@ -395,16 +404,18 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 				${0}
 				${0}
 			</div>`), this.getButton(), this.getMoreButton());
-	      main_core.Event.bind(this.moreButton, 'click', this.handleItemClick.bind(this));
 	    }
 	    return this.buttonsWrap;
 	  }
 	  refreshButton() {
 	    main_core.Dom.clean(this.buttonsWrap);
-	    this.moreButton = this.buttonsWrap.appendChild(this.getMoreButton());
 	    this.button = this.buttonsWrap.appendChild(this.getButton());
+	    this.moreButton = this.buttonsWrap.appendChild(this.getMoreButton());
 	  }
 	  getButton() {
+	    if (this.connectionProvider.isGoogleApplicationRefused) {
+	      return null;
+	    }
 	    switch (this.connectionProvider.getStatus()) {
 	      case this.connectionProvider.STATUS_SUCCESS:
 	        this.button = main_core.Tag.render(_t5$2 || (_t5$2 = _$2`
@@ -442,15 +453,17 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getMoreButton() {
 	    this.moreButton = main_core.Tag.render(_t10 || (_t10 = _$2`
-			<div 
+			<div
 				data-role="more-button" 
 				class="ui-btn ui-btn-round ui-btn-light-border calendar-sync__calendar-item--more"
-			></div>`));
+			></div>
+		`));
+	    main_core.Event.bind(this.moreButton, 'click', this.handleItemClick.bind(this));
 	    return this.moreButton;
 	  }
 	  handleItemClick(e) {
 	    const status = this.connectionProvider.getStatus();
-	    if ([this.connectionProvider.STATUS_SUCCESS, this.connectionProvider.STATUS_FAILED].includes(status)) {
+	    if ([this.connectionProvider.STATUS_SUCCESS, this.connectionProvider.STATUS_FAILED, this.connectionProvider.STATUS_REFUSED].includes(status)) {
 	      if (this.connectionProvider.hasMenu()) {
 	        this.connectionProvider.showMenu(this.button);
 	      } else if (this.connectionProvider.getConnectStatus()) {

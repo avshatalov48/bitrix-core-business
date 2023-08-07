@@ -716,7 +716,7 @@ let Utils =
 			text = text.replace(/\[url(?:=([^[\]]+))?](.*?)\[\/url]/gis, (whole, link, text) =>
 			{
 				const url = Text.decode(link || text);
-				if (!BX.Messenger.Embedding.Lib.Utils.text.checkUrl(url))
+				if (!Utils.text.checkUrl(url))
 				{
 					return text;
 				}
@@ -735,7 +735,7 @@ let Utils =
 			text = text.replace(/\[url(?:=(.+?[^[\]]))?](.*?)\[\/url]/gis, (whole, link, text) =>
 			{
 				let url = Text.decode(link || text);
-				if (!BX.Messenger.Embedding.Lib.Utils.text.checkUrl(url))
+				if (!Utils.text.checkUrl(url))
 				{
 					return text;
 				}
@@ -1094,6 +1094,33 @@ let Utils =
 			}
 
 			return text;
+		},
+
+		checkUrl(url): boolean
+		{
+			const allowList = [
+				"http:",
+				"https:",
+				"ftp:",
+				"file:",
+				"tel:",
+				"callto:",
+				"mailto:",
+				"skype:",
+				"viber:",
+			];
+
+			const checkCorrectStartLink = ['/', ...allowList].find(protocol => {
+				return url.startsWith(protocol);
+			});
+			if (!checkCorrectStartLink)
+			{
+				return false;
+			}
+
+			const element = Dom.create({ tag: 'a', attrs: { href: url }});
+
+			return allowList.indexOf(element.protocol) > -1;
 		},
 
 		htmlspecialchars(text)

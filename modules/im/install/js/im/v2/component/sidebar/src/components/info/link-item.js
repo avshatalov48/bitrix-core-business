@@ -113,7 +113,7 @@ export const LinkItem = {
 			</template>
 			<div class="bx-im-link-item__content">
 				<div class="bx-im-link-item__short-description-text">{{ shortDescription }}</div>
-				<a :href="source" :title="description" class="bx-im-link-item__description-text">
+				<a :href="source" :title="description" target="_blank" class="bx-im-link-item__description-text">
 					{{ description }}
 				</a>
 				<div class="bx-im-link-item__author-container">

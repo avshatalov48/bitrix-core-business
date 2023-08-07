@@ -4099,6 +4099,16 @@
 
 				if (range)
 				{
+					const nodeTypeText = 3;
+					const isTextSelected = range.startContainer.nodeType === nodeTypeText && range.startContainer === range.endContainer;
+					const isFileNameSelected = isTextSelected && range.startContainer.parentNode.hasAttribute('bx-attach-file-id');
+					if (isFileNameSelected)
+					{
+						// select node next to text to put the <a> tag to a quote
+						const startContainer = range.startContainer;
+						range.setStartBefore(startContainer.parentElement);
+						range.setEndAfter(startContainer);
+					}
 					var tmpDiv;
 					// mantis:64329
 					if (range.startContainer == range.endContainer && range.startOffset == 0 && range.endOffset == range.endContainer.length && range.startContainer.parentNode && range.startContainer.parentNode.nodeName == 'A' && range.startContainer.parentNode.href)

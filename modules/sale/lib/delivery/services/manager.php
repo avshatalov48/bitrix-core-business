@@ -701,30 +701,31 @@ class Manager
 	 * @throws SystemException
 	 * @throws \Exception
 	 */
-	public static function getGroupId($name)
+	public static function getGroupId(string $name): int
 	{
-		$res = Table::getList( array(
-			'select' => array("ID"),
-			'filter' => array(
-				"=NAME" => $name,
-				"=CLASS_NAME" => '\Bitrix\Sale\Delivery\Services\Group'
-			)
-		));
+		$group = Table::getRow([
+			'select' => ['ID'],
+			'filter' => [
+				'=NAME' => $name,
+				'=CLASS_NAME' => '\Bitrix\Sale\Delivery\Services\Group',
+			]
+		]);
 
-		if($group = $res->fetch())
+		if ($group)
 		{
 			$result = $group["ID"];
 		}
 		else
 		{
-			$res = self::add(array(
-				"NAME" => $name,
-				"CLASS_NAME" => '\Bitrix\Sale\Delivery\Services\Group',
-				"ACTIVE" => "Y"
-			));
+			$res = self::add([
+				'NAME' => $name,
+				'CLASS_NAME' => '\Bitrix\Sale\Delivery\Services\Group',
+				'ACTIVE' => 'Y',
+				'CURRENCY' => Option::get('sale', 'default_currency'),
+			]);
 
 			if($res->isSuccess())
-				$result = $res->getId();
+				$result = (int)$res->getId();
 			else
 				throw new SystemException(implode("<br>\n",$res->getErrorMessages()));
 		}

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_vue,im_lib_logger,im_lib_clipboard,main_core,calendar_planner,calendar_util,main_core_events,ui_vue_components_hint,im_const,ui_entitySelector) {
 	'use strict';

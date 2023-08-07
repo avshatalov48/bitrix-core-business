@@ -1847,7 +1847,6 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					'store_v3',
 					'store-chats-dark',
 					'clothes',
-					'store-instagram',
 					'store-mini-catalog',
 					'store-mini-one-element',
 					'search-result',
@@ -2077,14 +2076,6 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			{
 				unset($data['sydney']);
 			}
-		}
-
-		// template for INSTAGRAM store
-		if (
-			Option::get('crm', 'import_instagram_enabled', 'Y') !== 'Y' &&
-			isset($data['store-instagram']))
-		{
-			unset($data['store-instagram']);
 		}
 
 		// template for STORES IN CHAT

@@ -5,4 +5,4 @@ $MESS["BX_CATALOG_MODEL_PRODUCT_ERR_SIMPLE_IBLOCK"] = "Инфоблок не о�
 $MESS["BX_CATALOG_MODEL_PRODUCT_ERR_BAD_PRODUCT_TYPE"] = "Неверный тип товара";
 $MESS["BX_CATALOG_MODEL_PRODUCT_ERR_WRONG_PURCHASING_CURRENCY"] = "Пустая валюта себестоимости";
 $MESS["BX_CATALOG_MODEL_PRODUCT_ERR_BAD_NUMERIC_FIELD"] = "Поле #FIELD# содержит невалидные данные";
-?>
+$MESS["BX_CATALOG_MODEL_PRODUCT_ERR_QUANTITY_RESERVE_LESS_ZERO"] = "Поле QUANTITY_RESERVED меньше нуля";

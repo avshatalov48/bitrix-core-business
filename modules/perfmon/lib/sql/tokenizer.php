@@ -162,6 +162,20 @@ class Tokenizer
 	}
 
 	/**
+	 * Returns previous token.
+	 * <p>
+	 * Leaves position intact.
+	 *
+	 * @return Token
+	 */
+	public function getPrevToken()
+	{
+		/** @var Token $token */
+		$token = $this->tokens[$this->index - 1] ?? null;
+		return $token;
+	}
+
+	/**
 	 * Returns current token.
 	 * <p>
 	 * Leaves position intact.
@@ -171,7 +185,7 @@ class Tokenizer
 	public function getCurrentToken()
 	{
 		/** @var Token $token */
-		$token = $this->tokens[$this->index];
+		$token = $this->tokens[$this->index] ?? null;
 		return $token;
 	}
 
@@ -186,8 +200,28 @@ class Tokenizer
 	{
 		$this->index++;
 		/** @var Token $token */
-		$token = $this->tokens[$this->index];
+		$token = $this->tokens[$this->index] ?? null;
 		return $token;
+	}
+
+	/**
+	 * Skips all whitespace and commentaries.
+	 *
+	 * @return Token
+	 */
+	public function nextNotWhiteSpaceToken()
+	{
+		$i = $this->index + 1;
+		while (isset($this->tokens[$i]))
+		{
+			/** @var Token $token */
+			$token = $this->tokens[$i];
+			if ($token->type == Token::T_WHITESPACE || $token->type == Token::T_COMMENT)
+				$i++;
+			else
+				break;
+		}
+		return $this->tokens[$i] ?? null;
 	}
 
 	/**
@@ -273,10 +307,11 @@ class Tokenizer
 			|\\\\+                          # BACKSLASHES
 			|\"                             # DOUBLE QUOTE
 			|'                              # SINGLE QUOTE
-			|`[^`]`                         # BACK QUOTE
+			|`[^`]+`                        # BACK QUOTE
 			|\\[[^\\]]+\\]                  # SQUARE QUOTE
 			|\\/\\*.*?\\*\\/                # COMMENTARY
 			|--.*?\\n                       # COMMENTARY
+			|\\#[^']*?\\n                   # COMMENTARY
 			|[".preg_quote($chars, "/")."]  # CHARACTER
 		)/xs", $sql, -1, PREG_SPLIT_DELIM_CAPTURE);
 		$isInSingleQuote = false;
@@ -287,7 +322,7 @@ class Tokenizer
 				continue;
 
 			/** @var Token $prevToken */
-			$prevToken = $this->tokens[$tokenCount-1];
+			$prevToken = $this->tokens[$tokenCount-1] ?? null;
 
 			if ($isInSingleQuote)
 			{
@@ -295,7 +330,10 @@ class Tokenizer
 				if (
 					$rawToken === "'"
 					&& preg_match("/(\\\\)*'\$/", $prevToken->text, $match)
-					&& (mb_strlen($match[0]) % 2) === 1
+					&& (
+						mb_strlen($match[0]) === 0
+						|| (mb_strlen($match[0]) % 2) === 1
+					)
 				)
 				{
 					$isInSingleQuote = false;
@@ -324,6 +362,7 @@ class Tokenizer
 			elseif (
 				($rawToken[0] === "/" && $rawToken[1] === '*')
 				|| ($rawToken[0] === "-" && $rawToken[1] === '-')
+				|| ($rawToken[0] === "#")
 			)
 			{
 				$this->tokens[$tokenCount++] = new Token(Token::T_COMMENT, $rawToken);

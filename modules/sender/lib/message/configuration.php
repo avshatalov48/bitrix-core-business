@@ -21,19 +21,20 @@ class Configuration
 	protected $id;
 
 	/** @var array $data Data. */
-	protected $data = array();
+	protected $data = [];
 
 	/** @var callable $view View. */
 	protected $view;
 
 	/** @var ConfigurationOption[] $options UI Options. */
-	protected $options = array();
+	protected $options = [];
 
 	/**
 	 * Configuration constructor.
+	 *
 	 * @param array $data Data.
 	 */
-	public function __construct(array $data = array())
+	public function __construct(array $data = [])
 	{
 		if ($data)
 		{
@@ -73,7 +74,7 @@ class Configuration
 			return null;
 		}
 
-		return call_user_func_array($this->view, array());
+		return call_user_func_array($this->view, []);
 	}
 
 	/**
@@ -148,11 +149,11 @@ class Configuration
 		/**
 		 * this decision was made after analysing ConfigurationOption class
 		 */
-		if(!empty($option->getItems()))
+		if (!empty($option->getItems()))
 		{
 			foreach ($option->getItems() as $item)
 			{
-				if(!empty($value) && isset($item['code']) && $item['code'] == $value)
+				if (!empty($value) && isset($item['code']) && $item['code'] == $value)
 				{
 					return $item['value'];
 				}
@@ -224,7 +225,7 @@ class Configuration
 	 */
 	public static function convertToArray(array $options)
 	{
-		$list = array();
+		$list = [];
 		foreach ($options as $option)
 		{
 			$list[] = $option->getArray();
@@ -249,11 +250,11 @@ class Configuration
 			throw new ArgumentException('Templated option already exists.');
 		}
 
-		$uniqueTypes = array(
+		$uniqueTypes = [
 			ConfigurationOption::TYPE_TEMPLATE_TYPE,
-			ConfigurationOption::TYPE_TEMPLATE_ID
-		);
-		if (in_array($option->getType(), $uniqueTypes) && $this->hasOptionsOfType($option->getType()))
+			ConfigurationOption::TYPE_TEMPLATE_ID,
+		];
+		if (in_array($option->getType(), $uniqueTypes, true) && $this->hasOptionsOfType($option->getType()))
 		{
 			throw new ArgumentException('Option with type `' . $option->getType() . '` already exists.');
 		}
@@ -267,10 +268,9 @@ class Configuration
 			}
 			$this->options = array_merge(
 				array_slice($this->options, 0, $index),
-				array($option),
+				[$option],
 				array_slice($this->options, $index)
 			);
-
 		}
 		else
 		{
@@ -328,7 +328,7 @@ class Configuration
 	 */
 	public function getOptionsByGroup($group)
 	{
-		$result = array();
+		$result = [];
 		foreach ($this->options as $option)
 		{
 			if ($option->getGroup() == $group)
@@ -348,7 +348,7 @@ class Configuration
 	 */
 	public function getOptionsByType($type)
 	{
-		$result = array();
+		$result = [];
 		foreach ($this->options as $option)
 		{
 			if ($option->getType() == $type)
@@ -389,7 +389,7 @@ class Configuration
 	 */
 	public function checkOptions()
 	{
-		$result = new Result;
+		$result = new Result();
 		$this->checkRequiredOptions($result);
 
 		return $result;
@@ -423,7 +423,7 @@ class Configuration
 			$result->addError(new Error(
 				Loc::getMessage(
 					'SENDER_MESSAGE_CONFIG_ERROR_EMPTY_REQUIRED_FIELD',
-					array('%name%' => $option->getName())
+					['%name%' => $option->getName()]
 				)
 			));
 		}

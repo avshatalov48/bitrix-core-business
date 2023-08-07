@@ -5,6 +5,7 @@ namespace Bitrix\Calendar\ICal\MailInvitation;
 
 
 use Bitrix\Calendar\Internals\EventTable;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\Text\Encoding;
@@ -90,6 +91,11 @@ class SenderRequestInvitation extends SenderInvitation
 	 */
 	protected function getSubjectTitle(): string
 	{
+		if (Loader::includeModule('bitrix24') && \CBitrix24::isFreeLicense())
+		{
+			return Loc::getMessage("EC_CALENDAR_ICAL_MAIL_METHOD_REQUEST");
+		}
+
 		return Loc::getMessage("EC_CALENDAR_ICAL_MAIL_METHOD_REQUEST") . ": {$this->event['NAME']}";
 	}
 

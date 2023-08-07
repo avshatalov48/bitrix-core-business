@@ -5,13 +5,14 @@
  * @subpackage sender
  * @copyright 2001-2012 Bitrix
  */
+
 namespace Bitrix\Sender\Segment;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sender\Dispatch;
+use Bitrix\Sender\Entity;
 use Bitrix\Sender\GroupConnectorTable;
 use Bitrix\Sender\GroupTable;
-use Bitrix\Sender\Entity;
-use Bitrix\Sender\Dispatch;
 use Bitrix\Sender\Integration\Sender\Connectors\Contact;
 use Bitrix\Sender\Message;
 
@@ -19,12 +20,13 @@ Loc::loadMessages(__FILE__);
 
 /**
  * Class TileView
+ *
  * @package Bitrix\Sender\Entity
  * @internal
  */
 class TileView
 {
-	const MAX_COUNT = 4;
+	public const MAX_COUNT = 4;
 
 	/** @var bool $isInclude Is include. */
 	protected $isInclude = true;
@@ -73,34 +75,34 @@ class TileView
 	 */
 	public function getSections()
 	{
-		$list = array(
-			'last' => array(
+		$list = [
+			'last' => [
 				'id' => 'last',
 				'name' => Loc::getMessage('SENDER_SEGMENT_TILEVIEW_SECTION_LAST'),
-				'items' => array()
-			),
-			'freq' => array(
+				'items' => [],
+			],
+			'freq' => [
 				'id' => 'freq',
 				'name' => Loc::getMessage('SENDER_SEGMENT_TILEVIEW_SECTION_FREQ'),
-				'items' => array()
-			),
-			'system' => array(
+				'items' => [],
+			],
+			'system' => [
 				'id' => 'system',
 				'name' => Loc::getMessage('SENDER_SEGMENT_TILEVIEW_SECTION_SYSTEM'),
-				'items' => array()
-			),
-			'case' => array(
+				'items' => [],
+			],
+			'case' => [
 				'id' => 'case',
 				'name' => Loc::getMessage('SENDER_SEGMENT_TILEVIEW_SECTION_CASE'),
-				'items' => array()
-			),
-			'my' => array(
+				'items' => [],
+			],
+			'my' => [
 				'id' => 'my',
 				'name' => Loc::getMessage('SENDER_SEGMENT_TILEVIEW_SECTION_MY'),
-				'items' => array()
-			),
-		);
-		$tiles = $this->getTiles(array('filter' => array('=HIDDEN' => false)));
+				'items' => [],
+			],
+		];
+		$tiles = $this->getTiles(['filter' => ['=HIDDEN' => false]]);
 
 		foreach ($tiles as $tile)
 		{
@@ -134,8 +136,7 @@ class TileView
 		// sort & cut last
 		usort(
 			$list['last']['items'],
-			function ($a, $b)
-			{
+			function ($a, $b) {
 				return ($a['data']['last'] > $b['data']['last']) ? -1 : 1;
 			}
 		);
@@ -144,8 +145,7 @@ class TileView
 		// sort freq
 		usort(
 			$list['freq']['items'],
-			function ($a, $b)
-			{
+			function ($a, $b) {
 				return ($a['data']['freq'] > $b['data']['freq']) ? -1 : 1;
 			}
 		);
@@ -174,7 +174,7 @@ class TileView
 	 */
 	public function getTile($segmentId)
 	{
-		$tiles = $this->getTiles(array('filter' => array('=ID' => $segmentId)));
+		$tiles = $this->getTiles(['filter' => ['=ID' => $segmentId]]);
 		$tile = current($tiles) ?: null;
 		return $tile;
 	}
@@ -185,7 +185,7 @@ class TileView
 	 * @param array $parameters Parameters.
 	 * @return array
 	 */
-	public function getTiles(array $parameters = array())
+	public function getTiles(array $parameters = [])
 	{
 		$result = [];
 		$ids = [];
@@ -196,44 +196,42 @@ class TileView
 
 		if (!isset($parameters['order']))
 		{
-			$parameters['order'] = array(
+			$parameters['order'] = [
 				'SORT' => 'ASC',
 				'NAME' => 'ASC',
-				$fieldDateUse => 'DESC'
-			);
+				$fieldDateUse => 'DESC',
+			];
 		}
 
 		$segments = GroupTable::getList($parameters);
 
 		foreach ($segments as $segment)
 		{
-			$item = array(
+			$item = [
 				'id' => $segment['ID'],
 				'name' => $segment['NAME'],
-				'data' => array(
+				'data' => [
 					'last' => $segment[$fieldDateUse],
-					'freq' => (int) $segment[$fieldUseCount],
-					'case' => mb_substr($segment['CODE'], 0, 5) == 'case_',
-					'hidden' => $segment['HIDDEN'] == 'Y',
-					'system' => $segment['IS_SYSTEM'] == 'Y',
+					'freq' => (int)$segment[$fieldUseCount],
+					'case' => mb_substr($segment['CODE'], 0, 5) === 'case_',
+					'hidden' => $segment['HIDDEN'] === 'Y',
+					'system' => $segment['IS_SYSTEM'] === 'Y',
 					'hasStatic' => false,
-					'count' => array()
-				),
-			);
+					'count' => [],
+				],
+			];
 
 			$item['bgcolor'] = self::getBackgroundColor($item['data']);
 			$result[] = $item;
 			$ids[] = $item['id'];
 		}
 
-
-
 		if (count($ids) > 0)
 		{
 			$connectors = GroupConnectorTable::getList([
 				'filter' => [
-					'@GROUP_ID' => $ids
-				]
+					'@GROUP_ID' => $ids,
+				],
 			]);
 
 			$hasStatic = [];
@@ -245,11 +243,13 @@ class TileView
 					continue;
 				}
 				$entityConnector = \Bitrix\Sender\Connector\Manager::getConnector($connector['ENDPOINT']);
-				$hasStatic[$connector['GROUP_ID']] = $entityConnector instanceof Contact && $connector['ADDRESS_COUNT'] > 0;
+				$hasStatic[$connector['GROUP_ID']] = $entityConnector instanceof Contact
+					&& $connector['ADDRESS_COUNT'] > 0
+				;
 			}
 
 			$duration = null;
-			$messageTypes = array();
+			$messageTypes = [];
 			if ($this->message)
 			{
 				$duration = Dispatch\DurationCountBased::create($this->message);

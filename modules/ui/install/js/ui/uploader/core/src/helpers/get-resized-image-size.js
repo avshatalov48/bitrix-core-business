@@ -1,4 +1,4 @@
-import { ResizeImageOptions } from '../types/resize-image-options';
+import type { ResizeImageOptions } from '../types/resize-image-options';
 
 type ImageData = ImageBitmap | HTMLImageElement | { width: number, height: number };
 type ResizedImageSizeResult = { targetWidth: number, targetHeight: number, useOriginalSize: boolean };

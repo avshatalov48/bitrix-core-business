@@ -131,4 +131,9 @@ class Option implements OptionManager
 
 		return is_array($options) ? $options : [];
 	}
+
+	public function getProviderId(): string
+	{
+		return $this->providerId;
+	}
 }

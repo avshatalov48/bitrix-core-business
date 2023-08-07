@@ -12,4 +12,6 @@ interface OptionManager
 	public function getStreamTimeout(): int;
 	public function setSocketTimeout(int $socketTimeout): self;
 	public function getSocketTimeout(): int;
+
+	public function getProviderId(): string;
 }

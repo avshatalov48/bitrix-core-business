@@ -161,21 +161,25 @@ class Factory
 		return $eventLink;
 	}
 
-	/**
-	 * creates crm deal public link for calendar sharing
-	 *
-	 * @param int $ownerId
-	 * @param int $entityId
-	 * @param int|null $contactId
-	 * @param int|null $contactType
-	 * @return CrmDealLink
-	 * @throws ArgumentException
-	 */
+    /**
+     * creates crm deal public link for calendar sharing
+     *
+     * @param int $ownerId
+     * @param int $entityId
+     * @param int|null $contactId
+     * @param int|null $contactType
+     * @param string|null $channelId
+     * @param string|null $senderId
+     * @return CrmDealLink
+     * @throws ArgumentException
+     */
 	public function createCrmDealLink(
 		int  $ownerId,
 		int  $entityId,
 		?int $contactId = null,
-		?int $contactType = null
+		?int $contactType = null,
+		?string $channelId = null,
+        ?string $senderId = null
 	): CrmDealLink
 	{
 		$crmDealLink = (new CrmDealLink())
@@ -183,6 +187,8 @@ class Factory
 			->setEntityId($entityId)
 			->setContactType($contactType)
 			->setContactId($contactId)
+			->setChannelId($channelId)
+            ->setSenderId($senderId)
 			->setActive(true)
 			->setDateExpire(
 				Sharing\Helper::createSharingLinkExpireDate(

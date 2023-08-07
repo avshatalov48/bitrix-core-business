@@ -18,7 +18,7 @@ $sum = round($params['SUM'], 2);
 	</div>
 	<div class="mb-4 qr-code-container">
 		<div class="qr-code">
-			<img style="width: 160px" src="data:image/png;base64,<?= $params['QR_CODE_IMAGE'] ?>"/>
+			<img class="qr-code-image" src="data:image/png;base64,<?= $params['QR_CODE_IMAGE'] ?>"/>
 		</div>
 	</div>
 	<div id="button-container" style="display: none;">

@@ -71,19 +71,22 @@ class currency extends CModule
 	function InstallDB()
 	{
 		global $DB, $APPLICATION;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
-		if (!$DB->Query("SELECT COUNT(CURRENCY) FROM b_catalog_currency", true)):
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/db/mysql/install.sql");
-		endif;
+		if (!$DB->TableExists('b_catalog_currency'))
+		{
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/currency/install/db/' . $connection->getType() . '/install.sql');
+		}
 
 		if ($this->errors !== false)
 		{
 			$APPLICATION->ThrowException(implode("", $this->errors));
 			return false;
 		}
+
 		ModuleManager::registerModule('currency');
+
 		self::installCurrencies();
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
@@ -98,12 +101,13 @@ class currency extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 		if (Loader::includeModule('currency'))
 			\Bitrix\Currency\CurrencyManager::clearCurrencyCache();
 		if (!isset($arParams["savedata"]) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/db/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/db/".$connection->getType()."/uninstall.sql");
 			if($this->errors !== false)
 			{
 				$APPLICATION->ThrowException(implode('', $this->errors));

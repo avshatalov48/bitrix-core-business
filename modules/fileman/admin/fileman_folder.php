@@ -14,6 +14,7 @@ $ind=0;
 $strWarning = "";
 $strNotice = "";
 
+$logical = $logical ?? null;
 $addUrl = 'lang='.LANGUAGE_ID.($logical == "Y"?'&logical=Y':'');
 
 $io = CBXVirtualIo::GetInstance();
@@ -27,6 +28,9 @@ $abs_path = $DOC_ROOT.$path;
 $arPath = Array($site, $path);
 
 // let's check rights on this folder
+$propeditmore = $propeditmore ?? null;
+$back_url = $back_url ?? null;
+$numpropsvals = $numpropsvals ?? null;
 if(!$USER->CanDoFileOperation('fm_edit_existent_folder',$arPath))
 	$strWarning = GetMessage("ACCESS_DENIED");
 else if(!$io->DirectoryExists($abs_path))
@@ -40,8 +44,11 @@ else
 		$io = CBXVirtualIo::GetInstance();
 		if($io->DirectoryExists($DOC_ROOT.$path))
 		{
-			@include($io->GetPhysicalName($DOC_ROOT.$path."/.access.php"));
-			return $PERM;
+			if ($io->FileExists($io->GetPhysicalName($DOC_ROOT.$path."/.access.php")))
+			{
+				@include($io->GetPhysicalName($DOC_ROOT.$path."/.access.php"));
+			}
+			return $PERM ?? null;
 		}
 		return Array();
 	}
@@ -64,6 +71,8 @@ else
 		$bNeedComma = False;
 		for($i = 0; $i<$numpropsvals; $i++)
 		{
+			$_POST["CODE_".$i] = $_POST["CODE_".$i] ?? '';
+			$_POST["VALUE_".$i] = $_POST["VALUE_".$i] ?? '';
 			if(Trim($_POST["CODE_".$i]) <> '' && Trim($_POST["VALUE_".$i]) <> '')
 			{
 				if($bNeedComma) $strDirProperties .= ",\n";
@@ -130,7 +139,7 @@ else
 			$strNotice = $e->msg;
 		else
 		{
-			if($apply == '')
+			if(($apply ?? null) == '')
 			{
 				if($back_url <> '')
 					LocalRedirect("/".ltrim($back_url, "/"));
@@ -143,6 +152,7 @@ else
 	}
 }
 
+$bInitVars = $bInitVars ?? null;
 if($propeditmore <> '') $bInitVars = True;
 
 foreach ($arParsedPath["AR_PATH"] as $chainLevel)
@@ -174,6 +184,7 @@ $context->Show();
 <?CAdminMessage::ShowMessage($strWarning);?>
 
 <?
+$f_SECTIONNAME = $f_SECTIONNAME ?? null;
 if($strWarning == ''):
 	$sectionname = "";
 	$arDirProperties = false;
@@ -208,6 +219,7 @@ if ($USER->CanDoFileOperation('fm_edit_permission',$arPath))
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $tabControl->Begin();
+$oldind = $oldind ?? null;
 ?>
 <?$tabControl->BeginNextTab();?>
 	<tr>
@@ -276,8 +288,8 @@ $tabControl->Begin();
 					for($i = 0; $i<$numnewpropsvals; $i++)
 					{
 						$oldind++;
-						$f_CODE = $_POST["CODE_".$oldind];
-						$f_VALUE = $_POST["VALUE_".$oldind];
+						$f_CODE = $_POST["CODE_".$oldind] ?? '';
+						$f_VALUE = $_POST["VALUE_".$oldind] ?? '';
 						if($f_CODE == '') continue;
 
 						$bPredefinedProperty = False;
@@ -403,11 +415,11 @@ $tabControl->Begin();
 				if($path=="/")
 					$inh_perm = $CUR_PERM["/"]["*"];
 				else
-					$inh_perm = $CUR_PERM[$arParsedPath["LAST"]]["*"];
+					$inh_perm = $CUR_PERM[$arParsedPath["LAST"]]["*"] ?? null;
 
-				if (mb_substr($inh_perm, 0, 2) == 'T_')
+				if (mb_substr($inh_perm ?? '', 0, 2) == 'T_')
 					$inh_taskId = intval(mb_substr($inh_perm, 2));
-				elseif(mb_strlen($inh_perm) == 1)
+				elseif(mb_strlen($inh_perm ?? '') == 1)
 					$inh_taskId = CTask::GetIdByLetter($inh_perm,'main','file');
 				else
 					$inh_taskId = 'NOT_REF';
@@ -436,13 +448,13 @@ $tabControl->Begin();
 					if($g_ANONYMOUS=="Y")
 						$anonym = $g_NAME;
 					if($path=="/")
-						$perm = $CUR_PERM["/"][$g_ID];
+						$perm = $CUR_PERM["/"][$g_ID] ?? null;
 					else
-						$perm = $CUR_PERM[$arParsedPath["LAST"]][$g_ID];
+						$perm = $CUR_PERM[$arParsedPath["LAST"]][$g_ID] ?? null;
 
-					if (mb_substr($perm, 0, 2) == 'T_')
+					if (mb_substr($perm ?? '', 0, 2) == 'T_')
 						$taskId = intval(mb_substr($perm, 2));
-					elseif(mb_strlen($perm) == 1)
+					elseif(mb_strlen($perm ?? '') == 1)
 						$taskId = CTask::GetIdByLetter($perm,'main','file');
 					else
 						$taskId = 'NOT_REF';

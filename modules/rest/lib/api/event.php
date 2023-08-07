@@ -778,7 +778,7 @@ class Event extends \IRestService
 		}
 
 		return static::setNavData($result, array(
-			"count" => $getEventQuery->countTotal(),
+			"count" => $getEventQuery->queryCountTotal(),
 			"offset" => $navParams['offset']
 		));
 	}

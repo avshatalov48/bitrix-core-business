@@ -14,9 +14,8 @@ use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Result;
 
 /**
- * @method UrlItem next()
- * @method UrlItem current()
- * @method UrlItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,UrlItem>
+ * @method UrlItem offsetGet($key)
  */
 class UrlCollection extends BaseLinkCollection
 {

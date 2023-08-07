@@ -10,9 +10,8 @@ use Bitrix\Tasks\Provider\TaskList;
 use Bitrix\Tasks\Provider\TaskQuery;
 
 /**
- * @method TaskItem next()
- * @method TaskItem current()
- * @method TaskItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,TaskItem>
+ * @method TaskItem offsetGet($key)
  */
 class TaskCollection extends BaseLinkCollection
 {

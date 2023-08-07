@@ -11,7 +11,7 @@ foreach($arResult['value'] as $key => $rawValue)
 {
 	$explode = MoneyType::unFormatFromDB($rawValue);
 	$value = ($explode[0] <> ''? (float)$explode[0] : '');
-	$currency = ($explode[1] ?: '');
+	$currency = ($explode[1] ?? '');
 
 	$format = \CCurrencyLang::GetFormatDescription($currency);
 

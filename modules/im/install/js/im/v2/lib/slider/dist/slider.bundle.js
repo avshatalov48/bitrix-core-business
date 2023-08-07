@@ -1,7 +1,8 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,main_core_events,im_v2_const,im_v2_lib_logger,im_v2_application_launch,im_v2_lib_call,im_v2_lib_utils) {
+(function (exports,main_core,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_logger,im_v2_application_launch,im_v2_lib_call,im_v2_lib_utils,im_v2_lib_desktop) {
 	'use strict';
 
 	const SLIDER_PREFIX = 'im:slider';
@@ -26,39 +27,44 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    im_v2_lib_logger.Logger.warn('Slider: class created');
 	    this.initSettings();
 	    this.bindEvents();
+	    this.store = im_v2_application_core.Core.getStore();
 	  }
 	  openChat(dialogId = '', text = '') {
-	    if (main_core.Type.isNumber(dialogId)) {
-	      dialogId = dialogId.toString();
+	    let preparedDialogId = dialogId.toString();
+	    if (im_v2_lib_utils.Utils.dialog.isLinesExternalId(preparedDialogId)) {
+	      return this.openLines();
+	    }
+	    if (main_core.Type.isNumber(preparedDialogId)) {
+	      preparedDialogId = preparedDialogId.toString();
 	    }
 	    return this.openSlider().then(() => {
-	      this.store.dispatch('application/setLayout', {
+	      return this.store.dispatch('application/setLayout', {
 	        layoutName: im_v2_const.Layout.chat.name,
-	        entityId: dialogId
-	      }).then(() => {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onOpenChat, {
-	          dialogId
-	        });
+	        entityId: preparedDialogId
+	      });
+	    }).then(() => {
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onOpenChat, {
+	        dialogId: preparedDialogId
 	      });
 	    });
 	  }
 	  openLines() {
 	    return new Promise((resolve, reject) => {
 	      BX.UI.Notification.Center.notify({
-	        content: main_core.Loc.getMessage('IM_LIB_SLIDER_LINES_NOT_IMPLEMENTED'),
-	        position: "top-right",
+	        content: main_core.Loc.getMessage('IM_LIB_SLIDER_LINES_NOT_IMPLEMENTED_2'),
+	        position: 'top-right',
 	        autoHideDelay: 10000
 	      });
-	      reject('Messenger: lines is not implemented yet');
+	      reject(new Error('Messenger: lines are not implemented yet'));
 	    });
 	  }
 	  openNotifications() {
 	    return this.openSlider().then(() => {
-	      this.store.dispatch('application/setLayout', {
+	      return this.store.dispatch('application/setLayout', {
 	        layoutName: im_v2_const.Layout.notification.name
-	      }).then(() => {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onOpenNotifications);
 	      });
+	    }).then(() => {
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onOpenNotifications);
 	    });
 	  }
 	  openRecentSearch() {
@@ -75,10 +81,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return new Promise((resolve, reject) => {
 	      BX.UI.Notification.Center.notify({
 	        content: main_core.Loc.getMessage('IM_LIB_SLIDER_SETTINGS_NOT_IMPLEMENTED'),
-	        position: "top-right",
+	        position: 'top-right',
 	        autoHideDelay: 10000
 	      });
-	      reject('Messenger: settings is not implemented yet');
+	      reject(new Error('Messenger: settings are not implemented yet'));
 	    });
 	  }
 	  startVideoCall(dialogId = '', withVideo = true) {
@@ -87,10 +93,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      im_v2_lib_logger.Logger.error('Slider: onStartVideoCall - dialogId is not correct', dialogId);
 	      return false;
 	    }
-	    return new Promise(resolve => {
-	      im_v2_lib_call.CallManager.getInstance().startCall(dialogId, withVideo);
-	      resolve();
-	    });
+	    im_v2_lib_call.CallManager.getInstance().startCall(dialogId, withVideo);
+	    return Promise.resolve();
 	  }
 	  bindEvents() {
 	    if (!this.v2enabled) {
@@ -108,10 +112,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.v2enabled = settings.get('v2enabled', false);
 	  }
 	  openSlider() {
+	    if (im_v2_lib_desktop.DesktopManager.isDesktop()) {
+	      return Promise.resolve();
+	    }
 	    this.launchMessengerApplication();
 	    return new Promise(resolve => {
 	      if (this.isFocused()) {
-	        return resolve();
+	        resolve();
+	        return;
 	      }
 	      const nextId = this.getNextId();
 	      this.sidePanelManager.open(`${SLIDER_PREFIX}:${nextId}`, {
@@ -156,8 +164,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  initMessengerComponent() {
 	    return this.applicationPromise.then(application => {
-	      this.application = application;
-	      this.store = this.application.controller.store;
 	      this.store.dispatch('application/setLayout', {
 	        layoutName: im_v2_const.Layout.chat.name,
 	        entityId: ''
@@ -193,7 +199,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    [event] = event;
 	    const sliderId = event.getSlider().getUrl().toString();
 	    if (!sliderId.startsWith(SLIDER_PREFIX)) {
-	      return false;
+	      return;
 	    }
 	    if (!this.canCloseByEsc()) {
 	      event.denyAction();
@@ -205,7 +211,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    [event] = event;
 	    const sliderId = event.getSlider().getUrl().toString();
 	    if (!sliderId.startsWith(SLIDER_PREFIX)) {
-	      return false;
+	      return;
 	    }
 	    const id = this.getIdFromSliderId(sliderId);
 	    delete this.instances[id];
@@ -232,7 +238,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!slider) {
 	      return false;
 	    }
-	    return !!slider.getUrl().toString().startsWith(SLIDER_PREFIX);
+	    return slider.getUrl().toString().startsWith(SLIDER_PREFIX);
 	  }
 	  canClose() {
 	    return true;
@@ -257,5 +263,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.MessengerSlider = MessengerSlider;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=slider.bundle.js.map

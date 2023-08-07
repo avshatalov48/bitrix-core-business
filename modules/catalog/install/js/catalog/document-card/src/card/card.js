@@ -27,6 +27,8 @@ class DocumentCard extends BaseCard
 		this.signedParameters = settings.signedParameters;
 		this.isConductLocked = settings.isConductLocked;
 		this.masterSliderUrl = settings.masterSliderUrl;
+		this.isInventoryManagementDisabled = settings.isInventoryManagementDisabled;
+		this.inventoryManagementFeatureCode = settings.inventoryManagementFeatureCode;
 		this.editorName = settings.includeCrmEntityEditor ? 'BX.Crm.EntityEditor' : 'BX.UI.EntityEditor';
 		this.inventoryManagementSource = settings.inventoryManagementSource;
 		this.activeTabId = 'main';
@@ -318,6 +320,14 @@ class DocumentCard extends BaseCard
 			{
 				eventEditor._toolPanel?.clearErrors();
 
+				if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode)
+				{
+					event.data[1].cancel = true;
+					event.data[0]._toolPanel?.setLocked(false);
+					top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+					return;
+				}
+
 				if (action === 'SAVE_AND_CONDUCT')
 				{
 					if (this.isConductLocked)
@@ -381,6 +391,14 @@ class DocumentCard extends BaseCard
 		EventEmitter.subscribe(this.editorName + ':onDirectAction', (event) => {
 
 			const eventEditor = event.data[0];
+
+			if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode)
+			{
+				event.data[1].cancel = true;
+				event.data[0]._toolPanel?.setLocked(false);
+				top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+				return;
+			}
 
 			if (event.data[1]?.actionId === 'CONDUCT')
 			{

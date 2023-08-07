@@ -54,7 +54,7 @@ function checkCombination(event: KeyboardEvent, combination: string)
 	{
 		return false;
 	}
-	if (combination.includes(CTRL) && !this.isCmdOrCtrl(event))
+	if (combination.includes(CTRL) && !KeyUtil.isCmdOrCtrl(event))
 	{
 		return false;
 	}

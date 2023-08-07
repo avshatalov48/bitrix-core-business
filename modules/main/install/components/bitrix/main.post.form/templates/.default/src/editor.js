@@ -309,6 +309,7 @@ export default class Editor
 				{
 					EventEmitter.emit(this.getEventObject(), 'OnShowLHE', new BaseEvent({compatData: ['justShow', {onShowControllers: 'show'}]}));
 					EventEmitter.emit(this.getEventObject(), 'onFilesHaveCaught', new BaseEvent({data: e['dataTransfer']['files']}));
+					EventEmitter.emit(this.getEventObject(), 'onFilesHaveDropped', { event: e });
 				}
 				return false;
 			};
@@ -352,7 +353,8 @@ export default class Editor
 						if (lhe)
 						{
 							EventEmitter.emit(lhe.getEventObject(), 'OnShowLHE', new BaseEvent({compatData: ['justShow', {onShowControllers: 'show'}]}));
-							EventEmitter.emit(lhe.getEventObject(), 'onFilesHaveCaught', new BaseEvent({data: e['dataTransfer']['files']}));
+							EventEmitter.emit(lhe.getEventObject(), 'onFilesHaveCaught', new BaseEvent({ data: e['dataTransfer']['files']}));
+							EventEmitter.emit(lhe.getEventObject(), 'onFilesHaveDropped', { event: e });
 						}
 					}
 					return false;
@@ -485,10 +487,14 @@ export default class Editor
 			if (!this['addParserAfterDebounced'])
 			{
 				this.addParserAfterDebounced = Runtime.debounce(() => {
-					this.getEditor().SetContent(
-						this.getEditor().GetContent().replace(/&#91;/ig, "[").replace(/&#93;/ig, "]"),
-						true
-					);
+					const content = this.getEditor().GetContent();
+					if (/&#9[13];/gi.test(content))
+					{
+						this.getEditor().SetContent(
+							content.replace(/&#91;/ig, "[").replace(/&#93;/ig, "]"),
+							true,
+						);
+					}
 				}, 100);
 			}
 			this.addParserAfterDebounced();
@@ -501,7 +507,8 @@ export default class Editor
 			const editorMode = this.getEditor().GetViewMode();
 			if (editorMode === 'wysiwyg')
 			{
-				this.getEditor().InsertHtml(html||text );
+				const range = this.getEditor().selection.GetRange();
+				this.getEditor().InsertHtml(html || text, range);
 				setTimeout(this.getEditor().AutoResizeSceleton.bind(this.getEditor()), 500);
 				setTimeout(this.getEditor().AutoResizeSceleton.bind(this.getEditor()), 1000);
 			}
@@ -540,18 +547,18 @@ export default class Editor
 			})
 		}
 
-		EventEmitter.emit(this.getEventObject(), 'onShowControllers', showControllers);
-		EventEmitter.emit(this.getEventObject(),  'onReinitializeBefore', [text, data]);
+		EventEmitter.emitAsync(this.getEventObject(), 'onReinitializeBeforeAsync', [text, data]).then(() => {
+			EventEmitter.emit(this.getEventObject(), 'onShowControllers', showControllers);
+			EventEmitter.emit(this.getEventObject(),  'onReinitializeBefore', [text, data]);
+			this.getEditor().CheckAndReInit(Type.isString(text) ? text : '');
+			BX.onCustomEvent(this.getEditor(), 'onReinitialize', [this, text, data]);
 
-		this.getEditor().CheckAndReInit(Type.isString(text) ? text : '');
-
-		BX.onCustomEvent(this.getEditor(), 'onReinitialize', [this, text, data]);
-
-		if (this.editorParams['height'])
-		{
-			this.oEditor.SetConfigHeight(this.editorParams['height']);
-			this.oEditor.ResizeSceleton();
-		}
+			if (this.editorParams['height'])
+			{
+				this.oEditor.SetConfigHeight(this.editorParams['height']);
+				this.oEditor.ResizeSceleton();
+			}
+		});
 	}
 
 	OnShowLHE({data, compatData})

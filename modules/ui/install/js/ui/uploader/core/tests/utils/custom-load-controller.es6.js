@@ -62,15 +62,13 @@ export default class CustomLoadController extends AbstractLoadController
 			{
 				clearInterval(this.xhr);
 				this.emit('onLoad', { fileInfo: {
-					serverId: 1077,
+					serverFileId: 1077,
 					type: 'image/jpeg',
 					name: '9r78040i8tr391jj3eaz1oju5z78njv1.jpg',
-					originalName: '46674648_1837662499688888_167780753980067223_n.jpg',
 					size: 275427,
 					width: 800,
 					height: 800,
 					downloadUrl: '/download/?fileId=1077',
-					removeUrl: '/remove/fileId=1077',
 					serverPreviewUrl: '/preview/?fileId=1077',
 					serverPreviewWidth: 0,
 					serverPreviewHeight: 0

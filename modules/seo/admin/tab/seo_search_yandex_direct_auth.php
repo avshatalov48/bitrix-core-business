@@ -22,7 +22,7 @@ if(!Service::isRegistered())
 {
 	$authAction = "registerClient();";
 ?>
-	<input type=button onclick="<?=$authAction?>" value="<?=Loc::getMessage('SEO_YANDEX_REGISTER')?>"
+	<input type=button onclick="<?=$authAction?>" value="<?=Loc::getMessage('SEO_YANDEX_REGISTER_FULL')?>"
  id="seo_authorize_btn" />
 <?
 }
@@ -78,7 +78,7 @@ echo EndNote();
 			else if(result["error"])
 			{
 				alert('<?=CUtil::JSEscape(Loc::getMessage("SEO_ERROR"))?> : ' + result['error']['message']);
-				BX('seo_authorize_btn').value = '<?=CUtil::JSEscape(Loc::getMessage('SEO_YANDEX_REGISTER'))?>';
+				BX('seo_authorize_btn').value = '<?=CUtil::JSEscape(Loc::getMessage('SEO_YANDEX_REGISTER_FULL'))?>';
 			}
 		});
 	}

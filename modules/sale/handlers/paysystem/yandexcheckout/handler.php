@@ -4,8 +4,10 @@ namespace Sale\Handlers\PaySystem;
 
 use Bitrix\Main\Localization;
 use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
 use Bitrix\Main\Web\HttpClient;
+use Bitrix\Sale\Cashbox;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\PaymentCollection;
 use Bitrix\Sale\PaySystem;
@@ -26,7 +28,8 @@ class YandexCheckoutHandler
 	PaySystem\IRefund,
 	PaySystem\IPartialHold,
 	PaySystem\Domain\Verification\IVerificationable,
-	PaySystem\IRecurring
+	PaySystem\IRecurring,
+	PaySystem\Cashbox\ISupportPrintCheck
 {
 	const CMS_NAME = 'api_1c-bitrix';
 
@@ -93,6 +96,8 @@ class YandexCheckoutHandler
 
 	private const SEND_METHOD_HTTP_POST = "POST";
 	private const SEND_METHOD_HTTP_GET = "GET";
+
+	use PaySystem\Cashbox\CheckTrait;
 
 	/**
 	 * @param Payment $payment
@@ -355,6 +360,21 @@ class YandexCheckoutHandler
 		else
 		{
 			$params = $this->getYandexPaymentQueryParams($payment, $request);
+		}
+
+		if ($this->service->canPrintCheckSelf($payment))
+		{
+			$receiptResult = $this->getReceipt($payment);
+			if (!$receiptResult->isSuccess())
+			{
+				$result->addErrors($receiptResult->getErrors());
+				return $result;
+			}
+
+			$receiptData = $receiptResult->getData();
+			$params['receipt'] = $receiptData['receipt'];
+
+			PaySystem\Logger::addDebugInfo(__CLASS__ . ": receipt = " . self::encode($receiptData['receipt']));
 		}
 
 		$sendResult = $this->send(self::SEND_METHOD_HTTP_POST, $url, $headers, $params);
@@ -620,6 +640,33 @@ class YandexCheckoutHandler
 		}
 
 		return $query;
+	}
+
+	private function getReceipt(Payment $payment): PaySystem\ServiceResult
+	{
+		$result = new PaySystem\ServiceResult();
+
+		$checkQueryResult = $this->buildCheckQuery($payment);
+		if ($checkQueryResult->isSuccess())
+		{
+			$receiptData = $checkQueryResult->getData();
+			if (!empty($receiptData['items']) && !empty($receiptData['customer']))
+			{
+				$result->setData([
+					'receipt' => $receiptData,
+				]);
+			}
+			else
+			{
+				$result->addError(PaySystem\Error::create(Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_EMPTY_RECEIPT')));
+			}
+		}
+		else
+		{
+			$result->addErrors($checkQueryResult->getErrors());
+		}
+
+		return $result;
 	}
 
 	/**
@@ -1026,13 +1073,20 @@ class YandexCheckoutHandler
 		if ($yandexSettingsResult->isSuccess())
 		{
 			$yandexSettingsData = $yandexSettingsResult->getData();
-			if ($yandexSettingsData['fiscalization_enabled'])
+
+			if (
+				$yandexSettingsData['fiscalization_enabled']
+				&& $this->isTerminalPayment($payment)
+			)
 			{
 				$result->addError(
 					PaySystem\Error::create(
-						Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_FISCALIZATION_ENABLE')
+						Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_TERMINAL_FISCALIZATION_ENABLED'),
+						'fiscalization_enabled'
 					)
 				);
+
+				return $result;
 			}
 
 			$paymentMethods = $yandexSettingsData['payment_methods'];
@@ -1060,6 +1114,25 @@ class YandexCheckoutHandler
 		}
 
 		return $result;
+	}
+
+	private function isTerminalPayment(Payment $payment): bool
+	{
+		$order = $payment->getOrder();
+		if ($order instanceof \Bitrix\Crm\Order\Order)
+		{
+			/** @var \Bitrix\Sale\TradeBindingEntity $entity */
+			foreach ($order->getTradeBindingCollection() as $entity)
+			{
+				$platform = $entity->getTradePlatform();
+				if ($platform && $platform->getCode() === \Bitrix\Crm\Order\TradingPlatform\Terminal::TRADING_PLATFORM_CODE)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -1645,5 +1718,10 @@ class YandexCheckoutHandler
 	private static function generateQrCode(string $data): ?string
 	{
 		return (new PaySystem\BarcodeGenerator())->generate($data);
+	}
+
+	public static function getCashboxClass(): string
+	{
+		return '\\'.Cashbox\CashboxYooKassa::class;
 	}
 }

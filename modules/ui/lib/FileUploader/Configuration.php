@@ -3,6 +3,7 @@
 namespace Bitrix\UI\FileUploader;
 
 use Bitrix\Main\Config\Ini;
+use Bitrix\Main\Result;
 
 class Configuration
 {
@@ -17,6 +18,7 @@ class Configuration
 	protected int $imageMaxHeight = 7000;
 	protected ?int $imageMaxFileSize = 48 * 1024 * 1024;
 	protected int $imageMinFileSize = 0;
+	protected bool $treatOversizeImageAsFile = false;
 	protected bool $ignoreUnknownImageTypes = false;
 
 	public function __construct(array $options = [])
@@ -60,6 +62,11 @@ class Configuration
 		{
 			$this->setIgnoreUnknownImageTypes($options['ignoreUnknownImageTypes']);
 		}
+
+		if (isset($options['treatOversizeImageAsFile']) && is_bool($options['treatOversizeImageAsFile']))
+		{
+			$this->setTreatOversizeImageAsFile($options['treatOversizeImageAsFile']);
+		}
 	}
 
 	public static function getGlobalSettings(): array
@@ -72,6 +79,87 @@ class Configuration
 		}
 
 		return $settings;
+	}
+
+	public function shouldTreatImageAsFile(FileData | array $fileData): bool
+	{
+		if (!$this->shouldTreatOversizeImageAsFile())
+		{
+			return false;
+		}
+
+		if (!$fileData->isImage())
+		{
+			return true;
+		}
+
+		$result = $this->validateImage($fileData);
+
+		return !$result->isSuccess();
+	}
+
+	public function validateImage(FileData $fileData): Result
+	{
+		$result = new Result();
+
+		if (($fileData->getWidth() === 0 || $fileData->getHeight() === 0) && !$this->getIgnoreUnknownImageTypes())
+		{
+			return $result->addError(new UploaderError(UploaderError::IMAGE_TYPE_NOT_SUPPORTED));
+		}
+
+		if ($this->getImageMaxFileSize() !== null && $fileData->getSize() > $this->getImageMaxFileSize())
+		{
+			return $result->addError(
+				new UploaderError(
+					UploaderError::IMAGE_MAX_FILE_SIZE_EXCEEDED,
+					[
+						'imageMaxFileSize' => \CFile::formatSize($this->getImageMaxFileSize()),
+						'imageMaxFileSizeInBytes' => $this->getImageMaxFileSize(),
+					]
+				)
+			);
+		}
+
+		if ($fileData->getSize() < $this->getImageMinFileSize())
+		{
+			return $result->addError(
+				new UploaderError(
+					UploaderError::IMAGE_MIN_FILE_SIZE_EXCEEDED,
+					[
+						'imageMinFileSize' => \CFile::formatSize($this->getImageMinFileSize()),
+						'imageMinFileSizeInBytes' => $this->getImageMinFileSize(),
+					]
+				)
+			);
+		}
+
+		if ($fileData->getWidth() < $this->getImageMinWidth() || $fileData->getHeight() < $this->getImageMinHeight())
+		{
+			return $result->addError(
+				new UploaderError(
+					UploaderError::IMAGE_IS_TOO_SMALL,
+					[
+						'minWidth' => $this->getImageMinWidth(),
+						'minHeight' => $this->getImageMinHeight(),
+					]
+				)
+			);
+		}
+
+		if ($fileData->getWidth() > $this->getImageMaxWidth() || $fileData->getHeight() > $this->getImageMaxHeight())
+		{
+			return $result->addError(
+				new UploaderError(
+					UploaderError::IMAGE_IS_TOO_BIG,
+					[
+						'maxWidth' => $this->getImageMaxWidth(),
+						'maxHeight' => $this->getImageMaxHeight(),
+					]
+				)
+			);
+		}
+
+		return $result;
 	}
 
 	public function getMaxFileSize(): ?int
@@ -111,20 +199,28 @@ class Configuration
 	public function setAcceptedFileTypes(array $acceptedFileTypes): self
 	{
 		$this->acceptedFileTypes = $acceptedFileTypes;
+		$this->acceptOnlyImages = false;
 
 		return $this;
 	}
 
 	public function setAcceptOnlyImages(bool $flag = true): self
 	{
-		return $this->acceptOnlyImages($flag);
+		$this->acceptOnlyImages = $flag;
+
+		if ($flag)
+		{
+			$this->acceptOnlyImages();
+		}
+
+		return $this;
 	}
 
-	public function acceptOnlyImages(bool $flag = true): self
+	public function acceptOnlyImages(): self
 	{
-		$imageExtensions = $flag ? static::getImageExtensions() : [];
-		$this->acceptOnlyImages = $flag;
+		$imageExtensions = static::getImageExtensions();
 		$this->setAcceptedFileTypes($imageExtensions);
+		$this->acceptOnlyImages = true;
 
 		return $this;
 	}
@@ -237,6 +333,18 @@ class Configuration
 	public function setIgnoreUnknownImageTypes(bool $flag): self
 	{
 		$this->ignoreUnknownImageTypes = $flag;
+
+		return $this;
+	}
+
+	public function shouldTreatOversizeImageAsFile(): bool
+	{
+		return $this->treatOversizeImageAsFile;
+	}
+
+	public function setTreatOversizeImageAsFile(bool $flag): self
+	{
+		$this->treatOversizeImageAsFile = $flag;
 
 		return $this;
 	}

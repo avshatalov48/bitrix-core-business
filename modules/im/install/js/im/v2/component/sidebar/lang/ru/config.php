@@ -15,7 +15,7 @@ $MESS['IM_SIDEBAR_SYSTEM_USER'] = "Системный пользователь";
 
 // detail titles
 $MESS['IM_SIDEBAR_MAIN_DETAIL_TITLE'] = "Участники: #NUMBER#";
-$MESS['IM_SIDEBAR_FAVORITE_DETAIL_TITLE'] = "Сохранённые сообщения";
+$MESS['IM_SIDEBAR_FAVORITE_DETAIL_TITLE'] = "Избранное";
 $MESS['IM_SIDEBAR_LINK_DETAIL_TITLE'] = "Ссылки из сообщений";
 $MESS['IM_SIDEBAR_TASK_DETAIL_TITLE'] = "Задачи";
 $MESS['IM_SIDEBAR_MEDIA_DETAIL_TITLE'] = "Медиа и файлы";
@@ -34,7 +34,7 @@ $MESS['IM_SIDEBAR_MENU_GO_TO_CONTEXT_MESSAGE'] = "Посмотреть в чат
 $MESS['IM_SIDEBAR_MENU_INVITE_MEMBERS'] = "Пригласить участников";
 $MESS['IM_SIDEBAR_MENU_JOIN_CHAT'] = "Присоединиться к чату";
 $MESS['IM_SIDEBAR_MENU_KICK_FROM_CHAT'] = "Исключить из чата";
-$MESS['IM_SIDEBAR_MENU_REMOVE_FROM_SAVED'] = "Убрать из сохранённых";
+$MESS['IM_SIDEBAR_MENU_REMOVE_FROM_SAVED_V2'] = "Убрать из Избранного";
 $MESS['IM_SIDEBAR_MENU_COPY_LINK'] = "Скопировать ссылку";
 $MESS['IM_SIDEBAR_MENU_COPY_TASK_LINK'] = "Скопировать ссылку на задачу";
 $MESS['IM_SIDEBAR_MENU_COPY_MEETING_LINK'] = "Скопировать ссылку на встречу";
@@ -46,7 +46,7 @@ $MESS['IM_SIDEBAR_MENU_DELETE_MEETING_CONNECTION'] = "Удалить связь 
 // empty states
 $MESS['IM_SIDEBAR_LINKS_EMPTY'] = "Нет ссылок";
 $MESS['IM_SIDEBAR_FILES_EMPTY'] = "Нет файлов";
-$MESS['IM_SIDEBAR_FAVORITES_EMPTY'] = "Нет сохранённых сообщений";
+$MESS['IM_SIDEBAR_FAVORITES_EMPTY'] = "Нет избранного";
 $MESS['IM_SIDEBAR_TASKS_EMPTY'] = "Нет задач";
 $MESS['IM_SIDEBAR_BRIEFS_EMPTY'] = "Нет резюме встреч";
 $MESS['IM_SIDEBAR_MEDIA_AND_FILES_EMPTY'] = "Нет медиа и файлов";

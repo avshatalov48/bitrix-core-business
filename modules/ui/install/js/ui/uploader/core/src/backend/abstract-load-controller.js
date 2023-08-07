@@ -1,7 +1,8 @@
+import { Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
+
 import type Server from './server';
 import type UploaderFile from '../uploader-file';
-import { Type } from 'main.core';
 
 export default class AbstractLoadController extends EventEmitter
 {

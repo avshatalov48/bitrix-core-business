@@ -53,6 +53,7 @@ $MESS["SEO_SITEMAP_RUN_INIT"] = "Инициализация...";
 $MESS["SEO_FILE_MASK_HELP"] = "<b>*</b> - любое количество символов;<br /><b>?</b> - один любой символ.";
 $MESS["SITEMAP_FILENAME_FILE"] = "Имя файла карты сайта с данными о файлах";
 $MESS["SITEMAP_FILENAME_IBLOCK"] = "Шаблон имени файла карты сайта с данными инфоблоков";
+$MESS["SITEMAP_FILENAME_SYMBOL_NOTIFY"] = "Некоторые поисковые системы не воспринимают символ \"_\" в имени файла. Мы заменяем его на \"-\"";
 $MESS["SITEMAP_RUN_FILES"] = "Обработка файлов: #PATH#";
 $MESS["SITEMAP_RUN_FILE_COMPLETE"] = "#FILE# завершен";
 $MESS["SITEMAP_RUN_IBLOCK_EMPTY"] = "Нет инфоблоков для обработки";

@@ -106,15 +106,15 @@ abstract class Converter implements IConverter
 					break;
 				case 'time':
 					if($value instanceof DateTime)
-						$value = \CAllDatabase::FormatDate($value->toString(), \CAllSite::GetDateFormat("FULL", LANG), "HH:MI:SS");
+						$value = \CDatabase::FormatDate($value->toString(), \CSite::GetDateFormat("FULL", LANG), "HH:MI:SS");
 					break;
 				case 'date':
 					if($value instanceof DateTime)
-						$value = \CAllDatabase::FormatDate($value->toString(), \CAllSite::GetDateFormat("FULL", LANG), "YYYY-MM-DD");
+						$value = \CDatabase::FormatDate($value->toString(), \CSite::GetDateFormat("FULL", LANG), "YYYY-MM-DD");
 					break;
 				case 'datetime':
 					if($value instanceof DateTime)
-						$value = \CAllDatabase::FormatDate($value->toString(), \CAllSite::GetDateFormat("FULL", LANG), "YYYY-MM-DD HH:MI:SS");
+						$value = \CDatabase::FormatDate($value->toString(), \CSite::GetDateFormat("FULL", LANG), "YYYY-MM-DD HH:MI:SS");
 					break;
 				case 'bool':
 					$value = $value == 'Y'? 'true':'false';

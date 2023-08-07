@@ -13,9 +13,9 @@ Loc::loadMessages(__FILE__);
 		<p>
 			<?=Loc::getMessage("SALE_HPS_QIWI_SUMM_TO_PAY")?>:
 			<?php if (Loader::includeModule("currency")):?>
-				<strong><?=CCurrencyLang::CurrencyFormat($params['PAYMENT_SHOULD_PAY'], $params['PAYMENT_CURRENCY'], true);?></strong>
+				<strong class="strong-value"><?=CCurrencyLang::CurrencyFormat($params['PAYMENT_SHOULD_PAY'], $params['PAYMENT_CURRENCY'], true);?></strong>
 			<?php else:?>
-				<strong><?=htmlspecialcharsbx($params['SHOULD_PAY']);?> <?=htmlspecialcharsbx($params['CURRENCY'])?></strong>
+				<strong class="strong-value"><?=htmlspecialcharsbx($params['SHOULD_PAY']);?> <?=htmlspecialcharsbx($params['CURRENCY'])?></strong>
 			<?php endif;?>
 		</p>
 		<input type="hidden" name="to" value="<?=htmlspecialcharsbx($params['BUYER_PERSON_PHONE']);?>"/>

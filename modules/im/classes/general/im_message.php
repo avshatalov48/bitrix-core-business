@@ -748,12 +748,15 @@ class CIMMessage
 
 		$startId = $readService->getLastIdByChatId($chat->getChatId());
 		$counter = 0;
+		$viewedMessages = [];
 
 		if (isset($lastId))
 		{
 			$message = new \Bitrix\Im\V2\Message();
 			$message->setMessageId((int)$lastId)->setChatId($chat->getChatId());
-			$counter = $readService->readTo($message)->getResult()['COUNTER'];
+			$readResult = $readService->readTo($message);
+			$counter = $readResult->getResult()['COUNTER'];
+			$viewedMessages = $readResult->getResult()['VIEWED_MESSAGES'];
 		}
 		else
 		{
@@ -783,7 +786,7 @@ class CIMMessage
 					'counter' => $counter,
 					'muted' => false,
 					'unread' => \Bitrix\Im\Recent::isUnread($this->user_id, \IM_MESSAGE_PRIVATE, $fromUserId),
-					'viewedMessages' => [(int)$lastId],
+					'viewedMessages' => $viewedMessages,
 				),
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
@@ -799,7 +802,7 @@ class CIMMessage
 					'lastId' => $endId,
 					'date' => date('c', time()),
 					'chatMessageStatus' => (new \Bitrix\Im\V2\Message\ReadService($fromUserId))->getChatMessageStatus($chat->getChatId()),
-					'viewedMessages' => [(int)$lastId],
+					'viewedMessages' => $viewedMessages,
 				),
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));

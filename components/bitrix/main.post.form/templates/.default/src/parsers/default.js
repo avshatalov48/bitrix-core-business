@@ -8,6 +8,7 @@ export default class Default
 		disabledForTextarea: false,
 		src: '/icon.png',
 		toolbarSort: 205,
+		compact: false
 	};
 	editor;
 	htmlEditor;
@@ -52,6 +53,7 @@ export default class Default
 			disabledForTextarea: this.buttonParams.disabledForTextarea,
 			src: this.buttonParams.src,
 			toolbarSort: this.buttonParams.toolbarSort,
+			compact: this.buttonParams.compact === true,
 			handler: this.handler
 		}
 	}

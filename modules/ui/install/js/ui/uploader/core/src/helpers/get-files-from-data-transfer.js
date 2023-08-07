@@ -1,51 +1,12 @@
-const getFilesFromDataTransfer = (dataTransfer: DataTransfer) => {
-	return new Promise((resolve, reject) => {
-		if (!dataTransfer.items)
-		{
-			resolve(dataTransfer.files ? Array.from(dataTransfer.files) : []);
+import getFilesInDirectory from './get-files-in-directory';
+import isDirectoryEntry from './is-directory-entry';
+import isFileSystemItem from './is-file-system-item';
 
-			return;
-		}
-
-		const items = Array.from(dataTransfer.items)
-			.filter(item => isFileSystemItem(item))
-			.map(item => getFilesFromItem(item))
-		;
-
-		Promise.all(items)
-			.then((fileGroups: Array<File[]>) => {
-				const files = [];
-				fileGroups.forEach((group: File[]) => {
-					files.push.apply(files, group);
-				});
-
-				resolve(files);
-			})
-			.catch(reject)
-		;
-	});
-};
-
-export default getFilesFromDataTransfer;
-
-const isFileSystemItem = (item: DataTransferItem) => {
-	if ('webkitGetAsEntry' in item)
-	{
-		const entry = item.webkitGetAsEntry();
-		if (entry)
-		{
-			return entry.isFile || entry.isDirectory;
-		}
-	}
-
-	return item.kind === 'file';
-};
-
-const getFilesFromItem = (item: DataTransferItem) => {
-	return new Promise((resolve, reject) => {
+const getFilesFromItem = (item: DataTransferItem): Promise<File[]> => {
+	return new Promise((resolve, reject): void => {
 		if (isDirectoryEntry(item))
 		{
-			getFilesInDirectory(getAsEntry(item))
+			getFilesInDirectory(item.webkitGetAsEntry())
 				.then(resolve)
 				.catch(reject)
 			;
@@ -57,58 +18,79 @@ const getFilesFromItem = (item: DataTransferItem) => {
 	});
 };
 
-const getFilesInDirectory = entry => {
-	return new Promise((resolve, reject) => {
-		const files = [];
-		let dirCounter = 0;
-		let fileCounter = 0;
+export const getFilesFromDataTransfer = (dataTransfer: DataTransfer, browseFolders = true): Promise<File[]> => {
+	return new Promise((resolve, reject): void => {
+		if (!dataTransfer.items)
+		{
+			resolve(dataTransfer.files ? [...dataTransfer.files] : []);
 
-		const resolveIfDone = () => {
-			if (fileCounter === 0 && dirCounter === 0)
-			{
+			return;
+		}
+
+		const items: Promise[] = [...dataTransfer.items]
+			.filter((item: DataTransferItem): boolean => {
+				return browseFolders ? isFileSystemItem(item) : item.kind === 'file';
+			})
+			.map((item: DataTransferItem): Promise => {
+				return getFilesFromItem(item);
+			})
+		;
+
+		Promise.all(items)
+			.then((fileGroups: Array<File[]>): void => {
+				const files = [];
+				fileGroups.forEach((group: File[]): void => {
+					files.push(...group);
+				});
+
 				resolve(files);
-			}
-		};
-
-		const readEntries = dirEntry => {
-			dirCounter++;
-			const directoryReader = dirEntry.createReader();
-			const readBatch = () => {
-				directoryReader.readEntries(entries => {
-					if (entries.length === 0)
-					{
-						dirCounter--;
-						resolveIfDone();
-						return;
-					}
-
-					entries.forEach(entry => {
-						if (entry.isDirectory)
-						{
-							readEntries(entry);
-						}
-						else
-						{
-							fileCounter++;
-							entry.file(file => {
-								files.push(file);
-								fileCounter--;
-								resolveIfDone();
-							});
-						}
-					});
-
-					readBatch();
-				}, reject);
-			};
-
-			readBatch();
-		};
-
-		readEntries(entry);
+			})
+			.catch(reject)
+		;
 	});
 };
 
-const isDirectoryEntry = item => isEntry(item) && (getAsEntry(item) || {}).isDirectory;
-const isEntry = item => 'webkitGetAsEntry' in item;
-const getAsEntry = item => item.webkitGetAsEntry();
+export const hasDataTransferOnlyFiles = (dataTransfer: DataTransfer, browseFolders = true): Promise<File[]> => {
+	return new Promise((resolve, reject): void => {
+		if (!dataTransfer.items)
+		{
+			resolve(dataTransfer.files ? dataTransfer.files.length > 0 : false);
+
+			return;
+		}
+
+		const success: boolean = [...dataTransfer.items].every((item: DataTransferItem): boolean => {
+			return browseFolders ? isFileSystemItem(item) : item.kind === 'file' && !isDirectoryEntry(item);
+		});
+
+		resolve(success);
+	});
+};
+
+export const isFilePasted = (dataTransfer: DataTransfer, browseFolders = true): boolean => {
+	if (!dataTransfer.types.includes('Files'))
+	{
+		return false;
+	}
+
+	let files = 0;
+	let texts = 0;
+	const items: DataTransferItemList = dataTransfer.items;
+	for (const item of items)
+	{
+		if (item.kind === 'string')
+		{
+			texts++;
+		}
+		else
+		{
+			const isFile = browseFolders ? isFileSystemItem(item) : item.kind === 'file' && !isDirectoryEntry(item);
+			if (isFile)
+			{
+				files++;
+			}
+		}
+	}
+
+	return files >= texts;
+};

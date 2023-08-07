@@ -34,15 +34,19 @@
 	color: var(--im-elements-tabs__color_selected-tab);
 }
 
+
 .bx-im-elements-tabs__item-title {
 	font: var(--im-font-size-lg)/var(--im-font-line-height-reset) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-medium);
 	color: var(--im-elements-tabs__color_nonselected-tab);
+	line-height: var(--im-font-line-height-3xs);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
-	transition: color 0.2s linear;
 	user-select: none;
+}
+.bx-im-elements-tabs__item-title.--transition {
+	transition: color 0.2s linear;
 }
 
 .bx-im-elements-tabs__control {
@@ -101,7 +105,10 @@
 	border-top-right-radius: 3px;
 	bottom: 0;
 	background-color: var(--im-elements-tabs__background-color_selected-tab);
-	transition: .3s cubic-bezier(.25,.8,.5,1);
+}
+
+.bx-im-elements-tabs__highlight.--transition {
+	transition: .3s cubic-bezier(.25,.8,.5,1)
 }
 
 .bx-im-elements-tabs__elements::-webkit-scrollbar {

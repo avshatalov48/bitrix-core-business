@@ -4,6 +4,7 @@ use Bitrix\Main;
 use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Sharing;
+use Bitrix\Calendar\Integration\Bitrix24Manager;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 {
@@ -36,7 +37,16 @@ class CalendarPubSharingComponent extends CBitrixComponent
 
 	protected function getBrowserLanguage(): string
 	{
-		return substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+		$browserLang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+		$langMap = [
+			'pt' => 'br', // Portuguese (Brazil)
+			'es' => 'la', // Spanish
+			'zh'=> 'sc' , // Chinese (Simplified)
+			'vi' => 'vn', // Vietnamese
+			'uk' => 'ua', // Ukrainian
+		];
+
+		return $langMap[$browserLang] ?? $browserLang;
 	}
 
 	protected function isLanguageAvailable(string $language): bool
@@ -64,7 +74,11 @@ class CalendarPubSharingComponent extends CBitrixComponent
 	public function executeComponent()
 	{
 		$showAlert = false;
-		if (!Main\Loader::includeModule('calendar') || !\Bitrix\Calendar\Sharing\SharingFeature::isEnabled())
+		if (
+			!Main\Loader::includeModule('calendar')
+			|| !\Bitrix\Calendar\Sharing\SharingFeature::isEnabled()
+			|| !Bitrix24Manager::isFeatureEnabled('calendar_sharing')
+		)
 		{
 			$showAlert = true;
 		}

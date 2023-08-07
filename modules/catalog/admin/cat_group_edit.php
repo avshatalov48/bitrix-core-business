@@ -471,10 +471,12 @@ $tabControl->BeginNextTab();
 	</tr>
 <?
 $tabControl->EndTab();
-if (!$bReadOnly)
-{
-	$tabControl->Buttons(array("back_url" => $listUrl));
-}
+$tabControl->Buttons([
+	'btnSave' => !$bReadOnly,
+	'btnApply' => !$bReadOnly,
+	'disabled' => false,
+	'back_url' => $listUrl,
+]);
 $tabControl->End();
 ?>
 </form>

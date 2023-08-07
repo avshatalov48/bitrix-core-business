@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 (function (exports,main_core,im_const) {
@@ -475,7 +476,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      // base pattern for urls
 	      text = text.replace(/\[url(?:=([^[\]]+))?\]([\s\S]*?)\[\/url\]/gi, function (whole, link, text) {
 	        var url = main_core.Text.decode(link || text);
-	        if (!BX.Messenger.Embedding.Lib.Utils.text.checkUrl(url)) {
+	        if (!Utils.text.checkUrl(url)) {
 	          return text;
 	        }
 	        return main_core.Dom.create({
@@ -491,7 +492,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      // url like https://bitrix24.com/?params[1]="test"
 	      text = text.replace(/\[url(?:=([\s\S]+?[^[\]]))?\]([\s\S]*?)\[\/url\]/gi, function (whole, link, text) {
 	        var url = main_core.Text.decode(link || text);
-	        if (!BX.Messenger.Embedding.Lib.Utils.text.checkUrl(url)) {
+	        if (!Utils.text.checkUrl(url)) {
 	          return text;
 	        }
 	        if (!url.slice(url.lastIndexOf('[')).includes(']')) {
@@ -737,6 +738,22 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        } while (text.includes('####REPLACEMENT_PUT_'));
 	      }
 	      return text;
+	    },
+	    checkUrl: function checkUrl(url) {
+	      var allowList = ["http:", "https:", "ftp:", "file:", "tel:", "callto:", "mailto:", "skype:", "viber:"];
+	      var checkCorrectStartLink = ['/'].concat(allowList).find(function (protocol) {
+	        return url.startsWith(protocol);
+	      });
+	      if (!checkCorrectStartLink) {
+	        return false;
+	      }
+	      var element = main_core.Dom.create({
+	        tag: 'a',
+	        attrs: {
+	          href: url
+	        }
+	      });
+	      return allowList.indexOf(element.protocol) > -1;
 	    },
 	    htmlspecialchars: function htmlspecialchars(text) {
 	      if (typeof text !== 'string') {

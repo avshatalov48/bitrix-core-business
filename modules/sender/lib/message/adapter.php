@@ -19,8 +19,12 @@ use Bitrix\Sender\Transport;
  */
 class Adapter implements iBase
 {
+	public const PATTERN_STATUS_ITEM = 'ENTITY_ID_';
 	/** @var  static[] $list List. */
 	protected static $list;
+	/** @var static[] $statuses List */
+	protected static $statuses = [];
+	protected ?\Bitrix\Crm\Service\Factory $factory = null;
 
 	/** @var iBase $message Message. */
 	protected $message;
@@ -328,14 +332,16 @@ class Adapter implements iBase
 	 * @param string $replaceChar Replace char.
 	 * @return string
 	 */
-	public function replaceFields($content = "", $replaceChar = '#')
+	public function replaceFields($content = "", $replaceChar = '#', $crmEntityTypeId = null)
 	{
-		$from = array();
-		$to = array();
+		$from = [];
+		$to = [];
 		foreach ($this->getFields() as $code => $value)
 		{
-			$from[] = "$replaceChar$code$replaceChar";
-			$to[] = nl2br(htmlspecialcharsbx((string) $value, ENT_COMPAT, false));
+			$handledCode = $this->preHandleReplaceCode($code, $crmEntityTypeId);
+			$from[] = "$replaceChar$handledCode$replaceChar";
+			$value = $this->preHandleReaplaceValue($code, $value);
+			$to[] = nl2br(htmlspecialcharsbx((string)$value, ENT_COMPAT, false));
 		}
 
 		return Integration\Sender\Mail\TransportMail::replaceTemplate(str_replace($from, $to, $content));
@@ -714,7 +720,6 @@ class Adapter implements iBase
 		if ($this->message instanceof iBeforeAfter)
 		{
 			return $this->message->onAfterEnd();
-
 		}
 		return new \Bitrix\Main\Result();
 	}
@@ -725,5 +730,70 @@ class Adapter implements iBase
 	public function getEntityCode()
 	{
 		return $this->message->getEntityCode();
+	}
+
+	public function preHandleReaplaceValue($code, $value)
+	{
+		$parts = explode('.', $code, 2);
+		if (count($parts) === 1)
+		{
+			return $value;
+		}
+
+		$entityId = $parts[1];
+
+		if (!self::$statuses)
+		{
+			$refClass = new \ReflectionClass(\Bitrix\Crm\StatusTable::class);
+			$refConstants = $refClass->getConstants();
+			if (is_iterable($refConstants))
+			{
+				foreach ($refConstants as $key => $refConstant)
+				{
+					if (mb_strpos($key, self::PATTERN_STATUS_ITEM) !== false)
+					{
+						self::$statuses[] = $refConstant;
+					}
+				}
+			}
+		}
+
+		if (!in_array($entityId, self::$statuses, true))
+		{
+			return $value;
+		}
+
+		$values = \Bitrix\Crm\StatusTable::getStatusesList($entityId);
+		if (array_key_exists($value, $values))
+		{
+			return $values[$value];
+		}
+
+		return $value;
+	}
+
+	public function preHandleReplaceCode($code, $crmEntityTypeId)
+	{
+		$parts = explode('.', $code, 2);
+		if (count($parts) === 1)
+		{
+			return $code;
+		}
+
+		if (
+			$crmEntityTypeId !== null
+			&& (!$this->factory || $this->factory->getEntityTypeId() !== $crmEntityTypeId)
+		)
+		{
+			$this->factory = \Bitrix\Crm\Service\Container::getInstance()->getFactory($crmEntityTypeId);
+		}
+
+		if ($this->factory)
+		{
+			$parts[1] = $this->factory->getCommonFieldNameByMap($parts[1]);
+			return implode('.', $parts);
+		}
+
+		return $code;
 	}
 }

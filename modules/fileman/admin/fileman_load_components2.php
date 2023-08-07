@@ -84,11 +84,21 @@ function handleChildren($arEls, $path)
 		if (isset($arEl['#']))
 			handleChildren($arEl['#'],$realPath);
 
-		if (is_array($arEl['*']) && !empty($arEl['*']))
+		if (is_array($arEl['*'] ?? null) && !empty($arEl['*']))
 		{
 			foreach ($arEl['*'] as $compName => $arC)
 			{
-				pushElement($realPath, $compName, $arC['TITLE'], false, $arC['ICON'], $arC['COMPLEX'],'{DESCRIPTION : \''.CUtil::JSEscape($arC['DESCRIPTION']).'\'}',false, $arC['SCREENSHOT']);
+				pushElement(
+					$realPath,
+					$compName,
+					$arC['TITLE'] ?? null,
+					false,
+					$arC['ICON'] ?? null,
+					$arC['COMPLEX'] ?? null,
+					'{DESCRIPTION : \''.CUtil::JSEscape($arC['DESCRIPTION'] ?? '').'\'}',
+					false,
+					$arC['SCREENSHOT'] ?? null,
+				);
 			}
 		}
 	}

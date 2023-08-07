@@ -253,17 +253,20 @@ export class RecentModel extends BuilderModel
 
 				const itemsToUpdate = [];
 				const itemsToAdd = [];
-				payload.map(element => {
+				payload.map((element) => {
 					return this.validate(element);
-				}).forEach(element => {
+				}).forEach((element) => {
+					const preparedElement = { ...element };
 					const existingItem = store.state.collection[element.dialogId];
 					if (existingItem)
 					{
-						itemsToUpdate.push({dialogId: existingItem.dialogId, fields: {...element}});
+						itemsToUpdate.push({ dialogId: existingItem.dialogId, fields: preparedElement });
 					}
 					else
 					{
-						itemsToAdd.push({...this.getElementState(), ...element});
+						const { message: defaultMessage } = this.getElementState();
+						preparedElement.message = { ...defaultMessage, ...preparedElement.message };
+						itemsToAdd.push({ ...this.getElementState(), ...preparedElement });
 					}
 				});
 
@@ -271,6 +274,7 @@ export class RecentModel extends BuilderModel
 				{
 					store.commit('add', itemsToAdd);
 				}
+
 				if (itemsToUpdate.length > 0)
 				{
 					store.commit('update', itemsToUpdate);
@@ -288,10 +292,6 @@ export class RecentModel extends BuilderModel
 					return false;
 				}
 
-				if (fields.message)
-				{
-					fields.message = {...existingItem.message, ...fields.message};
-				}
 				store.commit('update', {
 					dialogId: existingItem.dialogId,
 					fields: this.validate(fields)
@@ -581,8 +581,14 @@ export class RecentModel extends BuilderModel
 
 	prepareMessage(fields: Object): Object
 	{
-		const {message} = this.getElementState();
-		if (Type.isNumber(fields.message.id) || Utils.text.isUuidV4(fields.message.id) || Type.isStringFilled(fields.message.id))
+		const message = {};
+		const params = {};
+
+		if (
+			Type.isNumber(fields.message.id)
+			|| Type.isStringFilled(fields.message.id)
+			|| Utils.text.isUuidV4(fields.message.id)
+		)
 		{
 			message.id = fields.message.id;
 		}
@@ -597,7 +603,7 @@ export class RecentModel extends BuilderModel
 			|| Type.isArray(fields.message.attach)
 		)
 		{
-			message.params.withAttach = fields.message.attach;
+			params.withAttach = fields.message.attach;
 		}
 		else if (
 			Type.isStringFilled(fields.message.params?.withAttach)
@@ -605,16 +611,16 @@ export class RecentModel extends BuilderModel
 			|| Type.isArray(fields.message.params?.withAttach)
 		)
 		{
-			message.params.withAttach = fields.message.params.withAttach;
+			params.withAttach = fields.message.params.withAttach;
 		}
 
 		if (Type.isBoolean(fields.message.file) || Type.isPlainObject(fields.message.file))
 		{
-			message.params.withFile = fields.message.file;
+			params.withFile = fields.message.file;
 		}
 		else if (Type.isBoolean(fields.message.params?.withFile) || Type.isPlainObject(fields.message.params?.withFile))
 		{
-			message.params.withFile = fields.message.params.withFile;
+			params.withFile = fields.message.params.withFile;
 		}
 
 		if (Type.isDate(fields.message.date) || Type.isString(fields.message.date))
@@ -642,6 +648,11 @@ export class RecentModel extends BuilderModel
 		if (Type.isBoolean(fields.message.sending))
 		{
 			message.sending = fields.message.sending;
+		}
+
+		if (Object.keys(params).length > 0)
+		{
+			message.params = params;
 		}
 
 		return message;

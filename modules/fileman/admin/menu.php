@@ -6,6 +6,9 @@ IncludeModuleLangFile(__FILE__);
 if(!method_exists($USER, "CanDoOperation"))
 	return false;
 
+$bFullList ??= null;
+$arSiteDirs ??= null;
+$_REQUEST['path'] ??= null;
 if($USER->CanDoOperation('fileman_view_file_structure'))
 {
 	if(!function_exists("__fileman_mnu_gen"))
@@ -60,7 +63,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 					continue;
 
 				$file = $child->GetName();
-				if($bLogical && $arSiteDirs[$path.'/'.$file])
+				if($bLogical && ($arSiteDirs[$path.'/'.$file] ?? false))
 					continue;
 
 				if(!$bCountOnly && !$bFullList && $sShowOnly != $path && mb_substr($sShowOnly, 0, mb_strlen($path.'/'.$file)) != $path.'/'.$file)
@@ -140,7 +143,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 					"fileman_rename.php?".$addUrl,
 				);
 
-				if($__tmppath == $path.'/'.$file && ((!$bLogical && $_REQUEST["logical"]!="Y") || ($bLogical && $_REQUEST["logical"]=="Y")))
+				if($__tmppath == $path.'/'.$file && ((!$bLogical && ($_REQUEST["logical"] ?? null)!="Y") || ($bLogical && ($_REQUEST["logical"] ?? null)=="Y")))
 				{
 					$more_urls[] = "fileman_html_edit.php";
 					$more_urls[] = "fileman_file_view.php";
@@ -230,7 +233,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 				),
 				"items_id" => "menu_fileman_site_".$arSites["ID"]."_",
 				"title" => GetMessage("FILEMAN_MNU_STRUC").": ".$arSites["NAME"],
-				"items" => ($sShowOnly !== false ? __fileman_mnu_gen(true, $bFullList, $arSites["ID"], $SITE_DIR, $sShowOnly, $arSiteDirs) : Array()),
+				"items" => ($sShowOnly !== false ? __fileman_mnu_gen(true, $bFullList, $arSites["ID"], $SITE_DIR, $sShowOnly, ($arSiteDirs ?? [])) : Array()),
 			);
 		}
 	}
@@ -245,7 +248,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 		case "/bitrix/admin/fileman_file_edit.php":
 		case "/bitrix/admin/fileman_file_view.php":
 		case "/bitrix/admin/fileman_html_edit.php":
-			if($_REQUEST['path'] && $_REQUEST['new']!='y')
+			if($_REQUEST['path'] && ($_REQUEST['new'] ?? null)!='y')
 				$__tmppath = dirname($_REQUEST['path']);
 			break;
 	}
@@ -300,7 +303,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 
 	if (!$hide_physical_struc)
 	{
-		$addUrl = "path=".urlencode($path.'/'.$file);
+		$addUrl = "path=".urlencode(($path ?? '').'/'.($file ?? ''));
 		if(count($arSitesDR) > 1)
 		{
 			$arSMenu = Array();
@@ -497,8 +500,8 @@ if (CSticker::CanDoOperation('sticker_view'))
 	);
 
 	$aMenu = array(
-		$aMenu,
-		$aMenuStickers
+		$aMenu ?? null,
+		$aMenuStickers ?? null,
 	);
 }
 

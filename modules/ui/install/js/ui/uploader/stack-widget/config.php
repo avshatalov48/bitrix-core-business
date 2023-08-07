@@ -13,7 +13,7 @@ return [
 		'ui.design-tokens',
 		'ui.fonts.opensans',
 		'main.popup',
-		'ui.vue3',
+		'ui.uploader.vue',
 		'ui.uploader.core',
 		'ui.uploader.tile-widget',
 		'ui.buttons',

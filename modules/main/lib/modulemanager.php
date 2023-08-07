@@ -73,7 +73,10 @@ class ModuleManager
 	public static function delete($moduleName)
 	{
 		$con = Application::getConnection();
-		$con->queryExecute("DELETE FROM b_module WHERE ID = '".$con->getSqlHelper()->forSql($moduleName)."'");
+		$module = $con->getSqlHelper()->forSql($moduleName);
+
+		$con->queryExecute("DELETE FROM b_module WHERE ID = '" . $module . "'");
+		$con->queryExecute("UPDATE b_agent SET ACTIVE = 'N' WHERE MODULE_ID = '" . $module . "' AND ACTIVE = 'Y'");
 
 		static::clearCache($moduleName);
 	}
@@ -81,7 +84,10 @@ class ModuleManager
 	public static function add($moduleName)
 	{
 		$con = Application::getConnection();
-		$con->queryExecute("INSERT INTO b_module(ID) VALUES('".$con->getSqlHelper()->forSql($moduleName)."')");
+		$module = $con->getSqlHelper()->forSql($moduleName);
+
+		$con->queryExecute("INSERT INTO b_module(ID) VALUES('" . $module . "')");
+		$con->queryExecute("UPDATE b_agent SET ACTIVE = 'Y' WHERE MODULE_ID = '" . $module . "' AND ACTIVE = 'N'");
 
 		static::clearCache($moduleName);
 	}

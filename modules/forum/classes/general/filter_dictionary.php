@@ -64,21 +64,29 @@ class CAllFilterDictionary
 		global $DB, $USER;
 
 		$ID = intval($ID);
-		$Dictionary = "";
 		$Dictionary = CFilterDictionary::GetList(array(), array("ID"=>$ID));
 		$Dictionary = $Dictionary->Fetch();
-		$res = false;
 		$DB->StartTransaction();
-			if ($Dictionary["TYPE"] == "T")
-				$res = $DB->Query("DELETE FROM b_forum_letter WHERE DICTIONARY_ID=".$ID);
-			else
-				$res = $DB->Query("DELETE FROM b_forum_filter WHERE DICTIONARY_ID=".$ID);
-			if ($res)
-				$res = $DB->Query("DELETE FROM b_forum_dictionary WHERE ID=".$ID);
-		if ($res)
-			$DB->Commit();
+		if ($Dictionary["TYPE"] == "T")
+		{
+			$res = $DB->Query("DELETE FROM b_forum_letter WHERE DICTIONARY_ID=".$ID);
+		}
 		else
+		{
+			$res = $DB->Query("DELETE FROM b_forum_filter WHERE DICTIONARY_ID=".$ID);
+		}
+		if ($res)
+		{
+			$res = $DB->Query("DELETE FROM b_forum_dictionary WHERE ID=".$ID);
+		}
+		if ($res)
+		{
+			$DB->Commit();
+		}
+		else
+		{
 			$DB->Rollback();
+		}
 		return $res;
 	}
 

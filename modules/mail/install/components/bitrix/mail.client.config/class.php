@@ -430,6 +430,10 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			$this->arResult['LAST_MAIL_CHECK_STATUS'] = $mailboxSyncManager->getLastMailboxSyncIsSuccessStatus($mailbox['ID']);
 		}
 
+		$this->arParams['SHOW_TOP_ALERT'] = ($this->arParams['SERVICE']['name'] === 'gmail')
+			&& !\CUserOptions::GetOption('mail', 'temp_alert_google')
+		;
+
 		$this->includeComponentTemplate('edit');
 	}
 
@@ -467,6 +471,11 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		return false;
 	}
 
+	public function closeTemporaryDangerButtonAction($type)
+	{
+		\CUserOptions::SetOption('mail', $type, (new Main\Type\Date())->format('Ymd'));
+	}
+
 	private function setIsSmtpAvailable()
 	{
 		$defaultMailConfiguration = Configuration::getValue("smtp");
@@ -495,7 +504,6 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			$service = Mail\MailServicesTable::getList(array(
 				'filter' => array(
 					'=ID'          => $fields['service_id'],
-					'ACTIVE'       => 'Y',
 					'SERVICE_TYPE' => 'imap',
 				),
 			))->fetch();
@@ -542,6 +550,10 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 
 		if (empty($mailbox))
 		{
+			if ($service['ACTIVE'] !== 'Y')
+			{
+				return $this->error(Loc::getMessage('MAIL_CLIENT_FORM_ERROR'));
+			}
 			if (!$this->canConnectNewMailbox())
 			{
 				return $this->error(Loc::getMessage('MAIL_CLIENT_DENIED'));

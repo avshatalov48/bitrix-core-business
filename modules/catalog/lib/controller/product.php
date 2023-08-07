@@ -4,6 +4,7 @@ namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Catalog\Component\UseStore;
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Controller\Product\SkuDeferredCalculations;
 use Bitrix\Catalog\Model\Event;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\Response\DataType\Page;
@@ -17,6 +18,8 @@ use Bitrix\Rest\RestException;
 
 class Product extends Controller implements EventBindInterface
 {
+	use SkuDeferredCalculations;
+
 	/**
 	 * @inheritDoc
 	 */
@@ -55,7 +58,30 @@ class Product extends Controller implements EventBindInterface
 			return null;
 		}
 
+		if ($this->isActionWithDefferedCalculation($action))
+		{
+			$this->processBeforeDeferredCalculationAction();
+		}
+
 		return parent::processBeforeAction($action);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @param Engine\Action $action
+	 * @param mixed $result
+	 *
+	 * @return void
+	 */
+	protected function processAfterAction(Engine\Action $action, $result)
+	{
+		if ($this->isActionWithDefferedCalculation($action))
+		{
+			$this->processAfterDeferredCalculationAction();
+		}
+
+		return parent::processAfterAction($action, $result);
 	}
 
 	/**
@@ -174,6 +200,11 @@ class Product extends Controller implements EventBindInterface
 			$groupFields = $this->splitFieldsByEntity(
 				array_flip($select)
 			);
+			$allProperties = isset($groupFields['elementFields']['PROPERTY_*']);
+			if ($allProperties)
+			{
+				unset($groupFields['elementFields']['PROPERTY_*']);
+			}
 
 			$productFields = array_keys($groupFields['productFields']);
 			$elementFields = array_keys($groupFields['elementFields']);
@@ -185,7 +216,10 @@ class Product extends Controller implements EventBindInterface
 
 			if (!empty($list))
 			{
-				$this->attachPropertyValues($list, (int)$filter['IBLOCK_ID'], $propertyIds);
+				if ($allProperties || !empty($propertyIds))
+				{
+					$this->attachPropertyValues($list, (int)$filter['IBLOCK_ID'], $propertyIds);
+				}
 
 				foreach ($list as $row)
 				{

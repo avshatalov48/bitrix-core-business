@@ -31,7 +31,7 @@ export const Layout = Object.freeze({
 	},
 	market: {
 		name: 'market',
-		list: 'RecentListContainer',
+		list: '',
 		content: 'MarketContent'
 	}
 });

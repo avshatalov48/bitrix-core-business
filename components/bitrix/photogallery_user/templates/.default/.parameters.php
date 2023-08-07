@@ -6,7 +6,7 @@ $arTemplateParameters = array(
 		"DEFAULT" => "45")
 	);
 
-if ($arCurrentValues["ANALIZE_SOCNET_PERMISSION"] == "Y")
+if (($arCurrentValues["ANALIZE_SOCNET_PERMISSION"] ?? null) == "Y")
 {
 	$arTemplateParameters = $arTemplateParameters + array(
 		"SHOW_ONLY_PUBLIC" => array(
@@ -29,9 +29,9 @@ else
 	);
 }
 
-if ($arCurrentValues["SHOW_ONLY_PUBLIC"] != "N")
+if (($arCurrentValues["SHOW_ONLY_PUBLIC"] ?? null) != "N")
 {
-	if ($arCurrentValues["ANALIZE_SOCNET_PERMISSION"] != "Y")
+	if (($arCurrentValues["ANALIZE_SOCNET_PERMISSION"] ?? null) != "Y")
 	{
 		$arTemplateParameters["PUBLIC_BY_DEFAULT"] = array(
 				"NAME" => GetMessage("P_PUBLIC_BY_DEFAULT"),

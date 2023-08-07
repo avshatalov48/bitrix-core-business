@@ -1497,12 +1497,28 @@ class CSocNetAllowed
 
 	public static function runEventForAllowedFeature()
 	{
-		$newAllowedFeatures = array();
+		$newAllowedFeatures = [];
 
-		$events = GetModuleEvents("socialnetwork", "OnFillSocNetFeaturesList");
+		$ignoreList = [];
+
+		$events = GetModuleEvents('socialnetwork', 'OnFillSocNetFeaturesList');
 		while ($arEvent = $events->Fetch())
 		{
-			ExecuteModuleEventEx($arEvent, array(&$newAllowedFeatures, SITE_ID));
+			if ($arEvent['TO_MODULE_ID'] === 'wiki')
+			{
+				if (
+					Loader::includeModule('bitrix24')
+					&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('socialnetwork_wiki')
+				)
+				{
+					$ignoreList[] = $arEvent['TO_MODULE_ID'];
+				}
+			}
+
+			if (!in_array($arEvent['TO_MODULE_ID'], $ignoreList, true))
+			{
+				ExecuteModuleEventEx($arEvent, array(&$newAllowedFeatures, SITE_ID));
+			}
 		}
 
 		foreach($newAllowedFeatures as $strFeatureCode => $arFeature)

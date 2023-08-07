@@ -21,6 +21,8 @@ class ConditionGroup
 	private $items = [];
 	private array $activityNames = [];
 	protected array $evaluateResults = [];
+	protected bool $activated = true;
+	protected bool $internalized = false;
 
 	public function __construct(array $params = null)
 	{
@@ -429,7 +431,14 @@ class ConditionGroup
 			}
 		}
 
+		$this->internalized = true;
+
 		return $this;
+	}
+
+	public function isInternalized(): bool
+	{
+		return $this->internalized;
 	}
 
 	/**
@@ -462,6 +471,8 @@ class ConditionGroup
 				$condition->setValue($value);
 			}
 		}
+
+		$this->internalized = false;
 
 		return $this;
 	}

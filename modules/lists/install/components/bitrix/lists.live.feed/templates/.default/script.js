@@ -108,7 +108,7 @@ BX.Lists.LiveFeedClass = (function ()
 	LiveFeedClass.prototype.setTitle = function (iblockName)
 	{
 		BX('bx-lists-table-td-title').innerHTML = BX.util.htmlspecialchars(iblockName);
-		BX('bx-lists-title-notify-admin-popup').value = BX.util.htmlspecialchars(iblockName);
+		BX('bx-lists-title-notify-admin-popup').value = iblockName;
 	};
 
 	LiveFeedClass.prototype.getList = function (iblockId, iblockDescription, iblockCode)
@@ -680,10 +680,12 @@ BX.Lists.LiveFeedClass = (function ()
 			{
 				if(result.status == 'success')
 				{
+					const titleEncoded = BX.Text.encode(BX('bx-lists-title-notify-admin-popup').value);
+
 					var html = '<span class="bp-question"><span>!</span>'
-						+BX.message('LISTS_NOTIFY_ADMIN_TITLE_WHY').replace('#NAME_PROCESSES#', BX('bx-lists-title-notify-admin-popup').value)+'</span>';
-					html += '<p>'+BX.message('LISTS_NOTIFY_ADMIN_TEXT_ONE').replace('#NAME_PROCESSES#', BX('bx-lists-title-notify-admin-popup').value)+'</p>';
-					html += '<p>'+BX.message('LISTS_NOTIFY_ADMIN_TEXT_TWO').replace('#NAME_PROCESSES#', BX('bx-lists-title-notify-admin-popup').value)+'</p>';
+						+BX.message('LISTS_NOTIFY_ADMIN_TITLE_WHY').replace('#NAME_PROCESSES#', titleEncoded)+'</span>';
+					html += '<p>'+BX.message('LISTS_NOTIFY_ADMIN_TEXT_ONE').replace('#NAME_PROCESSES#', titleEncoded)+'</p>';
+					html += '<p>'+BX.message('LISTS_NOTIFY_ADMIN_TEXT_TWO').replace('#NAME_PROCESSES#', titleEncoded)+'</p>';
 					html += '<span class="bp-question-title">'+BX.message('LISTS_NOTIFY_ADMIN_MESSAGE')+'</span>';
 					for(var k in result.listAdmin)
 					{

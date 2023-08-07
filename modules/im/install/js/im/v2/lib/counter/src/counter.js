@@ -4,6 +4,7 @@ import {Store} from 'ui.vue3.vuex';
 
 import {Core} from 'im.v2.application.core';
 import {DesktopManager} from 'im.v2.lib.desktop';
+import {EventType} from 'im.v2.const';
 
 type InitialCounters = {
 	CHAT: {[chatId: string]: number},
@@ -14,9 +15,6 @@ type InitialCounters = {
 		'NOTIFY': number,
 	}
 };
-
-const NOTIFICATION_COUNTER_UPDATE_EVENT = 'onImUpdateCounterNotify';
-const CHAT_COUNTER_UPDATE_EVENT = 'onImUpdateCounterMessage';
 
 export class CounterManager
 {
@@ -99,13 +97,13 @@ export class CounterManager
 	#sendNotificationCounterChangeEvent(notificationsCounter: number)
 	{
 		const event = new BaseEvent({compatData: [notificationsCounter]});
-		EventEmitter.emit(window, NOTIFICATION_COUNTER_UPDATE_EVENT, event);
+		EventEmitter.emit(window, EventType.counter.onNotificationCounterChange, event);
 	}
 
 	#sendChatCounterChangeEvent(chatCounter: number)
 	{
 		const event = new BaseEvent({compatData: [chatCounter]});
-		EventEmitter.emit(window, CHAT_COUNTER_UPDATE_EVENT, event);
+		EventEmitter.emit(window, EventType.counter.onChatCounterChange, event);
 	}
 
 	#onTotalCounterChange()

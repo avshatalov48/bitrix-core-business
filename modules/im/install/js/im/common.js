@@ -1,3 +1,4 @@
+/* eslint-disable */
 ;(function (window)
 {
 	if (window.BX.MessengerCommon) return;
@@ -236,22 +237,6 @@
 		var currentDate = ("0" + date.getDate().toString()).substr(-2)+'-'+("0" + (date.getMonth() + 1).toString()).substr(-2);
 		return birthday == currentDate;
 	};
-
-	MessengerCommon.prototype.getDebugInfo = function()
-	{
-		return {
-			context: this.BXIM.context,
-			design: this.BXIM.design,
-			isDesktop: this.isDesktop() ? 'Y' : 'N',
-			isPage: this.isPage() ? 'Y' : 'N',
-			isMobile: this.isMobile() ? 'Y' : 'N',
-			vInitedCall: BX.localStorage.get('vInitedCall') ? 'Y' : 'N',
-			desktopStatus: this.BXIM.desktopStatus ? 'Y' : 'N',
-			hasActiveCall: BX.MessengerCalls && BX.MessengerCalls.hasActiveCall() ? 'Y' : 'N',
-			hasActiveCallTab: this.BXIM.callController && this.BXIM.callController.hasActiveCall() ? 'Y' : 'N',
-			appVersion: navigator.appVersion
-		}
-	}
 
 	MessengerCommon.prototype.checkInternetConnection = function (successCallback, failureCallback, tryCount, tryName)
 	{
@@ -912,6 +897,10 @@
 			var changed = false;
 			textElement = textElement.replace(/(.)?((https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif|webp)(\?[\S]+)?)/gi, function(whole, letter, url)
 			{
+				if (url.endsWith('</a>'))
+				{
+					url = url.substr(0, url.length-4);
+				}
 				if(
 					letter && !(['>', ']'].includes(letter))
 					|| !url.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i)
@@ -2705,10 +2694,6 @@
 						{
 							this.contactListPrepareSearch('popupChatDialogContactListElements', this.BXIM.messenger.popupChatDialogContactListElements, this.BXIM.messenger.popupChatDialogContactListSearch.value, {'viewOffline': true, 'viewChat': false, 'viewOpenChat': this.BXIM.messenger.popupChatDialogContactListElementsType == 'MENTION'});
 						}
-						if (this.BXIM.webrtc.popupTransferDialogContactListElements != null)
-						{
-							this.contactListPrepareSearch('popupTransferDialogContactListElements', this.BXIM.webrtc.popupTransferDialogContactListElements, this.BXIM.webrtc.popupTransferDialogContactListSearch.value, {'viewChat': false, 'viewOpenChat': false, 'viewOffline': false, 'viewBot': false, 'viewOnlyIntranet': true, 'viewOfflineWithPhones': true});
-						}
 						if (this.BXIM.messenger.popupTransferDialogContactListElements != null)
 						{
 							this.contactListPrepareSearch('popupTransferDialogContactListElements', this.BXIM.messenger.popupTransferDialogContactListElements, this.BXIM.messenger.popupTransferDialogContactListSearch.value, {'viewChat': false, 'viewOpenChat': false, 'viewOffline': false, 'viewBot': false, 'viewTransferOlQueue': true, 'viewOnlyIntranet': true, 'viewOfflineWithPhones': false});
@@ -3580,7 +3565,7 @@
 		}
 	};
 
-	MessengerCommon.prototype.recentListElementUpdate = function(dialogId, messageId, messageText)
+	MessengerCommon.prototype.recentListElementUpdate = function(dialogId, messageId, messageText, chatCounter, isMuted)
 	{
 		var element = this.BXIM.messenger.recent.find(function(element) {
 			return element.id == dialogId;
@@ -3597,6 +3582,22 @@
 		}
 
 		element.message.text = messageText;
+
+		if (typeof chatCounter !== 'undefined')
+		{
+			element.counter = chatCounter;
+
+			if (element.lines)
+			{
+				this.BXIM.linesDetailCounter[element.id] = isMuted? 0: chatCounter;
+			}
+			else
+			{
+				this.BXIM.dialogDetailCounter[element.id] = isMuted? 0: chatCounter;
+			}
+
+			this.BXIM.messenger.updateMessageCount();
+		}
 
 		return true;
 	}
@@ -4112,7 +4113,19 @@
 	MessengerCommon.prototype.getCounter = function(dialogId)
 	{
 		var element = this.recentListGetItem(dialogId);
-		return element? element.counter: 0;
+		if (typeof element !== 'undefined')
+		{
+			return element.counter;
+		}
+		else if (
+			typeof this.BXIM.dialogDetailCounter !== 'undefined'
+			&& typeof this.BXIM.dialogDetailCounter[dialogId] !== 'undefined'
+		)
+		{
+			return this.BXIM.dialogDetailCounter[dialogId];
+		}
+
+		return 0;
 	};
 
 	MessengerCommon.prototype.getVideoconfLink = function(dialogId)
@@ -4746,11 +4759,6 @@
 
 						if (this.BXIM.messenger.bot[userId] && this.BXIM.messenger.bot[userId].type == 'network')
 							continue;
-
-						if (this.BXIM.messenger.popupChatDialogDestType == 'CALL_INVITE_USER')
-						{
-							continue;
-						}
 
 						if (this.BXIM.messenger.openChatFlag)
 						{
@@ -7872,7 +7880,7 @@
 						BX.remove(messageWrap);
 					}
 				}
-				this.recentListElementUpdate(dialogId, params.id, params.text);
+				this.recentListElementUpdate(dialogId, params.id, params.text, params.counter, params.muted);
 				if (this.BXIM.messenger.recentList || this.BXIM.messenger.recentListExternal)
 					this.recentListRedraw();
 
@@ -13710,1205 +13718,24 @@
 		BX.MessengerCommon.drawTab(this.getRecipientByChatId(stream.post.REG_CHAT_ID));
 	}
 
-	MessengerCommon.prototype.phoneCheckDesktop = function(allowMobile)
-	{
-		allowMobile = allowMobile === true;
-
-		var result = new BX.Promise();
-
-		if(allowMobile && this.isMobile())
-		{
-			result.resolve();
-			return result;
-		}
-
-		BX.desktopUtils.runningCheck(
-			function()
-			{
-				result.reject();
-			},
-			function()
-			{
-				result.resolve();
-			}
-		);
-		return result;
-	};
-
-
 	/* Section: Telephony */
-	MessengerCommon.prototype.pullPhoneEvent = function()
+
+	MessengerCommon.prototype.getUser = function(userId)
 	{
-		if (this.BXIM.options.frameMode)
-		{
-			return false;
-		}
-
-		var pullPhoneEventHandler =  BX.delegate(function(command,params)
-		{
-			if (this.isMobile())
-			{
-				params = command.params;
-				command = command.command;
-				console.info('pull info: ', command, params);
-			}
-
-			if (command == 'invite')
-			{
-				if(!this.BXIM.webrtc.phoneSupport())
-					return false;
-
-				if (this.BXIM.callController && this.BXIM.callController.hasActiveCall())
-				{
-					// todo: set and proceed busy status in b_voximplant_queue
-					/*BX.MessengerCommon.phoneCommand('busy', {'CALL_ID' : params.callId});*/
-					return false;
-				}
-
-				if (this.BXIM.webrtc.isCallListMode())
-				{
-					BX.MessengerCommon.phoneCommand('busy', {'CALL_ID' : params.callId});
-					return false;
-				}
-
-				if (BX.localStorage.get('viInitedCall') || BX.localStorage.get('viExternalCard'))
-				{
-					return false;
-				}
-
-				this.phoneCheckDesktop(true).then(function()
-				{
-					if (params.CRM && params.CRM.FOUND)
-					{
-						this.BXIM.webrtc.phoneCrm = params.CRM;
-					}
-					else
-					{
-						this.BXIM.webrtc.phoneCrm = {};
-					}
-
-					this.BXIM.webrtc.phonePortalCall = params.portalCall? true: false;
-					if (this.BXIM.webrtc.phonePortalCall && params.portalCallData)
-					{
-						for (var i in params.portalCallData.users)
-						{
-							params.portalCallData.users[i].last_activity_date = params.portalCallData.users[i].last_activity_date? new Date(params.portalCallData.users[i].last_activity_date): false;
-							params.portalCallData.users[i].mobile_last_date = params.portalCallData.users[i].mobile_last_date? new Date(params.portalCallData.users[i].mobile_last_date): false;
-							params.portalCallData.users[i].idle = params.portalCallData.users[i].idle? new Date(params.portalCallData.users[i].idle): false;
-							params.portalCallData.users[i].absent = params.portalCallData.users[i].absent? new Date(params.portalCallData.users[i].absent): false;
-
-							this.BXIM.messenger.users[i] = params.portalCallData.users[i];
-						}
-
-						for (var i in params.portalCallData.hrphoto)
-							this.BXIM.messenger.hrphoto[i] = params.portalCallData.hrphoto[i];
-
-						params.callerId = this.BXIM.messenger.users[params.portalCallUserId].name;
-						params.phoneNumber = '';
-					}
-
-					this.BXIM.webrtc.phoneCallConfig = params.config? params.config: {};
-					this.BXIM.webrtc.phoneCallTime = 0;
-
-					this.BXIM.repeatSound('ringtone', 5000);
-
-					if (this.isPage())
-					{
-						BX.MessengerWindow.changeTab('im');
-					}
-
-					BX.MessengerCommon.phoneCommand('wait', {'CALL_ID' : params.callId, 'DEBUG_INFO': this.getDebugInfo()});
-
-					if(params.isTransfer)
-					{
-						this.BXIM.webrtc.phoneTransferEnabled = true;
-					}
-
-					this.BXIM.webrtc.phoneIncomingWait({
-						chatId: params.chatId,
-						callId: params.callId,
-						callerId: params.callerId,
-						lineNumber: params.lineNumber,
-						companyPhoneNumber: params.phoneNumber,
-						isCallback: params.isCallback,
-						showCrmCard: params.showCrmCard,
-						crmEntityType: params.crmEntityType,
-						crmEntityId: params.crmEntityId,
-						crmActivityId: params.crmActivityId,
-						crmActivityEditUrl: params.crmActivityEditUrl,
-						portalCall: params.portalCall,
-						portalCallUserId: params.portalCallUserId,
-						portalCallData: params.portalCallData,
-						config: params.config
-					});
-				}.bind(this));
-
-			}
-			else if (command == 'answer_self')
-			{
-				if (this.BXIM.webrtc.callSelfDisabled || this.BXIM.webrtc.phoneCallId != params.callId)
-					return false;
-
-				this.BXIM.stopRepeatSound('ringtone');
-				this.BXIM.stopRepeatSound('dialtone');
-
-				this.BXIM.webrtc.callInit = false;
-				this.BXIM.webrtc.phoneCallFinish();
-				this.BXIM.webrtc.callAbort();
-				this.BXIM.webrtc.phoneCallView.close();
-
-				this.BXIM.webrtc.callInit = true;
-				this.BXIM.webrtc.phoneCallId = params.callId;
-			}
-			else if (command == 'timeout')
-			{
-				if(this.BXIM.webrtc.phoneTransferCallId === params.callId)
-				{
-					return this.BXIM.webrtc.errorInviteTransfer(params.failedCode, params.failedReason);
-				}
-				else if (this.BXIM.webrtc.phoneCallId != params.callId)
-				{
-					return false;
-				}
-
-				clearInterval(this.BXIM.webrtc.phoneConnectedInterval);
-				BX.localStorage.remove('viInitedCall');
-
-				var external = this.BXIM.webrtc.phoneCallExternal;
-
-				this.BXIM.stopRepeatSound('ringtone');
-				this.BXIM.stopRepeatSound('dialtone');
-
-				this.BXIM.webrtc.callInit = false;
-
-				var phoneNumber = this.BXIM.webrtc.phoneNumber;
-				this.BXIM.webrtc.phoneCallFinish();
-				this.BXIM.webrtc.callAbort();
-
-				if(this.BXIM.webrtc.phoneCallView)
-				{
-					this.BXIM.webrtc.phoneCallView.setCallState(BX.PhoneCallView.CallState.idle, {failedCode: params.failedCode});
-				}
-
-				if (external && params.failedCode == 486)
-				{
-					if (this.BXIM.webrtc.phoneCallView)
-					{
-						this.BXIM.webrtc.phoneCallView.setProgress('offline');
-						this.BXIM.webrtc.phoneCallView.setStatusText(BX.message('IM_PHONE_ERROR_BUSY_PHONE'));
-						this.BXIM.webrtc.phoneCallView.setUiState(BX.PhoneCallView.UiState.sipPhoneError);
-					}
-				}
-				else if (external && params.failedCode == 480)
-				{
-					if (this.BXIM.webrtc.phoneCallView)
-					{
-						this.BXIM.webrtc.phoneCallView.setProgress('error');
-						this.BXIM.webrtc.phoneCallView.setStatusText(BX.message('IM_PHONE_ERROR_NA_PHONE'));
-						this.BXIM.webrtc.phoneCallView.setUiState(BX.PhoneCallView.UiState.sipPhoneError);
-					}
-				}
-				else
-				{
-					if (this.BXIM.webrtc.phoneCallView)
-					{
-						if(this.BXIM.webrtc.isCallListMode())
-						{
-							this.BXIM.webrtc.phoneCallView.setStatusText('');
-							this.BXIM.webrtc.phoneCallView.setUiState(BX.PhoneCallView.UiState.outgoing);
-						}
-						else
-						{
-							this.BXIM.webrtc.phoneCallView.setStatusText(BX.message('IM_PHONE_END'));
-							this.BXIM.webrtc.phoneCallView.setUiState(BX.PhoneCallView.UiState.idle);
-							this.BXIM.webrtc.phoneCallView.autoClose();
-						}
-					}
-				}
-			}
-			else if (command == 'outgoing')
-			{
-				if (this.BXIM.webrtc.callInit && (this.BXIM.webrtc.phoneNumber == params.phoneNumber || params.phoneNumber.indexOf(this.BXIM.webrtc.phoneNumber) >= 0))
-				{
-					this.BXIM.webrtc.phoneCallDevice = params.callDevice == 'PHONE'? 'PHONE': 'WEBRTC';
-					this.BXIM.webrtc.phonePortalCall = !!params.portalCall;
-
-					this.BXIM.webrtc.phoneNumber = params.phoneNumber;
-
-					if (this.BXIM.webrtc.phoneCallExternal && this.BXIM.webrtc.phoneCallDevice == 'PHONE')
-					{
-						this.BXIM.webrtc.phoneCallView.setProgress('connect');
-						this.BXIM.webrtc.phoneCallView.setStatusText(BX.message('IM_PHONE_WAIT_ANSWER'));
-					}
-
-					this.BXIM.webrtc.phoneCallConfig = params.config? params.config: {};
-					this.BXIM.webrtc.phoneCallId = params.callId;
-					this.BXIM.webrtc.phoneCallTime = 0;
-					this.BXIM.webrtc.phoneCrm = params.CRM;
-					if(this.BXIM.webrtc.phoneCallView && params.showCrmCard)
-					{
-						this.BXIM.webrtc.phoneCallView.setCrmData(params.CRM);
-						this.BXIM.webrtc.phoneCallView.setCrmEntity({
-							type: params.crmEntityType,
-							id: params.crmEntityId,
-							activityId: params.crmActivityId,
-							activityEditUrl: params.crmActivityEditUrl,
-							bindings: params.crmBindings
-						});
-						this.BXIM.webrtc.phoneCallView.setConfig(params.config);
-						this.BXIM.webrtc.phoneCallView.setCallId(params.callId);
-						if(params.lineNumber)
-							this.BXIM.webrtc.phoneCallView.setLineNumber(params.lineNumber);
-
-						if(params.lineName)
-							this.BXIM.webrtc.phoneCallView.setCompanyPhoneNumber(params.lineName);
-
-						this.BXIM.webrtc.phoneCallView.reloadCrmCard();
-					}
-
-					if (this.BXIM.webrtc.phoneCallView && this.BXIM.webrtc.phonePortalCall)
-					{
-						this.BXIM.webrtc.phoneCallView.setPortalCall(true);
-						this.BXIM.webrtc.phoneCallView.setPortalCallData(params.portalCallData);
-						this.BXIM.webrtc.phoneCallView.setPortalCallUserId(params.portalCallUserId);
-						this.BXIM.webrtc.phoneCallView.setPortalCallQueueName(params.portalCallQueueName);
-					}
-
-				}
-				else if (!this.BXIM.webrtc.callInit && !this.BXIM.webrtc.callActive && params.callDevice == 'PHONE')
-				{
-					this.phoneCheckDesktop(true).then(function()
-					{
-						this.BXIM.webrtc.phoneCallDevice = params.callDevice == 'PHONE'? 'PHONE': 'WEBRTC';
-						this.BXIM.webrtc.phonePortalCall = params.portalCall? true: false;
-						this.BXIM.webrtc.phoneCallId = params.callId;
-						this.BXIM.webrtc.phoneCallTime = 0;
-						this.BXIM.webrtc.phoneCallConfig = params.config? params.config: {};
-						this.BXIM.webrtc.phoneCrm = params.CRM;
-
-						this.BXIM.webrtc.phoneDisplayExternal({
-							callId: params.callId,
-							config: params.config? params.config: {},
-							phoneNumber: params.phoneNumber,
-							portalCall: params.portalCall,
-							portalCallUserId: params.portalCallUserId,
-							portalCallData: params.portalCallData,
-							portalCallQueueName: params.portalCallQueueName,
-							showCrmCard: params.showCrmCard,
-							crmEntityType: params.crmEntityType,
-							crmEntityId: params.crmEntityId
-						});
-
-					}.bind(this));
-				}
-			}
-			else if (command == 'start')
-			{
-				if(this.BXIM.webrtc.phoneTransferCallId === params.callId)
-				{
-					this.BXIM.webrtc.phoneCallView.setStatusText(BX.message('IM_M_CALL_ST_TRANSFER_CONNECTED'));
-					return;
-				}
-				else if (this.BXIM.webrtc.phoneCallId != params.callId)
-				{
-					return;
-				}
-
-				this.BXIM.webrtc.callOverlayTimer('start');
-				this.BXIM.stopRepeatSound('ringtone');
-				if (this.BXIM.webrtc.phoneCallId == params.callId && this.BXIM.webrtc.phoneCallDevice == 'PHONE' && (this.BXIM.webrtc.phoneCallDevice == params.callDevice || this.BXIM.webrtc.phonePortalCall))
-				{
-					this.BXIM.webrtc.phoneOnCallConnected();
-				}
-				else if (this.BXIM.webrtc.phoneCallId == params.callId && params.callDevice == 'PHONE' && this.BXIM.webrtc.phoneIncoming)
-				{
-					this.BXIM.webrtc.phoneCallDevice = 'PHONE';
-					if(this.BXIM.webrtc.phoneCallView)
-					{
-						this.BXIM.webrtc.phoneCallView.setDeviceCall(true);
-					}
-					this.BXIM.webrtc.phoneOnCallConnected();
-				}
-				if (params.CRM)
-				{
-					this.BXIM.webrtc.phoneCrm = params.CRM;
-					this.BXIM.webrtc.callOverlayDrawCrm();
-				}
-
-				if (this.BXIM.webrtc.phoneNumber != '')
-				{
-					this.BXIM.webrtc.phoneNumberLast = this.BXIM.webrtc.phoneNumber;
-					this.BXIM.setLocalConfig('phone_last', this.BXIM.webrtc.phoneNumber);
-				}
-			}
-			else if (command == 'hold' || command == 'unhold')
-			{
-				if (this.BXIM.webrtc.phoneCallId == params.callId)
-				{
-					this.BXIM.webrtc.phoneHolded = command == 'hold';
-				}
-			}
-			else if (command == 'update_crm')
-			{
-				if (this.BXIM.webrtc.phoneCallId == params.callId && params.CRM && params.CRM.FOUND)
-				{
-					this.BXIM.webrtc.phoneCrm = params.CRM;
-
-					if(this.isMobile())
-					{
-						this.BXIM.webrtc.callOverlayDrawCrm();
-						if (this.BXIM.webrtc.callNotify)
-							this.BXIM.webrtc.callNotify.adjustPosition();
-					}
-					else if(this.BXIM.webrtc.phoneCallView)
-					{
-						this.BXIM.webrtc.phoneCallView.setCrmData(params.CRM);
-						if(params.showCrmCard)
-						{
-							this.BXIM.webrtc.phoneCallView.setCrmEntity({
-								type: params.crmEntityType,
-								id: params.crmEntityId,
-								activityId: params.crmActivityId,
-								activityEditUrl: params.crmActivityEditUrl,
-								bindings: params.crmBindings
-							});
-							this.BXIM.webrtc.phoneCallView.reloadCrmCard();
-						}
-					}
-				}
-			}
-			else if (command === 'updatePortalUser')
-			{
-				if (this.BXIM.webrtc.phoneCallId == params.callId && this.BXIM.webrtc.phoneCallView)
-				{
-					this.BXIM.webrtc.phoneCallView.setPortalCall(true);
-					this.BXIM.webrtc.phoneCallView.setPortalCallData(params.portalCallData);
-					this.BXIM.webrtc.phoneCallView.setPortalCallUserId(params.portalCallUserId);
-				}
-			}
-			else if (command == 'completeTransfer')
-			{
-				if (this.BXIM.webrtc.phoneCallId != params.callId)
-				{
-					return false;
-				}
-
-				this.BXIM.webrtc.phoneCallId = params.newCallId;
-
-				this.phoneTransferTargetId = 0;
-				this.phoneTransferTargetType = '';
-				this.phoneTransferCallId = '';
-				this.phoneTransferEnabled = false;
-				BX.localStorage.set('vite', false, 1);
-
-				this.BXIM.webrtc.phoneCallDevice = params.callDevice == 'PHONE'? 'PHONE': 'WEBRTC';
-				if(this.BXIM.webrtc.phoneCallDevice == 'PHONE')
-				{
-					this.BXIM.webrtc.phoneCallView.setDeviceCall(true);
-				}
-				this.BXIM.webrtc.phoneCallView.setTransfer(false);
-				this.BXIM.webrtc.phoneOnCallConnected();
-			}
-			else if (command == 'phoneDeviceActive')
-			{
-				this.BXIM.webrtc.phoneDeviceActive = params.active == 'Y';
-			}
-			else if (command == 'changeDefaultLineId')
-			{
-				this.BXIM.webrtc.phoneDefaultLineId = params.defaultLineId;
-			}
-			else if (command == 'replaceCallerId')
-			{
-				var callTitle = BX.message('IM_PHONE_CALL_TRANSFER').replace('#PHONE#', params.callerId);
-				this.BXIM.webrtc.setCallOverlayTitle(callTitle);
-				this.BXIM.webrtc.phoneCallView.setPhoneNumber(params.callerId);
-				if (params.CRM)
-				{
-					this.BXIM.webrtc.phoneCrm = params.CRM;
-					this.BXIM.webrtc.phoneCallView.setCrmData(params.CRM);
-					if(params.showCrmCard)
-					{
-						this.BXIM.webrtc.phoneCallView.setCrmEntity({
-							type: params.crmEntityType,
-							id: params.crmEntityId,
-							activityId: params.crmActivityId,
-							activityEditUrl: params.crmActivityEditUrl,
-							bindings: params.crmBindings
-						});
-						this.BXIM.webrtc.phoneCallView.reloadCrmCard();
-					}
-				}
-			}
-			else if (command == 'showExternalCall')
-			{
-				if (this.BXIM.callController && this.BXIM.callController.hasActiveCall())
-					return false;
-
-				if ( BX.localStorage.get('viInitedCall') || BX.localStorage.get('viExternalCard'))
-				{
-					return false;
-				}
-
-				this.phoneCheckDesktop().then(function()
-				{
-					if (params.CRM && params.CRM.FOUND)
-					{
-						this.BXIM.webrtc.phoneCrm = params.CRM;
-					}
-					else
-					{
-						this.BXIM.webrtc.phoneCrm = {};
-					}
-
-					this.BXIM.webrtc.showExternalCall({
-						callId: params.callId,
-						fromUserId: params.fromUserId,
-						toUserId: params.toUserId,
-						isCallback: params.isCallback,
-						phoneNumber: params.phoneNumber,
-						lineNumber: params.lineNumber,
-						companyPhoneNumber: params.companyPhoneNumber,
-						showCrmCard: params.showCrmCard,
-						crmEntityType: params.crmEntityType,
-						crmEntityId: params.crmEntityId,
-						crmBindings: params.crmBindings,
-						crmActivityId: params.crmActivityId,
-						crmActivityEditUrl: params.crmActivityEditUrl,
-						config: params.config,
-						portalCall: params.portalCall,
-						portalCallData: params.portalCallData,
-						portalCallUserId: params.portalCallUserId
-					});
-
-				}.bind(this));
-			}
-			else if (command == 'hideExternalCall')
-			{
-				if (this.isMobile())
-					return false;
-
-				if(this.BXIM.webrtc.callActive && this.BXIM.webrtc.phoneCallExternal && this.BXIM.webrtc.phoneCallId == params.callId)
-				{
-					this.BXIM.webrtc.hideExternalCall();
-				}
-			}
-		}, this);
-
-		BX.addCustomEvent("onPullEvent-voximplant", pullPhoneEventHandler);
-	}
-
-	MessengerCommon.prototype.phoneCommand = function(command, params, async, successCallback)
-	{
-		var promiseMode = !BX.type.isFunction(successCallback);
-		var result;
-		if(promiseMode)
-		{
-			result = new BX.Promise();
-		}
-		if (!this.BXIM.webrtc.phoneSupport())
-		{
-			if(promiseMode)
-			{
-				result.reject();
-				return result;
-			}
-			else
-			{
-				return false;
-			}
-		}
-
-		async = async != false;
-		params = typeof(params) == 'object' ? params: {};
-
-		try
-		{
-			params = JSON.stringify(params);
-		}
-		catch (e)
-		{
-			console.error("Could not convert params to JSON, error: ", e);
-			return;
-		}
-
-		BX.ajax({
-			url: this.BXIM.pathToCallAjax+'?PHONE_SHARED&V='+this.BXIM.revision,
-			method: 'POST',
-			dataType: 'json',
-			timeout: 30,
-			async: async,
-			data: {'IM_PHONE' : 'Y', 'COMMAND': command, 'PARAMS' : params, 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
-			onsuccess: function(response)
-			{
-				if(promiseMode)
-				{
-					result.resolve(response);
-				}
-				else
-				{
-					successCallback(response)
-				}
-			}
-		});
-
-		return promiseMode ? result : true;
-	}
-
-	MessengerCommon.prototype.phoneCorrect = function(number)
-	{
-		return  number.toString().replace(/[^0-9+#*;,]/g, '');
-	}
-
-	MessengerCommon.prototype.phoneOnIncomingCall = function(params)
-	{
-		if (this.BXIM.webrtc.phoneCurrentCall)
-			return false;
-
-		var viEvent = {};
-		if (this.isMobile())
-		{
-			viEvent = BX.MobileVoximplantCall.events;
-		}
-		else
-		{
-			viEvent = VoxImplant.CallEvents;
-		}
-
-		this.BXIM.webrtc.phoneCurrentCall = params.call;
-		this.BXIM.webrtc.phoneCurrentCall.addEventListener(viEvent.Connected, BX.delegate(this.BXIM.webrtc.phoneOnCallConnected, this.BXIM.webrtc));
-		this.BXIM.webrtc.phoneCurrentCall.addEventListener(viEvent.Disconnected, BX.delegate(this.BXIM.webrtc.phoneOnCallDisconnected, this.BXIM.webrtc));
-		this.BXIM.webrtc.phoneCurrentCall.addEventListener(viEvent.Failed, BX.delegate(this.BXIM.webrtc.phoneOnCallFailed, this.BXIM.webrtc));
-		this.BXIM.webrtc.phoneCurrentCall.answer();
-	}
-
-	MessengerCommon.prototype.phoneGetCallParams = function()
-	{
-		var result = BX.type.isPlainObject(this.BXIM.webrtc.phoneParams) ? BX.clone(this.BXIM.webrtc.phoneParams) : {};
-		if (this.BXIM.webrtc.phoneFullNumber != this.BXIM.webrtc.phoneNumber)
-		{
-			result['FULL_NUMBER'] = this.BXIM.webrtc.phoneFullNumber;
-		}
-		return JSON.stringify(result);
-	}
-
-	MessengerCommon.prototype.phoneCallStart = function()
-	{
-		this.BXIM.webrtc.phoneParams['CALLER_ID'] = '';
-		this.BXIM.webrtc.phoneParams['USER_ID'] = this.BXIM.userId;
-		this.BXIM.webrtc.phoneLog('Call params: ', this.BXIM.webrtc.phoneNumber, this.BXIM.webrtc.phoneParams);
-		if (!this.BXIM.webrtc.phoneAPI.connected())
-		{
-			this.BXIM.webrtc.phoneOnSDKReady();
-			return false;
-		}
-
-		if (!this.isMobile() && false) // TODO debug mode for testing interface
-		{
-			this.BXIM.webrtc.phoneCurrentCall = true;
-			this.BXIM.webrtc.callActive = true;
-			this.BXIM.webrtc.phoneOnCallConnected();
-			this.BXIM.webrtc.phoneCrm.FOUND = 'N';
-			this.BXIM.webrtc.phoneCrm.CONTACT_URL = '#';
-			this.BXIM.webrtc.phoneCrm.LEAD_URL = '#';
-			this.BXIM.webrtc.callOverlayDrawCrm();
-		}
-		else
-		{
-			var viEvent = {};
-			if (this.isMobile())
-			{
-				viEvent = BX.MobileVoximplantCall.events;
-			}
-			else
-			{
-				viEvent = VoxImplant.CallEvents;
-				this.BXIM.webrtc.phoneAPI.setOperatorACDStatus('ONLINE');
-			}
-
-			this.BXIM.webrtc.phoneCurrentCall = this.BXIM.webrtc.phoneAPI.call(this.BXIM.webrtc.phoneNumber, false, this.phoneGetCallParams());
-			this.BXIM.webrtc.phoneCurrentCall.addEventListener(viEvent.Connected, BX.delegate(this.BXIM.webrtc.phoneOnCallConnected, this.BXIM.webrtc));
-			this.BXIM.webrtc.phoneCurrentCall.addEventListener(viEvent.Disconnected, BX.delegate(this.BXIM.webrtc.phoneOnCallDisconnected, this.BXIM.webrtc));
-			this.BXIM.webrtc.phoneCurrentCall.addEventListener(viEvent.Failed, BX.delegate(this.BXIM.webrtc.phoneOnCallFailed, this.BXIM.webrtc));
-			this.BXIM.webrtc.phoneCurrentCall.addEventListener(viEvent.ProgressToneStart, BX.delegate(this.BXIM.webrtc.phoneOnProgressToneStart, this.BXIM.webrtc));
-			this.BXIM.webrtc.phoneCurrentCall.addEventListener(viEvent.ProgressToneStop, BX.delegate(this.BXIM.webrtc.phoneOnProgressToneStop, this.BXIM.webrtc));
-			if (this.isMobile())
-			{
-				this.BXIM.webrtc.phoneCurrentCall.start();
-			}
-		}
-
-		BX.ajax({
-			url: this.BXIM.pathToCallAjax+'?PHONE_INIT&V='+this.BXIM.revision,
-			method: 'POST',
-			dataType: 'json',
-			timeout: 30,
-			data: {'IM_PHONE' : 'Y', 'COMMAND': 'init', 'NUMBER' : this.BXIM.webrtc.phoneNumber, 'NUMBER_USER' : BX.util.htmlspecialcharsback(this.BXIM.webrtc.phoneNumberUser), 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
-			onsuccess: BX.delegate(function(data){
-				if (data.ERROR == '')
-				{
-					if (!(data.HR_PHOTO.length == 0))
-					{
-						for (var i in data.HR_PHOTO)
-							this.BXIM.messenger.hrphoto[i] = data.HR_PHOTO[i];
-
-						this.BXIM.webrtc.callOverlayUserId = data.DIALOG_ID;
-					}
-					else
-					{
-						this.BXIM.webrtc.callOverlayChatId = data.DIALOG_ID.substr(4);
-					}
-				}
-			}, this)
-		});
-	}
-
-	MessengerCommon.prototype.phoneCallFinish = function()
-	{
-		clearInterval(this.BXIM.webrtc.phoneConnectedInterval);
-		BX.localStorage.remove('viInitedCall');
-		clearInterval(this.BXIM.webrtc.phoneCallTimeInterval);
-
-		this.BXIM.webrtc.callOverlayTimer('pause');
-
-		if (!this.isMobile())
-		{
-			this.BXIM.desktop.closeTopmostWindow();
-		}
-
-		if (this.BXIM.webrtc.phoneCurrentCall)
-		{
-			try { this.BXIM.webrtc.phoneCurrentCall.hangup({"X-Disconnect-Code": 200, "X-Disconnect-Reason": "Normal hangup"}); } catch (e) {}
-			this.BXIM.webrtc.phoneCurrentCall = null;
-			this.BXIM.webrtc.phoneLog('Call hangup call');
-		}
-		else if (this.BXIM.webrtc.phoneDisconnectAfterCallFlag && this.BXIM.webrtc.phoneAPI && this.BXIM.webrtc.phoneAPI.connected())
-		{
-			setTimeout(BX.delegate(function(){
-				if (this.BXIM.webrtc.phoneAPI && this.BXIM.webrtc.phoneAPI.connected())
-					this.BXIM.webrtc.phoneAPI.disconnect();
-			}, this), 500)
-		}
-
-		if (this.isMobile())
-		{}
-		else
-		{
-			if (this.BXIM.webrtc.popupKeyPad)
-				this.BXIM.webrtc.popupKeyPad.close();
-			if (this.BXIM.webrtc.popupTransferDialog)
-				this.BXIM.webrtc.popupTransferDialog.close();
-
-			BX.localStorage.set('vite', false, 1);
-		}
-
-		this.BXIM.webrtc.phoneRinging = 0;
-		this.BXIM.webrtc.phoneIncoming = false;
-		this.BXIM.webrtc.phoneCallId = '';
-		this.BXIM.webrtc.phoneCallExternal = false;
-		this.BXIM.webrtc.phoneCallDevice = 'WEBRTC';
-		//this.BXIM.webrtc.phonePortalCall = false;
-		this.BXIM.webrtc.phoneNumber = '';
-		this.BXIM.webrtc.phoneNumberUser = '';
-		this.BXIM.webrtc.phoneParams = {};
-		this.BXIM.webrtc.callOverlayOptions = {};
-		this.BXIM.webrtc.callSelfDisabled = false;
-		//this.BXIM.webrtc.phoneCrm = {};
-		this.BXIM.webrtc.phoneMicMuted = false;
-		this.BXIM.webrtc.phoneHolded = false;
-		this.BXIM.webrtc.phoneMicAccess = false;
-		this.BXIM.webrtc.phoneTransferTargetType = '';
-		this.BXIM.webrtc.phoneTransferTargetId = 0;
-		this.BXIM.webrtc.phoneTransferCallId = '';
-		this.BXIM.webrtc.phoneTransferEnabled = false;
-	}
-
-	MessengerCommon.prototype.phoneAuthorize = function()
-	{
-		BX.ajax({
-			url: this.BXIM.pathToCallAjax+'?PHONE_AUTHORIZE&V='+this.BXIM.revision,
-			method: 'POST',
-			dataType: 'json',
-			skipAuthCheck: true,
-			timeout: 30,
-			data: {'IM_PHONE' : 'Y', 'COMMAND': 'authorize', 'UPDATE_INFO': this.BXIM.webrtc.phoneCheckBalance? 'Y': 'N', 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
-			onsuccess: BX.delegate(function(data)
-			{
-				if (data && data.BITRIX_SESSID)
-				{
-					BX.message({'bitrix_sessid': data.BITRIX_SESSID});
-				}
-				if (data.ERROR == '')
-				{
-					this.BXIM.messenger.sendAjaxTry = 0;
-					this.BXIM.webrtc.phoneCheckBalance = false;
-
-					if (data.HR_PHOTO)
-					{
-						for (var i in data.HR_PHOTO)
-							this.BXIM.messenger.hrphoto[i] = data.HR_PHOTO[i];
-					}
-
-					if (this.isMobile())
-					{
-						this.BXIM.webrtc.phoneLogin = data.LOGIN;
-						this.BXIM.webrtc.phoneServer = data.SERVER;
-
-						this.BXIM.webrtc.phoneLog('auth with', this.BXIM.webrtc.phoneLogin+"@"+this.BXIM.webrtc.phoneServer);
-						BX.MobileVoximplant.loginWithOneTimeKey(data.LOGIN+'@'+data.SERVER, data.HASH)
-					}
-					else
-					{
-						this.BXIM.webrtc.phoneLogin = data.LOGIN;
-						this.BXIM.webrtc.phoneServer = data.SERVER;
-					}
-					this.BXIM.webrtc.phoneCallerID = data.CALLERID;
-
-					this.BXIM.webrtc.phoneApiInit();
-				}
-				else if (data.ERROR == 'AUTHORIZE_ERROR' && (this.isDesktop() || this.isMobile()) && this.BXIM.messenger.sendAjaxTry < 3)
-				{
-					this.BXIM.messenger.sendAjaxTry++;
-					setTimeout(BX.delegate(function (){
-						this.phoneAuthorize();
-					}, this), 5000);
-
-					BX.onCustomEvent(window, 'onImError', [data.ERROR]);
-				}
-				else if (data.ERROR == 'SESSION_ERROR' && this.BXIM.messenger.sendAjaxTry < 2)
-				{
-					this.BXIM.messenger.sendAjaxTry++;
-					setTimeout(BX.delegate(function(){
-						this.phoneAuthorize();
-					}, this), 2000);
-					BX.onCustomEvent(window, 'onImError', [data.ERROR, data.BITRIX_SESSID]);
-				}
-				else
-				{
-					this.BXIM.webrtc.callOverlayDeleteEvents();
-					this.BXIM.webrtc.callOverlayProgress('offline');
-
-					this.BXIM.webrtc.phoneLog('onetimekey', data.ERROR, data.CODE);
-					if (data.ERROR == 'AUTHORIZE_ERROR' || data.ERROR == 'SESSION_ERROR')
-					{
-						BX.onCustomEvent(window, 'onImError', [data.ERROR]);
-						this.BXIM.webrtc.callAbort(BX.message('IM_PHONE_401'));
-					}
-					else
-					{
-						this.BXIM.webrtc.callAbort(data.ERROR+(this.BXIM.webrtc.debug? '<br />('+BX.message('IM_ERROR_CODE')+': '+data.CODE+')': ''));
-					}
-					if (!this.isMobile())
-					{
-						this.BXIM.webrtc.phoneCallView.setUiState(BX.PhoneCallView.UiState.error);
-						this.BXIM.webrtc.phoneCallView.setCallState(BX.PhoneCallView.CallState.idle);
-					}
-				}
-			}, this),
-			onfailure: BX.delegate(function() {
-				this.BXIM.webrtc.phoneCallFinish();
-				this.BXIM.webrtc.callAbort(BX.message('IM_M_CALL_ERR'));
-			}, this)
-		});
-	}
-
-	MessengerCommon.prototype.phoneOnAuthResult = function(e)
-	{
-		if (e.result)
-		{
-			if (this.BXIM.webrtc.phoneCallDevice == 'PHONE')
-				return false;
-
-			this.BXIM.webrtc.phoneLog('Authorize result', 'success');
-			if (this.BXIM.webrtc.phoneIncoming)
-			{
-				BX.MessengerCommon.phoneCommand('ready', {'CALL_ID': this.BXIM.webrtc.phoneCallId});
-			}
-			else if (this.BXIM.webrtc.callInitUserId == this.BXIM.userId)
-			{
-				BX.MessengerCommon.phoneCallStart();
-			}
-		}
-		else if (!this.isMobile() && e.code == 302)
-		{
-			BX.ajax({
-				url: this.BXIM.pathToCallAjax+'?PHONE_ONETIMEKEY&V='+this.BXIM.revision,
-				method: 'POST',
-				dataType: 'json',
-				timeout: 30,
-				data: {'IM_PHONE' : 'Y', 'COMMAND': 'onetimekey', 'KEY': e.key, 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
-				onsuccess: BX.delegate(function(data)
-				{
-					if (data.ERROR == '')
-					{
-						this.BXIM.webrtc.phoneLog('auth with', this.BXIM.webrtc.phoneLogin+"@"+this.BXIM.webrtc.phoneServer);
-						this.BXIM.webrtc.phoneAPI.loginWithOneTimeKey(this.BXIM.webrtc.phoneLogin+"@"+this.BXIM.webrtc.phoneServer, data.HASH);
-					}
-					else
-					{
-						this.BXIM.webrtc.phoneCallFinish();
-
-						this.BXIM.webrtc.phoneLog('onetimekey', data.ERROR, data.CODE);
-						if (data.CODE)
-							this.BXIM.webrtc.callAbort(BX.message('IM_PHONE_ERROR_CONNECT'));
-						else
-							this.BXIM.webrtc.callAbort(data.ERROR+(this.debug? '<br />('+BX.message('IM_ERROR_CODE')+': '+data.CODE+')': ''));
-
-						if (!this.isMobile())
-						{
-							this.BXIM.webrtc.phoneCallView.setUiState(BX.PhoneCallView.UiState.error);
-							this.BXIM.webrtc.phoneCallView.setCallState(BX.PhoneCallView.CallState.idle);
-						}
-					}
-				}, this),
-				onfailure: BX.delegate(function() {
-					this.BXIM.webrtc.callAbort(BX.message('IM_M_CALL_ERR'));
-					this.BXIM.webrtc.phoneCallFinish();
-				}, this)
-			});
-		}
-		else
-		{
-			if (e.code == 401 || e.code == 400 || e.code == 403 || e.code == 404 || e.code == 302)
-			{
-				this.BXIM.webrtc.callAbort(BX.message('IM_PHONE_401'));
-				this.BXIM.webrtc.phoneServer = '';
-				this.BXIM.webrtc.phoneLogin = '';
-				this.BXIM.webrtc.phoneCheckBalance = true;
-				BX.MessengerCommon.phoneCommand('authorize_error');
-			}
-			else
-			{
-				this.BXIM.webrtc.callAbort(BX.message('IM_M_CALL_ERR'));
-			}
-			this.BXIM.webrtc.callOverlayProgress('offline');
-			if (!this.isMobile())
-			{
-				this.BXIM.webrtc.phoneCallView.setUiState(BX.PhoneCallView.UiState.error);
-				this.BXIM.webrtc.phoneCallView.setCallState(BX.PhoneCallView.CallState.idle);
-			}
-			this.BXIM.webrtc.phoneCallFinish();
-			this.BXIM.webrtc.phoneLog('Authorize result', 'failed', e.code);
-			this.BXIM.webrtc.phoneServer = '';
-			this.BXIM.webrtc.phoneLogin = '';
-		}
-	}
-
-	MessengerCommon.prototype.phoneOnCallFailed = function(e)
-	{
-		var headers = e.headers || {};
-		this.BXIM.webrtc.phoneLog('Call failed', e.code, e.reason);
-
-		var reason = BX.message('IM_PHONE_END');
-		if (e.code == 603)
-		{
-			reason = BX.message('IM_PHONE_DECLINE');
-		}
-		else if (e.code == 380)
-		{
-			reason = BX.message('IM_PHONE_ERR_SIP_LICENSE');
-		}
-		else if (e.code == 436)
-		{
-			reason = BX.message('IM_PHONE_ERR_NEED_RENT');
-		}
-		else if (e.code == 438)
-		{
-			reason = BX.message('IM_PHONE_ERR_BLOCK_RENT');
-		}
-		else if (e.code == 400)
-		{
-			reason = BX.message('IM_PHONE_ERR_LICENSE');
-		}
-		else if (e.code == 401)
-		{
-			reason = BX.message('IM_PHONE_401');
-		}
-		else if (e.code == 480 || e.code == 503)
-		{
-			if (this.BXIM.webrtc.phoneNumber == 911 || this.BXIM.webrtc.phoneNumber == 112)
-			{
-				reason = BX.message('IM_PHONE_NO_EMERGENCY');
-			}
-			else
-			{
-				reason = BX.message('IM_PHONE_UNAVAILABLE');
-			}
-		}
-		else if (e.code == 484 || e.code == 404)
-		{
-			if (this.BXIM.webrtc.phoneNumber == 911 || this.BXIM.webrtc.phoneNumber == 112)
-			{
-				reason = BX.message('IM_PHONE_NO_EMERGENCY');
-			}
-			else
-			{
-				reason = BX.message('IM_PHONE_INCOMPLETED');
-			}
-		}
-		else if (e.code == 402)
-		{
-			if(headers.hasOwnProperty('X-Reason') && headers['X-Reason'] === "SIP_PAYMENT_REQUIRED")
-			{
-				reason = BX.message('IM_PHONE_ERR_SIP_LICENSE');
-			}
-			else
-			{
-				reason = BX.message('IM_PHONE_NO_MONEY')+(this.BXIM.isAdmin? ' '+BX.message('IM_PHONE_PAY_URL_NEW'): '');
-			}
-		}
-		else if (e.code == 486 && this.BXIM.webrtc.phoneRinging > 1)
-		{
-			reason = BX.message('IM_M_CALL_ST_DECLINE');
-		}
-		else if (e.code == 486)
-		{
-			reason = BX.message('IM_PHONE_ERROR_BUSY');
-		}
-		else if (e.code == 403)
-		{
-			reason = BX.message('IM_PHONE_403');
-			this.BXIM.webrtc.phoneServer = '';
-			this.BXIM.webrtc.phoneLogin = '';
-			this.BXIM.webrtc.phoneCheckBalance = true;
-		}
-
-		this.BXIM.webrtc.phoneCallFinish();
-		if (e.code == 408 || e.code == 403)
-		{
-			if (this.BXIM.webrtc.phoneAPI && this.BXIM.webrtc.phoneAPI.connected())
-			{
-				setTimeout(BX.delegate(function(){
-					if (this.BXIM.webrtc.phoneAPI && this.BXIM.webrtc.phoneAPI.connected())
-						this.BXIM.webrtc.phoneAPI.disconnect();
-				}, this), 500)
-			}
-		}
-		this.BXIM.webrtc.callOverlayProgress('offline');
-		this.BXIM.webrtc.callAbort(reason);
-
-		if (!this.isMobile())
-		{
-			this.BXIM.webrtc.phoneCallView.setUiState(BX.PhoneCallView.UiState.error);
-			this.BXIM.webrtc.phoneCallView.setCallState(BX.PhoneCallView.CallState.idle);
-		}
-	}
-
-	MessengerCommon.prototype.phoneOnCallDisconnected = function(e)
-	{
-		this.BXIM.webrtc.phoneLog('Call disconnected', this.BXIM.webrtc.phoneCurrentCall? this.BXIM.webrtc.phoneCurrentCall.id(): '-', this.BXIM.webrtc.phoneCurrentCall? this.BXIM.webrtc.phoneCurrentCall.state(): '-');
-
-		if (this.BXIM.webrtc.phoneCurrentCall)
-		{
-			this.BXIM.webrtc.phoneCallFinish();
-			this.BXIM.webrtc.callOverlayDeleteEvents();
-			this.BXIM.webrtc.callOverlayStatus(BX.message('IM_M_CALL_ST_END'));
-
-			if (this.isMobile())
-			{
-				this.BXIM.webrtc.callOverlayProgress('offline');
-				this.BXIM.webrtc.callOverlayState(BX.MobileCallUI.form.state.FINISHED);
-			}
-			else
-			{
-				this.BXIM.playSound('stop');
-				this.BXIM.webrtc.phoneCallView.setCallState(BX.PhoneCallView.CallState.idle);
-				if(this.BXIM.webrtc.isCallListMode())
-				{
-					this.BXIM.webrtc.phoneCallView.setUiState(BX.PhoneCallView.UiState.outgoing);
-				}
-				else
-				{
-					this.BXIM.webrtc.phoneCallView.setStatusText(BX.message('IM_PHONE_END'));
-					this.BXIM.webrtc.phoneCallView.setUiState(BX.PhoneCallView.UiState.idle);
-					this.BXIM.webrtc.phoneCallView.autoClose();
-				}
-			}
-		}
-
-		if (this.BXIM.webrtc.phoneDisconnectAfterCallFlag && this.BXIM.webrtc.phoneAPI && this.BXIM.webrtc.phoneAPI.connected())
-		{
-			setTimeout(BX.delegate(function(){
-				if (this.BXIM.webrtc.phoneAPI && this.BXIM.webrtc.phoneAPI.connected())
-					this.BXIM.webrtc.phoneAPI.disconnect();
-			}, this), 500)
-		}
-	}
-
-	MessengerCommon.prototype.phoneOnProgressToneStart = function(e)
-	{
-		if (!this.BXIM.webrtc.phoneCurrentCall)
-			return false;
-
-		this.BXIM.webrtc.phoneLog('Progress tone start', this.BXIM.webrtc.phoneCurrentCall.id());
-		this.BXIM.webrtc.phoneRinging++;
-		this.BXIM.webrtc.callOverlayStatus(BX.message('IM_PHONE_WAIT_ANSWER'));
-	}
-
-	MessengerCommon.prototype.phoneOnProgressToneStop = function(e)
-	{
-		if (!this.BXIM.webrtc.phoneCurrentCall)
-			return false;
-		this.BXIM.webrtc.phoneLog('Progress tone stop', this.BXIM.webrtc.phoneCurrentCall.id());
-	}
-
-	MessengerCommon.prototype.phoneOnConnectionEstablished = function(e)
-	{
-		this.BXIM.webrtc.phoneLog('Connection established', this.BXIM.webrtc.phoneAPI.connected());
-	}
-
-	MessengerCommon.prototype.phoneOnConnectionFailed = function(e)
-	{
-		this.BXIM.webrtc.phoneLog('Connection failed');
-		this.BXIM.webrtc.phoneCallFinish();
-		this.BXIM.webrtc.callAbort(BX.message('IM_M_CALL_ERR'));
-	}
-
-	MessengerCommon.prototype.phoneOnConnectionClosed = function(e)
-	{
-		this.BXIM.webrtc.phoneLog('Connection closed');
-		this.BXIM.webrtc.phoneSDKinit = false;
-	}
-
-	MessengerCommon.prototype.phoneOnMicResult = function(e)
-	{
-		this.BXIM.webrtc.phoneMicAccess = e.result;
-		this.BXIM.webrtc.phoneLog('Mic Access Allowed', e.result);
-
-		if (!this.isMobile())
-		{
-			clearTimeout(this.BXIM.webrtc.callDialogAllowTimeout);
-			if (this.BXIM.webrtc.callDialogAllow)
-				this.BXIM.webrtc.callDialogAllow.close();
-		}
-
-		if (e.result)
-		{
-			this.BXIM.webrtc.callOverlayProgress('connect');
-			this.BXIM.webrtc.callOverlayStatus(BX.message('IM_M_CALL_ST_CONNECT'));
-		}
-		else
-		{
-			this.BXIM.webrtc.phoneCallFinish();
-			this.BXIM.webrtc.callOverlayProgress('offline');
-			this.BXIM.webrtc.callAbort(BX.message('IM_M_CALL_ST_NO_ACCESS'));
-			if (!this.isMobile())
-			{
-				this.BXIM.webrtc.phoneCallView.setUiState(BX.PhoneCallView.UiState.error);
-				this.BXIM.webrtc.phoneCallView.setCallState(BX.PhoneCallView.CallState.idle);
-			}
-		}
-	}
-
-	MessengerCommon.prototype.phoneOnNetStatsReceived = function(e)
-	{
-		if (!this.BXIM.webrtc.phoneCurrentCall || this.BXIM.webrtc.phoneCurrentCall.state() != "CONNECTED")
-			return false;
-
-		var percent = (100-parseInt(e.stats.packetLoss));
-		var grade = this.BXIM.webrtc.callPhoneOverlayMeter(percent);
-
-		this.BXIM.webrtc.phoneCurrentCall.sendMessage(JSON.stringify({'COMMAND': 'meter', 'PACKETLOSS': e.stats.packetLoss, 'PERCENT': percent, 'GRADE': grade}));
-	}
-
-	MessengerCommon.prototype.phoneHold = function()
-	{
-		if (!this.BXIM.webrtc.phoneCurrentCall && this.BXIM.webrtc.phoneCallDevice == 'WEBRTC')
-			return false;
-
-		this.BXIM.webrtc.phoneHolded = true;
-		if (this.BXIM.webrtc.phoneCallDevice == 'WEBRTC')
-		{
-			this.BXIM.webrtc.phoneCurrentCall.sendMessage(JSON.stringify({'COMMAND': 'hold'}));
-		}
-		else
-		{
-			BX.MessengerCommon.phoneCommand('hold', {'CALL_ID': this.BXIM.webrtc.phoneCallId});
-		}
-	}
-
-	MessengerCommon.prototype.phoneUnhold = function()
-	{
-		if (!this.BXIM.webrtc.phoneCurrentCall && this.BXIM.webrtc.phoneCallDevice == 'WEBRTC')
-			return false;
-
-		this.BXIM.webrtc.phoneHolded = false;
-		if (this.BXIM.webrtc.phoneCallDevice == 'WEBRTC')
-		{
-			this.BXIM.webrtc.phoneCurrentCall.sendMessage(JSON.stringify({'COMMAND': 'unhold'}));
-		}
-		else
-		{
-			BX.MessengerCommon.phoneCommand('unhold', {'CALL_ID': this.BXIM.webrtc.phoneCallId});
-		}
-	}
-
-	MessengerCommon.prototype.phoneToggleHold = function(state)
-	{
-		if (!this.BXIM.webrtc.phoneCurrentCall && this.BXIM.webrtc.phoneCallDevice == 'WEBRTC')
-			return false;
-
-		if (typeof(state) != 'undefined')
-		{
-			this.BXIM.webrtc.phoneHolded = !state;
-		}
-
-		if (this.BXIM.webrtc.phoneHolded)
-		{
-			if (this.BXIM.webrtc.phoneCallDevice == 'WEBRTC')
-			{
-				this.BXIM.webrtc.phoneCurrentCall.sendMessage(JSON.stringify({'COMMAND': 'unhold'}));
-			}
-			else
-			{
-				BX.MessengerCommon.phoneCommand('unhold', {'CALL_ID': this.BXIM.webrtc.phoneCallId});
-			}
-		}
-		else
-		{
-			if (this.BXIM.webrtc.phoneCallDevice == 'WEBRTC')
-			{
-				this.BXIM.webrtc.phoneCurrentCall.sendMessage(JSON.stringify({'COMMAND': 'hold'}));
-			}
-			else
-			{
-				BX.MessengerCommon.phoneCommand('hold', {'CALL_ID': this.BXIM.webrtc.phoneCallId});
-			}
-		}
-		this.BXIM.webrtc.phoneHolded = !this.BXIM.webrtc.phoneHolded;
-	}
-
-	MessengerCommon.prototype.phoneSendDTMF = function(key)
-	{
-		if (!this.BXIM.webrtc.phoneCurrentCall)
-			return false;
-
-		this.BXIM.webrtc.phoneLog('Send DTMF code', this.BXIM.webrtc.phoneCurrentCall.id(), key);
-
-		this.BXIM.webrtc.phoneCurrentCall.sendTone(key);
-	}
-
-	MessengerCommon.prototype.phoneStartCallViaRestApp = function(number, lineId, params)
-	{
-		BX.rest.callMethod(
-			'voximplant.call.startViaRest',
-			{
-				'NUMBER': number,
-				'LINE_ID': lineId,
-				'PARAMS': params,
-				'SHOW': 'Y'
-			}
-		);
+		return this.BXIM.messenger.users[userId] || false;
 	}
 
 	MessengerCommon.prototype.phoneGetCallFields = function(chatId)
 	{
 		if (!this.BXIM.messenger.chat[chatId] || this.BXIM.messenger.chat[chatId].type != "call")
+		{
 			return {crm: false};
+		}
 
 		var currentChat = this.BXIM.messenger.chat[chatId];
 
 		var crmData = currentChat.entity_data_1.toString().split('|');
-		if(!this.BXIM.bitrixCrm || crmData.length < 3 || crmData[0] !== 'Y' || !this.BXIM.path.crm[crmData[1]])
+		if (!this.BXIM.bitrixCrm || crmData.length < 3 || crmData[0] !== 'Y' || !this.BXIM.path.crm[crmData[1]])
 		{
 			return {crm: false};
 		}
@@ -14921,11 +13748,6 @@
 				crmShowUrl: this.BXIM.path.crm[crmData[1]].replace("#ID#", crmData[2])
 			};
 		}
-	}
-
-	MessengerCommon.prototype.getUser = function(userId)
-	{
-		return this.BXIM.messenger.users[userId] || false;
 	}
 
 	MessengerCommon.prototype.getHrPhoto = function(userId, color)
@@ -15028,7 +13850,7 @@
 					{
 						data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
 						data.MESSAGE[i].textOriginal = data.MESSAGE[i].text;
-						data.MESSAGE[i].text = BX.MessengerCommon.prepareText(data.MESSAGE[i].text, false, true, true);
+						data.MESSAGE[i].text = BX.MessengerCommon.prepareText(data.MESSAGE[i].text, true, true, true);
 
 						this.BXIM.messenger.message[i] = data.MESSAGE[i];
 					}

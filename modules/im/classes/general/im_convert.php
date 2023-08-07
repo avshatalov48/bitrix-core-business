@@ -212,13 +212,18 @@ class CIMConvert
 	{
 		global $DB;
 
-		$strSql = "SELECT COUNT(*) CNT FROM b_sonet_messages WHERE DATE_VIEW IS NOT NULL AND TO_DELETED = 'N' AND MESSAGE_TYPE = '".IM_MESSAGE_PRIVATE."'";
-		$res = $DB->Query($strSql, true);
-		if (!$res)
+		if (!$DB->TableExists('b_sonet_messages'))
+		{
 			return 0;
+		}
+
+		$strSql = "SELECT COUNT('x') CNT FROM b_sonet_messages WHERE DATE_VIEW IS NOT NULL AND TO_DELETED = 'N' AND MESSAGE_TYPE = '".IM_MESSAGE_PRIVATE."'";
+		$res = $DB->Query($strSql);
 
 		if ($row = $res->Fetch())
+		{
 			return intval($row['CNT']);
+		}
 
 		return 0;
 	}

@@ -1,6 +1,7 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
-(function (exports,im_debug,im_application_launch,im_component_conference_conferencePublic,Call,im_model,im_controller,im_lib_cookie,im_lib_localstorage,im_lib_logger,im_lib_clipboard,im_lib_desktop,im_const,ui_notificationManager,ui_notification,ui_buttons,ui_progressround,ui_viewer,ui_vue,ui_vue_vuex,main_core,promise,main_date,main_core_events,pull_client,im_provider_pull,rest_client,im_lib_utils) {
+(function (exports,im_debug,im_application_launch,im_component_conference_conferencePublic,im_v2_lib_desktopApi,Call,im_model,im_controller,im_lib_cookie,im_lib_localstorage,im_lib_logger,im_lib_clipboard,im_lib_desktop,im_const,ui_notificationManager,ui_notification,ui_buttons,ui_progressround,ui_viewer,ui_vue,ui_vue_vuex,main_core,promise,main_date,main_core_events,pull_client,im_provider_pull,rest_client,im_lib_utils) {
 	'use strict';
 
 	var RestAuth = Object.freeze({
@@ -207,7 +208,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    this.waitingForCallStatusTimeout = null;
 	    this.callEventReceived = false;
 	    this.callRecordState = Call.View.RecordState.Stopped;
-	    this.desktop = null;
 	    this.floatingScreenShareWindow = null;
 	    this.webScreenSharePopup = null;
 	    this.mutePopup = null;
@@ -241,20 +241,18 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    key: "initDesktopEvents",
 	    value: function initDesktopEvents() {
 	      var _this2 = this;
-	      if (!im_lib_utils.Utils.platform.isBitrixDesktop()) {
+	      if (!im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
 	        return new Promise(function (resolve, reject) {
 	          return resolve();
 	        });
 	      }
-	      this.desktop = new im_lib_desktop.Desktop();
 	      this.floatingScreenShareWindow = new Call.FloatingScreenShare({
-	        desktop: this.desktop,
 	        onBackToCallClick: this.onFloatingScreenShareBackToCallClick.bind(this),
 	        onStopSharingClick: this.onFloatingScreenShareStopClick.bind(this),
 	        onChangeScreenClick: this.onFloatingScreenShareChangeScreenClick.bind(this)
 	      });
 	      if (this.floatingScreenShareWindow) {
-	        this.desktop.addCustomEvent("BXScreenMediaSharing", function (id, title, x, y, width, height, app) {
+	        im_v2_lib_desktopApi.DesktopApi.subscribe("BXScreenMediaSharing", function (id, title, x, y, width, height, app) {
 	          _this2.floatingScreenShareWindow.setSharingData({
 	            title: title,
 	            x: x,
@@ -275,7 +273,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          _this2.onWindowBlur();
 	        });
 	      }
-	      this.desktop.addCustomEvent('bxImUpdateCounterMessage', function (counter) {
+	      im_v2_lib_desktopApi.DesktopApi.subscribe('bxImUpdateCounterMessage', function (counter) {
 	        if (!_this2.controller) {
 	          return false;
 	        }
@@ -709,8 +707,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        this.inited = true;
 	        this.initPromise.resolve(this);
 	      }
-	      if (im_lib_utils.Utils.platform.isBitrixDesktop()) {
-	        this.desktop.onCustomEvent('bxConferenceLoadComplete', []);
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.emitToMainWindow('bxConferenceLoadComplete', []);
 	      }
 	      return new Promise(function (resolve, reject) {
 	        return resolve();
@@ -1933,12 +1931,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "openChat",
 	    value: function openChat(user) {
-	      this.desktop.onCustomEvent('bxConferenceOpenChat', [user.id]);
+	      im_v2_lib_desktopApi.DesktopApi.emitToMainWindow('bxConferenceOpenChat', [user.id]);
 	    }
 	  }, {
 	    key: "openProfile",
 	    value: function openProfile(user) {
-	      this.desktop.onCustomEvent('bxConferenceOpenProfile', [user.id]);
+	      im_v2_lib_desktopApi.DesktopApi.emitToMainWindow('bxConferenceOpenProfile', [user.id]);
 	    }
 	  }, {
 	    key: "setDialogInited",
@@ -2206,5 +2204,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.ConferenceApplication = ConferenceApplication;
 
-}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX,BX.Messenger.Application,BX.Messenger,BX.Call,BX.Messenger.Model,BX.Messenger,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Const,BX.UI.NotificationManager,BX,BX.UI,BX.UI,BX.UI.Viewer,BX,BX,BX,BX,BX.Main,BX.Event,BX,BX.Messenger.Provider.Pull,BX,BX.Messenger.Lib));
+}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX,BX.Messenger.Application,BX.Messenger,BX.Messenger.v2.Lib,BX.Call,BX.Messenger.Model,BX.Messenger,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Const,BX.UI.NotificationManager,BX,BX.UI,BX.UI,BX.UI.Viewer,BX,BX,BX,BX,BX.Main,BX.Event,BX,BX.Messenger.Provider.Pull,BX,BX.Messenger.Lib));
 //# sourceMappingURL=conference.bundle.js.map

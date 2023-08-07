@@ -867,24 +867,26 @@ export class DialoguesModel extends BuilderModel
 	prepareLastMessageViews(rawLastMessageViews): {countOfViewers: number, firstViewers: Object[], messageId: number}
 	{
 		const {
-			count_of_viewers: countOfViewers,
-			first_viewers: rawFirstViewers,
-			message_id: messageId
+			countOfViewers,
+			firstViewers: rawFirstViewers,
+			messageId,
 		} = rawLastMessageViews;
 
 		let firstViewer;
-		rawFirstViewers.forEach(rawFirstViewer => {
-			if (rawFirstViewer.user_id === Core.getUserId())
+		for (const rawFirstViewer of rawFirstViewers)
+		{
+			if (rawFirstViewer.userId === Core.getUserId())
 			{
-				return;
+				continue;
 			}
 
 			firstViewer = {
-				userId: rawFirstViewer.user_id,
-				userName: rawFirstViewer.user_name,
-				date: Utils.date.cast(rawFirstViewer.date)
+				userId: rawFirstViewer.userId,
+				userName: rawFirstViewer.userName,
+				date: Utils.date.cast(rawFirstViewer.date),
 			};
-		});
+			break;
+		}
 
 		if (countOfViewers > 0 && !firstViewer)
 		{
@@ -894,7 +896,7 @@ export class DialoguesModel extends BuilderModel
 		return {
 			countOfViewers,
 			firstViewer,
-			messageId
+			messageId,
 		};
 	}
 

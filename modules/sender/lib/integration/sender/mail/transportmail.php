@@ -209,7 +209,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 		$canTrackMail = $message->getConfiguration()->get('TRACK_MAIL', $this->canTrackMails());
 		$mailMessageParams = array(
 			'EVENT' => [],
-			'FIELDS' => $fields,
+			'FIELDS' => $this->prepareFields($fields, $message),
 			'MESSAGE' => array(
 				'BODY_TYPE' => 'html',
 				'EMAIL_FROM' => $this->getCleanMailAddress($message->getConfiguration()->get('EMAIL_FROM')),
@@ -496,5 +496,19 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 	public function getConsentMaxRequests(): int
 	{
 		return Env::getMaxConsentRequests(static::CODE);
+	}
+
+	private function prepareFields(array $fields, Message\Adapter $message)
+	{
+		$result = [];
+
+		foreach ($fields as $key => $value)
+		{
+			$newKey = $message->preHandleReplaceCode($key, $fields['CRM_ENTITY_TYPE_ID']);
+			$newValue = $message->preHandleReaplaceValue($key, $value);
+			$result[$newKey] = $newValue;
+		}
+
+		return $result;
 	}
 }

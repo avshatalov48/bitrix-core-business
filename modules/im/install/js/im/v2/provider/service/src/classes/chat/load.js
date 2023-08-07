@@ -1,13 +1,15 @@
-import {Type} from 'main.core';
-import {Store} from 'ui.vue3.vuex';
+import { Store } from 'ui.vue3.vuex';
 
-import {Core} from 'im.v2.application.core';
-import {RestMethod} from 'im.v2.const';
-import {callBatch} from 'im.v2.lib.rest';
-import {MessageService} from 'im.v2.provider.service';
-import {UserManager} from 'im.v2.lib.user';
+import { Core } from 'im.v2.application.core';
+import { RestMethod } from 'im.v2.const';
+import { runAction } from 'im.v2.lib.rest';
+import { MessageService } from 'im.v2.provider.service';
+import { UserManager } from 'im.v2.lib.user';
+import { Utils } from 'im.v2.lib.utils';
 
-import {ChatDataExtractor} from '../chat-data-extractor';
+import { ChatDataExtractor } from '../chat-data-extractor';
+
+import type { ChatLoadRestResult } from '../../types/rest';
 
 export class LoadService
 {
@@ -20,153 +22,124 @@ export class LoadService
 
 	loadChat(dialogId: string): Promise
 	{
-		if (!Type.isStringFilled(dialogId))
-		{
-			return Promise.reject(new Error('ChatService: loadChat: dialogId is not provided'));
-		}
+		const params = { dialogId };
 
-		const query = this.#prepareLoadChatQuery(dialogId);
-
-		return this.#loadChatRequest(dialogId, query);
+		return this.#requestChat(RestMethod.imV2ChatShallowLoad, params);
 	}
 
 	loadChatWithMessages(dialogId: string): Promise
 	{
-		if (!Type.isStringFilled(dialogId))
-		{
-			return Promise.reject(new Error('ChatService: loadChatWithMessages: dialogId is not provided'));
-		}
+		const params = {
+			dialogId,
+			messageLimit: MessageService.getMessageRequestLimit(),
+		};
 
-		const query = this.#prepareLoadChatWithMessagesQuery(dialogId);
-
-		return this.#loadChatRequest(dialogId, query);
+		return this.#requestChat(RestMethod.imV2ChatLoad, params);
 	}
 
 	loadChatWithContext(dialogId: string, messageId: number): Promise
 	{
-		if (!Type.isStringFilled(dialogId))
-		{
-			return Promise.reject(new Error('ChatService: loadChatWithContext: dialogId is not provided'));
-		}
+		const params = {
+			dialogId,
+			messageId,
+			messageLimit: MessageService.getMessageRequestLimit(),
+		};
 
-		if (!messageId || !Type.isNumber(messageId))
-		{
-			return Promise.reject(new Error('ChatService: loadChatWithContext: messageId is not provided'));
-		}
-
-		const query = this.#prepareLoadChatWithContextQuery(dialogId, messageId);
-
-		return this.#loadChatRequest(dialogId, query);
+		return this.#requestChat(RestMethod.imV2ChatLoadInContext, params);
 	}
 
-	#loadChatRequest(dialogId: string, query: Object): Promise
+	prepareDialogId(dialogId: string): Promise<string>
+	{
+		if (!Utils.dialog.isExternalId(dialogId))
+		{
+			return Promise.resolve(dialogId);
+		}
+
+		return runAction(RestMethod.imV2ChatGetDialogId, {
+			data: { externalId: dialogId },
+		})
+			.then((result: {dialogId: string}) => {
+				return result.dialogId;
+			})
+			.catch((error) => {
+				console.error('ChatService: Load: error preparing external id', error);
+			});
+	}
+
+	#requestChat(actionName: string, params: Object<string, any>): Promise
+	{
+		const { dialogId } = params;
+		this.#markDialogAsLoading(dialogId);
+
+		return runAction(actionName, { data: params })
+			.then((result: ChatLoadRestResult) => {
+				return this.#updateModels(result);
+			})
+			.then(() => {
+				this.#markDialogAsLoaded(dialogId);
+			})
+			.catch((error) => {
+				console.error('ChatService: Load: error loading chat', error);
+				throw error;
+			});
+	}
+
+	#markDialogAsLoading(dialogId: string)
 	{
 		this.#store.dispatch('dialogues/update', {
-			dialogId: dialogId,
+			dialogId,
 			fields: {
-				loading: true
-			}
-		});
-
-		return callBatch(query).then(data => {
-			return this.#updateModels(data);
-		}).then(() => {
-			return this.#store.dispatch('dialogues/update', {
-				dialogId: dialogId,
-				fields: {
-					inited: true,
-					loading: false
-				}
-			});
+				loading: true,
+			},
 		});
 	}
 
-	#updateModels(response: Object): Promise
+	#markDialogAsLoaded(dialogId: string)
 	{
-		const extractor = new ChatDataExtractor(response);
-		extractor.extractData();
+		return this.#store.dispatch('dialogues/update', {
+			dialogId,
+			fields: {
+				inited: true,
+				loading: false,
+			},
+		});
+	}
 
+	#updateModels(restResult: ChatLoadRestResult): Promise
+	{
+		const extractor = new ChatDataExtractor(restResult);
 		if (extractor.isOpenlinesChat())
 		{
-			return Promise.reject('OL chats are not supported');
+			return Promise.reject(new Error('OL chats are not supported'));
 		}
 
-		const dialoguesPromise = this.#store.dispatch('dialogues/set', extractor.getDialogues());
+		const dialoguesPromise = this.#store.dispatch('dialogues/set', extractor.getChats());
 		const filesPromise = this.#store.dispatch('files/set', extractor.getFiles());
 
 		const userManager = new UserManager();
-		const usersPromise = [
+		const usersPromise = Promise.all([
 			this.#store.dispatch('users/set', extractor.getUsers()),
-			userManager.addUsersToModel(extractor.getAdditionalUsers())
-		];
+			userManager.addUsersToModel(extractor.getAdditionalUsers()),
+		]);
 
-		const messagesPromise = [
+		const messagesPromise = Promise.all([
 			this.#store.dispatch('messages/setChatCollection', {
 				messages: extractor.getMessages(),
-				clearCollection: true
+				clearCollection: true,
 			}),
 			this.#store.dispatch('messages/store', extractor.getMessagesToStore()),
 			this.#store.dispatch('messages/pin/setPinned', {
 				chatId: extractor.getChatId(),
-				pinnedMessages: extractor.getPinnedMessages()
+				pinnedMessages: extractor.getPinnedMessageIds(),
 			}),
-			this.#store.dispatch('messages/reactions/set', extractor.getReactions())
-		];
+			this.#store.dispatch('messages/reactions/set', extractor.getReactions()),
+		]);
 
 		return Promise.all([
 			dialoguesPromise,
 			filesPromise,
-			Promise.all(usersPromise),
-			Promise.all(messagesPromise)
+			usersPromise,
+			messagesPromise,
 		]);
-	}
-
-	#prepareLoadChatQuery(dialogId: string): Object
-	{
-		const query = {
-			[RestMethod.imChatGet]: {dialog_id: dialogId}
-		};
-		const isChat = dialogId.toString().startsWith('chat');
-		if (isChat)
-		{
-			query[RestMethod.imUserGet] = {};
-		}
-		else
-		{
-			query[RestMethod.imUserListGet] = {id: [Core.getUserId(), dialogId]};
-		}
-
-		return query;
-	}
-
-	#prepareLoadChatWithMessagesQuery(dialogId: string): Object
-	{
-		const query = this.#prepareLoadChatQuery(dialogId);
-
-		query[RestMethod.imV2ChatMessageList] = {
-			dialogId,
-			limit: MessageService.getMessageRequestLimit()
-		};
-		query[RestMethod.imV2ChatPinTail] = {
-			chatId: `$result[${RestMethod.imChatGet}][id]`
-		};
-
-		return query;
-	}
-
-	#prepareLoadChatWithContextQuery(dialogId: string, messageId: number): Object
-	{
-		const query = this.#prepareLoadChatQuery(dialogId);
-
-		query[RestMethod.imV2ChatMessageGetContext] = {
-			id: messageId,
-			range: MessageService.getMessageRequestLimit()
-		};
-		query[RestMethod.imV2ChatMessageRead] = {
-			dialogId,
-			ids: [messageId]
-		};
-
-		return query;
 	}
 }

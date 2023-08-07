@@ -278,6 +278,11 @@ abstract class Collection extends Registry implements ActiveRecordCollection
 		$idsToDelete = $this->getPrimaryIds();
 		if (method_exists(static::getDataClass(), 'deleteByFilter'))
 		{
+			if (empty($idsToDelete))
+			{
+				return $result;
+			}
+
 			$primaryField = static::getPrimaryFieldName();
 			static::getDataClass()::deleteByFilter(
 				[
@@ -361,6 +366,11 @@ abstract class Collection extends Registry implements ActiveRecordCollection
 	protected function initByArrayOfPrimary(array $ids): Result
 	{
 		$primaryField = static::getPrimaryFieldName();
+
+		if (empty($ids))
+		{
+			return new Result();
+		}
 
 		/** @var ORM\Objectify\Collection $entitiesCollection */
 		$entitiesCollection = static::getDataClass()::query()

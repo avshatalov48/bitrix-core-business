@@ -363,6 +363,7 @@ BXEditorIframeView.prototype.Clear = function()
 BXEditorIframeView.prototype.GetValue = function(bParse, bFormat)
 {
 	this.iframeValue = this.IsEmpty() ? "" : this.editor.GetInnerHtml(this.element);
+	this.iframeValue = this.iframeValue.replace(/<span style="font-family: var\(--ui-font-family-primary, var\(--ui-font-family-helvetica\)\);">(.*?)<\/span>/g, '$1');
 	this.editor.On('OnIframeBeforeGetValue', [this.iframeValue]);
 	if (bParse)
 	{
@@ -750,7 +751,16 @@ var focusWithoutScrolling = function(element)
 		}
 
 		BX.bind(element, 'drop', BX.delegate(this.OnPasteHandler, this));
-		BX.bind(element, 'paste', BX.delegate(this.OnPasteHandler, this));
+
+		BX.bind(element, 'paste', (clipboardEvent) => {
+			const event = new BX.Event.BaseEvent({ data: { clipboardEvent: clipboardEvent } });
+			BX.Event.EventEmitter.emitAsync(this.editor, 'BXEditor:onBeforePasteAsync', event).then(() => {
+				if (!event.isDefaultPrevented())
+				{
+					this.OnPasteHandler(clipboardEvent);
+				}
+			});
+		});
 
 		BX.bind(element, "keyup", function(e)
 		{

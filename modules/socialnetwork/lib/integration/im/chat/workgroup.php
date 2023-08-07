@@ -8,6 +8,7 @@
 namespace Bitrix\Socialnetwork\Integration\Im\Chat;
 
 use Bitrix\Im\Model\ChatTable;
+use Bitrix\Main\Entity\Query;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
@@ -305,6 +306,31 @@ class Workgroup
 		$result = true;
 
 		return $result;
+	}
+
+	/**
+	 * The method returns the number of group members.
+	 *
+	 * @param int $groupId Group id.
+	 * @return int
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getNumberOfMembers(int $groupId): int
+	{
+		$query = new Query(UserToGroupTable::getEntity());
+
+		$records = $query
+			->setSelect([
+				'USER_ID',
+			])
+			->where('GROUP_ID', $groupId)
+			->countTotal(true)
+			->exec()
+		;
+
+		return $records->getCount();
 	}
 }
 ?>

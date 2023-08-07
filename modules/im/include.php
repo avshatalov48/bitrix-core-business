@@ -129,6 +129,7 @@ $jsCoreRelMobile = array('im_common', 'uploader', 'mobile.pull.client');
 if (IsModuleInstalled('voximplant'))
 {
 	$jsCoreRel[] = 'voximplant';
+	$jsCoreRel[] = 'voximplant.phone-calls';
 	$jsCoreRelMobile[] = 'mobile_voximplant';
 }
 if (IsModuleInstalled('disk'))

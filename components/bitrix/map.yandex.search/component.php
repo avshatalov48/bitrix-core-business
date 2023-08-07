@@ -5,7 +5,7 @@ $arParams['MAP_ID'] =
 	($arParams["MAP_ID"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["MAP_ID"])) ?
 	'MAP_'.$this->randString() : $arParams['MAP_ID'];
 
-$current_search = $_GET['ys'];
+$current_search = ($_GET['ys'] ?? null);
 
 if (($strPositionInfo = $arParams['~MAP_DATA'])
 	&& CheckSerializedData($strPositionInfo)

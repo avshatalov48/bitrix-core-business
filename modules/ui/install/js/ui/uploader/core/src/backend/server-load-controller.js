@@ -21,7 +21,7 @@ export default class ServerLoadController extends AbstractLoadController
 		}
 		else
 		{
-			this.emit('onProgress', { file, progress: 100 });
+			this.emit('onProgress', { progress: 100 });
 			this.emit('onLoad', { fileInfo: null });
 		}
 	}

@@ -8,7 +8,7 @@ use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog;
-use \Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
@@ -19,7 +19,7 @@ global $adminPage;
 /** @global CAdminSidePanelHelper $adminSidePanelHelper */
 global $adminSidePanelHelper;
 
-CModule::IncludeModule("catalog");
+Loader::includeModule('catalog');
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl . 'cat_vat_admin.php?lang=' . LANGUAGE_ID;
@@ -362,15 +362,12 @@ $tabControl->BeginNextTab();
 	</tr>
 <?php
 $tabControl->EndTab();
-
-if (!$bReadOnly)
-{
-	$tabControl->Buttons([
-		'disabled' => $bReadOnly,
-		'back_url' => $listUrl,
-	]);
-}
-
+$tabControl->Buttons([
+	'btnSave' => !$bReadOnly,
+	'btnApply' => !$bReadOnly,
+	'disabled' => false,
+	'back_url' => $listUrl,
+]);
 $tabControl->End();
 ?>
 </form>

@@ -36,12 +36,13 @@ Class mail extends CModule
 	function InstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		// Database tables creation
-		if(!$DB->Query("SELECT 'x' FROM b_mail_mailbox WHERE 1=0", true))
+		if (!$DB->TableExists('b_mail_mailbox'))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/db/mysql/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/mail/install/db/' . $connection->getType() . '/install.sql');
 
 			if (\Bitrix\Main\Entity\CryptoField::cryptoAvailable())
 			{
@@ -83,10 +84,7 @@ Class mail extends CModule
 
 			if (CModule::IncludeModule("mail"))
 			{
-				$errors = $DB->runSqlBatch(sprintf(
-					'%s/bitrix/modules/mail/install/db/mysql/install_ft.sql',
-					$_SERVER['DOCUMENT_ROOT']
-				));
+				$errors = $DB->runSqlBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/mail/install/db/' . $connection->getType() . '/install_ft.sql');
 				if ($errors === false)
 				{
 					\Bitrix\Mail\MailMessageTable::getEntity()->enableFullTextIndex('SEARCH_CONTENT');
@@ -247,11 +245,12 @@ Class mail extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/db/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/db/".$connection->getType()."/uninstall.sql");
 
 			if (\Bitrix\Main\Loader::includeModule('mail'))
 			{

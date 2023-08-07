@@ -1,15 +1,21 @@
+import { Type } from 'main.core';
+import { BaseEvent } from 'main.core.events';
+import { VueUploaderComponent } from 'ui.uploader.vue';
+import { TileWidgetSlot } from 'ui.uploader.tile-widget';
+
 import { DropArea } from './drop-area';
 import { TileList } from './tile-list';
 import { ErrorPopup } from './error-popup';
 import { DragOverMixin } from '../mixins/drag-over-mixin';
-import { BaseEvent } from 'main.core.events';
+
+import type { UploaderFileInfo } from 'ui.uploader.core';
+import type { BitrixVueComponentProps } from 'ui.vue3';
 import type { PopupOptions } from 'main.popup';
-import { VueUploaderComponent } from 'ui.uploader.core';
 
 /**
  * @memberof BX.UI.Uploader
  */
-export const TileWidgetComponent = {
+export const TileWidgetComponent: BitrixVueComponentProps = {
 	name: 'TileWidget',
 	extends: VueUploaderComponent,
 	components: {
@@ -22,7 +28,8 @@ export const TileWidgetComponent = {
 	],
 	data() {
 		return {
-			isMounted: false
+			isMounted: false,
+			autoCollapse: false,
 		}
 	},
 	computed: {
@@ -41,23 +48,62 @@ export const TileWidgetComponent = {
 				},
 			};
 		},
+		TileWidgetSlot: () => TileWidgetSlot,
+		slots(): TileWidgetSlot
+		{
+			const slots = Type.isPlainObject(this.widgetOptions.slots) ? this.widgetOptions.slots : {};
+
+			return {
+				[TileWidgetSlot.BEFORE_TILE_LIST]: slots[TileWidgetSlot.BEFORE_TILE_LIST],
+				[TileWidgetSlot.AFTER_TILE_LIST]: slots[TileWidgetSlot.AFTER_TILE_LIST],
+				[TileWidgetSlot.BEFORE_DROP_AREA]: slots[TileWidgetSlot.BEFORE_DROP_AREA],
+				[TileWidgetSlot.AFTER_DROP_AREA]: slots[TileWidgetSlot.AFTER_DROP_AREA],
+			}
+		}
 	},
-	created()
+	created(): void
 	{
-		this.adapter.subscribe('Item:onAdd', (event: BaseEvent) => {
+		this.autoCollapse =
+			Type.isBoolean(this.widgetOptions.autoCollapse)
+				? this.widgetOptions.autoCollapse
+				: this.items.length > 0
+		;
+
+		// Current Items
+		this.items.forEach(item => {
+			item['tileWidgetData'] = {};
+		});
+
+		// New Items
+		this.adapter.subscribe('Item:onBeforeAdd', (event: BaseEvent): void => {
+			const item: UploaderFileInfo = event.getData().item;
+			item['tileWidgetData'] = {};
+		});
+
+		this.adapter.subscribe('Item:onAdd', (event: BaseEvent): void => {
 			this.uploaderError = null;
 		});
 
-		this.adapter.subscribe('Item:onRemove', (event: BaseEvent) => {
+		this.adapter.subscribe('Item:onRemove', (event: BaseEvent): void => {
 			this.uploaderError = null;
 		});
 	},
-	mounted()
+	mounted(): void
 	{
 		this.uploader.assignDropzone(this.$refs.container);
 		this.isMounted = true;
 	},
 	methods: {
+		enableAutoCollapse(): void
+		{
+			this.autoCollapse = true;
+		},
+
+		disableAutoCollapse(): void
+		{
+			this.autoCollapse = false;
+		},
+
 		handlePopupDestroy(error)
 		{
 			if (this.uploaderError === error)
@@ -69,13 +115,17 @@ export const TileWidgetComponent = {
 	// language=Vue
 	template: `
 		<div class="ui-tile-uploader" ref="container" v-drop>
-			<template v-if="items.length === 0">
-				<DropArea />
-			</template>
-			<template v-else>
-				<TileList :items="items"></TileList>
-				<DropArea />
-			</template>
+			<component :is="slots[TileWidgetSlot.BEFORE_TILE_LIST]"></component>
+			<TileList 
+				v-if="items.length !== 0" 
+				:items="items" 
+				:auto-collapse="autoCollapse" 
+				@onUnmount="this.autoCollapse = false"
+			/>
+			<component :is="slots[TileWidgetSlot.AFTER_TILE_LIST]"></component>
+			<component :is="slots[TileWidgetSlot.BEFORE_DROP_AREA]"></component>
+			<DropArea />
+			<component :is="slots[TileWidgetSlot.AFTER_DROP_AREA]"></component>
 		</div>
 		<ErrorPopup
 			v-if="uploaderError && isMounted"

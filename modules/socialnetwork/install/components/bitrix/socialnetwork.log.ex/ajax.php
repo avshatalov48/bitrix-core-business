@@ -50,6 +50,8 @@ if (empty($lng))
 
 Loc::loadLanguageFile(__FILE__, $lng);
 
+$arFieldsVal = [];
+
 if(CModule::IncludeModule("socialnetwork"))
 {
 	$bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();

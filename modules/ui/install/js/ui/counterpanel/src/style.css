@@ -1,22 +1,22 @@
 .ui-counter-panel__scope {
 	--color-background: rgba(82,92,105,.08);
 	--color-hover: rgba(82,92,105,.1);
-	--color-active: rgba(0,195,255,.6);
-	--color-active-hover: rgba(248,250,251,1);
-	--color-text: rgba(82,92,105,1);
-	--color-text-active: rgba(82,92,105,1);
-	--color-separator: rgba(151,151,151,.3);
+	--color-active: rgba(var(--ui-color-primary-rgb), .57);
+	--color-active-hover: var(--ui-color-base-02);
+	--color-text: var(--ui-color-base-90);
+	--color-text-active: var(--ui-color-base-90);
+	--color-separator: rgba(var(--ui-color-palette-beige-base-rgb), .15);
 
 	--border-radius-xl: 24px;
 	--border-radius-sm: 2px;
 }
 
 .bitrix24-light-theme .ui-counter-panel__scope {
-	--color-background: rgba(255,255,255,.15);
-	--color-hover: rgba(255,255,255,.15);
-	--color-text: rgba(255,255,255,.8);
-	--color-text-active: rgba(255,255,255,1);
-	--color-separator: rgba(255,255,255,.15);
+	--color-background: rgba(var(--ui-color-on-primary-rgb), .15);
+	--color-hover: rgba(var(--ui-color-on-primary-rgb), .15);
+	--color-text: rgba(var(--ui-color-on-primary-rgb), .8);
+	--color-text-active: rgba(var(--ui-color-on-primary-rgb), 1);
+	--color-separator: rgba(var(--ui-color-palette-beige-base-rgb), .15);
 }
 
 .ui-counter-panel {
@@ -25,7 +25,7 @@
 	overflow: hidden;
 	background: var(--color-background);
 	border-radius: var(--border-radius-xl);
-	font: 14px/normal var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font: 14px/normal var(--ui-font-family-secondary);
 	font-weight: var(--ui-font-weight-regular, 400);
 }
 
@@ -48,6 +48,7 @@
 
 .ui-counter-panel__item {
 	display: inline-flex;
+	align-items: center;
 	overflow: hidden;
 	padding: 0 20px 0 5px;
 	position: relative;
@@ -157,6 +158,7 @@
 .ui-counter-panel__item-title {
 	display: inline-flex;
 	align-items: center;
+	margin-bottom: 1px;
 	overflow: hidden;
 	white-space: nowrap;
 	z-index: 1;
@@ -177,6 +179,7 @@
 	bottom: 0;
 	display: inline-flex;
 	justify-content: center;
+	align-items: center;
 	width: 20px;
 	z-index: 1;
 	cursor: pointer;
@@ -211,7 +214,6 @@
 	display: block;
 	width: 8px;
 	height: 7px;
-	margin-top: 14px;
 	background: url(../images/ui-counter-panel__icon-cross-dark.svg) center no-repeat;
 	pointer-events: none;
 }
@@ -237,20 +239,13 @@
 }
 
 .ui-counter-panel__item-head {
-	display: -webkit-inline-box;
-	display: -ms-inline-flexbox;
 	display: inline-flex;
-	-webkit-box-align: center;
-	-ms-flex-align: center;
 	align-items: center;
-	-ms-flex-wrap: wrap;
 	flex-wrap: wrap;
 	overflow: hidden;
 	white-space: normal;
 	padding-left: 20px;
 	opacity: 1;
-	-webkit-transition: .2s;
-	-o-transition: .2s;
 	transition: .2s;
 }
 

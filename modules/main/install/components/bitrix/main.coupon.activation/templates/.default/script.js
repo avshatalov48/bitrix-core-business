@@ -166,6 +166,7 @@ this.BX = this.BX || {};
 	  babelHelpers.inherits(Activate, _BaseContent);
 	  function Activate(supportLink, docLink) {
 	    var _this;
+	    var errors = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
 	    babelHelpers.classCallCheck(this, Activate);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Activate).call(this));
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _checkRequest);
@@ -185,7 +186,7 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _errors$1, new ErrorCollection());
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _errors$1, errors.length > 0 ? new ErrorCollection(errors) : new ErrorCollection());
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _formData, new FormData());
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _supportLink, !main_core.Type.isNil(supportLink) ? supportLink : '');
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _docLink, !main_core.Type.isNil(docLink) ? docLink : '');
@@ -482,11 +483,13 @@ this.BX = this.BX || {};
 	    }
 	  }, {
 	    key: "failureHandler",
-	    value: function failureHandler() {
+	    value: function failureHandler(response) {
 	      babelHelpers.classPrivateFieldSet(this, _state, ExpiredLicense.stateTypes.UPDATE_SERVER_IS_UNAVAILABLE);
+	      var errors = main_core.Type.isArray(response.errors) ? response.errors : [];
+	      // let errors = [];
 	      main_core_events.EventEmitter.emit(main_core_events.EventEmitter.GLOBAL_TARGET, 'MainCouponActivation:changeContent', {
 	        source: this,
-	        target: new Activate(babelHelpers.classPrivateFieldGet(this, _parameters).SUPPORT_LINK, babelHelpers.classPrivateFieldGet(this, _parameters).DOC_LINK)
+	        target: new Activate(babelHelpers.classPrivateFieldGet(this, _parameters).SUPPORT_LINK, babelHelpers.classPrivateFieldGet(this, _parameters).DOC_LINK, errors)
 	      });
 	    }
 	  }]);

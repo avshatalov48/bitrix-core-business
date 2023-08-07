@@ -1,32 +1,33 @@
-import {Loc} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Loc, Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
-import {Core} from 'im.v2.application.core';
-import {BaseMenu} from 'im.v2.lib.menu';
-import {Parser} from 'im.v2.lib.parser';
-import {EntityCreator} from 'im.v2.lib.entity-creator';
-import {ChatService, MessageService} from 'im.v2.provider.service';
-import {EventType, PlacementType} from 'im.v2.const';
-import {MarketManager} from 'im.v2.lib.market';
+import { Core } from 'im.v2.application.core';
+import { BaseMenu } from 'im.v2.lib.menu';
+import { Parser } from 'im.v2.lib.parser';
+import { EntityCreator } from 'im.v2.lib.entity-creator';
+import { MessageService, DiskService } from 'im.v2.provider.service';
+import { EventType, PlacementType } from 'im.v2.const';
+import { MarketManager } from 'im.v2.lib.market';
+import { Utils } from 'im.v2.lib.utils';
 
-import {QuoteManager} from './quote-manager';
+import { QuoteManager } from './quote-manager';
 
 import 'ui.notification';
 
-import type {MenuItem} from 'im.v2.lib.menu';
-import type {ImModelMessage, ImModelDialog} from 'im.v2.model';
+import type { MenuItem } from 'im.v2.lib.menu';
+import type { ImModelMessage, ImModelDialog, ImModelFile } from 'im.v2.model';
 
 export class MessageMenu extends BaseMenu
 {
 	context: ImModelMessage & {dialogId: string};
-	chatService: ChatService;
+	diskService: DiskService;
 
 	constructor()
 	{
 		super();
 
 		this.id = 'bx-im-message-context-menu';
-		this.chatService = new ChatService();
+		this.diskService = new DiskService();
 		this.marketManager = MarketManager.getInstance();
 	}
 
@@ -36,7 +37,7 @@ export class MessageMenu extends BaseMenu
 			...super.getMenuOptions(),
 			className: this.getMenuClassName(),
 			angle: true,
-			offsetLeft: 11
+			offsetLeft: 11,
 		};
 	}
 
@@ -45,20 +46,22 @@ export class MessageMenu extends BaseMenu
 		return [
 			this.getQuoteItem(),
 			this.getCopyItem(),
-			this.getQuoteBlockDelimiter(),
+			this.getDelimiter(),
 
+			this.getDownloadFileItem(),
+			this.getSaveToDisk(),
 			this.getPinItem(),
 			this.getFavoriteItem(),
 			this.getMarkItem(),
-			this.getPinBlockDelimiter(),
+			this.getDelimiter(),
 
 			this.getCreateItem(),
-			this.getCreateBlockDelimiter(),
+			this.getDelimiter(),
 
 			this.getEditItem(),
-			this.getEditBlockDelimiter(),
+			this.getDelimiter(),
 
-			this.getDeleteItem()
+			this.getDeleteItem(),
 		];
 	}
 
@@ -69,7 +72,7 @@ export class MessageMenu extends BaseMenu
 			onclick: () => {
 				QuoteManager.sendQuoteEvent(this.context);
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -87,30 +90,30 @@ export class MessageMenu extends BaseMenu
 				if (BX.clipboard?.copy(textToCopy))
 				{
 					BX.UI.Notification.Center.notify({
-						content: Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_FILE_SUCCESS')
+						content: Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_FILE_SUCCESS'),
 					});
 				}
 				this.menuInstance.close();
-			}
+			},
 		};
-	}
-
-	getQuoteBlockDelimiter(): MenuItem
-	{
-		return this.#getDelimiter();
 	}
 
 	getPinItem(): MenuItem
 	{
+		if (this.#isDeletedMessage())
+		{
+			return null;
+		}
+
 		const isPinned = this.store.getters['messages/pin/isPinned']({
 			chatId: this.context.chatId,
-			messageId: this.context.id
+			messageId: this.context.id,
 		});
 
 		return {
-			text: isPinned? Loc.getMessage('IM_DIALOG_CHAT_MENU_UNPIN') : Loc.getMessage('IM_DIALOG_CHAT_MENU_PIN'),
+			text: isPinned ? Loc.getMessage('IM_DIALOG_CHAT_MENU_UNPIN') : Loc.getMessage('IM_DIALOG_CHAT_MENU_PIN'),
 			onclick: () => {
-				const messageService = new MessageService({chatId: this.context.chatId});
+				const messageService = new MessageService({ chatId: this.context.chatId });
 				if (isPinned)
 				{
 					messageService.unpinMessage(this.context.chatId, this.context.id);
@@ -120,18 +123,28 @@ export class MessageMenu extends BaseMenu
 					messageService.pinMessage(this.context.chatId, this.context.id);
 				}
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
 	getFavoriteItem(): MenuItem
 	{
+		if (this.#isDeletedMessage())
+		{
+			return null;
+		}
+
 		const isInFavorite = this.store.getters['sidebar/favorites/isFavoriteMessage'](this.context.chatId, this.context.id);
 
+		const menuItemText = isInFavorite
+			? Loc.getMessage('IM_DIALOG_CHAT_MENU_REMOVE_FROM_SAVED')
+			: Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE')
+		;
+
 		return {
-			text: isInFavorite? Loc.getMessage('IM_DIALOG_CHAT_MENU_REMOVE_FROM_SAVED') : Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE'),
+			text: menuItemText,
 			onclick: () => {
-				const messageService = new MessageService({chatId: this.context.chatId});
+				const messageService = new MessageService({ chatId: this.context.chatId });
 				if (isInFavorite)
 				{
 					messageService.removeMessageFromFavorite(this.context.id);
@@ -142,7 +155,7 @@ export class MessageMenu extends BaseMenu
 				}
 
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -160,27 +173,27 @@ export class MessageMenu extends BaseMenu
 		return {
 			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_MARK'),
 			onclick: () => {
-				const messageService = new MessageService({chatId: this.context.chatId});
+				const messageService = new MessageService({ chatId: this.context.chatId });
 				messageService.markMessage(this.context.id);
 				this.menuInstance.close();
-			}
+			},
 		};
-	}
-
-	getPinBlockDelimiter(): ?MenuItem
-	{
-		return this.#getDelimiter();
 	}
 
 	getCreateItem(): MenuItem
 	{
+		if (this.#isDeletedMessage())
+		{
+			return null;
+		}
+
 		return {
 			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_CREATE'),
 			items: [
 				this.getCreateTaskItem(),
 				this.getCreateMeetingItem(),
-				...this.getMarketItems()
-			]
+				...this.getMarketItems(),
+			],
 		};
 	}
 
@@ -190,9 +203,9 @@ export class MessageMenu extends BaseMenu
 			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_CREATE_TASK'),
 			onclick: () => {
 				const entityCreator = new EntityCreator(this.context.chatId);
-				entityCreator.createTaskForMessage(this.context.id);
+				void entityCreator.createTaskForMessage(this.context.id);
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -202,20 +215,10 @@ export class MessageMenu extends BaseMenu
 			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_CREATE_MEETING'),
 			onclick: () => {
 				const entityCreator = new EntityCreator(this.context.chatId);
-				entityCreator.createMeetingForMessage(this.context.id);
+				void entityCreator.createMeetingForMessage(this.context.id);
 				this.menuInstance.close();
-			}
+			},
 		};
-	}
-
-	getCreateBlockDelimiter(): ?MenuItem
-	{
-		if (!this.getEditItem() && !this.getDeleteItem())
-		{
-			return null;
-		}
-
-		return this.#getDelimiter();
 	}
 
 	getEditItem(): ?MenuItem
@@ -229,21 +232,11 @@ export class MessageMenu extends BaseMenu
 			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_EDIT'),
 			onclick: () => {
 				EventEmitter.emit(EventType.textarea.editMessage, {
-					messageId: this.context.id
+					messageId: this.context.id,
 				});
 				this.menuInstance.close();
-			}
+			},
 		};
-	}
-
-	getEditBlockDelimiter(): ?MenuItem
-	{
-		if (!this.getEditItem())
-		{
-			return null;
-		}
-
-		return this.#getDelimiter();
 	}
 
 	getDeleteItem(): ?MenuItem
@@ -256,32 +249,32 @@ export class MessageMenu extends BaseMenu
 		return {
 			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_DELETE'),
 			onclick: () => {
-				const messageService = new MessageService({chatId: this.context.chatId});
+				const messageService = new MessageService({ chatId: this.context.chatId });
 				messageService.deleteMessage(this.context.id);
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
 	getMarketItems(): MenuItem[]
 	{
-		const {dialogId, id} = this.context;
+		const { dialogId, id } = this.context;
 		const placements = this.marketManager.getAvailablePlacementsByType(PlacementType.contextMenu, dialogId);
 		const marketMenuItem = [];
 		if (placements.length > 0)
 		{
-			marketMenuItem.push(this.#getDelimiter());
+			marketMenuItem.push(this.getDelimiter());
 		}
 
-		const context = {messageId: id, dialogId: dialogId};
+		const context = { messageId: id, dialogId };
 
-		placements.forEach(placement => {
+		placements.forEach((placement) => {
 			marketMenuItem.push({
 				text: placement.title,
 				onclick: () => {
 					MarketManager.openSlider(placement, context);
 					this.menuInstance.close();
-				}
+				},
 			});
 		});
 
@@ -291,10 +284,51 @@ export class MessageMenu extends BaseMenu
 		return marketMenuItem.slice(0, itemLimit);
 	}
 
-	#getDelimiter(): MenuItem
+	getDownloadFileItem(): ?MenuItem
+	{
+		const file = this.#getMessageFile();
+		if (!file)
+		{
+			return null;
+		}
+
+		return {
+			html: Utils.file.createDownloadLink(
+				Loc.getMessage('IM_DIALOG_CHAT_MENU_DOWNLOAD_FILE'),
+				file.urlDownload,
+				file.name,
+			),
+			onclick: function() {
+				this.menuInstance.close();
+			}.bind(this),
+		};
+	}
+
+	getSaveToDisk(): ?MenuItem
+	{
+		const file = this.#getMessageFile();
+		if (!file)
+		{
+			return null;
+		}
+
+		return {
+			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK'),
+			onclick: function() {
+				void this.diskService.save(file.id).then(() => {
+					BX.UI.Notification.Center.notify({
+						content: Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_SUCCESS'),
+					});
+				});
+				this.menuInstance.close();
+			}.bind(this),
+		};
+	}
+
+	getDelimiter(): MenuItem
 	{
 		return {
-			delimiter: true
+			delimiter: true,
 		};
 	}
 
@@ -306,5 +340,16 @@ export class MessageMenu extends BaseMenu
 	#isDeletedMessage(): boolean
 	{
 		return this.context.isDeleted;
+	}
+
+	#getMessageFile(): ?ImModelFile
+	{
+		if (this.context.files.length === 0)
+		{
+			return null;
+		}
+
+		// for now, we have only one file in one message. In the future we need to change this logic.
+		return this.store.getters['files/get'](this.context.files[0]);
 	}
 }

@@ -1,4 +1,4 @@
-<?
+<?php
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 use	Bitrix\Sale;
@@ -7,23 +7,27 @@ CBitrixComponent::includeComponentClass("bitrix:sale.basket.basket");
 
 class CBitrixBasketBasketSmallMailComponent extends CBitrixBasketComponent
 {
-	protected $userId;
+	protected int $userId;
 
 	public function onPrepareComponentParams($params)
 	{
-		$columnList = $params['COLUMNS_LIST'];
-		if (empty($columnList))
+		$columnList = $params['COLUMNS_LIST'] ?? [];
+		if (empty($columnList) || !is_array($columnList))
 		{
-			$columnList = ['NAME', 'SUM'];
+			$columnList = [
+				'NAME',
+				'SUM',
+			];
 		}
 		$params = parent::onPrepareComponentParams($params);
 		$this->columns = $columnList;
 
-		$this->userId = (int)$params["USER_ID"];
+		$this->userId = (int)($params['USER_ID'] ?? 0);
 
-		if ((int)($params["FUSER_ID"]) > 0)
+		$fuserId = (int)($params['FUSER_ID'] ?? 0);
+		if ($fuserId > 0)
 		{
-			$this->fUserId = (int)$params["FUSER_ID"];
+			$this->fUserId = $fuserId;
 		}
 		else
 		{
@@ -34,7 +38,7 @@ class CBitrixBasketBasketSmallMailComponent extends CBitrixBasketComponent
 
 		if (!$this->getSiteId())
 		{
-			$siteId = isset($params["LID"]) ? $params["LID"] : \CSite::GetDefSite();
+			$siteId = (string)($params['LID'] ?? CSite::GetDefSite());
 			$this->setSiteId($siteId);
 		}
 
@@ -79,4 +83,3 @@ class CBitrixBasketBasketSmallMailComponent extends CBitrixBasketComponent
 		$result['ShowSubscribe'] = !empty($result['ITEMS']['ProdSubscribe']) ? 'Y' : 'N';
 	}
 }
-?>

@@ -17,6 +17,7 @@ export default class SyncStatusPopup extends EventEmitter
 		this.withUpdateButton = options.withUpdateButton;
 		this.node = options.node;
 		this.id = options.id;
+		this.isGoogleApplicationRefused = options.isGoogleApplicationRefused;
 
 		this.init();
 	}
@@ -73,6 +74,13 @@ export default class SyncStatusPopup extends EventEmitter
 				? 'calendar-sync-popup-item-status-success'
 				: 'calendar-sync-popup-item-status-fail'
 			;
+
+			if (connection.id === 'google' && !connection.getSyncStatus() && this.isGoogleApplicationRefused)
+			{
+				options.classStatus = 'calendar-sync-popup-item-status-refused';
+				options.syncTime = null;
+			}
+
 			options.classLable = 'calendar-sync-popup-item-text-' + connection.getClassLabel();
 			options.title = connection.getConnectionName();
 			const block = this.getSyncElement(options);

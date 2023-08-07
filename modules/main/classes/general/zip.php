@@ -265,7 +265,7 @@ class CZip implements IBXArchive
 		//files and directory scan
 		while ($j++ < count($arFileList) && ($this->tempres === "started"))
 		{
-			$filename = $arFileList[$j];
+			$filename = $arFileList[$j] ?? '';
 
 			if ($filename == '')
 				continue;
@@ -306,7 +306,7 @@ class CZip implements IBXArchive
 
 				if ($this->_haveTime())
 				{
-					if (!$this->_addFile($filename, $arFileHeaders, $this->add_path, $this->remove_path, array(), $arP))
+					if (!$this->_addFile($filename, $arFileHeaders, $this->add_path, $this->remove_path))
 					{
 						//$arErrors is filled in the _addFile method
 						$this->tempres = false;
@@ -1008,7 +1008,7 @@ class CZip implements IBXArchive
 		return $res;
 	}
 
-	private function _addFile($filename, &$arHeader, $addDir, $removeDir, $removeAllDir, &$arParams)
+	private function _addFile($filename, &$arHeader, $addDir, $removeDir, $removeAllDir = false, $arParams = [])
 	{
 		$res = 1;
 
@@ -1147,21 +1147,12 @@ class CZip implements IBXArchive
 					return $this->arErrors;
 				}
 
-				if ($arParams['no_compression'])
-				{
-					//reading file content
-					$compressedContent = @fread($file, $arHeader['size']);
-					//calculating crc
-					$arHeader['crc'] = crc32($compressedContent);
-				}
-				else
-				{
-					//reading the file content
-					$content = fread($file, $arHeader['size']);
-					$arHeader['crc'] = crc32($content);
-					//compress the file
-					$compressedContent = gzdeflate($content);
-				}
+				//reading the file content
+				$content = $arHeader['size'] > 0 ? fread($file, $arHeader['size']) : '';
+				//calculating crc
+				$arHeader['crc'] = crc32($content);
+				//compress the file
+				$compressedContent = empty($arParams['no_compression']) ? gzdeflate($content) : $content;
 
 				//set header params
 				$arHeader['compressed_size'] = strlen($compressedContent);

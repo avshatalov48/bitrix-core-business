@@ -1,26 +1,28 @@
 import 'ui.design-tokens';
 import 'ui.fonts.opensans';
 
-import {Runtime, Extension} from 'main.core';
-import {BaseEvent, EventEmitter} from 'main.core.events';
-import {provide} from 'ui.vue3';
+import { Runtime, Extension } from 'main.core';
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import { provide } from 'ui.vue3';
 
-import {Messenger} from 'im.public';
-import {EventType} from 'im.v2.const';
-import {Button, ButtonColor, ButtonSize, Loader} from 'im.v2.component.elements';
-import {Utils} from 'im.v2.lib.utils';
+import { Messenger } from 'im.public';
+import { EventType } from 'im.v2.const';
+import { Button as MessengerButton, ButtonColor, ButtonSize, Loader } from 'im.v2.component.elements';
+import { Utils } from 'im.v2.lib.utils';
 
-import {SearchService} from './classes/search-service';
-import {SearchContextMenu} from './classes/search-context-menu';
-import {SearchUtils} from './classes/search-utils';
-import {SearchItem} from './classes/search-item';
-import {RecentUsersCarousel} from './components/recent-users-carousel';
-import {SearchResultSection} from './components/search-result-section';
-import {SearchResultNetworkItem} from './components/search-result-network-item';
-import {SearchResultDepartmentItem} from './components/search-result-department-item';
-import {SearchResultItem} from './components/search-result-item';
+import { SearchService } from './classes/search-service';
+import { SearchContextMenu } from './classes/search-context-menu';
+import { SearchUtils } from './classes/search-utils';
+import { SearchItem } from './classes/search-item';
+import { RecentUsersCarousel } from './components/recent-users-carousel';
+import { SearchResultSection } from './components/search-result-section';
+import { SearchResultNetworkItem } from './components/search-result-network-item';
+import { SearchResultDepartmentItem } from './components/search-result-department-item';
+import { SearchResultItem } from './components/search-result-item';
 
 import './css/search-result.css';
+
+import type { ImModelRecentItem } from 'im.v2.model';
 
 // @vue/component
 export const SearchResult = {
@@ -31,33 +33,33 @@ export const SearchResult = {
 		SearchResultNetworkItem,
 		SearchResultDepartmentItem,
 		SearchResultItem,
-		Button,
-		Loader
+		MessengerButton,
+		Loader,
 	},
 	props: {
 		searchQuery: {
 			type: String,
-			default: ''
+			default: '',
 		},
 		searchMode: {
 			type: Boolean,
-			required: true
+			required: true,
 		},
 		searchConfig: {
 			type: Object,
-			required: true
+			required: true,
 		},
 		selectMode: {
 			type: Boolean,
-			default: false
+			default: false,
 		},
 		selectedItems: {
 			type: Array,
 			required: false,
-			default: () => []
-		}
+			default: () => [],
+		},
 	},
-	data: function()
+	data()
 	{
 		return {
 			isRecentLoading: false,
@@ -75,7 +77,7 @@ export const SearchResult = {
 				departments: new Map(),
 				openLines: new Map(),
 				network: new Map(),
-			}
+			},
 		};
 	},
 	computed:
@@ -125,7 +127,7 @@ export const SearchResult = {
 		},
 		isNetworkSearchCode(): boolean
 		{
-			return !!(this.cleanQuery.length === 32 && /[\da-f]{32}/.test(this.cleanQuery));
+			return Boolean(this.cleanQuery.length === 32 && /[\da-f]{32}/.test(this.cleanQuery));
 		},
 		isNetworkSectionAvailable(): boolean
 		{
@@ -135,6 +137,10 @@ export const SearchResult = {
 			}
 
 			return this.isNetworkSearchEnabled || this.isNetworkSearchCode;
+		},
+		recentUsers(): ImModelRecentItem[]
+		{
+			return this.$store.getters['recent/getSortedCollection'];
 		},
 	},
 	watch:
@@ -162,7 +168,11 @@ export const SearchResult = {
 			}
 
 			this.loadRecentSearchFromServer();
-		}
+		},
+		recentUsers(): ImModelRecentItem[]
+		{
+			this.loadRecentUsers();
+		},
 	},
 	created()
 	{
@@ -190,14 +200,18 @@ export const SearchResult = {
 	},
 	methods:
 	{
-		loadInitialRecentResult()
+		loadRecentUsers()
 		{
-			this.searchService.loadRecentUsers().then(items => {
+			this.searchService.loadRecentUsers().then((items) => {
 				this.result.recentUsers = items;
 			});
+		},
+		loadInitialRecentResult()
+		{
+			this.loadRecentUsers();
 
 			// we don't need an extra request to get recent items while messenger initialization
-			this.searchService.loadRecentSearchFromCache().then(recentItems => {
+			this.searchService.loadRecentSearchFromCache().then((recentItems) => {
 				if (recentItems.size > 0)
 				{
 					this.result.recent = recentItems;
@@ -211,7 +225,7 @@ export const SearchResult = {
 		loadRecentSearchFromServer()
 		{
 			this.isRecentLoading = true;
-			this.searchService.loadRecentSearchFromServer().then(recentItemsFromServer => {
+			this.searchService.loadRecentSearchFromServer().then((recentItemsFromServer) => {
 				this.result.recent = recentItemsFromServer;
 				this.isRecentLoading = false;
 			});
@@ -246,6 +260,7 @@ export const SearchResult = {
 					if (queryBeforeRequest !== this.cleanQuery)
 					{
 						this.isServerLoading = false;
+
 						return;
 					}
 					this.result.usersAndChats = localSearchResult;
@@ -282,7 +297,7 @@ export const SearchResult = {
 				this.result.chatUsers = searchResultFromServer.chatUsers;
 				this.result.openLines = searchResultFromServer.openLines;
 				this.result.network = searchResultFromServer.network;
-			}).catch(error => {
+			}).catch((error) => {
 				console.error(error);
 			}).finally(() => {
 				this.currentServerQueries--;
@@ -314,7 +329,7 @@ export const SearchResult = {
 		},
 		onOpenContextMenu(event: BaseEvent)
 		{
-			const {item, nativeEvent} = event.getData();
+			const { item, nativeEvent } = event.getData();
 
 			if (Utils.key.isAltOrOption(nativeEvent))
 			{
@@ -323,9 +338,9 @@ export const SearchResult = {
 
 			this.contextMenuManager.openMenu(item, nativeEvent.currentTarget);
 		},
-		onDelete({data: eventData})
+		onDelete({ data: eventData })
 		{
-			const {dialogId} = eventData;
+			const { dialogId } = eventData;
 			this.result.recent.delete(dialogId);
 			this.result.usersAndChats.delete(dialogId);
 			this.result.chatUsers.delete(dialogId);
@@ -357,7 +372,7 @@ export const SearchResult = {
 				return;
 			}
 
-			const {selectedItem, nativeEvent} = event;
+			const { selectedItem, nativeEvent } = event;
 			if (this.selectMode)
 			{
 				this.$emit('selectItem', event);
@@ -378,7 +393,7 @@ export const SearchResult = {
 			{
 				return;
 			}
-			const {keyboardEvent} = event.getData();
+			const { keyboardEvent } = event.getData();
 
 			if (!Utils.key.isCombination(keyboardEvent, 'Enter'))
 			{
@@ -393,7 +408,7 @@ export const SearchResult = {
 
 			this.onClickItem({
 				selectedItem: firstItem,
-				nativeEvent: keyboardEvent
+				nativeEvent: keyboardEvent,
 			});
 		},
 		getFirstItemFromSearchResults(): ?SearchItem
@@ -419,7 +434,7 @@ export const SearchResult = {
 			}
 
 			return null;
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-search-result__container bx-im-search-result__scope" @scroll="onScroll">
@@ -490,7 +505,7 @@ export const SearchResult = {
 							@clickItem="onClickItem"
 						/>
 						<div class="bx-im-search-result__network-button-container">
-							<Button
+							<MessengerButton
 								v-if="!isNetworkButtonClicked"
 								:text="$Bitrix.Loc.getMessage('IM_SEARCH_SECTION_NETWORK_BUTTON')"
 								:color="ButtonColor.Primary"
@@ -516,5 +531,5 @@ export const SearchResult = {
 				<Loader />
 			</div>
 		</div>
-	`
+	`,
 };

@@ -1,4 +1,4 @@
-import {SmilePopup} from './smile-popup';
+import {SmilePopup} from './components/smile-popup';
 
 // @vue/component
 export const SmileSelector = {

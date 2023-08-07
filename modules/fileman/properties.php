@@ -14,7 +14,7 @@ abstract class CIBlockPropertyMapInterface
 
 	public static function GetAdminListViewHTML($arProperty, $value, $strHTMLControlName)
 	{
-		return $value['VALUE'];
+		return $value['VALUE'] ?? null;
 	}
 
 	abstract public static function GetPublicViewHTML($arProperty, $value, $strHTMLControlName);
@@ -23,6 +23,7 @@ abstract class CIBlockPropertyMapInterface
 	{
 		$arResult = array('VALUE' => '');
 
+		$value['VALUE'] ??= null;
 		if ($value['VALUE'] <> '')
 		{
 			$arCoords = explode(',', $value['VALUE'], 2);
@@ -41,6 +42,7 @@ abstract class CIBlockPropertyMapInterface
 	{
 		$arResult = array('VALUE' => '');
 
+		$value['VALUE'] ??= null;
 		if ($value['VALUE'] <> '')
 		{
 			$arCoords = explode(',', $value['VALUE'], 2);
@@ -143,6 +145,7 @@ class CIBlockPropertyMapGoogle extends CIBlockPropertyMapInterface
 
 		$apiKey = isset($arProperty['USER_TYPE_SETTINGS']['API_KEY']) ? $arProperty['USER_TYPE_SETTINGS']['API_KEY'] : '';
 
+		$value['VALUE'] ??= null;
 		if ($strHTMLControlName["MODE"] != "FORM_FILL")
 			return '<input type="text" name="'.htmlspecialcharsbx($strHTMLControlName['VALUE']).'" value="'.htmlspecialcharsbx($value['VALUE']).'" />';
 
@@ -659,10 +662,11 @@ var jsGoogleCESearch_<?echo $MAP_ID;?> = {
 	public static function GetPublicViewHTML($arProperty, $value, $arParams)
 	{
 		$s = '';
+		$value['VALUE'] ??= null;
 		if($value["VALUE"] <> '')
 		{
 			$value = parent::ConvertFromDB($arProperty, $value);
-			if ($arParams['MODE'] == 'CSV_EXPORT')
+			if (($arParams['MODE'] ?? null) == 'CSV_EXPORT')
 			{
 				$s = $value["VALUE"];
 			}
@@ -919,6 +923,7 @@ function saveYandexKey(domain, input)
 			$yandexMapID = $arProperty['ID'];
 
 		// TODO: remove this later to use in property default value setting
+		$value['VALUE'] ??= null;
 		if ($strHTMLControlName["MODE"] != "FORM_FILL")
 			return '<input type="text" name="'.htmlspecialcharsbx($strHTMLControlName['VALUE']).'" value="'.htmlspecialcharsbx($value['VALUE']).'" />';
 
@@ -1429,6 +1434,7 @@ function saveYandexKey(domain, input)
 		if ($arProperty['MULTIPLE'] == 'Y')
 			$yandexMapID = $arProperty['ID'];
 
+		$value['VALUE'] ??= null;
 		if ($value['VALUE'] <> '')
 		{
 			[$POINT_LAT, $POINT_LON] = explode(',', $value['VALUE'], 2);
@@ -2008,7 +2014,8 @@ function saveYandexKey(domain, input)
 	public static function GetPublicViewHTML($arProperty, $value, $arParams)
 	{
 		$s = '';
-		if ($arParams['MODE'] == 'CSV_EXPORT')
+		$value['VALUE'] ??= null;
+		if (($arParams['MODE'] ?? null) == 'CSV_EXPORT')
 		{
 			if ($value["VALUE"] <> '')
 			{
@@ -2959,7 +2966,7 @@ class CIBlockPropertyVideo extends CVideoProperty
 
 	public static function ConvertFromDB($arProperty, $value)
 	{
-		$value['VALUE'] = CIBlockPropertyVideo::BaseConvertFromDB($value['VALUE']);
+		$value['VALUE'] = CIBlockPropertyVideo::BaseConvertFromDB($value['VALUE'] ?? null);
 		return $value;
 	}
 
@@ -3125,16 +3132,9 @@ class CUserTypeVideo extends CVideoProperty
 
 	public static function GetDBColumnType($arUserField)
 	{
-		global $DB;
-		switch($DB->type)
-		{
-			case "MYSQL":
-				return "text";
-			case "ORACLE":
-				return "varchar2(2000 char)";
-			case "MSSQL":
-				return "varchar(2000)";
-		}
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\TextField('x'));
 	}
 
 	public static function PrepareSettings($arProperty)
@@ -3142,7 +3142,7 @@ class CUserTypeVideo extends CVideoProperty
 		return CUserTypeVideo::BasePrepareSettings($arProperty, "SETTINGS");
 	}
 
-	public static function GetSettingsHTML($arUserField = array(), $arHtmlControl, $bVarsFromForm)
+	public static function GetSettingsHTML($arUserField, $arHtmlControl, $bVarsFromForm)
 	{
 		if(!is_array($arUserField))
 			$arUserField = array();

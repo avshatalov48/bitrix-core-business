@@ -931,7 +931,15 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 					if (array_key_exists($fieldName, $commentFields))
 					{
 						$commentFields['UF'][$fieldName]['VALUE'] = $commentFields[$fieldName];
-						$commentFields["UF"][$fieldName]['ENTITY_VALUE_ID'] = $commentFields['ID'];
+						$commentFields['UF'][$fieldName]['ENTITY_VALUE_ID'] = $commentFields['ID'];
+						if (method_exists($GLOBALS['USER_FIELD_MANAGER'], 'getCustomData'))
+						{
+							$commentFields['UF'][$fieldName]['CUSTOM_DATA'] = $GLOBALS['USER_FIELD_MANAGER']->getCustomData(
+								$commentFields['UF'][$fieldName],
+								(int)$commentFields['ID']
+							);
+						}
+
 					}
 				}
 				$commentsList[] = $commentFields;

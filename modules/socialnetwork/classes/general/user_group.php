@@ -970,7 +970,7 @@ class CAllSocNetUserToGroup
 		if (
 			(
 				!is_array($arInvitedUser["UF_DEPARTMENT"])
-				|| (int)$arInvitedUser["UF_DEPARTMENT"][0] <= 0
+				|| (int) ($arInvitedUser["UF_DEPARTMENT"][0] ?? null) <= 0
 			) // extranet
 			&& ($arInvitedUser["LAST_LOGIN"] <= 0)
 			&& $arInvitedUser["LAST_ACTIVITY_DATE"] == ''

@@ -15,16 +15,18 @@ use Bitrix\UI\EntityEditor\ProviderWithUserFieldsTrait;
  */
 class StoreProvider extends BaseProvider
 {
-	public const USER_FIELD_TYPE = 'CAT_STORE';
+	use ProviderWithUserFieldsTrait {
+		getUfComponentFields as getUfComponentFieldsParent;
+	}
 
-	use ProviderWithUserFieldsTrait;
+	private ?string $userFieldCreatePageUrl;
 
 	/**
 	 * @inheritDoc
 	 */
 	public function getUfEntityId(): string
 	{
-		return self::USER_FIELD_TYPE;
+		return StoreTable::getUfId();
 	}
 
 	/**
@@ -36,10 +38,12 @@ class StoreProvider extends BaseProvider
 
 	/**
 	 * @param array $entityFields
+	 * @param string|null $userFieldCreatePageUrl
 	 */
-	public function __construct(array $entityFields)
+	public function __construct(array $entityFields, ?string $userFieldCreatePageUrl = null)
 	{
 		$this->entity = $entityFields;
+		$this->userFieldCreatePageUrl = $userFieldCreatePageUrl;
 	}
 
 	/**
@@ -58,6 +62,16 @@ class StoreProvider extends BaseProvider
 		$id = $this->getEntityId() ?? 0;
 
 		return "store_{$id}_details";
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return string
+	 */
+	public function getConfigId(): string
+	{
+		return 'store_details';
 	}
 
 	/**
@@ -208,6 +222,23 @@ class StoreProvider extends BaseProvider
 				'elements' => $sectionElements,
 			],
 		];
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return array
+	 */
+	protected function getUfComponentFields(): array
+	{
+		$result = $this->getUfComponentFieldsParent();
+
+		if (isset($this->userFieldCreatePageUrl))
+		{
+			$result['USER_FIELD_CREATE_PAGE_URL'] = $this->userFieldCreatePageUrl;
+		}
+
+		return $result;
 	}
 
 	/**

@@ -42,6 +42,31 @@ $this->addExternalJs($this->GetFolder() . '/template.js');
 		<?php
 	}
 
+	if ($arParams['USE_FAST_WAY_CLOSE_LOADER'])
+	{
+		//The fastest way to close Slider Loader.
+		\Bitrix\Main\Page\Asset::getInstance()->setJsToBody(true);
+		\Bitrix\Main\Page\Asset::getInstance()->addString("
+				<script>
+				(function() {
+					const slider = (
+						top.BX
+						&& top.BX.SidePanel
+						&& top.BX.SidePanel.Instance.getSliderByWindow(window)
+					);
+					if (slider)
+					{
+						slider.closeLoader();
+						if (slider.setPrintable)
+						{
+							slider.setPrintable(true);
+						}
+					}
+				})();
+				</script>
+			", false, \Bitrix\Main\Page\AssetLocation::AFTER_CSS);
+	}
+
 	$APPLICATION->ShowHead();
 	?>
 	<title><?php $APPLICATION->ShowTitle() ?></title>

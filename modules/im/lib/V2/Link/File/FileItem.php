@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Link\File;
 
+use Bitrix\Disk\TypeFile;
 use Bitrix\Im\Model\LinkFileTable;
 use Bitrix\Im\Model\EO_LinkFile;
 use Bitrix\Im\V2\Common\MigrationStatusCheckerTrait;
@@ -16,6 +17,23 @@ use Bitrix\Main\ArgumentTypeException;
 class FileItem extends BaseLinkItem
 {
 	use MigrationStatusCheckerTrait;
+
+	public const MEDIA_SUBTYPE = 'MEDIA';
+	public const AUDIO_SUBTYPE = 'AUDIO';
+	public const BRIEF_SUBTYPE = 'BRIEF';
+	public const OTHER_SUBTYPE = 'OTHER';
+	public const DOCUMENT_SUBTYPE = 'DOCUMENT';
+
+	public const ALLOWED_SUBTYPE = [
+		self::MEDIA_SUBTYPE,
+		self::AUDIO_SUBTYPE,
+		self::BRIEF_SUBTYPE,
+		self::OTHER_SUBTYPE,
+		self::DOCUMENT_SUBTYPE,
+	];
+
+	public const BRIEF_CODE = 'resume';
+	public const MEDIA_ORIGINAL_CODE = 'media_original';
 
 	protected static string $migrationOptionName = 'im_link_file_migration';
 
@@ -46,12 +64,22 @@ class FileItem extends BaseLinkItem
 
 	protected function validateSubtype(): Result
 	{
-		if (\Bitrix\Im\V2\Entity\File\FileItem::isSubtypeValid($this->subtype))
+		if (static::isSubtypeValid($this->getSubtype()))
 		{
 			return new Result;
 		}
 
 		return (new Result())->addError(new FileError(FileError::UNKNOWN_FILE_SUBTYPE));
+	}
+
+	public static function isSubtypeValid(string $subtype): bool
+	{
+		return in_array($subtype, static::ALLOWED_SUBTYPE, true);
+	}
+
+	public static function getSubtypeFromJsonFormat(string $subtypeInJsonFormat): string
+	{
+		return mb_strtoupper($subtypeInJsonFormat);
 	}
 
 	public static function getEntityClassName(): string
@@ -72,11 +100,63 @@ class FileItem extends BaseLinkItem
 
 	public function getSubtype(): string
 	{
+		$this->subtype ??= $this->calculateSubtype();
+
 		return $this->subtype;
+	}
+
+	protected function calculateSubtype(): string
+	{
+		$this->fillFile();
+
+		if (!isset($this->entity))
+		{
+			return self::OTHER_SUBTYPE;
+		}
+
+		$diskFile = $this->getEntity()->getDiskFile();
+		$realFile = $diskFile->getRealObject() ?? $diskFile;
+
+		if ($realFile->getCode() === static::BRIEF_CODE)
+		{
+			return static::BRIEF_SUBTYPE;
+		}
+
+		if ($realFile->getCode() === static::MEDIA_ORIGINAL_CODE)
+		{
+			return static::OTHER_SUBTYPE;
+		}
+
+		return $this->getSubtypeByDiskFileType($diskFile->getTypeFile());
+	}
+
+	protected function getSubtypeByDiskFileType(string $diskFileType): string
+	{
+		switch ($diskFileType)
+		{
+			case TypeFile::IMAGE:
+			case TypeFile::VIDEO:
+				return static::MEDIA_SUBTYPE;
+
+			case TypeFile::DOCUMENT:
+			case TypeFile::PDF:
+				return static::DOCUMENT_SUBTYPE;
+
+			case TypeFile::AUDIO:
+				return static::AUDIO_SUBTYPE;
+
+			default:
+				return static::OTHER_SUBTYPE;
+		}
 	}
 
 	public function fillFile(): self
 	{
+		if (isset($this->entity))
+		{
+			return $this;
+		}
+
 		$fileEntity = \Bitrix\Im\V2\Entity\File\FileItem::initByDiskFileId($this->getEntityId(), $this->getChatId());
 
 		if ($fileEntity !== null)
@@ -124,6 +204,8 @@ class FileItem extends BaseLinkItem
 	 */
 	public function getEntity(): \Bitrix\Im\V2\Entity\File\FileItem
 	{
+		$this->fillFile();
+
 		return $this->entity;
 	}
 
@@ -138,7 +220,6 @@ class FileItem extends BaseLinkItem
 		{
 			throw new ArgumentTypeException(get_class($entity));
 		}
-		$this->setSubtype($entity->getSubtype());
 
 		return parent::setEntity($entity->setChatId($this->chatId ?? null));
 	}
@@ -176,7 +257,7 @@ class FileItem extends BaseLinkItem
 			'authorId' => $this->getAuthorId(),
 			'dateCreate' => $this->getDateCreate()->format('c'),
 			'fileId' => $this->getEntityId(),
-			'subType' => mb_strtolower($this->subtype),
+			'subType' => mb_strtolower($this->getSubtype()),
 		];
 	}
 }

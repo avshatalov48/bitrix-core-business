@@ -31,7 +31,7 @@
 }
 
 .reaction-select_container {
-	--reaction-select-hover-area-vertical-padding: 0px;
+	--reaction-select-hover-area-vertical-padding: 1px;
 	--reaction-hover-shift: -4px;
 	--reaction-hover-scale: 1.1;
 	box-shadow: 0 4px 4px rgba(0, 0, 0, 0.136322);

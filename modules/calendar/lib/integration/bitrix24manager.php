@@ -2,7 +2,9 @@
 namespace Bitrix\Calendar\Integration;
 
 use Bitrix\Main;
+use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Config\Option;
 
@@ -19,19 +21,19 @@ class Bitrix24Manager
 
 	//region Members
 	/** @var bool|null */
-	private static $hasPurchasedLicense = null;
+	private static ?bool $hasPurchasedLicense = null;
 	/** @var bool|null */
-	private static $hasDemoLicense = null;
+	private static ?bool $hasDemoLicense = null;
 	/** @var bool|null */
-	private static $hasNfrLicense = null;
+	private static ?bool $hasNfrLicense = null;
 	/** @var bool|null */
-	private static $hasPurchasedUsers = null;
+	private static ?bool $hasPurchasedUsers = null;
 	/** @var bool|null */
-	private static $hasPurchasedDiskSpace = null;
+	private static ?bool $hasPurchasedDiskSpace = null;
 	/** @var bool|null */
-	private static $isPaidAccount = null;
+	private static ?bool $isPaidAccount = null;
 	/** @var bool|null */
-	private static $enableRestBizProc = null;
+	private static ?bool $enableRestBizProc = null;
 	//endregion
 
 	//region Methods
@@ -43,13 +45,15 @@ class Bitrix24Manager
 	{
 		return ModuleManager::isModuleInstalled('bitrix24');
 	}
+
 	/**
 	 * Check if portal has paid license, paid for extra users, paid for disk space or SIP features.
 	 * @return bool
+	 * @throws LoaderException
 	 */
 	public static function isPaidAccount()
 	{
-		if(self::$isPaidAccount !== null)
+		if (self::$isPaidAccount !== null)
 		{
 			return self::$isPaidAccount;
 		}
@@ -58,7 +62,7 @@ class Bitrix24Manager
 			|| self::hasPurchasedUsers()
 			|| self::hasPurchasedDiskSpace();
 
-		if(!self::$isPaidAccount)
+		if (!self::$isPaidAccount)
 		{
 			//Phone number check: voximplant::account_payed
 			//SIP connector check: main::~PARAM_PHONE_SIP
@@ -75,14 +79,16 @@ class Bitrix24Manager
 	 */
 	public static function hasPurchasedLicense()
 	{
-		if(self::$hasPurchasedLicense !== null)
+		if (self::$hasPurchasedLicense !== null)
 		{
 			return self::$hasPurchasedLicense;
 		}
 
-		if(!(ModuleManager::isModuleInstalled('bitrix24')
+		if (
+			!(ModuleManager::isModuleInstalled('bitrix24')
 			&& Loader::includeModule('bitrix24'))
-			&& method_exists('CBitrix24', 'IsLicensePaid'))
+			&& method_exists('CBitrix24', 'IsLicensePaid')
+		)
 		{
 			return (self::$hasPurchasedLicense = false);
 		}
@@ -101,9 +107,11 @@ class Bitrix24Manager
 			return self::$hasDemoLicense;
 		}
 
-		if(!(ModuleManager::isModuleInstalled('bitrix24')
+		if (
+			!(ModuleManager::isModuleInstalled('bitrix24')
 			&& Loader::includeModule('bitrix24'))
-			&& method_exists('CBitrix24', 'IsDemoLicense'))
+			&& method_exists('CBitrix24', 'IsDemoLicense')
+		)
 		{
 			return (self::$hasDemoLicense = false);
 		}
@@ -117,14 +125,16 @@ class Bitrix24Manager
 	 */
 	public static function hasNfrLicense()
 	{
-		if(self::$hasNfrLicense !== null)
+		if (self::$hasNfrLicense !== null)
 		{
 			return self::$hasNfrLicense;
 		}
 
-		if(!(ModuleManager::isModuleInstalled('bitrix24')
+		if (
+			!(ModuleManager::isModuleInstalled('bitrix24')
 			&& Loader::includeModule('bitrix24'))
-			&& method_exists('CBitrix24', 'IsNfrLicense'))
+			&& method_exists('CBitrix24', 'IsNfrLicense')
+		)
 		{
 			return (self::$hasNfrLicense = false);
 		}
@@ -143,9 +153,11 @@ class Bitrix24Manager
 			return self::$hasPurchasedUsers;
 		}
 
-		if(!(ModuleManager::isModuleInstalled('bitrix24')
+		if(
+			!(ModuleManager::isModuleInstalled('bitrix24')
 			&& Loader::includeModule('bitrix24'))
-			&& method_exists('CBitrix24', 'IsExtraUsers'))
+			&& method_exists('CBitrix24', 'IsExtraUsers')
+		)
 		{
 			return (self::$hasPurchasedUsers = false);
 		}
@@ -164,46 +176,48 @@ class Bitrix24Manager
 			return self::$hasPurchasedDiskSpace;
 		}
 
-		if(!(ModuleManager::isModuleInstalled('bitrix24')
+		if(
+			!(ModuleManager::isModuleInstalled('bitrix24')
 			&& Loader::includeModule('bitrix24'))
-			&& method_exists('CBitrix24', 'IsExtraDiskSpace'))
+			&& method_exists('CBitrix24', 'IsExtraDiskSpace')
+		)
 		{
 			return (self::$hasPurchasedDiskSpace = false);
 		}
 
 		return (self::$hasPurchasedDiskSpace = \CBitrix24::IsExtraDiskSpace());
 	}
+
 	/**
 	 * Check if Business Processes are enabled for REST API.
 	 * @return bool
+	 * @throws LoaderException
 	 */
 	public static function isRestBizProcEnabled()
 	{
-		if(self::$enableRestBizProc !== null)
-		{
-			return self::$enableRestBizProc;
-		}
-
-		return (self::$enableRestBizProc = (self::hasPurchasedLicense() || self::hasNfrLicense() || self::hasDemoLicense()));
+		return self::$enableRestBizProc ?? (self::$enableRestBizProc = (self::hasPurchasedLicense() || self::hasNfrLicense() || self::hasDemoLicense()));
 	}
 
 	/**
 	 * @param array $params
 	 * @return array|null
+	 * @throws LoaderException
 	 */
 	public static function prepareStubInfo(array $params)
 	{
-		if(ModuleManager::isModuleInstalled('bitrix24')
+		if (
+			ModuleManager::isModuleInstalled('bitrix24')
 			&& Loader::includeModule('bitrix24')
-			&& method_exists('CBitrix24', 'prepareStubInfo'))
+			&& method_exists('CBitrix24', 'prepareStubInfo')
+		)
 		{
-			$title = isset($params['TITLE']) ? $params['TITLE'] : '';
-			$content = isset($params['CONTENT']) ? $params['CONTENT'] : '';
+			$title = $params['TITLE'] ?? '';
+			$content = $params['CONTENT'] ?? '';
 
 			$replacements = isset($params['REPLACEMENTS']) && is_array($params['REPLACEMENTS'])
 				? $params['REPLACEMENTS'] : array();
 
-			if(!empty($replacements))
+			if (!empty($replacements))
 			{
 				$search = array_keys($replacements);
 				$replace = array_values($replacements);
@@ -243,7 +257,8 @@ class Bitrix24Manager
 	 */
 	public static function prepareLicenseInfoPopupScript(array $params)
 	{
-		if(ModuleManager::isModuleInstalled('bitrix24')
+		if (
+			ModuleManager::isModuleInstalled('bitrix24')
 			&& Loader::includeModule('bitrix24')
 			&& method_exists('CBitrix24', 'initLicenseInfoPopupJS')
 		)
@@ -263,6 +278,7 @@ class Bitrix24Manager
 					)
 				);
 			}
+
 			return "if(typeof(B24.licenseInfoPopup) !== 'undefined'){ B24.licenseInfoPopup.show('{$popupID}', '{$title}', '{$content}'); }";
 		}
 
@@ -278,21 +294,20 @@ class Bitrix24Manager
 	{
 		$script = '';
 
-		if(ModuleManager::isModuleInstalled('bitrix24')
+		if (
+			(is_string($params['ID']) && $params['ID'] !== '')
+			&& ModuleManager::isModuleInstalled('bitrix24')
 			&& Loader::includeModule('bitrix24')
 			&& ModuleManager::isModuleInstalled('ui')
 			&& Loader::includeModule('ui')
 		)
 		{
-			if ((is_string($params['ID']) && $params['ID'] !== ''))
-			{
-				$script = 'if (top.hasOwnProperty("BX") && top.BX !== null && typeof(top.BX) === "function"'.
-					' && top.BX.hasOwnProperty("UI") && top.BX.UI !== null && typeof(top.BX.UI) === "object"'.
-					' && top.BX.UI.hasOwnProperty("InfoHelper") && top.BX.UI.InfoHelper !== null'.
-					' && typeof(top.BX.UI.InfoHelper) === "object" && top.BX.UI.InfoHelper.hasOwnProperty("show")'.
-					' && typeof(top.BX.UI.InfoHelper.show) === "function"){top.BX.UI.InfoHelper.show("'.
-					\CUtil::JSEscape($params['ID']).'");}';
-			}
+			$script = 'if (top.hasOwnProperty("BX") && top.BX !== null && typeof(top.BX) === "function"'.
+				' && top.BX.hasOwnProperty("UI") && top.BX.UI !== null && typeof(top.BX.UI) === "object"'.
+				' && top.BX.UI.hasOwnProperty("InfoHelper") && top.BX.UI.InfoHelper !== null'.
+				' && typeof(top.BX.UI.InfoHelper) === "object" && top.BX.UI.InfoHelper.hasOwnProperty("show")'.
+				' && typeof(top.BX.UI.InfoHelper.show) === "function"){top.BX.UI.InfoHelper.show("'.
+				\CUtil::JSEscape($params['ID']).'");}';
 		}
 
 		return $script;
@@ -305,8 +320,10 @@ class Bitrix24Manager
 	 */
 	public static function getLicenseListPageUrl()
 	{
-		if(ModuleManager::isModuleInstalled('bitrix24')
-			&& Loader::includeModule('bitrix24'))
+		if (
+			ModuleManager::isModuleInstalled('bitrix24')
+			&& Loader::includeModule('bitrix24')
+		)
 		{
 			return \CBitrix24::PATH_LICENSE_ALL;
 		}
@@ -320,8 +337,10 @@ class Bitrix24Manager
 	 */
 	public static function getDemoLicensePageUrl()
 	{
-		if(ModuleManager::isModuleInstalled('bitrix24')
-			&& Loader::includeModule('bitrix24'))
+		if (
+			ModuleManager::isModuleInstalled('bitrix24')
+			&& Loader::includeModule('bitrix24')
+		)
 		{
 			return \CBitrix24::PATH_LICENSE_DEMO;
 		}
@@ -333,10 +352,11 @@ class Bitrix24Manager
 	 * Check if specified feature is enabled
 	 * @param string $releaseName Name of release.
 	 * @return bool
+	 * @throws LoaderException
 	 */
 	public static function isFeatureEnabled($releaseName)
 	{
-		if(!(ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24')))
+		if (!(ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24')))
 		{
 			return true;
 		}
@@ -348,10 +368,11 @@ class Bitrix24Manager
 	 * Get variable value.
 	 * @param string $name Name of variable
 	 * @return mixed|null
+	 * @throws LoaderException
 	 */
 	public static function getVariable($name)
 	{
-		if(!(ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24')))
+		if (!(ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24')))
 		{
 			return null;
 		}
@@ -366,12 +387,14 @@ class Bitrix24Manager
 	public static function isPlannerFeatureEnabled()
 	{
 		$eventsLimit = self::getEventWithPlannerLimit();
+
 		return $eventsLimit === -1 || self::getEventsAmount() <= $eventsLimit;
 	}
 
 	/**
 	 * Check if specified feature is enabled
 	 * @return int
+	 * @throws LoaderException
 	 */
 	public static function getEventWithPlannerLimit()
 	{
@@ -396,10 +419,11 @@ class Bitrix24Manager
 	 * Sets events amount
 	 * @param int $value amount of events
 	 * @return void
+	 * @throws ArgumentOutOfRangeException
 	 */
 	public static function setEventsAmount($value = 0)
 	{
-		if(ModuleManager::isModuleInstalled('bitrix24'))
+		if (ModuleManager::isModuleInstalled('bitrix24'))
 		{
 			Option::set('calendar', self::EVENT_AMOUNT, $value);
 		}
@@ -408,6 +432,7 @@ class Bitrix24Manager
 	/**
 	 * Increase events amount
 	 * @return void
+	 * @throws ArgumentOutOfRangeException
 	 */
 	public static function increaseEventsAmount()
 	{
@@ -417,6 +442,7 @@ class Bitrix24Manager
 	/**
 	 * Returns limitations for bitrix 24 for unpaid license
 	 * @return int (-1 if no limitation)
+	 * @throws LoaderException
 	 */
 	public static function getEventWithEmailGuestLimit()
 	{

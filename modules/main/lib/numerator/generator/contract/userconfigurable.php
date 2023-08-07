@@ -11,7 +11,7 @@ use Bitrix\Main\Result;
 interface UserConfigurable
 {
 	/**
-	 * @param array $config
+	 * @param array|null $config
 	 */
 	public function setConfig($config);
 	/**

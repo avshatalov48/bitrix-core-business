@@ -12,13 +12,17 @@ trait EntityFilter
 {
 	abstract public function getDocumentType();
 
-	public function getOrmFilter(ConditionGroup $conditionGroup): array
+	public function getOrmFilter(ConditionGroup $conditionGroup, ?array $targetDocumentType = null): array
 	{
 		$filter = ['LOGIC' => 'OR'];
 
 		$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+		if (is_null($targetDocumentType))
+		{
+			$targetDocumentType = $this->getDocumentType();
+		}
 
-		$fieldsMap = $documentService->getDocumentFields($this->getDocumentType());
+		$fieldsMap = $documentService->getDocumentFields($targetDocumentType);
 		$i = 0;
 		$filter[$i] = [];
 
@@ -31,14 +35,26 @@ trait EntityFilter
 				continue;
 			}
 
-			$extractionResult = $this->extractValue($fieldsMap[$fieldId], (string)$condition->getValue());
-			if ($extractionResult->isSuccess())
+			if ($conditionGroup->isInternalized())
 			{
-				$value = $extractionResult->getData()['extractedValue'];
+				$value = $condition->getValue();
 			}
 			else
 			{
-				continue;
+				$extractionResult = $this->extractValue($fieldsMap[$fieldId], (string)$condition->getValue());
+				if ($extractionResult->isSuccess())
+				{
+					$value = $extractionResult->getData()['extractedValue'];
+				}
+				else
+				{
+					continue;
+				}
+			}
+
+			if ($fieldsMap[$fieldId]['Type'] === 'user' && $value)
+			{
+				$value = \CBPHelper::extractUsers($value, $targetDocumentType);
 			}
 
 			switch ($condition->getOperator())

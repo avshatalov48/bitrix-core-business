@@ -22,12 +22,12 @@ if (SITE_TEMPLATE_ID === 'bitrix24')
 	include('util_group_blog_menu.php');
 }
 
-if($arParams["PATH_TO_USER_POST"] == '')
+if (($arParams["PATH_TO_USER_POST"] ?? null) == '')
 {
 	$arParams["PATH_TO_USER_POST"] = "/company/personal/user/#user_id#/blog/#post_id#/";
 }
 
-if($arParams["PATH_TO_USER_POST_EDIT"] == '')
+if (($arParams["PATH_TO_USER_POST_EDIT"] ?? null) == '')
 {
 	$arParams["PATH_TO_USER_POST_EDIT"] = "/company/personal/user/#user_id#/blog/edit/#post_id#/";
 }
@@ -35,14 +35,14 @@ if($arParams["PATH_TO_USER_POST_EDIT"] == '')
 $componentParameters = [
 	"MESSAGE_COUNT" => "25",
 	"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
-	"PATH_TO_BLOG" => $arResult["PATH_TO_USER_BLOG"],
-	"PATH_TO_GROUP_BLOG" => $arResult["PATH_TO_GROUP_BLOG"],
-	"PATH_TO_BLOG_CATEGORY" => $arResult["PATH_TO_BLOG_CATEGORY"],
+	"PATH_TO_BLOG" => $arResult["PATH_TO_USER_BLOG"] ?? null,
+	"PATH_TO_GROUP_BLOG" => $arResult["PATH_TO_GROUP_BLOG"] ?? null,
+	"PATH_TO_BLOG_CATEGORY" => $arResult["PATH_TO_BLOG_CATEGORY"] ?? null,
 	"PATH_TO_POST" => $arParams["PATH_TO_USER_POST"],
 	"PATH_TO_POST_EDIT" => $arParams["PATH_TO_USER_POST_EDIT"],
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],
 	"PATH_TO_SMILE" => $arParams["PATH_TO_BLOG_SMILE"],
-	"USER_ID" => $arResult["VARIABLES"]["user_id"],
+	"USER_ID" => $arResult["VARIABLES"]["user_id"] ?? null,
 	"CACHE_TYPE" => $arResult["CACHE_TYPE"],
 	"CACHE_TIME" => $arResult["CACHE_TIME"],
 	"CACHE_TIME_LONG" => "604800",
@@ -50,22 +50,22 @@ $componentParameters = [
 	"SET_TITLE" => $arResult["SET_TITLE"],
 	"NAV_TEMPLATE" => "",
 	"POST_PROPERTY_LIST" => array(),
-	"USER_VAR" => $arResult["ALIASES"]["user_id"],
-	"PAGE_VAR" => $arResult["ALIASES"]["blog_page"],
-	"POST_VAR" => $arResult["ALIASES"]["post_id"],
+	"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? null,
+	"PAGE_VAR" => $arResult["ALIASES"]["blog_page"] ?? null,
+	"POST_VAR" => $arResult["ALIASES"]["post_id"] ?? null,
 	"SOCNET_GROUP_ID" => $arResult["VARIABLES"]["group_id"],
 	"GROUP_ID" => $arParams["BLOG_GROUP_ID"],
 	"USE_SOCNET" => "Y",
 	"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 	"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 	"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
-	"PATH_TO_MESSAGES_CHAT" => $arResult["PATH_TO_MESSAGES_CHAT"],
-	"PATH_TO_VIDEO_CALL" => $arResult["PATH_TO_VIDEO_CALL"],
-	"IMAGE_MAX_WIDTH" => $arParams["BLOG_IMAGE_MAX_WIDTH"],
-	"IMAGE_MAX_HEIGHT" => $arParams["BLOG_IMAGE_MAX_HEIGHT"],
+	"PATH_TO_MESSAGES_CHAT" => $arResult["PATH_TO_MESSAGES_CHAT"] ?? null,
+	"PATH_TO_VIDEO_CALL" => $arResult["PATH_TO_VIDEO_CALL"] ?? null,
+	"IMAGE_MAX_WIDTH" => $arParams["BLOG_IMAGE_MAX_WIDTH"] ?? null,
+	"IMAGE_MAX_HEIGHT" => $arParams["BLOG_IMAGE_MAX_HEIGHT"] ?? null,
 	"ALLOW_POST_CODE" => $arParams["BLOG_ALLOW_POST_CODE"],
-	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
-	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"] ?? null,
+	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"] ?? null,
 	"VERSION" => 2,
 ];
 

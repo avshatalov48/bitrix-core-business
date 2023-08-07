@@ -9,6 +9,7 @@ use Bitrix\Im\V2\Entity\File\FilePopupItem;
 use Bitrix\Im\V2\Entity\User\UserPopupItem;
 use Bitrix\Im\V2\Link\BaseLinkCollection;
 use Bitrix\Im\V2\Link\Reminder\ReminderPopupItem;
+use Bitrix\Im\V2\Message\AdditionalMessagePopupItem;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Im\V2\Service\Context;
@@ -16,9 +17,8 @@ use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Main\ORM\Query\Query;
 
 /**
- * @method PinItem next()
- * @method PinItem current()
- * @method PinItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,PinItem>
+ * @method PinItem offsetGet($key)
  */
 class PinCollection extends BaseLinkCollection
 {
@@ -41,7 +41,7 @@ class PinCollection extends BaseLinkCollection
 		}
 
 		$query = LinkPinTable::query()
-			->setSelect(['MESSAGE', 'ID', 'CHAT_ID', 'AUTHOR_ID', 'DATE_CREATE', 'MESSAGE_ID'])
+			->setSelect(['ID', 'CHAT_ID', 'AUTHOR_ID', 'DATE_CREATE', 'MESSAGE_ID'])
 			->setOrder($pinOrder)
 		;
 		if (isset($limit))
@@ -71,32 +71,9 @@ class PinCollection extends BaseLinkCollection
 		return PinItem::class;
 	}
 
-	public function getMessageCollection(): MessageCollection
+	public static function getRestEntityName(): string
 	{
-		$messageCollection = new MessageCollection();
-
-		foreach ($this as $pin)
-		{
-			$messageCollection->add($pin->getEntity());
-		}
-
-		return $messageCollection;
-	}
-
-	public function getPopupData(array $excludedList = []): PopupData
-	{
-		$messages = $this->getMessageCollection()->fillAllForRest();
-		$data = new PopupData([new UserPopupItem(), new FilePopupItem(), new ReminderPopupItem($messages->getReminders())], $excludedList);
-		$excludedList[] = ReminderPopupItem::class;
-
-		return $data->merge(parent::getPopupData($excludedList));
-	}
-
-	public function toRestFormat(array $option = []): array
-	{
-		$this->getMessageCollection()->fillAllForRest();
-
-		return parent::toRestFormat($option);
+		return 'pins';
 	}
 
 	protected static function processFilters(Query $query, array $filter, array $order): void

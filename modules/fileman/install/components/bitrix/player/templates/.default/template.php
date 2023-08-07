@@ -83,12 +83,12 @@
 	}
 	?>
 	<<?=$tag_name;?> id="<?=$arResult["ID"];?>" class="video-js <?=$arResult['SKIN_NAME'];?> vjs-big-play-centered" width="<?=$arParams["WIDTH"];?>" height="<?=$arParams["HEIGHT"];?>"<?
-	if($arParams["MUTE"] === "Y")
+	if(($arParams["MUTE"] ?? null) === "Y")
 	{
 		echo " muted";
 	}
 	?>>
-	<?if($arParams["USE_PLAYLIST"] != 'Y' && !$arResult['YOUTUBE'] && !$arResult['LAZYLOAD'])
+	<?if(($arParams["USE_PLAYLIST"] ?? null) != 'Y' && !($arResult['YOUTUBE'] ?? null) && !($arResult['LAZYLOAD'] ?? null))
 	{?>
 		<source src="<?=$arResult['PATH'];?>" type="<?=$arResult['FILE_TYPE'];?>">
 	<?}?>

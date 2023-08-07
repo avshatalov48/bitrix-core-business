@@ -5,13 +5,11 @@
 		<div class="container g-pos-rel g-z-index-1 g-py-100">
 			<div class="landing-block-node-row row align-self-start">
 				<div class="col-sm-12 col-lg-6 js-animation fadeInLeft landing-block-node-form">
-					<div class="g-bg-white g-rounded-5 g-pa-0">
-						<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v2"
-							data-b24form-use-style="Y"
-							data-b24form-embed
-							data-b24form-design='{"dark":false,"style":"classic","shadow":false,"compact":false,"color":{"primary":"--primary","primaryText":"#fff","text":"#000","background":"#ffffff00","fieldBorder":"#fff","fieldBackground":"#f7f7f7","fieldFocusBackground":"#eee"},"border":{"top":false,"bottom":false,"left":false,"right":false}}'
-						></div>
-					</div>
+					<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v2"
+						 data-b24form-use-style="Y"
+						 data-b24form-embed
+						 data-b24form-design='{"dark":false,"style":"classic","shadow":false,"compact":false,"color":{"primary":"--primary","primaryText":"#fff","text":"#000","background":"#fff","fieldBorder":"#fff","fieldBackground":"#f7f7f7","fieldFocusBackground":"#eee"},"border":{"top":false,"bottom":false,"left":false,"right":false}}'
+					></div>
 				</div>
 
 				<!-- Promo Block - Info -->

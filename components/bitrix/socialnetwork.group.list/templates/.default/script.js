@@ -13,17 +13,14 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    this.gridId = main_core.Type.isStringFilled(this.parent.gridId) ? this.parent.gridId : '';
 	    this.useSlider = main_core.Type.isBoolean(this.parent.useSlider) ? this.parent.useSlider : false;
 	  }
-
 	  babelHelpers.createClass(ActionManager, [{
 	    key: "act",
 	    value: function act(params, event) {
 	      var _this = this;
-
 	      if (event) {
 	        event.stopPropagation();
 	        event.preventDefault();
 	      }
-
 	      return new Promise(function (resolve, reject) {
 	        if (['addToFavorites', 'removeFromFavorites'].includes(params.action)) {
 	          return _this.setFavorites({
@@ -50,13 +47,11 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	            } else {
 	              _this.processActionFailure(params);
 	            }
-
 	            resolve(response);
 	          }, function (response) {
 	            if (response.errors) {
 	              _this.processActionFailure(params, response.errors[0].message);
 	            }
-
 	            reject(response);
 	          });
 	        }
@@ -67,59 +62,46 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    value: function processActionSuccess(params) {
 	      var eventCode = null;
 	      var message = '';
-
 	      switch (params.action) {
 	        case 'addToFavorites':
 	          message = main_core.Loc.getMessage('SGL_GROUP_ACTION_SUCCESS_NOTIFICATION_ADD_TO_FAVORITES');
 	          break;
-
 	        case 'removeFromFavorites':
 	          message = main_core.Loc.getMessage('SGL_GROUP_ACTION_SUCCESS_NOTIFICATION_REMOVE_FROM_FAVORITES');
 	          break;
-
 	        case 'addToArchive':
 	          message = main_core.Loc.getMessage('SGL_GROUP_ACTION_SUCCESS_NOTIFICATION_ADD_TO_ARCHIVE');
 	          break;
-
 	        case 'removeFromArchive':
 	          message = main_core.Loc.getMessage('SGL_GROUP_ACTION_SUCCESS_NOTIFICATION_REMOVE_FROM_ARCHIVE');
 	          break;
-
 	        case 'join':
 	          eventCode = 'afterJoinRequestSend';
 	          break;
-
 	        case 'setOwner':
 	          eventCode = 'afterOwnerSet';
 	          break;
-
 	        case 'setScrumMaster':
 	          eventCode = 'afterSetScrumMaster';
 	          break;
-
 	        case 'deleteOutgoingRequest':
 	          eventCode = 'afterRequestOutDelete';
 	          break;
-
 	        case 'deleteIncomingRequest':
 	          eventCode = 'afterRequestInDelete';
 	          break;
-
 	        default:
 	      }
-
 	      if (message !== '') {
 	        BX.UI.Notification.Center.notify({
 	          content: message
 	        });
 	      }
-
 	      if (eventCode && top.BX.SidePanel && window !== top.window) {
 	        top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', {
 	          code: eventCode
 	        });
 	      }
-
 	      if (!BX.PULL) {
 	        this.parent.reload();
 	      }
@@ -130,7 +112,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      if (!main_core.Type.isStringFilled(errorMessage)) {
 	        errorMessage = main_core.Loc.getMessage('SOCIALNETWORK_GROUP_LIST_ACTION_FAILURE');
 	      }
-
 	      BX.UI.Notification.Center.notify({
 	        content: errorMessage
 	      });
@@ -139,7 +120,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "setFavorites",
 	    value: function setFavorites(params) {
 	      var _this2 = this;
-
 	      var newValue = params.value;
 	      var oldValue = !params.value;
 	      return new Promise(function (resolve, reject) {
@@ -156,7 +136,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	                }
 	              };
 	              window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', eventData);
-
 	              if (main_core.Type.isStringFilled(data.NAME) && main_core.Type.isStringFilled(data.URL)) {
 	                main_core_events.EventEmitter.emit('BX.Socialnetwork.WorkgroupFavorites:onSet', new main_core_events.BaseEvent({
 	                  compatData: [{
@@ -167,7 +146,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	                  }, newValue]
 	                }));
 	              }
-
 	              resolve();
 	            },
 	            failure: function failure(response) {
@@ -183,41 +161,32 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "groupAction",
 	    value: function groupAction(action) {
 	      var _this3 = this;
-
 	      var buttonTitle = '';
-
 	      switch (action) {
 	        case 'addToArchive':
 	          buttonTitle = main_core.Loc.getMessage('SOCIALNETWORK_GROUP_LIST_GROUP_ACTION_BUTTON_ADD');
 	          break;
-
 	        case 'removeFromArchive':
 	          buttonTitle = main_core.Loc.getMessage('SOCIALNETWORK_GROUP_LIST_GROUP_ACTION_BUTTON_RETURN');
 	          break;
-
 	        case 'delete':
 	          buttonTitle = main_core.Loc.getMessage('SOCIALNETWORK_GROUP_LIST_GROUP_ACTION_BUTTON_DELETE');
 	          break;
-
 	        default:
 	          action = '';
 	      }
-
 	      if (action === '') {
 	        return;
 	      }
-
 	      var buttons = [new ui_buttons.SendButton({
 	        text: buttonTitle,
 	        events: {
 	          click: function click() {
 	            main_popup.PopupManager.getCurrentPopup().destroy();
 	            var gridInstance = BX.Main.gridManager.getInstanceById(_this3.gridId);
-
 	            if (!gridInstance) {
 	              return;
 	            }
-
 	            var data = {
 	              ID: gridInstance.getRows().getSelectedIds(),
 	              apply_filter: 'Y'
@@ -264,31 +233,25 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    this.timer = null;
 	    this.queueCounterData = new Map();
 	  }
-
 	  babelHelpers.createClass(UserCounterManager, [{
 	    key: "processCounterItem",
 	    value: function processCounterItem(counterData, groupId) {
 	      var _this = this;
-
 	      if (this.useTasksCounters) {
 	        return;
 	      }
-
 	      if (groupId === 0 && Number(counterData.value) === 0) {
 	        this.gridController.getInstance().getRows().getRows().forEach(function (targetRow) {
 	          if (!main_core.Type.isUndefined(counterData.scrum) && counterData.scrum !== targetRow.getNode().getAttribute('data-scrum')) {
 	            return;
 	          }
-
 	          _this.setRowCounter(targetRow, counterData, groupId);
 	        });
 	        return;
 	      }
-
 	      if (!this.gridController.getInstance().isRowExist(groupId)) {
 	        return;
 	      }
-
 	      this.setRowCounter(this.gridController.getInstance().getRowById(groupId), counterData, groupId);
 	    }
 	  }, {
@@ -306,24 +269,19 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        "class": 'sonet-ui-grid-counter'
 	      };
 	      var storedCounterData = {};
-
 	      try {
 	        eval("storedCounterData = ".concat(targetRow.getNode().getAttribute('data-counters'), ";"));
 	      } catch (e) {}
-
 	      if (storedCounterData === null || counterData.type === 'tasks_expired' && targetRow.getNode().getAttribute('data-scrum') === 'Y') {
 	        return;
 	      }
-
 	      var sumValue = 0;
 	      Object.entries(storedCounterData).forEach(function (_ref) {
 	        var _ref2 = babelHelpers.slicedToArray(_ref, 1),
-	            key = _ref2[0];
-
+	          key = _ref2[0];
 	        if (key === counterData.type) {
 	          storedCounterData[key] = counterData.value.toString();
 	        }
-
 	        sumValue += Number(storedCounterData[key]);
 	      });
 	      targetRow.getNode().setAttribute('data-counters', "(".concat(JSON.stringify(storedCounterData), ")"));
@@ -353,7 +311,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      };
 	    }
 	  }]);
-
 	  function PullControllerSocialnetwork(options) {
 	    babelHelpers.classCallCheck(this, PullControllerSocialnetwork);
 	    this.componentName = options.componentName;
@@ -363,7 +320,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    this.gridPinController = this.gridController.getInstance().getPinController();
 	    this.grid = this.gridController.getGrid();
 	  }
-
 	  babelHelpers.createClass(PullControllerSocialnetwork, [{
 	    key: "getModuleId",
 	    value: function getModuleId() {
@@ -373,14 +329,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "getMap",
 	    value: function getMap() {
 	      var _ref;
-
 	      return _ref = {}, babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_ADD'), this.onWorkgroupAdd.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_UPDATE'), this.onWorkgroupUpdate.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_DELETE'), this.onWorkgroupDelete.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_ADD'), this.onWorkgroupUserAdd.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_UPDATE'), this.onWorkgroupUserUpdate.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_DELETE'), this.onWorkgroupUserDelete.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_FAVORITES_CHANGED'), this.onWorkgroupFavoritesChanged.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_PIN_CHANGED'), this.onWorkgroupPinChanged.bind(this)), _ref;
 	    }
 	  }, {
 	    key: "onWorkgroupAdd",
 	    value: function onWorkgroupAdd(data) {
 	      var _this = this;
-
 	      var params = {
 	        event: PullControllerSocialnetwork.events.add,
 	        moveParams: {
@@ -398,7 +352,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "onWorkgroupUpdate",
 	    value: function onWorkgroupUpdate(data) {
 	      var _this2 = this;
-
 	      var params = {
 	        event: PullControllerSocialnetwork.events.update
 	      };
@@ -411,13 +364,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "onWorkgroupDelete",
 	    value: function onWorkgroupDelete(data) {
-	      this.removeRow(data.params.GROUP_ID);
+	      this.pullController.removeRow(data.params.GROUP_ID);
 	    }
 	  }, {
 	    key: "onWorkgroupUserAdd",
 	    value: function onWorkgroupUserAdd(data) {
 	      var _this3 = this;
-
 	      var params = {
 	        event: PullControllerSocialnetwork.events.userAdd
 	      };
@@ -431,7 +383,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "onWorkgroupUserUpdate",
 	    value: function onWorkgroupUserUpdate(data) {
 	      var _this4 = this;
-
 	      var params = {
 	        event: PullControllerSocialnetwork.events.userUpdate
 	      };
@@ -445,7 +396,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "onWorkgroupUserDelete",
 	    value: function onWorkgroupUserDelete(data) {
 	      var _this5 = this;
-
 	      var params = {
 	        event: PullControllerSocialnetwork.events.userDelete
 	      };
@@ -469,7 +419,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      if (!main_core.Type.isStringFilled(data.ACTION) || !['pin', 'unpin'].includes(data.ACTION)) {
 	        return;
 	      }
-
 	      var params = {
 	        event: PullControllerSocialnetwork.events.pinChanged
 	      };
@@ -488,7 +437,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    this.timer = null;
 	    this.queueCounterData = new Map();
 	  }
-
 	  babelHelpers.createClass(PullControllerMainUserCounter, [{
 	    key: "getModuleId",
 	    value: function getModuleId() {
@@ -503,36 +451,28 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "onUserCounter",
 	    value: function onUserCounter(data) {
 	      var _this = this;
-
 	      var siteId = main_core.Loc.getMessage('SITE_ID');
 	      var eventCounterData = main_core.Type.isPlainObject(data[siteId]) ? data[siteId] : {};
-
 	      if (!this.timer) {
 	        this.timer = setTimeout(function () {
 	          _this.freeCounterQueue();
 	        }, 1000);
 	      }
-
 	      Object.entries(eventCounterData).forEach(function (_ref2) {
 	        var _ref3 = babelHelpers.slicedToArray(_ref2, 2),
-	            key = _ref3[0],
-	            value = _ref3[1];
-
+	          key = _ref3[0],
+	          value = _ref3[1];
 	        var matches = key.match(/^\*\*SG(\d+)/i);
-
 	        if (matches) {
 	          var groupId = Number(matches[1]);
 	          value = Number(value);
-
 	          if (groupId === 0 && value !== 0) {
 	            return;
 	          }
-
 	          var counterData = {
 	            type: 'livefeed',
 	            value: value
 	          };
-
 	          _this.queueCounterData.set(groupId, counterData);
 	        }
 	      });
@@ -540,7 +480,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "freeCounterQueue",
 	    value: function freeCounterQueue() {
-	      this.queueCounterData.forEach(function (counterData, groupId) {// todo oh this.userCounterManager.processCounterItem(counterData, groupId);
+	      this.queueCounterData.forEach(function (counterData, groupId) {
+	        // todo oh this.userCounterManager.processCounterItem(counterData, groupId);
 	      });
 	      this.queueCounterData.clear();
 	      this.timer = null;
@@ -568,7 +509,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      return ['onAfterTaskAdd', 'onAfterCommentAdd'];
 	    }
 	  }]);
-
 	  function PullControllerTasks(options) {
 	    babelHelpers.classCallCheck(this, PullControllerTasks);
 	    this.componentName = options.componentName;
@@ -580,7 +520,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    this.timer = null;
 	    this.counterData = new Map();
 	  }
-
 	  babelHelpers.createClass(PullControllerTasks, [{
 	    key: "getModuleId",
 	    value: function getModuleId() {
@@ -590,27 +529,22 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "getMap",
 	    value: function getMap() {
 	      var _ref;
-
 	      return _ref = {}, babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_TASKS_PROJECT_COUNTER'), this.onTasksProjectCounter.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_TASKS_PROJECT_READ_ALL'), this.onTasksProjectCommentsReadAll.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_TASKS_SCRUM_READ_ALL'), this.onTasksProjectCommentsReadAll.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_TASKS_COMMENT_READ_ALL'), this.onTasksProjectCommentsReadAll.bind(this)), _ref;
 	    }
 	  }, {
 	    key: "onTasksProjectCounter",
 	    value: function onTasksProjectCounter(data) {
 	      var _this = this;
-
 	      var groupId = data.GROUP_ID;
 	      var event = data.EVENT;
-
 	      if (!PullControllerTasks.counterEvents.includes(event)) {
 	        return;
 	      }
-
 	      if (!this.timer) {
 	        this.timer = setTimeout(function () {
 	          _this.freeCounterQueue();
 	        }, 1000);
 	      }
-
 	      if (PullControllerTasks.movingProjectEvents.includes(event) || !this.counterData.has(groupId)) {
 	        this.counterData.set(groupId, event);
 	      }
@@ -619,7 +553,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "freeCounterQueue",
 	    value: function freeCounterQueue() {
 	      var _this2 = this;
-
 	      this.counterData.forEach(function (event, groupId) {
 	        var params = {
 	          event: event,
@@ -630,7 +563,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	            return PullControllerTasks.movingProjectEvents.includes(event);
 	          }
 	        };
-
 	        if (PullControllerTasks.movingProjectEvents.includes(event)) {
 	          params.moveParams = {
 	            rowBefore: _this2.gridPinController.getIsPinned(groupId) ? 0 : _this2.gridPinController.getLastPinnedRowId(),
@@ -640,7 +572,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	            skip: false
 	          };
 	        }
-
 	        _this2.pullController.checkExistence(groupId).then(function (response) {
 	          return _this2.pullController.onCheckExistenceSuccess(response, groupId, params);
 	        }, function (response) {
@@ -654,7 +585,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "onTasksProjectCommentsReadAll",
 	    value: function onTasksProjectCommentsReadAll(data) {
 	      var groupId = data.GROUP_ID;
-
 	      if (groupId) {
 	        if (this.gridController.getInstance().isRowExist(groupId)) {
 	          this.updateCounter([groupId]);
@@ -667,10 +597,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "updateCounter",
 	    value: function updateCounter(rowIds) {
 	      var _this3 = this;
-
 	      this.pullController.checkExistence(rowIds).then(function (response) {
 	        var projects = response.data;
-
 	        if (projects) {
 	          Object.keys(projects).forEach(function (projectId) {
 	            if (_this3.gridController.getInstance().isRowExist(projectId)) {
@@ -699,7 +627,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    this.timer = null;
 	    this.queueCounterData = new Map();
 	  }
-
 	  babelHelpers.createClass(PullControllerTasksUserCounter, [{
 	    key: "getModuleId",
 	    value: function getModuleId() {
@@ -709,25 +636,21 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "getMap",
 	    value: function getMap() {
 	      var _ref;
-
 	      return _ref = {}, babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_TASKS_USER_COUNTER'), this.onUserCounter.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_TASKS_PROJECT_READ_ALL'), this.onProjectReadAllComments.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_TASKS_SCRUM_READ_ALL'), this.onScrumReadAllComments.bind(this)), _ref;
 	    }
 	  }, {
 	    key: "onUserCounter",
 	    value: function onUserCounter(data) {
 	      var _this = this;
-
 	      if (!this.timer) {
 	        this.timer = setTimeout(function () {
 	          _this.freeCounterQueue();
 	        }, 1000);
 	      }
-
 	      Object.entries(data).forEach(function (_ref2) {
 	        var _ref3 = babelHelpers.slicedToArray(_ref2, 2),
-	            key = _ref3[0],
-	            value = _ref3[1];
-
+	          key = _ref3[0],
+	          value = _ref3[1];
 	        if (key == Number(key) && Number(key) > 0 && main_core.Type.isPlainObject(value.view_all)) {
 	          if (!main_core.Type.isUndefined(value.view_all.new_comments)) {
 	            _this.queueCounterData.set("".concat(key, "_new_comments"), {
@@ -736,7 +659,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	              value: Number(value.view_all.new_comments)
 	            });
 	          }
-
 	          if (!main_core.Type.isUndefined(value.view_all.expired)) {
 	            _this.queueCounterData.set("".concat(key, "_expired"), {
 	              groupId: key,
@@ -751,17 +673,14 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "onProjectReadAllComments",
 	    value: function onProjectReadAllComments(data) {
 	      var _this2 = this;
-
 	      if (Number(data.GROUP_ID) !== 0 && Number(data.USER_ID) !== Number(main_core.Loc.getMessage('USER_ID'))) {
 	        return;
 	      }
-
 	      if (!this.timer) {
 	        this.timer = setTimeout(function () {
 	          _this2.freeCounterQueue();
 	        }, 1000);
 	      }
-
 	      this.queueCounterData.set("0_new_comments", {
 	        groupId: 0,
 	        type: 'tasks_new_comments',
@@ -773,17 +692,14 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "onScrumReadAllComments",
 	    value: function onScrumReadAllComments(data) {
 	      var _this3 = this;
-
 	      if (Number(data.GROUP_ID) !== 0 && Number(data.USER_ID) !== Number(main_core.Loc.getMessage('USER_ID'))) {
 	        return;
 	      }
-
 	      if (!this.timer) {
 	        this.timer = setTimeout(function () {
 	          _this3.freeCounterQueue();
 	        }, 1000);
 	      }
-
 	      this.queueCounterData.set("0_new_comments", {
 	        groupId: 0,
 	        type: 'tasks_new_comments',
@@ -794,7 +710,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "freeCounterQueue",
 	    value: function freeCounterQueue() {
-	      this.queueCounterData.forEach(function (counterData) {// todo oh this.userCounterManager.processCounterItem(counterData, Number(counterData.groupId));
+	      this.queueCounterData.forEach(function (counterData) {
+	        // todo oh this.userCounterManager.processCounterItem(counterData, Number(counterData.groupId));
 	      });
 	      this.queueCounterData.clear();
 	      this.timer = null;
@@ -816,7 +733,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    this.grid = this.gridController.getGrid();
 	    this.init();
 	  }
-
 	  babelHelpers.createClass(PullManager, [{
 	    key: "init",
 	    value: function init() {
@@ -848,7 +764,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        userCounterManager: this.userCounterManagerInstance
 	      });
 	      pull_client.PULL.subscribe(this.pullControllerTasksUserCounter);
-
 	      if (this.useTasksCounters) {
 	        this.pullControllerTasks = new PullControllerTasks({
 	          componentName: this.componentName,
@@ -863,7 +778,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "checkExistence",
 	    value: function checkExistence(groupId) {
 	      var _this = this;
-
 	      return new Promise(function (resolve, reject) {
 	        main_core.ajax.runComponentAction(_this.componentName, 'checkExistence', {
 	          mode: 'class',
@@ -884,12 +798,10 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      if (main_core.Type.isUndefined(response.data[groupId])) {
 	        return;
 	      }
-
 	      if (response.data[groupId] === false) {
 	        this.grid.removeRow(groupId);
 	        return;
 	      }
-
 	      this.moveToDirectPlace(groupId, response.data[groupId], params);
 	    }
 	  }, {
@@ -914,7 +826,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      if (this.gridController.getInstance().isRowExist(rowId) || main_core.Type.isUndefined(rowData) || main_core.Type.isNull(rowData)) {
 	        return;
 	      }
-
 	      this.gridController.getInstance().addRow(rowId, rowData, params);
 	    }
 	  }, {
@@ -923,7 +834,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      if (!this.gridController.getInstance().isRowExist(rowId) || main_core.Type.isUndefined(rowData)) {
 	        return;
 	      }
-
 	      this.gridController.getInstance().updateRow(rowId, rowData, params);
 	    }
 	  }, {
@@ -932,14 +842,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      if (!this.gridController.getInstance().isRowExist(rowId)) {
 	        return;
 	      }
-
 	      this.gridController.getInstance().removeRow(rowId);
 	    }
 	  }, {
 	    key: "moveToDirectPlace",
 	    value: function moveToDirectPlace(groupId, data, params) {
 	      var _this2 = this;
-
 	      params = params || {};
 	      main_core.ajax.runComponentAction(this.componentName, 'findWorkgroupPlace', {
 	        mode: 'class',
@@ -952,11 +860,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        if (response.data === null) {
 	          return;
 	        }
-
 	        var _response$data = response.data,
-	            workgroupBefore = _response$data.workgroupBefore,
-	            workgroupAfter = _response$data.workgroupAfter;
-
+	          workgroupBefore = _response$data.workgroupBefore,
+	          workgroupAfter = _response$data.workgroupAfter;
 	        if (workgroupBefore === false && workgroupAfter === false) {
 	          _this2.removeRow(groupId);
 	        } else {
@@ -970,7 +876,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	              skip: true
 	            };
 	          }
-
 	          _this2.updateItem(groupId, data, params);
 	        }
 	      });
@@ -986,7 +891,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      return Manager.repo.get(id);
 	    }
 	  }]);
-
 	  function Manager(params) {
 	    babelHelpers.classCallCheck(this, Manager);
 	    this.id = params.id;
@@ -1008,7 +912,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    this.livefeedCounterSliderOptions = main_core.Type.isPlainObject(params.livefeedCounterSliderOptions) ? params.livefeedCounterSliderOptions : {};
 	    this.init(params);
 	  }
-
 	  babelHelpers.createClass(Manager, [{
 	    key: "init",
 	    value: function init(params) {
@@ -1037,7 +940,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        gridId: this.id,
 	        signedParameters: this.signedParameters
 	      });
-
 	      if (this.useTasksCounters) {
 	        this.tasksTour = new tasks_tour.Tour({
 	          tours: params.tours
@@ -1045,9 +947,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        this.tasksTour.subscribe('FirstProject:afterProjectCreated', this.onAfterGroupCreated.bind(this));
 	        this.tasksTour.subscribe('FirstScrum:afterScrumCreated', this.onAfterGroupCreated.bind(this));
 	      }
-
 	      this.initPull();
-
 	      if (filter) {
 	        socialnetwork_ui_grid.TagController.setOptions({
 	          filter: filter
@@ -1076,35 +976,28 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "initEvents",
 	    value: function initEvents() {
 	      var _this = this;
-
 	      if (this.gridContainer) {
 	        this.gridContainer.addEventListener('click', this.processClickEvent.bind(this));
 	      }
-
 	      main_core_events.EventEmitter.subscribe('SidePanel.Slider:onMessage', function (event) {
 	        var _event$getCompatData = event.getCompatData(),
-	            _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
-	            sliderEvent = _event$getCompatData2[0];
-
+	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
+	          sliderEvent = _event$getCompatData2[0];
 	        if (!BX.PULL && sliderEvent.getEventId() === 'sonetGroupEvent' && !main_core.Type.isUndefined(sliderEvent.data) && main_core.Type.isStringFilled(sliderEvent.data.code) && ['afterCreate', 'afterEdit', 'afterInvite', 'afterJoinRequestSend', 'afterLeave', 'afterDelete'].includes(sliderEvent.data.code)) {
 	          _this.reload();
 	        }
 	      });
 	      main_core_events.EventEmitter.subscribe('Tasks.Toolbar:onItem', function (event) {
 	        var data = event.getData();
-
 	        if (data.counter && data.counter.filter) {
 	          var filter = data.counter.filter.getFilter();
-
 	          _this.toggleByField(babelHelpers.defineProperty({}, data.counter.filterField, data.counter.filterValue), filter);
 	        }
 	      });
 	      main_core_events.EventEmitter.subscribe('Socialnetwork.Toolbar:onItem', function (event) {
 	        var data = event.getData();
-
 	        if (data.counter && data.counter.filter) {
 	          var filter = data.counter.filter.getFilter();
-
 	          _this.toggleByField(babelHelpers.defineProperty({}, data.counter.filterField, data.counter.filterValue), filter);
 	        }
 	      });
@@ -1115,16 +1008,13 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      if (!filter) {
 	        return;
 	      }
-
 	      var name = Object.keys(filterData)[0];
 	      var value = filterData[name];
 	      var fields = filter.getFilterFieldsValues();
-
 	      if (!this.isFilteredByFieldValue(name, value, fields)) {
 	        filter.getApi().extendFilter(babelHelpers.defineProperty({}, name, value));
 	        return;
 	      }
-
 	      filter.getFilterFields().forEach(function (field) {
 	        if (field.getAttribute('data-name') === name) {
 	          filter.getFields().deleteField(field);
@@ -1138,11 +1028,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      if (!Object.keys(fields).includes(field)) {
 	        return false;
 	      }
-
 	      if (main_core.Type.isArray(fields[field])) {
 	        return fields[field].length > 0;
 	      }
-
 	      return fields[field] !== '';
 	    }
 	  }, {
@@ -1154,13 +1042,10 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "reload",
 	    value: function reload() {
 	      var _this2 = this;
-
 	      var gridInstance = BX.Main.gridManager.getInstanceById(this.gridId);
-
 	      if (!gridInstance) {
 	        return;
 	      }
-
 	      gridInstance.reloadTable('POST', {
 	        apply_filter: 'Y'
 	      }, function () {
@@ -1171,24 +1056,18 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "processClickEvent",
 	    value: function processClickEvent(e) {
 	      var targetNode = e.target;
-
 	      if (!targetNode.classList.contains('sonet-group-grid-action')) {
 	        return;
 	      }
-
 	      var action = targetNode.getAttribute('data-bx-action');
 	      var groupId = targetNode.getAttribute('data-bx-group-id');
-
 	      if (!main_core.Type.isStringFilled(action) || !main_core.Type.isStringFilled(groupId)) {
 	        return;
 	      }
-
 	      groupId = parseInt(groupId);
-
 	      if (groupId <= 0) {
 	        return;
 	      }
-
 	      targetNode.classList.add('--inactive');
 	      this.actionManagerInstance.act({
 	        action: action,
@@ -1211,7 +1090,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    value: function onAfterGroupCreated(baseEvent) {
 	      var projectId = baseEvent.getData();
 	      var isRowExist = this.gridController.getInstance().isRowExist(projectId);
-
 	      if (isRowExist) {
 	        var targetRow = this.gridController.getInstance().getRowNodeById(projectId);
 	        var target = targetRow.querySelector('.sonet-group-grid-name-text');
@@ -1224,8 +1102,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "onGridRowAdded",
 	    value: function onGridRowAdded(projectId, baseEvent) {
 	      var _baseEvent$getData = baseEvent.getData(),
-	          id = _baseEvent$getData.id;
-
+	        id = _baseEvent$getData.id;
 	      if (Number(id) === Number(projectId)) {
 	        var targetRow = this.gridController.getInstance().getRowNodeById(projectId);
 	        var target = targetRow.querySelector('.sonet-group-grid-name-text');
@@ -1235,7 +1112,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }]);
 	  return Manager;
 	}();
-
 	babelHelpers.defineProperty(Manager, "repo", new Map());
 
 	exports.Manager = Manager;

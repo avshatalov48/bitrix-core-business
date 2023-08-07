@@ -31,48 +31,7 @@ $application->initializeExtendedKernel(array(
 	"env" => $_ENV
 ));
 
-$routes = new RoutingConfigurator();
-$router = new Router();
-$routes->setRouter($router);
-$application->setRouter($router);
-
-// files with routes
-$files = [];
-
-// user files
-$routingConfig = Main\Config\Configuration::getInstance()->get('routing');
-if (!empty($routingConfig['config']))
-{
-	$fileNames = $routingConfig['config'];
-
-	foreach ($fileNames as $fileName)
-	{
-		foreach (['local', 'bitrix'] as $vendor)
-		{
-			if (file_exists($_SERVER["DOCUMENT_ROOT"].'/'.$vendor.'/routes/'.basename($fileName)))
-			{
-				$files[] = $_SERVER["DOCUMENT_ROOT"].'/'.$vendor.'/routes/'.basename($fileName);
-			}
-		}
-	}
-}
-
-// system files
-if (file_exists($_SERVER["DOCUMENT_ROOT"].'/bitrix/routes/web_bitrix.php'))
-{
-	$files[] = $_SERVER["DOCUMENT_ROOT"].'/bitrix/routes/web_bitrix.php';
-}
-
-foreach ($files as $file)
-{
-	$callback = include $file;
-	$callback($routes);
-}
-
-$router->releaseRoutes();
-
-// cache for route compiled data
-CompileCache::handle($files, $router);
+$router = $application->getRouter();
 
 // match request
 $request = Context::getCurrent()->getRequest();

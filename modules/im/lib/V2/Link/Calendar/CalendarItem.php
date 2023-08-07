@@ -11,9 +11,6 @@ use Bitrix\Im\V2\Rest\RestEntity;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Type\DateTime;
 
-/**
- * @method Entity\Calendar\CalendarItem getEntity()
- */
 class CalendarItem extends BaseLinkItem
 {
 	protected string $title;
@@ -44,6 +41,13 @@ class CalendarItem extends BaseLinkItem
 		return parent::setEntity($entity);
 	}
 
+	public function getEntity(): Entity\Calendar\CalendarItem
+	{
+		$this->entity ??= Entity\Calendar\CalendarItem::initById($this->getEntityId());
+
+		return $this->entity;
+	}
+
 	public static function getByCalendarId(int $id, bool $fillEntity = true): ?self
 	{
 		$ormObject = LinkCalendarTable::query()
@@ -61,6 +65,23 @@ class CalendarItem extends BaseLinkItem
 		if ($fillEntity)
 		{
 			return (new static($ormObject))->setEntity(Entity\Calendar\CalendarItem::initById($id));
+		}
+
+		return new static($ormObject);
+	}
+
+	public static function getByMessageId(int $messageId): ?self
+	{
+		$ormObject = LinkCalendarTable::query()
+			->setSelect(['*'])
+			->where('MESSAGE_ID', $messageId)
+			->setLimit(1)
+			->fetchObject()
+		;
+
+		if ($ormObject === null)
+		{
+			return null;
 		}
 
 		return new static($ormObject);

@@ -2,7 +2,7 @@ import { Event } from 'main.core';
 import getResizedImageSize from './get-resized-image-size';
 import type { ResizeImageOptions } from '../types/resize-image-options';
 import convertCanvasToBlob from './convert-canvas-to-blob';
-import createImagePreview from './create-image-preview';
+import createImagePreviewCanvas from './create-image-preview-canvas';
 
 const createVideoPreview = (
 	blob: Blob,
@@ -35,7 +35,7 @@ const createVideoPreview = (
 					return;
 				}
 
-				const canvas = createImagePreview(video, targetWidth, targetHeight);
+				const canvas: HTMLCanvasElement = createImagePreviewCanvas(video, targetWidth, targetHeight);
 				const { quality = 0.92, mimeType = 'image/jpeg' } = options;
 				convertCanvasToBlob(canvas, mimeType, quality)
 					.then((blob: Blob) => {

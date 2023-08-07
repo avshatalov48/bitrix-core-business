@@ -75,7 +75,7 @@ class Address extends \Bitrix\Main\UserField\TypeBase
 		return AddressType::onBeforeSave($userField, $value);
 	}
 
-	function getSettingsHtml($userField = false, $additionalParameters, $varsFromForm)
+	function getSettingsHtml($userField, $additionalParameters, $varsFromForm)
 	{
 		return AddressType::renderSettings($userField, $additionalParameters, $varsFromForm);
 	}

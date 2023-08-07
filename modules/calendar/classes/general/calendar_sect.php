@@ -696,6 +696,11 @@ class CCalendarSect
 				$sectionFields['CREATED_BY'] = CCalendar::GetCurUserId();
 			}
 
+			if (!isset($sectionFields['EXTERNAL_TYPE']))
+			{
+				$sectionFields['EXTERNAL_TYPE'] = 'local';
+			}
+
 			unset($sectionFields['ID']);
 			$id = $DB->Add("b_calendar_section", $sectionFields, ['DESCRIPTION']);
 		}
@@ -1260,6 +1265,17 @@ class CCalendarSect
 
 		$originalFrom = $params['params']['originalFrom'] ?? null;
 		if ($originalFrom === ($params['sectionFields']['EXTERNAL_TYPE'] ?? null))
+		{
+			return null;
+		}
+
+		if (
+			!empty($params['sectionFields']['EXTERNAL_TYPE'])
+			&& (
+				$params['sectionFields']['EXTERNAL_TYPE'] === Bitrix\Calendar\Sync\Caldav\Helper::CALDAV_TYPE
+				|| $params['sectionFields']['EXTERNAL_TYPE'] === Bitrix\Calendar\Sync\Caldav\Helper::EXCHANGE_TYPE
+			)
+		)
 		{
 			return null;
 		}

@@ -55,6 +55,7 @@ class Mail extends Service
 			'STATUS' => self::MEETING_STATUS_CREATED,
 			'CANCEL_LINK' => $this->eventLink->getUrl() . Sharing\Helper::ACTION_CANCEL,
 			'ICS_LINK' => $this->eventLink->getUrl() . Sharing\Helper::ACTION_ICS,
+			'VIDEOCONFERENCE_LINK' => $this->eventLink->getUrl() . Sharing\Helper::ACTION_CONFERENCE,
 		];
 		$arParams = array_merge($arParams, $mailParams);
 

@@ -17,7 +17,7 @@ foreach($arResult['value'] as $key => $rawValue)
 {
 	$explode = MoneyType::unFormatFromDB($rawValue);
 	$currentValue = $value = ($explode[0] <> ''? (float)$explode[0] : '');
-	$currentCurrency = $explode[1] ?: '';
+	$currentCurrency = $explode[1] ?? '';
 
 	$format = \CCurrencyLang::GetFormatDescription($currentCurrency);
 

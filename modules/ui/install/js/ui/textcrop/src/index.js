@@ -20,9 +20,9 @@ export class TextCrop
 	{
 		if(!this.text)
 		{
-			this.text = this.target
+			this.text = BX.util.htmlspecialchars(this.target
 				? this.target.innerText
-				: null;
+				: null);
 		}
 
 		return this.text;
@@ -121,7 +121,7 @@ export class TextCrop
 			while (this.getWrapper().offsetHeight / parseInt(rowHeight) > this.rows)
 			{
 				cropText = this.layout.wrapper.textContent.substring(0, this.layout.wrapper.textContent.length - 4);
-				this.layout.wrapper.innerHTML = cropText + '...';
+				this.layout.wrapper.textContent = cropText + '...';
 			}
 		}
 

@@ -22,7 +22,7 @@ class Ednaru extends Sender\BaseConfigurable
 		$this->optionManager = new Base\Option($this->getType(), $this->getId());
 		$this->utils = new WhatsApp\Utils($this->getId(), $this->optionManager);
 		$this->registrar = new WhatsApp\Registrar($this->getId(), $this->optionManager, $this->utils);
-		$this->initiator = new WhatsApp\Initiator($this->optionManager, $this->registrar, $this->utils);
+		$this->initiator = new WhatsApp\Initiator($this->optionManager, $this->registrar, $this->utils, $this->getId());
 		$emojiConverter = new WhatsApp\EmojiConverter();
 		$this->sender = new WhatsApp\Sender($this->optionManager, $this->registrar, $this->utils, $emojiConverter);
 		$this->templateManager = new WhatsApp\TemplateManager($this->getId(), $this->utils, $emojiConverter);

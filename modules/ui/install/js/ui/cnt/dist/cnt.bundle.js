@@ -287,6 +287,8 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(Counter, "Size", CounterSize);
 
 	exports.Counter = Counter;
+	exports.CounterColor = CounterColor;
+	exports.CounterSize = CounterSize;
 
 }((this.BX.UI = this.BX.UI || {}),BX,BX));
 //# sourceMappingURL=cnt.bundle.js.map

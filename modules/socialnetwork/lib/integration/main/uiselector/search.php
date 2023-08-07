@@ -30,44 +30,6 @@ class Search
 		);
 	}
 
-	public static function searchNetworkUsers($params = array())
-	{
-		$searchResult = array();
-
-		$search = $params['search'];
-		$nameTemplate = $params['nameTemplate'];
-
-		$network = new \Bitrix\Socialservices\Network();
-		if ($network->isEnabled())
-		{
-			$networkResult = $network->searchUser($search);
-			if ($networkResult)
-			{
-				foreach ($networkResult as $user)
-				{
-					$user = \CSocNetLogDestination::formatNetworkUser($user, array(
-						"NAME_TEMPLATE" => $nameTemplate,
-					));
-					$searchResult[$user['id']] = $user;
-				}
-
-				$userList = \Bitrix\Main\UserTable::getList(array(
-					"select" => array("ID", "XML_ID"),
-					"filter" => array(
-						"=EXTERNAL_AUTH_ID" => "replica",
-						"=XML_ID" => array_keys($searchResult),
-					),
-				));
-				while ($user = $userList->fetch())
-				{
-					unset($searchResult[$user["XML_ID"]]);
-				}
-			}
-		}
-
-		return $searchResult;
-	}
-
 	public static function searchUsers($params = array(), &$searchModified)
 	{
 		$search = $params['search'];
@@ -379,17 +341,6 @@ class Search
 		)
 		{
 			$result["USERS"] = array();
-			if (
-				isset($requestFields['NETWORK_SEARCH'])
-				&& $requestFields['NETWORK_SEARCH'] == 'Y'
-				&& Loader::includeModule('socialservices')
-			)
-			{
-				$result["USERS"] = self::searchNetworkUsers(array(
-					'search' => $search,
-					'nameTemplate' => $nameTemplate
-				));
-			}
 
 			return $result;
 		}

@@ -16,9 +16,8 @@ use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Im\V2\Link\BaseLinkCollection;
 
 /**
- * @method FileItem next()
- * @method FileItem current()
- * @method FileItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,FileItem>
+ * @method FileItem offsetGet($key)
  */
 class FileCollection extends BaseLinkCollection
 {
@@ -112,10 +111,10 @@ class FileCollection extends BaseLinkCollection
 		{
 			if (is_array($filter['SUBTYPE']))
 			{
-				$subtypes = array_filter($filter['SUBTYPE'], static fn (string $subtype) => \Bitrix\Im\V2\Entity\File\FileItem::isSubtypeValid($subtype));
+				$subtypes = array_filter($filter['SUBTYPE'], static fn (string $subtype) => FileItem::isSubtypeValid($subtype));
 				$query->whereIn('SUBTYPE', $subtypes);
 			}
-			elseif (\Bitrix\Im\V2\Entity\File\FileItem::isSubtypeValid($filter['SUBTYPE']))
+			elseif (FileItem::isSubtypeValid($filter['SUBTYPE']))
 			{
 				$query->where('SUBTYPE', $filter['SUBTYPE']);
 			}

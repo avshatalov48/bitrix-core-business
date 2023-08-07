@@ -94,7 +94,7 @@ class FavoriteService
 
 		$favoriteMessages = FavoriteCollection::getByMessage($message);
 
-		if ($favoriteMessages === null)
+		if ($favoriteMessages === null || $favoriteMessages->count() === 0)
 		{
 			return $result;
 		}

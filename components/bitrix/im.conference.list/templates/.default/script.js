@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,main_core,main_core_events,main_popup,ui_dialogs_messagebox,im_lib_clipboard) {
 	'use strict';
 

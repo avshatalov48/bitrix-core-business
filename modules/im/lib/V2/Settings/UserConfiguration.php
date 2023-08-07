@@ -3,6 +3,7 @@
 namespace Bitrix\Im\V2\Settings;
 
 use Bitrix\Im\Common;
+use Bitrix\Im\Configuration\Configuration;
 use Bitrix\Im\Configuration\General;
 use Bitrix\Im\Model\OptionUserTable;
 use Bitrix\Im\V2\Result;
@@ -53,7 +54,12 @@ class UserConfiguration
 		$bindings = $query->fetch();
 		if ($bindings === false)
 		{
-			return $result->addError(new PresetError(PresetError::BINDINGS_NOT_FOUND));
+			$presetId = Configuration::restoreBindings($userId);
+
+			$bindings = [
+				CacheManager::GENERAL_PRESET => $presetId,
+				CacheManager::NOTIFY_PRESET => $presetId,
+			];
 		}
 
 		$this->generalPreset = Preset::getInstance($bindings[CacheManager::GENERAL_PRESET]);

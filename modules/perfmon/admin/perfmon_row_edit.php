@@ -151,6 +151,38 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin &
 	die();
 }
 
+if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin && $_REQUEST["action"] === "jsondecode")
+{
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+	CUtil::JSPostUnescape();
+	try
+	{
+		echo var_export(Bitrix\Main\Web\Json::decode($_POST["data"]), true);
+	}
+	catch (\Exception $exception)
+	{
+	}
+
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
+	die();
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin && $_REQUEST["action"] === "jsonencode")
+{
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+	CUtil::JSPostUnescape();
+	try
+	{
+		echo Bitrix\Main\Web\Json::encode((var_import($_POST["data"])));
+	}
+	catch (\Exception $exception)
+	{
+	}
+
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
+	die();
+}
+
 $table_name = $_REQUEST["table_name"];
 $obTable = new CPerfomanceTable;
 $obTable->Init($table_name);
@@ -249,6 +281,7 @@ if (!$arRecord)
 $obSchema = new CPerfomanceSchema;
 $arChildren = $obSchema->GetChildren($table_name);
 $arParents = $obSchema->GetParents($table_name);
+$additionalMeta = $obSchema->GetAttributes($table_name);
 
 $aTabs = array(
 	array(
@@ -299,6 +332,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin)
 			{
 				if (isset($_POST["mark_".$Field."_"]) && $_POST["mark_".$Field."_"] === "Y")
 					$arToInsert[$Field] = var_import($_POST[$Field]);
+				elseif (isset($_POST["mark_".$Field."_"]) && $_POST["mark_".$Field."_"] === "J")
+					$arToInsert[$Field] = Bitrix\Main\Web\Json::encode(var_import($_POST[$Field]));
 				elseif (isset($_POST[$Field]) && $_POST[$Field] <> '')
 					$arToInsert[$Field] = $_POST[$Field];
 				else
@@ -321,6 +356,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin)
 			{
 				if (isset($_POST["mark_".$Field."_"]) && $_POST["mark_".$Field."_"] === "Y")
 					$arToUpdate[$Field] = serialize(var_import($_POST[$Field]));
+				elseif (isset($_POST["mark_".$Field."_"]) && $_POST["mark_".$Field."_"] === "J")
+					$arToUpdate[$Field] = Bitrix\Main\Web\Json::encode(var_import($_POST[$Field]));
 				elseif (isset($_POST[$Field]) && $_POST[$Field] <> '')
 					$arToUpdate[$Field] = $_POST[$Field];
 				else
@@ -356,6 +393,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin)
 			$CACHE_MANAGER->CleanAll();
 			$stackCacheManager->CleanAll();
 		}
+
+		// clean orm cache
+		$cache = \Bitrix\Main\Application::getInstance()->getManagedCache();
+		$cache->cleanDir("orm_{$table_name}");
 
 		if ($_POST["apply"] != "")
 		{
@@ -508,6 +549,40 @@ if ($strError)
 				);
 			}
 		}
+		function editAsJson(button, Field, mark)
+		{
+			var textArea = BX(Field);
+			var markHidden = BX(mark);
+			if (textArea && markHidden)
+			{
+				var action = (button.value == 'jsondecode' ? 'jsondecode' : 'jsonencode');
+				var url = 'perfmon_row_edit.php?lang=<?echo LANGUAGE_ID?>&<?echo bitrix_sessid_get()?>&action=' + action;
+				BX.showWait();
+				BX.ajax.post(
+					url,
+					{data: textArea.value},
+					function (result)
+					{
+						BX.closeWait();
+						if (result.length > 0)
+						{
+							textArea.value = result;
+							if (action == 'jsondecode')
+							{
+								markHidden.value = 'J';
+								button.value = 'jsonencode';
+							}
+							else
+							{
+								markHidden.value = '';
+								button.value = 'jsondecode';
+							}
+							AdjustHeight();
+						}
+					}
+				);
+			}
+		}
 		BX.ready(function ()
 		{
 			AdjustHeight();
@@ -518,80 +593,39 @@ if ($strError)
 	$tabControl->Begin();
 
 	$tabControl->BeginNextTab();
-	foreach ($arFields as $Field => $arField)
-	{
-		if (
-			(
-				$arField["type"] === "string"
-				|| $arField["type"] === "int"
-			)
-			&& array_key_exists($Field, $arParents)
-			&& $DB->TableExists($arParents[$Field]["PARENT_TABLE"])
-		)
-		{
-			$rs = $DB->Query(
-				$DB->TopSql("
-					select distinct ".$arParents[$Field]["PARENT_COLUMN"]."
-					from ".$arParents[$Field]["PARENT_TABLE"]."
-					order by 1
-				", 21)
-			);
-			$arSelect = array(
-				"REFERENCE" => array(),
-				"REFERENCE_ID" => array(),
-			);
-			while ($ar = $rs->Fetch())
-			{
-				$arSelect["REFERENCE"][] = $ar[$arParents[$Field]["PARENT_COLUMN"]];
-				$arSelect["REFERENCE_ID"][] = $ar[$arParents[$Field]["PARENT_COLUMN"]];
-			}
-			if (count($arSelect["REFERENCE"]) < 21)
-			{
-				$arFields[$Field]["SELECT"] = $arSelect;
-			}
-			///TODO lookup window
-		}
-		///TODO visual editor for FIELD FIELD_TYPE couple
-	}
 
 	foreach ($arFields as $Field => $arField)
 	{
+		$selectValues = null;
 		$trClass = $arField["nullable"]? "": "adm-detail-required-field";
 		?><tr class="<?echo $trClass?>"><?
 
-		if (in_array($Field, $arIndexColumns))
+		if (isset($additionalMeta[$Field]['edit_mode']))
 		{
-			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord[$Field];
-			?>
-			<td width="40%"><? echo htmlspecialcharsbx($Field) ?>:</td>
-			<td width="60%"><? echo htmlspecialcharsex($value); ?></td>
-		<?
+			$editMode = $additionalMeta[$Field]['edit_mode'];
+			if (isset($additionalMeta[$Field]['select_values']))
+			{
+				$selectValues = array(
+					'REFERENCE_ID' => array_keys($additionalMeta[$Field]['select_values']),
+					'REFERENCE' => array_values($additionalMeta[$Field]['select_values']),
+				);
+			}
+			if (isset($additionalMeta[$Field]['text_size']))
+			{
+				$textSize = $additionalMeta[$Field]['text_size'];
+			}
+		}
+		elseif (in_array($Field, $arIndexColumns))
+		{
+			$editMode = 'read_only';
 		}
 		elseif ($arField["type"] === "datetime")
 		{
-			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord["FULL_".$Field];
-			?>
-			<td width="40%"><? echo htmlspecialcharsbx($Field) ?>:</td>
-			<td width="60%"><? echo CAdminCalendar::CalendarDate($Field, $value, 20, true) ?>
-		<?
+			$editMode = "datetime";
 		}
 		elseif ($arField["type"] === "date")
 		{
-			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord["SHORT_".$Field];
-			?>
-			<td width="40%"><? echo htmlspecialcharsbx($Field) ?>:</td>
-			<td width="60%"><? echo CAdminCalendar::CalendarDate($Field, $value, 10, false) ?>
-		<?
-		}
-		elseif (isset($arField["SELECT"]))
-		{
-			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord[$Field];
-			?>
-				<td width="40%"><? echo htmlspecialcharsbx($Field) ?>:</td>
-				<td width="60%"><?
-					echo SelectBoxFromArray($Field, $arField["SELECT"], $value, $arField["nullable"]? "(null)": "");
-					?></td>
-		<?
+			$editMode = "date";
 		}
 		elseif (
 			$arField["type"] === "string"
@@ -601,6 +635,107 @@ if ($strError)
 			&& !$arField["nullable"]
 		)
 		{
+			$editMode = "checkbox";
+		}
+		elseif (
+			$arField["type"] === "string"
+			&& $arField["length"] > 0
+			&& $arField["length"] <= 100
+		)
+		{
+			$editMode = "text";
+			$textSize = $arField["length"];
+		}
+		elseif (
+			$arField["type"] === "string"
+		)
+		{
+			$editMode = "textarea";
+		}
+		elseif (
+			$arField["type"] === "int"
+			|| $arField["type"] === "double"
+		)
+		{
+			$editMode = "text";
+			$textSize = "15";
+		}
+		else
+		{
+			$editMode = "default";
+		}
+
+		if (
+			(
+				$arField["type"] === "string"
+				|| $arField["type"] === "int"
+			)
+			&& array_key_exists($Field, $arParents)
+			&& $DB->TableExists($arParents[$Field]["PARENT_TABLE"])
+			&& !$selectValues
+		)
+		{
+			$rs = $DB->Query(
+				$DB->TopSql("
+					select distinct ".$arParents[$Field]["PARENT_COLUMN"]."
+					from ".$arParents[$Field]["PARENT_TABLE"]."
+					order by 1
+				", 21)
+			);
+			$selectValues = array(
+				"REFERENCE" => array(),
+				"REFERENCE_ID" => array(),
+			);
+			while ($ar = $rs->Fetch())
+			{
+				$selectValues["REFERENCE"][] = $ar[$arParents[$Field]["PARENT_COLUMN"]];
+				$selectValues["REFERENCE_ID"][] = $ar[$arParents[$Field]["PARENT_COLUMN"]];
+			}
+			if (count($selectValues["REFERENCE"]) >= 20)
+			{
+				$selectValues = null;
+			}
+			///TODO lookup window
+		}
+
+		if ($selectValues)
+		{
+			$editMode = "select";
+		}
+
+		switch ($editMode)
+		{
+		case "read_only":
+			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord[$Field];
+			?>
+			<td width="40%"><? echo htmlspecialcharsbx($Field) ?>:</td>
+			<td width="60%"><? echo htmlspecialcharsex($value); ?></td>
+		<?
+			break;
+		case "datetime":
+			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord["FULL_".$Field];
+			?>
+			<td width="40%"><? echo htmlspecialcharsbx($Field) ?>:</td>
+			<td width="60%"><? echo CAdminCalendar::CalendarDate($Field, $value, 20, true) ?>
+		<?
+			break;
+		case "date":
+			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord["SHORT_".$Field];
+			?>
+			<td width="40%"><? echo htmlspecialcharsbx($Field) ?>:</td>
+			<td width="60%"><? echo CAdminCalendar::CalendarDate($Field, $value, 10, false) ?>
+		<?
+			break;
+		case "select":
+			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord[$Field];
+			?>
+				<td width="40%"><? echo htmlspecialcharsbx($Field) ?>:</td>
+				<td width="60%"><?
+					echo SelectBoxFromArray($Field, $selectValues, $value, $arField["nullable"]? "(null)": "");
+					?></td>
+		<?
+			break;
+		case "checkbox":
 			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord[$Field];
 			?>
 				<td width="40%"><label
@@ -620,29 +755,21 @@ if ($strError)
 							echo 'checked="checked"' ?>
 						></td>
 		<?
-		}
-		elseif (
-			$arField["type"] === "string"
-			&& $arField["length"] > 0
-			&& $arField["length"] <= 100
-		)
-		{
+			break;
+		case "text":
 			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord[$Field];
 			?>
 				<td width="40%"><? echo htmlspecialcharsbx($Field) ?>:</td>
 				<td width="60%"><input
 						type="text"
-						maxsize="<? echo $arField["length"] ?>"
-						size="<? echo min($arField["length"], 35) ?>"
+						maxsize="<? echo $textSize ?>"
+						size="<? echo min($textSize, 35) ?>"
 						name="<? echo htmlspecialcharsbx($Field) ?>"
 						value="<? echo htmlspecialcharsbx($value) ?>"
 						></td>
 		<?
-		}
-		elseif (
-			$arField["type"] === "string"
-		)
-		{
+			break;
+		case "textarea":
 			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord[$Field];
 			?>
 				<td width="40%" class="adm-detail-valign-top"
@@ -669,33 +796,20 @@ if ($strError)
 						type="button"
 						value="base64decode"
 						onclick="<? echo htmlspecialcharsbx("editAsBase64(this, '".CUtil::JSEscape($Field)."', 'mark_".CUtil::JSEscape($Field)."_');") ?>"/>
+					<input
+						type="button"
+						value="jsondecode"
+						onclick="<? echo htmlspecialcharsbx("editAsJson(this, '".CUtil::JSEscape($Field)."', 'mark_".CUtil::JSEscape($Field)."_');") ?>"/>
 					<?endif;?>
 				</td>
 		<?
-		}
-		elseif (
-			$arField["type"] === "int"
-			|| $arField["type"] === "double"
-		)
-		{
-			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord[$Field];
-			?>
-				<td width="40%"><? echo htmlspecialcharsbx($Field) ?>:</td>
-				<td width="60%"><input
-						type="text"
-						maxsize="20"
-						size="15"
-						name="<? echo htmlspecialcharsbx($Field) ?>"
-						value="<? echo htmlspecialcharsbx($value) ?>"
-						></td>
-		<?
-		}
-		else
-		{
+			break;
+		default:
 			?>
 				<td width="40%"><? echo htmlspecialcharsbx($Field) ?>:</td>
 				<td width="60%">UNSUPPORTED DATA TYPE</td>
 			<?
+			break;
 		}
 		?></tr><?
 	}

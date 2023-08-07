@@ -1,6 +1,6 @@
 import Base from "../base";
 import { Util } from "calendar.util";
-import {Dom, Loc, Tag, Browser} from "main.core";
+import {Dom, Loc, Tag, Browser, Text} from "main.core";
 import {Popup} from "main.popup";
 import WidgetDate from "../widget-date";
 import {EventEmitter} from "main.core.events";
@@ -243,10 +243,10 @@ export default class Event extends Base
 	{
 		if (!this.#layout.back)
 		{
-			if (this.#showBackCalendarButtons && Browser.isMobile())
+			if (this.#showBackCalendarButtons)
 			{
 				this.#layout.back = Tag.render`
-					<div class="calendar-sharing__calendar-bar">
+					<div class="calendar-sharing__calendar-bar --arrow">
 						<div class="calendar-sharing__calendar-back" onclick="${this.#onReturnButtonClick.bind(this)}"></div>
 					</div>
 				`;
@@ -351,6 +351,33 @@ export default class Event extends Base
 	#createAdditionalBlockContentByState(state: State)
 	{
 		let result = '';
+
+		if (this.#inDeletedSlider)
+		{
+			const date = Util.getTimezoneDateFromTimestampUTC(parseInt(this.#value.canceledTimestamp) * 1000, this.#currentTimezone);
+
+			if (this.#value.canceledTimestamp && this.#value.canceledUserName && date)
+			{
+				result = Tag.render`
+						<div class="calendar-pub__form-status">
+							<div class="calendar-pub__form-status_text">
+								${Loc.getMessage('CALENDAR_SHARING_WHO_CANCELED')}: <a href="/company/personal/user/${this.#owner.id}/" target="_blank" class="calendar-sharing-deletedviewform_open-profile">${Text.encode(this.#value.canceledUserName)}</a>
+								<br>
+								${DateTimeFormat.format('j F ' + Util.getTimeFormatShort(), date.getTime() / 1000)}
+							</div>
+						</div>
+					`;
+			}
+			else
+			{
+				result = Tag.render`
+						<div></div>
+					`;
+			}
+
+			return result;
+		}
+
 		switch (state)
 		{
 			case "created":
@@ -379,7 +406,7 @@ export default class Event extends Base
 					result = Tag.render`
 						<div class="calendar-pub__form-status">
 							<div class="calendar-pub__form-status_text">
-								${Loc.getMessage('CALENDAR_SHARING_WHO_CANCELED')}: ${this.#value.canceledUserName}<br> ${DateTimeFormat.format('j F ' + Util.getTimeFormatShort(), date.getTime() / 1000)}
+								${Loc.getMessage('CALENDAR_SHARING_WHO_CANCELED')}: ${Text.encode(this.#value.canceledUserName)}<br> ${DateTimeFormat.format('j F ' + Util.getTimeFormatShort(), date.getTime() / 1000)}
 							</div>
 						</div>
 					`;
@@ -418,9 +445,20 @@ export default class Event extends Base
 		switch (state)
 		{
 			case "created":
-				result = Tag.render`
-					<div onclick="${this.#onDownloadButtonClick.bind(this)}" class="calendar-pub-ui__btn --light-border --m">
+				this.#layout.videoconferenceButton = Tag.render`
+					<div onclick="${this.#onVideoconferenceButtonClick.bind(this)}" class="calendar-pub-ui__btn --light-border --m calendar-pub-action-btn">
+						<div class="calendar-pub-ui__btn-text">${Loc.getMessage('CALENDAR_SHARING_OPEN_VIDEOCONFERENCE')}</div>
+					</div>
+				`;
+				this.#layout.icsButton = Tag.render`
+					<div onclick="${this.#onIcsButtonClick.bind(this)}" class="calendar-pub-ui__btn --light-border --m calendar-pub-action-btn">
 						<div class="calendar-pub-ui__btn-text">${Loc.getMessage('CALENDAR_SHARING_ADD_TO_CALENDAR')}</div>
+					</div>
+				`;
+				result = Tag.render`
+					<div>
+						${this.#layout.videoconferenceButton}
+						${this.#layout.icsButton}
 					</div>
 				`;
 				break;
@@ -509,6 +547,18 @@ export default class Event extends Base
 		}
 	}
 
+	async #onIcsButtonClick()
+	{
+		await this.downloadIcsFile();
+	}
+
+	async #onVideoconferenceButtonClick()
+	{
+		Dom.addClass(this.#layout.videoconferenceButton, '--wait');
+		await this.startVideoconference();
+		Dom.removeClass(this.#layout.videoconferenceButton, '--wait');
+	}
+
 	async deleteEvent()
 	{
 		let response = null;
@@ -531,25 +581,26 @@ export default class Event extends Base
 
 	async startVideoconference()
 	{
-		const response = await BX.ajax.runAction('calendar.api.sharingajax.getConferenceLink', {
-			data: {
-				eventLinkHash: this.#value.eventLinkHash,
-			}
-		});
+		let response = null;
+		try
+		{
+			response = await BX.ajax.runAction('calendar.api.sharingajax.getConferenceLink', {
+				data: {
+					eventLinkHash: this.#value.eventLinkHash,
+				}
+			})
+		}
+		catch (error)
+		{
+			console.error(error);
+		}
 
-		const conferenceLink = response.data?.conferenceLink || null;
+		const conferenceLink = response?.data?.conferenceLink;
 
 		if (conferenceLink)
 		{
 			window.location.href = conferenceLink;
 		}
-	}
-
-	async #onDownloadButtonClick()
-	{
-		Dom.addClass(this, '--wait');
-		await this.downloadIcsFile();
-		Dom.removeClass(this, '--wait');
 	}
 
 	async downloadIcsFile()

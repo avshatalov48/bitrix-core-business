@@ -6,6 +6,7 @@ this.BX.UI = this.BX.UI || {};
 	/**
 	 * @namespace {BX.UI.IconSet}
 	 */
+
 	const Actions = Object.freeze({
 	  ARROW_RIGHT: 'arrow-right',
 	  ARROW_LEFT: 'arrow-left',
@@ -29,6 +30,9 @@ this.BX.UI = this.BX.UI || {};
 	  PLAY: 'play',
 	  LEFT_SEMICIRCULAR_ANTICLOCKWISE_ARROW_1: 'left-semicircular-anticlockwise-arrow-1',
 	  DOUBLE_SHEVRONS_RIGHT: 'double-shevrons-right',
+	  NEXT: 'next',
+	  DOWNLOAD_3: 'download-3',
+	  UPLOAD: 'upload',
 	  SWAP: 'swap',
 	  SORT: 'sort',
 	  LEFT_SEMICIRCULAR_ANTICLOCKWISE_ARROW_3: 'left-semicircular-anticlockwise-arrow-3',
@@ -41,6 +45,7 @@ this.BX.UI = this.BX.UI || {};
 	  FORWARD_3: 'forward-3',
 	  REPLY: 'reply',
 	  FORWARD_2_1: 'forward-2-1',
+	  REPLAY_ALL: 'replay-all',
 	  OPEN_IN_50: 'open-in-50',
 	  OPEN_IN_40: 'open-in-40',
 	  OPEN_IN_30: 'open-in-30',
@@ -74,6 +79,7 @@ this.BX.UI = this.BX.UI || {};
 	  MINUS_40: 'minus-40',
 	  MINUS_50: 'minus-50',
 	  MINUS_60: 'minus-60',
+	  LINE: 'line',
 	  PLUS_20: 'plus-20',
 	  PLUS_30: 'plus-30',
 	  PLUS_40: 'plus-40',
@@ -229,6 +235,7 @@ this.BX.UI = this.BX.UI || {};
 	  STOPWATCH: 'stopwatch',
 	  ALARM: 'alarm',
 	  BLACK_CLOCK: 'black-clock',
+	  SMART_PROCESS: 'smart-process',
 	  SEARCH_1: 'search-1',
 	  SEARCH_2: 'search-2',
 	  TASKS: 'tasks',
@@ -282,6 +289,7 @@ this.BX.UI = this.BX.UI || {};
 	  SEND: 'send',
 	  SUITCASE: 'suitcase',
 	  SPANNER: 'spanner',
+	  IDEA_LAMP: 'idea-lamp',
 	  LOCATION_1: 'location-1',
 	  BOOK_CLOSED: 'book-closed',
 	  EDIT_PENCIL: 'edit-pencil',
@@ -290,7 +298,8 @@ this.BX.UI = this.BX.UI || {};
 	  FUNNEL: 'funnel',
 	  BRIGHTNESS: 'brightness',
 	  EARTH_LANGUAGE: 'earth-language',
-	  LOW_WI_FI: 'low-wi-fi',
+	  OBSERVER: 'observer',
+	  OBSERVER_CLOSED: 'observer-closed',
 	  BARCODE_1: 'barcode-1',
 	  DOOR_OPENED: 'door-opened',
 	  SHIELD: 'shield',
@@ -383,6 +392,8 @@ this.BX.UI = this.BX.UI || {};
 	  ROCKET: 'rocket',
 	  CITY: 'city',
 	  MAGIC_WAND: 'magic-wand',
+	  MAGIC_IMAGE: 'magic-image',
+	  AI: 'ai',
 	  EARTH: 'earth',
 	  SHARE_1: 'share-1',
 	  SHARE_2: 'share-2',
@@ -614,9 +625,11 @@ this.BX.UI = this.BX.UI || {};
 	  SPEED_1_7: 'speed-1-7',
 	  SPEED_2_0: 'speed-2-0'
 	});
-	const Special = Object.freeze({// : '',
+	const Special = Object.freeze({
+	  // : '',
 	});
-	const Set = Object.freeze({ ...Actions,
+	const Set = Object.freeze({
+	  ...Actions,
 	  ...Social,
 	  ...Main,
 	  ...ContactCenter,
@@ -626,7 +639,7 @@ this.BX.UI = this.BX.UI || {};
 	});
 
 	let _ = t => t,
-	    _t;
+	  _t;
 	class Icon {
 	  constructor(params = {}) {
 	    this.validateParams(params);
@@ -635,57 +648,45 @@ this.BX.UI = this.BX.UI || {};
 	    this.color = params.color || null;
 	    this.iconElement = null;
 	  }
-
 	  validateParams(params) {
 	    if (!params.icon) {
 	      throw new Error('IconSet: property "icon" not set.');
 	    }
-
 	    if (!Object.values(Set).includes(params.icon)) {
 	      throw new Error('IconSet: "icon" is not exist.');
 	    }
-
 	    if (params.size && !main_core.Type.isNumber(params.size)) {
 	      throw new Error('IconSet: "size" is not a number.');
 	    }
-
 	    if (params.color && !main_core.Type.isString(params.color)) {
 	      throw new Error('IconSet: "color" is not a string.');
 	    }
 	  }
-
 	  renderTo(node) {
 	    if (!main_core.Type.isElementNode(node)) {
 	      throw new Error('IconSet: node is not a htmlElement.');
 	    }
-
 	    main_core.Dom.append(this.render(), node);
 	  }
-
 	  render() {
 	    let className = 'ui-icon-set' + ` --${this.icon}`;
 	    this.iconElement = main_core.Tag.render(_t || (_t = _`<div class="${0}"></div>`), className);
-
 	    if (this.size) {
 	      main_core.Dom.style(this.iconElement, '--ui-icon-set__icon-size', `${this.size}px`);
 	    }
-
 	    if (this.color) {
 	      main_core.Dom.style(this.iconElement, `--ui-icon-set__icon-color`, `${this.color}`);
 	    }
-
 	    return this.iconElement;
 	  }
+
 	  /**
 	   *
 	   * @param color
 	   */
-
-
 	  setColor(color) {
 	    main_core.Dom.style(this.iconElement, `--ui-icon-set__icon-color`, `${color}`);
 	  }
-
 	}
 
 	exports.Icon = Icon;

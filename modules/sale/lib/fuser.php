@@ -9,86 +9,129 @@ namespace Bitrix\Sale;
 
 use Bitrix\Main;
 use Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\ORM;
+use Bitrix\Main\Session\Session;
 use Bitrix\Sale\Internals;
-use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
 
 class Fuser
 {
+	protected const SESSION_USER_ID = 'SALE_USER_ID';
+	protected const COOKIE_USER_ID = 'SALE_UID';
+
 	function __construct()
 	{
 
 	}
 
 	/**
-	 * Return fuserId.
+	 * Returns fuser Id.
 	 *
-	 * @param bool $skipCreate		Create, if not exist.
+	 * @param bool $skipCreate Create, if not exist.
 	 * @return int|null
 	 */
-	public static function getId($skipCreate = false)
+	public static function getId($skipCreate = false): ?int
 	{
-		global $USER;
-
-		$id = null;
-
-		static $fuserList = array();
-
-		if ((isset($USER) && $USER instanceof \CUser) && $USER->IsAuthorized())
+		$id = static::getIdFromSession();
+		if ($id !== null)
 		{
-			$currentUserId = (int)$USER->GetID();
-			if (!isset($fuserList[$currentUserId]))
+			return $id;
+		}
+
+		$filter = static::getFilterFromCookie(static::getIdFromCookie());
+		if ($filter !== null)
+		{
+			$id = static::getIdByFilter($filter);
+		}
+		if ($id === null)
+		{
+			$id = static::getIdByCurrentUser();
+		}
+		if ($id !== null)
+		{
+			$internalResult = static::update($id);
+			if (!$internalResult->isSuccess())
 			{
-				$fuserList[$currentUserId] = static::getIdByUserId($currentUserId);
+				$id = null;
 			}
-			$id = $fuserList[$currentUserId];
-			unset($currentUserId);
+			unset($internalResult);
 		}
 
-		if ((int)$id <= 0)
+		if ($id === null && !$skipCreate)
 		{
-			$id = \CSaleUser::getID($skipCreate);
+			$internalResult = static::add();
+			if ($internalResult->isSuccess())
+			{
+				$id = $internalResult->getId();
+			}
+			unset($internalResult);
 		}
-		static::updateSession($id);
+
 		return $id;
 	}
 
-	/**
-	 * Update session data
-	 *
-	 * @param int $id				FuserId.
-	 * @return void
-	 */
-	protected static function updateSession($id)
+	public static function refreshSessionCurrentId(): ?int
 	{
-		\CSaleUser::updateSessionSaleUserID();
-
-		$session = Application::getInstance()->getSession();
-		if (!$session->isAccessible())
+		$id = static::getIdFromSession();
+		if ($id !== null)
 		{
-			return;
+			return $id;
 		}
 
-		if (isset($session['SALE_USER_ID']) && Main\Config\Option::get('sale', 'encode_fuser_id') !== 'Y')
-		{
-			$session['SALE_USER_ID'] = (int)$session['SALE_USER_ID'];
-		}
-
-		if (!isset($session['SALE_USER_ID']) || empty($session['SALE_USER_ID']))
-		{
-			$session['SALE_USER_ID'] = $id;
-		}
+		return static::getId(true);
 	}
 
 	/**
-	 * Return fuser code.
+	 * @deprecated
 	 *
 	 * @return int
 	 */
-	protected static function getCode()
+	public static function getCode(): int
 	{
-		return \CSaleUser::getFUserCode();
+		$result = static::getRegeneratedId();
+
+		return $result ?? 0;
+	}
+
+	/**
+	 * Returns fuser id after change code.
+	 *
+	 * @return null|int
+	 */
+	public static function getRegeneratedId(): ?int
+	{
+		$userId = static::getCurrentUserId();
+		if ($userId === null)
+		{
+			return null;
+		}
+		$id = static::getIdByFilter([
+			'=USER_ID' => $userId,
+		]);
+		if ($id === null)
+		{
+			return null;
+		}
+
+		$userCode = static::generateCode();
+
+		/** @var ORM\Data\UpdateResult $internalResult */
+		$internalResult = static::save(
+			$id,
+			[
+				'CODE' => $userCode,
+			]
+		);
+		if (!$internalResult->isSuccess())
+		{
+			return null;
+		}
+
+		$cookieValue = (static::isEncodeCookie() ? $userCode : (string)$id);
+		static::setIdToCookie($cookieValue);
+		static::setIdToSession($id);
+
+		return $id;
 	}
 
 	/**
@@ -96,34 +139,24 @@ class Fuser
 	 *
 	 * @param int $userId			User Id.
 	 * @return false|int
-	 * @throws Main\ArgumentException
 	 */
 	public static function getIdByUserId($userId)
 	{
-		$res = Internals\FuserTable::getList(array(
-			'filter' => array(
-				'USER_ID' => $userId
-			),
-			'select' => array(
-				'ID'
-			),
-			'order' => array('ID' => "DESC")
-		));
-		if ($fuserData = $res->fetch())
+		$userId = (int)$userId;
+		$id = static::getIdByFilter([
+			'=USER_ID' => (int)$userId,
+		]);
+		if ($id === null)
 		{
-			return (int)$fuserData['ID'];
-		}
-		else
-		{
-			/** @var Result $r */
-			$r = static::createForUserId($userId);
-			if ($r->isSuccess())
+			$internalResult = static::createForUserId($userId);
+			if ($internalResult->isSuccess())
 			{
-				return $r->getId();
+				$id = (int)$internalResult->getId();
 			}
+			unset($internalResult);
 		}
 
-		return false;
+		return $id === null ? false : $id;
 	}
 
 	/**
@@ -133,22 +166,26 @@ class Fuser
 	 * @return int
 	 * @throws Main\ArgumentException
 	 */
-	public static function getUserIdById($fuserId)
+	public static function getUserIdById($fuserId): int
 	{
-		$result = 0;
-
 		$fuserId = (int)$fuserId;
 		if ($fuserId <= 0)
-			return $result;
-		$row = Internals\FuserTable::getList(array(
-			'select' => array('USER_ID'),
-			'filter' => array('=ID' => $fuserId),
-			'order' => array('ID' => "DESC")
-		))->fetch();
-		if (!empty($row))
-			$result = (int)$row['USER_ID'];
-
-		return $result;
+		{
+			return 0;
+		}
+		$row = Internals\FuserTable::getRow([
+			'select' => [
+				'ID',
+				'USER_ID',
+			],
+			'filter' => [
+				'=ID' => $fuserId,
+			],
+			'order' => [
+				'ID' => 'DESC',
+			],
+		]);
+		return (int)($row['USER_ID'] ?? 0);
 	}
 
 	/**
@@ -165,7 +202,6 @@ class Fuser
 
 		/** @var Main\DB\Connection $connection */
 		$connection = Main\Application::getConnection();
-		/** @var Main\DB\SqlHelper $sqlHelper */
 		$sqlHelper = $connection->getSqlHelper();
 
 		$query = "DELETE FROM b_sale_fuser WHERE
@@ -178,20 +214,424 @@ class Fuser
 	/**
 	 * Create new fuserId for user.
 	 *
-	 * @param int $userId				User id.
-	 * @return Main\Entity\AddResult
-	 * @throws \Exception
+	 * @param int $userId User id.
+	 * @return ORM\Data\AddResult
 	 */
-	protected static function createForUserId($userId)
+	protected static function createForUserId(int $userId): ORM\Data\AddResult
 	{
-		$fields = array(
-			'DATE_INSERT' => new Main\Type\DateTime(),
-			'DATE_UPDATE' => new Main\Type\DateTime(),
-			'USER_ID' => $userId,
-			'CODE' => md5(time().randString(10))
+		$currentTime = new Main\Type\DateTime();
+
+		/** @var ORM\Data\AddResult $result */
+		$result = static::save(
+			null,
+			[
+				'DATE_INSERT' => $currentTime,
+				'DATE_UPDATE' => $currentTime,
+				'USER_ID' => $userId,
+				'CODE' => static::generateCode(),
+			]
 		);
 
-		/** @var Result $r */
-		return Internals\FuserTable::add($fields);
+		return $result;
+	}
+
+	/**
+	 * Session object.
+	 *
+	 * If session is not accessible, returns null.
+	 *
+	 * @return Session|null
+	 */
+	protected static function getSession(): ?Session
+	{
+		/** @var Session $session */
+		$session = Application::getInstance()->getSession();
+		if (!$session->isAccessible())
+		{
+			return null;
+		}
+
+		return $session;
+	}
+
+	protected static function isEncodeCookie(): bool
+	{
+		return Option::get('sale', 'encode_fuser_id') === 'Y';
+	}
+
+	protected static function isSecureCookie(): bool
+	{
+		return
+			Option::get('sale', 'use_secure_cookies') === 'Y'
+			&& Main\Context::getCurrent()->getRequest()->isHttps()
+		;
+	}
+
+	protected static function getIdFromSession(): ?int
+	{
+		$session = static::getSession();
+		if ($session === null)
+		{
+			return null;
+		}
+		if (!$session->has(self::SESSION_USER_ID))
+		{
+			return null;
+		}
+		$rawValue = $session->get(self::SESSION_USER_ID);
+		unset($session);
+
+		$value = (int)$rawValue;
+		$rawValue = (string)$rawValue;
+		if ((string)$value !== $rawValue)
+		{
+			$value = 0;
+		}
+
+		return ($value > 0 ? $value : null);
+	}
+
+	protected static function setIdToSession(int $id): void
+	{
+		$session = static::getSession();
+		if ($session === null)
+		{
+			return;
+		}
+		if ($id <= 0)
+		{
+			return;
+		}
+		$session->set(self::SESSION_USER_ID, $id);
+	}
+
+	protected static function clearSession(): void
+	{
+		$session = static::getSession();
+		if ($session === null)
+		{
+			return;
+		}
+		$session->remove(self::SESSION_USER_ID);
+	}
+
+	protected static function getIdFromCookie(): ?string
+	{
+		$request = Main\Context::getCurrent()->getRequest();
+
+		return $request->getCookie(self::COOKIE_USER_ID);
+	}
+
+	protected static function setIdToCookie(string $id): void
+	{
+		$cookie = new Main\Web\Cookie(self::COOKIE_USER_ID, $id, null);
+		$cookie
+			->setSecure(static::isSecureCookie())
+			->setHttpOnly(false)
+			->setSpread(Main\Web\Cookie::SPREAD_DOMAIN | Main\Web\Cookie::SPREAD_SITES)
+		;
+
+		$response = Main\Context::getCurrent()->getResponse();
+
+		$response->addCookie($cookie);
+
+		unset($response);
+		unset($cookie);
+	}
+
+	protected static function clearCookie(): void
+	{
+		static::setIdToCookie('0');
+	}
+
+	protected static function getFilterFromCookie(?string $cookie): ?array
+	{
+		if ($cookie === null || $cookie === '')
+		{
+			return null;
+		}
+
+		$filter = [];
+		if (static::isEncodeCookie())
+		{
+			$filter = [
+				'=CODE' => $cookie,
+			];
+		}
+		else
+		{
+			$cookie = (int)$cookie;
+			if ($cookie > 0)
+			{
+				$filter = [
+					'=ID' => $cookie,
+				];
+			}
+		}
+
+		return (!empty($filter) ? $filter : null);
+	}
+
+	protected static function getIdByFilter(array $filter): ?int
+	{
+		$row = Internals\FuserTable::getRow([
+			'select' => [
+				'ID',
+			],
+			'filter' => $filter,
+			'order' => [
+				'ID' => 'DESC',
+			]
+		]);
+		$result = (int)($row['ID'] ?? 0);
+
+		return $result > 0 ? $result: null;
+	}
+
+	protected static function getIdByCurrentUser(): ?int
+	{
+		$userId = self::getCurrentUserId();
+		if ($userId === null)
+		{
+			return null;
+		}
+
+		return static::getIdByFilter([
+			'=USER_ID' => $userId,
+		]);
+	}
+
+	private static function getCurrentUserId(): ?int
+	{
+		global $USER;
+
+		if (!(
+			isset($USER)
+			&& $USER instanceof \CUser
+		))
+		{
+			return null;
+		}
+
+		$userId = (int)$USER->GetID();
+
+		return $userId > 0 ? $userId : null;
+	}
+
+	protected static function generateCode(): string
+	{
+		return md5(time() . Main\Security\Random::getString(10, true));
+	}
+
+	public static function add(array $options = []): Result
+	{
+		$result = new Result();
+
+		$currentTime = new Main\Type\DateTime();
+		$userCode = static::generateCode();
+		$currentUserId = self::getCurrentUserId();
+
+		$options['save'] ??= false;
+		if (!is_bool($options['save']))
+		{
+			$options['save'] = false;
+		}
+
+		/** @var ORM\Data\AddResult $internalResult */
+		$internalResult = static::save(
+			null,
+			[
+				'DATE_INSERT' => $currentTime,
+				'DATE_UPDATE' => $currentTime,
+				'USER_ID' => $currentUserId,
+				'CODE' => $userCode,
+			]
+		);
+		if (!$internalResult->isSuccess())
+		{
+			$result->addErrors($internalResult->getErrors());
+
+			return $result;
+		}
+
+		$id = (int)$internalResult->getId();
+		if ($options['save'] && $currentUserId !== null)
+		{
+			$cookieValue = (static::isEncodeCookie() ? $userCode : (string)$id);
+			static::setIdToCookie($cookieValue);
+		}
+		static::setIdToSession($id);
+		$result->setId($id);
+
+		return $result;
+	}
+
+	public static function update(int $id, array $options = []): Result
+	{
+		$result = new Result();
+
+		if ($id <= 0)
+		{
+			return $result;
+		}
+
+		$options['update'] ??= true;
+		if (!is_bool($options['update']))
+		{
+			$options['update'] = true;
+		}
+		$options['save'] ??= false;
+		if (!is_bool($options['save']))
+		{
+			$options['save'] = false;
+		}
+
+		$fuser = Internals\FuserTable::getRow([
+			'select' => [
+				'ID',
+				'USER_ID',
+				'CODE'
+			],
+			'filter' => [
+				'=ID' => $id,
+			]
+		]);
+
+		$databaseUpdate = $options['update'] && $fuser !== null;
+		$encodeCookie = static::isEncodeCookie();
+
+		$userCode = trim((string)($fuser['CODE'] ?? null));
+		$currentUserId = self::getCurrentUserId();
+
+		if ($databaseUpdate)
+		{
+			$fields = [
+				'DATE_UPDATE' => new Main\Type\DateTime(),
+			];
+			if ($currentUserId !== null)
+			{
+				$userId = (int)$fuser['USER_ID'];
+				if ($userId === 0 || $userId === $currentUserId)
+				{
+					$fields['USER_ID'] = $currentUserId;
+				}
+			}
+			if ($encodeCookie && $userCode === '')
+			{
+				$userCode = static::generateCode();
+				$fields['CODE'] = $userCode;
+			}
+
+			/** @var ORM\Data\UpdateResult $internalResult */
+			$internalResult = static::save($id, $fields);
+			if (!$internalResult->isSuccess())
+			{
+				$result->addErrors($internalResult->getErrors());
+
+				return $result;
+			}
+		}
+		else
+		{
+			if ($encodeCookie && $userCode === '')
+			{
+				$userCode = static::generateCode();
+			}
+		}
+
+		if ($options['save'] && $currentUserId !== null)
+		{
+			$cookieValue = (static::isEncodeCookie() ? $userCode : (string)$id);
+			static::setIdToCookie($cookieValue);
+		}
+		static::setIdToSession($id);
+
+		return $result;
+	}
+
+	protected static function save(?int $id, array $fields): ORM\Data\Result
+	{
+		$pool = Application::getInstance()->getConnectionPool();
+		$pool->useMasterOnly(true);
+		if ($id === null)
+		{
+			$internalResult = Internals\FuserTable::add($fields);
+		}
+		else
+		{
+			$internalResult = Internals\FuserTable::update($id, $fields);
+		}
+		$pool->useMasterOnly(false);
+		unset($pool);
+
+		return $internalResult;
+	}
+
+	public static function handlerOnUserLogin($userId, array $params): void
+	{
+		$userId = (int)$userId;
+		if ($userId <= 0)
+		{
+			return;
+		}
+		$options = [
+			'update' => ($params['update'] ?? true) === true,
+			'save' => ($params['save'] ?? false) === true,
+		];
+
+		$id = static::getIdFromSession();
+		if ($id === null)
+		{
+			$filter = static::getFilterFromCookie(static::getIdFromCookie());
+			if ($filter !== null)
+			{
+				$id = static::getIdByFilter($filter);
+			}
+		}
+
+		$filter = [
+			'=USER_ID' => $userId
+		];
+		if ($id !== null)
+		{
+			$filter['!=ID'] = $id;
+		}
+		$row = Internals\FuserTable::getRow([
+			'select' => [
+				'ID',
+			],
+			'filter' => $filter,
+			'order' => [
+				'ID' => 'DESC',
+			],
+		]);
+		if ($row !== null)
+		{
+			$newId = (int)$row['ID'];
+			if ($id !== null)
+			{
+				if (\CSaleBasket::TransferBasket($id, $newId))
+				{
+					\CSaleUser::Delete($id);
+				}
+			}
+			$id = $newId;
+		}
+
+		if ($id !== null)
+		{
+			static::update($id, $options);
+		}
+		elseif ($options['update'])
+		{
+			unset($options['update']);
+			static::add($options);
+		}
+	}
+
+	public static function handlerOnUserLogout($userId)
+	{
+		static::clearSession();
+		static::clearCookie();
 	}
 }

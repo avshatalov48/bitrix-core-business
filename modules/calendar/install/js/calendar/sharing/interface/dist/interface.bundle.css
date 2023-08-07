@@ -61,6 +61,17 @@
 	border-left: 0;
 }
 
+.ui-btn.calendar-sharing__btn::after {
+	position: relative;
+	order: 2;
+	width: 20px;
+	height: 23px;
+	left: auto;
+	margin-left: 2px;
+	margin-right: -11px;
+	background-size: 100%;
+}
+
 .ui-btn.calendar-sharing__btn .ui-btn-text {
 	order: 1;
 }

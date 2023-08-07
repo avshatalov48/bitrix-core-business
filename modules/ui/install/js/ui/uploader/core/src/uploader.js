@@ -1,9 +1,10 @@
-import { Type, Event, Reflection, Dom, Extension } from 'main.core';
+import { Type, Event, Reflection, Dom, Extension, Text } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 
 import UploaderFile from './uploader-file';
 import UploaderError from './uploader-error';
 import Server from './backend/server';
+import UploadController from './backend/upload-controller';
 
 import Filter from './filters/filter';
 import FileSizeFilter from './filters/file-size-filter';
@@ -19,15 +20,24 @@ import { FileOrigin } from './enums/file-origin';
 import { FileEvent } from './enums/file-event';
 import { FilterType } from './enums/filter-type';
 
-import getFilesFromDataTransfer from './helpers/get-files-from-data-transfer';
+import { getFilesFromDataTransfer, isFilePasted } from './helpers/get-files-from-data-transfer';
 import canAppendFileToForm from './helpers/can-append-file-to-form';
 import assignFileToInput from './helpers/assign-file-to-input';
 
 import type { UploaderOptions } from './types/uploader-options';
 import type { UploaderFileOptions } from './types/uploader-file-options';
+import type { ServerOptions } from './types/server-options';
+import type { RemoveFileOptions } from './types/remove-file-options';
+import type { DestroyOptions } from './types/destroy-options';
 
+const instances = new Map();
+
+/**
+ * @namespace BX.UI.Uploader
+ */
 export default class Uploader extends EventEmitter
 {
+	#id: ?string = null
 	#files: UploaderFile[] = [];
 	#multiple: boolean = false;
 	#autoUpload: boolean = true;
@@ -44,6 +54,7 @@ export default class Uploader extends EventEmitter
 	#hiddenFieldsContainer: HTMLElement = null;
 	#hiddenFieldName: string = 'file';
 	#assignAsFile: boolean = false;
+	#assignServerFile: boolean = true;
 
 	#filters: Map<FilterType, Filter[]> = new Map();
 	#status: UploaderStatus = UploaderStatus.STOPPED;
@@ -59,6 +70,16 @@ export default class Uploader extends EventEmitter
 	#dropNodes: Set<HTMLElement> = new Set();
 	#pastingNodes: Set<HTMLElement> = new Set();
 
+	static getById(id: string): ?Uploader
+	{
+		return instances.get(id) || null;
+	}
+
+	static getInstances(): Uploader[]
+	{
+		return Array.from(instances.values());
+	}
+
 	constructor(uploaderOptions: UploaderOptions)
 	{
 		super();
@@ -71,26 +92,25 @@ export default class Uploader extends EventEmitter
 		this.#onPasteHandler = this.#handlePaste.bind(this);
 		this.#onDropHandler = this.#handleDrop.bind(this);
 
-		const options = Type.isPlainObject(uploaderOptions) ? Object.assign({}, uploaderOptions) : {};
+		const options: UploaderOptions = Type.isPlainObject(uploaderOptions) ? Object.assign({}, uploaderOptions) : {};
+		this.#id = Type.isStringFilled(options.id) ? options.id : `ui-uploader-${Text.getRandom().toLowerCase()}`;
 		this.#multiple = Type.isBoolean(options.multiple) ? options.multiple : false;
 
-		const acceptedFileTypes =
-			Type.isString(options.acceptedFileTypes) || Type.isArray(options.acceptedFileTypes)
-				? options.acceptedFileTypes
-				: Uploader.getGlobalOption('acceptedFileTypes', null)
-		;
+		const acceptOnlyImages: ?boolean = Type.isBoolean(options.acceptOnlyImages) ? options.acceptOnlyImages : null;
+		const acceptOnlyImagesGlobal: ?boolean = Uploader.getGlobalOption('acceptOnlyImages', null);
+		this.setAcceptOnlyImages(acceptOnlyImages ? acceptOnlyImages : acceptOnlyImagesGlobal);
 
-		this.setAcceptedFileTypes(acceptedFileTypes);
+		if (Type.isString(options.acceptedFileTypes) || Type.isArray(options.acceptedFileTypes))
+		{
+			this.setAcceptedFileTypes(options.acceptedFileTypes);
+		}
+		else if (acceptOnlyImages !== true)
+		{
+			const acceptedFileTypesGlobal = Uploader.getGlobalOption('acceptedFileTypes', null);
+			this.setAcceptedFileTypes(acceptedFileTypesGlobal);
+		}
 
-		const acceptOnlyImages =
-			Type.isBoolean(options.acceptOnlyImages)
-				? options.acceptOnlyImages
-				: Uploader.getGlobalOption('acceptOnlyImages', null)
-		;
-
-		this.setAcceptOnlyImages(acceptOnlyImages);
-
-		const ignoredFileNames =
+		const ignoredFileNames: ?string[] =
 			Type.isArray(options.ignoredFileNames)
 				? options.ignoredFileNames
 				: Uploader.getGlobalOption('ignoredFileNames', null)
@@ -107,12 +127,13 @@ export default class Uploader extends EventEmitter
 		this.setHiddenFieldsContainer(options.hiddenFieldsContainer);
 		this.setHiddenFieldName(options.hiddenFieldName);
 		this.setAssignAsFile(options.assignAsFile);
+		this.setAssignServerFile(options.assignServerFile);
 
 		this.setAutoUpload(options.autoUpload);
 		this.setMaxParallelUploads(options.maxParallelUploads);
 		this.setMaxParallelLoads(options.maxParallelLoads);
 
-		let serverOptions = Type.isPlainObject(options.serverOptions) ? options.serverOptions : {};
+		let serverOptions: ServerOptions = Type.isPlainObject(options.serverOptions) ? options.serverOptions : {};
 		serverOptions = Object.assign(
 			{},
 			{ controller: options.controller, controllerOptions: options.controllerOptions },
@@ -131,6 +152,8 @@ export default class Uploader extends EventEmitter
 		this.addFilters(options.filters);
 
 		this.addFiles(options.files);
+
+		instances.set(this.#id, this);
 	}
 
 	static getGlobalOption(path: string, defaultValue: any = null): any
@@ -140,43 +163,52 @@ export default class Uploader extends EventEmitter
 		return globalOptions.get(path, defaultValue);
 	}
 
-	addFiles(fileList: ArrayLike): void
+	addFiles(fileList: ArrayLike): UploaderFile[]
 	{
 		if (!Type.isArrayLike(fileList))
 		{
-			return;
+			return [];
 		}
 
 		const files = Array.from(fileList);
 		if (this.#exceedsMaxFileCount(files))
 		{
-			return;
+			return [];
 		}
 
+		const results = [];
 		files.forEach(file => {
+			let result = null;
 			if (Type.isArrayFilled(file))
 			{
-				this.addFile(file[0], file[1]);
+				result = this.addFile(file[0], file[1]);
 			}
 			else
 			{
-				this.addFile(file);
+				result = this.addFile(file);
+			}
+
+			if (result !== null)
+			{
+				results.push(result);
 			}
 		});
+
+		return results;
 	}
 
-	addFile(source: File | Blob | string | number, options: UploaderFileOptions)
+	addFile(source: File | Blob | string | number | UploaderFileOptions, options: UploaderFileOptions): ?UploaderFile
 	{
-		const file = new UploaderFile(source, options);
+		const file: UploaderFile = new UploaderFile(source, options);
 
 		if (this.getIgnoredFileNames().includes(file.getName().toLowerCase()))
 		{
-			return;
+			return null;
 		}
 
 		if (this.#exceedsMaxFileCount([file]))
 		{
-			return;
+			return null;
 		}
 
 		if (!this.isMultiple() && this.shouldReplaceSingle() && this.#files.length > 0)
@@ -185,11 +217,11 @@ export default class Uploader extends EventEmitter
 			this.removeFile(fileToReplace);
 		}
 
-		const event = new BaseEvent({ data: { file: file } });
+		const event: BaseEvent = new BaseEvent({ data: { file: file } });
 		this.emit(UploaderEvent.FILE_BEFORE_ADD, event);
 		if (event.isDefaultPrevented())
 		{
-			return;
+			return null;
 		}
 
 		file.subscribe(FileEvent.STATUS_CHANGE, this.#onFileStatusChangeHandler);
@@ -199,76 +231,103 @@ export default class Uploader extends EventEmitter
 		this.#setLoadEvents(file);
 		this.#setRemoveEvents(file);
 
-		if (file.getOrigin() === FileOrigin.SERVER)
+		if (!file.isLoadable())
 		{
-			file.setLoadController(this.getServer().createLoadController());
-		}
-		else
-		{
-			file.setLoadController(this.getServer().createClientLoadController());
+			if (file.getOrigin() === FileOrigin.SERVER)
+			{
+				const preloaded: boolean = Type.isStringFilled(file.getName());
+				const shouldPreload: boolean =
+					(Type.isPlainObject(options) && options.preload === true)
+					|| (Type.isPlainObject(source) && source.preload === true)
+				;
+
+				if (!preloaded || shouldPreload)
+				{
+					file.setLoadController(this.getServer().createServerLoadController());
+				}
+				else
+				{
+					file.setLoadController(this.getServer().createServerlessLoadController());
+				}
+			}
+			else
+			{
+				file.setLoadController(this.getServer().createClientLoadController());
+			}
 		}
 
-		if (file.getOrigin() === FileOrigin.CLIENT)
+		if (!file.isUploadable())
 		{
-			const uploadController = this.getServer().createUploadController();
-			file.setUploadController(uploadController);
+			if (file.getOrigin() === FileOrigin.CLIENT)
+			{
+				const uploadController: ?UploadController = this.getServer().createUploadController();
+				file.setUploadController(uploadController);
+			}
 		}
 
-		file.setRemoveController(this.getServer().createRemoveController());
+		if (!file.isRemoveable())
+		{
+			file.setRemoveController(this.getServer().createRemoveController());
+		}
 
 		this.#files.push(file);
 
 		file.emit(FileEvent.ADD);
 		this.emit(UploaderEvent.FILE_ADD_START, { file });
 
-		if (file.getOrigin() === FileOrigin.SERVER)
-		{
-			file.load();
-		}
-		else
+		if (file.getOrigin() === FileOrigin.CLIENT)
 		{
 			this.#loadNext();
 		}
+		else
+		{
+			file.load();
+		}
+
+		return file;
 	}
 
 	#setLoadEvents(file: UploaderFile): void
 	{
 		file.subscribeFromOptions({
-			[FileEvent.LOAD_START]: () => {
+			[FileEvent.LOAD_START]: (): void => {
 				this.emit(UploaderEvent.FILE_LOAD_START, { file });
 			},
-			[FileEvent.LOAD_PROGRESS]: (event: BaseEvent) => {
+			[FileEvent.LOAD_PROGRESS]: (event: BaseEvent): void => {
 				const { progress } = event.getData();
 				this.emit(UploaderEvent.FILE_LOAD_PROGRESS, { file, progress });
 			},
-			[FileEvent.LOAD_ERROR]: (event: BaseEvent) => {
+			[FileEvent.LOAD_ERROR]: (event: BaseEvent): void => {
 				const { error } = event.getData();
 				this.emit(UploaderEvent.FILE_ERROR, { file, error });
 				this.emit(UploaderEvent.FILE_ADD, { file, error });
 				this.#loadNext();
 			},
-			[FileEvent.LOAD_COMPLETE]: () => {
+			[FileEvent.LOAD_COMPLETE]: (): void => {
 				this.emit(UploaderEvent.FILE_ADD, { file });
 				this.emit(UploaderEvent.FILE_LOAD_COMPLETE, { file });
 
-				if (file.getOrigin() === FileOrigin.SERVER || !file.isUploadable())
+				if (!file.isUploadable())
 				{
 					this.emit(UploaderEvent.FILE_COMPLETE, { file });
 					this.#setHiddenField(file);
 				}
-				else if (file.isUploadable() && this.shouldAutoUpload())
+				else if (this.shouldAutoUpload())
 				{
 					file.upload();
 				}
 
 				this.#loadNext();
 			},
+			[FileEvent.VALIDATE_FILE_ASYNC]: (event: BaseEvent) => {
+				const file: UploaderFile = event.getData().file;
+
+				return this.#applyFilters(FilterType.VALIDATION, file);
+			},
 			[FileEvent.PREPARE_FILE_ASYNC]: (event: BaseEvent) => {
-				const file: UploaderFile  = event.getData().file;
-				return (
-					this.#applyFilters(FilterType.VALIDATION, file)
-						.then(() => this.#applyFilters(FilterType.PREPARATION, file))
-				);
+				const file: UploaderFile = event.getData().file;
+
+				return this.#applyFilters(FilterType.PREPARATION, file);
 			},
 		});
 	}
@@ -277,19 +336,19 @@ export default class Uploader extends EventEmitter
 	{
 		file.subscribeFromOptions({
 			[FileEvent.BEFORE_UPLOAD]: this.#onBeforeUploadHandler,
-			[FileEvent.UPLOAD_START]: () => {
+			[FileEvent.UPLOAD_START]: (): void => {
 				this.emit(UploaderEvent.FILE_UPLOAD_START, { file });
 			},
-			[FileEvent.UPLOAD_PROGRESS]: (event: BaseEvent) => {
+			[FileEvent.UPLOAD_PROGRESS]: (event: BaseEvent): void => {
 				const { progress } = event.getData();
 				this.emit(UploaderEvent.FILE_UPLOAD_PROGRESS, { file, progress });
 			},
-			[FileEvent.UPLOAD_ERROR]: (event: BaseEvent) => {
+			[FileEvent.UPLOAD_ERROR]: (event: BaseEvent): void => {
 				const { error } = event.getData();
 				this.emit(UploaderEvent.FILE_ERROR, { file, error });
 				this.#uploadNext();
 			},
-			[FileEvent.UPLOAD_COMPLETE]: () => {
+			[FileEvent.UPLOAD_COMPLETE]: (): void => {
 				this.emit(UploaderEvent.FILE_UPLOAD_COMPLETE, { file });
 				this.emit(UploaderEvent.FILE_COMPLETE, { file });
 				this.#setHiddenField(file);
@@ -300,13 +359,13 @@ export default class Uploader extends EventEmitter
 
 	#setRemoveEvents(file: UploaderFile): void
 	{
-		file.subscribeOnce(FileEvent.REMOVE_ERROR, (event: BaseEvent) => {
+		file.subscribeOnce(FileEvent.REMOVE_ERROR, (event: BaseEvent): void => {
 				const { error } = event.getData();
 				this.emit(UploaderEvent.FILE_ERROR, { file, error });
 			}
 		);
 
-		file.subscribeOnce(FileEvent.REMOVE_COMPLETE, () => {
+		file.subscribeOnce(FileEvent.REMOVE_COMPLETE, (): void => {
 			this.#removeFile(file);
 		});
 	}
@@ -339,13 +398,18 @@ export default class Uploader extends EventEmitter
 		const property: string = event.getData().property;
 		const value: any = event.getData().value;
 
+		if (property === 'serverFileId')
+		{
+			this.#updateHiddenField(file);
+		}
+
 		this.emit(UploaderEvent.FILE_STATE_CHANGE, { file, property, value });
 	}
 
 	#exceedsMaxFileCount(fileList: Array): boolean
 	{
-		const totalNewFiles = fileList.length;
-		const totalFiles = this.#files.length;
+		const totalNewFiles: number = fileList.length;
+		const totalFiles: number = this.#files.length;
 
 		if (!this.isMultiple() && totalNewFiles > 1)
 		{
@@ -364,7 +428,7 @@ export default class Uploader extends EventEmitter
 
 		if (maxFileCount !== null && totalFiles + totalNewFiles > maxFileCount)
 		{
-			const error = new UploaderError('MAX_FILE_COUNT_EXCEEDED', { maxFileCount });
+			const error: UploaderError = new UploaderError('MAX_FILE_COUNT_EXCEEDED', { maxFileCount });
 			this.emit(UploaderEvent.MAX_FILE_COUNT_EXCEEDED, { error });
 			this.emit(UploaderEvent.ERROR, { error });
 
@@ -425,14 +489,7 @@ export default class Uploader extends EventEmitter
 	// 	this.emit('onStop');
 	// }
 
-	cancel(): void
-	{
-		this.getFiles().forEach((file: UploaderFile) => {
-			file.remove();
-		});
-	}
-
-	destroy(): void
+	destroy(options?: DestroyOptions): void
 	{
 		this.emit(UploaderEvent.DESTROY);
 
@@ -440,11 +497,11 @@ export default class Uploader extends EventEmitter
 		this.unassignDropzoneAll();
 		this.unassignPasteAll();
 
-		this.getFiles().forEach((file: UploaderFile) => {
-			file.remove();
-		});
+		const removeFromServer: boolean = !options || options.removeFilesFromServer !== false;
+		this.removeFiles({ removeFromServer });
 
 		this.#resetHiddenFields();
+		instances.delete(this.getId());
 
 		this.#files = [];
 		this.#server = null;
@@ -455,25 +512,32 @@ export default class Uploader extends EventEmitter
 		Object.setPrototypeOf(this, null);
 	}
 
-	removeFile(file: UploaderFile | string): void
+	removeFiles(options?: RemoveFileOptions): void
+	{
+		this.getFiles().forEach((file: UploaderFile): void => {
+			file.remove(options);
+		});
+	}
+
+	removeFile(file: UploaderFile | string, options?: RemoveFileOptions): void
 	{
 		if (Type.isString(file))
 		{
 			file = this.getFile(file);
 		}
 
-		const index = this.#files.findIndex(element => element === file);
+		const index: number = this.#files.findIndex((element: UploaderFile): boolean => element === file);
 		if (index === -1)
 		{
 			return;
 		}
 
-		file.remove();
+		file.remove(options);
 	}
 
 	#removeFile(file: UploaderFile)
 	{
-		const index = this.#files.findIndex(element => element === file);
+		const index: number = this.#files.findIndex((element: UploaderFile): boolean => element === file);
 		if (index !== -1)
 		{
 			this.#files.splice(index, 1);
@@ -487,12 +551,17 @@ export default class Uploader extends EventEmitter
 
 	getFile(id: string): ?UploaderFile
 	{
-		return this.#files.find((file: UploaderFile) => file.getId() === id) || null;
+		return this.#files.find((file: UploaderFile): boolean => file.getId() === id) || null;
 	}
 
 	getFiles(): UploaderFile[]
 	{
 		return Array.from(this.#files);
+	}
+
+	getId(): string
+	{
+		return this.#id;
 	}
 
 	isMultiple(): boolean
@@ -518,7 +587,7 @@ export default class Uploader extends EventEmitter
 
 		if (filter instanceof Filter)
 		{
-			let filters = this.#filters.get(type);
+			let filters: Filter[] = this.#filters.get(type);
 			if (!Type.isArray(filters))
 			{
 				filters = [];
@@ -610,7 +679,7 @@ export default class Uploader extends EventEmitter
 
 	#handleBrowseClick(input: HTMLInputElement, node: HTMLElement): void
 	{
-		const event = new BaseEvent({ data: { input, node } });
+		const event: BaseEvent = new BaseEvent({ data: { input, node } });
 		this.emit(UploaderEvent.BEFORE_BROWSE, event);
 		if (event.isDefaultPrevented())
 		{
@@ -638,7 +707,7 @@ export default class Uploader extends EventEmitter
 			return;
 		}
 
-		nodes.forEach((node: HTMLElement | HTMLInputElement) => {
+		nodes.forEach((node: HTMLElement | HTMLInputElement): void => {
 			if (this.#browsingNodes.has(node))
 			{
 				Event.unbind(node, 'click', this.#browsingNodes.get(node));
@@ -650,7 +719,7 @@ export default class Uploader extends EventEmitter
 
 	unassignBrowseAll(): void
 	{
-		Array.from(this.#browsingNodes.keys()).forEach(node => {
+		Array.from(this.#browsingNodes.keys()).forEach((node: HTMLElement): void => {
 			this.unassignBrowse(node);
 		});
 	}
@@ -663,7 +732,7 @@ export default class Uploader extends EventEmitter
 			return;
 		}
 
-		nodes.forEach((node: HTMLElement) => {
+		nodes.forEach((node: HTMLElement): void => {
 			if (!Type.isElementNode(node) || this.#dropNodes.has(node))
 			{
 				return;
@@ -681,14 +750,14 @@ export default class Uploader extends EventEmitter
 	{
 		dragEvent.preventDefault();
 
-		const event = new BaseEvent({ data: { dragEvent } });
+		const event: BaseEvent = new BaseEvent({ data: { dragEvent } });
 		this.emit(UploaderEvent.BEFORE_DROP, event);
 		if (event.isDefaultPrevented())
 		{
 			return;
 		}
 
-		getFilesFromDataTransfer(dragEvent.dataTransfer).then((files: File[]) => {
+		getFilesFromDataTransfer(dragEvent.dataTransfer).then((files: File[]): void => {
 			this.addFiles(files);
 		});
 	}
@@ -706,7 +775,7 @@ export default class Uploader extends EventEmitter
 			return;
 		}
 
-		nodes.forEach((node: HTMLElement) => {
+		nodes.forEach((node: HTMLElement): void => {
 			if (this.#dropNodes.has(node))
 			{
 				Event.unbind(node, 'dragover', this.#preventDefault);
@@ -719,7 +788,7 @@ export default class Uploader extends EventEmitter
 
 	unassignDropzoneAll(): void
 	{
-		Array.from(this.#dropNodes).forEach(node => {
+		Array.from(this.#dropNodes).forEach((node: HTMLElement): void => {
 			this.unassignDropzone(node);
 		});
 	}
@@ -732,7 +801,7 @@ export default class Uploader extends EventEmitter
 			return;
 		}
 
-		nodes.forEach((node: HTMLElement) => {
+		nodes.forEach((node: HTMLElement): void => {
 			if (!Type.isElementNode(node) || this.#pastingNodes.has(node))
 			{
 				return;
@@ -745,24 +814,27 @@ export default class Uploader extends EventEmitter
 
 	#handlePaste(clipboardEvent: ClipboardEvent): void
 	{
-		clipboardEvent.preventDefault();
-
 		const clipboardData: DataTransfer = clipboardEvent.clipboardData;
 		if (!clipboardData)
 		{
 			return;
 		}
 
-		const event = new BaseEvent({ data: { clipboardEvent } });
+		const event: BaseEvent = new BaseEvent({ data: { clipboardEvent } });
 		this.emit(UploaderEvent.BEFORE_PASTE, event);
 		if (event.isDefaultPrevented())
 		{
 			return;
 		}
 
-		getFilesFromDataTransfer(clipboardData).then((files: File[]) => {
-			this.addFiles(files);
-		});
+		if (isFilePasted(clipboardData))
+		{
+			clipboardEvent.preventDefault();
+
+			getFilesFromDataTransfer(clipboardData).then((files: File[]): void => {
+				this.addFiles(files);
+			});
+		}
 	}
 
 	unassignPaste(nodes: HTMLElement | HTMLElement[]): void
@@ -773,7 +845,7 @@ export default class Uploader extends EventEmitter
 			return;
 		}
 
-		nodes.forEach((node: HTMLElement) => {
+		nodes.forEach((node: HTMLElement): void => {
 			if (this.#pastingNodes.has(node))
 			{
 				Event.unbind(node, 'paste', this.#onPasteHandler);
@@ -784,7 +856,7 @@ export default class Uploader extends EventEmitter
 
 	unassignPasteAll(): void
 	{
-		Array.from(this.#pastingNodes).forEach(node => {
+		Array.from(this.#pastingNodes).forEach((node: HTMLElement): void => {
 			this.unassignPaste(node);
 		});
 	}
@@ -821,7 +893,7 @@ export default class Uploader extends EventEmitter
 		return this.#hiddenFieldName;
 	}
 
-	setHiddenFieldName(name: string)
+	setHiddenFieldName(name: string): void
 	{
 		if (Type.isStringFilled(name))
 		{
@@ -839,6 +911,19 @@ export default class Uploader extends EventEmitter
 		if (Type.isBoolean(flag))
 		{
 			this.#assignAsFile = flag;
+		}
+	}
+
+	shouldAssignServerFile(): boolean
+	{
+		return this.#assignServerFile;
+	}
+
+	setAssignServerFile(flag: boolean): void
+	{
+		if (Type.isBoolean(flag))
+		{
+			this.#assignServerFile = flag;
 		}
 	}
 
@@ -890,12 +975,12 @@ export default class Uploader extends EventEmitter
 
 	getUploadingFileCount(): number
 	{
-		return this.#files.filter(file => file.isUploading()).length;
+		return this.#files.filter((file: UploaderFile): boolean => file.isUploading()).length;
 	}
 
 	getPendingFileCount(): number
 	{
-		return this.#files.filter(file => file.isReadyToUpload()).length;
+		return this.#files.filter((file: UploaderFile): boolean => file.isReadyToUpload()).length;
 	}
 
 	static getImageExtensions(): Array<string>
@@ -910,15 +995,19 @@ export default class Uploader extends EventEmitter
 	{
 		if (Type.isBoolean(flag))
 		{
-			this.acceptOnlyImages(flag);
+			this.#acceptOnlyImages = flag;
+			if (flag)
+			{
+				this.acceptOnlyImages();
+			}
 		}
 	}
 
-	acceptOnlyImages(flag: boolean = true): void
+	acceptOnlyImages(): void
 	{
-		const imageExtensions = flag ? Uploader.getImageExtensions() : [];
+		const imageExtensions: string[] = Uploader.getImageExtensions();
 		this.setAcceptedFileTypes(imageExtensions);
-		this.#acceptOnlyImages = flag;
+		this.#acceptOnlyImages = true;
 	}
 
 	shouldAcceptOnlyImages(): boolean
@@ -963,7 +1052,7 @@ export default class Uploader extends EventEmitter
 		{
 			this.#ignoredFileNames = [];
 
-			fileNames.forEach(fileName => {
+			fileNames.forEach((fileName: string): void => {
 				if (Type.isStringFilled(fileName))
 				{
 					this.#ignoredFileNames.push(fileName.toLowerCase());
@@ -1005,17 +1094,17 @@ export default class Uploader extends EventEmitter
 			return;
 		}
 
-		const maxParallelUploads = this.getMaxParallelUploads();
-		const currentUploads = this.getUploadingFileCount();
-		const pendingFiles: Array<UploaderFile> = this.#files.filter(file => file.isReadyToUpload());
-		const pendingUploads = pendingFiles.length;
+		const maxParallelUploads: number = this.getMaxParallelUploads();
+		const currentUploads: number = this.getUploadingFileCount();
+		const pendingFiles: Array<UploaderFile> = this.#files.filter((file: UploaderFile): boolean => file.isReadyToUpload());
+		const pendingUploads: number = pendingFiles.length;
 
 		if (currentUploads < maxParallelUploads)
 		{
-			const limit = Math.min(maxParallelUploads - currentUploads, pendingFiles.length);
+			const limit: number = Math.min(maxParallelUploads - currentUploads, pendingFiles.length);
 			for (let i = 0; i < limit; i++)
 			{
-				const pendingFile = pendingFiles[i];
+				const pendingFile: UploaderFile = pendingFiles[i];
 				pendingFile.upload();
 			}
 		}
@@ -1030,18 +1119,18 @@ export default class Uploader extends EventEmitter
 
 	#loadNext(): void
 	{
-		const maxParallelLoads = this.getMaxParallelLoads();
-		const currentLoads = this.#files.filter(file => file.isLoading()).length;
-		const pendingFiles = this.#files.filter(file => {
+		const maxParallelLoads: number = this.getMaxParallelLoads();
+		const currentLoads: number = this.#files.filter((file: UploaderFile): boolean => file.isLoading()).length;
+		const pendingFiles: UploaderFile[] = this.#files.filter((file: UploaderFile) => {
 			return file.getStatus() === FileStatus.ADDED && file.getOrigin() === FileOrigin.CLIENT;
 		});
 
 		if (currentLoads < maxParallelLoads)
 		{
-			const limit = Math.min(maxParallelLoads - currentLoads, pendingFiles.length);
+			const limit: number = Math.min(maxParallelLoads - currentLoads, pendingFiles.length);
 			for (let i = 0; i < limit; i++)
 			{
-				const pendingFile = pendingFiles[i];
+				const pendingFile: UploaderFile = pendingFiles[i];
 				pendingFile.load();
 			}
 		}
@@ -1049,27 +1138,25 @@ export default class Uploader extends EventEmitter
 
 	#setHiddenField(file: UploaderFile): void
 	{
-		const container = this.getHiddenFieldsContainer();
+		const container: ?HTMLElement = this.getHiddenFieldsContainer();
 		if (!container || this.#hiddenFields.has(file.getId()))
 		{
 			return;
 		}
 
-		// TODO: is it needed?
-		const isExistingServerFile = Type.isNumber(file.getServerId());
-		if (isExistingServerFile)
+		if (file.getOrigin() === FileOrigin.SERVER && !this.shouldAssignServerFile())
 		{
 			return;
 		}
 
-		const assignAsFile =
+		const assignAsFile: boolean =
 			file.getOrigin() === FileOrigin.CLIENT
 			&& !file.isUploadable()
 			&& this.shouldAssignAsFile()
 			&& canAppendFileToForm()
 		;
 
-		const input = document.createElement('input');
+		const input: HTMLInputElement = document.createElement('input');
 		input.type = assignAsFile ? 'file' : 'hidden';
 		input.name = this.getHiddenFieldName() + (this.isMultiple() ? '[]' : '');
 
@@ -1087,9 +1174,9 @@ export default class Uploader extends EventEmitter
 
 			assignFileToInput(input, file.getBinary());
 		}
-		else if (file.getServerId() !== null)
+		else if (file.getServerFileId() !== null)
 		{
-			input.value = file.getServerId();
+			input.value = file.getServerFileId();
 		}
 
 		Dom.append(input, container);
@@ -1098,9 +1185,25 @@ export default class Uploader extends EventEmitter
 		this.#syncInputPositions();
 	}
 
+	#updateHiddenField(file: UploaderFile): void
+	{
+		const input: ?HTMLInputElement = this.#hiddenFields.get(file.getId());
+		if (input && input.type === 'hidden')
+		{
+			if (file.getServerFileId() === null)
+			{
+				this.#resetHiddenField(file);
+			}
+			else
+			{
+				input.value = file.getServerFileId();
+			}
+		}
+	}
+
 	#resetHiddenField(file: UploaderFile): void
 	{
-		const input = this.#hiddenFields.get(file.getId());
+		const input: ?HTMLInputElement = this.#hiddenFields.get(file.getId());
 		if (input)
 		{
 			Dom.remove(input);
@@ -1110,7 +1213,7 @@ export default class Uploader extends EventEmitter
 
 	#resetHiddenFields(): void
 	{
-		Array.from(this.#hiddenFields.values()).forEach(input => {
+		Array.from(this.#hiddenFields.values()).forEach((input: HTMLInputElement): void => {
 			Dom.remove(input);
 		})
 
@@ -1119,14 +1222,14 @@ export default class Uploader extends EventEmitter
 
 	#syncInputPositions(): void
 	{
-		const container = this.getHiddenFieldsContainer();
+		const container: ?HTMLElement = this.getHiddenFieldsContainer();
 		if (!container)
 		{
 			return;
 		}
 
-		this.getFiles().forEach((file: UploaderFile) => {
-			const input = this.#hiddenFields.get(file.getId());
+		this.getFiles().forEach((file: UploaderFile): void => {
+			const input: ?HTMLInputElement = this.#hiddenFields.get(file.getId());
 			if (input)
 			{
 				Dom.append(input, container);

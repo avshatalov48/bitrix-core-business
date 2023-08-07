@@ -3,8 +3,8 @@
 namespace Bitrix\Im\V2\Controller\Filter;
 
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Chat\ChatError;
 use Bitrix\Main\Engine\ActionFilter\Base;
-use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
 
@@ -29,6 +29,8 @@ class CheckChatUpdate extends Base
 		'setManageUsers',
 		'setManageUI',
 		'setManageSettings',
+		'setDisappearingDate',
+		'setCanPost',
 	];
 
 	public function onBeforeAction(Event $event)
@@ -39,6 +41,19 @@ class CheckChatUpdate extends Base
 		 * @var $chat Chat
 		 */
 		$chat = $arguments['chat'];
+
+		if (!$chat->getChatId())
+		{
+			$this->addError(new ChatError(
+				ChatError::ACCESS_DENIED
+			));
+			return new EventResult(EventResult::ERROR, null, null, $this);
+		}
+
+		if ($currentUser->isAdmin())
+		{
+			return null;
+		}
 
 		if ($chat->getAuthorId() === (int)$currentUser->getId())
 		{
@@ -75,8 +90,8 @@ class CheckChatUpdate extends Base
 			return null;
 		}
 
-		$this->addError(new Error(
-			Chat\ChatError::ACCESS_DENIED
+		$this->addError(new ChatError(
+			ChatError::ACCESS_DENIED
 		));
 		return new EventResult(EventResult::ERROR, null, null, $this);
 	}

@@ -148,7 +148,7 @@
 	--ui-icon-set__path_funnel: url('/bitrix/js/ui/icon-set/main/images/funnel.svg');
 	--ui-icon-set__path_brightness: url('/bitrix/js/ui/icon-set/main/images/brightness.svg');
 	--ui-icon-set__path_earth-language: url('/bitrix/js/ui/icon-set/main/images/earth-language.svg');
-	--ui-icon-set__path_low-wi-fi: url('/bitrix/js/ui/icon-set/main/images/low-wi-fi.svg');
+	--ui-icon-set__path_observer: url('/bitrix/js/ui/icon-set/main/images/observer.svg');
 	--ui-icon-set__path_barcode-1: url('/bitrix/js/ui/icon-set/main/images/barcode-1.svg');
 	--ui-icon-set__path_door-opened: url('/bitrix/js/ui/icon-set/main/images/door-opened.svg');
 	--ui-icon-set__path_shield: url('/bitrix/js/ui/icon-set/main/images/shield.svg');
@@ -331,6 +331,11 @@
 	--ui-icon-set__path_document: url('/bitrix/js/ui/icon-set/main/images/document.svg');
 	--ui-icon-set__path_check-receipt: url('/bitrix/js/ui/icon-set/main/images/check-receipt.svg');
 	--ui-icon-set__path_calculator: url('/bitrix/js/ui/icon-set/main/images/calculator.svg');
+	--ui-icon-set__path_observer-closed: url('/bitrix/js/ui/icon-set/main/images/observer-closed.svg');
+	--ui-icon-set__path_smart-process: url('/bitrix/js/ui/icon-set/main/images/smart-process.svg');
+	--ui-icon-set__path_idea-lamp: url('/bitrix/js/ui/icon-set/main/images/idea-lamp.svg');
+	--ui-icon-set__path_magic-image: url('/bitrix/js/ui/icon-set/main/images/magic-image.svg');
+	--ui-icon-set__path_ai: url('/bitrix/js/ui/icon-set/main/images/ai.svg');
 }
 
 .ui-icon-set.--person-location {
@@ -921,8 +926,8 @@
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_earth-language);
 }
 
-.ui-icon-set.--low-wi-fi {
-	--ui-icon-set__icon-path: var(--ui-icon-set__path_low-wi-fi);
+.ui-icon-set.--observer {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_observer);
 }
 
 .ui-icon-set.--barcode-1 {
@@ -1647,4 +1652,24 @@
 
 .ui-icon-set.--calculator {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_calculator);
+}
+
+.ui-icon-set.--observer-closed {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_observer-closed);
+}
+
+.ui-icon-set.--smart-process {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_smart-process);
+}
+
+.ui-icon-set.--idea-lamp {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_idea-lamp);
+}
+
+.ui-icon-set.--magic-image {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_magic-image);
+}
+
+.ui-icon-set.--ai {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_ai);
 }

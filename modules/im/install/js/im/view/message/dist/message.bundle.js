@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,im_view_message_body,im_model,ui_vue,im_const,im_lib_utils,im_lib_animation,main_core_events) {
 	'use strict';
 

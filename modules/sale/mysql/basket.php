@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Sale;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/basket.php");
 
 class CSaleBasket extends CAllSaleBasket
@@ -778,7 +780,7 @@ class CSaleBasket extends CAllSaleBasket
 
 		if ('Y' == $arBasket['SUBSCRIBE'] && array_key_exists('NOTIFY_PRODUCT', $_SESSION))
 		{
-			$intUserID = CSaleUser::GetUserID($arBasket['FUSER_ID']);
+			$intUserID = Sale\Fuser::getUserIdById($arBasket['FUSER_ID']);
 			if ($intUserID && array_key_exists($intUserID, $_SESSION['NOTIFY_PRODUCT']))
 			{
 				if (array_key_exists($arBasket['PRODUCT_ID'], $_SESSION['NOTIFY_PRODUCT'][$intUserID]))
@@ -1016,44 +1018,29 @@ class CSaleBasket extends CAllSaleBasket
 
 class CSaleUser extends CAllSaleUser
 {
+	/**
+	 * @deprecated
+	 * @see Sale\Fuser::add()
+	 *
+	 * @return int
+	 */
 	public static function Add()
 	{
-		global $DB, $USER;
+		$internalResult = Sale\Fuser::add();
 
-		$arFields = array(
-				"=DATE_INSERT" => $DB->GetNowFunction(),
-				"=DATE_UPDATE" => $DB->GetNowFunction(),
-				"USER_ID" => (is_object($USER) && $USER->IsAuthorized() ? intval($USER->GetID()) : False),
-				"CODE" => md5(time().randString(10)),
-			);
-
-		$ID = CSaleUser::_Add($arFields);
-		$ID = intval($ID);
-
-		$cookie_name = COption::GetOptionString("main", "cookie_name", "BITRIX_SM");
-		$_COOKIE[$cookie_name."_SALE_UID"] = $ID;
-
-		$secure = false;
-		if(COption::GetOptionString("sale", "use_secure_cookies", "N") == "Y" && CMain::IsHTTPS())
-			$secure=1;
-
-		if(COption::GetOptionString("sale", "encode_fuser_id", "N") == "Y")
-		{
-			$arRes = CSaleUser::GetList(array("ID" => $ID));
-			if(!empty($arRes))
-			{
-				$GLOBALS["APPLICATION"]->set_cookie("SALE_UID", $arRes["CODE"], false, "/", false, $secure, "Y", false);
-				$_COOKIE[$cookie_name."_SALE_UID"] = $arRes["CODE"];
-			}
-		}
-		else
-		{
-				$GLOBALS["APPLICATION"]->set_cookie("SALE_UID", $ID, false, "/", false, $secure, "Y", false);
-		}
-
-		return $ID;
+		return
+			$internalResult->isSuccess()
+				? $internalResult->getId()
+				: 0
+		;
 	}
 
+	/**
+	 * @deprecated
+	 *
+	 * @param $arFields
+	 * @return false|int
+	 */
 	public static function _Add($arFields)
 	{
 		global $DB;
@@ -1086,9 +1073,7 @@ class CSaleUser extends CAllSaleUser
 			"VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		$ID = intval($DB->LastID());
-
-		return $ID;
+		return (int)$DB->LastID();
 	}
 
 	public static function DeleteOld($nDays)
@@ -1242,18 +1227,17 @@ class CSaleUser extends CAllSaleUser
 		return $dbRes;
 	}
 
-	public static function GetUserID ($intFUserID)
+	/**
+	 * @deprecated
+	 * @see Sale\Fuser::getUserIdById
+	 *
+	 * @param $intFUserID
+	 * @return false|int
+	 */
+	public static function GetUserID($intFUserID)
 	{
-		global $DB;
-		$intFUserID = intval($intFUserID);
-		if (0 >= $intFUserID)
-			return false;
-		$strSql = "SELECT USER_ID FROM b_sale_fuser WHERE ID = ".$intFUserID;
-		$rsUsers = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		if ($arUser = $rsUsers->Fetch())
-		{
-			return intval($arUser['USER_ID']);
-		}
-		return false;
+		$result = Sale\Fuser::getUserIdById($intFUserID);
+
+		return $result > 0 ? $result : false;
 	}
 }

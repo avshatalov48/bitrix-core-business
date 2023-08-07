@@ -344,6 +344,8 @@ if ($curPage != "/bitrix/admin/index.php" && !$adminPage->isHideTitle())
 if($USER->IsAuthorized()):
 	$license = Application::getInstance()->getLicense();
 	$eulaLink = $license->getEulaLink();
+	$textMessage = '';
+	$showProlongMenu = false;
 
 	if(defined("DEMO") && DEMO == "Y"):
 		$vendor = COption::GetOptionString("main", "vendor", "1c_bitrix");
@@ -404,22 +406,19 @@ if($USER->IsAuthorized()):
 
 		if ($daysToExpire >= 0 && $daysToExpire < 60)
 		{
-			echo BeginNote('style="position: relative; top: -15px;"');
-			echo GetMessage('prolog_main_timelimit_almost_expire', [
+			$textMessage = GetMessage('prolog_main_timelimit_almost_expire', [
 				'#FINISH_DATE#' => $expireDate,
 				'#LINK#' => $eulaLink,
 			]);
-			echo EndNote();
+			$showProlongMenu = true;
 		}
 		elseif ($daysToExpire < 0)
 		{
-			echo BeginNote('style="position: relative; top: -15px;"');
-			echo GetMessage('prolog_main_timelimit_expired', [
+			$textMessage = GetMessage('prolog_main_timelimit_expired', [
 				'#FINISH_DATE#' => $expireDate,
 				'#BLOCK_DATE#' => $blockDate,
 				'#LINK#' => $eulaLink,
 			]);
-			echo EndNote();
 		};
 
 	elseif($USER->CanDoOperation('install_updates')):
@@ -433,94 +432,95 @@ if($USER->IsAuthorized()):
 			{
 				$supportFinishStamp = mktime(0,0,0, $aSupportFinishDate[1], $aSupportFinishDate[0], $aSupportFinishDate[2]);
 				$supportDateDiff = ceil(($supportFinishStamp - time())/86400);
-				$sSupportMess = '';
 
 				if($supportDateDiff >= 0 && $supportDateDiff <= 30)
 				{
-					$sSupportMess = GetMessage(
+					$textMessage = GetMessage(
 						'prolog_main_support_almost_expire',
 						['#FINISH_DATE#' => GetTime($supportFinishStamp)]
 					);
+					$showProlongMenu = true;
 				}
 				elseif($supportDateDiff < 0)
 				{
-					$sSupportMess = GetMessage(
+					$textMessage = GetMessage(
 						'prolog_main_support_expired',
 						['#FINISH_DATE#' => GetTime($supportFinishStamp)]
 					);
 				}
-
-				if($sSupportMess <> '')
-				{
-					$userOption = CUserOptions::GetOption("main", "admSupInf", []);
-					if(!isset($userOption["showInformerDate"]) || time() > $userOption["showInformerDate"])
-					{
-						if (!in_array(LANGUAGE_ID, array("ru", "ua")) || $license->getPartnerId() <= 0)
-						{
-							$prolongUrl = "https://www.1c-bitrix.ru/buy_tmp/key_update.php?license_key=" . $license->getHashLicenseKey() . "&tobasket=y&lang=" . LANGUAGE_ID;
-						}
-						else
-						{
-							$prolongUrl = "/bitrix/admin/buy_support.php?lang=" . LANGUAGE_ID;
-						}
-
-						echo BeginNote('style="position: relative; top: -15px;"');
-						?>
-						<style>
-							#menu-popup-prolong-popup .popup-window-hr { display:none;}
-							#menu-popup-prolong-popup .menu-popup .menu-popup-item {min-width: 100px; margin-top: 7px;}
-							#menu-popup-prolong-popup .menu-popup-item:hover {background-color: #fff !important;}
-						</style>
-						<script>
-						function showProlongMenu(bindElement)
-						{
-							BX.PopupMenu.show("prolong-popup", bindElement, [
-								{
-									html : '<b><?=GetMessageJS("prolog_main_support_menu1")?></b>'
-								},
-								{
-									html : '<?=GetMessageJS("prolog_main_support_menu2")?>',
-									onclick : function() {prolongRemind('<?=AddToTimeStamp(array("DD" => 7));?>', this)}
-								},
-								{
-									html : '<?=GetMessageJS("prolog_main_support_menu3")?>',
-									onclick : function() {prolongRemind('<?=AddToTimeStamp(array("DD" => 14));?>', this)}
-								},
-								{
-									html : '<?=GetMessageJS("prolog_main_support_menu4")?>',
-									onclick : function() {prolongRemind('<?=AddToTimeStamp(array("MM" => 1));?>', this)}
-								}
-							],
-							{
-								offsetTop : 5,
-								offsetLeft : 13,
-								angle : true
-							});
-
-							return false;
-						}
-
-						function prolongRemind(tt, el)
-						{
-							BX.userOptions.save('main', 'admSupInf', 'showInformerDate', tt);
-							el.popupWindow.close();
-							BX.hide(BX('prolongmenu').parentNode);
-						}
-						</script>
-						<div style="float: right; padding-left: 50px; margin-top: -5px; text-align: center;">
-							<a href="<?=$prolongUrl?>" target="_blank" class="adm-btn adm-btn-save" style="margin-bottom: 4px;"><?=GetMessage("prolog_main_support_button_prolong")?></a><br />
-
-							<a href="javascript:void(0)" id="prolongmenu" onclick="showProlongMenu(this)" style="color: #716536;"><?=GetMessage("prolog_main_support_button_no_prolong2")?></a>
-						</div>
-						<?=$sSupportMess;?>
-						<div id="supdescr" style="display: none;"><br /><br /><b><?=GetMessage("prolog_main_support_wit_descr1")?></b><hr><?=GetMessage("prolog_main_support_wit_description" . (IsModuleInstalled("intranet") ? "_cp" : "_bus"), ['#LINK#' => $eulaLink])?></div>
-						<?
-						echo EndNote();
-					}
-				}
 			}
 		}
-	endif; //defined("DEMO") && DEMO == "Y"
+	endif;
 
-endif; //$USER->IsAuthorized()
+	if ($textMessage !== '')
+	{
+		$userOption = CUserOptions::GetOption("main", "admSupInf", []);
+
+		if (!isset($userOption["showInformerDate"]) || time() > $userOption["showInformerDate"])
+		{
+			if (!in_array(LANGUAGE_ID, array("ru", "ua")) || $license->getPartnerId() <= 0)
+			{
+				$prolongUrl = "https://www.1c-bitrix.ru/buy_tmp/key_update.php?license_key=" . $license->getHashLicenseKey() . "&tobasket=y&lang=" . LANGUAGE_ID;
+			}
+			else
+			{
+				$prolongUrl = "/bitrix/admin/buy_support.php?lang=" . LANGUAGE_ID;
+			}
+
+			echo BeginNote('style="position: relative; top: -15px;"');
+			?>
+			<style>
+				#menu-popup-prolong-popup .popup-window-hr { display:none;}
+				#menu-popup-prolong-popup .menu-popup .menu-popup-item {min-width: 100px; margin-top: 7px;}
+				#menu-popup-prolong-popup .menu-popup-item:hover {background-color: #fff !important;}
+			</style>
+			<script>
+				function showProlongMenu(bindElement)
+				{
+					BX.PopupMenu.show("prolong-popup", bindElement, [
+							{
+								html : '<b><?=GetMessageJS("prolog_main_support_menu1")?></b>'
+							},
+							{
+								html : '<?=GetMessageJS("prolog_main_support_menu2")?>',
+								onclick : function() {prolongRemind('<?=AddToTimeStamp(array("DD" => 7));?>', this)}
+							},
+							{
+								html : '<?=GetMessageJS("prolog_main_support_menu3")?>',
+								onclick : function() {prolongRemind('<?=AddToTimeStamp(array("DD" => 14));?>', this)}
+							},
+							{
+								html : '<?=GetMessageJS("prolog_main_support_menu4")?>',
+								onclick : function() {prolongRemind('<?=AddToTimeStamp(array("MM" => 1));?>', this)}
+							}
+						],
+						{
+							offsetTop : 5,
+							offsetLeft : 13,
+							angle : true
+						});
+
+					return false;
+				}
+
+				function prolongRemind(tt, el)
+				{
+					BX.userOptions.save('main', 'admSupInf', 'showInformerDate', tt);
+					el.popupWindow.close();
+					BX.hide(BX('prolongmenu').parentNode);
+				}
+			</script>
+			<div style="float: right; padding-left: 50px; margin-top: -5px; text-align: center;">
+				<a href="<?=$prolongUrl?>" target="_blank" class="adm-btn adm-btn-save" style="margin-bottom: 4px;"><?=GetMessage("prolog_main_support_button_prolong")?></a><br />
+				<?php if ($showProlongMenu): ?>
+					<a href="javascript:void(0)" id="prolongmenu" onclick="showProlongMenu(this)" style="color: #716536;"><?=GetMessage("prolog_main_support_button_no_prolong2")?></a>
+				<?php endif; ?>
+			</div>
+			<?= $textMessage ?>
+			<div id="supdescr" style="display: none;"><br /><br /><b><?=GetMessage("prolog_main_support_wit_descr1")?></b><hr><?=GetMessage("prolog_main_support_wit_description" . (IsModuleInstalled("intranet") ? "_cp" : "_bus"), ['#LINK#' => $eulaLink])?></div>
+			<?php
+			echo EndNote();
+		}
+	}
+endif;
 ?>

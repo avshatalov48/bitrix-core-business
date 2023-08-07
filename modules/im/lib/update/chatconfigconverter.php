@@ -370,7 +370,7 @@ class ChatConfigConverter extends Stepper
 		return (int)$row['ID'];
 	}
 
-	private function bindExistingGroupToUser($userId, $groupId, $defaultGroupId): bool
+	private function bindExistingGroupToUser($userId, $groupId, $defaultGroupId): void
 	{
 		$notifyCount = OptionStateTable::getCount([
 			'=GROUP_ID' => $groupId,
@@ -387,13 +387,19 @@ class ChatConfigConverter extends Stepper
 
 		if ($notifyGroupId === $groupId && $generalGroupId === $groupId)
 		{
-			$result = OptionUserTable::add([
+			$insertFields = [
 				'USER_ID' => $userId,
-				'NOTIFY_GROUP_ID' => $notifyGroupId,
-				'GENERAL_GROUP_ID' => $generalGroupId
-			]);
+				'GENERAL_GROUP_ID' => $generalGroupId,
+				'NOTIFY_GROUP_ID' => $notifyGroupId
+			];
+			$updateFields = [
+				'GENERAL_GROUP_ID' => $generalGroupId,
+				'NOTIFY_GROUP_ID' => $notifyGroupId
+			];
 
-			return $result->isSuccess();
+			OptionUserTable::merge($insertFields, $updateFields);
+
+			return;
 		}
 
 		$generalSettings = \CUserOptions::GetOption('im', 'settings', [], $userId);
@@ -424,13 +430,17 @@ class ChatConfigConverter extends Stepper
 			}
 		}
 
-		$result = OptionUserTable::add([
+		$insertFields = [
 			'USER_ID' => $userId,
-			'NOTIFY_GROUP_ID' => $notifyGroupId,
-			'GENERAL_GROUP_ID' => $generalGroupId
-		]);
+			'GENERAL_GROUP_ID' => $generalGroupId,
+			'NOTIFY_GROUP_ID' => $notifyGroupId
+		];
+		$updateFields = [
+			'GENERAL_GROUP_ID' => $generalGroupId,
+			'NOTIFY_GROUP_ID' => $notifyGroupId
+		];
 
-		return $result->isSuccess();
+		OptionUserTable::merge($insertFields, $updateFields);
 	}
 
 }

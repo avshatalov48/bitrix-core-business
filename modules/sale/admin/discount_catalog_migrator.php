@@ -7,8 +7,8 @@ use Bitrix\Catalog;
 use Bitrix\Main\Config\Option;
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
-/** @var CAllUser $USER */
-/** @var CAllMain $APPLICATION */
+/** @var CUser $USER */
+/** @var CMain $APPLICATION */
 global $USER, $APPLICATION;
 
 Loc::loadMessages(__FILE__);
@@ -333,7 +333,7 @@ final class DiscountCatalogMigrator
 
 	protected function moveDiscounts()
 	{
- 		if($this->isStepFinished(__METHOD__))
+		if($this->isStepFinished(__METHOD__))
 		{
 			return;
 		}
@@ -345,7 +345,7 @@ final class DiscountCatalogMigrator
 				'TYPE' => \CCatalogDiscount::ENTITY_ID,
 				'=ACTIVE' => 'Y',
 			),
-		    'order' => array('ID' => 'ASC'),
+			'order' => array('ID' => 'ASC'),
 		));
 
 		$this->migrateDiscounts($discountIterator);
@@ -478,7 +478,7 @@ final class DiscountCatalogMigrator
 
 	protected function moveCumulativeDiscounts()
 	{
- 		if($this->isStepFinished(__METHOD__))
+		if($this->isStepFinished(__METHOD__))
 		{
 			return;
 		}
@@ -490,7 +490,7 @@ final class DiscountCatalogMigrator
 				'TYPE' => \CCatalogDiscountSave::ENTITY_ID,
 				'=ACTIVE' => 'Y',
 			),
-		    'order' => array('ID' => 'ASC'),
+			'order' => array('ID' => 'ASC'),
 		));
 
 		$this->migrateDiscounts($discountIterator);
@@ -593,7 +593,7 @@ final class DiscountCatalogMigrator
 
 	protected function moveCoupons()
 	{
- 		if($this->isStepFinished(__METHOD__))
+		if($this->isStepFinished(__METHOD__))
 		{
 			return;
 		}
@@ -681,7 +681,7 @@ final class DiscountCatalogMigrator
 
 	protected function fillShortDescription()
 	{
- 		if($this->isStepFinished(__METHOD__))
+		if($this->isStepFinished(__METHOD__))
 		{
 			return;
 		}
@@ -694,7 +694,7 @@ final class DiscountCatalogMigrator
 				'>ID' => $counter,
 				'=SHORT_DESCRIPTION_STRUCTURE' => null,
 			),
-		    'order' => array('ID' => 'ASC'),
+			'order' => array('ID' => 'ASC'),
 		));
 
 		while($discount = $discountIterator->fetch())
@@ -720,7 +720,7 @@ final class DiscountCatalogMigrator
 
 	protected function recalculatePriority()
 	{
- 		if($this->isStepFinished(__METHOD__))
+		if($this->isStepFinished(__METHOD__))
 		{
 			return;
 		}
@@ -732,11 +732,11 @@ final class DiscountCatalogMigrator
 			$sql = "
 				UPDATE b_sale_discount t1 
 				INNER JOIN (
-	                  SELECT (@i := @i + 20) NN, ID
-	                  FROM b_sale_discount
-	                  ORDER BY PRIORITY_BACKUP DESC, SORT ASC, ID ASC
-	            ) t2 ON t1.ID = t2.ID
-				SET PRIORITY = NN;			
+					SELECT (@i := @i + 20) NN, ID
+					FROM b_sale_discount
+					ORDER BY PRIORITY_BACKUP DESC, SORT ASC, ID ASC
+				) t2 ON t1.ID = t2.ID
+				SET PRIORITY = NN;
 			";
 		}
 		elseif($this->isMssql || $this->isOracle)
@@ -745,7 +745,7 @@ final class DiscountCatalogMigrator
 				UPDATE b_sale_discount SET PRIORITY = rowNumber FROM b_sale_discount
 					INNER JOIN	
 						(SELECT ID, row_number() OVER (ORDER BY PRIORITY_BACKUP DESC, SORT ASC, ID ASC) AS rowNumber FROM b_sale_discount) 
-							t2 ON t2.ID = b_sale_discount.ID			
+							t2 ON t2.ID = b_sale_discount.ID
 			";
 		}
 
@@ -756,7 +756,7 @@ final class DiscountCatalogMigrator
 
 	protected function addBackupPriorityColumn()
 	{
- 		if($this->isStepFinished(__METHOD__))
+		if($this->isStepFinished(__METHOD__))
 		{
 			return;
 		}
@@ -782,7 +782,7 @@ final class DiscountCatalogMigrator
 
 	protected function backupPriorityColumn()
 	{
- 		if($this->isStepFinished(__METHOD__))
+		if($this->isStepFinished(__METHOD__))
 		{
 			return;
 		}
@@ -1296,7 +1296,10 @@ else
 			width: 450,
 			heght: 400,
 			buttons: [
-				<? if(!$listNonSupportedFeatures){ ?>
+				<?php
+				if (!$listNonSupportedFeatures)
+				{
+					?>
 				{
 					title: '<?= GetMessageJS('DISCOUNT_CATALOG_MIGRATOR_CONVERT_START_BUTTON')?>',
 					id: 'run',
@@ -1310,7 +1313,9 @@ else
 						this.parentWindow.Close();
 					}
 				},
-				<? } ?>
+				<?php
+				}
+				?>
 				{
 					title: BX.message('JS_CORE_WINDOW_CLOSE'),
 					id: 'close',

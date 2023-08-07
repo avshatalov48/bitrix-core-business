@@ -364,6 +364,13 @@ if(CModule::IncludeModule("socialnetwork"))
 							{
 								$arComments["UF"][$field_name]["VALUE"] = $arComments[$field_name];
 								$arComments["UF"][$field_name]["ENTITY_VALUE_ID"] = $arComments["ID"];
+								if (method_exists($GLOBALS['USER_FIELD_MANAGER'], 'getCustomData'))
+								{
+									$arComments["UF"][$field_name]['CUSTOM_DATA'] = $GLOBALS['USER_FIELD_MANAGER']->getCustomData(
+										$arComments["UF"][$field_name],
+										(int)$arComments["ID"]
+									);
+								}
 							}
 						}
 

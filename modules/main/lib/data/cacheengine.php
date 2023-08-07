@@ -15,12 +15,16 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 	protected static array $locks = [];
 	protected static bool $isConnected = false;
 	protected static array $baseDirVersion = [];
+	protected static array $initDirVersion = [];
+
+	protected static array $listKeys = [];
 
 	protected string $sid = 'BX';
 	protected bool $useLock = false;
 	protected int $ttlMultiplier = 1;
-	protected int $ttlOld = 1;
+	protected int $ttlOld = 2;
 	protected bool $old = false;
+	protected bool $fullClean = false;
 
 	abstract public function getConnectionName(): string;
 	abstract public static function getConnectionClass();
@@ -33,6 +37,8 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 	abstract public function addToSet($key, $value);
 	abstract public function getSet($key) : array;
 	abstract public function delFromSet($key, $member);
+
+	abstract public function deleteBySet($key, $prefix = '');
 
 	/**
 	 * CacheEngine constructor.
@@ -139,28 +145,28 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 			$config['persistent'] = false;
 		}
 
-		if (isset($cacheConfig['ttl_multiplier']) && $this->useLock)
-		{
-			$this->ttlMultiplier = (int) $cacheConfig['ttl_multiplier'];
-			if ($this->ttlMultiplier < 0)
-			{
-				$this->ttlMultiplier = 0;
-			}
-		}
-
 		if (isset($cacheConfig['actual_data']))
 		{
 			$this->useLock = !$cacheConfig['actual_data'];
 		}
 
-		if ($this->useLock)
+		if (!$this->useLock)
 		{
-			$this->sid .= 2;
-		}
-		else
-		{
-			$this->sid .= 3;
 			$this->ttlMultiplier = 1;
+		}
+
+		if (isset($cacheConfig['ttl_multiplier']) && $this->useLock)
+		{
+			$this->ttlMultiplier = (int) $cacheConfig['ttl_multiplier'];
+			if ($this->ttlMultiplier < 1)
+			{
+				$this->ttlMultiplier = 1;
+			}
+		}
+
+		if (isset($cacheConfig['full_clean']))
+		{
+			$this->fullClean = (bool) $cacheConfig['full_clean'];
 		}
 
 		return $config;
@@ -207,7 +213,7 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 	 *
 	 * @return void
 	 */
-	protected function unlock(string $key = '', int $ttl = 0)
+	protected function unlock(string $key = '', int $ttl = 0) : void
 	{
 		if ($key != '')
 		{
@@ -240,15 +246,6 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 	}
 
 	/**
-	 * Return cache sid
-	 * @return string
-	 */
-	public function getSid() : string
-	{
-		return $this->sid;
-	}
-
-	/**
 	 * Returns true if cache can be read or written.
 	 * @return bool
 	 */
@@ -268,37 +265,50 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 		return false;
 	}
 
+	protected function getPartition($key) : string
+	{
+		return '|' . substr(sha1($key), 0, 2) . '|';
+	}
+
 	protected function getInitDirKey($baseDir, $initDir = false) : string
 	{
-		return $this->getBaseDirVersion($baseDir) . '|init_dir|' . sha1($initDir);
-	}
-
-	protected function getBaseDirKey($baseDir) : string
-	{
-		return  $this->sid . '|base_dir|' . sha1 ($baseDir);
-	}
-
-	protected function getBaseDirKeyHash($hash) : string
-	{
-		return  $this->sid . '|base_dir|' . $hash;
+		return $this->sid . '|' . $this->getBaseDirVersion($baseDir) . '|init_dir|' . sha1($initDir);
 	}
 
 	/**
 	 * Return InitDirVersion
+	 *
+	 * @param bool|string $baseDir Base cache directory (usually /bitrix/cache).
 	 * @param bool|string $initDir Directory within base.
-	 * @return array|bool|string
+	 * @param bool $generateNew Create new value if cache empty.
+	 * @return string
 	 */
-	protected function getInitDirVersion($baseDir, $initDir = false) : string
+	protected function getInitDirVersion($baseDir, $initDir = false, $generateNew = true) : string
 	{
 		$key = $this->getInitDirKey($baseDir, $initDir);
-		$initDirVersion = $this->get($key);
 
-		if ($initDirVersion === false)
+		if (!array_key_exists($key, static::$initDirVersion))
 		{
-			$initDirVersion = $this->set($key,0, sha1(mt_rand() . '|' . microtime()));
+			static::$initDirVersion[$key] = $this->get($key);
 		}
 
-		return $initDirVersion;
+		if (
+			static::$initDirVersion[$key] === false
+			|| (static::$initDirVersion[$key] == '' && $generateNew)
+		)
+		{
+			if ($generateNew)
+			{
+				static::$initDirVersion[$key] = sha1(mt_rand() . '|' . microtime());
+				$this->set($key, 0, static::$initDirVersion[$key]);
+			}
+			else
+			{
+				static::$initDirVersion[$key] = '';
+			}
+		}
+
+		return static::$initDirVersion[$key];
 	}
 
 	/**
@@ -310,20 +320,20 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 	protected function getBaseDirVersion($baseDir) : string
 	{
 		$baseDirHash = sha1($baseDir);
-		$key = $this->getBaseDirKeyHash($baseDirHash);
+		$key = $this->sid . '|base_dir|' . $baseDirHash;
 
-		if (!isset(self::$baseDirVersion[$key]))
+		if (!isset(static::$baseDirVersion[$key]))
 		{
-			self::$baseDirVersion[$key] = $this->get($key);
+			static::$baseDirVersion[$key] = $this->get($key);
 		}
 
-		if (self::$baseDirVersion[$key] === false)
+		if (static::$baseDirVersion[$key] === false)
 		{
-			self::$baseDirVersion[$key] = $this->sid . '|' . $baseDirHash . '|' . sha1(mt_rand() . '|' . microtime());
-			$this->set($key, 0, self::$baseDirVersion[$key]);
+			static::$baseDirVersion[$key] = sha1($baseDirHash . '|' . mt_rand() . '|' . microtime());
+			$this->set($key, 0, static::$baseDirVersion[$key]);
 		}
 
-		return self::$baseDirVersion[$key];
+		return static::$baseDirVersion[$key];
 	}
 
 	/**
@@ -339,7 +349,14 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 	 */
 	public function read(&$vars, $baseDir, $initDir, $filename, $ttl)
 	{
-		$key = $this->getBaseDirVersion($baseDir) . '|' . $this->getInitDirVersion($baseDir, $initDir) . '|' .$filename;
+		$initDirVersion = $this->getInitDirVersion($baseDir, $initDir, false);
+
+		if ($initDirVersion == '')
+		{
+			return false;
+		}
+
+		$key = $this->sid . '|' . sha1($this->getBaseDirVersion($baseDir) . '|' . $initDirVersion) . '|' .$filename;
 
 		if ($this->useLock)
 		{
@@ -391,12 +408,10 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 	public function write($vars, $baseDir, $initDir, $filename, $ttl)
 	{
 		$baseDirVersion = $this->getBaseDirVersion($baseDir);
-		$dir = $baseDirVersion . '|' . $this->getInitDirVersion($baseDir, $initDir);
+		$initDirVersion = $this->getInitDirVersion($baseDir, $initDir);
 
-		$baseDirKey = $baseDirVersion . self::BX_BASE_LIST;
-		$initDirKey = $dir . self::BX_DIR_LIST;
-
-		$key = $dir . '|' . $filename;
+		$dir = sha1($baseDirVersion . '|' . $initDirVersion);
+		$key = $this->sid. '|' . $dir . '|' . $filename;
 		$exp = $this->ttlMultiplier * (int) $ttl;
 
 		if ($this->useLock)
@@ -410,8 +425,21 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 			$this->set($key, $exp, $vars);
 		}
 
-		$this->addToSet($initDirKey, $key);
-		$this->addToSet($baseDirKey, $initDirKey);
+		$initListKey = $this->sid . '|' . $dir . self::BX_DIR_LIST;
+
+		$initPartition = $this->getPartition($filename);
+		$initListKeyPartition = $initListKey . $initPartition;
+
+		$this->addToSet($initListKeyPartition, $filename);
+		$this->addToSet($initListKey, $initPartition);
+
+		if ($this->fullClean)
+		{
+			$baseListKey = $this->sid . '|' . $baseDirVersion . self::BX_BASE_LIST;
+			$baseListKeyPartition = $this->getPartition($initListKeyPartition);
+			$this->addToSet($baseListKey . $baseListKeyPartition, $initListKeyPartition);
+			$this->addToSet($baseListKey, $baseListKeyPartition);
+		}
 	}
 
 	/**
@@ -431,17 +459,22 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 		}
 
 		$baseDirVersion = $this->getBaseDirVersion($baseDir);
-		$dir = $baseDirVersion . '|' . $this->getInitDirVersion($baseDir, $initDir);
+		$initDirVersion = $this->getInitDirVersion($baseDir, $initDir);
 
-		$initListKey = $dir . self::BX_DIR_LIST;
-		$baseListKey = $baseDirVersion . self::BX_BASE_LIST;
+		$dir = sha1($baseDirVersion . '|' . $initDirVersion);
+		$initListKey = $this->sid . '|' .$dir . self::BX_DIR_LIST;
+
+		if ($this->fullClean)
+		{
+			$baseListKey = $this->sid . '|' .$baseDirVersion . self::BX_BASE_LIST;
+		}
 
 		if ($filename <> '')
 		{
-			$key = $dir . '|' . $filename;
-			$this->delFromSet($initListKey, $key);
+			$key = $this->sid . '|' .$dir . '|' . $filename;
+			$this->delFromSet($initListKey . $this->getPartition($filename), $filename);
 
-			if ($cachedData = $this->get($key))
+			if ($this->useLock && $cachedData = $this->get($key))
 			{
 				$this->set($key . '|old', $this->ttlOld, $cachedData);
 			}
@@ -454,34 +487,54 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 		}
 		elseif ($initDir != '')
 		{
+			$keyPrefix = $this->sid . '|' .$dir . '|';
 			$initDirKey = $this->getInitDirKey($baseDir, $initDir);
 			$this->del($initDirKey);
+			unset(static::$initDirVersion[$initDirKey]);
 
-			$keys = $this->getSet($initListKey);
-
-			$this->delFromSet($baseListKey, $initListKey);
+			$partitionKeys = $this->getSet($initListKey);
+			foreach ($partitionKeys as $partition)
+			{
+				$delKey = $initListKey . $partition;
+				$this->deleteBySet($delKey, $keyPrefix);
+				$this->del($delKey);
+				if ($this->fullClean)
+				{
+					$this->delFromSet($baseListKey . $this->getPartition($delKey), $delKey);
+				}
+			}
 			$this->del($initListKey);
-			$this->del($keys);
-
-			unset($keys);
 		}
 		else
 		{
-			$this->del($this->getBaseDirKey($baseDir));
-			$this->del($baseDirVersion);
+			$baseDirKey = $this->sid . '|base_dir|' . sha1 ($baseDir);
+			$this->del($baseDirKey);
+			unset(static::$baseDirVersion[$baseDirKey]);
 
-			$keys = $this->getSet($baseListKey);
-
-			foreach ($keys as $initKey)
+			if ($this->fullClean)
 			{
-				$setKey = $this->getSet($initKey);
-				$this->del($setKey);
-				$this->del($initKey);
+				$keyPrefix = $this->sid . '|' .$dir . '|';
+				$partitionKeys = $this->getSet($baseListKey);
+
+				foreach ($partitionKeys as $partition)
+				{
+					$baseListKeyPartition = $baseListKey . $partition;
+					$keys = $this->getSet($baseListKeyPartition);
+
+					foreach ($keys as $initKey)
+					{
+						$this->deleteBySet($initKey, $keyPrefix);
+						$this->del($initKey);
+					}
+
+					$this->del($baseListKeyPartition);
+					unset($keys);
+				}
+
+				$this->del($baseListKey);
+
 			}
-
-			unset($keys, $setKey);
-
-			$this->del($baseListKey);
 		}
+
 	}
 }

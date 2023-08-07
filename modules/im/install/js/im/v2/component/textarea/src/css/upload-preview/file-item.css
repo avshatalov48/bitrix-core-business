@@ -1,0 +1,49 @@
+.bx-im-upload-preview-file-item__scope {
+	--im-upload-preview-file-item__background-color_container: #f1f4f6;
+	--im-upload-preview-file-item__background-color_error: #ffe8e8;
+	--im-upload-preview-file-item__color_error-text: #959ca4;
+	--im-upload-preview-file-item__background_error-icon: url("../images/upload-preview/error-icon.svg") no-repeat center;
+}
+
+.bx-im-upload-preview-file-item__container {
+	display: flex;
+	justify-content: center;
+	width: 360px;
+	height: 176px;
+	background-color: var(--im-upload-preview-file-item__background-color_container);
+	border-radius: 6px;
+	flex-shrink: 0;
+}
+
+.bx-im-upload-preview-file-item__container.--single {
+	height: 360px;
+}
+
+.bx-im-upload-preview-file-item__item-image {
+	object-fit: contain;
+	width: 100%;
+}
+
+.bx-im-upload-preview-file-item__item-error {
+	background-color: var(--im-upload-preview-file-item__background-color_container);
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	border-radius: 6px;
+}
+
+.bx-im-upload-preview-file-item__item-error-icon {
+	width: 48px;
+	height: 48px;
+	background: var(--im-upload-preview-file-item__background_error-icon);
+	margin-bottom: 17px;
+}
+
+.bx-im-upload-preview-file-item__item-error-text {
+	font: var(--im-font-size-xs)/var(--im-font-line-height-lg) var(--im-font-family-system);
+	color: var(--im-upload-preview-file-item__color_error-text);
+	max-width: 197px;
+	text-align: center;
+}

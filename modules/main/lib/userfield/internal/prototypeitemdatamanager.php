@@ -264,8 +264,10 @@ abstract class PrototypeItemDataManager extends ORM\Data\DataManager
 
 	public static function onBeforeDelete(Event $event): ORM\EventResult
 	{
-		$oldData = static::getByPrimary($event->getParameter('id'))->fetch();
-		static::getTemporaryStorage()->saveData($event->getParameter('id'), $oldData);
+		if ($oldData = static::getByPrimary($event->getParameter('id'))->fetch())
+		{
+			static::getTemporaryStorage()->saveData($event->getParameter('id'), $oldData);
+		}
 
 		return new Main\ORM\EventResult();
 	}

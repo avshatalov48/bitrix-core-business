@@ -26,8 +26,11 @@
 	border-radius: 32px;
 }
 
+.bx-im-messenger__container.--desktop {
+	min-height: 100vh;
+}
+
 .bx-im-messenger__navigation_container {
-	/*flex: 0 0 var(--im-messenger__navigation_width);*/
 	width: var(--im-messenger__navigation_width);
 	max-width: var(--im-messenger__navigation_width);
 	margin-right: var(--im-space-inline-xs-neg);
@@ -54,7 +57,7 @@
 	max-width: var(--im-messenger__list_width);
 	height: 100%;
 	position: relative;
-	border-right: 1px solid rgba(0,0,0,0.01);
+	border-right: 1px solid var(--im-messenger__list_border-color);
 }
 
 .bx-im-messenger__content_container {

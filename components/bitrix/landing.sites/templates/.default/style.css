@@ -12,6 +12,7 @@
 	position: relative;
 	width: 260px;
 	border-radius: var(--landing-item-border-radius, var(--ui-border-radius-md));
+	overflow: hidden;
 }
 
 .landing-item-add-new {

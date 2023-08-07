@@ -40,7 +40,7 @@ class ListExportExcelComponent extends CBitrixComponent
 		$this->arResult["FILTER_ID"] = "lists_list_elements_".$this->arResult["IBLOCK_ID"];
 		$this->arResult["ANY_SECTION"] = isset($_GET["list_section_id"]) && $_GET["list_section_id"] == '';
 		$sectionUpperUrl = CHTTP::urlAddParams(str_replace(array("#list_id#", "#section_id#", "#group_id#"),
-			array($this->arResult["IBLOCK_ID"], 0, $params["SOCNET_GROUP_ID"]),
+			array($this->arResult["IBLOCK_ID"], 0, $params["SOCNET_GROUP_ID"] ?? 0),
 			$params['LIST_URL']), array('list_section_id' => ""));
 		$this->arResult["SECTIONS"] = array(
 			array(
@@ -88,7 +88,7 @@ class ListExportExcelComponent extends CBitrixComponent
 					$arSection["DEPTH_LEVEL"]).$arSection["~NAME"];
 
 			$sectionUrl = CHTTP::URN2URI(CHTTP::urlAddParams(str_replace(array("#list_id#", "#section_id#", "#group_id#"),
-				array($this->arResult["IBLOCK_ID"], 0, $params["SOCNET_GROUP_ID"]),
+				array($this->arResult["IBLOCK_ID"], 0, $params["SOCNET_GROUP_ID"] ?? 0),
 				$params['LIST_URL']), array('list_section_id' => $arSection["ID"])));
 
 			$this->arResult["SECTIONS"][$arSection["ID"]] = array(
@@ -96,7 +96,7 @@ class ListExportExcelComponent extends CBitrixComponent
 				"NAME" => $arSection["NAME"],
 				"LIST_URL" => str_replace(
 					array("#list_id#", "#section_id#", "#group_id#"),
-					array($arSection["IBLOCK_ID"], $arSection["ID"], $params["SOCNET_GROUP_ID"]),
+					array($arSection["IBLOCK_ID"], $arSection["ID"], $params["SOCNET_GROUP_ID"] ?? 0),
 					$params['LIST_URL']
 				),
 				"PARENT_ID" => intval($arSection["IBLOCK_SECTION_ID"]),
@@ -110,7 +110,7 @@ class ListExportExcelComponent extends CBitrixComponent
 
 		$this->arResult["IS_SOCNET_GROUP_CLOSED"] = false;
 		if (
-			intval($params["~SOCNET_GROUP_ID"]) > 0
+			intval($params["~SOCNET_GROUP_ID"] ?? 0) > 0
 			&& CModule::IncludeModule("socialnetwork")
 		)
 		{
@@ -166,7 +166,7 @@ class ListExportExcelComponent extends CBitrixComponent
 			$USER,
 			$this->arParams['IBLOCK_TYPE_ID'],
 			$this->arResult['IBLOCK_ID'],
-			$this->arParams['SOCNET_GROUP_ID']
+			$this->arParams['SOCNET_GROUP_ID'] ?? 0
 		);
 		if($this->listsPerm < 0)
 		{
@@ -380,8 +380,10 @@ class ListExportExcelComponent extends CBitrixComponent
 			if(!is_array($data))
 				continue;
 
-			if(!is_array($listValues[$data["ID"]]))
-				$listValues[$data["ID"]] = array();
+			if (!isset($listValues[$data["ID"]]) || !is_array($listValues[$data["ID"]]))
+			{
+				$listValues[$data["ID"]] = [];
+			}
 			foreach($data as $fieldId => $fieldValue)
 				$listValues[$data["ID"]][$fieldId] = $fieldValue;
 

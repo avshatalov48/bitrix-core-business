@@ -35,13 +35,14 @@ class UserProfileImport extends UserImportBase
 		$fields = $params['TRAITS'];
 		$property = $params["ORDER_PROP"];
 
-		$fields['ID'] = $this->registerUser($fields, $arErrors);
+		$errorList = [];
+		$fields['ID'] = $this->registerUser($fields, $errorList);
 
-		if(count($arErrors)>0)
+		if (!empty($errorList))
 		{
-			foreach($arErrors as $error)
+			foreach($errorList as $error)
 			{
-				$result->addError(new  Error(str_replace('<br>','', $error['TEXT'])));
+				$result->addError(new Error(str_replace('<br>','', $error['TEXT'])));
 			}
 		}
 		elseif(intval($fields['ID'])>0)

@@ -30,6 +30,10 @@
 	{
 		this.doAction('remove', id);
 	};
+	ListManager.prototype.copy = function (id)
+	{
+		this.doAction('copy', id);
+	};
 	ListManager.prototype.removeSelected = function ()
 	{
 		var grid = BX.Main.gridManager.getById(this.gridId);
@@ -56,7 +60,7 @@
 				}
 			},
 			onfailure: function () {
-				Page.reloadGrid(gridId);
+				Page.changeGridLoaderShowing(gridId, false);
 			},
 			data: {
 				'id': id

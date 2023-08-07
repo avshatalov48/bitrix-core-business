@@ -188,14 +188,14 @@ class SmsEdnaru extends Sender\BaseConfigurable
 	private function initializeOldApiComponents(): void
 	{
 		$this->registrar = new SMS\Old\Registrar($this->getId(), $this->optionManager, $this->utils);
-		$this->initiator = new SMS\Old\Initiator($this->optionManager, $this->registrar, $this->utils);
+		$this->initiator = new SMS\Old\Initiator($this->optionManager, $this->registrar, $this->utils, $this->getId());
 		$this->sender = new SMS\Old\Sender($this->optionManager,$this->registrar, $this->utils);
 	}
 
 	private function initializeNewApiComponents(): void
 	{
 		$this->registrar = new SMS\Registrar($this->getId(), $this->optionManager, $this->utils);
-		$this->initiator = new SMS\Initiator($this->optionManager, $this->registrar, $this->utils);
+		$this->initiator = new SMS\Initiator($this->optionManager, $this->registrar, $this->utils, $this->getId());
 		$this->sender = new SMS\Sender($this->optionManager,$this->registrar, $this->utils);
 	}
 

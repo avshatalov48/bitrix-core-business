@@ -14,7 +14,7 @@ CModule::AddAutoloadClasses(
 		"CPhotogalleryNotifySchema" => "classes/general/photo_notify_schema.php",
 	)
 );
-if (!is_array($GLOBALS["PHOTOGALLERY_VARS"]))
+if (!isset($GLOBALS["PHOTOGALLERY_VARS"]) || !is_array($GLOBALS["PHOTOGALLERY_VARS"]))
 {
 	$GLOBALS["PHOTOGALLERY_VARS"] = array(
 		"arSections" => array(),

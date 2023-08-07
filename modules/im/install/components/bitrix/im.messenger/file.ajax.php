@@ -1,4 +1,4 @@
-<?
+<?php
 if (!defined('IM_AJAX_INIT'))
 {
 	define("IM_AJAX_INIT", true);
@@ -11,11 +11,25 @@ if (!defined('IM_AJAX_INIT'))
 	if (isset($_GET['action']))
 	{
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
-		if (CModule::IncludeModule('disk'))
+
+		/** @global \CUser $USER */
+		if ((int)$USER->GetID() <= 0)
+		{
+			echo CUtil::PhpToJsObject([
+				'ERROR' => 'AUTHORIZE_ERROR',
+				'BITRIX_SESSID' => bitrix_sessid()
+			]);
+			\CMain::FinalActions();
+			die();
+		}
+
+		if (\Bitrix\Main\Loader::includeModule('disk'))
 		{
 			$ufController = new Bitrix\Disk\Uf\Controller();
 			$ufController->setActionName($_GET['action'])->exec();
 		}
+
+		\CMain::FinalActions();
 		die();
 	}
 
@@ -24,11 +38,11 @@ if (!defined('IM_AJAX_INIT'))
 
 if (\Bitrix\Main\Loader::includeModule("im"))
 {
-	echo \Bitrix\Im\Common::objectEncode(Array(
+	echo \Bitrix\Im\Common::objectEncode([
 		'BITRIX_SESSID' => bitrix_sessid(),
 		'ERROR' => 'FILE_ERROR'
-	));
+	]);
 }
 
-CMain::FinalActions();
+\CMain::FinalActions();
 die();

@@ -9,7 +9,9 @@ export const MenuItemIcon = {
 	task: 'task',
 	meeting: 'meeting',
 	summary: 'summary',
-	vote: 'vote'
+	vote: 'vote',
+	aiText: 'ai-text',
+	aiImage: 'ai-image',
 };
 
 // @vue/component

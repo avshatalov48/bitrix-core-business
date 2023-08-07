@@ -39,6 +39,20 @@ create table if not exists b_seo_sitemap
 	PRIMARY KEY (ID)
 );
 
+create table if not exists b_seo_sitemap_job
+(
+	ID int(11) NOT NULL auto_increment,
+	SITEMAP_ID int (11) NOT NULL DEFAULT 0,
+	RUNNING char(1) NOT NULL DEFAULT 'N',
+	STATUS char(1) NOT NULL DEFAULT 'R',
+	STATUS_MESSAGE varchar(255) NULL,
+	STEP int(11) NOT NULL DEFAULT 0,
+	STATE longtext NULL,
+	PRIMARY KEY (ID),
+	INDEX ix_seo_sitemap_job_sid (SITEMAP_ID),
+	INDEX ix_seo_sitemap_job_sid_status (SITEMAP_ID, STATUS)
+);
+
 create table if not exists b_seo_sitemap_runtime
 (
 	ID int(11) NOT NULL auto_increment,

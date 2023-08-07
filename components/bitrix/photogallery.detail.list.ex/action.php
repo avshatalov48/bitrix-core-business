@@ -49,8 +49,8 @@ if (isset($photo_list_action) && $photo_list_action != "")
 		{
 			$arCommentsParams["FORUM_ID"] = $arParams["FORUM_ID"];
 			$arCommentsParams["USE_CAPTCHA"] = $arParams["USE_CAPTCHA"];
-			$arCommentsParams["URL_TEMPLATES_READ"] = $arParams["URL_TEMPLATES_READ"];
-			$arCommentsParams["URL_TEMPLATES_PROFILE_VIEW"] = $arParams["URL_TEMPLATES_PROFILE_VIEW"];
+			$arCommentsParams["URL_TEMPLATES_READ"] = $arParams["URL_TEMPLATES_READ"] ?? null;
+			$arCommentsParams["URL_TEMPLATES_PROFILE_VIEW"] = $arParams["URL_TEMPLATES_PROFILE_VIEW"] ?? null;
 			//$arCommentsParams["POST_FIRST_MESSAGE"] = $arParams["POST_FIRST_MESSAGE"];
 			//$arCommentsParams["PREORDER"] = ($arParams["PREORDER"] != "N" ? "Y" : "N");
 			$arCommentsParams["POST_FIRST_MESSAGE"] = $arParams["POST_FIRST_MESSAGE"] == "N" ? "N" : "Y";

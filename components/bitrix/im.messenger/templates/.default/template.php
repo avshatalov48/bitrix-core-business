@@ -12,5 +12,15 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 	</span><span class="bx-notifier-panel-right"></span>
 </div>
 <script type="text/javascript">
-<?=CIMMessenger::GetTemplateJS(Array(), $arResult)?>
+	<?php
+		if ($arResult['MESSENGER_V2'])
+		{
+			\Bitrix\Main\UI\Extension::load("im.v2.application.messenger");
+			echo CIMMessenger::GetV2TemplateJS($arResult);
+		}
+		else
+		{
+			echo CIMMessenger::GetTemplateJS([], $arResult);
+		}
+	?>
 </script>

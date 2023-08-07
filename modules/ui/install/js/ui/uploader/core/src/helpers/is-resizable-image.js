@@ -1,12 +1,12 @@
 import { Type } from 'main.core';
 import getFileExtension from './get-file-extension';
 
-const imageExtensions = ['jpg', 'bmp', 'jpeg', 'jpe', 'gif', 'png', 'webp'];
+const imageExtensions: string[] = ['jpg', 'bmp', 'jpeg', 'jpe', 'gif', 'png', 'webp'];
 
-const isResizableImage = (file: File | string, mimeType: string = null) => {
-	const fileName = Type.isFile(file) ? file.name : file;
-	const type = Type.isFile(file) ? file.type : mimeType;
-	const extension = getFileExtension(fileName).toLowerCase();
+const isResizableImage = (file: File | string, mimeType: string = null): boolean => {
+	const fileName: string = Type.isFile(file) ? file.name : file;
+	const type: string = Type.isFile(file) ? file.type : mimeType;
+	const extension: string = getFileExtension(fileName).toLowerCase();
 
 	if (imageExtensions.includes(extension))
 	{

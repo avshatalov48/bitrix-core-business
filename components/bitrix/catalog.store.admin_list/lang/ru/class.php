@@ -25,3 +25,4 @@ $MESS['STORE_LIST_ACTION_SET_AS_DEFAULT_TEXT'] = 'Сделать складом 
 $MESS['STORE_LIST_ACTION_SET_AS_DEFAULT_NON_ACTIVE_ERROR'] = 'Нельзя сделать складом по умолчанию неактивный склад';
 $MESS['STORE_LIST_ACTION_SET_AS_DEFAULT_SITE_ERROR'] = 'Склад по умолчанию не может быть привязан к сайту';
 $MESS['STORE_LIST_ACTION_SET_AS_DEFAULT_ERROR'] = 'Ошибка указания склада по умолчанию: #ERROR#';
+$MESS['STORE_LIST_SETTINGS_BUTTON_UF_FIELDS'] = 'Настройки пользовательских полей';

@@ -1,6 +1,7 @@
 <?php
 /**
  * Bitrix Framework
+ *
  * @package bitrix
  * @subpackage sender
  * @copyright 2001-2012 Bitrix
@@ -14,9 +15,9 @@ use Bitrix\Sender\Integration;
 
 class Tracker
 {
-	const TYPE_READ = 1;
-	const TYPE_CLICK = 2;
-	const TYPE_UNSUB = 3;
+	public const TYPE_READ = 1;
+	public const TYPE_CLICK = 2;
+	public const TYPE_UNSUB = 3;
 
 	/** @var  integer $type Type. */
 	protected $type;
@@ -25,10 +26,10 @@ class Tracker
 	protected $moduleId;
 
 	/** @var  array $fields Fields. */
-	protected $fields = array();
+	protected $fields = [];
 
 	/** @var  array $uriParameters Uri parameters. */
-	protected $uriParameters = array();
+	protected $uriParameters = [];
 
 	/** @var  string $handlerUri Handler uri. */
 	protected $handlerUri;
@@ -40,6 +41,7 @@ class Tracker
 	protected $siteId;
 
 	private $siteData;
+
 	/**
 	 * Constructor.
 	 *
@@ -255,12 +257,12 @@ class Tracker
 	 */
 	public function getArray()
 	{
-		return array(
+		return [
 			'MODULE_ID' => $this->getModuleId(),
 			'FIELDS' => $this->getFields(),
 			'URL_PAGE' => $this->getHandlerUri(),
 			'URL_PARAMS' => $this->getUriParameters(),
-		);
+		];
 	}
 
 	/**

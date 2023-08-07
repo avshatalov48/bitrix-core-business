@@ -16,6 +16,7 @@ return [
 		'ui.switcher',
 		'ui.dialogs.messagebox',
 		'ui.buttons',
+		'im.v2.lib.desktop-api',
 		'main.core.events',
 		'main.popup',
 		'main.core',

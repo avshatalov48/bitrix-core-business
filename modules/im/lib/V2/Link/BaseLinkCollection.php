@@ -2,7 +2,6 @@
 
 namespace Bitrix\Im\V2\Link;
 
-use Bitrix\Im\User;
 use Bitrix\Im\V2\Collection;
 use Bitrix\Im\V2\Entity;
 use Bitrix\Im\V2\Link;
@@ -10,9 +9,8 @@ use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Rest\PopupData;
 
 /**
- * @method LinkItem next()
- * @method LinkItem current()
- * @method LinkItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,BaseLinkItem>
+ * @method BaseLinkItem offsetGet($key)
  */
 abstract class BaseLinkCollection extends Collection implements LinkRestConvertible
 {

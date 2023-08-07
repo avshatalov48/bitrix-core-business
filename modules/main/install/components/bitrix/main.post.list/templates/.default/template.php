@@ -25,6 +25,7 @@ UI\Extension::load([
 	'ui.icons.b24',
 	'ui.urlpreview',
 	'socialnetwork.livefeed',
+	'popup',
 ]);
 
 $APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css");
@@ -81,6 +82,7 @@ ob_start();
 					 bx-tooltip-user-id="#AUTHOR_ID#"
 					 bx-tooltip-params="#AUTHOR_TOOLTIP_PARAMS#"
 					 href="<?=($arParams["AUTHOR_URL"] != "" ? "#AUTHOR_URL#" : "javascript:void(0);")?>">#AUTHOR_NAME#</a>
+					#MOBILE_HINTS#
 					<a class="feed-time feed-com-time" href="#VIEW_URL##com#ID#" rel="nofollow" target="_top">#DATE#</a>
 				</div>
 				#AFTER_HEADER#
@@ -396,6 +398,14 @@ BX.ready(function(){
 	}
 	?>
 });
+</script>
+
+<script>
+	BX.ready(() => {
+		new BX.Main.PostList.MobileButton({
+			containerId: '<?=CUtil::JSEscape($eventNodeId)?>',
+		});
+	});
 </script>
 <div id="record-<?=$prefixNode?>-new"></div><?php
 if (!empty($arParams["ERROR_MESSAGE"]))

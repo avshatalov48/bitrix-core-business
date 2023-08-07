@@ -2,7 +2,7 @@
 
 namespace Bitrix\Main\Grid\Panel;
 
-
+use Bitrix\Main\Grid\Panel\Actions;
 use Bitrix\Main\Grid\Panel\Snippet\Button;
 use Bitrix\Main\Grid\Panel\Snippet\Checkbox;
 use Bitrix\Main\Grid\Panel\Snippet\Onchange;
@@ -179,7 +179,6 @@ class Snippet
 		);
 	}
 
-
 	/**
 	 * Gets apply button
 	 * @param array $params
@@ -196,6 +195,39 @@ class Snippet
 		);
 	}
 
+	/**
+	 * Gets apply button with action `Grid.sendSelected`.
+	 * @param string|null $confirmMessage if need confirm before send
+	 * @return array
+	 */
+	public function getSendSelectedButton(?string $confirmMessage = null): array
+	{
+		$action = [
+			'ACTION' => Actions::CALLBACK,
+			'DATA' => [
+				[
+					'JS' => 'Grid.sendSelected()',
+				]
+			],
+		];
+
+		if (!empty($confirmMessage))
+		{
+			$action['CONFIRM'] = true;
+			$action['CONFIRM_MESSAGE'] = $confirmMessage;
+		}
+
+		$onchange = new Onchange();
+		$onchange->addAction($action);
+
+		$button = new Button();
+		$button->setId('apply_button');
+		$button->setClass('apply');
+		$button->setOnchange($onchange);
+		$button->setText(Loc::getMessage("APPLY_BUTTON_TEXT"));
+
+		return $button->toArray();
+	}
 
 	/**
 	 * Gets for all checkbox

@@ -67,110 +67,45 @@ class CAllPerfomanceTable
 		if (count($arQuerySelect) < 1)
 			$arQuerySelect = array("*" => "t.*");
 
-		if (is_array($arNavParams))
+		$strSelect = "SELECT ".implode(", ", $arQuerySelect)."\n";
+
+		$strSql = "FROM ".$this->escapeTable($this->TABLE_NAME)." t\n";
+		$strQueryWhere = $obQueryWhere->GetQuery($arFilter);
+		if ($strQueryWhere)
 		{
-			return $this->NavQuery($arNavParams, $arQuerySelect, $this->TABLE_NAME, $obQueryWhere->GetQuery($arFilter), $arQueryOrder);
+			$strSql .= "WHERE ".$strQueryWhere."\n";
+		}
+		$strOrder = $arQueryOrder ? "ORDER BY ".implode(", ", $arQueryOrder) : "";
+
+		if (!is_array($arNavParams))
+		{
+			$dbr = $DB->Query($strSelect.$strSql.$strOrder, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		}
+		elseif ($arNavParams["nTopCount"] > 0)
+		{
+			$strSql = $strSelect.$strSql.$strOrder."\nLIMIT ".intval($arNavParams["nTopCount"]);
+			if ($arNavParams["nOffset"] > 0)
+			{
+				$strSql .= " OFFSET ".intval($arNavParams["nOffset"]);
+			}
+			$dbr = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
 		else
 		{
-			$strSql = "
-				SELECT
-				".implode(", ", $arQuerySelect)."
-				FROM
-					".$this->escapeTable($this->TABLE_NAME)." t
-			";
-			if ($strQueryWhere = $obQueryWhere->GetQuery($arFilter))
+			$res_cnt = $DB->Query("SELECT count('x') CNT ".$strSql);
+			$ar_cnt = $res_cnt->Fetch();
+			if (isset($arNavParams["bOnlyCount"]) && $arNavParams["bOnlyCount"] === true)
 			{
-				$strSql .= "
-					WHERE
-					".$strQueryWhere."
-				";
-			}
-			if (count($arQueryOrder) > 0)
-			{
-				$strSql .= "
-					ORDER BY
-					".implode(", ", $arQueryOrder)."
-				";
+				return $ar_cnt["CNT"];
 			}
 
-			return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbr = new CDBResult();
+			$dbr->NavQuery($strSelect.$strSql.$strOrder, $ar_cnt["CNT"], $arNavParams);
 		}
-	}
 
-	function NavQuery($arNavParams, $arQuerySelect, $strTableName, $strQueryWhere, $arQueryOrder)
-	{
-		global $DB;
-		if (intval($arNavParams["nTopCount"]) <= 0)
-		{
-			$strSql = "
-				SELECT
-					count(1) C
-				FROM
-					".$this->escapeTable($strTableName)." t
-			";
-			if ($strQueryWhere)
-			{
-				$strSql .= "
-					WHERE
-					".$strQueryWhere."
-				";
-			}
-			$res_cnt = $DB->Query($strSql);
-			$res_cnt = $res_cnt->Fetch();
-			$cnt = $res_cnt["C"];
+		$dbr->is_filtered = ($strQueryWhere <> '');
 
-			$strSql = "
-				SELECT
-				".implode(", ", $arQuerySelect)."
-				FROM
-					".$this->escapeTable($strTableName)." t
-			";
-			if ($strQueryWhere)
-			{
-				$strSql .= "
-					WHERE
-					".$strQueryWhere."
-				";
-			}
-			if (count($arQueryOrder) > 0)
-			{
-				$strSql .= "
-					ORDER BY
-					".implode(", ", $arQueryOrder)."
-				";
-			}
-
-			$res = new CDBResult();
-			$res->NavQuery($strSql, $cnt, $arNavParams);
-
-			return $res;
-		}
-		else
-		{
-			$strSql = "
-				SELECT
-				".implode(", ", $arQuerySelect)."
-				FROM
-					".$this->escapeTable($strTableName)." t
-			";
-			if ($strQueryWhere)
-			{
-				$strSql .= "
-					WHERE
-					".$strQueryWhere."
-				";
-			}
-			if (count($arQueryOrder) > 0)
-			{
-				$strSql .= "
-					ORDER BY
-					".implode(", ", $arQueryOrder)."
-				";
-			}
-
-			return $DB->Query($DB->TopSql($strSql, intval($arNavParams["nTopCount"])));
-		}
+		return $dbr;
 	}
 
 	public static function escapeColumn($column)

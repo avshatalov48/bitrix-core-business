@@ -1,49 +1,49 @@
-import {Event} from 'main.core';
+import { Event } from 'main.core';
 
-import {ReactionsSelect, reactionCssClass as ReactionIconClass} from 'ui.reactions-select';
-import {Lottie} from 'ui.lottie';
+import { ReactionsSelect, reactionCssClass as ReactionIconClass } from 'ui.reactions-select';
+import { Lottie } from 'ui.lottie';
 
-import {ReactionUser} from './user';
-import {AdditionalUsers} from './additional-users';
+import { ReactionUser } from './user';
+import { AdditionalUsers } from './additional-users';
 
 const USERS_TO_SHOW = 5;
 const SHOW_USERS_DELAY = 1500;
 
 // @vue/component
 export const ReactionItem = {
-	components: {ReactionUser, AdditionalUsers},
+	components: { ReactionUser, AdditionalUsers },
 	props:
 	{
 		messageId: {
 			type: Number,
-			required: true
+			required: true,
 		},
 		type: {
 			type: String,
-			required: true
+			required: true,
 		},
 		counter: {
 			type: Number,
-			required: true
+			required: true,
 		},
 		users: {
 			type: Array,
-			required: true
+			required: true,
 		},
 		selected: {
 			type: Boolean,
-			required: true
+			required: true,
 		},
 		animate: {
 			type: Boolean,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['click'],
-	data()
+	data(): Object
 	{
 		return {
-			showAdditionalUsers: false
+			showAdditionalUsers: false,
 		};
 	},
 	computed:
@@ -62,7 +62,7 @@ export const ReactionItem = {
 		reactionClass(): string
 		{
 			return ReactionIconClass[this.type];
-		}
+		},
 	},
 	mounted()
 	{
@@ -77,13 +77,13 @@ export const ReactionItem = {
 		{
 			this.animation = Lottie.loadAnimation({
 				animationData: ReactionsSelect.getLottieAnimation(this.type),
-				container: this.$refs['reactionIcon'],
+				container: this.$refs.reactionIcon,
 				loop: false,
 				autoplay: false,
 				renderer: 'svg',
 				rendererSettings: {
 					viewBoxOnly: true,
-				}
+				},
 			});
 			Event.bind(this.animation, 'complete', () => {
 				this.animation.destroy();
@@ -96,10 +96,6 @@ export const ReactionItem = {
 		startShowUsersTimer()
 		{
 			this.showUsersTimeout = setTimeout(() => {
-				if (this.showUsers)
-				{
-					return;
-				}
 				this.showAdditionalUsers = true;
 			}, SHOW_USERS_DELAY);
 		},
@@ -110,8 +106,8 @@ export const ReactionItem = {
 		onClick()
 		{
 			clearTimeout(this.showUsersTimeout);
-			this.$emit('click', {animateItemFunction: this.playAnimation});
-		}
+			this.$emit('click', { animateItemFunction: this.playAnimation });
+		},
 	},
 	template: `
 		<div
@@ -122,7 +118,7 @@ export const ReactionItem = {
 			:class="{'--selected': selected}"
 		>
 			<div class="bx-im-reaction-list__item_icon" :class="reactionClass" ref="reactionIcon"></div>
-			<div v-if="showUsers" class="bx-im-reaction-list__user_container">
+			<div v-if="showUsers" class="bx-im-reaction-list__user_container" ref="users">
 				<TransitionGroup name="bx-im-reaction-list__user_animation">
 					<ReactionUser v-for="user in preparedUsers" :key="user" :userId="user" />
 				</TransitionGroup>
@@ -130,11 +126,11 @@ export const ReactionItem = {
 			<div v-else class="bx-im-reaction-list__item_counter" ref="counter">{{ counter }}</div>
 			<AdditionalUsers
 				:show="showAdditionalUsers"
-				:bindElement="$refs['counter'] || {}"
+				:bindElement="$refs['users'] || $refs['counter'] || {}"
 				:messageId="messageId"
 				:reaction="type"
 				@close="showAdditionalUsers = false"
 			/>
 		</div>
-	`
+	`,
 };

@@ -11,6 +11,7 @@ global $DB, $APPLICATION, $MESS;
 	)
 );
 
+require_once __DIR__.'/compatibility.php';
 
 if (!defined('SEO_COUNTERS_DEFAULT'))
 {

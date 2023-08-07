@@ -12,3 +12,5 @@ $MESS["SENDER_START_CONFIGURATION_HELP"] = "Помощь в настройке";
 $MESS["SENDER_START_CONFIGURATION_NEED_HELP"] = "Нужна помощь в настройке?";
 $MESS["SENDER_START_CONFIGURATION_HELP_ORDER"] = "Помощь от партнёров <br/> в настройке";
 $MESS["SENDER_START_CONFIGURATION_ORDER"] = "Получить";
+$MESS["SENDER_START_TOUR_MASTER_YANDEX_INITIAL_TITLE"] = "Мастер кампаний";
+$MESS["SENDER_START_TOUR_MASTER_YANDEX_INITIAL_TEXT"] = "Запускайте рекламные кампании из вашего Битрикс24. Вам больше не нужно переключаться между вкладками. С интуитивной настройкой и системой подсказок запустить рекламу получится даже у новичка. Вы сможете работать с лидами из рекламы в CRM, а эффективность кампании отслеживать в Сквозной аналитике.";

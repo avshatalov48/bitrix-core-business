@@ -14,9 +14,9 @@ $APPLICATION->IncludeComponent(
 	"bitrix:socialnetwork.log.ex", 
 	"", 
 	Array(
-		"USER_VAR" => $arResult["ALIASES"]["user_id"],
-		"GROUP_VAR" => $arResult["ALIASES"]["group_id"],
-		"PAGE_VAR" => $arResult["ALIASES"]["page"],
+		"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? null,
+		"GROUP_VAR" => $arResult["ALIASES"]["group_id"] ?? null,
+		"PAGE_VAR" => $arResult["ALIASES"]["page"] ?? null,
 		"PATH_TO_LOG_ENTRY" => $arResult["PATH_TO_LOG_ENTRY"],
 		"PATH_TO_USER" => $arResult["PATH_TO_USER"],
 		"PATH_TO_MESSAGES_CHAT" => $arResult["PATH_TO_MESSAGES_CHAT"],
@@ -57,8 +57,8 @@ $APPLICATION->IncludeComponent(
 		"NEW_TEMPLATE" => $arParams["LOG_NEW_TEMPLATE"],
 		"AUTH" => $arParams["LOG_AUTH"],
 		"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] == "Y" ? "Y" : "N"),
-		"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
-		"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+		"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"] ?? null,
+		"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"] ?? null,
 	),
 	$this->getComponent()
 );

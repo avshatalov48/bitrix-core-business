@@ -154,10 +154,13 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT=="W" && check_bitrix_sessid()
 				$DB->StartTransaction();
 				if(!CVoteUser::Delete($ID))
 				{
-						$DB->Rollback();
-						$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
+					$DB->Rollback();
+					$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
 				}
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 				break;
 		}
 	}

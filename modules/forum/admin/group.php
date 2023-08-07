@@ -61,8 +61,10 @@ if ($forumModulePermissions >= "W")
 							else
 								$lAdmin->AddGroupError(GetMessage("ERROR_DEL_GROUP"), $ID);
 						}
-
-						$DB->Commit();
+						else
+						{
+							$DB->Commit();
+						}
 
 						break;
 				}

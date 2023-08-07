@@ -7,8 +7,7 @@ use Bitrix\Im\V2\Entity\EntityCollection;
 use Bitrix\Main\UserTable;
 
 /**
- * @method User next()
- * @method User current()
+ * @implements \IteratorAggregate<int,User>
  * @method User offsetGet($offset)
  * @method User getById(int $id)
  */

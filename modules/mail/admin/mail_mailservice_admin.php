@@ -64,7 +64,10 @@ if ($MOD_RIGHT == "W" && $lAdmin->EditAction())
 			$lAdmin->AddUpdateError(GetMessage("MAIL_MSERVICE_SAVE_ERROR")." #".$ID.": ".$e->GetString(), $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -93,7 +96,10 @@ if ($MOD_RIGHT == "W" && $arID = $lAdmin->GroupAction())
 					$DB->Rollback();
 					$lAdmin->AddGroupError(GetMessage("MAIL_MSERVICE_DELETE_ERROR"), $ID);
 				}
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 			break;
 
 			case "activate":

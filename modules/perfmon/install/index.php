@@ -27,13 +27,13 @@ Class perfmon extends CModule
 
 	function InstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		// Database tables creation
 		if(!$DB->Query("SELECT 'x' FROM b_perf_hit WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/db/mysql/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -52,7 +52,7 @@ Class perfmon extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		UnRegisterModuleDependences("main", "OnPageStart", "perfmon", "CPerfomanceKeeper", "OnPageStart");
@@ -64,7 +64,7 @@ Class perfmon extends CModule
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/db/mysql/uninstall.sql");
 		}
 
 		UnRegisterModule("perfmon");
@@ -176,7 +176,31 @@ Class perfmon extends CModule
 						"b_perf_sql" => "HIT_ID",
 						"b_perf_cache" => "HIT_ID",
 						"b_perf_error" => "HIT_ID",
-					)
+					),
+					"DATE_HIT" => array(
+						"~edit_mode" => "datetime", //"date"
+					),
+					"IS_ADMIN" => array(
+						"~edit_mode" => "checkbox",
+					),
+					"SCRIPT_NAME" => array(
+						"~edit_mode" => "text", //"textarea"
+					),
+					"REQUEST_URI" => array(
+						"~edit_mode" => "text",
+						"~text_size" => 80,
+					),
+					"CACHE_TYPE" => array(
+						"~edit_mode" => "select",
+						"~select_values" => array(
+							"A" => "Auto",
+							"Y" => "Yes",
+							"N" => "No",
+						),
+					),
+					"CACHE_SIZE" => array(
+						"~edit_mode" => "read_only",
+					),
 				),
 				"b_perf_component" => array(
 					"ID" => array(

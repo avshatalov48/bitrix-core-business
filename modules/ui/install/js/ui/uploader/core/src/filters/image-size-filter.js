@@ -3,9 +3,11 @@ import { Extension, Type } from 'main.core';
 import Filter from './filter';
 import UploaderError from '../uploader-error';
 import getImageSize from '../helpers/image-size/get-image-size';
+import isResizableImage from '../helpers/is-resizable-image';
 
 import type Uploader from '../uploader';
 import type UploaderFile from '../uploader-file';
+import type { UploaderOptions } from '../types/uploader-options';
 
 export default class ImageSizeFilter extends Filter
 {
@@ -14,8 +16,9 @@ export default class ImageSizeFilter extends Filter
 	#imageMaxWidth: number = 7000;
 	#imageMaxHeight: number = 7000;
 	#ignoreUnknownImageTypes: boolean = false;
+	#treatOversizeImageAsFile: boolean = false;
 
-	constructor(uploader: Uploader, filterOptions: { [key: string]: any } = {})
+	constructor(uploader: Uploader, filterOptions: UploaderOptions = {})
 	{
 		super(uploader);
 
@@ -25,58 +28,76 @@ export default class ImageSizeFilter extends Filter
 		this.#imageMaxWidth = settings.get('imageMaxWidth', this.#imageMaxWidth);
 		this.#imageMaxHeight = settings.get('imageMaxHeight', this.#imageMaxHeight);
 
-		const options = Type.isPlainObject(filterOptions) ? filterOptions : {};
+		const options: UploaderOptions = Type.isPlainObject(filterOptions) ? filterOptions : {};
 
-		this.setImageMinWidth(options['imageMinWidth']);
-		this.setImageMinHeight(options['imageMinHeight']);
-		this.setImageMaxWidth(options['imageMaxWidth']);
-		this.setImageMaxHeight(options['imageMaxHeight']);
-		this.setIgnoreUnknownImageTypes(options['ignoreUnknownImageTypes']);
+		this.setImageMinWidth(options.imageMinWidth);
+		this.setImageMinHeight(options.imageMinHeight);
+		this.setImageMaxWidth(options.imageMaxWidth);
+		this.setImageMaxHeight(options.imageMaxHeight);
+		this.setIgnoreUnknownImageTypes(options.ignoreUnknownImageTypes);
+		this.setTreatOversizeImageAsFile(options.treatOversizeImageAsFile);
 	}
 
 	apply(file: UploaderFile): Promise
 	{
-		return new Promise((resolve, reject) => {
-
-			if (!file.isImage())
+		return new Promise((resolve, reject): void => {
+			if (!isResizableImage(file.getName(), file.getType()))
 			{
 				resolve();
+
 				return;
 			}
 
 			getImageSize(file.getBinary())
-				.then(({ width, height }) => {
+				.then(({ width, height }): void => {
 					file.setWidth(width);
 					file.setHeight(height);
 
 					if (width < this.getImageMinWidth() || height < this.getImageMinHeight())
 					{
-						reject(new UploaderError(
-							'IMAGE_IS_TOO_SMALL',
-							{
-								minWidth: this.getImageMinWidth(),
-								minHeight: this.getImageMinHeight(),
-							},
-						));
+						if (this.shouldTreatOversizeImageAsFile())
+						{
+							file.setTreatImageAsFile(true);
+							resolve();
+						}
+						else
+						{
+							reject(new UploaderError(
+								'IMAGE_IS_TOO_SMALL',
+								{
+									minWidth: this.getImageMinWidth(),
+									minHeight: this.getImageMinHeight(),
+								},
+							));
+						}
 					}
 					else if (width > this.getImageMaxWidth() || height > this.getImageMaxHeight())
 					{
-						reject(new UploaderError(
-							'IMAGE_IS_TOO_BIG',
-							{
-								maxWidth: this.getImageMaxWidth(),
-								maxHeight: this.getImageMaxHeight(),
-							},
-						));
+						if (this.shouldTreatOversizeImageAsFile())
+						{
+							file.setTreatImageAsFile(true);
+							resolve();
+						}
+						else
+						{
+							reject(new UploaderError(
+								'IMAGE_IS_TOO_BIG',
+								{
+									maxWidth: this.getImageMaxWidth(),
+									maxHeight: this.getImageMaxHeight(),
+								},
+							));
+						}
 					}
 					else
 					{
 						resolve();
 					}
 				})
-				.catch(error => {
+				.catch((error): void => {
 					if (this.getIgnoreUnknownImageTypes())
 					{
+						file.setTreatImageAsFile(true);
 						resolve();
 					}
 					else
@@ -156,5 +177,18 @@ export default class ImageSizeFilter extends Filter
 		{
 			this.#ignoreUnknownImageTypes = value;
 		}
+	}
+
+	setTreatOversizeImageAsFile(value: boolean): void
+	{
+		if (Type.isBoolean(value))
+		{
+			this.#treatOversizeImageAsFile = value;
+		}
+	}
+
+	shouldTreatOversizeImageAsFile(): boolean
+	{
+		return this.#treatOversizeImageAsFile;
 	}
 }

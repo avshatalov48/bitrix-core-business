@@ -95,7 +95,7 @@ class Group extends CopyImplementer
 		{
 			\CSocNetFeatures::setFeature(SONET_ENTITY_GROUP, $groupId, "files", true, false);
 
-			if ($fields["OWNER_ID"] != $fields["OLD_OWNER_ID"])
+			if (isset($fields["OWNER_ID"]))
 			{
 				if (\CSocNetUserToGroup::setOwner($fields["OWNER_ID"], $groupId))
 				{
@@ -210,11 +210,6 @@ class Group extends CopyImplementer
 
 	private function changeFields(array $fields)
 	{
-		if (!empty($fields["OWNER_ID"]))
-		{
-			$fields["OLD_OWNER_ID"] = $fields["OWNER_ID"];
-		}
-
 		foreach ($this->changedFields as $fieldId => $fieldValue)
 		{
 			if (array_key_exists($fieldId, $fields))

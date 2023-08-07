@@ -108,6 +108,20 @@
 	width: 25px;
 }
 
+.landing-ui-field-fields-list-item-button {
+	display: inline-block;
+	color: #80868e;
+	border-bottom: 1px dashed #d8d8d8;
+	transition: all 200ms ease;
+	cursor: pointer;
+}
+
+.landing-ui-field-fields-list-item-button:hover,
+.landing-ui-field-fields-list-item-button:active {
+	color: #333333;
+	border-bottom: 1px dashed #333333;
+}
+
 .landing-ui-field-fields-list-item-edit-button,
 .landing-ui-field-fields-list-item-remove-button {
 	width: 19px;

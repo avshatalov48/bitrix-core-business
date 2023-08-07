@@ -38,6 +38,20 @@ class CatalogStoreEntityDetails extends CBitrixComponent implements Controllerab
 	}
 
 	/**
+	 * @inheritDoc
+	 *
+	 * @param array $arParams
+	 *
+	 * @return void
+	 */
+	public function onPrepareComponentParams($arParams)
+	{
+		$arParams['USER_FIELD_CREATE_PAGE_URL'] ??= null;
+
+		return $arParams;
+	}
+
+	/**
 	 * Is new entity.
 	 *
 	 * @return bool
@@ -84,7 +98,10 @@ class CatalogStoreEntityDetails extends CBitrixComponent implements Controllerab
 	 */
 	private function getEditorProvider(): StoreProvider
 	{
-		return new StoreProvider($this->entityFields ?? []);
+		return new StoreProvider(
+			$this->entityFields ?? [],
+			$this->arParams['USER_FIELD_CREATE_PAGE_URL']
+		);
 	}
 
 	/**
@@ -352,6 +369,6 @@ class CatalogStoreEntityDetails extends CBitrixComponent implements Controllerab
 		}
 
 		$manager = new CUserTypeManager();
-		$manager->Update(StoreProvider::USER_FIELD_TYPE, $storeId, $userFields);
+		$manager->Update(StoreTable::getUfId(), $storeId, $userFields);
 	}
 }

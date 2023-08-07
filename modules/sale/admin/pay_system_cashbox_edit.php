@@ -34,8 +34,7 @@ namespace Bitrix\Sale\PaySystem\AdminPage\PaySystemCashbox
 	/** @var Cashbox\CashboxPaySystem $cashboxClass */
 	$cashboxClass = $service->getCashboxClass();
 
-	$paySystemCodeForKkm = $cashboxClass::getPaySystemCodeForKkm();
-	$supportedKkmModels = Sale\BusinessValue::getValuesByCode($service->getConsumerName(), $paySystemCodeForKkm);
+	$supportedKkmModels = $cashboxClass::getKkmValue($service);
 
 	$kkmId = current($supportedKkmModels);
 	if ($request->get('kkmId'))

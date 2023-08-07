@@ -540,9 +540,8 @@ export class VoximplantCall extends AbstractCall
 
 	/**
 	 * Updates list of users,
-	 * @param {UserMnemonic | int[]} userList
 	 */
-	allowVideoFrom(userList)
+	allowVideoFrom(userList: $Keys<typeof UserMnemonic> | number[])
 	{
 		if (this.videoAllowedFrom == userList)
 		{

@@ -19,13 +19,13 @@ include('util_group_menu.php');
 $componentParameters = [
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],
 	"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],
-	"PAGE_VAR" => $arResult["ALIASES"]["page"],
-	"USER_VAR" => $arResult["ALIASES"]["user_id"],
-	"GROUP_VAR" => $arResult["ALIASES"]["group_id"],
+	"PAGE_VAR" => $arResult["ALIASES"]["page"] ?? null,
+	"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? null,
+	"GROUP_VAR" => $arResult["ALIASES"]["group_id"] ?? null,
 	"SET_NAV_CHAIN" => $arResult["SET_NAV_CHAIN"],
 	"SET_TITLE" => $arResult["SET_TITLE"],
-	"USER_ID" => $arResult["VARIABLES"]["user_id"],
-	"GROUP_ID" => $arResult["VARIABLES"]["group_id"],
+	"USER_ID" => $arResult["VARIABLES"]["user_id"] ?? null,
+	"GROUP_ID" => $arResult["VARIABLES"]["group_id"] ?? null,
 	"PAGE_ID" => "group_features",
 ];
 $APPLICATION->IncludeComponent(

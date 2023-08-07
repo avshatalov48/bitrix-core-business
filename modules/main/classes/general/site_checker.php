@@ -227,11 +227,17 @@ class CSiteCheckerTest
 
 		$LICENSE_KEY = '';
 		if (file_exists($file = $_SERVER['DOCUMENT_ROOT'].'/bitrix'.'/license_key.php'))
+		{
 			include($file);
-
+		}
 		if ($LICENSE_KEY == '')
+		{
 			$LICENSE_KEY = 'DEMO';
-		define('LICENSE_HASH', md5('CONNECTION_TEST'));
+		}
+		if (!defined('LICENSE_HASH'))
+		{
+			define('LICENSE_HASH', md5('CONNECTION_TEST'));
+		}
 		$this->LogFile = '/bitrix'.'/site_checker_'.md5('SITE_CHECKER'.$LICENSE_KEY).'.log';
 	}
 
@@ -311,9 +317,11 @@ class CSiteCheckerTest
 			{
 				if (!$this->fix_mode) // if we have a kernel
 				{
-					COption::SetOptionString('main', 'site_checker_success', $this->arTestVars['site_checker_success']);
-					if ($this->arTestVars['site_checker_success'] == 'Y')
+					COption::SetOptionString('main', 'site_checker_success', $this->arTestVars['site_checker_success'] ?? '');
+					if (isset($this->arTestVars['site_checker_success']) && $this->arTestVars['site_checker_success'] == 'Y')
+					{
 						CAdminNotify::DeleteByTag('SITE_CHECKER');
+					}
 				}
 			}
 		}
@@ -356,8 +364,10 @@ class CSiteCheckerTest
 	{
 		if (!$host)
 		{
-			if ($this->arTestVars['check_socket_fail'])
+			if (!empty($this->arTestVars['check_socket_fail']))
+			{
 				return $this->Result(null, GetMessage('SC_SOCK_NA'));
+			}
 
 			$host = $this->host;
 			$port = $this->port;
@@ -2777,12 +2787,14 @@ class CSiteCheckerTest
 		IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/admin/site_checker.php');
 
 		$step = 0;
+		$ar = null;
 		while(true)
 		{
-			if (is_object($oTest))
-				$ar = $oTest->arTestVars;
 			$oTest = new CSiteCheckerTest($step, $fast = 1);
-			$oTest->arTestVars = $ar;
+			if ($ar !== null)
+			{
+				$oTest->arTestVars = $ar;
+			}
 			$oTest->ssl =
 				(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
 				|| (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
@@ -2804,7 +2816,7 @@ class CSiteCheckerTest
 			$oTest->Start();
 			if ($oTest->result === false)
 			{
-				$ar = Array(
+				$error = Array(
 					"MESSAGE" =>
 						(
 							IsModuleInstalled('intranet') ?
@@ -2815,13 +2827,18 @@ class CSiteCheckerTest
 					"MODULE_ID" => "MAIN",
 					'NOTIFY_TYPE' => CAdminNotify::TYPE_NORMAL
 				);
-				CAdminNotify::Add($ar);
+				CAdminNotify::Add($error);
 				break;
 			}
 
 			if ($oTest->percent >= 100)
+			{
 				break;
+			}
+
 			$step++;
+
+			$ar = $oTest->arTestVars;
 		}
 
 		$REMOTE_ADDR = $_SERVER['REMOTE_ADDR'];
@@ -2830,7 +2847,7 @@ class CSiteCheckerTest
 		$_SERVER['HTTP_USER_AGENT'] = '-';
 		CEventLog::Add(array(
 			"SEVERITY" => "WARNING",
-			"AUDIT_TYPE_ID" => $oTest->arTestVars['site_checker_success'] == 'Y' ? 'SITE_CHECKER_SUCCESS' : 'SITE_CHECKER_ERROR',
+			"AUDIT_TYPE_ID" => isset($oTest->arTestVars['site_checker_success']) && $oTest->arTestVars['site_checker_success'] == 'Y' ? 'SITE_CHECKER_SUCCESS' : 'SITE_CHECKER_ERROR',
 			"MODULE_ID" => "main",
 			"ITEM_ID" => 'CSiteCheckerTest::CommonTest();',
 			"URL" => '-',

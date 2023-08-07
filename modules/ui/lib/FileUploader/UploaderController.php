@@ -2,8 +2,6 @@
 
 namespace Bitrix\UI\FileUploader;
 
-use Bitrix\Main\Result;
-
 abstract class UploaderController
 {
 	protected array $options = [];
@@ -25,7 +23,12 @@ abstract class UploaderController
 
 	abstract public function getConfiguration(): Configuration;
 
-	abstract public function canUpload(): bool;
+	/**
+	 * @param UploadRequest $uploadRequest
+	 *
+	 * @return bool | CanUploadResult
+	 */
+	abstract public function canUpload();
 
 	abstract public function canView(): bool;
 
@@ -34,20 +37,9 @@ abstract class UploaderController
 	abstract public function canRemove(): bool;
 
 	// Events
-	public function onUploadStart(TempFile $tempFile): ?Result
-	{
-		return null;
-	}
-
-	public function onUploadComplete(TempFile $tempFile): ?Result
-	{
-		return null;
-	}
-
-	public function onUploadError(UploadResult $uploadResult): void
-	{
-
-	}
+	public function onUploadStart(UploadResult $uploadResult): void {}
+	public function onUploadComplete(UploadResult $uploadResult): void {}
+	public function onUploadError(UploadResult $uploadResult): void {}
 
 	public function getCommitOptions(): CommitOptions
 	{
@@ -58,22 +50,22 @@ abstract class UploaderController
 		]);
 	}
 
-	public function getFingerprint(): string
-	{
-		return (string)\bitrix_sessid();
-	}
-
-	public function getOptions(): array
+	final public function getOptions(): array
 	{
 		return $this->options;
 	}
 
-	public function getName(): string
+	final public function getOption(string $option, $defaultValue = null)
+	{
+		return array_key_exists($option, $this->options) ? $this->options[$option] : $defaultValue;
+	}
+
+	final public function getName(): string
 	{
 		return $this->name;
 	}
 
-	public function getModuleId(): string
+	final public function getModuleId(): string
 	{
 		return $this->moduleId;
 	}

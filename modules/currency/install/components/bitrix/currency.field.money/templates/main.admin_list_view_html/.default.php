@@ -7,7 +7,7 @@ use Bitrix\Currency\UserField\Types\MoneyType;
 $explode = MoneyType::unFormatFromDB($arResult['additionalParameters']['VALUE']);
 
 $currentValue = $explode[0] ? $explode[0] : '';
-$currentCurrency = $explode[1] ? $explode[1] : '';
+$currentCurrency = $explode[1] ?? '';
 
 if(!$currentCurrency)
 {

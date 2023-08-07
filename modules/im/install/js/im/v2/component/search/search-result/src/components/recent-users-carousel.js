@@ -1,27 +1,29 @@
-import {CarouselUser} from './carousel-user';
+import { CarouselUser } from './carousel-user';
+
 import '../css/recent-users-carousel.css';
-import type {SearchItem} from '../classes/search-item';
+
+import type { SearchItem } from '../classes/search-item';
 
 const recentUsersLimit = 6;
 
 // @vue/component
 export const RecentUsersCarousel = {
 	name: 'RecentUsersCarousel',
-	components: {CarouselUser},
+	components: { CarouselUser },
 	props:
 	{
 		items: {
 			type: Object, // Map<string, SearchItem>
-			required: true
+			required: true,
 		},
 		selectMode: {
 			type: Boolean,
-			default: false
+			default: false,
 		},
 		selectedItems: {
 			type: Array,
-			default: () => []
-		}
+			default: () => [],
+		},
 	},
 	emits: ['clickItem'],
 	computed:
@@ -38,7 +40,7 @@ export const RecentUsersCarousel = {
 		isSelected(item: SearchItem): boolean
 		{
 			return this.selectedItems.includes(item.getEntityFullId());
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-recent-users-carousel__container bx-im-recent-users-carousel__scope">
@@ -58,5 +60,5 @@ export const RecentUsersCarousel = {
 				/>
 			</div>
 		</div>
-	`
+	`,
 };

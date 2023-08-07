@@ -5,6 +5,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @property-write string|null ErrorMessage */
 class CBPCreateListsDocumentActivity extends CBPActivity
 {
 	public function __construct($name)
@@ -17,12 +18,16 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 
 			//return properties
 			'ElementId' => null,
+			'ErrorMessage' => null,
 		];
 
 		//return properties mapping
 		$this->SetPropertiesTypes([
 			'ElementId' => [
 				'Type' => 'int',
+			],
+			'ErrorMessage' => [
+				'Type' => 'string',
 			],
 		]);
 	}
@@ -31,6 +36,7 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 	{
 		parent::ReInitialize();
 		$this->ElementId = null;
+		$this->ErrorMessage = null;
 	}
 
 	public function Execute()
@@ -91,14 +97,23 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 				if ($fieldTypeObject)
 				{
 					$fieldTypeObject->setDocumentId($documentId);
-					$field = $fieldTypeObject->externalizeValue('Document', $field);
+					$fieldTypeObject->setValue($field);
+					$field = $fieldTypeObject->externalizeValue('Document', $fieldTypeObject->getValue());
 				}
 			}
 
 			$resultFields[$key] = $field;
 		}
 
-		$this->ElementId = $documentService->CreateDocument($documentType, $resultFields);
+		try
+		{
+			$this->ElementId = $documentService->CreateDocument($documentType, $resultFields);
+		}
+		catch (Exception $e)
+		{
+			$this->WriteToTrackingService($e->getMessage(), 0, CBPTrackingType::Error);
+			$this->ErrorMessage = $e->getMessage();
+		}
 
 		$this->logDebugId($this->ElementId);
 		$this->logDebugFields($fieldsMap, $valuesMap);
@@ -337,7 +352,7 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 				$documentType,
 				$fieldValue,
 				[$formName, $fieldKey],
-				$currentValues[$fieldKey],
+				$currentValues[$fieldKey] ?? null,
 				true,
 				false
 			);

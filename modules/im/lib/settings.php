@@ -48,6 +48,18 @@ class Settings
 		return (bool)$settings['call']['broadcast_enabled'];
 	}
 
+	public static function isCallBetaAvailable(): bool
+	{
+		$result = \Bitrix\Main\Config\Option::get('im', 'call_beta_access', 'N');
+		return $result === 'Y';
+	}
+
+	public static function isAiBetaAvailable(): bool
+	{
+		$result = \Bitrix\Main\Config\Option::get('im', 'ai_beta_access', 'N');
+		return $result === 'Y';
+	}
+
 	public static function isBetaAvailable(): bool
 	{
 		$userId = Common::getUserId();
@@ -98,11 +110,6 @@ class Settings
 			return false;
 		}
 
-		if (\CIMMessenger::IsDesktopEnvironment())
-		{
-			return false;
-		}
-
 		$isLegacy = \Bitrix\Main\Context::getCurrent()->getRequest()->getQuery('IM_LEGACY');
 		$isIframe = \Bitrix\Main\Context::getCurrent()->getRequest()->getQuery('IFRAME');
 		$isHistory = \Bitrix\Main\Context::getCurrent()->getRequest()->getQuery('IM_HISTORY');
@@ -117,6 +124,23 @@ class Settings
 		}
 
 		return false;
+	}
+
+	public static function setBetaActive($active = true): bool
+	{
+		if (!\Bitrix\Im\Settings::isBetaAvailable())
+		{
+			return false;
+		}
+
+		\CUserOptions::SetOption('im', 'v2_enabled', $active ? 'Y' : 'N');
+
+		if (\Bitrix\Main\Loader::includeModule("intranet"))
+		{
+			\Bitrix\Intranet\Composite\CacheProvider::deleteUserCache();
+		}
+
+		return true;
 	}
 }
 

@@ -1,8 +1,14 @@
 import './spinner.css';
 
 export const SpinnerSize = Object.freeze({
+	XXS: 'XXS',
 	S: 'S',
 	L: 'L',
+});
+
+export const SpinnerColor = Object.freeze({
+	grey: 'grey',
+	blue: 'blue',
 });
 
 // @vue/component
@@ -11,7 +17,11 @@ export const Spinner = {
 	props: {
 		size: {
 			type: String,
-			default: SpinnerSize.S
+			default: SpinnerSize.S,
+		},
+		color: {
+			type: String,
+			default: SpinnerColor.blue,
 		},
 	},
 	computed:
@@ -19,11 +29,15 @@ export const Spinner = {
 		sizeClassName(): string
 		{
 			return `--size-${this.size.toLowerCase()}`;
-		}
+		},
+		colorClassName(): string
+		{
+			return `--color-${this.color.toLowerCase()}`;
+		},
 	},
 	template: `
 		<div class="bx-im-elements-spinner__container">
-			<div class="bx-im-elements-spinner__spinner" :class="sizeClassName"></div>
+			<div class="bx-im-elements-spinner__spinner" :class="[sizeClassName, colorClassName]"></div>
 		</div>
 	`
 };

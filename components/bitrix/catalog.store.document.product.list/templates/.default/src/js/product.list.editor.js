@@ -663,7 +663,7 @@ export class Editor
 
 		return salesOrdersDocumentTypeCodes.includes(this.settings.documentType);
 	}
-	
+
 	changeCurrencyId(currencyId): void
 	{
 		const oldCurrencyId = this.getCurrencyId();
@@ -1631,6 +1631,7 @@ export class Editor
 			'BASE_PRICE',
 			'BASE_PRICE_EXTRA',
 			'BASE_PRICE_EXTRA_RATE',
+			'COMMENT',
 			'DOC_BARCODE',
 			'BARCODE',
 			'STORE_TO',

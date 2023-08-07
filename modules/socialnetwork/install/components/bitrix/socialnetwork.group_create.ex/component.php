@@ -1452,7 +1452,7 @@ else
 						)
 						{
 							$errorMessage = array_merge($errorMessage, $warningMessage);
-							if (!$bInvited)
+							if (!($bInvited ?? null))
 							{
 								$errorValue = Loc::getMessage('SONET_GCE_NO_USERS');
 
@@ -1936,6 +1936,12 @@ if ($arParams['GROUP_ID'] > 0)
 		$arResult['PageTitle'] = (($arResult['TAB'] ?? '') === 'invite' ? Loc::getMessage('SONET_GCE_TITLE_INVITE') : Loc::getMessage('SONET_GCE_TITLE_EDIT'));
 	}
 }
+
+$culture = \Bitrix\Main\Context::getCurrent()->getCulture();
+
+$arResult['culture'] = [
+	'shortDateFormat' => $culture->getShortDateFormat(),
+];
 
 $APPLICATION->SetTitle($arResult['PageTitle']);
 

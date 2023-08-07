@@ -543,23 +543,21 @@ class Service implements RestrictableService
 	public function canPrintCheckSelf(Payment $payment): bool
 	{
 		$service = $payment->getPaySystem();
-		if (!$this->isSupportPrintCheck() || !$this->canPrintCheck())
+		if (!$service || !$this->isSupportPrintCheck() || !$this->canPrintCheck())
 		{
 			return false;
 		}
 
 		/** @var Cashbox\CashboxPaySystem $cashboxClass */
 		$cashboxClass = $this->getCashboxClass();
-
-		$paySystemParams = $service->getParamsBusValue($payment);
-		$paySystemCodeForKkm = $cashboxClass::getPaySystemCodeForKkm();
+		$kkm = $cashboxClass::getKkmValue($service);
 
 		return (bool)Cashbox\Manager::getList([
 			'select' => ['ID'],
 			'filter' => [
 				'=ACTIVE' => 'Y',
 				'=HANDLER' => $cashboxClass,
-				'=KKM_ID' => $paySystemParams[$paySystemCodeForKkm],
+				'=KKM_ID' => $kkm,
 			],
 		])->fetch();
 	}

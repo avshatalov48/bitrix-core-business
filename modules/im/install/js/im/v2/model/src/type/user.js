@@ -7,6 +7,7 @@ export type User = {
 	color: string,
 	workPosition: string,
 	gender: 'M' | 'F',
+	isAdmin: boolean,
 	extranet: boolean,
 	network: boolean,
 	bot: boolean,

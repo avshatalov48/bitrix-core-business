@@ -95,7 +95,18 @@ BX.ajax = function(config)
 		}
 		else if (getLastContentTypeHeader(config.headers) === 'application/json')
 		{
-			config.data = JSON.stringify(config.data);
+			const isJson = (
+				BX.Type.isPlainObject(config.data)
+				|| BX.Type.isString(config.data)
+				|| BX.Type.isNumber(config.data)
+				|| BX.Type.isBoolean(config.data)
+				|| BX.Type.isArray(config.data)
+			);
+
+			if (isJson)
+			{
+				config.data = JSON.stringify(config.data);
+			}
 		}
 	}
 
@@ -1962,4 +1973,3 @@ BX.ajax.FormData.prototype.send = function(url, callbackOk, callbackProgress, ca
 
 BX.addCustomEvent('onAjaxFailure', BX.debug);
 })(window);
-

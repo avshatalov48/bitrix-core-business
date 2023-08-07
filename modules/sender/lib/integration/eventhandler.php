@@ -265,11 +265,10 @@ class EventHandler
 				'Bitrix\Sender\Integration\Seo\Ads\MessageYa',
 				\Bitrix\Sender\Integration\Seo\Ads\MessageLookalikeYandex::class,
 				'Bitrix\Sender\Integration\Seo\Ads\MessageGa',
-				'Bitrix\Sender\Integration\Seo\Ads\MessageVk',
+				\Bitrix\Sender\Integration\Seo\Ads\MessageVk::class,
 				'Bitrix\Sender\Integration\Seo\Ads\MessageFb',
 				'Bitrix\Sender\Integration\Seo\Ads\MessageMarketingFb',
 				'Bitrix\Sender\Integration\Seo\Ads\MessageMarketingInstagram',
-				'Bitrix\Sender\Integration\Seo\Ads\MessageLookalikeVk',
 				'Bitrix\Sender\Integration\Seo\Ads\MessageLookalikeFb',
 			);
 			foreach ($adsList as $adsClass)

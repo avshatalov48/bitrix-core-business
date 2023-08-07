@@ -43,6 +43,7 @@
 	};
 	Selector.prototype.setCurrent = function(current)
 	{
+		current = current.replaceAll('\'', '"');
 		this.ifExists(current)? this.setSelected(current):
 			this.setSelected(this.getFirstOrDefault());
 	};

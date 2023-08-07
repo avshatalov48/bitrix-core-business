@@ -340,7 +340,6 @@ this.BX = this.BX || {};
 	    this.container = null;
 	    this.keys = [];
 	    this.hasParent = [];
-	    this.childKeys = [];
 	  }
 	  babelHelpers.createClass(CounterPanel, [{
 	    key: "isMultiselect",
@@ -433,7 +432,7 @@ this.BX = this.BX || {};
 	              items: itemsArr,
 	              angle: true,
 	              offsetLeft: 6,
-	              offsetTop: -7,
+	              offsetTop: 5,
 	              animation: 'fading-slide',
 	              events: {
 	                onPopupShow: function onPopupShow() {

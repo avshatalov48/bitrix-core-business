@@ -1124,3 +1124,30 @@ div[bx-mpl-block="edit-placeholder"] .feed-add-post-files-activity {
 	margin: auto;
 }
 /*endregion*/
+
+.feed__mobile_btn {
+	display: inline-block;
+	margin-right: 2px;
+	width: 16px;
+	height: 12px;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='12' fill='none'%3E%3Cpath fill='%23828B95' fill-rule='evenodd' d='M6.3.654H1.7c-.563 0-.993.408-.993.943v8.806c0 .502.43.943.993.943H6.3c.564 0 .994-.44.994-.944V1.598c0-.534-.43-.943-.994-.943ZM4 11.032a.63.63 0 0 1-.63-.63.63.63 0 0 1 .63-.629.63.63 0 0 1 .629.63.63.63 0 0 1-.63.629ZM6.38 9.46H1.62V2.226h4.76V9.46Z' clip-rule='evenodd'/%3E%3C/svg%3E") center no-repeat;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.feed__mobile__popup_content {
+	display: flex;
+	padding: 0 10px;
+	max-width: 360px;
+}
+
+.feed__mobile__popup_content__text {
+	margin-right: 10px;
+}
+
+.feed__mobile__popup_content__link {
+	display: inline-block;
+	border-bottom: 1px solid rgba(47, 198, 246, .4);
+	color: #7fdefc;
+	cursor: pointer;
+}

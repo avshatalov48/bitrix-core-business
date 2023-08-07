@@ -54,6 +54,7 @@
 		BX.Calendar.Util.setIsSharingFeatureEnabled(config.isSharingFeatureEnabled);
 		BX.Calendar.Util.setSharingConfig(config.sharing);
 		this.payAttentionToNewSharingFeature = config.payAttentionToNewSharingFeature;
+		this.sharingFeatureLimitEnable = config.sharingFeatureLimitEnable;
 
 		this.requests = {};
 		this.currentUser = config.user;
@@ -201,6 +202,7 @@
 						buttonWrap: document.querySelector('#' + this.id + '-sharing-container'),
 						userId: this.currentUser.id,
 						payAttentionToNewFeature: this.payAttentionToNewSharingFeature,
+						sharingFeatureLimit: !this.sharingFeatureLimitEnable,
 					});
 
 					if (BX.Calendar.Util.checkSharingFeatureEnabled())

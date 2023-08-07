@@ -30,7 +30,9 @@ class MessageUserType
 
 	public static function getDbColumnType($userField)
 	{
-		return 'INT';
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\IntegerField('x'));
 	}
 
 	public static function getPublicView($userField, $params)

@@ -98,6 +98,12 @@
 	justify-content: space-between;
 }
 
+.mail-menu-popup-item-text-wrapper
+{
+	display: flex;
+	align-items: center;
+}
+
 .menu-popup-item-text .main-buttons-item-text {
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -450,6 +456,7 @@
 .mail-msg-list-grid .main-grid-row-head .main-grid-cell-head {
 	height: 55px;
 	border-bottom: 27px solid transparent;
+	background: transparent;
 }
 
 .mail-msg-list-grid .main-grid-cell-inner {

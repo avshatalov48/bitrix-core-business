@@ -71,7 +71,7 @@ class XMLNode
 	}
 }
 
-class XMLParser
+class CBitrixCommerceCmlXmlParser
 {
 	var $parser;
 	var $cur;
@@ -359,7 +359,7 @@ if ($outFileAction!="F" && $outFileAction!="H")
 
 if ('' === $strImportErrorMessage)
 {
-	$xml = new XMLParser();
+	$xml = new CBitrixCommerceCmlXmlParser();
 	$xml_content = file_get_contents($DATA_FILE_NAME);
 
 	if (!$xml_content || $xml_content == '')

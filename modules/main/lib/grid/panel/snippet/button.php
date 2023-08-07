@@ -15,6 +15,7 @@ class Button
 {
 	protected $id = "";
 	protected $name = "";
+	protected $type = "";
 	protected $class = "";
 	protected $text = "";
 	/**

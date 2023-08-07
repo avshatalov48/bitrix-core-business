@@ -1,29 +1,31 @@
-import {Core} from 'im.v2.application.core';
-import {Avatar, AvatarSize, UserStatus, UserStatusSize} from 'im.v2.component.elements';
-import {Utils} from 'im.v2.lib.utils';
+import { Core } from 'im.v2.application.core';
+import { Avatar, AvatarSize, UserStatus, UserStatusSize } from 'im.v2.component.elements';
+import { Utils } from 'im.v2.lib.utils';
+import { DesktopManager } from 'im.v2.lib.desktop';
+import { Logger } from 'im.v2.lib.logger';
 
-import {ButtonPanel} from './button-panel';
-import {UserStatusPopup} from '../status/user-status-popup';
-import {BackgroundPopup} from '../background/background-popup';
-import {VersionService} from '../../classes/version-service';
+import { ButtonPanel } from './button-panel';
+import { UserStatusPopup } from '../status/user-status-popup';
+import { BackgroundPopup } from '../background/background-popup';
+import { VersionService } from '../../classes/version-service';
 
 import 'ui.buttons';
 import 'ui.feedback.form';
 
-import type {ImModelUser} from 'im.v2.model';
-import {UserStatus as UserStatusType} from 'im.v2.const';
+import type { ImModelUser } from 'im.v2.model';
+import { UserStatus as UserStatusType } from 'im.v2.const';
 
 // @vue/component
 export const UserSettingsContent = {
 	name: 'UserSettingsContent',
-	components: {Avatar, UserStatus, ButtonPanel, UserStatusPopup, BackgroundPopup},
+	components: { Avatar, UserStatus, ButtonPanel, UserStatusPopup, BackgroundPopup },
 	emits: ['closePopup', 'enableAutoHide', 'disableAutoHide'],
-	data()
+	data(): Object
 	{
 		return {
 			showStatusPopup: false,
 			showBackgroundPopup: false,
-			isChangingVersion: false
+			isChangingVersion: false,
 		};
 	},
 	computed:
@@ -42,12 +44,12 @@ export const UserSettingsContent = {
 		{
 			return this.$store.getters['users/getPosition'](this.currentUserId);
 		},
-		currentUserStatus(): string
+		userStatus(): string
 		{
-			const status = this.$store.getters['users/getStatus'](this.currentUserId);
-			if (status)
+			const user = this.$store.getters['users/get'](this.currentUserId, true);
+			if (user)
 			{
-				return status;
+				return user.status;
 			}
 
 			return UserStatusType.online;
@@ -63,15 +65,24 @@ export const UserSettingsContent = {
 		profileUri(): string
 		{
 			return Utils.user.getProfileLink(this.currentUserId);
-		}
+		},
 	},
 	methods:
 	{
 		onBackToOldChatClick()
 		{
 			this.isChangingVersion = true;
-			this.getVersionService().disableV2Version().then(() => {
-				window.location.replace('/online/');
+			this.getVersionService().disableBeta().then(() => {
+				if (DesktopManager.isDesktop())
+				{
+					window.location.reload();
+				}
+				else
+				{
+					window.location.replace('/online/');
+				}
+			}).catch((error) => {
+				Logger.error('Error while switching version', error);
 			});
 		},
 		onStatusClick()
@@ -96,7 +107,7 @@ export const UserSettingsContent = {
 		},
 		onHelpClick()
 		{
-			const ARTICLE_CODE = 17373696;
+			const ARTICLE_CODE = '17373696';
 			BX.Helper?.show(`redirect=detail&code=${ARTICLE_CODE}`);
 			this.$emit('closePopup');
 		},
@@ -105,11 +116,11 @@ export const UserSettingsContent = {
 			BX.UI.Feedback.Form.open({
 				id: 'im-v2-feedback',
 				forms: [
-					{zones: ['ru'], id: 550, sec: '50my2x', lang: 'ru'},
-					{zones: ['en'], id: 560, sec: '621lbr', lang: 'ru'},
+					{ zones: ['ru'], id: 550, sec: '50my2x', lang: 'ru' },
+					{ zones: ['en'], id: 560, sec: '621lbr', lang: 'ru' },
 				],
 				presets: {
-					sender_page: 'profile'
+					sender_page: 'profile',
 				},
 			});
 			this.$emit('closePopup');
@@ -126,7 +137,7 @@ export const UserSettingsContent = {
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-user-settings-popup__scope bx-im-user-settings-popup__container">
@@ -138,7 +149,7 @@ export const UserSettingsContent = {
 					<div class="bx-im-user-settings-popup__domain">{{ currentHost }}</div>
 					<div class="bx-im-user-settings-popup__user_name" :title="currentUser.name">{{ currentUser.name }}</div>
 					<div class="bx-im-user-settings-popup__user_title" :title="currentUserPosition">{{ currentUserPosition }}</div>
-					<a :href="profileUri" target="_blank">
+					<a :href="profileUri" target="_blank" class="bx-im-user-settings-popup__user_link">
 						<ButtonPanel @openProfile="$emit('closePopup')" />
 					</a>
 				</div>
@@ -149,7 +160,7 @@ export const UserSettingsContent = {
 				<div @click="onStatusClick" class="bx-im-user-settings-popup__list-item --with-icon">
 					<div class="bx-im-user-settings-popup__list-item_left">
 						<div class="bx-im-user-settings-popup__list-item_status">
-							<UserStatus :status="currentUserStatus" :size="UserStatusSize.M" />
+							<UserStatus :status="userStatus" :size="UserStatusSize.M" />
 						</div>
 						<div class="bx-im-user-settings-popup__list-item_text">{{ userStatusText }}</div>
 					</div>
@@ -199,5 +210,5 @@ export const UserSettingsContent = {
 			:bindElement="$refs['background-select'] || {}"
 			@close="onBackgroundPopupClose"
 		/>
-	`
+	`,
 };

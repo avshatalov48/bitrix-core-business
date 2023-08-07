@@ -79,6 +79,8 @@ class FactoryBased extends BasePersonalize
 		string $sortOrder = 'asc'
 	): array
 	{
+		$hasIncorrectFields = false;
+
 		if (empty($usedFields))
 		{
 			return [];
@@ -88,10 +90,30 @@ class FactoryBased extends BasePersonalize
 		{
 			return [];
 		}
+
+		$fields = array_values($usedFields);
+
+		$oldIncorrectFields = [
+			'ASSIGNED_BY_EMAIL' => 'ASSIGNED_BY.EMAIL',
+			'ASSIGNED_BY_WORK_PHONE' => 'ASSIGNED_BY.WORK_PHONE',
+			'ASSIGNED_BY_PERSONAL_MOBILE' => 'ASSIGNED_BY.PERSONAL_MOBILE',
+		];
+		foreach ($fields as &$field)
+		{
+			if (array_key_exists($field, $oldIncorrectFields))
+			{
+				$field = $oldIncorrectFields[$field];
+				if (!$hasIncorrectFields)
+				{
+					$hasIncorrectFields = true;
+				}
+			}
+		}
+
 		$result = [];
 		$items = $factory->getItems([
 			'select' => array_merge(
-				array_values($usedFields),
+				$fields,
 				['UF_*', 'ASSIGNED_BY_ID']
 			),
 			'filter' => [
@@ -108,8 +130,19 @@ class FactoryBased extends BasePersonalize
 			}
 			static::processUserFieldValues($factory->getUserFields(), $data);
 			$result[$data['ID']] = $data + static::getCommunicationFieldsValues($factory->getEntityTypeId(), $data['ID']);
+			if ($hasIncorrectFields)
+			{
+				foreach ($oldIncorrectFields as $incorrectField => $correctField)
+				{
+					if (isset($data[$correctField]) && !empty($data[$correctField]))
+					{
+						$result[$data['ID']] += [
+							$incorrectField => $data[$correctField]
+						];
+					}
+				}
+			}
 		}
 
-		return $result;
-	}
+		return $result;	}
 }

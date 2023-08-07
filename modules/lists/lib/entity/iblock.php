@@ -54,7 +54,7 @@ class Iblock implements Controllable, Errorable
 
 		$filter = [
 			"ID" => $this->params["IBLOCK_ID"] ? $this->params["IBLOCK_ID"] : "",
-			"CODE" => $this->params["IBLOCK_CODE"] ? $this->params["IBLOCK_CODE"] : "",
+			"CODE" => $this->params["IBLOCK_CODE"] ?? "",
 			"CHECK_PERMISSIONS" => "N",
 		];
 		$queryObject = \CIBlock::getList([], $filter);

@@ -17,6 +17,12 @@
 	text-overflow: ellipsis;
 }
 
+.bx-im-content-notification-item-content__content-text a {
+	font-size: inherit;
+	text-decoration: none;
+	color: #2067b0;
+}
+
 .bx-im-content-notification-item-content__content-text .bx-im-mention {
 	border-bottom: 1px dashed #2067B0;
 	cursor: pointer;

@@ -273,6 +273,7 @@ BX.ready(function()
 
 <div id="bxml-subdialog-cont" class="bxml-subdialog-cont">
 <?
+$Params = $Params ?? null;
 CMedialib::BuildAddCollectionDialog($Params);
 CMedialib::BuildAddItemDialog($Params);
 CMedialib::BuildConfirmDialog($Params);

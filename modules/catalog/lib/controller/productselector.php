@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\Controller;
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\ImageInput;
@@ -566,6 +567,10 @@ class ProductSelector extends JsonController
 		if ($fields['MEASURE'] > 0)
 		{
 			$sku->setField('MEASURE', $fields['MEASURE']);
+		}
+		if (Option::get('catalog', 'default_product_vat_included') === 'Y')
+		{
+			$sku->setField('VAT_INCLUDED', ProductTable::STATUS_YES);
 		}
 
 		if (isset($fields['PRICE']) && $fields['PRICE'] >= 0)

@@ -48,6 +48,7 @@ class CCalendarEvent
 	private static
 		$fields = [],
 		$userIndex = [],
+		$attendeeBelongingToEvent = [],
 		$isAddIcalFailEmailError = false;
 
 	public static function CheckRRULE($recRule = [])
@@ -548,20 +549,26 @@ class CCalendarEvent
 						)
 					)
 					{
-						$CACHE_MANAGER->ClearByTag('calendar_user_'.$entryFields['OWNER_ID']);
-						CCalendarNotify::Send([
-							'mode' => 'change_notify',
-							'name' => $entryFields['NAME'] ?? null,
-							"from" => $fromTo['DATE_FROM'] ?? null,
-							"to" => $fromTo['DATE_TO'] ?? null,
-							"location" => CCalendar::GetTextLocation($entryFields["LOCATION"] ?? null),
-							"guestId" => $entryFields['OWNER_ID'] ?? null,
-							"eventId" => $entryFields['PARENT_ID'] ?? null,
-							"userId" => $userId,
-							"fields" => $entryFields,
-							"isSharing" => ($entryFields['EVENT_TYPE'] ?? null) === Dictionary::EVENT_TYPE['shared'],
-							"entryChanges" => $entryChanges
-						]);
+						if (
+							(!empty($entryFields['MEETING_HOST']) && (int)$entryFields['MEETING_HOST'] === (int)$userId)
+							|| self::checkAttendeeBelongsToEvent($entryFields['PARENT_ID'] ?? null, $userId)
+						)
+						{
+							$CACHE_MANAGER->ClearByTag('calendar_user_'.$entryFields['OWNER_ID']);
+							CCalendarNotify::Send([
+								'mode' => 'change_notify',
+								'name' => $entryFields['NAME'] ?? null,
+								"from" => $fromTo['DATE_FROM'] ?? null,
+								"to" => $fromTo['DATE_TO'] ?? null,
+								"location" => CCalendar::GetTextLocation($entryFields["LOCATION"] ?? null),
+								"guestId" => $entryFields['OWNER_ID'] ?? null,
+								"eventId" => $entryFields['PARENT_ID'] ?? null,
+								"userId" => $userId,
+								"fields" => $entryFields,
+								"isSharing" => ($entryFields['EVENT_TYPE'] ?? null) === Dictionary::EVENT_TYPE['shared'],
+								"entryChanges" => $entryChanges
+							]);
+						}
 					}
 					elseif (
 						(int)($entryFields['PARENT_ID'] ?? null) !== $eventId
@@ -2693,8 +2700,8 @@ class CCalendarEvent
 					($user['USER_ID'] !== $arFields['OWNER_ID'] || $arFields['CAL_TYPE'] !== 'user')
 				)
 				{
-					$deletedAttendees[$user['USER_ID']] = $user['USER_ID'];
-					$involvedAttendees[] = $user['USER_ID'];
+					$deletedAttendees[$user['USER_ID']] = (int)$user['USER_ID'];
+					$involvedAttendees[] = (int)$user['USER_ID'];
 				}
 			}
 		}
@@ -3065,8 +3072,10 @@ class CCalendarEvent
 				if (
 					$chatId > 0
 					&& $chat
+					&& $isNewAttendee
 					&& $userIndex[$attendeeId]
 					&& $userIndex[$attendeeId]['EXTERNAL_AUTH_ID'] !== 'email'
+					&& $userIndex[$attendeeId]['EXTERNAL_AUTH_ID'] !== 'calendar_sharing'
 					&& $childParams['arFields']['MEETING_STATUS'] !== 'N'
 				)
 				{
@@ -3090,7 +3099,7 @@ class CCalendarEvent
 
 		// Delete
 		$delIdStr = '';
-		if (!$isNewEvent && count($deletedAttendees) > 0)
+		if (!$isNewEvent && !empty($deletedAttendees))
 		{
 			foreach($deletedAttendees as $attendeeId)
 			{
@@ -3229,7 +3238,7 @@ class CCalendarEvent
 			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 		}
 
-		if (count($involvedAttendees) > 0)
+		if (!empty($involvedAttendees))
 		{
 			$involvedAttendees = array_unique($involvedAttendees);
 			CCalendar::UpdateCounter($involvedAttendees);
@@ -3514,16 +3523,23 @@ class CCalendarEvent
 						if ($chEvent["MEETING_STATUS"] !== "N" && $sendNotification && !$isPastEvent && !$isSharing)
 						{
 							$fromTo = self::GetEventFromToForUser($entry, $chEvent["OWNER_ID"]);
-							CCalendarNotify::Send(array(
-								'mode' => 'cancel',
-								'name' => $chEvent['NAME'],
-								"from" => $fromTo["DATE_FROM"],
-								"to" => $fromTo["DATE_TO"],
-								"location" => CCalendar::GetTextLocation($chEvent["LOCATION"]),
-								"guestId" => $chEvent["OWNER_ID"],
-								"eventId" => $id,
-								"userId" => $userId,
-							));
+
+							if (
+								(!empty($chEvent['MEETING_HOST']) && (int)$chEvent['MEETING_HOST'] === $userId)
+								|| self::checkAttendeeBelongsToEvent($id, $userId)
+							)
+							{
+								CCalendarNotify::Send(array(
+									'mode' => 'cancel',
+									'name' => $chEvent['NAME'],
+									"from" => $fromTo["DATE_FROM"],
+									"to" => $fromTo["DATE_TO"],
+									"location" => CCalendar::GetTextLocation($chEvent["LOCATION"]),
+									"guestId" => $chEvent["OWNER_ID"],
+									"eventId" => $id,
+									"userId" => $userId,
+								));
+							}
 						}
 						$chEventIds[] = $chEvent["ID"];
 
@@ -3952,20 +3968,23 @@ class CCalendarEvent
 				&& ($params['hostNotification'] ?? null) !== false
 			)
 			{
-				// Send message to the author
-				$fromTo = self::GetEventFromToForUser($event, $event['MEETING_HOST']);
-				CCalendarNotify::Send([
-					'mode' => $status === "Y" ? 'accept' : 'decline',
-					'name' => $event['NAME'],
-					"from" => $fromTo["DATE_FROM"],
-					"to" => $fromTo["DATE_TO"],
-					"location" => CCalendar::GetTextLocation($event["LOCATION"] ?? null),
-					"guestId" => $userId,
-					"eventId" => $event['PARENT_ID'],
-					"userId" => $event['MEETING']['MEETING_CREATOR'] ?? $event['MEETING_HOST'],
-					"isSharing" => $event['EVENT_TYPE'] === Dictionary::EVENT_TYPE['shared'],
-					"fields" => $event
-				]);
+				if (self::checkAttendeeBelongsToEvent($event['PARENT_ID'], $userId))
+				{
+					// Send message to the author
+					$fromTo = self::GetEventFromToForUser($event, $event['MEETING_HOST']);
+					CCalendarNotify::Send([
+						'mode' => $status === "Y" ? 'accept' : 'decline',
+						'name' => $event['NAME'],
+						"from" => $fromTo["DATE_FROM"],
+						"to" => $fromTo["DATE_TO"],
+						"location" => CCalendar::GetTextLocation($event["LOCATION"] ?? null),
+						"guestId" => $userId,
+						"eventId" => $event['PARENT_ID'],
+						"userId" => $event['MEETING']['MEETING_CREATOR'] ?? $event['MEETING_HOST'],
+						"isSharing" => $event['EVENT_TYPE'] === Dictionary::EVENT_TYPE['shared'],
+						"fields" => $event
+					]);
+				}
 			}
 			CCalendarSect::UpdateModificationLabel(array($event['SECTIONS'][0] ?? null));
 
@@ -6195,5 +6214,36 @@ class CCalendarEvent
 		}
 
 		return EventModel::createFromArray($userEvent ?: $event ?: []);
+	}
+
+	public static function checkAttendeeBelongsToEvent($eventId, $userId)
+	{
+		if (empty($eventId) || empty($userId))
+		{
+			return false;
+		}
+
+		if (isset(self::$attendeeBelongingToEvent[$eventId][$userId]))
+			{
+				return self::$attendeeBelongingToEvent[$eventId][$userId];
+		}
+
+		$event = Internals\EventTable::query()
+				->setSelect(['ID'])
+				->where('PARENT_ID', $eventId)
+				->where('OWNER_ID', $userId)
+				->exec()->fetch()
+			;
+
+		if (!isset(self::$attendeeBelongingToEvent[$eventId]))
+			{
+				self::$attendeeBelongingToEvent[$eventId] = [];
+			}
+		if (!isset(self::$attendeeBelongingToEvent[$eventId][$userId]))
+			{
+				self::$attendeeBelongingToEvent[$eventId][$userId] = !empty($event);
+			}
+
+		return self::$attendeeBelongingToEvent[$eventId][$userId];
 	}
 }

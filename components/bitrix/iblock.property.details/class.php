@@ -7,7 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Iblock\Helpers\Arrays\ArrayFlatterator;
 use Bitrix\Iblock\IblockTable;
-use Bitrix\Iblock\Integration\UI\EntityEditor\FrendlyPropertyProvider;
+use Bitrix\Iblock\Integration\UI\EntityEditor\FriendlyPropertyProvider;
 use Bitrix\Iblock\Integration\UI\EntityEditor\PropertyProvider;
 use Bitrix\Iblock\Model\PropertyFeature;
 use Bitrix\Iblock\PropertyFeatureTable;
@@ -188,6 +188,8 @@ class IblockPropertyDetails extends CBitrixComponent implements Controllerable
 		]);
 		$entity = $faltterator->flatten($entity);
 
+		$entity = $this->fillPublicFeature($entity);
+
 		$this->entityFields = $entity;
 
 		return true;
@@ -260,7 +262,7 @@ class IblockPropertyDetails extends CBitrixComponent implements Controllerable
 
 	private function getEditorProvider(): PropertyProvider
 	{
-		return new FrendlyPropertyProvider(
+		return new FriendlyPropertyProvider(
 			$this->getPropertyType(),
 			$this->getPropertyUserType(),
 			$this->getEntityFields()
@@ -291,6 +293,46 @@ class IblockPropertyDetails extends CBitrixComponent implements Controllerable
 		}
 
 		return [$propertyFullType, null];
+	}
+
+	/**
+	 * @param array $entity Entity fields.
+	 *
+	 * @return array
+	 */
+	private function fillPublicFeature(array $entity): array
+	{
+		if ($this->isNew())
+		{
+			return $entity;
+		}
+
+		$value = 'N';
+
+		$listIndex = PropertyFeature::getIndex([
+			'MODULE_ID' => 'iblock',
+			'FEATURE_ID' => PropertyFeature::FEATURE_ID_LIST_PAGE_SHOW,
+		]);
+		$detailIndex = PropertyFeature::getIndex([
+			'MODULE_ID' => 'iblock',
+			'FEATURE_ID' => PropertyFeature::FEATURE_ID_DETAIL_PAGE_SHOW,
+		]);
+		if (
+			isset($entity['FEATURES'][$listIndex])
+			|| isset($entity['FEATURES'][$detailIndex])
+		)
+		{
+			$listShow = ($entity['FEATURES'][$listIndex] ?? 'N') === 'Y';
+			$detailShow = ($entity['FEATURES'][$detailIndex] ?? 'N') === 'Y';
+
+			if ($listShow || $detailShow)
+			{
+				$value = 'Y';
+			}
+		}
+		$entity[FriendlyPropertyProvider::FEATURE_PUBLIC_PROPERTY] = $value;
+
+		return $entity;
 	}
 
 	//

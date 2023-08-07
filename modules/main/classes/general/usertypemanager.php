@@ -145,6 +145,25 @@ class CUserTypeManager
 		return null;
 	}
 
+	public function getCustomData(array $userField, int $entityValueId): array
+	{
+		$hasCustomData =
+			isset($userField['USER_TYPE']['CLASS_NAME'])
+			&& is_callable([$userField['USER_TYPE']['CLASS_NAME'], 'getCustomData'])
+		;
+
+		$customData = [];
+		if ($hasCustomData)
+		{
+			$customData = call_user_func_array(
+				[$userField['USER_TYPE']['CLASS_NAME'], 'getCustomData'],
+				[$userField, $entityValueId]
+			);
+		}
+
+		return is_array($customData) ? $customData : [];
+	}
+
 	function OnEntityDelete($entity_id)
 	{
 		$obUserField = new CUserTypeEntity;
@@ -207,6 +226,7 @@ class CUserTypeManager
 				if (is_array($valuesGottenByEvent))
 				{
 					$result[$fieldName]["VALUE"] = array_key_exists($fieldName, $valuesGottenByEvent) ? $valuesGottenByEvent[$fieldName] : $result[$fieldName]["VALUE"];
+					$result[$fieldName]["CUSTOM_DATA"] = $this->getCustomData($result[$fieldName], $value_id);
 				}
 				else if ($arUserField["MULTIPLE"] == "N"
 					&& is_array($arUserField["USER_TYPE"])
@@ -251,6 +271,11 @@ class CUserTypeManager
 						}
 					}
 				}
+			}
+
+			foreach ($result as $fieldName => $userField)
+			{
+				$result[$fieldName]["CUSTOM_DATA"] = $this->getCustomData($userField, $value_id);
 			}
 		}
 
@@ -817,10 +842,7 @@ class CUserTypeManager
 			}
 			else
 			{
-				if (array_key_exists($fieldName, $filterData))
-				{
-					$value = $filterData[$fieldName];
-				}
+				$value = $filterData[$fieldName] ?? null;
 			}
 			if(
 				$arUserField['SHOW_FILTER'] != 'N'

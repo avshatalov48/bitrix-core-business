@@ -10,8 +10,7 @@ namespace Bitrix\Seo;
 use Bitrix\Main\IO;
 use Bitrix\Main\SiteTable;
 
-class RobotsFile
-	extends IO\File
+class RobotsFile extends IO\File
 {
 	const ROBOTS_FILE_NAME = 'robots.txt';
 	const SECTION_RULE = 'User-Agent';

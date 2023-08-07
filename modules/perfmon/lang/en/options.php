@@ -37,4 +37,5 @@ $MESS["PERFMON_OPT_SET_ACTIVE"] = "Enable monitor";
 $MESS["PERFMON_OPT_SET_IN_ACTIVE"] = "Disable monitor";
 $MESS["PERFMON_TAB_ORM"] = "DAO generator";
 $MESS["PERFMON_TAB_TITLE_ORM"] = "DAO generator settings";
+$MESS["PERFMON_OPTIONS_TABLET_VALIDATION_CLOSURE"] = "Field validators as closures";
 ?>

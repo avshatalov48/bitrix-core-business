@@ -1,7 +1,8 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_vue3_directives_hint,ui_dialogs_messagebox,im_v2_lib_slider,im_v2_lib_call,im_v2_lib_utils,im_v2_component_elements,im_v2_lib_theme,im_v2_lib_rest,im_v2_lib_logger,ui_buttons,ui_feedback_form,ui_fontawesome4,im_v2_application_core,im_v2_const,im_v2_lib_market) {
+(function (exports,main_core,ui_vue3_directives_hint,ui_dialogs_messagebox,timeman_monitor,im_v2_lib_slider,im_v2_lib_call,im_v2_lib_desktop,im_v2_lib_utils,im_v2_component_elements,im_v2_lib_theme,im_v2_lib_logger,im_v2_lib_rest,ui_buttons,ui_feedback_form,ui_fontawesome4,im_v2_application_core,im_v2_const,im_v2_lib_market) {
 	'use strict';
 
 	// @vue/component
@@ -254,10 +255,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.store = im_v2_application_core.Core.getStore();
 	    this.restClient = im_v2_application_core.Core.getRestClient();
 	  }
-	  disableV2Version() {
+	  disableBeta() {
 	    im_v2_lib_logger.Logger.warn('VersionService: disable v2');
-	    return this.restClient.callMethod(im_v2_const.RestMethod.imVersionV2Disable).catch(error => {
-	      console.error('VersionService: disable v2 error', error);
+	    return im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2BetaDisable).catch(error => {
+	      im_v2_lib_logger.Logger.error('VersionService: disable v2 error', error);
 	    });
 	  }
 	}
@@ -292,10 +293,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    currentUserPosition() {
 	      return this.$store.getters['users/getPosition'](this.currentUserId);
 	    },
-	    currentUserStatus() {
-	      const status = this.$store.getters['users/getStatus'](this.currentUserId);
-	      if (status) {
-	        return status;
+	    userStatus() {
+	      const user = this.$store.getters['users/get'](this.currentUserId, true);
+	      if (user) {
+	        return user.status;
 	      }
 	      return im_v2_const.UserStatus.online;
 	    },
@@ -312,8 +313,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  methods: {
 	    onBackToOldChatClick() {
 	      this.isChangingVersion = true;
-	      this.getVersionService().disableV2Version().then(() => {
-	        window.location.replace('/online/');
+	      this.getVersionService().disableBeta().then(() => {
+	        if (im_v2_lib_desktop.DesktopManager.isDesktop()) {
+	          window.location.reload();
+	        } else {
+	          window.location.replace('/online/');
+	        }
+	      }).catch(error => {
+	        im_v2_lib_logger.Logger.error('Error while switching version', error);
 	      });
 	    },
 	    onStatusClick() {
@@ -334,7 +341,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    onHelpClick() {
 	      var _BX$Helper;
-	      const ARTICLE_CODE = 17373696;
+	      const ARTICLE_CODE = '17373696';
 	      (_BX$Helper = BX.Helper) == null ? void 0 : _BX$Helper.show(`redirect=detail&code=${ARTICLE_CODE}`);
 	      this.$emit('closePopup');
 	    },
@@ -378,7 +385,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 					<div class="bx-im-user-settings-popup__domain">{{ currentHost }}</div>
 					<div class="bx-im-user-settings-popup__user_name" :title="currentUser.name">{{ currentUser.name }}</div>
 					<div class="bx-im-user-settings-popup__user_title" :title="currentUserPosition">{{ currentUserPosition }}</div>
-					<a :href="profileUri" target="_blank">
+					<a :href="profileUri" target="_blank" class="bx-im-user-settings-popup__user_link">
 						<ButtonPanel @openProfile="$emit('closePopup')" />
 					</a>
 				</div>
@@ -389,7 +396,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 				<div @click="onStatusClick" class="bx-im-user-settings-popup__list-item --with-icon">
 					<div class="bx-im-user-settings-popup__list-item_left">
 						<div class="bx-im-user-settings-popup__list-item_status">
-							<UserStatus :status="currentUserStatus" :size="UserStatusSize.M" />
+							<UserStatus :status="userStatus" :size="UserStatusSize.M" />
 						</div>
 						<div class="bx-im-user-settings-popup__list-item_text">{{ userStatusText }}</div>
 					</div>
@@ -500,10 +507,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    currentUserId() {
 	      return im_v2_application_core.Core.getUserId();
 	    },
-	    currentUserStatus() {
-	      const status = this.$store.getters['users/getStatus'](this.currentUserId);
-	      if (status) {
-	        return status;
+	    userStatus() {
+	      const user = this.$store.getters['users/get'](this.currentUserId, true);
+	      if (user) {
+	        return user.status;
 	      }
 	      return im_v2_const.UserStatus.online;
 	    }
@@ -518,9 +525,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  template: `
 		<div class="bx-im-navigation__user">
-			<div @click="onAvatarClick" :class="{'--active': showSettingsPopup || showStatusPopup}" class="bx-im-navigation__user_avatar" ref="avatar">
+			<div @click="onAvatarClick" class="bx-im-navigation__user_avatar" ref="avatar">
 				<Avatar :dialogId="currentUserId.toString()" :size="AvatarSize.M" />
-				<div @click.stop="onStatusClick" :class="'--' + currentUserStatus" class="bx-im-navigation__user_status" ref="status"></div>
+				<div @click.stop="onStatusClick" :class="'--' + userStatus" class="bx-im-navigation__user_status" ref="status"></div>
 			</div>
 			<UserStatusPopup
 				v-if="showStatusPopup"
@@ -641,7 +648,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  computed: {
 	    menuItems() {
-	      return [{
+	      const menuItems = [{
 	        id: im_v2_const.Layout.chat.name,
 	        text: this.prepareNavigationText('IM_NAVIGATION_CHATS'),
 	        counter: this.formatCounter(this.$store.getters['recent/getTotalCounter']),
@@ -667,18 +674,35 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        counter: 0,
 	        active: false
 	      }];
+	      if (this.isTimeManagerActive()) {
+	        menuItems.push({
+	          id: 'timemanager',
+	          text: this.prepareNavigationText('IM_NAVIGATION_TIMEMANAGER'),
+	          counter: 0,
+	          active: true,
+	          clickHandler: this.onTimeManagerClick
+	        });
+	      }
+	      return menuItems;
+	    },
+	    isDesktop() {
+	      return im_v2_lib_desktop.DesktopManager.isDesktop();
 	    }
 	  },
 	  created() {
 	    im_v2_lib_logger.Logger.warn('Navigation created');
 	  },
 	  mounted() {
-	    const container = this.$refs['navigation'];
+	    const container = this.$refs.navigation;
 	    this.needBottomShadow = container.scrollTop + container.clientHeight !== container.scrollHeight;
 	  },
 	  methods: {
-	    onMenuItemClick(item) {
+	    onMenuItemClick(item, event) {
 	      if (!item.active) {
+	        return;
+	      }
+	      if (main_core.Type.isFunction(item.clickHandler)) {
+	        item.clickHandler();
 	        return;
 	      }
 	      this.$emit('navigationClick', {
@@ -691,8 +715,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      layoutEntityId
 	    }) {
 	      this.$emit('navigationClick', {
-	        layoutName: layoutName,
-	        layoutEntityId: layoutEntityId
+	        layoutName,
+	        layoutEntityId
 	      });
 	    },
 	    closeSlider() {
@@ -714,7 +738,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (counter === 0) {
 	        return '';
 	      }
-	      return counter > 99 ? '99+' : `${counter}`;
+	      return counter > 99 ? '99+' : String(counter);
 	    },
 	    getHintContent(item) {
 	      if (item.active) {
@@ -765,16 +789,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.needTopShadow = true;
 	    },
 	    onClickScrollDown() {
-	      this.$refs['navigation'].scrollTo({
-	        top: this.$refs['navigation'].scrollHeight,
+	      this.$refs.navigation.scrollTo({
+	        top: this.$refs.navigation.scrollHeight,
 	        behavior: 'smooth'
 	      });
 	    },
 	    onClickScrollUp() {
-	      this.$refs['navigation'].scrollTo({
+	      this.$refs.navigation.scrollTo({
 	        top: 0,
 	        behavior: 'smooth'
 	      });
+	    },
+	    isTimeManagerActive() {
+	      return Boolean(timeman_monitor.Monitor == null ? void 0 : timeman_monitor.Monitor.isEnabled());
+	    },
+	    onTimeManagerClick() {
+	      timeman_monitor.Monitor == null ? void 0 : timeman_monitor.Monitor.openReport();
 	    }
 	  },
 	  template: `
@@ -783,19 +813,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 				<div class="bx-im-navigation__scroll-button" @click="onClickScrollUp"></div>
 			</div>
 			<div class="bx-im-navigation__top" @scroll="onScroll" ref="navigation">
-				<!-- Close -->
-				<div class="bx-im-navigation__close_container" @click="closeSlider">
-					<div class="bx-im-navigation__close"></div>
-				</div>
-				<!-- Separator -->
-				<div class="bx-im-navigation__separator_container">
-					<div class="bx-im-navigation__close_separator"></div>
-				</div>
+				<template v-if="!isDesktop">
+					<!-- Close -->
+					<div class="bx-im-navigation__close_container" @click="closeSlider">
+						<div class="bx-im-navigation__close"></div>
+					</div>
+					<!-- Separator -->
+					<div class="bx-im-navigation__separator_container">
+						<div class="bx-im-navigation__close_separator"></div>
+					</div>
+				</template>
 				<!-- Menu items -->
 				<div
 					v-for="item in menuItems"
 					v-hint="getHintContent(item)"
-					@click="onMenuItemClick(item)"
+					@click="onMenuItemClick(item, $event)"
 					class="bx-im-navigation__item_container"
 				>
 					<div :class="getMenuItemClasses(item)" class="bx-im-navigation__item">
@@ -823,5 +855,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.MessengerNavigation = MessengerNavigation;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3.Directives,BX.UI.Dialogs,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.UI,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX,BX.Vue3.Directives,BX.UI.Dialogs,BX.Timeman,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.UI,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
 //# sourceMappingURL=navigation.bundle.js.map

@@ -190,8 +190,10 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		if (!$this->isLoaded)
 			$this->loadConfiguration();
 
-		if (isset($this->data[$name]))
-			return $this->data[$name]["value"];
+		if (isset($this->data[$name]['value']))
+		{
+			return $this->data[$name]['value'];
+		}
 
 		return null;
 	}

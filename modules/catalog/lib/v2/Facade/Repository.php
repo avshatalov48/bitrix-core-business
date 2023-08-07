@@ -16,8 +16,9 @@ use Bitrix\Catalog\v2\Sku\BaseSku;
  */
 final class Repository
 {
-	/** @var string|null */
-	private $detailUrlTemplate;
+	private ?string $detailUrlTemplate = null;
+
+	private bool $allowedDetailUrl = false;
 
 	public function loadProduct(int $productId): ?BaseProduct
 	{
@@ -72,9 +73,23 @@ final class Repository
 		return null;
 	}
 
+	public function setAutoloadDetailUrl(bool $state): self
+	{
+		$this->allowedDetailUrl = $state;
+
+		return $this;
+	}
+
+	public function checkAutoloadDetailUrl(): bool
+	{
+		return $this->allowedDetailUrl;
+	}
+
 	public function setDetailUrlTemplate(?string $template): self
 	{
 		$this->detailUrlTemplate = $template;
+
+		$this->setAutoloadDetailUrl($template !== null);
 
 		return $this;
 	}
@@ -97,7 +112,9 @@ final class Repository
 			}
 		}
 
-		if ($urlTemplate = $this->getDetailUrlTemplate())
+		$repository->setAutoloadDetailUrl($this->checkAutoloadDetailUrl());
+		$urlTemplate = $this->getDetailUrlTemplate();
+		if ($urlTemplate)
 		{
 			$repository->setDetailUrlTemplate($urlTemplate);
 		}
@@ -118,7 +135,9 @@ final class Repository
 			}
 		}
 
-		if ($urlTemplate = $this->getDetailUrlTemplate())
+		$repository->setAutoloadDetailUrl($this->checkAutoloadDetailUrl());
+		$urlTemplate = $this->getDetailUrlTemplate();
+		if ($urlTemplate)
 		{
 			$repository->setDetailUrlTemplate($urlTemplate);
 		}

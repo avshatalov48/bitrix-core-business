@@ -11,6 +11,7 @@ $MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOC_TYPE_A"] = "Wareneingang";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOC_TYPE_D"] = "Abschreibung";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOC_TYPE_M"] = "Warenverschiebung";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_INCORRECT_VALUE"] = "Der Wert von \"#FIELD_NAME#\" ist nicht korrekt.";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_INVENTORY_MANAGEMENT_ENABLED_ERROR"] = "Bestandsverwaltung ist in Ihrem Tarif nicht verfügbar.";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_VIEW_RIGHTS_ERROR"] = "Sie haben nicht genügend Rechte, um das Element anzuzeigen";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_WRITE_RIGHTS_ERROR"] = "Sie haben nicht genügend Rechte, um das Element zu speichern";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_SAVE_ERROR"] = "Fehler beim Speichern des Elements";

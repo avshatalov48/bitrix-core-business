@@ -22,6 +22,7 @@ export class GoogleProvider extends ConnectionProvider
 		this.connectionName = Loc.getMessage('CALENDAR_TITLE_GOOGLE');
 		this.isSetSyncGoogleSettings = options.isSetSyncGoogleSettings;
 		this.syncLink = options.syncLink;
+		this.isGoogleApplicationRefused = options.isGoogleApplicationRefused;
 
 		this.setSyncDate(options.syncInfo.syncOffset);
 		this.setSections(options.sections);
@@ -46,7 +47,14 @@ export class GoogleProvider extends ConnectionProvider
 			response => {
 				if (response?.data?.status === this.ERROR_CODE)
 				{
-					this.setStatus(this.STATUS_FAILED);
+					if (this.isGoogleApplicationRefused)
+					{
+						this.setStatus(this.STATUS_REFUSED);
+					}
+					else
+					{
+						this.setStatus(this.STATUS_FAILED);
+					}
 					this.setWizardState(
 						{
 							status: this.ERROR_CODE,
@@ -75,7 +83,14 @@ export class GoogleProvider extends ConnectionProvider
 				}));
 			},
 			response => {
-				this.setStatus(this.STATUS_FAILED);
+				if (this.isGoogleApplicationRefused)
+				{
+					this.setStatus(this.STATUS_REFUSED);
+				}
+				else
+				{
+					this.setStatus(this.STATUS_FAILED);
+				}
 				this.setWizardState(
 					{
 						status: this.ERROR_CODE,

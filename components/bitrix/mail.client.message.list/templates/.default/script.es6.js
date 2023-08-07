@@ -106,7 +106,7 @@ Event.ready(() => {
 BX.ready(function() {
 	namespaceMailHome.Counters = new Counters('dirs', Loc.getMessage("DEFAULT_DIR"));
 	namespaceMailHome.mailboxCounters = new Counters('mailboxCounters');
-	namespaceMailHome.Grid = new MessageGrid();
+	namespaceMailHome.Grid = new MessageGrid(Loc.getMessage("MAILBOX_IS_SYNC_AVAILABILITY"));
 });
 namespaceMailHome.LeftMenu = LeftMenu;
 

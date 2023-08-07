@@ -17,6 +17,9 @@ final class Cors extends Base
 	/** @var bool */
 	private bool $credentials;
 
+	private ?array $allowedMethods;
+	private ?array $allowedHeaders;
+
 	/**
 	 * Constructor.
 	 *
@@ -41,6 +44,18 @@ final class Cors extends Base
 		$this->setCorsHeaders();
 	}
 
+	public function setAllowedMethods(array $methods): self
+	{
+		$this->allowedMethods = $methods;
+		return $this;
+	}
+
+	public function setAllowedHeaders(array $headers): self
+	{
+		$this->allowedHeaders = $headers;
+		return $this;
+	}
+
 	private function setCorsHeaders(): void
 	{
 		$context = Main\Context::getCurrent();
@@ -61,6 +76,14 @@ final class Cors extends Base
 			if ($this->credentials && !$currentHttpHeaders->get('Access-Control-Allow-Credentials'))
 			{
 				$currentHttpHeaders->add('Access-Control-Allow-Credentials', 'true');
+			}
+			if (!empty($this->allowedHeaders) && !$currentHttpHeaders->get('Access-Control-Allow-Headers'))
+			{
+				$currentHttpHeaders->add('Access-Control-Allow-Headers', implode(',', $this->allowedHeaders));
+			}
+			if (!empty($this->allowedMethods) && !$currentHttpHeaders->get('Access-Control-Allow-Methods'))
+			{
+				$currentHttpHeaders->add('Access-Control-Allow-Methods', implode(',', $this->allowedMethods));
 			}
 		}
 	}

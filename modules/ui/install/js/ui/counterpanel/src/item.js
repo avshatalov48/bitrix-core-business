@@ -1,6 +1,7 @@
 import { Dom, Tag, Type } from 'main.core';
 import { Counter } from 'ui.cnt';
 import { EventEmitter } from "main.core.events";
+import 'ui.design-tokens';
 
 export default class CounterItem
 {

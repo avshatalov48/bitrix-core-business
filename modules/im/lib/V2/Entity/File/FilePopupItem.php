@@ -2,9 +2,11 @@
 
 namespace Bitrix\Im\V2\Entity\File;
 
+use Bitrix\Im\V2\Rest\PopupData;
+use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Rest\PopupDataItem;
 
-class FilePopupItem implements PopupDataItem
+class FilePopupItem implements PopupDataItem, PopupDataAggregatable
 {
 	private FileCollection $files;
 
@@ -52,5 +54,10 @@ class FilePopupItem implements PopupDataItem
 	public function toRestFormat(array $option = []): array
 	{
 		return $this->files->getUnique()->toRestFormat($option);
+	}
+
+	public function getPopupData(array $excludedList = []): PopupData
+	{
+		return $this->files->getPopupData($excludedList);
 	}
 }

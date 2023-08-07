@@ -149,9 +149,6 @@ class CIMRestService extends IRestService
 
 				'im.desktop.status.get' => array('callback' => array(__CLASS__, 'desktopStatusGet'), 'options' => array('private' => true)),
 				'im.desktop.page.open' => array('callback' => array(__CLASS__, 'desktopPageOpen'), 'options' => array('private' => true)),
-
-				'im.version.v2.enable' => array('callback' => array(__CLASS__, 'enableV2Version'), 'options' => array('private' => true)),
-				'im.version.v2.disable' => array('callback' => array(__CLASS__, 'disableV2Version'), 'options' => array('private' => true)),
 			),
 			'imbot' => Array(
 				'imbot.register' => array(__CLASS__, 'botRegister'),
@@ -572,7 +569,7 @@ class CIMRestService extends IRestService
 		$range = (int)$arParams['RANGE'];
 		$range = ($range <= 50 && $range >= 0) ? $range : 50;
 
-		$result = (new \Bitrix\Im\V2\Message\MessageService())->getMessageContext($message, $range);
+		$result = (new \Bitrix\Im\V2\Message\MessageService($message))->getMessageContext($range);
 		if (!$result->isSuccess())
 		{
 			$error = $result->getErrors()[0];
@@ -2086,7 +2083,7 @@ class CIMRestService extends IRestService
 
 		if (isset($filter['SUBTYPE']))
 		{
-			$filter['SUBTYPE'] = \Bitrix\Im\V2\Entity\File\FileItem::getSubtypeFromJsonFormat($filter['SUBTYPE']);
+			$filter['SUBTYPE'] = \Bitrix\Im\V2\Link\File\FileItem::getSubtypeFromJsonFormat($filter['SUBTYPE']);
 		}
 
 		$startId = $chat->getStartId();
@@ -2130,7 +2127,7 @@ class CIMRestService extends IRestService
 
 		$files = new \Bitrix\Im\V2\Link\File\FileCollection();
 
-		foreach (\Bitrix\Im\V2\Entity\File\FileItem::ALLOWED_SUBTYPE as $subtype)
+		foreach (\Bitrix\Im\V2\Link\File\FileItem::ALLOWED_SUBTYPE as $subtype)
 		{
 			$filter['SUBTYPE'] = $subtype;
 
@@ -3171,6 +3168,19 @@ class CIMRestService extends IRestService
 		{
 			$arMessageFields['TEMPLATE_ID'] = mb_substr((string)$arParams['TEMPLATE_ID'], 0, 255);
 		}
+		if (isset($arParams['REPLY_ID']) && (int)$arParams['REPLY_ID'] > 0)
+		{
+			$message = new \Bitrix\Im\V2\Message((int)$arParams['REPLY_ID']);
+			if (!$message->hasAccess())
+			{
+				throw new Bitrix\Rest\RestException("Action unavailable", "REPLY_ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+			}
+			if ($message->getChat()->getDialogId() !== (string)$arMessageFields['DIALOG_ID'])
+			{
+				throw new Bitrix\Rest\RestException("You can only reply to a message within the same chat", "REPLY_FROM_OTHER_CHAT_ERROR", CRestServer::STATUS_FORBIDDEN);
+			}
+			$arMessageFields['PARAMS']['REPLY_ID'] = $message->getId();
+		}
 
 		$id = CIMMessenger::Add($arMessageFields);
 		if (!$id)
@@ -4157,6 +4167,7 @@ class CIMRestService extends IRestService
 			'TEMPLATE_ID' => $arParams['TEMPLATE_ID']?:'',
 			'FILE_TEMPLATE_ID' => $arParams['FILE_TEMPLATE_ID']?:'',
 			'SYMLINK' => $arParams['SYMLINK']?:false,
+			'AS_FILE' => $arParams['AS_FILE'] ?? 'N',
 		]);
 		if (!$result)
 		{
@@ -7280,16 +7291,6 @@ class CIMRestService extends IRestService
 		}
 
 		return true;
-	}
-
-	public static function enableV2Version($params, $n, \CRestServer $server)
-	{
-		CUserOptions::SetOption('im', 'v2_enabled', 'Y');
-	}
-
-	public static function disableV2Version($params, $n, \CRestServer $server)
-	{
-		CUserOptions::SetOption('im', 'v2_enabled', 'N');
 	}
 
 	private static function getBotId($arParams, \CRestServer $server)

@@ -14,7 +14,7 @@ while ($arr=$rsIBlockType->Fetch())
 }
 
 $arIBlock=array();
-$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
+$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => ($arCurrentValues["IBLOCK_TYPE"] ?? null), "ACTIVE"=>"Y"));
 while($arr=$rsIBlock->Fetch())
 {
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
@@ -73,7 +73,7 @@ $arComponentParameters = array(
 		)
 	)
 );
-if ($arCurrentValues["PHOTO_LIST_MODE"] != "N")
+if (($arCurrentValues["PHOTO_LIST_MODE"] ?? null) != "N")
 {
 	$arComponentParameters["PARAMETERS"]["SHOWN_ITEMS_COUNT"] = array(
 		"PARENT" => "BASE",
@@ -139,7 +139,7 @@ if ($arCurrentValues["PHOTO_LIST_MODE"] != "N")
 	);
 }
 
-if ($arCurrentValues["BEHAVIOUR"] == "USER")
+if (($arCurrentValues["BEHAVIOUR"] ?? null) == "USER")
 {
 	$arComponentParameters["PARAMETERS"]["USER_ALIAS"] = array(
 			"PARENT" => "BASE",
@@ -148,7 +148,9 @@ if ($arCurrentValues["BEHAVIOUR"] == "USER")
 			"DEFAULT" => '');
 }
 if (empty($arCurrentValues["INDEX_URL"]) && !empty($arCurrentValues["SECTIONS_TOP_URL"]))
+{
 	$arCurrentValues["INDEX_URL"] = $arCurrentValues["SECTIONS_TOP_URL"];
+}
 $arComponentParameters["PARAMETERS"] = array_merge($arComponentParameters["PARAMETERS"], array(
 		"SORT_BY" => array(
 			"PARENT" => "BASE",
@@ -181,22 +183,22 @@ $arComponentParameters["PARAMETERS"] = array_merge($arComponentParameters["PARAM
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("IBLOCK_SECTION_URL"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "section.php?".($arCurrentValues["BEHAVIOUR"] == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
+			"DEFAULT" => "section.php?".(($arCurrentValues["BEHAVIOUR"] ?? null) == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
 		"SECTION_EDIT_URL" => array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("IBLOCK_SECTION_EDIT_URL"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "section_edit.php?".($arCurrentValues["BEHAVIOUR"] == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
+			"DEFAULT" => "section_edit.php?".(($arCurrentValues["BEHAVIOUR"] ?? null) == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
 		"SECTION_EDIT_ICON_URL" => array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("IBLOCK_SECTION_EDIT_ICON_URL"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "section_edit_icon.php?".($arCurrentValues["BEHAVIOUR"] == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
+			"DEFAULT" => "section_edit_icon.php?".(($arCurrentValues["BEHAVIOUR"] ?? null) == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
 		"UPLOAD_URL" => array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("IBLOCK_UPLOAD_URL"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "upload.php?".($arCurrentValues["BEHAVIOUR"] == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
+			"DEFAULT" => "upload.php?".(($arCurrentValues["BEHAVIOUR"] ?? null) == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
 
 		"ALBUM_PHOTO_SIZE" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
@@ -237,7 +239,7 @@ $arComponentParameters["PARAMETERS"] = array_merge($arComponentParameters["PARAM
 	));
 
 
-if ($arCurrentValues["BEHAVIOUR"] == "USER")
+if (($arCurrentValues["BEHAVIOUR"] ?? null) == "USER")
 {
 
 	$arComponentParameters["PARAMETERS"]["GALLERY_URL"] = array(

@@ -4,7 +4,6 @@ this.BX = this.BX || {};
 
 	var _templateObject, _templateObject2;
 	var BX$1 = main_core.Reflection.namespace('BX');
-
 	var Grid = /*#__PURE__*/function () {
 	  function Grid(options) {
 	    babelHelpers.classCallCheck(this, Grid);
@@ -27,20 +26,16 @@ this.BX = this.BX || {};
 	    this.loader = null;
 	    this.timer = null;
 	    this.initData();
-
 	    if (options.userGroups) {
 	      this.userGroups = options.userGroups;
 	    }
-
 	    if (options.accessRights) {
 	      this.accessRights = options.accessRights;
 	    }
-
 	    this.isRequested = false;
 	    this.loadData();
 	    this.bindEvents();
 	  }
-
 	  babelHelpers.createClass(Grid, [{
 	    key: "bindEvents",
 	    value: function bindEvents() {
@@ -95,11 +90,9 @@ this.BX = this.BX || {};
 	    key: "sendActionRequest",
 	    value: function sendActionRequest() {
 	      var _this = this;
-
 	      if (this.isRequested) {
 	        return;
 	      }
-
 	      this.isRequested = true;
 	      main_core_events.EventEmitter.emit(this, 'onBeforeSave', this);
 	      this.timer = setTimeout(function () {
@@ -107,12 +100,10 @@ this.BX = this.BX || {};
 	      }, 1000);
 	      var needReload = false;
 	      var dataToSave = [];
-
 	      for (var i = 0; i < this.userGroups.length; i++) {
 	        if (main_core.Text.toNumber(this.userGroups[i].id) === 0) {
 	          needReload = true;
 	        }
-
 	        dataToSave.push({
 	          accessCodes: this.userGroups[i].accessCodes,
 	          id: this.userGroups[i].id,
@@ -121,49 +112,36 @@ this.BX = this.BX || {};
 	          accessRights: this.userGroups[i].accessRights
 	        });
 	      }
-
 	      BX$1.ajax.runComponentAction(this.component, this.actionSave, {
 	        mode: this.mode,
 	        data: {
 	          userGroups: dataToSave,
 	          parameters: this.additionalSaveParams
-	        } // analyticsLabel: {
+	        }
+	        // analyticsLabel: {
 	        // 	viewMode: 'grid',
 	        // 	filterState: 'closed'
 	        // }
-
 	      }).then(function () {
 	        if (needReload) {
 	          _this.reloadGrid();
 	        }
-
 	        _this.isRequested = false;
-
 	        _this.showNotification(main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_STTINGS_HAVE_BEEN_SAVED'));
-
 	        _this.unBlockGrid();
-
 	        _this.fireEventRefresh();
-
 	        setTimeout(function () {
 	          _this.adjustButtonPanel();
 	        });
 	        clearTimeout(_this.timer);
-
 	        var waitContainer = _this.buttonPanel.getContainer().querySelector('.ui-btn-wait');
-
 	        main_core.Dom.removeClass(waitContainer, 'ui-btn-wait');
 	      }, function () {
 	        _this.isRequested = false;
-
 	        _this.showNotification('Error message');
-
 	        _this.unBlockGrid();
-
 	        clearTimeout(_this.timer);
-
 	        var waitContainer = _this.buttonPanel.getContainer().querySelector('.ui-btn-wait');
-
 	        main_core.Dom.removeClass(waitContainer, 'ui-btn-wait');
 	      });
 	      main_core_events.EventEmitter.emit('BX.UI.AccessRights:preservation', this);
@@ -182,11 +160,9 @@ this.BX = this.BX || {};
 	    key: "deleteActionRequest",
 	    value: function deleteActionRequest(roleId) {
 	      var _this2 = this;
-
 	      if (this.isRequested) {
 	        return;
 	      }
-
 	      this.isRequested = true;
 	      this.timer = setTimeout(function () {
 	        _this2.blockGrid();
@@ -195,26 +171,20 @@ this.BX = this.BX || {};
 	        mode: this.mode,
 	        data: {
 	          roleId: roleId
-	        } // analyticsLabel: {
+	        }
+	        // analyticsLabel: {
 	        // 	viewMode: 'grid',
 	        // 	filterState: 'closed'
 	        // }
-
 	      }).then(function () {
 	        _this2.isRequested = false;
-
 	        _this2.showNotification(main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ROLE_REMOVE'));
-
 	        _this2.unBlockGrid();
-
 	        clearTimeout(_this2.timer);
 	      }, function () {
 	        _this2.isRequested = false;
-
 	        _this2.showNotification('Error message');
-
 	        _this2.unBlockGrid();
-
 	        clearTimeout(_this2.timer);
 	      });
 	    }
@@ -222,7 +192,6 @@ this.BX = this.BX || {};
 	    key: "reloadGrid",
 	    value: function reloadGrid() {
 	      var _this3 = this;
-
 	      this.initData();
 	      BX$1.ajax.runComponentAction(this.component, this.actionLoad, {
 	        mode: this.mode,
@@ -233,12 +202,9 @@ this.BX = this.BX || {};
 	        if (response.data['ACCESS_RIGHTS'] && response.data['USER_GROUPS']) {
 	          _this3.accessRights = response.data.ACCESS_RIGHTS;
 	          _this3.userGroups = response.data.USER_GROUPS;
-
 	          _this3.loadData();
-
 	          _this3.draw();
 	        }
-
 	        _this3.unBlockGrid();
 	      }, function () {
 	        return _this3.unBlockGrid;
@@ -248,7 +214,6 @@ this.BX = this.BX || {};
 	    key: "blockGrid",
 	    value: function blockGrid() {
 	      var _this4 = this;
-
 	      var offsetTop = this.layout.container.getBoundingClientRect().top < 0 ? '0' : this.layout.container.getBoundingClientRect().top;
 	      main_core.Dom.addClass(this.layout.container, 'ui-access-rights-block');
 	      main_core.Dom.style(this.layout.container, 'height', 'calc(100vh - ' + offsetTop + 'px)');
@@ -272,7 +237,6 @@ this.BX = this.BX || {};
 	          target: this.layout.container
 	        });
 	      }
-
 	      return this.loader;
 	    }
 	  }, {
@@ -285,7 +249,6 @@ this.BX = this.BX || {};
 	      var targetIndex = this.userGroups.indexOf(param.data.userGroup);
 	      this.userGroups.splice(targetIndex, 1);
 	      var roleId = param.data.userGroup.id;
-
 	      if (roleId > 0) {
 	        this.deleteActionRequest(roleId);
 	      }
@@ -294,22 +257,18 @@ this.BX = this.BX || {};
 	    key: "addRoleColumn",
 	    value: function addRoleColumn(event) {
 	      var _event$getData = event.getData(),
-	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
-	          param = _event$getData2[0];
-
+	        _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
+	        param = _event$getData2[0];
 	      if (!param) {
 	        return;
 	      }
-
 	      var sections = this.accessRightsSections;
-
 	      for (var i = 0; i < sections.length; i++) {
 	        param.headSection = false;
 	        param.newColumn = true;
 	        sections[i].addColumn(param);
 	        sections[i].scrollToRight(sections[i].getColumnsContainer().scrollWidth - sections[i].getColumnsContainer().offsetWidth, 'stop');
 	      }
-
 	      param.headSection = true;
 	      param.newColumn = true;
 	      this.headSection.addColumn(param);
@@ -318,9 +277,8 @@ this.BX = this.BX || {};
 	    key: "addUserGroup",
 	    value: function addUserGroup(event) {
 	      var _event$getData3 = event.getData(),
-	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
-	          options = _event$getData4[0];
-
+	        _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
+	        options = _event$getData4[0];
 	      options = options || {};
 	      this.userGroups.push(options);
 	    }
@@ -329,7 +287,6 @@ this.BX = this.BX || {};
 	    value: function updateRole(event) {
 	      var item = event.getData();
 	      var index = this.userGroups.indexOf(item.userGroup);
-
 	      if (index >= 0) {
 	        this.userGroups[index].title = item.text;
 	      }
@@ -341,7 +298,6 @@ this.BX = this.BX || {};
 	      var modifiedRoles = this.getMainContainer().querySelectorAll('.ui-access-rights-column-new');
 	      var modifiedUsers = this.getMainContainer().querySelectorAll('.ui-access-rights-members-item-new');
 	      var modifiedVariables = this.getMainContainer().querySelectorAll('.ui-tag-selector-container');
-
 	      if (modifiedItems.length > 0 || modifiedRoles.length > 0 || modifiedUsers.length > 0 || modifiedVariables.length > 0) {
 	        this.buttonPanel.show();
 	      } else {
@@ -354,19 +310,16 @@ this.BX = this.BX || {};
 	      var data = event.getData();
 	      var userGroup = this.userGroups[this.userGroups.indexOf(data.userGroup)];
 	      var accessId = data.access.id;
-
 	      for (var i = 0; i < userGroup.accessRights.length; i++) {
 	        var item = userGroup.accessRights[i];
-
 	        if (item && item.id === accessId) {
 	          item.value = item.value === '0' ? '1' : '0';
 	          return;
 	        }
 	      }
-
 	      userGroup.accessRights.push({
 	        id: accessId,
-	        value: data.switcher.checked ? '1' : '0'
+	        value: data.switcher.isChecked() ? '1' : '0'
 	      });
 	    }
 	  }, {
@@ -376,15 +329,12 @@ this.BX = this.BX || {};
 	      var userGroup = this.userGroups[this.userGroups.indexOf(item.userGroup)];
 	      var accessId = item.access.id;
 	      var deleteIds = [];
-
 	      for (var i = 0; i < userGroup.accessRights.length; i++) {
 	        var _item = userGroup.accessRights[i];
-
 	        if (_item && _item.id === accessId) {
 	          deleteIds.push(i);
 	        }
 	      }
-
 	      deleteIds.forEach(function (i) {
 	        delete userGroup.accessRights[i];
 	      });
@@ -400,10 +350,8 @@ this.BX = this.BX || {};
 	    key: "loadData",
 	    value: function loadData() {
 	      var _this5 = this;
-
 	      this.accessRights.map(function (data, index) {
 	        data.id = index;
-
 	        _this5.accessRightsSections.push(_this5.addSection(data));
 	      });
 	    }
@@ -439,7 +387,6 @@ this.BX = this.BX || {};
 	          grid: this
 	        });
 	      }
-
 	      return this.headSection;
 	    }
 	  }, {
@@ -465,7 +412,6 @@ this.BX = this.BX || {};
 	      if (!this.layout.container) {
 	        this.layout.container = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights'></div>"])));
 	      }
-
 	      return this.layout.container;
 	    }
 	  }, {
@@ -494,11 +440,9 @@ this.BX = this.BX || {};
 	    key: "onMemberSelect",
 	    value: function onMemberSelect(params) {
 	      var option = Grid.buildOption(params);
-
 	      if (!option) {
 	        return;
 	      }
-
 	      if (params.state === 'select') {
 	        main_core_events.EventEmitter.emit('BX.UI.AccessRights:addToAccessCodes', option);
 	      }
@@ -507,11 +451,9 @@ this.BX = this.BX || {};
 	    key: "onMemberUnselect",
 	    value: function onMemberUnselect(params) {
 	      var option = Grid.buildOption(params);
-
 	      if (!option) {
 	        return;
 	      }
-
 	      main_core_events.EventEmitter.emit('BX.UI.AccessRights:removeFromAccessCodes', option);
 	    }
 	  }, {
@@ -535,11 +477,9 @@ this.BX = this.BX || {};
 	      var selectorInstance = controls[Object.keys(controls)[0]].selectorInstance;
 	      var dataColumnAttribute = 'bx-data-column-id';
 	      var node = selectorInstance.bindOptions.node;
-
 	      if (!node.hasAttribute(dataColumnAttribute) || main_core.Type.isUndefined(params.item)) {
 	        return false;
 	      }
-
 	      var columnId = node.getAttribute(dataColumnAttribute);
 	      var accessItem = params.item.id;
 	      var entityType = params.entityType;
@@ -554,7 +494,6 @@ this.BX = this.BX || {};
 	  }]);
 	  return Grid;
 	}();
-
 	babelHelpers.defineProperty(Grid, "ACTION_SAVE", 'save');
 	babelHelpers.defineProperty(Grid, "ACTION_DELETE", 'delete');
 	babelHelpers.defineProperty(Grid, "ACTION_LOAD", 'load');
@@ -563,7 +502,6 @@ this.BX = this.BX || {};
 	namespace.AccessRights = Grid;
 
 	var _templateObject$1;
-
 	var Base = /*#__PURE__*/function () {
 	  function Base(options) {
 	    babelHelpers.classCallCheck(this, Base);
@@ -576,7 +514,6 @@ this.BX = this.BX || {};
 	    this.access = options.access;
 	    this.bindEvents();
 	  }
-
 	  babelHelpers.createClass(Base, [{
 	    key: "bindEvents",
 	    value: function bindEvents() {}
@@ -595,20 +532,16 @@ this.BX = this.BX || {};
 	}();
 
 	var _templateObject$2;
-
 	var Title = /*#__PURE__*/function (_Base) {
 	  babelHelpers.inherits(Title, _Base);
-
 	  function Title() {
 	    babelHelpers.classCallCheck(this, Title);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Title).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(Title, [{
 	    key: "render",
 	    value: function render() {
 	      var _this = this;
-
 	      var node = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div \n\t\t\t\tclass='ui-access-rights-column-item-text'\n\t\t\t\tdata-id='", "'\n\t\t\t>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getId(), main_core.Text.encode(this.text));
 	      main_core.Event.bind(node, 'mouseenter', this.adjustPopupHelper.bind(this));
 	      main_core.Event.bind(node, 'mouseleave', function () {
@@ -630,7 +563,6 @@ this.BX = this.BX || {};
 	      setTimeout(function () {
 	        main_core.Dom.remove(set);
 	      });
-
 	      if (set.offsetWidth > this.parentContainer.offsetWidth) {
 	        main_core.Dom.style(set, 'visibility', 'visible');
 	        this.getPopupHelper().show();
@@ -650,23 +582,18 @@ this.BX = this.BX || {};
 	          animation: 'fading-slide'
 	        });
 	      }
-
 	      return this.popupHelper;
 	    }
 	  }]);
 	  return Title;
 	}(Base);
-
 	babelHelpers.defineProperty(Title, "TYPE", 'title');
 
 	var _templateObject$3;
-
 	var Hint = /*#__PURE__*/function (_Base) {
 	  babelHelpers.inherits(Hint, _Base);
-
 	  function Hint(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Hint);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Hint).call(this, options));
 	    _this.hint = options.hint;
@@ -674,7 +601,6 @@ this.BX = this.BX || {};
 	    _this.hintNode = null;
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Hint, [{
 	    key: "render",
 	    value: function render() {
@@ -698,7 +624,6 @@ this.BX = this.BX || {};
 	        this.hintNode.setAttribute(hintManager.attributeInteractivityName, true);
 	        hintManager.initNode(this.hintNode);
 	      }
-
 	      return this.hintNode;
 	    }
 	  }]);
@@ -707,13 +632,10 @@ this.BX = this.BX || {};
 
 	var _templateObject$4, _templateObject2$1, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17, _templateObject18, _templateObject19, _templateObject20;
 	var BX$2 = main_core.Reflection.namespace('BX');
-
 	var Member = /*#__PURE__*/function (_Base) {
 	  babelHelpers.inherits(Member, _Base);
-
 	  function Member(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Member);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Member).call(this, options));
 	    _this.openPopupEvent = options.openPopupEvent;
@@ -721,7 +643,6 @@ this.BX = this.BX || {};
 	    _this.accessCodes = options.accessCodes || [];
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Member, [{
 	    key: "bindEvents",
 	    value: function bindEvents() {
@@ -740,15 +661,12 @@ this.BX = this.BX || {};
 	        this.validateVariables();
 	        Object.keys(members).reverse().forEach(function (item) {
 	          counter++;
-
 	          if (counter < 7) {
 	            var user = members[item];
 	            var userNode = main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class='ui-access-rights-members-item'></div>\n\t\t\t\t\t\t"])));
-
 	            if (user["new"]) {
 	              main_core.Dom.addClass(userNode, 'ui-access-rights-members-item-new');
 	            }
-
 	            if (user.avatar) {
 	              var userAvatar = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<a class='ui-access-rights-members-item-avatar' title=\"", "\"></a>"])), main_core.Text.encode(user.name));
 	              main_core.Dom.style(userAvatar, 'backgroundImage', 'url(\'' + encodeURI(user.avatar) + '\')');
@@ -756,7 +674,6 @@ this.BX = this.BX || {};
 	              main_core.Dom.append(userAvatar, userNode);
 	            } else {
 	              var avatarClass = 'ui-icon-common-user';
-
 	              if (user.type === 'groups') {
 	                avatarClass = 'ui-icon-common-user-group';
 	              } else if (user.type === 'sonetgroups') {
@@ -764,12 +681,10 @@ this.BX = this.BX || {};
 	              } else if (user.type === 'usergroups') {
 	                avatarClass = 'ui-icon-common-user-group';
 	              }
-
 	              var emptyAvatar = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<a class='ui-icon ui-icon-xs' title=\"", "\"><i></i></a>"])), main_core.Text.encode(user.name));
 	              main_core.Dom.addClass(emptyAvatar, avatarClass);
 	              main_core.Dom.append(emptyAvatar, userNode);
 	            }
-
 	            main_core.Dom.append(userNode, membersFragment);
 	          }
 	        });
@@ -777,7 +692,6 @@ this.BX = this.BX || {};
 	        this.member = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-members'>", "</div>"])), membersFragment);
 	        main_core.Event.bind(this.member, 'click', this.adjustPopupUserControl.bind(this));
 	      }
-
 	      return this.member;
 	    }
 	  }, {
@@ -812,16 +726,13 @@ this.BX = this.BX || {};
 	    key: "addToAccessCodes",
 	    value: function addToAccessCodes(event) {
 	      var params = event.getData();
-
 	      if (params.columnId !== this.getId()) {
 	        return;
 	      }
-
 	      var firstKey = Object.keys(params.accessCodes)[0];
 	      var type = params.accessCodes[firstKey].toUpperCase();
 	      this.userGroup.accessCodes = Object.keys(this.accessCodes);
 	      var item = params.item;
-
 	      if (!main_core.Type.isUndefined(item) && Object.keys(item).length) {
 	        this.userGroup.members[firstKey] = {
 	          id: item.entityId,
@@ -833,9 +744,7 @@ this.BX = this.BX || {};
 	        };
 	        this.updateMembers();
 	      }
-
 	      this.userGroup.accessCodes = [];
-
 	      for (var key in this.userGroup.members) {
 	        this.userGroup.accessCodes[key] = this.userGroup.members[key].type;
 	      }
@@ -844,16 +753,13 @@ this.BX = this.BX || {};
 	    key: "removeFromAccessCodes",
 	    value: function removeFromAccessCodes(event) {
 	      var params = event.data;
-
 	      if (params.columnId !== this.identificator) {
 	        return;
 	      }
-
 	      var firstKey = Object.keys(params.accessCodes)[0];
 	      delete this.userGroup.members[firstKey];
 	      this.updateMembers();
 	      this.userGroup.accessCodes = [];
-
 	      for (var key in this.userGroup.members) {
 	        this.userGroup.accessCodes[key] = this.userGroup.members[key].type;
 	      }
@@ -865,10 +771,8 @@ this.BX = this.BX || {};
 	      var groups = [];
 	      var departments = [];
 	      var sonetgroups = [];
-
 	      for (var item in this.userGroup.members) {
 	        this.userGroup.members[item].key = item;
-
 	        if (this.userGroup.members[item].type === 'users') {
 	          users.push(this.userGroup.members[item]);
 	        } else if (this.userGroup.members[item].type === 'groups') {
@@ -881,18 +785,14 @@ this.BX = this.BX || {};
 	          sonetgroups.push(this.userGroup.members[item]);
 	        }
 	      }
-
 	      var counterUsers = [];
-
 	      for (var key in this.userGroup.members) {
 	        counterUsers.push(this.userGroup.members[key]);
 	      }
-
 	      if (counterUsers.length === 0) {
 	        this.showUserSelectorPopup();
 	        return;
 	      }
-
 	      this.getUserPopup(users, groups, departments, sonetgroups).show();
 	    }
 	  }, {
@@ -901,14 +801,12 @@ this.BX = this.BX || {};
 	      if (!this.addUserToRole) {
 	        this.addUserToRole = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass='ui-access-rights-members-item ui-access-rights-members-item-add'\n\t\t\t\t\tbx-data-column-id='", "'\n\t\t\t\t>\n\t\t\t\t</span>\n\t\t\t"])), this.getId());
 	      }
-
 	      return this.addUserToRole;
 	    }
 	  }, {
 	    key: "getUserPopup",
 	    value: function getUserPopup(users, groups, departments, sonetgroups) {
 	      var _this2 = this;
-
 	      if (!this.popupUsers) {
 	        users = users || [];
 	        groups = groups || [];
@@ -916,81 +814,62 @@ this.BX = this.BX || {};
 	        sonetgroups = sonetgroups || [];
 	        var content = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-popup-toggler'></div>"])));
 	        var contentTitle = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-popup-toggler-title'></div>"])));
-
 	        var onTitleClick = function onTitleClick(event) {
 	          var node = event.target;
 	          activate(node);
 	          adjustSlicker(node);
 	        };
-
 	        if (groups.length > 0) {
 	          var groupTitleItem = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass='ui-access-rights-popup-toggler-title-item ui-access-rights-popup-toggler-title-item-active'\n\t\t\t\t\t\tdata-role='ui-access-rights-popup-toggler-content-groups'\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_USER_GROUPS'));
 	          main_core.Event.bind(groupTitleItem, 'click', onTitleClick.bind(this));
 	          main_core.Dom.append(groupTitleItem, contentTitle);
 	        }
-
 	        if (departments.length > 0) {
 	          var _groupTitleItem = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass='ui-access-rights-popup-toggler-title-item'\n\t\t\t\t\t\tdata-role='ui-access-rights-popup-toggler-content-departments'\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_DEPARTMENTS'));
-
 	          main_core.Event.bind(_groupTitleItem, 'click', onTitleClick.bind(this));
 	          main_core.Dom.append(_groupTitleItem, contentTitle);
 	        }
-
 	        if (users.length > 0) {
 	          var _groupTitleItem2 = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass='ui-access-rights-popup-toggler-title-item'\n\t\t\t\t\t\tdata-role='ui-access-rights-popup-toggler-content-users'\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_STAFF'));
-
 	          main_core.Event.bind(_groupTitleItem2, 'click', onTitleClick.bind(this));
 	          main_core.Dom.append(_groupTitleItem2, contentTitle);
 	        }
-
 	        if (sonetgroups.length > 0) {
 	          var _groupTitleItem3 = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass='ui-access-rights-popup-toggler-title-item'\n\t\t\t\t\t\tdata-role='ui-access-rights-popup-toggler-content-sonetgroups'\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_SOCNETGROUP'));
-
 	          main_core.Event.bind(_groupTitleItem3, 'click', onTitleClick.bind(this));
 	          main_core.Dom.append(_groupTitleItem3, contentTitle);
 	        }
-
 	        main_core.Dom.append(main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-popup-toggler-title-slicker'></div>"]))), contentTitle);
 	        main_core.Dom.append(contentTitle, content);
-
 	        if (groups.length > 0) {
 	          main_core.Dom.append(this.getUserPopupTogglerGroup(groups, 'groups'), content);
 	        }
-
 	        if (departments.length > 0) {
 	          main_core.Dom.append(this.getUserPopupTogglerGroup(departments, 'departments'), content);
 	        }
-
 	        if (users.length > 0) {
 	          main_core.Dom.append(this.getUserPopupTogglerGroup(users, 'users'), content);
 	        }
-
 	        if (sonetgroups.length > 0) {
 	          main_core.Dom.append(this.getUserPopupTogglerGroup(sonetgroups, 'sonetgroups'), content);
 	        }
-
 	        var footer = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-popup-toggler-footer'></div>"])));
 	        var footerLink = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class='ui-access-rights-popup-toggler-footer-link'>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ADD'));
 	        main_core.Event.bind(footerLink, 'click', function (event) {
 	          _this2.popupUsers.close();
-
 	          _this2.showUserSelectorPopup();
-
 	          event.preventDefault();
 	        });
 	        main_core.Dom.append(footerLink, footer);
 	        main_core.Dom.append(footer, content);
-
 	        var adjustSlicker = function adjustSlicker(node) {
 	          if (!main_core.Type.isDomNode(node)) {
 	            node = content.querySelector('.ui-access-rights-popup-toggler-title-item-active');
 	          }
-
 	          var slicker = content.querySelector('.ui-access-rights-popup-toggler-title-slicker');
 	          main_core.Dom.style(slicker, 'left', node.offsetLeft + 'px');
 	          main_core.Dom.style(slicker, 'width', node.offsetWidth + 'px');
 	        };
-
 	        var activate = function activate(node) {
 	          var titles = content.querySelectorAll('.ui-access-rights-popup-toggler-title-item');
 	          var contents = content.querySelectorAll('.ui-access-rights-popup-toggler-content');
@@ -1004,7 +883,6 @@ this.BX = this.BX || {};
 	          main_core.Dom.style(target, 'display', 'block');
 	          main_core.Dom.addClass(node, 'ui-access-rights-popup-toggler-title-item-active');
 	        };
-
 	        this.popupUsers = main_popup.PopupWindowManager.create(null, this.getAddUserToRole(), {
 	          contentPadding: 10,
 	          animation: 'fading-slide',
@@ -1021,36 +899,30 @@ this.BX = this.BX || {};
 	            onPopupShow: function onPopupShow() {
 	              setTimeout(function () {
 	                var firstActiveNode = content.querySelector('.ui-access-rights-popup-toggler-title-item');
-
 	                if (!firstActiveNode) {
 	                  return;
 	                }
-
 	                main_core.Dom.addClass(firstActiveNode, 'ui-access-rights-popup-toggler-title-item-active');
 	                adjustSlicker(firstActiveNode);
 	              });
 	            },
 	            onPopupClose: function onPopupClose() {
 	              _this2.popupUsers.destroy();
-
 	              _this2.popupUsers = null;
 	            }
 	          }
 	        });
 	      }
-
 	      return this.popupUsers;
 	    }
 	  }, {
 	    key: "getUserPopupTogglerGroup",
 	    value: function getUserPopupTogglerGroup(array, type) {
 	      var _this3 = this;
-
 	      var node = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-popup-toggler-content'></div>"])));
 	      main_core.Dom.addClass(node, 'ui-access-rights-popup-toggler-content-' + type);
 	      array.forEach(function (item) {
 	        var toggler = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-popup-toggler-content-item'></div>"])));
-
 	        if (item.avatar) {
 	          var avatar = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a \n\t\t\t\t\t\tclass='ui-access-rights-popup-toggler-content-item-userpic'\n\t\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\t></a>\n\t\t\t\t"])), main_core.Text.encode(item.name));
 	          main_core.Dom.style(avatar, 'backgroundImage', 'url(\'' + encodeURI(item.avatar) + '\')');
@@ -1058,7 +930,6 @@ this.BX = this.BX || {};
 	          main_core.Dom.append(avatar, toggler);
 	        } else {
 	          var iconClass = '';
-
 	          if (type === 'users') {
 	            iconClass = 'ui-icon-common-user';
 	          } else if (type === 'groups') {
@@ -1066,26 +937,20 @@ this.BX = this.BX || {};
 	          } else if (type === 'sonetgroups' || type === 'departments') {
 	            iconClass = 'ui-icon-common-company';
 	          }
-
 	          var emptyAvatar = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["<a class='ui-icon ui-icon-sm' title=\"", "\"><i></i></a>"])), main_core.Text.encode(item.name));
 	          main_core.Dom.addClass(emptyAvatar, iconClass);
 	          main_core.Dom.style(emptyAvatar, 'margin', '5px 10px');
 	          main_core.Dom.append(emptyAvatar, toggler);
 	        }
-
 	        main_core.Dom.append(main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-popup-toggler-content-item-name'>", "</div>"])), main_core.Text.encode(item.name)), toggler);
 	        var removeButton = main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class='ui-access-rights-popup-toggler-content-item-remove'>", "</div>\n\t\t\t"])), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_REMOVE'));
 	        main_core.Event.bind(removeButton, 'click', function () {
 	          _this3.userGroup.accessCodes.splice(_this3.userGroup.accessCodes.indexOf(item.key), 1);
-
 	          delete _this3.userGroup.accessCodes[item.key];
 	          delete _this3.userGroup.members[item.key];
 	          main_core.Dom.remove(toggler);
-
 	          _this3.updateMembers();
-
 	          _this3.adjustPopupUserControl();
-
 	          _this3.grid.getButtonPanel().show();
 	        });
 	        main_core.Dom.append(removeButton, toggler);
@@ -1097,13 +962,10 @@ this.BX = this.BX || {};
 	    key: "showUserSelectorPopup",
 	    value: function showUserSelectorPopup() {
 	      var _BX$Main$selectorMana;
-
 	      var selectorInstance = (_BX$Main$selectorMana = BX$2.Main.selectorManagerV2.controls[this.popupContainer]) === null || _BX$Main$selectorMana === void 0 ? void 0 : _BX$Main$selectorMana.selectorInstance;
-
 	      if (selectorInstance) {
 	        selectorInstance.itemsSelected = {};
 	      }
-
 	      BX$2.onCustomEvent(this.openPopupEvent, [{
 	        id: this.popupContainer,
 	        bindNode: this.getAddUserToRole()
@@ -1116,40 +978,31 @@ this.BX = this.BX || {};
 	  }]);
 	  return Member;
 	}(Base);
-
 	babelHelpers.defineProperty(Member, "TYPE", 'members');
 
 	var _templateObject$5, _templateObject2$2, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1;
-
 	var Role = /*#__PURE__*/function (_Base) {
 	  babelHelpers.inherits(Role, _Base);
-
 	  function Role(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Role);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Role).call(this, options));
 	    _this.column = options.column;
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Role, [{
 	    key: "bindEvents",
 	    value: function bindEvents() {
 	      var _this2 = this;
-
 	      main_core.Event.bind(window, 'click', function (event) {
 	        if (event.target === _this2.getRole() || event.target.closest('.ui-access-rights-role')) {
 	          return;
 	        }
-
 	        _this2.updateRole();
-
 	        _this2.offRoleEditMode();
 	      });
 	      main_core_events.EventEmitter.subscribe(this.grid, 'onBeforeSave', function () {
 	        _this2.updateRole();
-
 	        _this2.offRoleEditMode();
 	      });
 	    }
@@ -1157,18 +1010,15 @@ this.BX = this.BX || {};
 	    key: "getRole",
 	    value: function getRole() {
 	      var _this3 = this;
-
 	      if (this.role) {
 	        return this.role;
 	      }
-
 	      main_core_events.EventEmitter.subscribe('BX.UI.AccessRights:preservation', this.updateRole.bind(this));
 	      main_core_events.EventEmitter.subscribe('BX.UI.AccessRights:preservation', this.offRoleEditMode.bind(this));
 	      this.roleInput = main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t\ttype='text'\n\t\t\t\t\tclass='ui-access-rights-role-input'\n\t\t\t\t\tvalue='", "'\n\t\t\t\t\tplaceholder='", "'\n\t\t\t\t/>\n\t\t\t"])), main_core.Text.encode(this.text), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ROLE_NAME'));
 	      main_core.Event.bind(this.roleInput, 'keydown', function (event) {
 	        if (event.keyCode === 13) {
 	          _this3.updateRole();
-
 	          _this3.offRoleEditMode();
 	        }
 	      });
@@ -1199,7 +1049,6 @@ this.BX = this.BX || {};
 	    key: "showPopupConfirm",
 	    value: function showPopupConfirm() {
 	      var _this4 = this;
-
 	      if (!this.popupConfirm) {
 	        /**@ToDO check role*/
 	        this.popupConfirm = main_popup.PopupWindowManager.create(null, this.getRole(), {
@@ -1215,7 +1064,6 @@ this.BX = this.BX || {};
 	          events: {
 	            click: function click() {
 	              _this4.popupConfirm.close();
-
 	              main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:removeRole', _this4);
 	            }
 	          }
@@ -1229,7 +1077,6 @@ this.BX = this.BX || {};
 	          }
 	        })]);
 	      }
-
 	      this.popupConfirm.show();
 	    }
 	  }, {
@@ -1238,7 +1085,6 @@ this.BX = this.BX || {};
 	      if (this.roleValue.innerHTML === this.roleInput.value || this.roleInput.value === '') {
 	        return;
 	      }
-
 	      this.text = this.roleInput.value;
 	      this.userGroup = this.column.getUserGroup();
 	      this.roleValue.innerText = this.roleInput.value;
@@ -1252,30 +1098,24 @@ this.BX = this.BX || {};
 	  }]);
 	  return Role;
 	}(Base);
-
 	babelHelpers.defineProperty(Role, "TYPE", 'role');
 
 	var _templateObject$6;
-
 	var Changer = /*#__PURE__*/function (_Base) {
 	  babelHelpers.inherits(Changer, _Base);
-
 	  function Changer(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Changer);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Changer).call(this, options));
 	    _this.isModify = false;
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Changer, [{
 	    key: "getChanger",
 	    value: function getChanger() {
 	      if (!this.changer) {
 	        this.changer = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["<a class='ui-access-rights-column-item-changer'></a>"])));
 	      }
-
 	      return this.changer;
 	    }
 	  }, {
@@ -1293,7 +1133,6 @@ this.BX = this.BX || {};
 	    key: "offChanger",
 	    value: function offChanger() {
 	      var _this2 = this;
-
 	      if (this.isModify) {
 	        setTimeout(function () {
 	          _this2.refreshStatus();
@@ -1312,10 +1151,8 @@ this.BX = this.BX || {};
 
 	var Toggler = /*#__PURE__*/function (_Changer) {
 	  babelHelpers.inherits(Toggler, _Changer);
-
 	  function Toggler(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Toggler);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Toggler).call(this, options));
 	    _this.switcher = new BX.UI.Switcher({
@@ -1330,21 +1167,18 @@ this.BX = this.BX || {};
 	        },
 	        toggled: function toggled() {
 	          _this.adjustChanger();
-
 	          main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:update', babelHelpers.assertThisInitialized(_this));
 	        }
 	      }
 	    });
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Toggler, [{
 	    key: "offChanger",
 	    value: function offChanger() {
 	      if (this.isModify) {
 	        this.switcher.check(!this.switcher.isChecked());
 	      }
-
 	      babelHelpers.get(babelHelpers.getPrototypeOf(Toggler.prototype), "offChanger", this).call(this);
 	    }
 	  }, {
@@ -1356,24 +1190,19 @@ this.BX = this.BX || {};
 	  }]);
 	  return Toggler;
 	}(Changer);
-
 	babelHelpers.defineProperty(Toggler, "TYPE", 'toggler');
 
 	var _templateObject$7, _templateObject2$3, _templateObject3$2;
-
 	var Controller = /*#__PURE__*/function (_Base) {
 	  babelHelpers.inherits(Controller, _Base);
-
 	  function Controller() {
 	    babelHelpers.classCallCheck(this, Controller);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Controller).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(Controller, [{
 	    key: "render",
 	    value: function render() {
 	      var _this = this;
-
 	      if (!this.controller) {
 	        this.controllerLink = main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class='ui-access-rights-column-item-controller-link'>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_CREATE_ROLE'));
 	        this.controllerMenu = main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class='ui-access-rights-column-item-controller-link'>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_COPY_ROLE'));
@@ -1396,25 +1225,20 @@ this.BX = this.BX || {};
 	            type: Role.TYPE
 	          }]);
 	          main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:update', _this);
-
 	          _this.toggleControllerMenu();
-
 	          _this.grid.lock();
 	        });
 	        main_core_events.EventEmitter.subscribe('BX.UI.AccessRights.ColumnItem:removeRole', this.toggleControllerMenu.bind(this));
 	      }
-
 	      return this.controller;
 	    }
 	  }, {
 	    key: "getPopupMenu",
 	    value: function getPopupMenu(options) {
 	      var _this2 = this;
-
 	      if (!options) {
 	        return;
 	      }
-
 	      var menuItems = [];
 	      options.map(function (data) {
 	        menuItems.push({
@@ -1431,7 +1255,6 @@ this.BX = this.BX || {};
 	              members: data.members
 	            }]);
 	            main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:update', _this2);
-
 	            _this2.popupMenu.destroy();
 	          }
 	        });
@@ -1440,7 +1263,6 @@ this.BX = this.BX || {};
 	        events: {
 	          onPopupClose: function onPopupClose() {
 	            _this2.popupMenu.destroy();
-
 	            _this2.popupMenu = null;
 	          }
 	        }
@@ -1460,20 +1282,16 @@ this.BX = this.BX || {};
 	}(Base);
 
 	var _templateObject$8;
-
 	var VariableSelector = /*#__PURE__*/function (_Changer) {
 	  babelHelpers.inherits(VariableSelector, _Changer);
-
 	  function VariableSelector(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, VariableSelector);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(VariableSelector).call(this, options));
 	    _this.selectedValues = [_this.currentValue];
 	    _this.variables = options.variables || [];
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(VariableSelector, [{
 	    key: "bindEvents",
 	    value: function bindEvents() {
@@ -1484,7 +1302,6 @@ this.BX = this.BX || {};
 	    key: "render",
 	    value: function render() {
 	      var _this$getSelected$tit, _this$getSelected;
-
 	      var title = (_this$getSelected$tit = (_this$getSelected = this.getSelected()) === null || _this$getSelected === void 0 ? void 0 : _this$getSelected.title) !== null && _this$getSelected$tit !== void 0 ? _this$getSelected$tit : main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ADD');
 	      var variablesValue = main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class='ui-access-rights-column-item-text-link'>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Text.encode(title));
 	      main_core.Event.bind(variablesValue, 'click', this.showVariablesPopup.bind(this));
@@ -1513,7 +1330,6 @@ this.BX = this.BX || {};
 	    key: "getSelected",
 	    value: function getSelected() {
 	      var _this2 = this;
-
 	      var selected = this.variables.filter(function (variable) {
 	        return _this2.selectedValues.includes(variable.id);
 	      });
@@ -1523,7 +1339,6 @@ this.BX = this.BX || {};
 	    key: "showVariablesPopup",
 	    value: function showVariablesPopup(event) {
 	      var _this3 = this;
-
 	      var menuItems = [];
 	      this.variables.map(function (data) {
 	        menuItems.push({
@@ -1545,7 +1360,6 @@ this.BX = this.BX || {};
 	    key: "select",
 	    value: function select(event, item) {
 	      var _item$getMenuWindow;
-
 	      this.selectedValues = [item.id];
 	      (_item$getMenuWindow = item.getMenuWindow()) === null || _item$getMenuWindow === void 0 ? void 0 : _item$getMenuWindow.close();
 	      this.getChanger().innerHTML = '';
@@ -1557,19 +1371,15 @@ this.BX = this.BX || {};
 	  }]);
 	  return VariableSelector;
 	}(Changer);
-
 	babelHelpers.defineProperty(VariableSelector, "TYPE", 'variables');
 
 	var _templateObject$9;
-
 	var UserGroupTitle = /*#__PURE__*/function (_Title) {
 	  babelHelpers.inherits(UserGroupTitle, _Title);
-
 	  function UserGroupTitle() {
 	    babelHelpers.classCallCheck(this, UserGroupTitle);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UserGroupTitle).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(UserGroupTitle, [{
 	    key: "render",
 	    value: function render() {
@@ -1578,31 +1388,23 @@ this.BX = this.BX || {};
 	  }]);
 	  return UserGroupTitle;
 	}(Title);
-
 	babelHelpers.defineProperty(UserGroupTitle, "TYPE", 'userGroupTitle');
 
 	var _templateObject$a, _templateObject2$4, _templateObject3$3;
-
 	var Footer = /*#__PURE__*/function (_DefaultFooter) {
 	  babelHelpers.inherits(Footer, _DefaultFooter);
-
 	  function Footer(dialog, options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Footer);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Footer).call(this, dialog, options));
 	    _this.selectAllButton = main_core.Tag.render(_templateObject$a || (_templateObject$a = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-footer-link ui-selector-search-footer-label--hide\">", "</div>"])), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ALL_SELECT_LABEL'));
 	    main_core.Event.bind(_this.selectAllButton, 'click', _this.selectAll.bind(babelHelpers.assertThisInitialized(_this)));
 	    _this.deselectAllButton = main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-footer-link ui-selector-search-footer-label--hide\">", "</div>"])), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ALL_DESELECT_LABEL'));
 	    main_core.Event.bind(_this.deselectAllButton, 'click', _this.deselectAll.bind(babelHelpers.assertThisInitialized(_this)));
-
 	    _this.getDialog().subscribe('Item:onSelect', _this.onItemStatusChange.bind(babelHelpers.assertThisInitialized(_this)));
-
 	    _this.getDialog().subscribe('Item:onDeselect', _this.onItemStatusChange.bind(babelHelpers.assertThisInitialized(_this)));
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Footer, [{
 	    key: "getContent",
 	    value: function getContent() {
@@ -1628,7 +1430,6 @@ this.BX = this.BX || {};
 	      if (this.getDialog().getSelectedItems().length === this.getDialog().getItems().length) {
 	        return;
 	      }
-
 	      this.getDialog().getItems().forEach(function (item) {
 	        item.select();
 	      });
@@ -1650,15 +1451,11 @@ this.BX = this.BX || {};
 	}(ui_entitySelector.DefaultFooter);
 
 	var _templateObject$b;
-
 	var MultiSelector = /*#__PURE__*/function (_Changer) {
 	  babelHelpers.inherits(MultiSelector, _Changer);
-
 	  function MultiSelector(options) {
 	    var _options$enableSearch, _options$showAvatars, _options$compactView;
-
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, MultiSelector);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(MultiSelector).call(this, options));
 	    _this.variables = options.variables || [];
@@ -1681,7 +1478,6 @@ this.BX = this.BX || {};
 	    _this.selector = _this.createSelector();
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(MultiSelector, [{
 	    key: "bindEvents",
 	    value: function bindEvents() {
@@ -1719,17 +1515,14 @@ this.BX = this.BX || {};
 	    key: "render",
 	    value: function render() {
 	      var title = '';
-
 	      if (this.includesSelected(this.allSelectedCode)) {
 	        title = main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ALL_ACCEPTED');
 	      } else {
 	        var _this$getSelected;
-
 	        var titles = [];
 	        (_this$getSelected = this.getSelected()) === null || _this$getSelected === void 0 ? void 0 : _this$getSelected.forEach(function (item) {
 	          titles.push(item.title);
 	        });
-
 	        if (titles.length > 0) {
 	          var firstItem = titles[0];
 	          title = titles.length - 1 > 0 ? main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_HAS_SELECTED_ITEMS', {
@@ -1740,9 +1533,7 @@ this.BX = this.BX || {};
 	          title = main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ADD');
 	        }
 	      }
-
 	      var hint = '';
-
 	      if (this.selector.getSelectedItems().length > 0) {
 	        var hintTitle = main_core.Type.isStringFilled(this.hintTitle) ? this.hintTitle : main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_SELECTED_ITEMS_TITLE');
 	        hint += '<p>' + hintTitle + ':</p>';
@@ -1752,7 +1543,6 @@ this.BX = this.BX || {};
 	        });
 	        hint += '</ul>';
 	      }
-
 	      var variablesValue = main_core.Tag.render(_templateObject$b || (_templateObject$b = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class='ui-access-rights-column-item-text-link' data-hint-html data-hint-no-icon data-hint=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Text.encode(hint), main_core.Text.encode(title));
 	      main_core.Event.bind(variablesValue, 'click', this.showSelector.bind(this));
 	      main_core.Dom.append(variablesValue, this.getChanger());
@@ -1782,11 +1572,9 @@ this.BX = this.BX || {};
 	    key: "getSelected",
 	    value: function getSelected() {
 	      var _this2 = this;
-
 	      if (this.includesSelected(this.allSelectedCode)) {
 	        return this.variables;
 	      }
-
 	      return this.variables.filter(function (variable) {
 	        return _this2.includesSelected(variable.id);
 	      });
@@ -1805,10 +1593,8 @@ this.BX = this.BX || {};
 	    key: "setSelectedInputs",
 	    value: function setSelectedInputs() {
 	      var _this3 = this;
-
 	      var selected = this.selector.getSelectedItems();
 	      this.selectedValues = [];
-
 	      if (selected.length === this.variables.length) {
 	        this.selectedValues.push(this.allSelectedCode);
 	      } else {
@@ -1816,13 +1602,10 @@ this.BX = this.BX || {};
 	          _this3.selectedValues.push(main_core.Text.toNumber(item.id));
 	        });
 	      }
-
 	      this.getChanger().innerHTML = '';
-
 	      if (!this.isModify) {
 	        this.adjustChanger();
 	      }
-
 	      this.render();
 	      main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:update', this);
 	      main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:selectAccessItems', this);
@@ -1830,15 +1613,11 @@ this.BX = this.BX || {};
 	  }]);
 	  return MultiSelector;
 	}(Changer);
-
 	babelHelpers.defineProperty(MultiSelector, "TYPE", 'multivariables');
 
 	var _templateObject$c;
-
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var ColumnItem = /*#__PURE__*/function () {
 	  function ColumnItem(options) {
 	    babelHelpers.classCallCheck(this, ColumnItem);
@@ -1848,17 +1627,14 @@ this.BX = this.BX || {};
 	    this.controller = options.controller ? options.controller : null;
 	    this.column = options.column;
 	  }
-
 	  babelHelpers.createClass(ColumnItem, [{
 	    key: "render",
 	    value: function render() {
 	      var item = null;
 	      var container = main_core.Tag.render(_templateObject$c || (_templateObject$c = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-column-item'></div>"])));
 	      this.options.container = container;
-
 	      if (this.type === Role.TYPE) {
 	        item = new Role(this.options);
-
 	        if (this.column.newColumn) {
 	          setTimeout(function () {
 	            item.onRoleEditMode();
@@ -1876,27 +1652,21 @@ this.BX = this.BX || {};
 	      } else if (this.type === Toggler.TYPE) {
 	        item = new Toggler(this.options);
 	      }
-
 	      if (item) {
 	        main_core.Dom.append(item.render(), container);
 	      }
-
 	      if (this.hint) {
 	        var hintOptions = _objectSpread({
 	          className: 'ui-access-rights-column-item-notify'
 	        }, this.options);
-
 	        main_core.Dom.append(new Hint(hintOptions).render(), container);
 	      }
-
 	      if (this.type === UserGroupTitle.TYPE) {
 	        main_core.Dom.append(new UserGroupTitle(this.options).render(), container);
 	      }
-
 	      if (this.controller) {
 	        main_core.Dom.append(new Controller(this.options).render(), container);
 	      }
-
 	      return container;
 	    }
 	  }]);
@@ -1906,7 +1676,6 @@ this.BX = this.BX || {};
 	namespace$1.ColumnItem = ColumnItem;
 
 	var _templateObject$d;
-
 	var Column = /*#__PURE__*/function () {
 	  function Column(options) {
 	    babelHelpers.classCallCheck(this, Column);
@@ -1923,13 +1692,11 @@ this.BX = this.BX || {};
 	    this.openPopupEvent = options.grid.openPopupEvent ? options.grid.openPopupEvent : null;
 	    this.popupContainer = options.grid.popupContainer ? options.grid.popupContainer : null;
 	  }
-
 	  babelHelpers.createClass(Column, [{
 	    key: "getItem",
 	    value: function getItem(options) {
 	      options = options || {};
 	      var param = {};
-
 	      if (options.type === UserGroupTitle.TYPE) {
 	        param = {
 	          type: options.type,
@@ -1937,7 +1704,6 @@ this.BX = this.BX || {};
 	          controller: options.controller
 	        };
 	      }
-
 	      if (options.type === Title.TYPE) {
 	        param = {
 	          id: options.id,
@@ -1947,14 +1713,12 @@ this.BX = this.BX || {};
 	          controller: options.controller
 	        };
 	      }
-
 	      if (options.type === Toggler.TYPE) {
 	        param = {
 	          type: options.type,
 	          access: options.access
 	        };
 	      }
-
 	      if (options.type === VariableSelector.TYPE || options.type === MultiSelector.TYPE) {
 	        param = {
 	          type: options.type,
@@ -1963,7 +1727,6 @@ this.BX = this.BX || {};
 	          access: options.access
 	        };
 	      }
-
 	      if (options.type === MultiSelector.TYPE) {
 	        param.allSelectedCode = options.allSelectedCode;
 	        param.enableSearch = options.enableSearch;
@@ -1971,45 +1734,36 @@ this.BX = this.BX || {};
 	        param.compactView = options.compactView;
 	        param.hintTitle = options.hintTitle;
 	      }
-
 	      if (options.type === Role.TYPE) {
 	        param = {
 	          type: options.type,
 	          text: options.title
 	        };
 	      }
-
 	      if (options.type === Member.TYPE) {
 	        var accessCodes = [];
-
 	        for (var item in options.members) {
 	          accessCodes[item] = options.members[item].type;
 	        }
-
 	        param = {
 	          type: options.type,
 	          accessCodes: accessCodes
 	        };
 	      }
-
 	      param.column = this;
 	      param.userGroup = this.userGroup;
 	      param.openPopupEvent = this.openPopupEvent;
 	      param.popupContainer = this.popupContainer;
 	      param.currentValue = null;
 	      param.grid = this.grid;
-
 	      if (options.type === VariableSelector.TYPE || options.type === MultiSelector.TYPE || options.type === Toggler.TYPE) {
 	        var _param$userGroup$acce, _param$userGroup;
-
 	        var accessId = param.access.id.toString();
 	        var accessRights = (_param$userGroup$acce = (_param$userGroup = param.userGroup) === null || _param$userGroup === void 0 ? void 0 : _param$userGroup.accessRights) !== null && _param$userGroup$acce !== void 0 ? _param$userGroup$acce : [];
-
 	        for (var i = 0; i < accessRights.length; i++) {
 	          if (accessId === accessRights[i].id.toString()) {
 	            if (options.type === MultiSelector.TYPE) {
 	              var _param$currentValue;
-
 	              param.currentValue = (_param$currentValue = param.currentValue) !== null && _param$currentValue !== void 0 ? _param$currentValue : [];
 	              param.currentValue.push(accessRights[i].value);
 	            } else {
@@ -2018,7 +1772,6 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      }
-
 	      return new ColumnItem(param);
 	    }
 	  }, {
@@ -2030,11 +1783,9 @@ this.BX = this.BX || {};
 	    key: "remove",
 	    value: function remove() {
 	      var _this = this;
-
 	      if (main_core.Dom.hasClass(this.layout.container, 'ui-access-rights-column-new')) {
 	        this.resetClassNew();
 	      }
-
 	      main_core.Dom.addClass(this.layout.container, 'ui-access-rights-column-remove');
 	      main_core.Dom.style(this.layout.container, 'width', this.layout.container.offsetWidth + 'px');
 	      main_core.Event.bind(this.layout.container, 'animationend', function () {
@@ -2054,28 +1805,22 @@ this.BX = this.BX || {};
 	    key: "render",
 	    value: function render() {
 	      var _this2 = this;
-
 	      if (!this.layout.container) {
 	        var itemsFragment = document.createDocumentFragment();
-
 	        if (this.headSection) {
 	          this.userGroup.type = Role.TYPE;
 	          main_core.Dom.append(this.getItem(this.userGroup).render(), itemsFragment);
 	          this.userGroup.type = Member.TYPE;
 	          main_core.Dom.append(this.getItem(this.userGroup).render(), itemsFragment);
 	        }
-
 	        this.items.map(function (data) {
 	          var item = _this2.getItem(data);
-
 	          main_core.Dom.append(item.render(), itemsFragment);
 	        });
 	        this.layout.container = main_core.Tag.render(_templateObject$d || (_templateObject$d = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-column'></div>"])));
-
 	        if (this.newColumn) {
 	          main_core.Dom.addClass('ui-access-rights-column-new', this.layout.container);
 	        }
-
 	        main_core_events.EventEmitter.subscribe('BX.UI.AccessRights:refresh', this.resetClassNew.bind(this));
 	        main_core.Dom.append(itemsFragment, this.layout.container);
 	        return this.layout.container;
@@ -2088,11 +1833,9 @@ this.BX = this.BX || {};
 	namespace$2.Column = Column;
 
 	var _templateObject$e, _templateObject2$5, _templateObject3$4, _templateObject4$2, _templateObject5$2, _templateObject6$2, _templateObject7$1, _templateObject8$1;
-
 	var Section = /*#__PURE__*/function () {
 	  function Section(options) {
 	    var _options$id;
-
 	    babelHelpers.classCallCheck(this, Section);
 	    this.id = (_options$id = options.id) !== null && _options$id !== void 0 ? _options$id : null;
 	    this.headSection = options.headSection ? options.headSection : null;
@@ -2116,21 +1859,17 @@ this.BX = this.BX || {};
 	    this.columns = [];
 	    this.bindEvents();
 	  }
-
 	  babelHelpers.createClass(Section, [{
 	    key: "bindEvents",
 	    value: function bindEvents() {
 	      var _this = this;
-
 	      main_core_events.EventEmitter.subscribe(this.grid, 'AccessRights.Section:scroll', function (event) {
 	        var _event$getData = event.getData(),
-	            _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
-	            object = _event$getData2[0];
-
+	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
+	          object = _event$getData2[0];
 	        if (_this.title !== object.title) {
 	          _this.getColumnsContainer().scrollLeft = object.getScroll();
 	        }
-
 	        object.adjustEars();
 	        main_popup.PopupMenu.destroy('ui-access-rights-column-item-popup-variables');
 	      });
@@ -2147,7 +1886,6 @@ this.BX = this.BX || {};
 	      if (!param) {
 	        return;
 	      }
-
 	      var options = Object.assign({}, param);
 	      options.userGroup = param;
 	      var column = this.getColumn(options);
@@ -2188,7 +1926,6 @@ this.BX = this.BX || {};
 	      if (!param) {
 	        return;
 	      }
-
 	      for (var i = 0; i < this.columns.length; i++) {
 	        if (param.userGroup === this.columns[i].userGroup) {
 	          this.columns[i].remove();
@@ -2200,7 +1937,6 @@ this.BX = this.BX || {};
 	    key: "addHeadColumn",
 	    value: function addHeadColumn() {
 	      var titles = [];
-
 	      if (!this.headSection) {
 	        this.rights.map(function (data) {
 	          titles.push({
@@ -2211,7 +1947,6 @@ this.BX = this.BX || {};
 	          });
 	        });
 	      }
-
 	      if (this.headSection) {
 	        titles = [{
 	          type: UserGroupTitle.TYPE,
@@ -2223,7 +1958,6 @@ this.BX = this.BX || {};
 	          controller: false
 	        }];
 	      }
-
 	      var column = new Column({
 	        items: titles,
 	        section: this,
@@ -2240,14 +1974,12 @@ this.BX = this.BX || {};
 	        main_core.Event.bind(column, 'scroll', this.adjustScroll.bind(this));
 	        this.layout.columns = column;
 	      }
-
 	      return this.layout.columns;
 	    }
 	  }, {
 	    key: "getTitleNode",
 	    value: function getTitleNode() {
 	      var node = main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-section-title'>", "</div>"])), main_core.Text.encode(this.title));
-
 	      if (this.hint) {
 	        var hintNode = new Hint({
 	          hint: this.hint,
@@ -2255,7 +1987,6 @@ this.BX = this.BX || {};
 	        });
 	        node.appendChild(hintNode.render());
 	      }
-
 	      return node;
 	    }
 	  }, {
@@ -2282,73 +2013,60 @@ this.BX = this.BX || {};
 	      if (!this.layout.content) {
 	        this.layout.content = main_core.Tag.render(_templateObject3$4 || (_templateObject3$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class='ui-access-rights-section-content'>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.getColumnsContainer(), this.getEarLeft(), this.getEarRight());
 	      }
-
 	      return this.layout.content;
 	    }
 	  }, {
 	    key: "getEarLeft",
 	    value: function getEarLeft() {
 	      var _this2 = this;
-
 	      if (!this.layout.earLeft) {
 	        this.layout.earLeft = main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-section-ear-left'></div>"])));
 	        main_core.Event.bind(this.layout.earLeft, 'mouseenter', function () {
 	          _this2.stopAutoScroll();
-
 	          _this2.earLeftTimer = setTimeout(function () {
 	            _this2.scrollToLeft();
 	          }, 110);
 	        });
 	        main_core.Event.bind(this.layout.earLeft, 'mouseleave', function () {
 	          clearTimeout(_this2.earLeftTimer);
-
 	          _this2.stopAutoScroll();
 	        });
 	      }
-
 	      return this.layout.earLeft;
 	    }
 	  }, {
 	    key: "getEarRight",
 	    value: function getEarRight() {
 	      var _this3 = this;
-
 	      if (!this.layout.earRight) {
 	        this.layout.earRight = main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["<div class='ui-access-rights-section-ear-right'></div>"])));
 	        main_core.Event.bind(this.layout.earRight, 'mouseenter', function () {
 	          _this3.stopAutoScroll();
-
 	          _this3.earRightTimer = setTimeout(function () {
 	            _this3.scrollToRight();
 	          }, 110);
 	        });
 	        main_core.Event.bind(this.layout.earRight, 'mouseleave', function () {
 	          clearTimeout(_this3.earRightTimer);
-
 	          _this3.stopAutoScroll();
 	        });
 	      }
-
 	      return this.layout.earRight;
 	    }
 	  }, {
 	    key: "scrollToRight",
 	    value: function scrollToRight(param, stop) {
 	      var _this4 = this;
-
 	      var interval = param ? 2 : 20;
 	      this.earTimer = setInterval(function () {
 	        _this4.getColumnsContainer().scrollLeft += 10;
-
 	        if (param && param <= _this4.getColumnsContainer().scrollLeft) {
 	          _this4.stopAutoScroll();
 	        }
 	      }, interval);
-
 	      if (stop === 'stop') {
 	        setTimeout(function () {
 	          _this4.stopAutoScroll();
-
 	          _this4.getGrid().unlock();
 	        }, param * 2);
 	      }
@@ -2357,7 +2075,6 @@ this.BX = this.BX || {};
 	    key: "scrollToLeft",
 	    value: function scrollToLeft() {
 	      var _this5 = this;
-
 	      this.earTimer = setInterval(function () {
 	        _this5.getColumnsContainer().scrollLeft -= 10;
 	      }, 20);
@@ -2376,18 +2093,14 @@ this.BX = this.BX || {};
 	    key: "render",
 	    value: function render() {
 	      var _this$grid$getUserGro;
-
 	      var title = this.title ? this.getTitleNode() : null;
 	      var sectionContainer = main_core.Tag.render(_templateObject6$2 || (_templateObject6$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class='ui-access-rights-section'>\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), title, this.getMainContainer());
-
 	      if (this.headSection) {
 	        main_core.Dom.addClass(sectionContainer, 'ui-access-rights--head-section');
 	      }
-
 	      this.addHeadColumn();
 	      var columnsFragment = document.createDocumentFragment();
 	      var userGroups = (_this$grid$getUserGro = this.grid.getUserGroups()) !== null && _this$grid$getUserGro !== void 0 ? _this$grid$getUserGro : [];
-
 	      for (var i = 0; i < userGroups.length; i++) {
 	        var column = this.getColumn({
 	          headSection: this.headSection ? this.headSection : null,
@@ -2396,7 +2109,6 @@ this.BX = this.BX || {};
 	        this.columns.push(column);
 	        main_core.Dom.append(column.render(), columnsFragment);
 	      }
-
 	      main_core.Dom.append(columnsFragment, this.getColumnsContainer());
 	      return sectionContainer;
 	    }
@@ -2417,5 +2129,5 @@ this.BX = this.BX || {};
 	exports.Column = Column;
 	exports.ColumnItem = ColumnItem;
 
-}((this.BX.UI = this.BX.UI || {}),BX,BX,BX,BX.Main,BX.Event,BX.UI.EntitySelector,BX));
+}((this.BX.UI = this.BX.UI || {}),BX,BX,BX.UI,BX.Main,BX.Event,BX.UI.EntitySelector,BX));
 //# sourceMappingURL=accessrights.bundle.js.map

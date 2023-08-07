@@ -50,11 +50,17 @@ class ReadService
 		$this->counterService->deleteTo($message);
 		$counter = $this->counterService->getByChat($message->getChatId());
 		$time = microtime(true);
-		$this->viewedService->addTo($message);
+		$viewResult = $this->viewedService->addTo($message);
 		$this->updateDateRecent($message->getChatId());
 		$this->sendPush($message->getChatId(), [$this->getContext()->getUserId()], $counter, $time);
 
-		return (new Result())->setResult(['COUNTER' => $counter]);
+		$viewedMessages = [];
+		if ($viewResult->isSuccess())
+		{
+			$viewedMessages = $viewResult->getResult()['VIEWED_MESSAGES'] ?? [];
+		}
+
+		return (new Result())->setResult(['COUNTER' => $counter, 'VIEWED_MESSAGES' => $viewedMessages]);
 	}
 
 	public function read(MessageCollection $messages, Chat $chat): Result

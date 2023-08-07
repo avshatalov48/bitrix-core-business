@@ -1,4 +1,5 @@
 import 'ui.design-tokens';
+import 'ui.buttons';
 import 'ui.fonts.opensans';
 import './css/style.css';
 import { EventEmitter } from 'main.core.events';
@@ -6,6 +7,7 @@ import { Dom, Tag, Loc, Type } from 'main.core';
 
 export class MessageGrid
 {
+	EXPAND_LICENSE_URL = '/settings/license_all.php';
 	#loadingMessagesStubInGridWrapper;
 	#gridWrapper;
 	#id;
@@ -13,8 +15,9 @@ export class MessageGrid
 	#panel;
 	#checkboxNodeForCheckAll;
 
-	constructor()
+	constructor(mailboxIsAvailable = false)
 	{
+		this.mailboxIsAvailable = mailboxIsAvailable;
 		if (typeof MessageGrid.instance === 'object') {
 			return MessageGrid.instance
 		}
@@ -108,16 +111,44 @@ export class MessageGrid
 			let blankEmailStub = blankEmailStubs[0];
 			if(blankEmailStub.firstElementChild.firstElementChild)
 			{
-				blankEmailStub.firstElementChild.firstElementChild.replaceWith(
-					Tag.render`
-					<div class="mail-msg-list-grid-empty">
+				if (this.mailboxIsAvailable)
+				{
+					blankEmailStub.firstElementChild.firstElementChild.replaceWith(
+						Tag.render`
+						<div class="mail-msg-list-grid-empty">
 						<div class="mail-msg-list-grid-empty-inner">
 						<div class="mail-msg-list-grid-empty-title">${Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TITLE")}</div>
 						<p class="mail-msg-list-grid-empty-text">${Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TEXT_1")}</p>
 						<p class="mail-msg-list-grid-empty-text">${Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TEXT_2")}</p>
 						</div>
-					</div>`
-				);
+						</div>`
+					);
+				}
+				else
+				{
+					let tariffButton = Tag.render`
+					<button class="ui-btn ui-btn-round ui-btn-lg ui-btn-success">
+						${Loc.getMessage("MAIL_MSG_LIST_MAILBOX_TARIFF_RESTRICTIONS_BUTTON")}
+					</button>`;
+
+					tariffButton.onclick = (event) => {
+						event.preventDefault();
+						window.open(this.EXPAND_LICENSE_URL, '_blank')
+					};
+
+					const tariffPlug = Tag.render`
+					<div class="mail-msg-list-grid-empty">
+						<div class="mail-msg-list-grid-empty-inner">
+							<div class="mail-msg-list-grid-empty-title">${Loc.getMessage("MAIL_MSG_LIST_MAILBOX_TARIFF_RESTRICTIONS_TITLE")}</div>
+							<p class="mail-msg-list-grid-empty-text">${Loc.getMessage("MAIL_MSG_LIST_MAILBOX_TARIFF_RESTRICTIONS_TEXT_1")}</p>
+							<p class="mail-msg-list-grid-empty-text">${Loc.getMessage("MAIL_MSG_LIST_MAILBOX_TARIFF_RESTRICTIONS_TEXT_2")}</p>
+						</div>
+						<br/>
+					</div>`;
+
+					tariffPlug.append(tariffButton);
+					blankEmailStub.firstElementChild.firstElementChild.replaceWith(tariffPlug);
+				}
 			}
 		}
 	}

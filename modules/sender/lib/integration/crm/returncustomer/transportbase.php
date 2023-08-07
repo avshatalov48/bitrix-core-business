@@ -120,9 +120,9 @@ class TransportBase implements Transport\iBase
 	{
 		$config = $message->getConfiguration();
 		$authorId = $config->get('LETTER_CREATED_BY_ID');
-		$text = $message->replaceFields($config->get('COMMENT'));
-		$crmEntityId = $message->getRecipientCode();
 		$crmEntityTypeId = Service::getTypeIdByRecipientType($message->getRecipientType());
+		$crmEntityId = $message->getRecipientCode();
+		$text = $message->replaceFields($config->get('COMMENT'), '#', $crmEntityTypeId);
 
 		if (!$this->responsibleQueue || $this->responsibleQueue->getId() <> $message->getId())
 		{
@@ -146,7 +146,7 @@ class TransportBase implements Transport\iBase
 			}
 		}
 
-		$entityFields['TITLE'] = $message->replaceFields($config->get('TITLE'));
+		$entityFields['TITLE'] = $message->replaceFields($config->get('TITLE'), '#', $crmEntityTypeId);
 		$assignedId = $this->getAssignedWithCrmData((int)$crmEntityTypeId, (int)$crmEntityId);
 		$isAssignedById = ($config->get('LINK_WITH_RESPONSIBLE') === 'Y') && $assignedId;
 		$entityFields['ASSIGNED_BY_ID'] = $isAssignedById ? $assignedId : $this->responsibleQueue->next();
@@ -486,6 +486,12 @@ class TransportBase implements Transport\iBase
 	private function getAssignedWithCrmData(int $typeId, int $entityId): ?int
 	{
 		$factory = Container::getInstance()->getFactory($typeId);
+
+		if (!$factory)
+		{
+			return null;
+		}
+
 		$entity = $factory->getItem($entityId);
 		if ($entity)
 		{

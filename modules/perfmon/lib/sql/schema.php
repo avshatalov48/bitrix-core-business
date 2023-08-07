@@ -302,6 +302,11 @@ class Schema
 					$table->createConstraint($tokenizer);
 				}
 			}
+			elseif ($tokenizer->testUpperText('MODIFY'))
+			{
+				$tokenizer->skipWhiteSpace();
+				$table->modifyColumn($tokenizer);
+			}
 			elseif ($tokenizer->testUpperText('NOCHECK') || $tokenizer->testUpperText('CHECK'))
 			{
 				//(NOCHECK|CHECK) CONSTRAINT ALL

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core,im_lib_uploader,im_lib_utils,rest_client,ui_infoHelper,ui_notification,ui_fonts_opensans,ui_vue,ui_progressbarjs_uploader,im_const) {
 	'use strict';

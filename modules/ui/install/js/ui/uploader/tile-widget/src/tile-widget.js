@@ -1,8 +1,10 @@
 import { Type } from 'main.core';
-import { UploaderOptions, VueUploaderWidget } from 'ui.uploader.core';
+import { VueUploaderWidget } from 'ui.uploader.vue';
 
 import { TileWidgetComponent } from './components/tile-widget-component';
-import { TileWidgetOptions } from './tile-widget-options';
+
+import type { UploaderOptions } from 'ui.uploader.core';
+import type { TileWidgetOptions } from './tile-widget-options';
 
 /**
  * @memberof BX.UI.Uploader
@@ -15,7 +17,7 @@ export default class TileWidget extends VueUploaderWidget
 		super(uploaderOptions, widgetOptions);
 	}
 
-	getRootComponent(): ?Function
+	defineComponent(): ?Function
 	{
 		return TileWidgetComponent;
 	}

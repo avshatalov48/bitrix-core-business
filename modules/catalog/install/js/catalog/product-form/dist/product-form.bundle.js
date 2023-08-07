@@ -1722,9 +1722,6 @@ this.BX = this.BX || {};
 	  mounted() {
 	    this.$refs.label.appendChild(this.newLabel.render());
 	    this.$refs.message.appendChild(this.message.getLayout());
-	    if (!this.compilationOptions.hiddenInfoMessage) {
-	      this.showMessage();
-	    }
 	  },
 	  data() {
 	    return {
@@ -1876,6 +1873,9 @@ this.BX = this.BX || {};
 	    closeCreationStorePopup(creationStorePopup) {
 	      creationStorePopup.close();
 	    },
+	    onNewLabelClick(event) {
+	      event.preventDefault();
+	    },
 	    onLabelClick() {
 	      if (this.compilationOptions.isLimitedStore) {
 	        BX.UI.InfoHelper.show('limit_sites_number');
@@ -1904,7 +1904,6 @@ this.BX = this.BX || {};
 	        main_core.Dom.removeClass(this.$refs.hintIcon, 'catalog-pf-product-panel-message-arrow-target');
 	      }
 	      this.message.hide();
-	      this.$root.$app.changeFormOption('hiddenCompilationInfoMessage', 'Y');
 	    }
 	  },
 	  computed: {
@@ -1937,7 +1936,7 @@ this.BX = this.BX || {};
 								<span class="ui-hint-icon"></span>
 							</div>
 						</div>
-						<div ref="label"></div>
+						<div ref="label" @click="onNewLabelClick"></div>
 						<div class="tariff-lock" v-if="compilationOptions.isLimitedStore"></div>
 					</label>
 				</div>
@@ -1950,8 +1949,8 @@ this.BX = this.BX || {};
 					{{localize.CATALOG_FORM_COMPILATION_QR_LINK}}
 				</div>
 			</div>
-			<div class="catalog-pf-product-panel-compilation-price-info">{{localize.CATALOG_FORM_COMPILATION_PRICE_NOTIFICATION}}</div>
 			<div class="catalog-pf-product-panel-compilation-message" ref="message"></div>
+			<div class="catalog-pf-product-panel-compilation-price-info">{{localize.CATALOG_FORM_COMPILATION_PRICE_NOTIFICATION}}</div>
 		</div>
 	`
 	});
@@ -2601,8 +2600,7 @@ this.BX = this.BX || {};
 	        type: options.compilationFormType,
 	        hasStore: settingsCollection.get('hasLandingStore'),
 	        isLimitedStore: settingsCollection.get('isLimitedLandingStore'),
-	        disabledSwitcher: settingsCollection.get('isLimitedLandingStore'),
-	        hiddenInfoMessage: settingsCollection.get('hiddenCompilationInfoMessage')
+	        disabledSwitcher: settingsCollection.get('isLimitedLandingStore')
 	      };
 	    } else {
 	      options.showCompilationModeSwitcher = false;
@@ -2756,22 +2754,20 @@ this.BX = this.BX || {};
 	      return;
 	    }
 	    this.options[optionName] = value;
-	    if (optionName !== 'hiddenCompilationInfoMessage') {
-	      const basket = this.store.getters['productList/getBasket']();
-	      basket.forEach((item, index) => {
-	        if (optionName === 'showDiscountBlock') {
-	          item.showDiscountBlock = value;
-	        } else if (optionName === 'showTaxBlock') {
-	          item.showTaxBlock = value;
-	        } else if (optionName === 'taxIncluded') {
-	          item.fields.taxIncluded = value;
-	        }
-	        this.store.dispatch('productList/changeItem', {
-	          index,
-	          fields: item
-	        });
+	    const basket = this.store.getters['productList/getBasket']();
+	    basket.forEach((item, index) => {
+	      if (optionName === 'showDiscountBlock') {
+	        item.showDiscountBlock = value;
+	      } else if (optionName === 'showTaxBlock') {
+	        item.showTaxBlock = value;
+	      } else if (optionName === 'taxIncluded') {
+	        item.fields.taxIncluded = value;
+	      }
+	      this.store.dispatch('productList/changeItem', {
+	        index,
+	        fields: item
 	      });
-	    }
+	    });
 	    main_core.ajax.runAction('catalog.productForm.setConfig', {
 	      data: {
 	        configName: optionName,

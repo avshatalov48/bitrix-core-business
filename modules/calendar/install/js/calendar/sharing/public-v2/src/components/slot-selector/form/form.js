@@ -90,6 +90,7 @@ export default class Form extends Base
 	cleanDescription()
 	{
 		this.#getNodeInputDescription().value = null;
+		this.#inputData.description = '';
 	}
 
 	getType()
@@ -264,7 +265,7 @@ export default class Form extends Base
 			return true;
 		}
 
-		if (response.data.contactDataError || response.data.isEmptyContactName)
+		if (response?.data?.contactDataError || response?.data?.isEmptyContactName)
 		{
 			this.#inputErrors.contactDataIncorrect = response.data.contactDataError === true;
 			this.#inputErrors.authorNameEmpty = response.data.isEmptyContactName === true;

@@ -2,20 +2,28 @@
 use Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
 
-$sum = Loc::getMessage(
-	'SALE_HANDLERS_PAY_SYSTEM_SKB_DESCRIPTION',
-	[
-		'#SUM#' => SaleFormatCurrency(round($params['SUM'], 2), $params['CURRENCY']),
-	]
-);
 ?>
+
+<style>
+	.qr-code-image {
+		width: 350px;
+	}
+
+	.widget-paysystem-name {
+		font-weight: bold;
+	}
+</style>
+
 <div class="mb-4">
-	<p><?= $sum ?></p>
+	<div class="widget-payment-checkout-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SKB_DESCRIPTION_MSGVER_1') ?></div>
+	<div class="widget-payment-checkout-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SKB_DESCRIPTION_SUM', ['#SUM#' => SaleFormatCurrency(round($params['SUM'], 2), $params['CURRENCY'])]) ?></div>
 	<div class="mb-4" id="qr-code-hint" style="display: none;">
-		<?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SKB_QR_CODE_HINT'); ?>
+		<?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SKB_QR_CODE_HINT') ?>
 	</div>
-	<div class="mb-4">
-		<img style="width: 350px" src="data:image/png;base64,<?= $params['QR_CODE_IMAGE'] ?>"/>
+	<div class="mb-4 qr-code-container">
+		<div class="qr-code">
+			<img class="qr-code-image" src="data:image/png;base64,<?= $params['QR_CODE_IMAGE'] ?>"/>
+		</div>
 	</div>
 	<div id="button-container" style="display: none;">
 		<div class="d-flex align-items-center mb-3">

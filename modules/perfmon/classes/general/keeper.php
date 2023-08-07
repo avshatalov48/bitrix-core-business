@@ -594,7 +594,7 @@ class CPerfomanceKeeper
 		$bActive = false;
 		foreach (GetModuleEvents("main", "OnPageStart", true) as $arEvent)
 		{
-			if ($arEvent["TO_MODULE_ID"] == "perfmon")
+			if (isset($arEvent["TO_MODULE_ID"]) && $arEvent["TO_MODULE_ID"] == "perfmon")
 			{
 				$bActive = true;
 				break;

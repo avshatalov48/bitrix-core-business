@@ -30,11 +30,12 @@
 		foreach ($FIELDS as $ID => $arFields)
 		{
 			$arFields = array_merge($arFields, array("DICTIONARY_ID"=>$DICTIONARY_ID));
-			$DB->StartTransaction();
 			$ID = intval($ID);
 			if (!$lAdmin->IsUpdated($ID))
 				continue;
-	
+
+			$DB->StartTransaction();
+
 			if (!CFilterLetter::Update($ID, $arFields))
 			{
 				if ($ex = $APPLICATION->GetException())
@@ -42,10 +43,15 @@
 					$lAdmin->AddUpdateError($ex->GetString(), $ID);
 				}	
 				else
+				{
 					$lAdmin->AddUpdateError(GetMessage("FLT_NOT_UPDATE"), $ID);
+				}
 				$DB->Rollback();
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 		}
 	}
 /*******************************************************************/

@@ -24,6 +24,6 @@ class MessageVk extends MessageBase
 	 */
 	public function getName()
 	{
-		return Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_NAME_ADS_VK');
+		return Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_NAME_ADS_VKADS');
 	}
 }

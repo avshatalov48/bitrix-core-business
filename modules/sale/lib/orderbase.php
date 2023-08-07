@@ -187,7 +187,7 @@ abstract class OrderBase extends Internals\Entity
 	 * @param $siteId
 	 * @param null $userId
 	 * @param null $currency
-	 * @return Order
+	 * @return static
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\NotImplementedException
 	 * @throws Main\ObjectException

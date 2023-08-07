@@ -1,109 +1,145 @@
-import {BaseEvent, EventEmitter} from 'main.core.events';
-import {Uploader, PreviewManager} from 'im.v2.lib.uploader';
-import {EventType} from 'im.v2.const';
-import {Core} from 'im.v2.application.core';
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import { Uploader, UploaderEvent, UploaderFile } from 'ui.uploader.core';
+
+import { EventType } from 'im.v2.const';
+
+import type { MessageWithFile } from './file';
+
+type UploadManagerOptions = {
+	tempMessageId: string,
+	diskFolderId: number,
+}
 
 export class UploadManager extends EventEmitter
 {
-	#uploader: Uploader;
-	#store: Object;
-	#restClient: Object;
+	#uploaderRegistry: {[tempMessageId: string]: Uploader} = {};
+	#onUploadCancelHandler: Function;
 
-	static eventNamespace = 'BX.Messenger.v2.Textarea.UploadManager';
+	static eventNamespace = 'BX.Messenger.v2.Service.Sending.UploadManager';
 
 	static events = {
+		onFileAdd: 'onFileAdd',
 		onFileUploadProgress: 'onFileUploadProgress',
 		onFileUploadComplete: 'onFileUploadComplete',
 		onFileUploadError: 'onFileUploadError',
 		onFileUploadCancel: 'onFileUploadCancel',
+		onMaxFileCountExceeded: 'onMaxFileCountExceeded',
 	};
 
 	constructor()
 	{
 		super();
-		this.#store = Core.getStore();
-		this.#restClient = Core.getRestClient();
 		this.setEventNamespace(UploadManager.eventNamespace);
 
-		this.onUploadCancelHandler = this.#onUploadCancel.bind(this);
-		EventEmitter.subscribe(EventType.uploader.cancel, this.onUploadCancelHandler);
-
-		this.initUploader();
+		this.#onUploadCancelHandler = this.#onUploadCancel.bind(this);
+		EventEmitter.subscribe(EventType.uploader.cancel, this.#onUploadCancelHandler);
 	}
 
-	#getFilePreview(file: File): Promise<{preview?: Object}>
+	createUploader(options: UploadManagerOptions)
 	{
-		return PreviewManager.get(file).then((preview: {blob: Blob, width: number, height: number}) => {
-			return {preview};
-		}).catch(error => {
-			console.warn(`Couldn't get preview for file ${file.name}. Error: ${error}`);
+		const { tempMessageId, diskFolderId } = options;
 
-			return {};
+		this.#uploaderRegistry[tempMessageId] = new Uploader({
+			autoUpload: true,
+			controller: 'disk.uf.integration.diskUploaderController',
+			multiple: true,
+			controllerOptions: {
+				folderId: diskFolderId,
+			},
+			imageResizeWidth: 1280,
+			imageResizeHeight: 1280,
+			imageResizeMode: 'contain',
+			imageResizeFilter: (file: UploaderFile) => {
+				return file.getExtension() !== 'gif';
+			},
+			imageResizeMimeType: 'image/png',
+			imagePreviewHeight: 400,
+			imagePreviewWidth: 400,
+			events: {
+				[UploaderEvent.FILE_ADD]: (event) => {
+					this.emit(UploadManager.events.onFileAdd, event);
+				},
+				[UploaderEvent.FILE_UPLOAD_START]: (event) => {
+					this.emit(UploadManager.events.onFileUploadProgress, event);
+				},
+				[UploaderEvent.FILE_UPLOAD_PROGRESS]: (event) => {
+					this.emit(UploadManager.events.onFileUploadProgress, event);
+				},
+				[UploaderEvent.FILE_UPLOAD_COMPLETE]: (event) => {
+					this.emit(UploadManager.events.onFileUploadComplete, event);
+				},
+				[UploaderEvent.ERROR]: (event) => {
+					this.emit(UploadManager.events.onFileUploadError, event);
+				},
+				[UploaderEvent.FILE_ERROR]: (event) => {
+					this.emit(UploadManager.events.onFileUploadError, event);
+				},
+				[UploaderEvent.MAX_FILE_COUNT_EXCEEDED]: (event) => {
+					this.emit(UploadManager.events.onMaxFileCountExceeded, event);
+				},
+				[UploaderEvent.UPLOAD_COMPLETE]: () => {
+					this.#uploaderRegistry[tempMessageId].destroy({ removeFilesFromServer: false });
+				},
+			},
 		});
 	}
 
-	initUploader()
+	addUploadTasks(tasks: MessageWithFile[])
 	{
-		this.#uploader = new Uploader();
-
-		this.#uploader.subscribe(Uploader.EVENTS.startUpload, this.#onStartUpload.bind(this));
-		this.#uploader.subscribe(Uploader.EVENTS.progressUpdate, this.#onProgress.bind(this));
-		this.#uploader.subscribe(Uploader.EVENTS.complete, this.#onComplete.bind(this));
-		this.#uploader.subscribe(Uploader.EVENTS.fileMaxSizeExceeded, this.#onUploadError.bind(this));
-		this.#uploader.subscribe(Uploader.EVENTS.uploadFileError, this.#onUploadError.bind(this));
-		this.#uploader.subscribe(Uploader.EVENTS.createFileError, this.#onUploadError.bind(this));
+		tasks.forEach((task) => {
+			this.addUploadTask(task);
+		});
 	}
 
-	#onStartUpload(event: BaseEvent)
+	addUploadTask(task: MessageWithFile)
 	{
-		this.emit(UploadManager.events.onFileUploadProgress, event);
-	}
-
-	#onProgress(event: BaseEvent)
-	{
-		this.emit(UploadManager.events.onFileUploadProgress, event);
-	}
-
-	#onComplete(event: BaseEvent)
-	{
-		this.emit(UploadManager.events.onFileUploadComplete, event);
-	}
-
-	#onUploadError(event: BaseEvent)
-	{
-		this.emit(UploadManager.events.onFileUploadError, event);
+		this.#uploaderRegistry[task.tempMessageId].addFile(
+			task.file,
+			{
+				id: task.tempFileId,
+				customData: {
+					dialogId: task.dialogId,
+					chatId: task.chatId,
+					tempMessageId: task.tempMessageId,
+				},
+			},
+		);
 	}
 
 	#onUploadCancel(event: BaseEvent)
 	{
-		this.emit(UploadManager.events.onFileUploadCancel, event);
+		const { tempFileId, tempMessageId } = event.getData();
+		if (!tempFileId || !tempMessageId)
+		{
+			return;
+		}
+
+		this.#removeFileFromUploader(tempFileId);
+		this.emit(UploadManager.events.onFileUploadCancel, { tempMessageId, tempFileId });
 	}
 
-	addUploadTask(temporaryFileId: string, file: File, diskFolderId: number): Promise
+	#removeFileFromUploader(tempFileId: string)
 	{
-		return this.#getFilePreview(file).then(({preview}) => {
-			const previewBlob = preview ? {previewBlob: preview.blob} : {};
+		const uploaderList = Object.values(this.#uploaderRegistry);
+		for (const uploader of uploaderList)
+		{
+			if (!uploader.getFile)
+			{
+				continue;
+			}
 
-			this.#uploader.addTask({
-				taskId: temporaryFileId,
-				fileData: file,
-				fileName: file.name,
-				diskFolderId: diskFolderId,
-				generateUniqueName: true,
-				...previewBlob
-			});
+			const file = uploader.getFile(tempFileId);
+			if (file)
+			{
+				file.remove();
 
-			return {taskId: temporaryFileId, file: file, preview: preview};
-		});
-	}
-
-	cancel(taskId: string)
-	{
-		this.#uploader.deleteTask(taskId);
+				break;
+			}
+		}
 	}
 
 	destroy()
 	{
-		EventEmitter.unsubscribe(EventType.uploader.cancel, this.onUploadCancelHandler);
+		EventEmitter.unsubscribe(EventType.uploader.cancel, this.#onUploadCancelHandler);
 	}
 }

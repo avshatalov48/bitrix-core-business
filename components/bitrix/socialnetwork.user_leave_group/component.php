@@ -24,7 +24,7 @@ if (!CModule::IncludeModule("socialnetwork"))
 }
 
 $arResult['IS_IFRAME'] = (
-	$_REQUEST['IFRAME'] === 'Y'
+	($_REQUEST['IFRAME'] ?? null) === 'Y'
 	|| $arParams['IFRAME'] === 'Y'
 );
 

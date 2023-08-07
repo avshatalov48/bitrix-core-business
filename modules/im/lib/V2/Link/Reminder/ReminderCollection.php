@@ -19,9 +19,8 @@ use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type\DateTime;
 
 /**
- * @method ReminderItem next()
- * @method ReminderItem current()
- * @method ReminderItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,ReminderItem>
+ * @method ReminderItem offsetGet($key)
  */
 class ReminderCollection extends BaseLinkCollection
 {

@@ -1,21 +1,17 @@
-import { Browser } from 'main.core';
+import isSupportedMimeType from './is-supported-mime-type';
 
-const supportedMimeTypes =
-	Browser.isSafari()
-		? ['image/jpeg', 'image/png']
-		: ['image/jpeg', 'image/png', 'image/webp']
-;
+import type { ResizeImageOptions, ResizeImageMimeTypeMode, ResizeImageMimeType } from '../types/resize-image-options';
 
-const getCanvasToBlobType = (blob: Blob, mimeType = 'image/jpeg', mimeTypeMode = 'auto'): string => {
-
-	mimeType = supportedMimeTypes.includes(mimeType) ? mimeType : 'image/jpeg';
+const getCanvasToBlobType = (blob: Blob, options: ResizeImageOptions): string => {
+	const mimeType: ResizeImageMimeType = isSupportedMimeType(options.mimeType) ? options.mimeType : 'image/jpeg';
+	const mimeTypeMode: ResizeImageMimeTypeMode = options.mimeTypeMode;
 	if (mimeTypeMode === 'force')
 	{
 		return mimeType;
 	}
 	else
 	{
-		return supportedMimeTypes.includes(blob.type) ? blob.type : mimeType;
+		return isSupportedMimeType(blob.type) ? blob.type : mimeType;
 	}
 };
 

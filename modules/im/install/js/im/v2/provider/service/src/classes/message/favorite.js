@@ -30,7 +30,7 @@ export class FavoriteService
 			console.error('MessageService: error adding message to favorite', error);
 		});
 		BX.UI.Notification.Center.notify({
-			content: Loc.getMessage('IM_MESSAGE_SERVICE_SAVE_MESSAGE_SUCCESS')
+			content: Loc.getMessage('IM_MESSAGE_SERVICE_ADD_MESSAGE_TO_FAVORITE_SUCCESS')
 		});
 	}
 

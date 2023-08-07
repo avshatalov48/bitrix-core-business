@@ -86,3 +86,13 @@
 	color: var(--im-content-chat__font-color_start-text);
 	margin-top: 32px;
 }
+
+.drop-area-fade-enter-active,
+.drop-area-fade-leave-active {
+	transition: opacity 0.2s linear;
+}
+
+.drop-area-fade-enter-from,
+.drop-area-fade-leave-to {
+	opacity: 0;
+}

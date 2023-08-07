@@ -127,7 +127,7 @@ class EditorMail
 
 		if(is_object($GLOBALS["USER"]))
 		{
-			/* @var $GLOBALS["USER"] \CAllUser */
+			/* @var $GLOBALS["USER"] \CUser */
 			$fields['EMAIL_TO'] = htmlspecialcharsbx($GLOBALS["USER"]->GetEmail());
 			$fields['USER_ID'] = $GLOBALS["USER"]->GetID();
 			$fields['NAME'] = htmlspecialcharsbx($GLOBALS["USER"]->GetFirstName() ?: $GLOBALS["USER"]->GetLastName());

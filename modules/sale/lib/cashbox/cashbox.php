@@ -101,6 +101,7 @@ abstract class Cashbox
 			$handlerList['\Bitrix\Sale\Cashbox\CashboxRest'] = '/bitrix/modules/sale/lib/cashbox/cashboxrest.php';
 
 			$handlerList['\Bitrix\Sale\Cashbox\CashboxRobokassa'] = '/bitrix/modules/sale/lib/cashbox/cashboxrobokassa.php';
+			$handlerList['\Bitrix\Sale\Cashbox\CashboxYooKassa'] = '/bitrix/modules/sale/lib/cashbox/cashboxyookassa.php';
 
 			$event = new Main\Event('sale', static::EVENT_ON_GET_CUSTOM_CASHBOX_HANDLERS);
 			$event->send();

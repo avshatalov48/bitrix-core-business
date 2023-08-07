@@ -1,4 +1,5 @@
 import {Type} from 'main.core'
+import {DesktopApi} from 'im.v2.lib.desktop-api';
 import {PlainCall} from './plain_call'
 import {VoximplantCall} from './voximplant_call'
 import {CallStub} from './stub'
@@ -669,9 +670,9 @@ class Engine
 	{
 		const text = Util.getLogMessage.call(Util, arguments);
 
-		if (BX.desktop && BX.desktop.ready())
+		if (DesktopApi.isDesktop())
 		{
-			BX.desktop.log(BX.message('USER_ID') + '.video.log', text);
+			DesktopApi.log(BX.message('USER_ID') + '.video.log', text);
 		}
 		if (this.debugFlag)
 		{

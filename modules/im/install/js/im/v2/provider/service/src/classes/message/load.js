@@ -55,8 +55,10 @@ export class LoadService
 			},
 			order: {
 				id: 'ASC'
-			}
+			},
+			limit: LoadService.MESSAGE_REQUEST_LIMIT
 		};
+
 		return runAction(RestMethod.imV2ChatMessageTail, {data: query}).then(result => {
 			Logger.warn('MessageService: loadUnread result', result);
 			this.#preparedUnreadMessages = result.messages;
@@ -94,8 +96,10 @@ export class LoadService
 			},
 			order: {
 				id: 'DESC'
-			}
+			},
+			limit: LoadService.MESSAGE_REQUEST_LIMIT
 		};
+
 		return runAction(RestMethod.imV2ChatMessageTail, {data: query}).then(result => {
 			Logger.warn('MessageService: loadHistory result', result);
 			this.#preparedHistoryMessages = result.messages;

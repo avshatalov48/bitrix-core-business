@@ -17,6 +17,12 @@ if (!CModule::IncludeModule('im'))
 if (\Bitrix\Im\Settings::isBetaActivated())
 {
 	$arResult['MESSENGER_V2'] = true;
+	$arResult['DESKTOP'] = $arParams['CONTEXT'] === 'DESKTOP';
+	if ($arResult['DESKTOP'] === true)
+	{
+		CIMMessenger::SetDesktopVersion(empty($_GET['BXD_API_VERSION'])? 0 : $_GET['BXD_API_VERSION']);
+		CIMMessenger::SetDesktopStatusOnline(null, false);
+	}
 
 	if (CModule::IncludeModule('disk'))
 	{

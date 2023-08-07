@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,pull_client,rest_client,ui_vue_vuex,im_model,im_provider_pull,im_provider_rest,im_lib_timer,im_const,im_lib_utils,ui_vue,im_lib_logger) {
 	'use strict';

@@ -115,6 +115,7 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_PARENT' => $this->getComponent(),
 		'USE_UI_TOOLBAR' => 'Y',
 		'USE_PADDING' => false,
+		'USE_FAST_WAY_CLOSE_LOADER' => true,
 		'UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE' => $arResult['PAGES_TITLE_TEMPLATE'],
 	]
 );

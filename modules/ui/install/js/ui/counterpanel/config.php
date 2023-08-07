@@ -12,7 +12,7 @@ return [
 		'main.core',
 		'ui.cnt',
 		'main.core.events',
-		'ui.fonts.opensans',
+		'ui.design-tokens',
 	],
 	'skip_core' => false,
 ];

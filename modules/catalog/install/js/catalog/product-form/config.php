@@ -97,7 +97,6 @@ return [
 		'isCatalogSettingAccess' => $isCatalogSettingAccess,
 		'isCatalogAccess' => $isCatalogAccess,
 		'fieldHints' => [],
-		'hiddenCompilationInfoMessage' => \CUserOptions::GetOption('catalog.product-form', 'hiddenCompilationInfoMessage') === 'Y',
 	],
 	'skip_core' => false,
 ];

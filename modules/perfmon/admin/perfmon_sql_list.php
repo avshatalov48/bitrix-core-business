@@ -230,16 +230,12 @@ while ($arRes = $rsData->NavNext(true, "f_")):
 	}
 
 	$arActions = array();
-	if ($DBType == "mysql" || $DBType == "oracle")
-	{
-		$arActions[] = array(
-			"DEFAULT" => "Y",
-			"TEXT" => GetMessage("PERFMON_SQL_EXPLAIN"),
-			"ACTION" => 'jsUtils.OpenWindow(\'perfmon_explain.php?lang='.LANG.'&ID='.$f_ID.'\', 600, 500);',
-		);
-	}
-	if (count($arActions))
-		$row->AddActions($arActions);
+	$arActions[] = array(
+		"DEFAULT" => "Y",
+		"TEXT" => GetMessage("PERFMON_SQL_EXPLAIN"),
+		"ACTION" => 'jsUtils.OpenWindow(\'perfmon_explain.php?lang='.LANG.'&ID='.$f_ID.'\', 600, 500);',
+	);
+	$row->AddActions($arActions);
 endwhile;
 
 $lAdmin->AddFooter(

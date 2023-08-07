@@ -3,7 +3,7 @@ namespace Bitrix\Main\Data;
 
 use Bitrix\Main;
 
-class CacheEngineFiles implements ICacheEngine, ICacheEngineStat
+class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 {
 	private $ttl;
 

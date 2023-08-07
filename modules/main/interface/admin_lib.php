@@ -549,15 +549,15 @@ class CAdminSidePanelHelper extends CAdminAjaxHelper
 		switch ($responseType)
 		{
 			case "base":
-				if ($post["save"] != "")
+				if (!empty($post["save"]))
 					$listActions[] = "destroy";
-				if ($post["save_and_add"] != "")
+				if (!empty($post["save_and_add"]))
 					$listActions[] = "closeAndOpen";
 				break;
 			case "apply":
-				if ($post["save"] != "")
+				if (!empty($post["save"]))
 					$listActions[] = "close";
-				if ($post["apply"] != "")
+				if (!empty($post["apply"]))
 					$listActions[] = "reload";
 				break;
 			case "close":

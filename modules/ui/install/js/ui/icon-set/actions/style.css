@@ -95,6 +95,11 @@
 	--ui-icon-set__path_sync-settings: url('/bitrix/js/ui/icon-set/actions/images/sync-settings.svg');
 	--ui-icon-set__path_copy-plates: url('/bitrix/js/ui/icon-set/actions/images/copy-plates.svg');
 	--ui-icon-set__path_plates: url('/bitrix/js/ui/icon-set/actions/images/plates.svg');
+	--ui-icon-set__path_replay-all: url('/bitrix/js/ui/icon-set/actions/images/replay-all.svg');
+	--ui-icon-set__path_next: url('/bitrix/js/ui/icon-set/actions/images/next.svg');
+	--ui-icon-set__path_download-3: url('/bitrix/js/ui/icon-set/actions/images/download-3.svg');
+	--ui-icon-set__path_upload: url('/bitrix/js/ui/icon-set/actions/images/upload.svg');
+	--ui-icon-set__path_line: url('/bitrix/js/ui/icon-set/actions/images/line.svg');
 }
 
 .ui-icon-set.--4-cubes-1 {
@@ -231,6 +236,10 @@
 
 .ui-icon-set.--download-2 {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_download-2);
+}
+
+.ui-icon-set.--download-3 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_download-3);
 }
 
 .ui-icon-set.--expand-1 {
@@ -471,4 +480,20 @@
 
 .ui-icon-set.--plates {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_plates);
+}
+
+.ui-icon-set.--replay-all {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_replay-all);
+}
+
+.ui-icon-set.--next {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_next);
+}
+
+.ui-icon-set.--upload {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_upload);
+}
+
+.ui-icon-set.--line {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_line);
 }

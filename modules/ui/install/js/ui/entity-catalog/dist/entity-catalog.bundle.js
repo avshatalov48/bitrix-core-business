@@ -1202,5 +1202,5 @@ this.BX = this.BX || {};
 	exports.States = States;
 	exports.EntityCatalog = EntityCatalog;
 
-}((this.BX.UI = this.BX.UI || {}),BX.Vue3,BX.Vue3.Components,BX,BX,BX.Ui,BX,BX,BX.Vue3.Pinia,BX,BX.Main,BX.Event,BX,BX));
+}((this.BX.UI = this.BX.UI || {}),BX.Vue3,BX.Vue3.Components,BX,BX,BX.UI,BX,BX,BX.Vue3.Pinia,BX,BX.Main,BX.Event,BX,BX));
 //# sourceMappingURL=entity-catalog.bundle.js.map

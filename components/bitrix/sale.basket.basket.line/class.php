@@ -10,7 +10,8 @@ class SaleBasketLineComponent extends CBitrixComponent
 	protected $readyForOrderFilter = array("CAN_BUY" => "Y", "DELAY" => "N", "SUBSCRIBE" => "N");
 	protected $disableUseBasket = false;
 
-	protected $currentFuser = null;
+	protected ?int $currentFuser = null;
+	protected bool $loaderCurrentFuser = false;
 
 	/** @var Sale\Basket\Storage $basketStorage */
 	protected $basketStorage;	// temporary unused
@@ -212,12 +213,20 @@ class SaleBasketLineComponent extends CBitrixComponent
 		}
 		else
 		{
+			$currentFuser = $this->getFuserId();
 			if($this->arParams["SHOW_TOTAL_PRICE"] == "Y")
 			{
-				$this->arResult["TOTAL_PRICE"] = \Bitrix\Sale\BasketComponentHelper::getFUserBasketPrice($this->getFuserId(), $this->getSiteId());
+				$this->arResult["TOTAL_PRICE"] = \Bitrix\Sale\BasketComponentHelper::getFUserBasketPrice(
+					$currentFuser,
+					$this->getSiteId()
+				);
 			}
 
-			$this->arResult["NUM_PRODUCTS"] = \Bitrix\Sale\BasketComponentHelper::getFUserBasketQuantity($this->getFuserId(), $this->getSiteId());
+			$this->arResult["NUM_PRODUCTS"] = \Bitrix\Sale\BasketComponentHelper::getFUserBasketQuantity(
+				$currentFuser,
+				$this->getSiteId()
+			);
+			unset($currentFuser);
 		}
 		$this->arResult["TOTAL_PRICE_RAW"] = $this->arResult["TOTAL_PRICE"];
 
@@ -288,9 +297,11 @@ class SaleBasketLineComponent extends CBitrixComponent
 			]
 		];
 
-		$currentFuser = (int)$this->getFuserId();
-		if ($currentFuser <= 0)
+		$currentFuser = $this->getFuserId();
+		if ($currentFuser === null)
+		{
 			return $result;
+		}
 
 		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
@@ -575,17 +586,24 @@ class SaleBasketLineComponent extends CBitrixComponent
 		return $basketQuantity;
 	}
 
-	protected function getFuserId()
+	protected function getFuserId(): ?int
 	{
-		if ($this->currentFuser === null)
+		if (!$this->loaderCurrentFuser)
+		{
 			$this->loadCurrentFuser();
+		}
 
 		return $this->currentFuser;
 	}
 
 	protected function loadCurrentFuser()
 	{
+		if ($this->loaderCurrentFuser)
+		{
+			return;
+		}
 		$this->currentFuser = Sale\Fuser::getId(true);
+		$this->loaderCurrentFuser = true;
 	}
 
 	protected function getBasketStorage()

@@ -13,7 +13,7 @@ while ($arr=$rsIBlockType->Fetch())
 }
 
 $arIBlock=array();
-$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
+$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => ($arCurrentValues["IBLOCK_TYPE"] ?? null), "ACTIVE"=>"Y"));
 while($arr=$rsIBlock->Fetch())
 {
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
@@ -26,7 +26,9 @@ while($arUGroups = $dbUGroups -> Fetch())
 	$arUGroupsEx[$arUGroups["ID"]] = $arUGroups["NAME"];
 }
 if (empty($arCurrentValues["INDEX_URL"]) && !empty($arCurrentValues["SECTIONS_TOP_URL"]))
-	$arCurrentValues["INDEX_URL"] = $arCurrentValues["SECTIONS_TOP_URL"]; 
+{
+	$arCurrentValues["INDEX_URL"] = $arCurrentValues["SECTIONS_TOP_URL"];
+}
 $arComponentParameters = array(
 	"GROUPS" => array(),
 	"PARAMETERS" => array(
@@ -47,7 +49,7 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("P_USER_ALIAS"),
 			"TYPE" => "STRING",
 			"DEFAULT" => '={$_REQUEST["USER_ALIAS"]}'),
-		
+
 		"INDEX_URL" => array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("P_INDEX_URL"),
@@ -68,7 +70,7 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("P_GALLERY_EDIT_URL"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "gallery_edit.php?USER_ALIAS=#USER_ALIAS#&ACTION=#ACTION#"),
-		
+
 		"ONLY_ONE_GALLERY" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("P_ONLY_ONE_GALLERY"),

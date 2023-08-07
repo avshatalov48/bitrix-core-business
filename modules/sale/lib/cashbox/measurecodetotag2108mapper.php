@@ -9,13 +9,14 @@ namespace Bitrix\Sale\Cashbox;
  *
  * @see http://www.consultant.ru/document/cons_doc_LAW_362322/0060b1f1924347c03afbc57a8d4af63888f81c6c/
  * @see https://classifikators.ru/okei
+ *
  */
 class MeasureCodeToTag2108Mapper
 {
 	/**
 	 * @var array
 	 */
-	private static $map = [
+	protected static array $map = [
 		'796' => 0,
 		'163' => 10,
 		'166' => 11,
@@ -41,14 +42,14 @@ class MeasureCodeToTag2108Mapper
 		'2554' => 83,
 	];
 
-	private const UNKNOWN_TYPE = 255;
+	protected const UNKNOWN_TYPE = 255;
 
 	/**
 	 * @param string|null $measureCode
-	 * @return int
+	 * @return int|string
 	 */
-	public static function getTag2108Value(?string $measureCode): int
+	public static function getTag2108Value(?string $measureCode)
 	{
-		return self::$map[$measureCode] ?? self::UNKNOWN_TYPE;
+		return static::$map[$measureCode] ?? static::UNKNOWN_TYPE;
 	}
 }

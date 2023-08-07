@@ -133,7 +133,7 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 															<td align="left" style="">
 																<div class="buttons" style="display:block; margin-top: 20px; text-align: center;">
 																	<div>
-																		<div style="margin-bottom:60px;">
+																		<div style="margin-bottom:20px;">
 																			<img src="<?= $arParams['ICON_BUTTON_CANCEL']?>" class="icon-cancel" style="display: inline-block;width: 13px;height: 13px;vertical-align: middle;"/>
 																			<a href="<?= $arParams['CANCEL_LINK']?>"
 																			   style="color:#A8ADB4;display:inline-block;border-bottom: 1px dotted rgba(168, 173, 180, .8);font-size:14px;text-align:center;text-decoration:none;vertical-align: middle;text-transform: lowercase;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_CANCEL_EVENT')?></a>
@@ -172,6 +172,19 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 														</tr>
 													<?php endif ?>
 													<?php if ($arParams['IS_CREATED']):?>
+														<tr>
+															<td align="center" style="padding-bottom: 10px;">
+																<div><!--[if mso]>
+																	<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="http://" style="height:36px;v-text-anchor:middle;width:300px;" arcsize="12%" strokecolor="#DFE0E3" fillcolor="#ffffff">
+																	<w:anchorlock/>
+																	<center style="color:#333333;font-family:sans-serif;font-size:15px;">Show me the button!</center>
+																	</v:roundrect>
+																	<![endif]-->
+																	<a href="<?= $arParams['VIDEOCONFERENCE_LINK'] ?>"
+																	   style="background-color:#ffffff;border:1px solid #DFE0E3;border-radius:4px;color:#333333;display:inline-block;font-family:sans-serif;font-size:15px;line-height:36px;text-align:center;text-decoration:none;width:300px;-webkit-text-size-adjust:none;mso-hide:all;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_OPEN_VIDEOCONFERENCE')?></a>
+																</div>
+															</td>
+														</tr>
 														<tr>
 															<td align="center" style="padding-bottom: 10px;">
 																<div><!--[if mso]>

@@ -420,6 +420,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 		$this->columns = $params['COLUMNS_LIST'];
 		$this->offersProps = $params['OFFERS_PROPS'];
+		$this->offersProps = array_values(array_unique($this->offersProps));
 
 		$this->quantityFloat = $params['QUANTITY_FLOAT'];
 		$this->priceVatShowValue = $params['PRICE_VAT_SHOW_VALUE'];
@@ -2926,8 +2927,6 @@ class CBitrixBasketComponent extends CBitrixComponent
 						foreach ($offer['PROPERTIES'] as $propName => $property)
 						{
 							$property['VALUE'] = (string)$property['VALUE'];
-							if ($property['VALUE'] == '')
-								continue;
 
 							$currentSkuPropValues[$propName] = [
 								'~CODE' => $property['~CODE'] ?? $property['CODE'],
@@ -3079,6 +3078,12 @@ class CBitrixBasketComponent extends CBitrixComponent
 							];
 						}
 						unset($arEnum, $rsPropEnums);
+						$arValues['n0'] = [
+							'ID' => 0,
+							'NAME' => '-',
+							'SORT' => PHP_INT_MAX,
+							'PICT' => false,
+						];
 						break;
 					case Iblock\PropertyTable::TYPE_ELEMENT:
 						$rsPropEnums = CIBlockElement::GetList(
@@ -3100,6 +3105,14 @@ class CBitrixBasketComponent extends CBitrixComponent
 							];
 						}
 						unset($arEnum, $rsPropEnums);
+						$arValues['n0'] = [
+							'ID' => 0,
+							'NAME' => '-',
+							'SORT' => PHP_INT_MAX,
+							'FILE' => false,
+							'PICT' => false,
+							'XML_ID' => '-',
+						];
 						break;
 					case Iblock\PropertyTable::TYPE_STRING:
 						$arProp['USER_TYPE'] = (string)$arProp['USER_TYPE'];
@@ -3139,6 +3152,14 @@ class CBitrixBasketComponent extends CBitrixComponent
 											'XML_ID' => $arData['UF_XML_ID'],
 										];
 									}
+									$arValues['n0'] = [
+										'ID' => 0,
+										'NAME' => '-',
+										'SORT' => PHP_INT_MAX,
+										'FILE' => false,
+										'PICT' => false,
+										'XML_ID' => '-',
+									];
 								}
 							}
 						}
@@ -3246,7 +3267,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 					$clearValues = [];
 					foreach (array_keys($arUsedValues) as $code)
 					{
-						if (count($arUsedValues[$code]) == 1 && $arUsedValues[$code][0] == '-')
+						if (count($arUsedValues[$code]) === 1 && $arUsedValues[$code][0] === '-')
 							continue;
 						$clearValues[$code] = $arUsedValues[$code];
 					}
@@ -4015,7 +4036,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			}
 			else
 			{
-				$oldProperties = $this->updateOffersProperties($oldProperties, $offerProperties);
+				$oldProperties = $this->updateOffersProperties($oldProperties, $offerProperties, $this->offersProps);
 			}
 
 			$properties->setProperty($oldProperties);
@@ -4063,6 +4084,10 @@ class CBitrixBasketComponent extends CBitrixComponent
 				$clearProperties[$code] = $propertyValues[$code];
 			else
 				unset($properties[$code]);
+			if ($clearProperties[$code] === '-')
+			{
+				$clearProperties[$code] = '';
+			}
 		}
 		unset($code);
 		$propertyValues = $clearProperties;
@@ -4239,7 +4264,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 	 */
 	protected static function getMissingPropertyCodes(array $itemProperties, array $propertyCodes)
 	{
-		if (empty($propertyCodes) || !is_array($propertyCodes))
+		if (empty($propertyCodes))
 			return [];
 		if (empty($itemProperties))
 			return $propertyCodes;
@@ -4297,9 +4322,9 @@ class CBitrixBasketComponent extends CBitrixComponent
 	 */
 	protected static function fillMissingProperties(array &$itemProperties, array $missingCodes, array $values)
 	{
-		if (empty($missingCodes) || !is_array($missingCodes))
+		if (empty($missingCodes))
 			return;
-		if (empty($values) || !is_array($values))
+		if (empty($values))
 			return;
 		foreach ($missingCodes as &$code)
 		{
@@ -4322,7 +4347,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 		unset($code);
 	}
 
-	protected static function updateOffersProperties($oldProps, $newProps)
+	protected static function updateOffersProperties($oldProps, $newProps, $offersProps)
 	{
 		if (!is_array($oldProps) || !is_array($newProps))
 			return false;
@@ -4337,6 +4362,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			$oldValue = $oldProps[$code];
 			$found = false;
 			$key = false;
+			$shortPropId = (string)($oldValue['CODE'] ?? '');
 			$propId = (isset($oldValue['CODE']) ? (string)$oldValue['CODE'] : '').':'.$oldValue['NAME'];
 			foreach ($newProps as $newKey => $newValue)
 			{
@@ -4353,7 +4379,14 @@ class CBitrixBasketComponent extends CBitrixComponent
 				$oldValue['VALUE'] = $newProps[$key]['VALUE'];
 				unset($newProps[$key]);
 			}
-			$result[$code] = $oldValue;
+			elseif ($shortPropId !== '' && in_array($shortPropId, $offersProps))
+			{
+				$oldValue = null;
+			}
+			if ($oldValue !== null)
+			{
+				$result[$code] = $oldValue;
+			}
 			unset($oldValue);
 		}
 		unset($code, $oldValue);

@@ -202,9 +202,11 @@ class CAllAgent
 		for($i = 0, $n = count($filter_keys); $i < $n; $i++)
 		{
 			$val = $arFilter[$filter_keys[$i]];
-			$key = mb_strtoupper($filter_keys[$i]);
-			if((string)$val == '' || ($key=="USER_ID" && $val!==false && $val!==null))
+			$key = strtoupper($filter_keys[$i]);
+			if ((string)$val == '' && $key !== "USER_ID")
+			{
 				continue;
+			}
 
 			switch($key)
 			{

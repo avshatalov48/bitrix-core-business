@@ -82,7 +82,7 @@ export class PullControllerSocialnetwork
 
 	onWorkgroupDelete(data)
 	{
-		this.removeRow(data.params.GROUP_ID);
+		this.pullController.removeRow(data.params.GROUP_ID);
 	}
 
 	onWorkgroupUserAdd(data)

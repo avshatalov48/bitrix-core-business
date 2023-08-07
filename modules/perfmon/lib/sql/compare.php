@@ -78,11 +78,7 @@ class Compare
 			elseif (!isset($pair[0]) && isset($pair[1])) //Table created
 			{
 				$this->difference[] = $pair;
-				$emptyCollection = new Collection;
-				foreach ($emptyCollection->compare($pair[1]->indexes) as $pair2)
-				{
-					$this->difference[] = $pair2;
-				}
+
 				$emptyCollection = new Collection;
 				foreach ($emptyCollection->compare($pair[1]->triggers) as $pair2)
 				{

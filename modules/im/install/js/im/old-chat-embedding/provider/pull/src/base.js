@@ -83,10 +83,16 @@ export class BasePullHandler
 
 	handleMessageDeleteComplete(params, extra)
 	{
-		this.execMessageUpdateOrDelete(params, extra, command);
+		this.execMessageUpdateOrDelete(params);
+		this.store.dispatch('dialogues/update', {
+			dialogId: params.dialogId,
+			fields: {
+				counter: params.counter,
+			},
+		});
 	}
 
-	execMessageUpdateOrDelete(params, extra, command)
+	execMessageUpdateOrDelete(params)
 	{
 		this.store.dispatch('dialogues/stopWriting', {
 			dialogId: params.dialogId,

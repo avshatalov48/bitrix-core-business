@@ -117,7 +117,14 @@ class Auto
 			),
 		));
 
-		$engine = new YandexDirect();
+		try
+		{
+			$engine = new YandexDirect();
+		}
+		catch (\Bitrix\Main\SystemException $e)
+		{
+			return __CLASS__."::checkQuantityAgent();";
+		}
 
 		$bannersListToStop = array();
 		$bannersListToResume = array();

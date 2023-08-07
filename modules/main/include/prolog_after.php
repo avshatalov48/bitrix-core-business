@@ -20,30 +20,36 @@ global $USER, $APPLICATION;
 define("START_EXEC_PROLOG_AFTER_1", microtime(true));
 $GLOBALS["BX_STATE"] = "PA";
 
-if(!headers_sent())
-	header("Content-type: text/html; charset=".LANG_CHARSET);
-
-if(defined("DEMO") && DEMO=="Y")
+if (!headers_sent())
 {
-	if(defined("OLDSITEEXPIREDATE") && defined("SITEEXPIREDATE") && OLDSITEEXPIREDATE != SITEEXPIREDATE)
+	header("Content-type: text/html; charset=" . LANG_CHARSET);
+}
+
+if (defined("DEMO") && DEMO == "Y")
+{
+	if (defined("OLDSITEEXPIREDATE") && defined("SITEEXPIREDATE") && OLDSITEEXPIREDATE != SITEEXPIREDATE)
+	{
 		die(GetMessage("expire_mess2"));
+	}
 
 	//wizard customization file
-	$bxProductConfig = array();
-	if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php"))
-		include($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php");
+	$bxProductConfig = [];
+	if (file_exists($_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/.config.php"))
+	{
+		include($_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/.config.php");
+	}
 
 	$delta = $GLOBALS['SiteExpireDate'] - time();
-	$daysToExpire = ($delta < 0? 0 : ceil($delta/86400));
+	$daysToExpire = ($delta < 0 ? 0 : ceil($delta / 86400));
 	$bSaas = (COption::GetOptionString('main', '~SAAS_MODE', "N") == "Y");
 
-	if(isset($bxProductConfig["saas"]))
+	if (isset($bxProductConfig["saas"]))
 	{
-		if($bSaas)
+		if ($bSaas)
 		{
-			if($daysToExpire > 0)
+			if ($daysToExpire > 0)
 			{
-				if($daysToExpire <= $bxProductConfig["saas"]["days_before_warning"])
+				if ($daysToExpire <= $bxProductConfig["saas"]["days_before_warning"])
 				{
 					$sWarn = $bxProductConfig["saas"]["public_warning"];
 					$sWarn = str_replace("#RENT_DATE#", COption::GetOptionString('main', '~support_finish_date'), $sWarn);
@@ -58,11 +64,13 @@ if(defined("DEMO") && DEMO=="Y")
 		}
 		else
 		{
-			if($daysToExpire == 0)
+			if ($daysToExpire == 0)
+			{
 				echo $bxProductConfig["saas"]["public_trial_expired"];
+			}
 		}
 	}
-	elseif($daysToExpire == 0)
+	elseif ($daysToExpire == 0)
 	{
 		echo GetMessage("expire_mess1");
 	}
@@ -70,7 +78,9 @@ if(defined("DEMO") && DEMO=="Y")
 elseif (defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION == "Y")
 {
 	if (defined("OLDSITEEXPIREDATE") && defined("SITEEXPIREDATE") && OLDSITEEXPIREDATE != SITEEXPIREDATE)
+	{
 		die(GetMessage("expire_mess2"));
+	}
 
 	if (
 		isset($GLOBALS['SiteExpireDate'])
@@ -82,32 +92,32 @@ elseif (defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION == "Y")
 	}
 }
 
-if(COption::GetOptionString("main", "site_stopped", "N")=="Y" && !$USER->CanDoOperation('edit_other_settings'))
+if (COption::GetOptionString("main", "site_stopped", "N") == "Y" && !$USER->CanDoOperation('edit_other_settings'))
 {
-	if(($siteClosed = getLocalPath("php_interface/".LANG."/site_closed.php", BX_PERSONAL_ROOT)) !== false)
+	if (($siteClosed = getLocalPath("php_interface/" . LANG . "/site_closed.php", BX_PERSONAL_ROOT)) !== false)
 	{
-		include($_SERVER["DOCUMENT_ROOT"].$siteClosed);
+		include($_SERVER["DOCUMENT_ROOT"] . $siteClosed);
 	}
-	elseif(($siteClosed = getLocalPath("php_interface/include/site_closed.php", BX_PERSONAL_ROOT)) !== false)
+	elseif (($siteClosed = getLocalPath("php_interface/include/site_closed.php", BX_PERSONAL_ROOT)) !== false)
 	{
-		include($_SERVER["DOCUMENT_ROOT"].$siteClosed);
+		include($_SERVER["DOCUMENT_ROOT"] . $siteClosed);
 	}
 	else
 	{
-		include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/site_closed.php");
+		include($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/site_closed.php");
 	}
 	die();
 }
 
-$sPreviewFile = $_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/tmp/templates/__bx_preview/header.php";
-if(defined("SITE_TEMPLATE_PREVIEW_MODE") && file_exists($sPreviewFile))
+$sPreviewFile = $_SERVER["DOCUMENT_ROOT"] . BX_PERSONAL_ROOT . "/tmp/templates/__bx_preview/header.php";
+if (defined("SITE_TEMPLATE_PREVIEW_MODE") && file_exists($sPreviewFile))
 {
 	include_once($sPreviewFile);
 }
 else
 {
 	\Bitrix\Main\Page\Asset::getInstance()->startTarget('TEMPLATE');
-	include_once($_SERVER["DOCUMENT_ROOT"].SITE_TEMPLATE_PATH."/header.php");
+	include_once($_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/header.php");
 	\Bitrix\Main\Page\Asset::getInstance()->startTarget('PAGE');
 }
 
@@ -115,30 +125,40 @@ else
 global $BX_GLOBAL_AREA_EDIT_ICON;
 $BX_GLOBAL_AREA_EDIT_ICON = false;
 
-if($APPLICATION->GetShowIncludeAreas())
+if ($APPLICATION->GetShowIncludeAreas())
 {
-	$aUserOpt = CUserOptions::GetOption("global", "settings", array());
+	$aUserOpt = CUserOptions::GetOption("global", "settings", []);
 	if ($aUserOpt["page_edit_control_enable"] != "N")
 	{
 		$documentRoot = CSite::GetSiteDocRoot(SITE_ID);
-		if(isset($_SERVER["REAL_FILE_PATH"]) && $_SERVER["REAL_FILE_PATH"] != "")
+		if (isset($_SERVER["REAL_FILE_PATH"]) && $_SERVER["REAL_FILE_PATH"] != "")
+		{
 			$currentFilePath = $_SERVER["REAL_FILE_PATH"];
+		}
 		else
+		{
 			$currentFilePath = $APPLICATION->GetCurPage(true);
+		}
 
 		$bCanEdit = true;
 
-		if(!is_file($documentRoot.$currentFilePath) || !$USER->CanDoFileOperation("fm_edit_existent_file", array(SITE_ID, $currentFilePath)))
+		if (!is_file($documentRoot . $currentFilePath) || !$USER->CanDoFileOperation("fm_edit_existent_file", [SITE_ID, $currentFilePath]))
+		{
 			$bCanEdit = false;
+		}
 
 		//need fm_lpa for every .php file, even with no php code inside
-		if($bCanEdit && !$USER->CanDoOperation('edit_php') && in_array(GetFileExtension($currentFilePath), GetScriptFileExt()) && !$USER->CanDoFileOperation('fm_lpa', array(SITE_ID, $currentFilePath)))
+		if ($bCanEdit && !$USER->CanDoOperation('edit_php') && in_array(GetFileExtension($currentFilePath), GetScriptFileExt()) && !$USER->CanDoFileOperation('fm_lpa', [SITE_ID, $currentFilePath]))
+		{
 			$bCanEdit = false;
+		}
 
-		if($bCanEdit && IsModuleInstalled("fileman") && !($USER->CanDoOperation("fileman_admin_files") && $USER->CanDoOperation("fileman_edit_existent_files")))
+		if ($bCanEdit && IsModuleInstalled("fileman") && !($USER->CanDoOperation("fileman_admin_files") && $USER->CanDoOperation("fileman_edit_existent_files")))
+		{
 			$bCanEdit = false;
+		}
 
-		if($bCanEdit)
+		if ($bCanEdit)
 		{
 			echo $APPLICATION->IncludeStringBefore();
 			$BX_GLOBAL_AREA_EDIT_ICON = true;
@@ -150,15 +170,15 @@ $GLOBALS["BX_STATE"] = "WA";
 $APPLICATION->RestartWorkarea(true);
 
 //magically replacing the current file with another one
-$event = new Main\Event("main", "OnFileRewrite", array("path" => Main\Context::getCurrent()->getRequest()->getScriptFile()));
+$event = new Main\Event("main", "OnFileRewrite", ["path" => Main\Context::getCurrent()->getRequest()->getScriptFile()]);
 $event->send();
 
-foreach($event->getResults() as $evenResult)
+foreach ($event->getResults() as $evenResult)
 {
-	if(($result = $evenResult->getParameters()) <> '')
+	if (($result = $evenResult->getParameters()) <> '')
 	{
-		$file = new Main\IO\File($_SERVER["DOCUMENT_ROOT"].$result);
-		if($file->isExists())
+		$file = new Main\IO\File($_SERVER["DOCUMENT_ROOT"] . $result);
+		if ($file->isExists())
 		{
 			//only the first result matters
 			include($file->getPhysicalPath());

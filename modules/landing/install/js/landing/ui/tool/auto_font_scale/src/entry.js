@@ -8,6 +8,8 @@ export default class Entry
 	static MIN_LINE_HEIGHT = 1.4;
 	static MIN_LETTER_SPACING = 0;
 
+	static WIDTH_RESET_CLASS = 'scroll-width-reset';
+
 	element: HTMLElement;
 
 	startSize: number;
@@ -43,7 +45,7 @@ export default class Entry
 			: Entry.MIN_LINE_HEIGHT;
 		this.currentLineHeight = this.startLineHeight;
 
-		this.prevWidth = this.element.clientWidth;
+		this.calcCurrentWidth();
 		this.calcMaxHeight();
 	}
 
@@ -58,6 +60,13 @@ export default class Entry
 			// todo: need check parent height if it has, f.e. min-height: 75vh?
 			this.maxHeight = Math.min(this.maxHeight, this.element.offsetParent.clientHeight);
 		}
+	}
+
+	calcCurrentWidth()
+	{
+		Dom.addClass(this.element, Entry.WIDTH_RESET_CLASS);
+		this.prevWidth = this.element.clientWidth;
+		Dom.removeClass(this.element, Entry.WIDTH_RESET_CLASS);
 	}
 
 	/**
@@ -97,13 +106,18 @@ export default class Entry
 	 */
 	isNeedDecrease(): boolean
 	{
-		return (
+		const fullScrollWidth = this.element.scrollWidth;
+		Dom.addClass(this.element, Entry.WIDTH_RESET_CLASS);
+		const res = (
 			(
-				this.element.scrollWidth > this.element.clientWidth
+				fullScrollWidth > this.element.clientWidth
 				|| this.element.offsetHeight > this.maxHeight
 			)
 			&& this.currentSize > Entry.MIN_SIZE
 		);
+		Dom.removeClass(this.element, Entry.WIDTH_RESET_CLASS);
+
+		return res;
 	}
 
 	/**
@@ -144,12 +158,20 @@ export default class Entry
 	 */
 	isNeedIncrease(): boolean
 	{
-		return (
-			!this.isNeedDecrease()
-			&& this.element.clientWidth > this.prevWidth
-			&& (this.element.clientWidth - this.prevWidth) > this.element.clientWidth * Entry
+		if (this.isNeedDecrease())
+		{
+			return false;
+		}
+
+		Dom.addClass(this.element, Entry.WIDTH_RESET_CLASS);
+		const res = (
+			this.element.clientWidth > this.prevWidth
+			&& (this.element.clientWidth - this.prevWidth) > (this.element.clientWidth * Entry.STEP_SIZE_PERCENTS / 100)
 			&& this.currentSize < this.startSize
 		);
+		Dom.removeClass(this.element, Entry.WIDTH_RESET_CLASS);
+
+		return res;
 	}
 
 	/**
@@ -195,7 +217,7 @@ export default class Entry
 	{
 		clearInterval(this.intervalId);
 		this.intervalId = null;
-		this.prevWidth = this.element.clientWidth;
+		this.calcCurrentWidth();
 	}
 
 	/**

@@ -591,7 +591,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 			"PROJECT" => ($post["project"] == "Y" ? "Y" : "N"),
 			"LANDING" => ($post["landing"] == "Y" ? "Y" : "N"),
 			"OWNER_ID" => $post["owner_id"],
-			"MODERATORS" => $post["moderators"],
+			"MODERATORS" => $post["moderators"] ?? null,
 			"IMAGE_ID" => null,
 		];
 

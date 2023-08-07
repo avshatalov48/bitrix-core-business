@@ -11,7 +11,11 @@ class CodeTree
 	 */
 	function __construct(array $statements)
 	{
-		$this->statements = $statements;
+		$this->statements = [];
+		foreach ($statements as $i => $statement)
+		{
+			$this->statements[$i] = clone $statement;
+		}
 		$this->tree = array();
 	}
 
@@ -41,7 +45,7 @@ class CodeTree
 		{
 			if (is_array($stmt) && isset($stmt["if"]))
 			{
-				$code .= str_repeat("\t", $level)."if(".implode(" && ", $stmt["if"]).")\n";
+				$code .= str_repeat("\t", $level)."if (".implode(" && ", $stmt["if"]).")\n";
 				$code .= str_repeat("\t", $level)."{\n";
 				$code .= $this->formatCodeTree($stmt["body"], $level+1);
 				$code .= str_repeat("\t", $level)."}\n";
@@ -175,6 +179,10 @@ class CodeTree
 		elseif(mb_strpos($predicate, "TableExists"))
 		{
 			return 30;
+		}
+		elseif(mb_strpos($predicate, "IndexExists"))
+		{
+			return 60;
 		}
 		else
 		{

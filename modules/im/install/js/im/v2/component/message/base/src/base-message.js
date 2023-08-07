@@ -1,51 +1,68 @@
-import {Type} from 'main.core';
-import {EventEmitter} from 'main.core.events';
-import {Reactions} from 'ui.vue3.components.reactions';
+import { Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { Reactions } from 'ui.vue3.components.reactions';
 
-import {Core} from 'im.v2.application.core';
-import {Utils} from 'im.v2.lib.utils';
-import {Parser} from 'im.v2.lib.parser';
-import {DialogType, EventType} from 'im.v2.const';
-import {Attach, Avatar, AvatarSize, ChatTitle} from 'im.v2.component.elements';
-import {ReactionSelector, ReactionList} from 'im.v2.component.message.reaction';
-import {DateFormatter, DateCode} from 'im.v2.lib.date-formatter';
+import { Core } from 'im.v2.application.core';
+import { Utils } from 'im.v2.lib.utils';
+import { Parser } from 'im.v2.lib.parser';
+import { DialogType, EventType, MessageExtension } from 'im.v2.const';
+import { Attach, Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { ReactionSelector, ReactionList } from 'im.v2.component.message.reaction';
+import { DateFormatter, DateCode } from 'im.v2.lib.date-formatter';
 
-import {Media} from './components/media';
-import {OwnMessageStatus} from './components/own-message-status';
-import {DeletedMessage} from './components/deleted-message';
+import { Media } from './components/media';
+import { OwnMessageStatus } from './components/own-message-status';
+
+import { TextExtension } from './extensions/text';
+import { DeletedExtension } from './extensions/deleted';
+import { UnsupportedExtension } from './extensions/unsupported';
+import { CallInviteExtension } from './extensions/call-invite';
 
 import './css/base-message.css';
 
-import type {ImModelMessage, ImModelUser, ImModelDialog} from 'im.v2.model';
+import type { ImModelMessage, ImModelUser, ImModelDialog } from 'im.v2.model';
 
 // @vue/component
 export const BaseMessage = {
 	name: 'BaseMessage',
-	components: {Attach, Avatar, ChatTitle, Reactions, Media, OwnMessageStatus, DeletedMessage, ReactionSelector, ReactionList},
+	components: {
+		Attach,
+		Avatar,
+		ChatTitle,
+		Reactions,
+		Media,
+		OwnMessageStatus,
+		ReactionSelector,
+		ReactionList,
+		TextExtension,
+		DeletedExtension,
+		UnsupportedExtension,
+		CallInviteExtension,
+	},
 	props: {
 		item: {
 			type: Object,
-			required: true
+			required: true,
 		},
 		withAvatar: {
 			type: Boolean,
-			required: true
+			required: true,
 		},
 		withTitle: {
 			type: Boolean,
-			default: true
+			default: true,
 		},
 		menuIsActiveForId: {
 			type: Number,
-			default: 0
+			default: 0,
 		},
 		dialogId: {
 			type: String,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['contextMenuClick', 'quoteMessage'],
-	data()
+	data(): Object
 	{
 		return {};
 	},
@@ -66,7 +83,7 @@ export const BaseMessage = {
 		},
 		dialogColor(): string
 		{
-			return this.dialog.type !== DialogType.private? this.dialog.color: this.user.color;
+			return this.dialog.type === DialogType.private ? this.user.color : this.dialog.color;
 		},
 		authorDialogId(): string
 		{
@@ -103,12 +120,8 @@ export const BaseMessage = {
 				'--system': this.isSystemMessage,
 				'--self': this.isSelfMessage,
 				'--opponent': this.isOpponentMessage,
-				'--with-avatar': this.withAvatar
+				'--with-avatar': this.withAvatar,
 			};
-		},
-		formattedText(): string
-		{
-			return Parser.decodeMessage(this.message);
 		},
 		formattedDate(): string
 		{
@@ -118,27 +131,41 @@ export const BaseMessage = {
 		{
 			return this.loc(
 				'IM_MESSENGER_MESSAGE_MENU_TITLE',
-				{'#SHORTCUT#': Utils.platform.isMac()? 'CMD':'CTRL'}
+				{ '#SHORTCUT#': Utils.platform.isMac() ? 'CMD' : 'CTRL' },
 			);
-		}
+		},
+		extensionId(): string
+		{
+			const isEmptyMessage = this.message.text.length === 0
+				&& this.message.files.length === 0
+				&& this.message.attach.length === 0;
+
+			if (this.message.isDeleted || isEmptyMessage)
+			{
+				return MessageExtension.deleted;
+			}
+
+			return this.message.extensionId;
+		},
 	},
 	methods: {
-		setReaction(message, reaction)
-		{
-			console.warn('setReaction', message, reaction);
-		},
-		openReactionList(message, values)
-		{
-			console.warn('openReactionList', message, values);
-		},
 		onMenuClick(event: PointerEvent)
 		{
 			if (Utils.key.isCmdOrCtrl(event))
 			{
-				this.$emit('quoteMessage', {message: this.message});
+				const message = { ...this.message };
+				const selectionText = document.getSelection().toString();
+				if (selectionText.length > 0)
+				{
+					message.text = selectionText;
+				}
+
+				this.$emit('quoteMessage', { message });
+
 				return;
 			}
-			this.$emit('contextMenuClick', {message: this.message, $event: event});
+
+			this.$emit('contextMenuClick', { message: this.message, $event: event });
 		},
 		onContainerClick(event: PointerEvent)
 		{
@@ -154,13 +181,13 @@ export const BaseMessage = {
 
 			EventEmitter.emit(EventType.textarea.insertMention, {
 				mentionText: this.user.name,
-				mentionReplacement: Utils.user.getMentionBbCode(this.user.id, this.user.name)
+				mentionReplacement: Utils.user.getMentionBbCode(this.user.id, this.user.name),
 			});
 		},
 		loc(phraseCode: string, replacements: {[string]: string} = {}): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
-		}
+		},
 	},
 	template: `
 		<div :class="containerClasses" :data-id="message.id" class="bx-im-message-base__scope bx-im-message-base__container" @click="onContainerClick">
@@ -169,8 +196,7 @@ export const BaseMessage = {
 					<ChatTitle :dialogId="authorDialogId" :onlyFirstName="true" :showItsYou="false" :withColor="true" :withLeftIcon="false" />
 				</div>
 				<Media :item="message" />
-				<DeletedMessage v-if="message.isDeleted" />
-				<div v-else class="bx-im-message-base__text" v-html="formattedText"></div>
+				<component :is="extensionId" :item="message" />
 				<div v-for="config in message.attach" :key="config.ID" class="bx-im-message-base__attach-wrap">
 					<Attach :baseColor="dialogColor" :config="config"/>
 				</div>
@@ -193,5 +219,5 @@ export const BaseMessage = {
 				<div :title="menuTitle" @click="onMenuClick" :class="{'--active': menuIsActiveForId === message.id}" class="bx-im-message-base__menu"></div>
 			</div>
 		</div>
-	`
+	`,
 };

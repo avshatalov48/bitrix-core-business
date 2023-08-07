@@ -1359,8 +1359,7 @@ class CLists
 
 	private static function createSeachableContent(array $fields)
 	{
-		$searchableContent = $fields["NAME"];
-
+		$searchableContent = $fields["NAME"] ?? '';
 
 		if(!empty($fields["DATE_CREATE"]))
 		{

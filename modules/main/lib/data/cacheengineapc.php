@@ -41,14 +41,35 @@ class CacheEngineApc extends CacheEngine
 
 	public function addToSet($key, $value)
 	{
+		$cacheKey = sha1($key . '|' . $value);
+		if (array_key_exists($cacheKey, self::$listKeys))
+		{
+			return;
+		}
+
+		$iexKey = $key . '|iex|' . $cacheKey;
+		$itemExist = apcu_fetch($iexKey);
+		if ($itemExist == $cacheKey)
+		{
+			return;
+		}
+
 		$list = apcu_fetch($key);
+
 		if (!is_array($list))
 		{
 			$list = [];
 		}
-		$list[$value] = 1;
 
-		apcu_store($key, $list, 0);
+		if (!array_key_exists($value, $list))
+		{
+			$list[$value] = 1;
+
+			apcu_store($key, $list, 0);
+			self::$listKeys[$cacheKey] = 1;
+		}
+
+		$this->set($iexKey, 2591000, $cacheKey);
 	}
 
 	public function getSet($key) : array
@@ -62,24 +83,68 @@ class CacheEngineApc extends CacheEngine
 		return array_keys($list);
 	}
 
-	public function delFromSet($key, $member)
+	public function deleteBySet($key, $prefix = '')
 	{
 		$list = apcu_fetch($key);
 		if (is_array($list) && !empty($list))
 		{
+			foreach ($list as $iKey => $value)
+			{
+				if ($prefix == '')
+				{
+					apcu_delete($iKey);
+
+				}
+				else
+				{
+					apcu_delete($prefix . $iKey);
+				}
+
+				$cacheKey = sha1($key . '|' . $iKey);
+				$iexKey = $key . '|iex|' . $cacheKey;
+				$this->del($iexKey);
+			}
+		}
+	}
+
+	public function delFromSet($key, $member)
+	{
+		$list = apcu_fetch($key);
+
+		if (is_array($list) && !empty($list))
+		{
+			$rewrite = false;
 			if (is_array($member))
 			{
 				foreach ($member as $keyID)
 				{
-					unset($list[$keyID]);
+					if (array_key_exists($keyID, $list))
+					{
+						$rewrite = true;
+						$cacheKey = sha1($key . '|' . $keyID);
+						unset($list[$keyID]);
+						unset(self::$listKeys[$cacheKey]);
+
+						$iexKey = $key . '|iex|' . $cacheKey;
+						$this->del($iexKey);
+					}
 				}
 			}
-			else
+			elseif (array_key_exists($member, $list))
 			{
+				$rewrite = true;
+				$cacheKey = sha1($key . '|' . $member);
+				unset(self::$listKeys[$cacheKey]);
 				unset($list[$member]);
+
+				$iexKey = $key . '|iex|' . $cacheKey;
+				$this->del($iexKey);
 			}
 
-			apcu_store($key, $list, 0);
+			if ($rewrite)
+			{
+				apcu_store($key, $list, 0);
+			}
 		}
 	}
 }

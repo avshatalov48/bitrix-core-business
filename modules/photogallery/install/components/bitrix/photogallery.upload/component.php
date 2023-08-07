@@ -68,22 +68,28 @@ foreach ($arParams['SIZES'] as $size)
 		$arParams['SIZES_SHOWN'][] = array($size, $size."x".(round($size * 0.75)));
 	}
 }
-if ($arParams["SHOW_RESIZER"] != "N")
+if (($arParams["SHOW_RESIZER"] ?? null) != "N")
 {
 	$arParams["SHOW_RESIZER"] = ($arParams["ORIGINAL_SIZE"] <= 0
-		|| $arParams["ORIGINAL_SIZE"] > $arParams['SIZES'][0][0]) ? 'Y' : 'N';
+		|| $arParams["ORIGINAL_SIZE"] > ($arParams['SIZES'][0][0] ?? 0)) ? 'Y' : 'N';
 }
 
-$arParams["SHOW_TITLE"] = $arParams["SHOW_TITLE"] == 'Y' ? 'Y' : 'N';
-$arParams["SHOW_PUBLIC"] = ($arParams["SHOW_PUBLIC"] == "N" || $arParams["BEHAVIOUR"] != "USER" ? "N" : "Y");
-$arParams["SHOW_TAGS"] = (IsModuleInstalled("search") && $arParams["SHOW_TAGS"] == 'Y') ? 'Y' : 'N';
+$arParams["SHOW_TITLE"] = ($arParams["SHOW_TITLE"] ?? null) == 'Y' ? 'Y' : 'N';
+$arParams["SHOW_PUBLIC"] = (
+	($arParams["SHOW_PUBLIC"] ?? null) == "N"
+	|| $arParams["BEHAVIOUR"] != "USER" ? "N" : "Y"
+);
+$arParams["SHOW_TAGS"] = (
+	IsModuleInstalled("search")
+	&& ($arParams["SHOW_TAGS"] ?? null) == 'Y'
+) ? 'Y' : 'N';
 $arParams["SHOW_TITLE"] = 'Y';
 // Get user options
 $arParams['UPLOADER_ID'] = getImageUploaderId(); // Unique ID of the Image uploader on the page
 $arParams["USER_SETTINGS"] = CUserOptions::GetOption('main', $arParams["UPLOADER_ID"]);
 /***************** STANDART ****************************************/
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y"); //Turn on by default
+$arParams["SET_NAV_CHAIN"] = (($arParams["SET_NAV_CHAIN"] ?? null) == "N" ? "N" : "Y"); //Turn on by default
 $arParams["DISPLAY_PANEL"] = ($arParams["DISPLAY_PANEL"] == "Y" ? "Y" : "N"); //Turn off by default
 if(!isset($arParams["CACHE_TIME"]))
 	$arParams["CACHE_TIME"] = 3600;

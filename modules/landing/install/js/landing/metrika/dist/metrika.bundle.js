@@ -22,10 +22,10 @@ this.BX = this.BX || {};
 	    this.formsLoaded = [];
 	    this.widgetOpened = false;
 	    this.widgetBlockHover = false;
-
-	    if (this.isFormsExists()) {
-	      this.waitForForms();
-	    }
+	    /*if (this.isFormsExists())
+	    {
+	    	this.waitForForms();
+	    }*/
 
 	    this.waitForWidget();
 	    this.detectAnchor();

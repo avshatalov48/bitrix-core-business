@@ -153,7 +153,7 @@ if (!$component->isAjax())
 			>'
 			. Loc::getMessage("LANDING_TPL_CREATE_EMPTY")
 			. '</div>';
-		$APPLICATION->addViewContent('title_actions', $createEmptyButton);
+		$APPLICATION->addViewContent('inside_pagetitle', $createEmptyButton);
 	}
 	?>
 	<div style="display: none">

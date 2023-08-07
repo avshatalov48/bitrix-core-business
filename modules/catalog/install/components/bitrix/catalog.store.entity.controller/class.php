@@ -22,12 +22,10 @@ class CatalogStoreEntityController extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		if (Loader::includeModule('catalog'))
+		if (!Loader::includeModule('catalog'))
 		{
-			if (!Feature::isInventoryManagementEnabled())
-			{
-				LocalRedirect('/shop/');
-			}
+			ShowError(\Bitrix\Main\Localization\Loc::getMessage('CATALOG_STORE_ENTITY_CONTROLLER_MODULE_CATALOG_NOT_INSTALLED'));
+			return;
 		}
 
 		$this->initResult();
@@ -45,6 +43,7 @@ class CatalogStoreEntityController extends CBitrixComponent
 	{
 		return [
 			'list' => '',
+			'uf' => 'user-fields/',
 			'details' => 'details/#ID#/',
 		];
 	}

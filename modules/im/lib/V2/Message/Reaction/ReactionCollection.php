@@ -13,9 +13,8 @@ use Bitrix\Im\V2\Service\Context;
 use Bitrix\Main\ORM\Query\Query;
 
 /**
- * @method ReactionItem next()
- * @method ReactionItem current()
- * @method ReactionItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,ReactionItem>
+ * @method ReactionItem offsetGet($key)
  */
 class ReactionCollection extends Collection implements RestConvertible, PopupDataAggregatable
 {

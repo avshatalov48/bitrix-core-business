@@ -36,19 +36,19 @@ if ($defaultAccess === false)
 if($REQUEST_METHOD=="POST" && $_POST['saveperm'] == 'Y' && check_bitrix_sessid())
 {
 	//Clear all
-	if ($_REQUEST['clear_all'] == "Y")
+	if (($_REQUEST['clear_all'] ?? null) == "Y")
 		CSticker::DeleteAll();
 
 	// Settings
-	COption::SetOptionString("fileman", "stickers_hide_bottom", $_REQUEST['set_hide_bottom'] == "Y" ? "Y" : "N");
-	COption::SetOptionString("fileman", "stickers_start_sizes", $_REQUEST['set_sizes']);
-	COption::SetOptionString("fileman", "stickers_use_hotkeys", $_REQUEST['use_hotkeys'] == "Y" ? "Y" : "N");
+	COption::SetOptionString("fileman", "stickers_hide_bottom", ($_REQUEST['set_hide_bottom'] ?? null) == "Y" ? "Y" : "N");
+	COption::SetOptionString("fileman", "stickers_start_sizes", ($_REQUEST['set_sizes'] ?? null));
+	COption::SetOptionString("fileman", "stickers_use_hotkeys", ($_REQUEST['use_hotkeys'] ?? null) == "Y" ? "Y" : "N");
 
 	// Access
 	$arTaskPerm = Array();
 	foreach ($arGroups as $group)
 	{
-		$tid = ${"TASKS_".$group["ID"]};
+		$tid = ${"TASKS_".$group["ID"]} ?? null;
 		if ($tid)
 			$arTaskPerm[$group["ID"]] = intval($tid);
 	}

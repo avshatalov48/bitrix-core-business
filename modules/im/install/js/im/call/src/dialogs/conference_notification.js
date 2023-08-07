@@ -1,6 +1,7 @@
 import {Dom, Text, Type} from 'main.core';
 import {Popup} from 'main.popup';
-import Util from '../util'
+import {DesktopApi} from 'im.v2.lib.desktop-api';
+import Util from '../util';
 
 const Events = {
 	onButtonClick: "ConferenceNotification::onButtonClick"
@@ -41,16 +42,16 @@ export class ConferenceNotifications
 		};
 
 		this._onContentButtonClickHandler = this._onContentButtonClick.bind(this);
-		if (BX.desktop)
+		if (DesktopApi.isDesktop())
 		{
-			BX.desktop.addCustomEvent(Events.onButtonClick, this._onContentButtonClickHandler);
+			DesktopApi.subscribe(Events.onButtonClick, this._onContentButtonClickHandler);
 		}
 	}
 	;
 
 	show()
 	{
-		if (BX.desktop)
+		if (DesktopApi.isDesktop())
 		{
 			var params = {
 				callerAvatar: this.callerAvatar,
@@ -64,10 +65,12 @@ export class ConferenceNotifications
 			}
 			else
 			{
-				this.window = BXDesktopSystem.ExecuteCommand(
-					'topmost.show.html',
-					BX.desktop.getHtmlPage("", "window.conferenceNotification = new BX.Call.NotificationConferenceContent(" + JSON.stringify(params) + "); window.conferenceNotification.showInDesktop();")
-				);
+				const js = `
+					window.conferenceNotification = new BX.Call.NotificationConferenceContent(${JSON.stringify(params)});
+					window.conferenceNotification.showInDesktop();
+				`;
+				const html = DesktopApi.prepareHtml('', js);
+				this.window = DesktopApi.createTopmostWindow(html);
 			}
 		}
 		else
@@ -141,19 +144,17 @@ export class ConferenceNotifications
 			this.window = null;
 		}
 
-		if (BX.desktop)
+		if (DesktopApi.isDesktop())
 		{
-			BX.desktop.removeCustomEvents(Events.onButtonClick);
+			DesktopApi.unsubscribe(Events.onButtonClick, this._onContentButtonClickHandler);
 		}
 		this.callbacks.onDestroy();
 	}
-	;
 
 	_onContentButtonClick(e)
 	{
 		this.callbacks.onButtonClick(e);
 	}
-	;
 }
 
 export class NotificationConferenceContent
@@ -313,15 +314,20 @@ export class NotificationConferenceContent
 	{
 		this.render();
 		document.body.appendChild(this.elements.root);
-		BX.desktop.setWindowPosition({X: STP_CENTER, Y: STP_VCENTER, Width: 351, Height: 510});
+		DesktopApi.setWindowPosition({
+			x: STP_CENTER,
+			y: STP_VCENTER,
+			width: 351,
+			height: 510
+		});
 	};
 
 	_onAnswerConferenceButtonClick(e)
 	{
-		if (BX.desktop)
+		if (DesktopApi.isDesktop())
 		{
-			BXDesktopWindow.ExecuteCommand("close");
-			BX.desktop.onCustomEvent("main", Events.onButtonClick, [{
+			DesktopApi.closeWindow();
+			DesktopApi.emitToMainWindow(Events.onButtonClick, [{
 				button: 'answerConference',
 			}]);
 		}
@@ -335,10 +341,10 @@ export class NotificationConferenceContent
 
 	_onSkipConferenceButtonClick(e)
 	{
-		if (BX.desktop)
+		if (DesktopApi.isDesktop())
 		{
-			BXDesktopWindow.ExecuteCommand("close");
-			BX.desktop.onCustomEvent("main", Events.onButtonClick, [{
+			DesktopApi.closeWindow();
+			DesktopApi.emitToMainWindow(Events.onButtonClick, [{
 				button: 'skipConference',
 			}]);
 		}

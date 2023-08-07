@@ -79,7 +79,7 @@
 
 .bx-im-dialog-chat__author-group_container {
 	display: flex;
-	align-items: flex-start;
+	align-items: flex-end;
 	width: 100%;
 	max-width: 100%;
 	margin: 0 auto;
@@ -94,7 +94,7 @@
 
 .bx-im-dialog-chat__author-group_avatar {
 	position: sticky;
-	top: 0;
+	bottom: 0;
 	margin-right: 12px;
 	padding-top: var(--im-dialog-chat__offset_block);
 	z-index: 75;

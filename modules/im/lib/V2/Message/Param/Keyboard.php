@@ -25,7 +25,7 @@ class Keyboard extends Param
 			$this->keyboard = Im\Bot\Keyboard::getKeyboardByJson($value);
 		}
 
-		if ($this->keyboard)
+		if (isset($this->keyboard))
 		{
 			$this->value = $this->keyboard->getArray();
 			$this->jsonValue = $this->keyboard->getJson();

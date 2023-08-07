@@ -257,7 +257,7 @@ if (!$USER->IsAuthorized())
 					$GROUP_ID = [];
 				}
 
-				$arResult["POST"]["~NEW_PASSWORD"] = $arResult["POST"]["~NEW_PASSWORD_CONFIRM"] = \CAllUser::GeneratePasswordByPolicy($GROUP_ID);
+				$arResult["POST"]["~NEW_PASSWORD"] = $arResult["POST"]["~NEW_PASSWORD_CONFIRM"] = CUser::GeneratePasswordByPolicy($GROUP_ID);
 			}
 			else
 			{

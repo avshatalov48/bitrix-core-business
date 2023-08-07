@@ -1,0 +1,115 @@
+.bx-im-smile-popup-search-input__container {
+	height: var(--im-messenger__search-input_height);
+	min-height: var(--im-messenger__search-input_height);
+	position: relative;
+	margin: 18px 10px 10px 10px;
+	width: calc(100% - 20px);
+}
+
+.bx-im-smile-popup-search-input__element {
+	box-sizing: border-box;
+}
+
+.bx-im-smile-popup-search-input__clear {
+	border-radius: 100%;
+	width: 14px;
+	height: 14px;
+	background: url('../../images/clear.svg') no-repeat center;
+	background-size: cover;
+
+	position: absolute;
+	right: 14px;
+	top: 10px;
+	cursor: pointer;
+}
+
+.bx-im-smile-popup-search-input__loader {
+	position: absolute;
+	right: 14px;
+	top: 10px;
+	box-sizing: border-box;
+}
+
+.bx-im-smiles-content__gifs-box {
+	padding-top: 0;
+	height: 269px;
+}
+
+.bx-im-smiles-content__gifs-box.--is-error {
+	padding-top: 60px;
+	text-align: center;
+}
+
+.bx-im-smiles-content__gifs-item {
+	position: relative;
+	max-height: 196px;
+	margin-bottom: 4px;
+	cursor: pointer;
+}
+
+.bx-im-smiles-content__gifs-item_img {
+	width: 100%;
+	object-fit: cover;
+	height: 100%;
+	max-height: 194px;
+	object-position: top;
+	transition: all .4s ease;
+}
+
+.bx-im-smiles-content__gifs-item__img.bx-lazyload-loading {
+	filter: blur(5px);
+}
+
+.bx-im-smiles-content__gifs-empty_icon {
+	opacity: 0.1;
+	margin: 0 auto;
+}
+
+.bx-im-smiles-content__gifs-empty_title {
+	font-size: var(--ui-font-size-xs);
+	line-height: var(--ui-font-line-height-3xs);
+	margin-top: 20px;
+	color: var(--ui-color-palette-black-base);
+	opacity: 0.5;
+    margin-bottom: 27px;
+}
+
+.bx-im-smiles-content__gifs-empty_link {
+	color: var(--ui-color-palette-gray-40);
+	font-size: var(--ui-font-size-4xs);
+	line-height: var(--ui-font-line-height-md);
+	border-bottom: 1px solid rgba(var(--ui-color-palette-gray-40), 0.4);
+	display: inline;
+	cursor: pointer;
+}
+
+.bx-im-smiles-content__gifs-warning_icon {
+	border: none;
+	width: 48px;
+	height: 48px;
+	margin: 0 auto;
+	background: url('../../images/warning.svg') no-repeat center;
+	background-size: cover;
+}
+
+.bx-im-smiles-content__gifs-gradient {
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.00) 0%, #FFF 100%);
+	opacity: 1;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	height: 50px;
+	pointer-events: none;
+	border-radius: 0 0 var(--ui-border-radius-md) var(--ui-border-radius-md);
+	z-index: 10;
+	transition: opacity 0.2s ease;
+}
+
+.bx-im-smiles-content__gifs-gradient.--is-hidden {
+	opacity: 0;
+}
+
+
+

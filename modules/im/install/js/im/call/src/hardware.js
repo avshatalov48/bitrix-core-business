@@ -1,4 +1,5 @@
 import {EventEmitter} from 'main.core.events'
+import {DesktopApi} from 'im.v2.lib.desktop-api';
 
 const lsKey = {
 	defaultMicrophone: 'bx-im-settings-default-microphone',
@@ -170,9 +171,9 @@ class HardwareManager extends EventEmitter
 		{
 			this.emit(Events.onChangeMirroringVideo, {enableMirroring: enableMirroring});
 
-			if (BX.desktop)
+			if (DesktopApi.isDesktop())
 			{
-				BX.desktop.onCustomEvent(Events.onChangeMirroringVideo, [enableMirroring]);
+				DesktopApi.emit(Events.onChangeMirroringVideo, [enableMirroring]);
 			}
 			if (localStorage)
 			{

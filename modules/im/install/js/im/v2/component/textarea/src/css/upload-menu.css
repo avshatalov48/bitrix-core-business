@@ -1,5 +1,5 @@
 .bx-im-file-menu__scope {
-	--im-file-popup__font_title: var(--im-font-size-sm)/var(--im-font-line-height-md) var(--im-font-family-open-sans);
+	--im-file-popup__font_title: var(--im-font-size-sm)/var(--im-font-line-height-md) var(--im-font-family-system);
 	--im-file-popup__font-color_title: var(--im-color-palette-black-base);
 	--im-file-popup__font_create-item: var(--im-font-size-3xs)/var(--im-font-line-height-md) var(--im-font-family-helvetica);
 	--im-file-popup__font-color_create-item: var(--im-color-palette-gray-60);

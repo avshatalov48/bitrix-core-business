@@ -1,34 +1,34 @@
-import {Runtime, Event, Dom} from 'main.core';
-import {BaseEvent, EventEmitter} from 'main.core.events';
-import {PopupManager} from 'main.popup';
+import { Runtime, Event, Dom } from 'main.core';
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import { PopupManager } from 'main.popup';
 
-import {Core} from 'im.v2.application.core';
-import {BaseMessage} from 'im.v2.component.message.base';
-import {ChatCreationMessage} from 'im.v2.component.message.chat-creation';
-import {Avatar, AvatarSize, ChatInfoPopup} from 'im.v2.component.elements';
-import {Logger} from 'im.v2.lib.logger';
-import {CallManager} from 'im.v2.lib.call';
-import {Utils} from 'im.v2.lib.utils';
-import {MessageService, ChatService} from 'im.v2.provider.service';
-import {DialogBlockType as BlockType, EventType, PopupType, DialogScrollThreshold} from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
+import { BaseMessage } from 'im.v2.component.message.base';
+import { ChatCreationMessage } from 'im.v2.component.message.chat-creation';
+import { Avatar, AvatarSize, ChatInfoPopup } from 'im.v2.component.elements';
+import { Logger } from 'im.v2.lib.logger';
+import { CallManager } from 'im.v2.lib.call';
+import { Utils } from 'im.v2.lib.utils';
+import { MessageService, ChatService } from 'im.v2.provider.service';
+import { DialogBlockType as BlockType, EventType, PopupType, DialogScrollThreshold } from 'im.v2.const';
 
-import {ScrollManager} from './classes/scroll-manager';
-import {CollectionManager} from './classes/collection-manager';
-import {MessageMenu} from './classes/message-menu';
-import {AvatarMenu} from './classes/avatar-menu';
-import {ObserverManager} from './classes/observer-manager';
-import {QuoteManager} from './classes/quote-manager';
-import {NewMessagesBlock} from './components/block/new-messages';
-import {MarkedMessagesBlock} from './components/block/marked-messages';
-import {DateGroupTitle} from './components/block/date-group';
-import {PinnedMessages} from './components/pinned/pinned-messages';
-import {DialogStatus} from './components/dialog-status';
-import {DialogLoader} from './components/dialog-loader';
+import { ScrollManager } from './classes/scroll-manager';
+import { CollectionManager } from './classes/collection-manager';
+import { MessageMenu } from './classes/message-menu';
+import { AvatarMenu } from './classes/avatar-menu';
+import { ObserverManager } from './classes/observer-manager';
+import { QuoteManager } from './classes/quote-manager';
+import { NewMessagesBlock } from './components/block/new-messages';
+import { MarkedMessagesBlock } from './components/block/marked-messages';
+import { DateGroupTitle } from './components/block/date-group';
+import { PinnedMessages } from './components/pinned/pinned-messages';
+import { DialogStatus } from './components/dialog-status';
+import { DialogLoader } from './components/dialog-loader';
 import './css/chat-dialog.css';
 
-import type {ImModelMessage, ImModelDialog, ImModelLayout} from 'im.v2.model';
-import type {ScrollToBottomEvent} from 'im.v2.const';
-import type {FormattedCollectionItem} from './classes/collection-manager';
+import type { ImModelMessage, ImModelDialog, ImModelLayout } from 'im.v2.model';
+import type { ScrollToBottomEvent } from 'im.v2.const';
+import type { FormattedCollectionItem } from './classes/collection-manager';
 
 const FLOATING_DATE_OFFSET = 52;
 const LOAD_MESSAGE_ON_EXIT_DELAY = 200;
@@ -46,7 +46,7 @@ export const ChatDialog = {
 		DateGroupTitle,
 		ChatInfoPopup,
 		DialogStatus,
-		DialogLoader
+		DialogLoader,
 	},
 	directives: {
 		'message-observer': {
@@ -57,35 +57,35 @@ export const ChatDialog = {
 			beforeUnmount(element, binding)
 			{
 				binding.instance.observerManager.unobserveMessage(element);
-			}
-		}
+			},
+		},
 	},
 	props: {
 		dialogId: {
 			type: String,
-			default: ''
+			default: '',
 		},
 		textareaHeight: {
 			type: Number,
-			default: 0
-		}
+			default: 0,
+		},
 	},
-	data()
+	data(): Object
 	{
 		return {
 			messageMenuIsActiveForId: 0,
 			chatInfoPopup: {
 				element: null,
 				dialogId: 0,
-				show: false
+				show: false,
 			},
 			contextMode: {
 				active: false,
-				messageIsLoaded: false
+				messageIsLoaded: false,
 			},
 			initialScrollCompleted: false,
 			isScrolledUp: false,
-			windowFocused: false
+			windowFocused: false,
 		};
 	},
 	computed:
@@ -149,14 +149,14 @@ export const ChatDialog = {
 				return '99+';
 			}
 
-			return `${this.dialog.counter}`;
+			return String(this.dialog.counter);
 		},
 		showDialogStatus(): boolean
 		{
 			return this.messageCollection.some((message) => {
 				return message.id === this.dialog.lastMessageId;
 			});
-		}
+		},
 	},
 	watch:
 	{
@@ -164,7 +164,7 @@ export const ChatDialog = {
 		{
 			if (!newValue || oldValue)
 			{
-				return false;
+				return;
 			}
 			// first opening
 			this.onChatInited();
@@ -176,10 +176,10 @@ export const ChatDialog = {
 				return;
 			}
 
-			this.$nextTick(() => {
+			void this.$nextTick(() => {
 				this.getScrollManager().scrollToBottom();
 			});
-		}
+		},
 	},
 	created()
 	{
@@ -228,26 +228,26 @@ export const ChatDialog = {
 				return;
 			}
 
-			this.getObserverManager().getMessagesToRead().forEach(messageId => {
+			this.getObserverManager().getMessagesToRead().forEach((messageId) => {
 				this.getChatService().readMessage(this.dialog.chatId, messageId);
 				this.getObserverManager().onReadMessage(messageId);
 			});
 		},
 		scrollOnStart()
 		{
-			this.$nextTick(() => {
+			void this.$nextTick(() => {
 				// we loaded chat with context
 				if (this.contextMode.active && this.contextMode.messageIsLoaded)
 				{
 					this.getScrollManager().scrollToMessage(this.layout.contextId, -FLOATING_DATE_OFFSET);
-					this.$nextTick(() => {
+					void this.$nextTick(() => {
 						this.highlightMessage(this.layout.contextId);
 					});
 				}
 				// chat was loaded before
 				else if (this.contextMode.active && !this.contextMode.messageIsLoaded)
 				{
-					this.goToMessageContext(this.layout.contextId);
+					void this.goToMessageContext(this.layout.contextId);
 				}
 				// marked message
 				else if (this.dialog.markedId)
@@ -280,14 +280,16 @@ export const ChatDialog = {
 		{
 			const hasMessage = this.$store.getters['messages/hasMessage']({
 				chatId: this.dialog.chatId,
-				messageId: messageId
+				messageId,
 			});
 			if (hasMessage)
 			{
 				Logger.warn('Dialog: we have this message, scrolling to it', messageId);
+
 				return this.getScrollManager().animatedScrollToMessage(messageId, -FLOATING_DATE_OFFSET)
 					.then(() => {
 						this.highlightMessage(messageId);
+
 						return true;
 					});
 			}
@@ -298,14 +300,16 @@ export const ChatDialog = {
 				})
 				.then(() => {
 					this.getScrollManager().scrollToMessage(messageId, -FLOATING_DATE_OFFSET);
+
 					return this.$nextTick();
 				})
 				.then(() => {
 					this.highlightMessage(messageId);
+
 					return true;
 				})
-				.catch(error => {
-					console.error('goToMessageContext error', error);
+				.catch((error) => {
+					Logger.error('goToMessageContext error', error);
 				});
 		},
 		highlightMessage(messageId: number)
@@ -334,14 +338,14 @@ export const ChatDialog = {
 			this.$store.dispatch('dialogues/update', {
 				dialogId: this.dialogId,
 				fields: {
-					savedPositionMessageId
-				}
+					savedPositionMessageId,
+				},
 			});
 		},
 		loadMessagesOnExit()
 		{
 			setTimeout(() => {
-				this.getMessageService().reloadMessageList();
+				void this.getMessageService().reloadMessageList();
 			}, LOAD_MESSAGE_ON_EXIT_DELAY);
 		},
 		/* region Init methods */
@@ -390,7 +394,7 @@ export const ChatDialog = {
 		{
 			if (!this.messageService)
 			{
-				this.messageService = new MessageService({chatId: this.dialog.chatId});
+				this.messageService = new MessageService({ chatId: this.dialog.chatId });
 			}
 
 			return this.messageService;
@@ -425,17 +429,17 @@ export const ChatDialog = {
 			if (!this.dialog.loading)
 			{
 				this.scrollOnStart();
-				this.debouncedReadHandler();
+				this.readVisibleMessages();
 				this.getObserverManager().setDialogInited(true);
 			}
 
-			this.$nextTick(() => {
+			void this.$nextTick(() => {
 				this.getChatService().clearDialogMark(this.dialogId);
 			});
 
-			EventEmitter.emit(EventType.dialog.onDialogInited, {dialogId: this.dialogId});
+			EventEmitter.emit(EventType.dialog.onDialogInited, { dialogId: this.dialogId });
 		},
-		onScrollTriggerUp()
+		async onScrollTriggerUp()
 		{
 			if (!this.dialogInited || !this.getContainer())
 			{
@@ -449,30 +453,29 @@ export const ChatDialog = {
 			// Insert messages if there are some
 			if (this.getMessageService().hasPreparedHistoryMessages())
 			{
-				return this.getMessageService().drawPreparedHistoryMessages().then(() => {
-					this.getScrollManager().adjustScrollOnHistoryAddition(oldHeight);
-				});
+				await this.getMessageService().drawPreparedHistoryMessages();
+				this.getScrollManager().adjustScrollOnHistoryAddition(oldHeight);
+
+				return;
 			}
 
 			// check if already loading or no more history
 			if (this.getMessageService().isLoading() || !this.dialog.hasPrevPage)
 			{
-				return false;
+				return;
 			}
 
 			// Load messages and save them
-			this.getMessageService().loadHistory().then(() => {
-				// Messages loaded and we are at the top
-				if (this.getScrollManager().isAtTheTop())
-				{
-					Logger.warn('Dialog: we are at the top after history request, inserting messages');
-					this.getMessageService().drawPreparedHistoryMessages().then(() => {
-						this.getScrollManager().adjustScrollOnHistoryAddition(oldHeight);
-					});
-				}
-			});
+			await this.getMessageService().loadHistory();
+			// Messages loaded and we are at the top
+			if (this.getScrollManager().isAtTheTop())
+			{
+				Logger.warn('Dialog: we are at the top after history request, inserting messages');
+				await this.getMessageService().drawPreparedHistoryMessages();
+				this.getScrollManager().adjustScrollOnHistoryAddition(oldHeight);
+			}
 		},
-		onScrollTriggerDown()
+		async onScrollTriggerDown()
 		{
 			if (!this.dialogInited || !this.getContainer())
 			{
@@ -483,30 +486,30 @@ export const ChatDialog = {
 			// Insert messages if there are some
 			if (this.getMessageService().hasPreparedUnreadMessages())
 			{
-				return this.getMessageService().drawPreparedUnreadMessages();
+				await this.getMessageService().drawPreparedUnreadMessages();
+
+				return;
 			}
 
 			// check if already loading or no more history
 			if (this.getMessageService().isLoading() || !this.dialog.hasNextPage)
 			{
-				return false;
+				return;
 			}
 
 			// Load messages and save them
-			this.getMessageService().loadUnread().then(() => {
-				// Messages loaded and we are at the bottom
-				if (this.getScrollManager().isAroundBottom())
-				{
-					Logger.warn('Dialog: we are at the bottom after unread request, inserting messages');
-					this.getMessageService().drawPreparedUnreadMessages().then(() => {
-						this.getScrollManager().checkIfChatIsScrolledUp();
-					});
-				}
-			});
+			await this.getMessageService().loadUnread();
+			// Messages loaded and we are at the bottom
+			if (this.getScrollManager().isAroundBottom())
+			{
+				Logger.warn('Dialog: we are at the bottom after unread request, inserting messages');
+				await this.getMessageService().drawPreparedUnreadMessages();
+				this.getScrollManager().checkIfChatIsScrolledUp();
+			}
 		},
 		onScrollToBottom(event: BaseEvent<ScrollToBottomEvent>)
 		{
-			const {chatId, threshold = DialogScrollThreshold.halfScreenUp} = event.getData();
+			const { chatId, threshold = DialogScrollThreshold.halfScreenUp } = event.getData();
 			if (this.dialog.chatId !== chatId)
 			{
 				return;
@@ -515,10 +518,14 @@ export const ChatDialog = {
 			if (!this.windowFocused || this.hasVisibleCall())
 			{
 				const firstUnreadId = this.$store.getters['messages/getFirstUnread'](this.dialog.chatId);
-				this.$nextTick(() => {
-					this.getScrollManager().scrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
-				});
-				return;
+				if (firstUnreadId)
+				{
+					void this.$nextTick(() => {
+						this.getScrollManager().scrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
+					});
+
+					return;
+				}
 			}
 
 			Logger.warn('Dialog: scroll to bottom', chatId, threshold);
@@ -526,35 +533,36 @@ export const ChatDialog = {
 			{
 				return;
 			}
+
 			if (threshold === DialogScrollThreshold.nearTheBottom && !this.getScrollManager().isAroundBottom())
 			{
 				return;
 			}
 
-			this.$nextTick(() => {
+			void this.$nextTick(() => {
 				this.getScrollManager().animatedScrollToBottom();
 			});
 		},
 		onGoToMessageContext(event: BaseEvent)
 		{
-			const {dialogId, messageId} = event.getData();
+			const { dialogId, messageId } = event.getData();
 			if (this.dialog.dialogId !== dialogId)
 			{
 				return;
 			}
 
-			this.goToMessageContext(messageId);
+			void this.goToMessageContext(messageId);
 		},
 		onOpenChatInfo(event: BaseEvent)
 		{
-			const {dialogId, event: $event} = event.getData();
+			const { dialogId, event: $event } = event.getData();
 			this.chatInfoPopup.element = $event.target;
 			this.chatInfoPopup.dialogId = dialogId;
 			this.chatInfoPopup.show = true;
 		},
 		onPinnedMessageClick(messageId: number)
 		{
-			this.goToMessageContext(messageId);
+			void this.goToMessageContext(messageId);
 		},
 		onPinnedMessageUnpin(messageId: number)
 		{
@@ -562,13 +570,13 @@ export const ChatDialog = {
 		},
 		onMessageContextMenuClick(event: {message: ImModelMessage, $event: PointerEvent})
 		{
-			const context = {dialogId: this.dialogId, ...event.message};
+			const context = { dialogId: this.dialogId, ...event.message };
 			this.messageMenu.openMenu(context, event.$event.currentTarget);
 			this.messageMenuIsActiveForId = event.message.id;
 		},
 		onMessageQuote(event: {message: ImModelMessage})
 		{
-			const {message} = event;
+			const { message } = event;
 			QuoteManager.sendQuoteEvent(message);
 		},
 		onScroll(event: Event)
@@ -576,32 +584,32 @@ export const ChatDialog = {
 			this.closeDialogPopups();
 			this.debouncedScrollHandler(event);
 		},
-		onScrollButtonClick()
+		async onScrollButtonClick()
 		{
 			if (this.getScrollManager().scrollButtonClicked)
 			{
 				this.handleSecondScrollButtonClick();
+
 				return;
 			}
 
 			this.getScrollManager().scrollButtonClicked = true;
 			if (this.dialog.counter === 0)
 			{
-				this.getMessageService().loadInitialMessages().then(() => {
-					this.getScrollManager().scrollToBottom();
-				});
+				await this.getMessageService().loadInitialMessages();
+				this.getScrollManager().scrollToBottom();
+
 				return;
 			}
 
 			const firstUnreadId = this.$store.getters['messages/getFirstUnread'](this.dialog.chatId);
 			if (!firstUnreadId)
 			{
-				this.getMessageService().loadInitialMessages().then(() => {
-					this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
-				});
+				await this.getMessageService().loadInitialMessages();
+				await this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
 			}
 
-			this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
+			await this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
 		},
 		onWindowFocus()
 		{
@@ -625,13 +633,22 @@ export const ChatDialog = {
 			{
 				EventEmitter.emit(EventType.textarea.insertMention, {
 					mentionText: user.name,
-					mentionReplacement: Utils.user.getMentionBbCode(user.id, user.name)
+					mentionReplacement: Utils.user.getMentionBbCode(user.id, user.name),
 				});
 
 				return;
 			}
 
-			this.avatarMenu.openMenu({user, dialog: this.dialog}, event.currentTarget);
+			this.avatarMenu.openMenu({ user, dialog: this.dialog }, event.currentTarget);
+		},
+		onCallFold()
+		{
+			const callDialogId = CallManager.getInstance().getCurrentCallDialogId();
+			if (callDialogId !== this.dialogId)
+			{
+				return;
+			}
+			this.readVisibleMessages();
 		},
 		handleSecondScrollButtonClick()
 		{
@@ -640,19 +657,19 @@ export const ChatDialog = {
 			{
 				this.getMessageService().loadContext(this.dialog.lastMessageId).then(() => {
 					EventEmitter.emit(EventType.dialog.scrollToBottom, {
-						chatId: this.dialog.chatId
+						chatId: this.dialog.chatId,
 					});
-				}).catch(error => {
-					console.error('ChatDialog: scroll to chat end loadContext error', error);
+				}).catch((error) => {
+					Logger.error('ChatDialog: scroll to chat end loadContext error', error);
 				});
 
 				return;
 			}
 
-			this.getScrollManager().animatedScrollToMessage(this.dialog.lastMessageId);
+			void this.getScrollManager().animatedScrollToMessage(this.dialog.lastMessageId);
 		},
 		/* endregion Event handlers */
-		hasVisibleCall()
+		hasVisibleCall(): boolean
 		{
 			return CallManager.getInstance().hasVisibleCall();
 		},
@@ -674,6 +691,7 @@ export const ChatDialog = {
 			EventEmitter.subscribe(EventType.dialog.scrollToBottom, this.onScrollToBottom);
 			EventEmitter.subscribe(EventType.dialog.goToMessageContext, this.onGoToMessageContext);
 			EventEmitter.subscribe(EventType.mention.openChatInfo, this.onOpenChatInfo);
+			EventEmitter.subscribe(EventType.call.onFold, this.onCallFold);
 
 			Event.bind(window, 'focus', this.onWindowFocus);
 			Event.bind(window, 'blur', this.onWindowBlur);
@@ -683,14 +701,15 @@ export const ChatDialog = {
 			EventEmitter.unsubscribe(EventType.dialog.scrollToBottom, this.onScrollToBottom);
 			EventEmitter.unsubscribe(EventType.dialog.goToMessageContext, this.onGoToMessageContext);
 			EventEmitter.unsubscribe(EventType.mention.openChatInfo, this.onOpenChatInfo);
+			EventEmitter.unsubscribe(EventType.call.onFold, this.onCallFold);
 
 			Event.unbind(window, 'focus', this.onWindowFocus);
 			Event.unbind(window, 'blur', this.onWindowBlur);
 		},
 		getContainer(): ?HTMLElement
 		{
-			return this.$refs['container'];
-		}
+			return this.$refs.container;
+		},
 	},
 	template: `
 		<div class="bx-im-dialog-chat__block bx-im-dialog-chat__scope">
@@ -754,12 +773,12 @@ export const ChatDialog = {
 				</div>
 			</Transition>
 			<ChatInfoPopup
-				v-if="chatInfoPopup.show" 
+				v-if="chatInfoPopup.show"
 				:dialogId="chatInfoPopup.dialogId"
 				:bindElement="chatInfoPopup.element"
 				:showPopup="chatInfoPopup.show"
 				@close="chatInfoPopup.show = false"
 			/>
 		</div>
-	`
+	`,
 };

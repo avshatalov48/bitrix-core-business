@@ -11,7 +11,6 @@ export class DesktopPullHandler
 		Logger.warn('DesktopPullHandler: handleDesktopOnline', params);
 		const desktopManager = DesktopManager.getInstance();
 		desktopManager.setDesktopActive(true);
-		desktopManager.setDesktopVersion(params.version);
 
 		CounterManager.getInstance().removeBrowserTitleCounter();
 	}

@@ -160,7 +160,7 @@ else
 	);
 }
 
-$arUserType = $arResult["FIELD"]["PROPERTY_USER_TYPE"];
+$arUserType = $arResult["FIELD"] ? $arResult["FIELD"]["PROPERTY_USER_TYPE"] : null;
 $arPropertyFields = array();
 $USER_TYPE_SETTINGS_HTML = "";
 if(is_array($arUserType))
@@ -274,19 +274,19 @@ elseif($arResult["FORM_DATA"]["TYPE"] == "PREVIEW_TEXT" || $arResult["FORM_DATA"
 		"id"=>"SETTINGS[USE_EDITOR]",
 		"name"=>GetMessage("CT_BLFE_TEXT_USE_EDITOR"),
 		"type"=>"checkbox",
-		"value"=>$arResult["FORM_DATA"]["SETTINGS"]["USE_EDITOR"],
+		"value" => $arResult["FORM_DATA"]["SETTINGS"]["USE_EDITOR"] ?? false,
 	);
 	$arTab1Fields[] = array(
 		"id"=>"SETTINGS[WIDTH]",
 		"name"=>GetMessage("CT_BLFE_TEXT_WIDTH_NEW"),
 		"params" => array("size" => 7),
-		"value"=>$arResult["FORM_DATA"]["SETTINGS"]["WIDTH"] ? $arResult["FORM_DATA"]["SETTINGS"]["WIDTH"] : 600,
+		"value" => $arResult["FORM_DATA"]["SETTINGS"]["WIDTH"] ?? 600,
 	);
 	$arTab1Fields[] = array(
 		"id"=>"SETTINGS[HEIGHT]",
 		"name"=>GetMessage("CT_BLFE_TEXT_HEIGHT_NEW"),
 		"params" => array("size" => 7),
-		"value"=>$arResult["FORM_DATA"]["SETTINGS"]["HEIGHT"] ? $arResult["FORM_DATA"]["SETTINGS"]["HEIGHT"] : 200,
+		"value"=>$arResult["FORM_DATA"]["SETTINGS"]["HEIGHT"] ?? 200,
 	);
 	$arTab1Fields[] = array(
 		"id"=>"DEFAULT_VALUE",
@@ -369,7 +369,7 @@ elseif(preg_match("/^(F|F:)/", $arResult["FORM_DATA"]["TYPE"]))
 }
 elseif(preg_match("/^(G|G:)/", $arResult["FORM_DATA"]["TYPE"]))
 {
-	$LINK = $arResult["FORM_DATA"]["LINK_IBLOCK_ID"];
+	$LINK = $arResult["FORM_DATA"]["LINK_IBLOCK_ID"] ?? 0;
 	if($LINK <= 0)
 		$LINK = key($arResult["LINK_IBLOCKS"]);
 
@@ -398,7 +398,7 @@ elseif(preg_match("/^(E|E:)/", $arResult["FORM_DATA"]["TYPE"]))
 	//No default value input
 	$readOnlyAdd = false;
 }
-elseif(!is_array($arPropertyFields["HIDE"]) || !in_array("DEFAULT_VALUE", $arPropertyFields["HIDE"]))
+elseif(!isset($arPropertyFields["HIDE"]) || is_array($arPropertyFields["HIDE"]) && !in_array("DEFAULT_VALUE", $arPropertyFields["HIDE"]))
 {//Show default property value input if it was not cancelled by property
 	if(is_array($arUserType))
 	{
@@ -410,6 +410,9 @@ elseif(!is_array($arPropertyFields["HIDE"]) || !in_array("DEFAULT_VALUE", $arPro
 			case "map_yandex":
 				$arResult["FIELD"]["MULTIPLE"] =
 					isset($arResult["FIELD"]["MULTIPLE"]) ? $arResult["FIELD"]["MULTIPLE"] : "N";
+				break;
+			case 'employee':
+				$arResult["FIELD"]['SETTINGS']['USE_ENTITY_SELECTOR'] = 'Y';
 				break;
 		}
 
@@ -614,7 +617,7 @@ if(is_array($arResult["LIST"]))
 				<td align="center" class="sort-td" title="'.GetMessage("CT_BLFE_SORT_TITLE").'"></td>
 				<td class="tdInput">
 					<input type="hidden" name="LIST['.htmlspecialcharsbx($arEnum["ID"]).'][SORT]" value="'.$sort.'" class="sort-input">
-					<input type="text" size="35" name="LIST['.htmlspecialcharsbx($arEnum["ID"]).'][VALUE]" value="'.htmlspecialcharsbx($arEnum["~VALUE"]).'" class="value-input">
+					<input type="text" size="35" name="LIST['.htmlspecialcharsbx($arEnum["ID"]).'][VALUE]" value="'.htmlspecialcharsbx($arEnum["~VALUE"] ?? '').'" class="value-input">
 				</td>
 				<td align="center" class="delete-action"><div class="delete-action"
 					onclick="BX.Lists[\''.$jsClass.'\'].deleteListItem(this);" title="'.GetMessage("CT_BLFE_DELETE_TITLE").'"></div></td>
@@ -648,11 +651,11 @@ if(is_array($arResult["LIST"]))
 		else
 			$html .= '<select name="LIST_DEF[]" id="LIST_DEF" size="1">';
 
-		if($arResult["FORM_DATA"]["IS_REQIRED"] != "Y")
+		if (!isset($arResult["FORM_DATA"]["IS_REQIRED"]) || $arResult["FORM_DATA"]["IS_REQIRED"] != "Y")
 			$html .= '<option value=""'.(count($arResult["LIST_DEF"])==0? ' selected': '').'>'.GetMessage("CT_BLFE_ENUM_NO_DEFAULT").'</option>';
 
 		foreach($arResult["LIST"] as $arEnum)
-			$html .= '<option value="'.htmlspecialcharsbx($arEnum["ID"]).'"'.(isset($arResult["LIST_DEF"][htmlspecialcharsbx($arEnum["ID"])])? ' selected': '').'>'.htmlspecialcharsbx($arEnum["~VALUE"]).'</option>';
+			$html .= '<option value="'.htmlspecialcharsbx($arEnum["ID"]).'"'.(isset($arResult["LIST_DEF"][htmlspecialcharsbx($arEnum["ID"])])? ' selected': '').'>'.htmlspecialcharsbx($arEnum["~VALUE"] ?? '').'</option>';
 
 		$html .= '
 				</select>
@@ -697,7 +700,7 @@ if(is_array($arResult["LIST"]))
 		{
 			$customHtml .= '<input type="hidden" name="LIST['.htmlspecialcharsbx($arEnum["ID"]).'][SORT]" value="'.$arEnum["SORT"].'">'
 				.'<input type="hidden" name="LIST['.htmlspecialcharsbx($arEnum["ID"]).'][VALUE]" value="'
-				.htmlspecialcharsbx($arEnum["~VALUE"]).'">';
+				.htmlspecialcharsbx($arEnum["~VALUE"] ?? '').'">';
 		}
 	}
 }

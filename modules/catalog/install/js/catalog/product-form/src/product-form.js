@@ -119,7 +119,6 @@ class ProductForm
 				hasStore: settingsCollection.get('hasLandingStore'),
 				isLimitedStore: settingsCollection.get('isLimitedLandingStore'),
 				disabledSwitcher: settingsCollection.get('isLimitedLandingStore'),
-				hiddenInfoMessage: settingsCollection.get('hiddenCompilationInfoMessage'),
 			};
 		}
 		else
@@ -400,29 +399,26 @@ class ProductForm
 		}
 
 		this.options[optionName] = value;
-		if (optionName !== 'hiddenCompilationInfoMessage')
-		{
-			const basket = this.store.getters['productList/getBasket']();
-			basket.forEach((item, index) => {
-				if (optionName === 'showDiscountBlock')
-				{
-					item.showDiscountBlock = value;
-				}
-				else if (optionName === 'showTaxBlock')
-				{
-					item.showTaxBlock = value;
-				}
-				else if (optionName === 'taxIncluded')
-				{
-					item.fields.taxIncluded = value;
-				}
+		const basket = this.store.getters['productList/getBasket']();
+		basket.forEach((item, index) => {
+			if (optionName === 'showDiscountBlock')
+			{
+				item.showDiscountBlock = value;
+			}
+			else if (optionName === 'showTaxBlock')
+			{
+				item.showTaxBlock = value;
+			}
+			else if (optionName === 'taxIncluded')
+			{
+				item.fields.taxIncluded = value;
+			}
 
-				this.store.dispatch('productList/changeItem', {
-					index,
-					fields: item
-				});
+			this.store.dispatch('productList/changeItem', {
+				index,
+				fields: item
 			});
-		}
+		});
 
 		ajax.runAction(
 			'catalog.productForm.setConfig',

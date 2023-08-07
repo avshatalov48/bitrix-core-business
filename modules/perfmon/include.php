@@ -1,10 +1,10 @@
-<?
+<?php
 global $DB;
 $db_type = mb_strtolower($DB->type);
 
 CModule::AddAutoloadClasses(
 	"perfmon",
-	array(
+	[
 		"perfmon" => "install/index.php",
 		"CPerfomanceKeeper" => "classes/general/keeper.php",
 		"CAllPerfomanceHit" => "classes/general/hit.php",
@@ -30,6 +30,5 @@ CModule::AddAutoloadClasses(
 		"CSqlFormat" => "classes/general/sql_format.php",
 		"Bitrix\\Perfmon\\Sql\\BaseObject" => "lib/sql/base_object.php",
 		"Bitrix\\Perfmon\\Sql\\Table" => "lib/sql/table.php",
-	)
+	]
 );
-?>

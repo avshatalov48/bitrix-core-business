@@ -677,7 +677,7 @@ class CAllCatalogDocs
 		global $APPLICATION;
 
 		$productID = (int)$productID;
-		if ($productID > 0)
+		if ($productID > 0 && \Bitrix\Catalog\Config\State::isUsedInventoryManagement())
 		{
 			$iterator = Catalog\StoreDocumentElementTable::getList([
 				'select' => [

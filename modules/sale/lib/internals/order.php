@@ -355,7 +355,7 @@ class OrderTable extends Main\Entity\DataManager
 
 			new Main\Entity\ExpressionField(
 				'LOCK_STATUS',
-				"if(DATE_LOCK is null, 'green', if(DATE_ADD(DATE_LOCK, interval ".$maxLock." MINUTE)<now(), 'green', if(LOCKED_BY=".$userID.", 'yellow', 'red')))"
+				"case when DATE_LOCK is null or " . $helper->addSecondsToDateTime($maxLock * 60, 'DATE_LOCK') . " < now() then 'green' when LOCKED_BY = ".$userID." then 'yellow' else 'red' end"
 			),
 
 			new Main\Entity\ReferenceField(

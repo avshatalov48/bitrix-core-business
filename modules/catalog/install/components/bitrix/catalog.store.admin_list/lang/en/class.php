@@ -24,4 +24,5 @@ $MESS["STORE_LIST_ADD_STORE_BUTTON"] = "Add";
 $MESS["STORE_LIST_ADD_STORE_BUTTON_DENIED_HINT"] = "Insufficient permission to create warehouse.";
 $MESS["STORE_LIST_NO_VIEW_RIGHTS_ERROR"] = "Insufficient permissions to view warehouse list.";
 $MESS["STORE_LIST_NO_WRITE_RIGHTS_ERROR"] = "Insufficient permissions to edit warehouses.";
+$MESS["STORE_LIST_SETTINGS_BUTTON_UF_FIELDS"] = "Custom fields settings";
 $MESS["STORE_LIST_SITE_NAME_TEMPLATE"] = "#SITE_NAME# (#SITE_ID#)";

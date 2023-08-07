@@ -6,8 +6,13 @@ import type UploaderFile from '../uploader-file';
 import type Server from './server';
 import type ServerLoadController from './server-load-controller';
 
+type QueueTask = {
+	controller: ServerLoadController,
+	file: UploaderFile,
+}
+
 type Queue = {
-	tasks: Array<{ controller: ServerLoadController, file: UploaderFile }>,
+	tasks: QueueTask[],
 	load: Function,
 	xhr: XMLHttpRequest,
 	aborted: boolean,
@@ -16,9 +21,9 @@ type Queue = {
 const pendingQueues: WeakMap<Server, Queue> = new WeakMap();
 const loadingFiles: WeakMap<UploaderFile, Queue> = new WeakMap();
 
-export function loadMultiple(controller: ServerLoadController, file: UploaderFile)
+export function loadMultiple(controller: ServerLoadController, file: UploaderFile): void
 {
-	const server = controller.getServer();
+	const server: Server = controller.getServer();
 	const timeout = controller.getOption('timeout', 100);
 
 	let queue = pendingQueues.get(server);
@@ -38,13 +43,13 @@ export function loadMultiple(controller: ServerLoadController, file: UploaderFil
 	queue.load();
 }
 
-export function abort(controller: ServerLoadController, file: UploaderFile)
+export function abort(controller: ServerLoadController, file: UploaderFile): void
 {
-	const server = controller.getServer();
+	const server: Server = controller.getServer();
 	const queue: Queue = pendingQueues.get(server);
 	if (queue)
 	{
-		queue.tasks = queue.tasks.filter(task => {
+		queue.tasks = queue.tasks.filter((task: QueueTask): boolean => {
 			return task.file !== file;
 		});
 
@@ -58,7 +63,7 @@ export function abort(controller: ServerLoadController, file: UploaderFile)
 		const queue: Queue = loadingFiles.get(file);
 		if (queue)
 		{
-			queue.tasks = queue.tasks.filter(task => {
+			queue.tasks = queue.tasks.filter((task: QueueTask): boolean => {
 				return task.file !== file;
 			});
 
@@ -73,7 +78,7 @@ export function abort(controller: ServerLoadController, file: UploaderFile)
 	}
 }
 
-function loadInternal()
+function loadInternal(): void
 {
 	const server: Server = this;
 	const queue: Queue = pendingQueues.get(server);
@@ -90,9 +95,9 @@ function loadInternal()
 	}
 
 	const fileIds = [];
-	queue.tasks.forEach(task => {
+	queue.tasks.forEach((task: QueueTask): void => {
 		const file: UploaderFile = task.file;
-		fileIds.push(file.getServerId());
+		fileIds.push(file.getServerFileId());
 		loadingFiles.set(file, queue);
 	});
 
@@ -105,17 +110,17 @@ function loadInternal()
 				controller: server.getController(),
 				controllerOptions: controllerOptions ? JSON.stringify(controllerOptions) : null,
 			},
-			onrequeststart: (xhr) => {
+			onrequeststart: (xhr): void => {
 				queue.xhr = xhr;
 			},
-			onprogress: (event: ProgressEvent) => {
+			onprogress: (event: ProgressEvent): void => {
 				if (event.lengthComputable)
 				{
-					const progress = event.total > 0 ? Math.floor(event.loaded / event.total * 100) : 100;
+					const progress: number = event.total > 0 ? Math.floor(event.loaded / event.total * 100) : 100;
 
-					queue.tasks.forEach(task => {
+					queue.tasks.forEach((task: QueueTask): void => {
 						const { controller, file } = task;
-						controller.emit('onProgress', { file, progress });
+						controller.emit('onProgress', { progress });
 					});
 				}
 			},
@@ -124,32 +129,32 @@ function loadInternal()
 			if (response.data?.files)
 			{
 				const fileResults = {};
-				response.data.files.forEach((fileResult) => {
+				response.data.files.forEach((fileResult): void => {
 					fileResults[fileResult.id] = fileResult;
 				});
 
-				queue.tasks.forEach(task => {
+				queue.tasks.forEach((task: QueueTask): void => {
 					const { controller, file } = task;
-					const fileResult = fileResults[file.getServerId()] || null;
+					const fileResult = fileResults[file.getServerFileId()] || null;
 
 					loadingFiles.delete(file);
 
 					if (fileResult && fileResult.success)
 					{
-						controller.emit('onProgress', { file, progress: 100 });
+						controller.emit('onProgress', { progress: 100 });
 						controller.emit('onLoad', { fileInfo: fileResult.data.file });
 					}
 					else
 					{
-						const error = UploaderError.createFromAjaxErrors(fileResult?.errors);
+						const error: UploaderError = UploaderError.createFromAjaxErrors(fileResult?.errors);
 						controller.emit('onError', { error });
 					}
 				});
 			}
 			else
 			{
-				const error = new UploaderError('SERVER_ERROR');
-				queue.tasks.forEach(task => {
+				const error: UploaderError = new UploaderError('SERVER_ERROR');
+				queue.tasks.forEach((task: QueueTask): void => {
 					const { controller, file } = task;
 
 					loadingFiles.delete(file);
@@ -158,8 +163,8 @@ function loadInternal()
 			}
 		})
 		.catch(response => {
-			const error = queue.aborted ? null : UploaderError.createFromAjaxErrors(response.errors);
-			queue.tasks.forEach(task => {
+			const error: ?UploaderError = queue.aborted ? null : UploaderError.createFromAjaxErrors(response.errors);
+			queue.tasks.forEach((task: QueueTask): void => {
 				const { controller, file } = task;
 
 				loadingFiles.delete(file);

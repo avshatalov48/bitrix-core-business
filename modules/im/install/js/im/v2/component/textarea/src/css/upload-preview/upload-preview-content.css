@@ -1,0 +1,101 @@
+.bx-im-upload-preview__scope{
+	--im-upload-preview__color_title: #525c69;
+	--im-upload-preview__border-color_delimeter: #f1f2f3;
+	--im-upload-preview__border-color_message-input: #edeef0;
+	--im-upload-preview__border-color_message-input-focused: #00ace3;
+}
+
+.bx-im-upload-preview__container {
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	overflow: hidden;
+	width: 400px;
+	height: 525px;
+}
+
+.bx-im-upload-preview__container * {
+	box-sizing: border-box;
+}
+
+.bx-im-upload-preview__items-container {
+	height: 360px;
+	overflow: hidden scroll;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 0 8px 0 20px;
+}
+
+.bx-im-upload-preview__upper-delimiter {
+	border-top: 1px solid var(--im-upload-preview__border-color_delimeter);
+	margin: 5px 20px 11px
+}
+
+.bx-im-upload-preview__bottom-delimiter {
+	border-bottom: 1px solid var(--im-upload-preview__border-color_delimeter);
+	margin: 11px 20px 0;
+}
+
+.bx-im-upload-preview__message-text {
+	height: 46px;
+	border-radius: 8px;
+	border: 1px solid var(--im-upload-preview__border-color_message-input);
+	padding: 13px 13px 0;
+	margin: 0;
+	display: block;
+	font: var(--im-font-size-lg)/var(--im-font-line-height-md) var(--im-font-family-system);
+	color: var(--im-textarea__font-color_primary);
+	outline: none;
+	resize: none;
+}
+
+.bx-im-upload-preview__message-text:focus {
+	border-color: var(--im-upload-preview__border-color_message-input-focused);
+}
+
+.bx-im-upload-preview__controls-container {
+	display: flex;
+	flex-direction: column;
+	padding: 0 20px;
+	margin: 16px 0 20px;
+}
+
+.bx-im-upload-preview__control-compress-image {
+	margin: 15px 0;
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	max-width: 360px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bx-im-upload-preview__controls-buttons {
+	display: flex;
+	justify-content: center;
+}
+
+.bx-im-upload-preview__container *::-webkit-scrollbar {
+	width: 6px;
+}
+
+.bx-im-upload-preview__container *::-webkit-scrollbar-thumb {
+	background-color: transparent;
+	border-radius: 32px;
+}
+
+.bx-im-upload-preview__container *:hover::-webkit-scrollbar-thumb {
+	background-color: rgb(82 92 105 / 20%);
+	border-radius: 32px;
+}
+
+.bx-im-upload-preview__scope .popup-window-titlebar-text {
+	font-size: var(--im-font-size-lg);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-upload-preview__color_title);
+	padding-left: 20px;
+}
+
+.bx-im-upload-preview__container .bx-im-elements-spinner__spinner {
+	margin-bottom: 0;
+}

@@ -1,4 +1,8 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+/** @global CDatabase $DB */
+
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
@@ -152,10 +156,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $currencyRights == "W" && (!empty($_
 		{
 			$DB->Commit();
 
-			if ($_POST['apply'])
-				LocalRedirect('/bitrix/admin/currency_edit.php?ID=' . $currencyId . '&lang=' . LANGUAGE_ID . '&' . $tabControl->ActiveTabParam());
+			if (isset($_POST['apply']) && $_POST['apply'])
+			{
+				LocalRedirect('/bitrix/admin/currency_edit.php?ID=' . $currencyId
+					. '&lang=' . LANGUAGE_ID
+					. '&' . $tabControl->ActiveTabParam()
+				);
+			}
 			else
+			{
 				LocalRedirect('/bitrix/admin/currencies.php?lang=' . LANGUAGE_ID);
+			}
 		}
 	}
 }
@@ -183,8 +194,8 @@ if (!empty($errorMessage))
 		</td>
 		<td width="60%">
 			<input id="admin_classifier_currency_needle" name="admin_classifier_currency_needle" type="text" style="width: 300px"
-				   placeholder="<?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_SEARCH_PLACEHOLDER')?>"
-				   value="<?= HtmlFilter::encode($lastValues['NEEDLE']);?>">
+				placeholder="<?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_SEARCH_PLACEHOLDER')?>"
+				value="<?= HtmlFilter::encode($lastValues['NEEDLE']);?>">
 		</td>
 	</tr>
 	<tr>
@@ -438,4 +449,5 @@ if (!empty($errorMessage))
 	});
 </script>
 
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+<?php
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

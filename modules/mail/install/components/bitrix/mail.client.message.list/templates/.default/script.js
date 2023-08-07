@@ -2,58 +2,42 @@
 	'use strict';
 
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	var _node = /*#__PURE__*/new WeakMap();
-
 	var _errorTitleNode = /*#__PURE__*/new WeakMap();
-
 	var _errorTextNode = /*#__PURE__*/new WeakMap();
-
 	var _errorBoxNode = /*#__PURE__*/new WeakMap();
-
 	var _syncButton = /*#__PURE__*/new WeakMap();
-
 	var _errorHintNode = /*#__PURE__*/new WeakMap();
-
 	var ProgressBar = /*#__PURE__*/function () {
 	  function ProgressBar(node) {
 	    babelHelpers.classCallCheck(this, ProgressBar);
-
 	    _classPrivateFieldInitSpec(this, _node, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _errorTitleNode, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _errorTextNode, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _errorBoxNode, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _syncButton, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _errorHintNode, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    babelHelpers.classPrivateFieldSet(this, _node, node);
 	  }
-
 	  babelHelpers.createClass(ProgressBar, [{
 	    key: "setSyncButton",
 	    value: function setSyncButton(button) {
@@ -135,17 +119,11 @@
 	}();
 
 	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
-
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	var _name = /*#__PURE__*/new WeakMap();
-
 	var Counters = /*#__PURE__*/function () {
 	  function Counters(name, selectedDirectory) {
 	    babelHelpers.classCallCheck(this, Counters);
@@ -153,16 +131,13 @@
 	    babelHelpers.defineProperty(this, "counters", []);
 	    babelHelpers.defineProperty(this, "hiddenCountersForTotalCounter", []);
 	    babelHelpers.defineProperty(this, "shortcuts", []);
-
 	    _classPrivateFieldInitSpec$1(this, _name, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    babelHelpers.classPrivateFieldSet(this, _name, name);
 	    this.setDirectory(selectedDirectory);
 	  }
-
 	  babelHelpers.createClass(Counters, [{
 	    key: "getCounters",
 	    value: function getCounters() {
@@ -174,11 +149,9 @@
 	      if (shortcut === undefined) {
 	        shortcut = '';
 	      }
-
 	      if (this.shortcuts[shortcut] !== undefined) {
 	        return this.shortcuts[shortcut];
 	      }
-
 	      return shortcut;
 	    }
 	  }, {
@@ -193,13 +166,11 @@
 	      if (name === undefined) {
 	        name = '';
 	      }
-
 	      if (this.shortcuts[name]) {
 	        this.selectedDirectory = this.shortcuts[name];
 	      } else {
 	        this.selectedDirectory = name;
 	      }
-
 	      var resultCounters = {};
 	      resultCounters[this.selectedDirectory] = this.getCounter(this.selectedDirectory);
 	      this.sendCounterUpdateEvent(resultCounters);
@@ -220,8 +191,7 @@
 	    key: "setHiddenCountersForTotalCounter",
 	    value: function setHiddenCountersForTotalCounter(counterNames) {
 	      var _iterator = _createForOfIteratorHelper(counterNames),
-	          _step;
-
+	        _step;
 	      try {
 	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
 	          var counter = _step.value;
@@ -239,22 +209,18 @@
 	      if (this.hiddenCountersForTotalCounter[name] === 'disabled') {
 	        return true;
 	      }
-
 	      return false;
 	    }
 	  }, {
 	    key: "getTotalCounter",
 	    value: function getTotalCounter() {
 	      var counters = 0;
-
 	      for (var name in this.counters) {
 	        if (name in this.hiddenCountersForTotalCounter) {
 	          continue;
 	        }
-
 	        counters += this.counters[name];
 	      }
-
 	      return counters;
 	    }
 	  }, {
@@ -278,24 +244,19 @@
 	    value: function addCounters(counters) {
 	      this.cacheCounters();
 	      var resultCounters = {};
-
 	      for (var i = 0; i < counters.length; i++) {
 	        var counter = counters[i];
 	        counter['count'] = Number(counter['count']);
 	        var path = counter['path'];
 	        this.addCounter(path, counter['count']);
-
 	        if (this.shortcuts[path]) {
 	          resultCounters[this.shortcuts[path]] = counter['count'];
 	        } else {
 	          resultCounters[path] = counter['count'];
 	        }
 	      }
-
 	      this.sendCounterUpdateEvent(resultCounters);
-	    }
-	    /*Set counters as when adding. Old counters with different names are retained*/
-
+	    } /*Set counters as when adding. Old counters with different names are retained*/
 	  }, {
 	    key: "setCounters",
 	    value: function setCounters(counters) {
@@ -311,15 +272,12 @@
 	    value: function increaseCounter(name) {
 	      var count = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 	      this.cacheCounters();
-
 	      if (name in this.hiddenCountersForTotalCounter) {
 	        return "hidden counters for total counter";
 	      }
-
 	      if (!this.isExists(name)) {
 	        return "no counter";
 	      }
-
 	      this.counters[name] += Number(count);
 	    }
 	  }, {
@@ -327,21 +285,16 @@
 	    value: function lowerCounter(name) {
 	      var count = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 	      this.cacheCounters();
-
 	      if (name in this.hiddenCountersForTotalCounter) {
 	        return "hidden counters for total counter";
 	      }
-
 	      if (!this.isExists(name)) {
 	        return "no counter";
 	      }
-
 	      var newValue = this.counters[name] - Number(count);
-
 	      if (newValue < 0) {
 	        return "negative value";
 	      }
-
 	      this.counters[name] = newValue;
 	    }
 	  }, {
@@ -356,9 +309,7 @@
 	      this.counters = [];
 	      Object.assign(this.counters, this.cachedCounters);
 	      this.sendCounterUpdateEvent(this.counters);
-	    }
-	    /*Change counters by rule*/
-
+	    } /*Change counters by rule*/
 	  }, {
 	    key: "updateCounters",
 	    value: function updateCounters() {
@@ -376,28 +327,23 @@
 	      this.cacheCounters();
 	      var resultCounters = {};
 	      var countersAreNotLoadedFromTheServer = false;
-
 	      for (var i = 0; i < counters.length; i++) {
 	        var counter = counters[i];
 	        var name = counter['name'];
-
 	        if (counter['lower']) {
 	          if (this.lowerCounter(name, counter['count']) === "negative value") {
 	            countersAreNotLoadedFromTheServer = true;
 	          }
 	        }
-
 	        if (counter['increase'] && countersAreNotLoadedFromTheServer === false) {
 	          this.increaseCounter(name, counter['count']);
 	        }
-
 	        if (this.shortcuts[name]) {
 	          resultCounters[this.shortcuts[name]] = this.getCounter(name);
 	        } else {
 	          resultCounters[name] = this.getCounter(name);
 	        }
 	      }
-
 	      this.sendCounterUpdateEvent(resultCounters);
 	    }
 	  }, {
@@ -406,11 +352,9 @@
 	      if (counters === undefined) {
 	        counters = this.counters;
 	      }
-
 	      if (counters.length === 0) {
 	        return;
 	      }
-
 	      var event = new main_core_events.BaseEvent({
 	        data: {
 	          counters: counters,
@@ -469,25 +413,20 @@
 	    this.addEventHandlers();
 	    BX.Mail.Client.Message.List[options.id] = this;
 	  }
-
 	  babelHelpers.createClass(List, [{
 	    key: "addEventHandlers",
 	    value: function addEventHandlers() {
 	      var _this = this;
-
 	      // todo delete this hack
 	      // it is here to prevent grid's title changing after filter apply
 	      BX.ajax.UpdatePageData = function () {};
-
 	      main_core_events.EventEmitter.subscribe('onSubMenuShow', function (event) {
 	        var menuItem = event.target;
 	        var container = menuItem.getMenuWindow().getPopupWindow().getPopupContainer();
 	        var id = null;
-
 	        if (container) {
 	          id = BX.data(container, 'grid-row-id');
 	        }
-
 	        BX.data(menuItem.getSubMenu().getPopupWindow().getPopupContainer(), 'grid-row-id', menuItem.gridRowId || id);
 	      });
 	      main_core_events.EventEmitter.subscribe('Mail::directoryChanged', function () {
@@ -507,59 +446,46 @@
 	      });
 	      main_core_events.EventEmitter.subscribe('BX.Main.Menu.Item:onmouseenter', function (event) {
 	        var menuItem = event.target;
-
 	        if (!menuItem.dataset || !menuItem.getMenuWindow()) {
 	          return;
 	        }
-
 	        var menuWindow = menuItem.getMenuWindow();
 	        var subMenuItems = menuWindow.getMenuItems();
 	        var path = menuItem.dataset.path;
 	        var hash = menuItem.dataset.dirMd5;
 	        var hasChild = menuItem.dataset.hasChild;
-
 	        if (!hasChild) {
 	          return;
 	        }
-
 	        for (var i = 0; i < subMenuItems.length; i++) {
 	          var item = subMenuItems[i];
-
 	          if (item.getId() === path) {
 	            var hasSubMenu = item.hasSubMenu();
-
 	            if (hasSubMenu) {
 	              item.showSubMenu();
 	              var subMenu = item.getSubMenu();
 	              var hasLoadingItem = false;
-
 	              if (subMenu) {
 	                var items = subMenu.getMenuItems();
-
 	                for (var k = 0; k < items.length; k++) {
 	                  var subItem = items[k];
-
 	                  if (subItem.getId() === 'loading') {
 	                    hasLoadingItem = true;
 	                  }
 	                }
 	              }
-
 	              if (!hasLoadingItem) {
 	                return;
 	              }
 	            }
-
 	            this.loadLevelMenu(item, hash);
 	          }
 	        }
 	      }.bind(this));
 	      var itemsMenu = document.querySelectorAll('.ical-event-control-menu');
-
 	      for (var i = 0; i < itemsMenu.length; i++) {
 	        itemsMenu[i].addEventListener('click', this.showICalMenuDropdown.bind(this));
 	      }
-
 	      BX.bindDelegate(document.body, 'click', {
 	        className: 'ical-event-control-button'
 	      }, this.onClickICalButton.bind(this));
@@ -569,18 +495,15 @@
 	    value: function loadLevelMenu(menuItem, hash) {
 	      var menu = this.getCache(menuItem.getId());
 	      var popup = BX.Main.PopupManager.getPopupById('menu-popup-popup-submenu-' + menuItem.getId());
-
 	      if (popup) {
 	        popup.destroy();
 	      }
-
 	      if (menu) {
 	        menuItem.destroySubMenu();
 	        menuItem.addSubMenu(menu);
 	        menuItem.showSubMenu();
 	        return;
 	      }
-
 	      var subItem = {
 	        'id': 'loading',
 	        'text': main_core.Loc.getMessage('MAIL_CLIENT_BUTTON_LOADING'),
@@ -601,7 +524,6 @@
 	      }).then(function (response) {
 	        var dirs = response.data.dirs;
 	        var items = [];
-
 	        for (var i = 0; i < dirs.length; i++) {
 	          var hasChild = /(HasChildren)/i.test(dirs[i].FLAGS);
 	          var item = {
@@ -621,15 +543,12 @@
 	          };
 	          items.push(item);
 	        }
-
 	        this.setCache(menuItem.getId(), items);
 	        var popup = BX.Main.PopupManager.getPopupById('menu-popup-popup-submenu-' + menuItem.getId());
 	        var isShown = menuItem.getMenuWindow().getPopupWindow().isShown();
-
 	        if (popup) {
 	          popup.destroy();
 	        }
-
 	        if (isShown) {
 	          menuItem.destroySubMenu();
 	          menuItem.addSubMenu(items);
@@ -642,37 +561,28 @@
 	    value: function onCrmClick(id) {
 	      var selected = this.getGridInstance().getRows().getSelected();
 	      var row = id ? this.getGridInstance().getRows().getById(id) : selected[0];
-
 	      if (!(row && row.node)) {
 	        return;
 	      }
-
 	      var addToCrm = this.userInterfaceManager.isAddToCrmActionAvailable(row.node);
 	      var messageIdNode = row.node.querySelector('[data-message-id]');
-
 	      if (!(messageIdNode.dataset && messageIdNode.dataset.messageId)) {
 	        return;
 	      }
-
 	      if (id === undefined) {
 	        this.resetGridSelection();
 	      }
-
 	      if (addToCrm) {
 	        var crmBtnInRow = row.node.querySelector('.mail-binding-crm.mail-ui-not-active');
-
 	        if (crmBtnInRow) {
 	          crmBtnInRow.startWait();
 	        }
-
 	        if (babelHelpers["typeof"](this.isAddingToCrmInProgress) !== "object") {
 	          this.isAddingToCrmInProgress = {};
 	        }
-
 	        if (this.isAddingToCrmInProgress[id] === true) {
 	          return;
 	        }
-
 	        this.isAddingToCrmInProgress[id] = true;
 	        BX.ajax.runComponentAction('bitrix:mail.client', 'createCrmActivity', {
 	          mode: 'ajax',
@@ -690,9 +600,7 @@
 	          if (crmBtnInRow) {
 	            crmBtnInRow.stopWait();
 	          }
-
 	          this.isAddingToCrmInProgress[id] = false;
-
 	          if (json.errors && json.errors.length > 0) {
 	            this.notify(json.errors.map(function (item) {
 	              return item.message;
@@ -716,9 +624,7 @@
 	          this.notify(main_core.Loc.getMessage('MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM'));
 	        }.bind(this, messageIdNode));
 	      }
-
 	      var selectedIds = this.getGridInstance().getRows().getSelectedIds();
-
 	      if (selectedIds.length === 1 && selectedIds[0] === id) {
 	        this.resetGridSelection();
 	      }
@@ -728,9 +634,8 @@
 	    value: function onViewClick(id) {
 	      if (id === undefined && this.getGridInstance().getRows().getSelectedIds().length === 0) {
 	        return;
-	      } // @TODO: path
-
-
+	      }
+	      // @TODO: path
 	      BX.SidePanel.Instance.open("/mail/message/" + id, {
 	        width: 1080,
 	        loader: 'view-mail-loader'
@@ -748,16 +653,13 @@
 	    key: "onDeleteClick",
 	    value: function onDeleteClick(id, additionalOptions) {
 	      var selected = this.getGridInstance().getRows().getSelected();
-
 	      if (id === undefined && selected.length === 0) {
 	        return;
 	      }
-
 	      if (!this.canDelete) {
 	        this.showDirsSlider();
 	        return;
 	      }
-
 	      var options = {
 	        params: additionalOptions !== undefined ? additionalOptions : {},
 	        keepRows: true,
@@ -767,23 +669,19 @@
 	        }
 	      };
 	      var selectedIds;
-
 	      if (id === undefined) {
 	        selectedIds = BX.Mail.Home.Grid.getSelectedIds();
 	      } else {
 	        selectedIds = [id];
 	      }
-
 	      selectedIds = this.filterRowsByClassName(this.disabledClassName, selectedIds, true);
 	      options.ids = selectedIds;
-
 	      if (this.userInterfaceManager.isCurrentFolderTrash || additionalOptions !== undefined && additionalOptions['deleteImmediately']) {
 	        var confirmPopup = this.getConfirmDeletePopup(options);
 	        confirmPopup.show();
 	      } else {
 	        BX.Mail.Home.Grid.hideRowByIds(selectedIds);
 	        var unseenRowsIdsCount = this.filterRowsByClassName('mail-msg-list-cell-unseen', selectedIds).length;
-
 	        if (this.getCurrentFolder() !== '') {
 	          BX.Mail.Home.Counters.updateCounters([{
 	            name: this.getCurrentFolder(),
@@ -791,11 +689,9 @@
 	            count: unseenRowsIdsCount
 	          }]);
 	        }
-
 	        this.runAction('delete', options, function () {
 	          return BX.Mail.Home.Grid.reloadTable();
 	        });
-
 	        if (id === undefined) {
 	          this.resetGridSelection();
 	        }
@@ -807,48 +703,38 @@
 	      var folderOptions = event.currentTarget.dataset;
 	      var toFolderByPath = folderOptions.path;
 	      var toFolderByName = toFolderByPath;
-
 	      if (toFolderByPath === this.getCurrentFolder()) {
 	        this.notify(main_core.Loc.getMessage('MESSAGES_ALREADY_EXIST_IN_FOLDER'));
 	        return;
 	      }
-
 	      var id = undefined;
 	      var popupSubmenu = BX.findParent(event.currentTarget, {
 	        className: 'popup-window'
 	      });
-
 	      if (popupSubmenu) {
 	        id = BX.data(popupSubmenu, 'grid-row-id');
 	      }
-
 	      var isDisabled = JSON.parse(folderOptions.isDisabled);
-
 	      if (id === undefined && this.getGridInstance().getRows().getSelectedIds().length === 0 || isDisabled) {
 	        return;
 	      }
-
 	      var selected = this.getGridInstance().getRows().getSelected();
 	      var idsForMoving = id ? [id] : this.getGridInstance().getRows().getSelectedIds();
 	      idsForMoving = this.filterRowsByClassName(this.disabledClassName, idsForMoving, true);
-
 	      if (!idsForMoving.length) {
 	        return;
-	      } // to hide the context menu
+	      }
 
-
+	      // to hide the context menu
 	      BX.onCustomEvent('Grid::updated');
 	      var selectedIds;
-
 	      if (id === undefined) {
 	        selectedIds = BX.Mail.Home.Grid.getSelectedIds();
 	      } else {
 	        selectedIds = [id];
 	      }
-
 	      BX.Mail.Home.Grid.hideRowByIds(selectedIds);
 	      var unseenRowsIdsCount = this.filterRowsByClassName('mail-msg-list-cell-unseen', selectedIds).length;
-
 	      if (this.getCurrentFolder() !== '') {
 	        BX.Mail.Home.Counters.updateCounters([{
 	          name: toFolderByName,
@@ -860,7 +746,6 @@
 	          count: unseenRowsIdsCount
 	        }]);
 	      }
-
 	      this.runAction('moveToFolder', {
 	        keepRows: true,
 	        ids: idsForMoving,
@@ -874,7 +759,6 @@
 	      }, function () {
 	        BX.Mail.Home.Grid.reloadTable();
 	      });
-
 	      if (id === undefined) {
 	        this.resetGridSelection();
 	      }
@@ -884,13 +768,11 @@
 	    value: function onReadClick(id) {
 	      var selected = [];
 	      var resultIds = [];
-
 	      if (id === undefined) {
 	        selected = this.getGridInstance().getRows().getSelected();
 	        resultIds = this.getGridInstance().getRows().getSelectedIds();
 	      } else {
 	        var selectedIds = this.getGridInstance().getRows().getSelectedIds();
-
 	        if (selectedIds.length === 1 && selectedIds[0] === id) {
 	          /*if the action is non-group, but one cell is selected,
 	          then the action was performed through the "Action panel"
@@ -902,19 +784,15 @@
 	          resultIds = [id];
 	        }
 	      }
-
 	      if (id === undefined && selected.length === 0) {
 	        return;
 	      }
-
 	      var actionName = 'all' == id || this.isSelectedRowsHaveClass('mail-msg-list-cell-unseen', id) ? 'markAsSeen' : 'markAsUnseen';
 	      resultIds = this.filterRowsByClassName('mail-msg-list-cell-unseen', resultIds, actionName !== 'markAsSeen');
 	      resultIds = this.filterRowsByClassName(this.disabledClassName, resultIds, true);
-
 	      if (!resultIds.length) {
 	        return;
 	      }
-
 	      var handler = function handler() {
 	        this.userInterfaceManager.onMessagesRead(resultIds, {
 	          action: actionName
@@ -922,13 +800,11 @@
 	        var currentFolder = this.getCurrentFolder();
 	        var oldMessagesCount = actionName !== 'markAsSeen' ? this.isSelectedRowsHaveClass('mail-msg-list-cell-old') : 0;
 	        var countMessages = resultIds.length - oldMessagesCount;
-
 	        if (this.getCurrentFolder() !== '') {
 	          if (actionName === 'markAsSeen') {
 	            if ('all' === id) {
 	              countMessages = BX.Mail.Home.Counters.getCounter(currentFolder) - oldMessagesCount;
 	            }
-
 	            BX.Mail.Home.Counters.updateCounters([{
 	              name: currentFolder,
 	              lower: true,
@@ -942,15 +818,12 @@
 	            }]);
 	          }
 	        }
-
 	        if (id === undefined) {
 	          this.resetGridSelection();
 	        }
-
 	        if ('all' == id) {
 	          resultIds['for_all'] = this.mailboxId + '-' + this.userInterfaceManager.getCurrentFolder();
 	        }
-
 	        this.userInterfaceManager.updateUnreadCounters();
 	        this.runAction(actionName, {
 	          ids: resultIds,
@@ -966,31 +839,25 @@
 	        });
 	        return true;
 	      };
-
 	      handler.apply(this);
 	    }
 	  }, {
 	    key: "onSpamClick",
 	    value: function onSpamClick(id) {
 	      var selected = this.getGridInstance().getRows().getSelected();
-
 	      if (id === undefined && selected.length === 0) {
 	        return;
 	      }
-
 	      if (!this.canMarkSpam) {
 	        this.showDirsSlider();
 	        return;
 	      }
-
 	      var actionName = this.isSelectedRowsHaveClass('js-spam', id) ? 'restoreFromSpam' : 'markAsSpam';
 	      var resultIds = this.filterRowsByClassName('js-spam', id, actionName !== 'restoreFromSpam');
 	      resultIds = this.filterRowsByClassName(this.disabledClassName, resultIds, true);
-
 	      if (!resultIds.length) {
 	        return;
 	      }
-
 	      var options = {
 	        keepRows: true,
 	        analyticsLabel: {
@@ -999,17 +866,14 @@
 	        }
 	      };
 	      var selectedIds;
-
 	      if (id === undefined) {
 	        selectedIds = BX.Mail.Home.Grid.getSelectedIds();
 	      } else {
 	        selectedIds = [id];
 	      }
-
 	      options.ids = selectedIds;
 	      BX.Mail.Home.Grid.hideRowByIds(selectedIds);
 	      var unseenRowsIdsCount = this.filterRowsByClassName('mail-msg-list-cell-unseen', selectedIds).length;
-
 	      if (this.getCurrentFolder() !== '') {
 	        if (actionName === 'markAsSpam') {
 	          BX.Mail.Home.Counters.updateCounters([{
@@ -1033,11 +897,9 @@
 	          }]);
 	        }
 	      }
-
 	      this.runAction(actionName, options, function () {
 	        return BX.Mail.Home.Grid.reloadTable();
 	      });
-
 	      if (id === undefined) {
 	        this.resetGridSelection();
 	      }
@@ -1083,35 +945,28 @@
 	    key: "isSelectedRowsHaveClass",
 	    value: function isSelectedRowsHaveClass(className, id) {
 	      var selectedIds;
-
 	      if (id === undefined) {
 	        selectedIds = this.getGridInstance().getRows().getSelectedIds();
 	      } else {
 	        selectedIds = [id];
 	      }
-
 	      var ids = selectedIds.length ? selectedIds : id ? [id] : [];
 	      var selectedLinesWithClassNumber = 0;
-
 	      for (var i = 0; i < ids.length; i++) {
 	        var row = this.getGridInstance().getRows().getById(ids[i]);
-
 	        if (row && row.node) {
 	          var columns = row.node.getElementsByClassName(className);
-
 	          if (columns && columns.length) {
 	            selectedLinesWithClassNumber++;
 	          }
 	        }
 	      }
-
 	      return selectedLinesWithClassNumber;
 	    }
 	  }, {
 	    key: "filterRowsByClassName",
 	    value: function filterRowsByClassName(className, ids, isReversed) {
 	      var resIds = [];
-
 	      if ('all' == ids) {
 	        resIds = this.getGridInstance().getRows().getBodyChild().map(function (current) {
 	          return current.getId();
@@ -1122,15 +977,11 @@
 	        var selectedIds = this.getGridInstance().getRows().getSelectedIds();
 	        resIds = selectedIds.length ? selectedIds : ids ? [ids] : [];
 	      }
-
 	      var resultIds = [];
-
 	      for (var i = resIds.length - 1; i >= 0; i--) {
 	        var row = this.getGridInstance().getRows().getById(resIds[i]);
-
 	        if (row && row.node) {
 	          var columns = row.node.getElementsByClassName(className);
-
 	          if (!isReversed && columns && columns.length) {
 	            resultIds.push(resIds[i]);
 	          } else if (isReversed && !(columns && columns.length)) {
@@ -1138,7 +989,6 @@
 	          }
 	        }
 	      }
-
 	      return resultIds;
 	    }
 	  }, {
@@ -1168,36 +1018,28 @@
 	    value: function runAction(actionName, options, actionOnSuccess) {
 	      options = options ? options : {};
 	      var selectedIds = [];
-
 	      if (options.ids) {
 	        selectedIds = options.ids;
 	      }
-
 	      if (!selectedIds.length && !selectedIds.for_all) {
 	        return;
 	      }
-
 	      if (!options.keepRows) {
 	        this.getGridInstance().tableFade();
 	      }
-
 	      var data = {
 	        ids: selectedIds
 	      };
-
 	      if (options.params) {
 	        var optionsKeys = Object.keys(Object(options.params));
-
 	        for (var nextIndex = 0, len = optionsKeys.length; nextIndex < len; nextIndex++) {
 	          var nextKey = optionsKeys[nextIndex];
 	          var desc = Object.getOwnPropertyDescriptor(options.params, nextKey);
-
 	          if (desc !== undefined && desc.enumerable) {
 	            data[nextKey] = options.params[nextKey];
 	          }
 	        }
 	      }
-
 	      BX.ajax.runComponentAction('bitrix:mail.client', actionName, {
 	        mode: 'ajax',
 	        data: data,
@@ -1206,14 +1048,11 @@
 	        if (options.onSuccess === false) {
 	          return;
 	        }
-
 	        this.updateCountersFromBackend();
-
 	        if (options.onSuccess && typeof options.onSuccess === "function") {
 	          options.onSuccess.bind(this, selectedIds, options.successParams)();
 	          return;
 	        }
-
 	        if (actionOnSuccess === undefined) {
 	          this.notify();
 	        } else {
@@ -1240,7 +1079,6 @@
 	        if (errors[i].code === this.ERROR_CODE_CAN_NOT_DELETE) {
 	          this.canDelete = false;
 	        }
-
 	        if (errors[i].code === this.ERROR_CODE_CAN_NOT_MARK_SPAM) {
 	          this.canMarkSpam = false;
 	        }
@@ -1280,7 +1118,6 @@
 	        if (!row || !row.node) {
 	          return null;
 	        }
-
 	        return Array.prototype.map.call(row.node.querySelectorAll('[class^="js-bind-"] [data-type]'), function (node) {
 	          return node.dataset.type;
 	        });
@@ -1292,7 +1129,6 @@
 	      if (!key) {
 	        return;
 	      }
-
 	      return this.cache[key] ? this.cache[key] : null;
 	    }
 	  }, {
@@ -1306,11 +1142,9 @@
 	      event.stopPropagation();
 	      event.preventDefault();
 	      var menu = event.currentTarget.dataset.menu;
-
 	      if (!menu) {
 	        return;
 	      }
-
 	      this.iCalMenuDropdown = BX.Main.MenuManager.create({
 	        id: 'mail-client-message-list-ical-dropdown-menu',
 	        autoHide: true,
@@ -1381,9 +1215,8 @@
 	var namespaceMailHome = main_core.Reflection.namespace('BX.Mail.Home');
 	main_core_events.EventEmitter.subscribe('SidePanel.Slider:onMessage', function (event) {
 	  var _event$getCompatData = event.getCompatData(),
-	      _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
-	      messageEvent = _event$getCompatData2[0];
-
+	    _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
+	    messageEvent = _event$getCompatData2[0];
 	  if (messageEvent.getEventId() === 'mail-mailbox-config-success') {
 	    BXMailMailbox.sync(namespaceMailHome.ProgressBar, namespaceMailHome.Grid.getId(), false, true);
 	  }
@@ -1408,18 +1241,16 @@
 	  syncButtonWrapper.append(syncButton.getContainer());
 	  main_core_events.EventEmitter.subscribe('BX.Main.Grid:onBeforeReload', function (event) {
 	    var _event$getCompatData3 = event.getCompatData(),
-	        _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
-	        grid = _event$getCompatData4[0];
-
+	      _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
+	      grid = _event$getCompatData4[0];
 	    if (grid !== {} && grid !== undefined && main_core.Loc.getMessage("MAIL_MESSAGE_GRID_ID") === grid.getId()) {
 	      selectedIdsForRecovery = grid.getRows().getSelectedIds();
 	    }
 	  });
 	  main_core_events.EventEmitter.subscribe('Grid::updated', function (event) {
 	    var _event$getCompatData5 = event.getCompatData(),
-	        _event$getCompatData6 = babelHelpers.slicedToArray(_event$getCompatData5, 1),
-	        grid = _event$getCompatData6[0];
-
+	      _event$getCompatData6 = babelHelpers.slicedToArray(_event$getCompatData5, 1),
+	      grid = _event$getCompatData6[0];
 	    if (grid !== {} && grid !== undefined && main_core.Loc.getMessage("MAIL_MESSAGE_GRID_ID") === grid.getId()) {
 	      var rowsWereSelected = false;
 	      namespaceMailHome.Grid.getRows().map(function (row) {
@@ -1431,7 +1262,6 @@
 	        }
 	      });
 	      selectedIdsForRecovery = {};
-
 	      if (rowsWereSelected) {
 	        setTimeout(function () {
 	          main_core_events.EventEmitter.emit(window, 'Grid::thereSelectedRows');
@@ -1457,7 +1287,7 @@
 	BX.ready(function () {
 	  namespaceMailHome.Counters = new Counters('dirs', main_core.Loc.getMessage("DEFAULT_DIR"));
 	  namespaceMailHome.mailboxCounters = new Counters('mailboxCounters');
-	  namespaceMailHome.Grid = new mail_messagegrid.MessageGrid();
+	  namespaceMailHome.Grid = new mail_messagegrid.MessageGrid(main_core.Loc.getMessage("MAILBOX_IS_SYNC_AVAILABILITY"));
 	});
 	namespaceMailHome.LeftMenu = LeftMenu;
 	var namespaceClientMessage = main_core.Reflection.namespace('BX.Mail.Client.Message');

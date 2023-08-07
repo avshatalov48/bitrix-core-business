@@ -44,9 +44,12 @@ class im extends CModule
 	function InstallDB()
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 
-		if(!$DB->Query("SELECT 'x' FROM b_im_chat", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/im/install/db/mysql/install.sql");
+		if (!$DB->TableExists('b_im_chat'))
+		{
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/im/install/db/' . $connection->getType() . '/install.sql');
+		}
 
 		if(!empty($this->errors))
 		{
@@ -88,6 +91,7 @@ class im extends CModule
 		CAgent::AddAgent('\Bitrix\Im\Message\Uuid::cleanOldRecords();', 'im', 'N', 86400);/** @see \Bitrix\Im\Message\Uuid::cleanOldRecords */
 		CAgent::AddAgent('\Bitrix\Im\V2\Link\Reminder\ReminderService::remindAgent();', 'im', 'N', 60);
 		CAgent::AddAgent('\Bitrix\Im\V2\Link\File\TemporaryFileService::cleanAgent();', 'im', 'N', 3600);
+		CAgent::AddAgent('\Bitrix\Im\Update\MessageDisappearing::disappearMessagesAgent();', 'im', 'N', 60);
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 		$eventManager->registerEventHandler('pull', 'onGetMobileCounter', 'im', '\Bitrix\Im\Counter', 'onGetMobileCounter');
@@ -98,6 +102,7 @@ class im extends CModule
 
 		$eventManager->registerEventHandler('calendar', 'OnAfterCalendarEntryUpdate', 'im', '\Bitrix\Im\V2\Service\Messenger', 'updateCalendar');
 		$eventManager->registerEventHandler('calendar', 'OnAfterCalendarEventDelete', 'im', '\Bitrix\Im\V2\Service\Messenger', 'unregisterCalendar');
+		$eventManager->registerEventHandler('im', 'OnAfterMessagesAdd', 'im', '\Bitrix\Im\V2\Message\Delete\DisappearService', 'checkDisappearing');
 
 		//marketplace
 		$eventManager->registerEventHandler('rest', 'OnRestServiceBuildDescription', 'im','\Bitrix\Im\V2\Marketplace\Placement', 'onRestServiceBuildDescription');
@@ -117,7 +122,7 @@ class im extends CModule
 
 		\Bitrix\Im\Integration\Intranet\User::registerEventHandler();
 
-		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/im/install/db/mysql/install_ft.sql");
+		$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/im/install/db/' . $connection->getType() . '/install_ft.sql');
 		if ($errors === false)
 		{
 			\Bitrix\Im\Model\MessageIndexTable::getEntity()->enableFullTextIndex("SEARCH_CONTENT");
@@ -407,14 +412,14 @@ class im extends CModule
 	function UnInstallDB($arParams = Array())
 	{
 		global $APPLICATION, $DB, $errors;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		CModule::IncludeModule('im');
 
 		if (!$arParams['savedata'])
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/im/install/db/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/im/install/db/' . $connection->getType() . '/uninstall.sql');
 			COption::RemoveOption("im", "general_chat_id");
 			\Bitrix\Main\Config\Option::delete('im', ['name' => \Bitrix\Im\Configuration\Configuration::DEFAULT_PRESET_SETTING_NAME]);
 		}
@@ -443,6 +448,7 @@ class im extends CModule
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Message\\Uuid::cleanOldRecords();", "im");
 		CAgent::RemoveAgent('\Bitrix\Im\V2\Link\Reminder\ReminderService::remindAgent();', 'im');
 		CAgent::RemoveAgent('\Bitrix\Im\V2\Link\File\TemporaryFileService::cleanAgent();', 'im');
+		CAgent::RemoveAgent('\Bitrix\Im\Update\MessageDisappearing::disappearMessagesAgent();', 'im');
 		UnRegisterModuleDependences("im", "OnGetNotifySchema", "im", "CIMNotifySchema", "OnGetNotifySchema");
 		UnRegisterModuleDependences("main", "OnFileDelete", "im", "CIMEvent", "OnFileDelete");
 		UnRegisterModuleDependences("disk", "onAfterDeleteFile", "im", "CIMDisk", "OnAfterDeleteFile");
@@ -474,6 +480,7 @@ class im extends CModule
 		$eventManager->unregisterEventHandler('calendar', 'OnAfterCalendarEntryUpdate', 'im', '\Bitrix\Im\V2\Service\Messenger', 'updateCalendar');
 		$eventManager->unregisterEventHandler('calendar', 'OnAfterCalendarEventDelete', 'im', '\Bitrix\Im\V2\Service\Messenger', 'unregisterCalendar');
 		$eventManager->unregisterEventHandler('rest', 'OnRestServiceBuildDescription', 'im','\Bitrix\Im\V2\Marketplace\Placement', 'onRestServiceBuildDescription');
+		$eventManager->unregisterEventHandler('im', 'OnAfterMessagesAdd', 'im', '\Bitrix\Im\V2\Message\Delete\DisappearService', 'checkDisappearing');
 
 		$this->UnInstallUserFields($arParams);
 

@@ -44,7 +44,7 @@ elseif(!IsModuleInstalled("intranet"))
 }
 if($arParams['CAN_EDIT']): ?>
 <div class="pagetitle-container pagetitle-align-right-container">
-	<a href="<?= $arResult["LIST_EDIT_URL"] ?>" class="ui-btn ui-btn-success" title="<?/*= $title */?>"><?= GetMessage("CT_BLL_TOOLBAR_ADD_NEW") ?></a>
+	<a href="<?= $arResult["LIST_EDIT_URL"] ?>" target="_top" class="ui-btn ui-btn-success" title="<?/*= $title */?>"><?= GetMessage("CT_BLL_TOOLBAR_ADD_NEW") ?></a>
 	<? if($claim && $arParams['CAN_EDIT']): ?>
 		<a class="ui-btn ui-btn-light-border ui-btn-themes" href="<?= $arParams["CATALOG_PROCESSES_URL"] ?>" title="<?= GetMessage("CT_BLL_TOOLBAR_TRANSITION_PROCESSES") ?>">
 			<?= GetMessage("CT_BLL_TOOLBAR_TRANSITION_PROCESSES") ?>

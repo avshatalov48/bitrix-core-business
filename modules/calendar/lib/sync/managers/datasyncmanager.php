@@ -1007,7 +1007,7 @@ class DataSyncManager
 	 *
 	 * @throws LoaderException
 	 */
-	private function noticeUser(array $syncEvent, string $messageCode = '')
+	private function noticeUser(array $syncEvent, string $messageCode = ''): void
 	{
 		$userId = $syncEvent['EVENT_OWNER_ID'] ?? $syncEvent['MEETING']['MEETING_CREATOR'] ?? null;
 
@@ -1522,7 +1522,7 @@ class DataSyncManager
 		{
 			$fields['DT_LENGTH'] = (int)$fields['PROPERTY_EVENT_LENGTH'];
 		}
-		elseif(isset($event['DT_TO_TS']) && isset($event['DT_FROM_TS']))
+		else if (isset($event['DT_TO_TS'], $event['DT_FROM_TS']))
 		{
 			$fields['DT_LENGTH'] = $event['DT_TO_TS'] - $event['DT_FROM_TS'];
 		}

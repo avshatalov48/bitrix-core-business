@@ -634,7 +634,7 @@ class DocumentBase
 			{
 				case 'datetime':
 					$date = str_replace("T", " ", $value);
-					$value = new Type\DateTime(\CAllDatabase::FormatDate($date, "YYYY-MM-DD HH:MI:SS", \CAllSite::GetDateFormat("FULL", LANG)));
+					$value = new Type\DateTime(\CDatabase::FormatDate($date, "YYYY-MM-DD HH:MI:SS", \CSite::GetDateFormat("FULL", LANG)));
 					break;
 				case 'bool':
 					$value = $value == "true" ? 'Y':'N';

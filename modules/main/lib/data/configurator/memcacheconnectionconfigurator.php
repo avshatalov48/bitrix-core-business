@@ -67,6 +67,8 @@ class MemcacheConnectionConfigurator
 
 		$connectionTimeout = $this->getConfig()['connectionTimeout'] ?? 1;
 		$connection = new \Memcache();
+
+		$result = false;
 		if (count($this->servers) === 1)
 		{
 			['host' => $host, 'port' => $port] = $this->servers[0];
@@ -76,13 +78,18 @@ class MemcacheConnectionConfigurator
 		{
 			foreach ($this->servers as $server)
 			{
-				$result = $connection->addServer(
+				$success = $connection->addServer(
 					$server['host'],
 					$server['port'],
 					true,
 					$server['weight'],
 					$connectionTimeout
 				);
+
+				if ($success)
+				{
+					$result = $success;
+				}
 			}
 		}
 

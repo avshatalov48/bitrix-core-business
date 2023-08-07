@@ -107,6 +107,25 @@ class TaskService
 		return new Result();
 	}
 
+	public function updateTaskLink(TaskItem $taskItem): Result
+	{
+		$result = new Result();
+
+		$saveResult = $taskItem->save();
+
+		if (!$saveResult->isSuccess())
+		{
+			return $result->addErrors($saveResult->getErrors());
+		}
+
+		Push::getInstance()
+			->setContext($this->context)
+			->sendFull($taskItem, self::UPDATE_TASK_EVENT, ['RECIPIENT' => $taskItem->getEntity()->getMembersIds()])
+		;
+
+		return $result;
+	}
+
 	public function deleteLinkByTaskId(int $taskId): Result
 	{
 		LinkTaskTable::deleteByFilter(['=TASK_ID' => $taskId]);
@@ -136,27 +155,21 @@ class TaskService
 		) . 'tasks/task/edit/0/';
 
 		$chatTypeModifier = ($chat->getType() === \IM_MESSAGE_PRIVATE) ? 'PRIVATE_' : '';
+		$locVersion = ($chat->getType() === \IM_MESSAGE_PRIVATE) ? '_MSGVER_1' : '';
 		$from = isset($message) ? 'MESSAGE' : 'CHAT';
 		$from = $chatTypeModifier . $from;
 
 		$data['PARAMS']['TITLE'] = Loc::getMessage(
-			"IM_CHAT_TASK_SERVICE_FROM_{$from}_NEW_TITLE",
-			["#CHAT_TITLE#" => $chat->getTitle()]
+			"IM_CHAT_TASK_SERVICE_FROM_{$from}_NEW_TITLE{$locVersion}",
+			["#CHAT_TITLE#" => $chat->getDisplayedTitle()]
 		);
-
 		$data['PARAMS']['RESPONSIBLE_ID'] = $userId;
-
-		$userIds = $chat->getRelations(
-			[
-				'SELECT' => ['ID', 'USER_ID', 'CHAT_ID'],
-				'FILTER' => ['ACTIVE' => true, 'ONLY_INTERNAL_TYPE' => true],
-				'LIMIT' => 50,
-			]
-		)->getUsers()->filterExtranet()->getIds();
-		unset($userIds[$userId]);
-		$data['PARAMS']['AUDITORS'] = implode(",", $userIds);
-
 		$data['PARAMS']['IM_CHAT_ID'] = $chat->getChatId();
+
+		if ($chat->getEntityType() !== 'SONET_GROUP')
+		{
+			$data['PARAMS']['AUDITORS'] = implode(",", $this->getAuditors($chat));
+		}
 
 		if ($chat->getEntityType() === 'SONET_GROUP')
 		{
@@ -248,21 +261,18 @@ class TaskService
 		return $newIds;
 	}
 
-	protected function getFilesIdsByNewFilesIds(array $newIds): array
+	protected function getAuditors(Chat $chat): array
 	{
-		$fileIdList = array_map(static function($value) {
-			return (
-			preg_match('/^' . FileUserType::NEW_FILE_PREFIX . '(\d+)$/i', $value, $matches)
-				? (int)$matches[1]
-				: 0
-			);
-		}, $newIds);
-		$fileIdList = array_filter($fileIdList, static function($value) {
-			return ($value > 0);
-		});
-		$fileIdList = array_unique($fileIdList);
+		$userIds = $chat->getRelations(
+			[
+				'SELECT' => ['ID', 'USER_ID', 'CHAT_ID'],
+				'FILTER' => ['ACTIVE' => true, 'ONLY_INTERNAL_TYPE' => true],
+				'LIMIT' => 50,
+			]
+		)->getUsers()->filterExtranet()->getIds();
+		unset($userIds[$this->getContext()->getUserId()]);
 
-		return $fileIdList;
+		return $userIds;
 	}
 
 	protected function getFilesForPrepareText(Message $message): array
@@ -298,7 +308,7 @@ class TaskService
 			return $text;
 		}
 		return Loc::getMessage(
-			'IM_CHAT_TASK_REGISTER_FROM_CHAT_NOTIFICATION' . $genderModifier,
+			'IM_CHAT_TASK_REGISTER_FROM_CHAT_NOTIFICATION' . $genderModifier . '_MSGVER_1',
 			[
 				'#LINK#' => $task->getEntity()->getUrl(),
 				'#USER_ID#' => $this->getContext()->getUserId(),

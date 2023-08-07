@@ -1,12 +1,12 @@
-import {Loc} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Loc } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
-import {Core} from 'im.v2.application.core';
-import {EventType, DialogType} from 'im.v2.const';
-import {DateFormatter, DateTemplate} from 'im.v2.lib.date-formatter';
-import {Parser} from 'im.v2.lib.parser';
+import { Core } from 'im.v2.application.core';
+import { EventType, DialogType } from 'im.v2.const';
+import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
+import { Parser } from 'im.v2.lib.parser';
 
-import type {ImModelMessage, ImModelUser, ImModelDialog} from 'im.v2.model';
+import type { ImModelMessage, ImModelUser, ImModelDialog } from 'im.v2.model';
 
 const QUOTE_DELIMITER = '-'.repeat(54);
 
@@ -15,7 +15,7 @@ export const QuoteManager = {
 	{
 		EventEmitter.emit(EventType.textarea.insertText, {
 			text: this.prepareQuoteText(message),
-			withNewLine: true
+			withNewLine: true,
 		});
 	},
 	prepareQuoteText(message: ImModelMessage): string
@@ -46,5 +46,5 @@ export const QuoteManager = {
 			+ `${quoteText}\n`
 			+ `${QUOTE_DELIMITER}\n`
 		;
-	}
+	},
 };

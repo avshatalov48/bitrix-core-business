@@ -1279,13 +1279,20 @@ abstract class CAllDBResult
 				$name = $userField['FIELD_NAME'];
 				if ($userField['MULTIPLE'] === 'Y')
 				{
-					if (mb_substr($res[$name], 0, 1) !== 'a' && $res[$name] > 0)
+					if ($res[$name] !== null)
 					{
-						$res[$name] = $USER_FIELD_MANAGER->LoadMultipleValues($userField, $res[$name]);
+						if (mb_substr($res[$name], 0, 1) !== 'a' && $res[$name] > 0)
+						{
+							$res[$name] = $USER_FIELD_MANAGER->LoadMultipleValues($userField, $res[$name]);
+						}
+						else
+						{
+							$res[$name] = unserialize($res[$name]);
+						}
 					}
 					else
 					{
-						$res[$name] = unserialize($res[$name]);
+						$res[$name] = false;
 					}
 					$res[$name] = $USER_FIELD_MANAGER->OnAfterFetch($userField, $res[$name]);
 				}

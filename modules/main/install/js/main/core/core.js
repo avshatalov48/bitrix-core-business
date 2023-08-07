@@ -1,3 +1,4 @@
+/* eslint-disable */
 ;(function() {
 
 	if (typeof window.BX === 'function')
@@ -9592,7 +9593,8 @@ window._main_polyfill_core = true;
 	  const {
 	    node,
 	    parentElement,
-	    substitutions
+	    substitutions,
+	    refs = []
 	  } = options;
 	  if (node.type === 'tag') {
 	    const element = (() => {
@@ -9601,6 +9603,10 @@ window._main_polyfill_core = true;
 	      }
 	      return document.createElement(node.name);
 	    })();
+	    if (Object.hasOwn(node.attrs, 'ref')) {
+	      refs.push([node.attrs.ref, element]);
+	      delete node.attrs.ref;
+	    }
 	    Object.entries(node.attrs).forEach(([key, value]) => {
 	      if (key.startsWith('on') && new RegExp(matchers.placeholder).test(value)) {
 	        const substitution = substitutions[parseInt(value.replace(/{{uid|}}/, '')) - 1];
@@ -9629,7 +9635,8 @@ window._main_polyfill_core = true;
 	      const result = renderNode({
 	        node: childNode,
 	        parentElement: element,
-	        substitutions
+	        substitutions,
+	        refs
 	      });
 	      if (Type.isArray(result)) {
 	        result.forEach(subChildElement => {
@@ -9673,18 +9680,30 @@ window._main_polyfill_core = true;
 	  }, sections[0]).replace(/^[\r\n\t\s]+/gm, '').replace(/>[\n]+/g, '>').replace(/[}][\n]+/g, '}');
 	  const ast = parse(html);
 	  if (ast.length === 1) {
-	    return renderNode({
+	    const refs = [];
+	    const renderedNode = renderNode({
 	      node: ast[0],
-	      substitutions
+	      substitutions,
+	      refs
 	    });
+	    if (Type.isArrayFilled(refs)) {
+	      return Object.fromEntries([['root', renderedNode], ...refs]);
+	    }
+	    return renderedNode;
 	  }
 	  if (ast.length > 1) {
-	    return ast.map(node => {
+	    const refs = [];
+	    const renderedNodes = ast.map(node => {
 	      return renderNode({
 	        node,
-	        substitutions
+	        substitutions,
+	        refs
 	      });
 	    });
+	    if (Type.isArrayFilled(refs)) {
+	      return Object.fromEntries([['root', renderedNodes], ...refs]);
+	    }
+	    return renderedNodes;
 	  }
 	  return false;
 	}
@@ -15664,7 +15683,18 @@ BX.ajax = function(config)
 		}
 		else if (getLastContentTypeHeader(config.headers) === 'application/json')
 		{
-			config.data = JSON.stringify(config.data);
+			const isJson = (
+				BX.Type.isPlainObject(config.data)
+				|| BX.Type.isString(config.data)
+				|| BX.Type.isNumber(config.data)
+				|| BX.Type.isBoolean(config.data)
+				|| BX.Type.isArray(config.data)
+			);
+
+			if (isJson)
+			{
+				config.data = JSON.stringify(config.data);
+			}
 		}
 	}
 
@@ -17531,7 +17561,6 @@ BX.ajax.FormData.prototype.send = function(url, callbackOk, callbackProgress, ca
 
 BX.addCustomEvent('onAjaxFailure', BX.debug);
 })(window);
-
 
 
 (function (exports,main_core) {

@@ -700,6 +700,17 @@
 			this.reloadTable('POST', data);
 		},
 
+		sendRowAction: function(action, data)
+		{
+			if(!BX.type.isPlainObject(data))
+			{
+				data = {};
+			}
+
+			data[this.getActionKey()] = action;
+
+			this.reloadTable('POST', data);
+		},
 
 		/**
 		 * @return {?BX.Grid.ActionPanel}

@@ -13,7 +13,7 @@ while ($arr=$rsIBlockType->Fetch())
 }
 
 $arIBlock=array();
-$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
+$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => ($arCurrentValues["IBLOCK_TYPE"] ?? null), "ACTIVE"=>"Y"));
 while($arr=$rsIBlock->Fetch())
 {
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
@@ -26,7 +26,9 @@ while($arUGroups = $dbUGroups -> Fetch())
 	$arUGroupsEx[$arUGroups["ID"]] = $arUGroups["NAME"];
 }
 if (empty($arCurrentValues["INDEX_URL"]) && !empty($arCurrentValues["SECTIONS_TOP_URL"]))
+{
 	$arCurrentValues["INDEX_URL"] = $arCurrentValues["SECTIONS_TOP_URL"];
+}
 
 $arComponentParameters = array(
 	"GROUPS" => array(),

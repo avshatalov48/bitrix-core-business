@@ -176,7 +176,14 @@ class LicensePopupComponent extends CBitrixComponent implements Controllerable, 
 		try
 		{
 			$activationSystem = new ActivationSystem();
-			$result = $activationSystem->activateByHash($key);
+			if ($this->isHashKey($key))
+			{
+				$result = $activationSystem->activateByHash($key);
+			}
+			else
+			{
+				$result = $this->requestToUpdateServer($key);
+			}
 
 			if (!$result->isSuccess())
 			{
@@ -250,5 +257,10 @@ class LicensePopupComponent extends CBitrixComponent implements Controllerable, 
 		{
 			return $kernelMessage;
 		}
+	}
+
+	private function isHashKey($key): bool
+	{
+		return !(base64_decode($key, true) === false);
 	}
 }

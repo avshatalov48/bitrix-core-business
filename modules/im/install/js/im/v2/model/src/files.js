@@ -6,6 +6,7 @@ import {FileStatus} from 'im.v2.const';
 import {Utils} from 'im.v2.lib.utils';
 
 import type {ImModelFile} from 'im.v2.model';
+import {Logger} from 'im.v2.lib.logger';
 
 type FilesState = {
 	collection: {
@@ -127,6 +128,16 @@ export class FilesModel extends BuilderModel
 					fields: this.validate(fields)
 				});
 			},
+			delete: (store, payload: {id: string | number}) =>
+			{
+				const {id} = payload;
+				if (!store.state.collection[id])
+				{
+					return;
+				}
+
+				store.commit('delete', {id});
+			},
 		};
 	}
 
@@ -152,6 +163,12 @@ export class FilesModel extends BuilderModel
 
 				delete state.collection[id];
 				state.collection[fields.id] = {...currentFile, ...fields};
+			},
+			delete: (state: FilesState, payload: {id: number | string}) =>
+			{
+				Logger.warn('Files model: delete mutation', payload);
+				const {id} = payload;
+				delete state.collection[id];
 			},
 		};
 	}

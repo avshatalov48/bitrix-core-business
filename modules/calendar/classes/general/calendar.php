@@ -417,20 +417,20 @@ class CCalendar
 			'bSocNet' => self::$bSocNet,
 			'bExchange' => $bExchangeConnected,
 			'startupEvent' => $startupEvent,
-			'workTime' => array(self::$settings['work_time_start'], self::$settings['work_time_end']), // Decrecated !!
-			'userWorkTime' => array(self::$settings['work_time_start'], self::$settings['work_time_end']),
+			'workTime' => [self::$settings['work_time_start'], self::$settings['work_time_end']], // Decrecated !!
+			'userWorkTime' => [self::$settings['work_time_start'], self::$settings['work_time_end']],
 			'meetingRooms' => Rooms\IBlockMeetingRoom::getMeetingRoomList([
 				'RMiblockId' => self::$settings['rm_iblock_id'],
 				'pathToMR' => self::$pathesForSite['path_to_rm'],
 			]),
 			'allowResMeeting' => self::$allowReserveMeeting,
 			'bAMPM' => self::$bAMPM,
-			'WDControllerCID' => 'UFWD'.$id,
+			'WDControllerCID' => 'UFWD' . $id,
 			'userTimezoneOffsetUTC' => $userTimezoneOffsetUTC,
 			'userTimezoneName' => $userTimezoneName,
 			'userTimezoneDefault' => $userTimezoneDefault,
 			'sectionCustomization' => UserSettings::getSectionCustomization(self::$userId),
-			'locationFeatureEnabled' => Bitrix24Manager::isFeatureEnabled("calendar_location"),
+			'locationFeatureEnabled' => Bitrix24Manager::isFeatureEnabled('calendar_location'),
 			'plannerFeatureEnabled' => Bitrix24Manager::isPlannerFeatureEnabled(),
 			'isSharingFeatureEnabled' => \Bitrix\Calendar\Sharing\SharingFeature::isEnabled(),
 			'payAttentionToNewSharingFeature' => \Bitrix\Calendar\Sharing\Helper::payAttentionToNewSharingFeature(),
@@ -438,6 +438,9 @@ class CCalendar
 			'countEventWithEmailGuestAmount'=> Bitrix24Manager::getCountEventWithEmailGuestAmount(),
 			'showAfterSyncAccent' => isset($_GET['googleAuthSuccess']) && $_GET['googleAuthSuccess'] === 'y',
 			'isExtranetUser' => $isExtranetUser,
+			'sharingFeatureLimitEnable' => Bitrix24Manager::isFeatureEnabled('calendar_sharing'),
+			'isGoogleApplicationRefused' => COption::GetOptionString('calendar', 'isGoogleApplicationRefused', 'N'),
+			'showGoogleApplicationRefused' => CUserOptions::getOption('calendar', 'showGoogleApplicationRefused', 'Y'),
 		);
 
 		if (self::$type === 'user' && (int)self::$userId !== (int)self::$ownerId)

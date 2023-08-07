@@ -44,6 +44,16 @@ final class State
 			return false;
 		}
 
+		return self::isEnabledInventoryManagement();
+	}
+
+	/**
+	 * Returns true if warehouse inventory management is enabled, without feature check.
+	 *
+	 * @return bool
+	 */
+	public final static function isEnabledInventoryManagement(): bool
+	{
 		return (Main\Config\Option::get('catalog', 'default_use_store_control') === 'Y');
 	}
 

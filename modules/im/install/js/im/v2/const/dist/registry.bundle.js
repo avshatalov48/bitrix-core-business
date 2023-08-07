@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -46,6 +47,33 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	});
 
 	const RestMethod = Object.freeze({
+	  imV2ChatLoad: 'im.v2.Chat.load',
+	  imV2ChatGetDialogId: 'im.v2.Chat.getDialogId',
+	  imV2ChatShallowLoad: 'im.v2.Chat.shallowLoad',
+	  imV2ChatLoadInContext: 'im.v2.Chat.loadInContext',
+	  imV2ChatLoadContext: 'im.v2.Chat.loadInContext',
+	  imV2ChatAdd: 'im.v2.Chat.add',
+	  imV2ChatRead: 'im.v2.Chat.read',
+	  imV2ChatReadAll: 'im.v2.Chat.readAll',
+	  imV2ChatUnread: 'im.v2.Chat.unread',
+	  imV2ChatMessageGetContext: 'im.v2.Chat.Message.getContext',
+	  imV2ChatMessageList: 'im.v2.Chat.Message.list',
+	  imV2ChatMessageTail: 'im.v2.Chat.Message.tail',
+	  imV2ChatMessageRead: 'im.v2.Chat.Message.read',
+	  imV2ChatMessageMark: 'im.v2.Chat.Message.mark',
+	  imV2ChatMessageDelete: 'im.v2.Chat.Message.delete',
+	  imV2ChatMessageReactionAdd: 'im.v2.Chat.Message.Reaction.add',
+	  imV2ChatMessageReactionDelete: 'im.v2.Chat.Message.Reaction.delete',
+	  imV2ChatMessageReactionTail: 'im.v2.Chat.Message.Reaction.tail',
+	  imV2ChatMessagePin: 'im.v2.Chat.Message.pin',
+	  imV2ChatMessageUnpin: 'im.v2.Chat.Message.unpin',
+	  imV2ChatMessageTailViewers: 'im.v2.Chat.Message.tailViewers',
+	  imV2ChatPinTail: 'im.v2.Chat.Pin.tail',
+	  imV2SettingsGeneralUpdate: 'im.v2.Settings.General.update',
+	  imV2DesktopLogout: 'im.v2.Desktop.logout',
+	  imV2BetaEnable: 'im.v2.Beta.enable',
+	  imV2BetaDisable: 'im.v2.Beta.disable',
+	  imCallBetaCreateRoom: 'im.call.beta.createRoom',
 	  imMessageAdd: 'im.message.add',
 	  imMessageUpdate: 'im.message.update',
 	  imMessageDelete: 'im.message.delete',
@@ -79,23 +107,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  imChatCalendarDelete: 'im.chat.calendar.delete',
 	  imChatUserDelete: 'im.chat.user.delete',
 	  imChatUserAdd: 'im.chat.user.add',
-	  imV2ChatAdd: 'im.v2.Chat.add',
-	  imV2ChatRead: 'im.v2.Chat.read',
-	  imV2ChatReadAll: 'im.v2.Chat.readAll',
-	  imV2ChatUnread: 'im.v2.Chat.unread',
-	  imV2ChatMessageGetContext: 'im.v2.Chat.Message.getContext',
-	  imV2ChatMessageList: 'im.v2.Chat.Message.list',
-	  imV2ChatMessageTail: 'im.v2.Chat.Message.tail',
-	  imV2ChatMessageRead: 'im.v2.Chat.Message.read',
-	  imV2ChatMessageMark: 'im.v2.Chat.Message.mark',
-	  imV2ChatMessageReactionAdd: 'im.v2.Chat.Message.Reaction.add',
-	  imV2ChatMessageReactionDelete: 'im.v2.Chat.Message.Reaction.delete',
-	  imV2ChatMessageReactionTail: 'im.v2.Chat.Message.Reaction.tail',
-	  imV2ChatMessagePin: 'im.v2.Chat.Message.pin',
-	  imV2ChatMessageUnpin: 'im.v2.Chat.Message.unpin',
-	  imV2ChatMessageTailViewers: 'im.v2.Chat.Message.tailViewers',
-	  imV2ChatPinTail: 'im.v2.Chat.Pin.tail',
-	  imV2SettingsGeneralUpdate: 'im.v2.Settings.General.update',
 	  imDialogGet: 'im.dialog.get',
 	  imDialogMessagesGet: 'im.dialog.messages.get',
 	  imDialogRead: 'im.dialog.read',
@@ -108,9 +119,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  imUserGet: 'im.user.get',
 	  imUserListGet: 'im.user.list.get',
 	  imUserStatusSet: 'im.user.status.set',
+	  imUserStatusIdleStart: 'im.user.status.idle.start',
+	  imUserStatusIdleEnd: 'im.user.status.idle.end',
 	  imDiskFolderGet: 'im.disk.folder.get',
 	  imDiskFolderListGet: 'im.disk.folder.list.get',
 	  imDiskFileUpload: 'disk.folder.uploadfile',
+	  imDiskFilePreviewUpload: 'disk.api.file.attachPreview',
 	  imDiskFileCommit: 'im.disk.file.commit',
 	  imDiskFileDelete: 'im.disk.file.delete',
 	  imDiskFileSave: 'im.disk.file.save',
@@ -126,13 +140,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  imNotifySchemaGet: 'im.notify.schema.get',
 	  imNotifyHistorySearch: 'im.notify.history.search',
 	  imNotifyAnswer: 'im.notify.answer',
-	  imVersionV2Enable: 'im.version.v2.enable',
-	  imVersionV2Disable: 'im.version.v2.disable',
 	  imCallBackgroundGet: 'im.v2.Call.Background.get',
 	  imCallBackgroundCommit: 'im.v2.Call.Background.commit',
 	  imCallBackgroundDelete: 'im.v2.Call.Background.delete',
 	  imCallMaskGet: 'im.v2.Call.Mask.get',
-	  imSmilesGet: 'smile.get'
+	  imSmilesGet: 'smile.get',
+	  imBotGiphyListPopular: 'imbot.Giphy.listPopular',
+	  imBotGiphyList: 'imbot.Giphy.list'
 	});
 	const RestMethodHandler = Object.freeze({
 	  imChatGet: 'im.chat.get',
@@ -226,6 +240,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    // todo: delete legacy event?
 	    cancel: 'IM.Uploader:cancel'
 	  },
+	  call: {
+	    onFold: 'CallController::onFold'
+	  },
 	  conference: {
 	    setPasswordFocus: 'IM.Conference:setPasswordFocus',
 	    hideSmiles: 'IM.Conference:hideSmiles',
@@ -273,6 +290,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  mention: {
 	    openChatInfo: 'IM.Mention:openChatInfo'
+	  },
+	  counter: {
+	    onNotificationCounterChange: 'onImUpdateCounterNotify',
+	    onChatCounterChange: 'onImUpdateCounterMessage'
+	  },
+	  desktop: {
+	    onInit: 'onDesktopInit',
+	    onReload: 'onDesktopReload',
+	    onUserAway: 'BXUserAway',
+	    onWakeUp: 'BXWakeAction',
+	    onBxLink: 'BXProtocolUrl',
+	    onExit: 'BXExitApplication'
 	  }
 	});
 
@@ -373,7 +402,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  system: 'system'
 	});
 	const MessageComponent = Object.freeze({
-	  base: 'BaseMessage'
+	  base: 'BaseMessage',
+	  chatCreation: 'ChatCreationMessage'
+	});
+	const MessageExtension = Object.freeze({
+	  text: 'TextExtension',
+	  deleted: 'DeletedExtension',
+	  unsupported: 'UnsupportedExtension',
+	  callInvite: 'CallInviteExtension'
 	});
 	const MessageMentionType = Object.freeze({
 	  user: 'USER',
@@ -502,7 +538,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  market: {
 	    name: 'market',
-	    list: 'RecentListContainer',
+	    list: '',
 	    content: 'MarketContent'
 	  }
 	});
@@ -599,11 +635,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    availableFromVersion: 72
 	  }
 	};
+	const DesktopBxLink = {
+	  chat: 'chat',
+	  call: 'call',
+	  notifications: 'notifications',
+	  recentSearch: 'recentSearch',
+	  timeManager: 'timemanpwt'
+	};
 
 	const LocalStorageKey = Object.freeze({
 	  draft: 'draft',
 	  smileLastUpdateTime: 'smileLastUpdateTime',
 	  sidebarOpened: 'sidebarOpened',
+	  textareaMarketOpened: 'textareaMarketOpened',
 	  textareaHeight: 'textareaHeight'
 	});
 
@@ -685,6 +729,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.FileIconType = FileIconType;
 	exports.MessageType = MessageType;
 	exports.MessageComponent = MessageComponent;
+	exports.MessageExtension = MessageExtension;
 	exports.MessageMentionType = MessageMentionType;
 	exports.OwnMessageStatus = OwnMessageStatus;
 	exports.ConferenceFieldState = ConferenceFieldState;
@@ -709,6 +754,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.AttachType = AttachType;
 	exports.AttachDescription = AttachDescription;
 	exports.DesktopFeature = DesktopFeature;
+	exports.DesktopBxLink = DesktopBxLink;
 	exports.LocalStorageKey = LocalStorageKey;
 	exports.ApplicationName = ApplicationName;
 	exports.PlacementType = PlacementType;

@@ -536,7 +536,7 @@ class CListPropertyField extends CListField
 			{
 				throw new NotSupportedException(GetMessage("LIST_PROPERTY_FIELD_DUPLICATE_CODE"));
 			}
-			$property_id = intval($arFields["ID"]);
+			$property_id = intval($arFields["ID"] ?? 0);
 			if($property_id > 0)
 			{
 				return new CListPropertyField($iblock_id, "PROPERTY_".$property_id, $arFields["NAME"], $arFields["SORT"]);
@@ -561,13 +561,16 @@ class CListPropertyField extends CListField
 				{
 					self::resetPropertyArrayCache();
 
-					if($arFields["PROPERTY_TYPE"] == "L" && is_array($arFields["LIST"]))
+					if($arFields["PROPERTY_TYPE"] == "L" && is_array($arFields["LIST"] ?? null))
+					{
 						CList::UpdatePropertyList($res, $arFields["LIST"]);
+					}
 
 					return new CListPropertyField($iblock_id, "PROPERTY_".$res, $arFields["NAME"], $arFields["SORT"]);
 				}
 			}
 		}
+
 		return null;
 	}
 

@@ -4,7 +4,7 @@
 	--im-user-settings-popup__background-color_item-hover: var(--im-color-palette-gray-03);
 	--im-user-settings-popup__background-color_old-chat: #00ace3;
 	--im-user-settings-popup__background-color_old-chat-hover: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), #00ACE3;
-	--im-user-settings-popup__font_primary: var(--im-font-family-open-sans);
+	--im-user-settings-popup__font_primary: var(--im-font-family-system);
 	--im-user-settings-popup__font_secondary: var(--im-font-family-helvetica);
 	--im-user-settings-popup__font-color_primary: var(--im-color-palette-black-base);
 	--im-user-settings-popup__font-color_secondary: var(--im-color-palette-gray-70);
@@ -74,6 +74,10 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	padding-right: 4px;
+}
+
+.bx-im-user-settings-popup__user_link {
+	text-decoration: none;
 }
 
 .bx-im-user-settings-popup__button-panel {

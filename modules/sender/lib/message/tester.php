@@ -27,8 +27,8 @@ Loc::loadMessages(__FILE__);
 
 class Tester
 {
-	const MAX_LAST_CODES = 6;
-	const MAX_SEND_CODES = 15;
+	public const MAX_LAST_CODES = 6;
+	public const MAX_SEND_CODES = 15;
 
 	/** @var Adapter $message Message. */
 	protected $message;

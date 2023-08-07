@@ -1513,9 +1513,10 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 
 		if(!isNeedToDisplay && BX.prop.getBoolean(options, "notifyIfNotDisplayed", false))
 		{
+			const plainTitle =  BX.util.htmlspecialchars(this.getTitle());
 			BX.UI.Notification.Center.notify(
 				{
-					content: BX.message("UI_ENTITY_EDITOR_FIELD_HIDDEN_IN_VIEW_MODE").replace(/#TITLE#/gi, this.getTitle()),
+					content: BX.message("UI_ENTITY_EDITOR_FIELD_HIDDEN_IN_VIEW_MODE").replace(/#TITLE#/gi, plainTitle),
 					position: "top-center",
 					autoHideDelay: 5000
 				}
@@ -10457,14 +10458,12 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 			this._selectedCurrencyValue,
 			null
 		);
+
 		if (currencyFormat)
 		{
-			value = BX.Currency.Editor.getFormattedValue(
-				value,
-				this._selectedCurrencyValue
-			);
-			value = value.replaceAll(currencyFormat['SEPARATOR'], '');
+			value = BX.Currency.Editor.getUnFormattedValue(value, this._selectedCurrencyValue);
 		}
+
 		this._amountValue.value = value;
 	};
 	BX.UI.EntityEditorMoney.prototype.getAmountFieldName = function()

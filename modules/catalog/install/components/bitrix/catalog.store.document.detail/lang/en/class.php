@@ -11,6 +11,7 @@ $MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOC_TYPE_A"] = "Stock receipt";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOC_TYPE_D"] = "Write-off";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOC_TYPE_M"] = "Stock transfer";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_INCORRECT_VALUE"] = "The value of \"#FIELD_NAME#\" is incorrect";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_INVENTORY_MANAGEMENT_ENABLED_ERROR"] = "Inventory Management is not available on your plan.";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_VIEW_RIGHTS_ERROR"] = "Insufficient permissions to view the inventory object";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_WRITE_RIGHTS_ERROR"] = "Insufficient permissions to save the inventory object";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_SAVE_ERROR"] = "Error saving inventory object";

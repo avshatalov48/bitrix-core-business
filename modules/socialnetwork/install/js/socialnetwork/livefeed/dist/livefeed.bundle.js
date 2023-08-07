@@ -6,15 +6,13 @@ this.BX = this.BX || {};
 	  function Utils() {
 	    babelHelpers.classCallCheck(this, Utils);
 	  }
-
 	  babelHelpers.createClass(Utils, null, [{
 	    key: "setStyle",
 	    value: function setStyle(node, styles) {
 	      Object.entries(styles).forEach(function (_ref) {
 	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	            key = _ref2[0],
-	            value = _ref2[1];
-
+	          key = _ref2[0],
+	          value = _ref2[1];
 	        node.style[key] = value;
 	      });
 	    }
@@ -23,15 +21,11 @@ this.BX = this.BX || {};
 	}();
 
 	var _templateObject;
-
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var PinnedPanel = /*#__PURE__*/function () {
 	  function PinnedPanel() {
 	    var _this = this;
-
 	    babelHelpers.classCallCheck(this, PinnedPanel);
 	    this["class"] = {
 	      pin: 'feed-post-pin',
@@ -72,7 +66,6 @@ this.BX = this.BX || {};
 	      _this.initPosts();
 	    });
 	  }
-
 	  babelHelpers.createClass(PinnedPanel, [{
 	    key: "resetFlags",
 	    value: function resetFlags() {
@@ -101,26 +94,20 @@ this.BX = this.BX || {};
 	    key: "initPanel",
 	    value: function initPanel() {
 	      var _this2 = this;
-
 	      if (this.panelInitialized) {
 	        return;
 	      }
-
 	      var pinnedPanelNode = this.getPanelNode();
-
 	      if (!pinnedPanelNode) {
 	        return;
 	      }
-
 	      this.panelInitialized = true;
 	      this.adjustCollapsedPostsPanel();
 	      main_core.Event.bind(this.getCollapsedPanelNode(), 'click', function () {
 	        var pinnedPanelNode = _this2.getPanelNode();
-
 	        if (!pinnedPanelNode) {
 	          return;
 	        }
-
 	        var collapsedHeight = pinnedPanelNode.offsetHeight;
 	        Utils.setStyle(pinnedPanelNode, {
 	          height: collapsedHeight + 'px',
@@ -129,7 +116,6 @@ this.BX = this.BX || {};
 	        setTimeout(function () {
 	          pinnedPanelNode.style = '';
 	        }, 550);
-
 	        _this2.hideCollapsedPanel();
 	      });
 	      main_core.Event.bind(pinnedPanelNode, 'click', function (event) {
@@ -141,26 +127,21 @@ this.BX = this.BX || {};
 	        var collapseClicked = event.target.classList.contains('feed-post-pinned-link-collapse');
 	        var commentsClicked = event.target.classList.contains('feed-inform-comments-pinned') || event.target.closest('.feed-inform-comments-pinned') !== null;
 	        var postNode = null;
-
 	        if (event.target.classList.contains('feed-post-block')) {
 	          postNode = event.target;
 	        } else {
 	          postNode = event.target.closest('.feed-post-block');
 	        }
-
 	        if (!postNode) {
 	          return;
 	        }
-
 	        if (postNode.classList.contains("".concat(_this2["class"].postPinned))) {
 	          if (!likeClicked && !followClicked && !menuClicked && !contentViewClicked && !pinClicked) {
 	            postNode.classList.remove("".concat(_this2["class"].postPinned));
 	            var menuId = postNode.getAttribute('data-menu-id');
-
 	            if (menuId) {
 	              main_popup.MenuManager.destroy(menuId);
 	            }
-
 	            var _event = new main_core_events.BaseEvent({
 	              compatData: [{
 	                rootNode: postNode
@@ -169,19 +150,15 @@ this.BX = this.BX || {};
 	                rootNode: postNode
 	              }
 	            });
-
 	            main_core_events.EventEmitter.emit('BX.Livefeed:recalculateComments', _event);
 	          }
-
 	          if (commentsClicked) {
 	            var anchorNode = postNode.querySelector(".".concat(_this2["class"].postComments, " a[name=comments]"));
-
 	            if (anchorNode) {
 	              var position = main_core.Dom.getPosition(anchorNode);
 	              window.scrollTo(0, position.top - 200);
 	            }
 	          }
-
 	          event.stopPropagation();
 	          event.preventDefault();
 	        } else if (collapseClicked) {
@@ -195,17 +172,13 @@ this.BX = this.BX || {};
 	    key: "initPosts",
 	    value: function initPosts() {
 	      var _this3 = this;
-
 	      if (this.postsInitialized) {
 	        return;
 	      }
-
 	      var postList = document.querySelectorAll('[data-livefeed-post-pinned]');
-
 	      if (postList.length > 0) {
 	        this.postsInitialized = true;
 	      }
-
 	      Array.from(postList).forEach(function (post) {
 	        main_core.Event.unbind(post, 'click', _this3.handlePostClick);
 	        main_core.Event.bind(post, 'click', _this3.handlePostClick);
@@ -217,20 +190,15 @@ this.BX = this.BX || {};
 	      if (!event.target.classList.contains("".concat(this["class"].pin))) {
 	        return;
 	      }
-
 	      var post = event.target.closest('[data-livefeed-id]');
-
 	      if (!post) {
 	        return;
 	      }
-
 	      var newState = post.getAttribute('data-livefeed-post-pinned') === 'Y' ? 'N' : 'Y';
 	      var logId = parseInt(post.getAttribute('data-livefeed-id'));
-
 	      if (logId <= 0) {
 	        return;
 	      }
-
 	      this.changePinned({
 	        logId: logId,
 	        newState: newState,
@@ -241,18 +209,15 @@ this.BX = this.BX || {};
 	    key: "initEvents",
 	    value: function initEvents() {
 	      var _this4 = this;
-
 	      main_core_events.EventEmitter.subscribe('OnUCCommentWasRead', function (event) {
 	        var _event$getData = event.getData(),
-	            _event$getData2 = babelHelpers.slicedToArray(_event$getData, 3),
-	            xmlId = _event$getData2[0],
-	            id = _event$getData2[1],
-	            options = _event$getData2[2];
-
+	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 3),
+	          xmlId = _event$getData2[0],
+	          id = _event$getData2[1],
+	          options = _event$getData2[2];
 	        var _this4$getCommentsDat = _this4.getCommentsData(xmlId),
-	            oldValue = _this4$getCommentsDat.oldValue,
-	            newValue = _this4$getCommentsDat.newValue;
-
+	          oldValue = _this4$getCommentsDat.oldValue,
+	          newValue = _this4$getCommentsDat.newValue;
 	        if (!!options["new"]) {
 	          _this4.setCommentsData(xmlId, {
 	            newValue: main_core.Type.isInteger(newValue) ? newValue - 1 : 0,
@@ -263,44 +228,37 @@ this.BX = this.BX || {};
 	      main_core_events.EventEmitter.incrementMaxListeners('OnUCCommentWasPulled');
 	      main_core_events.EventEmitter.subscribe('OnUCCommentWasPulled', function (event) {
 	        var _event$getData3 = event.getData(),
-	            _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 3),
-	            id = _event$getData4[0],
-	            data = _event$getData4[1],
-	            params = _event$getData4[2];
-
+	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 3),
+	          id = _event$getData4[0],
+	          data = _event$getData4[1],
+	          params = _event$getData4[2];
 	        var _id = babelHelpers.slicedToArray(id, 2),
-	            xmlId = _id[0],
-	            commentId = _id[1];
-
+	          xmlId = _id[0],
+	          commentId = _id[1];
 	        var _this4$getCommentsDat2 = _this4.getCommentsData(xmlId),
-	            newValue = _this4$getCommentsDat2.newValue,
-	            oldValue = _this4$getCommentsDat2.oldValue,
-	            allValue = _this4$getCommentsDat2.allValue,
-	            follow = _this4$getCommentsDat2.follow;
-
+	          newValue = _this4$getCommentsDat2.newValue,
+	          oldValue = _this4$getCommentsDat2.oldValue,
+	          allValue = _this4$getCommentsDat2.allValue,
+	          follow = _this4$getCommentsDat2.follow;
 	        var commentsData = {
 	          allValue: main_core.Type.isInteger(allValue) ? allValue + 1 : 1
 	        };
-
 	        if (parseInt(params.AUTHOR.ID) !== parseInt(BX.message('USER_ID'))) {
 	          commentsData.newValue = main_core.Type.isInteger(newValue) ? newValue + 1 : 1;
 	        } else {
 	          commentsData.oldValue = main_core.Type.isInteger(oldValue) ? oldValue + 1 : 1;
 	        }
-
 	        _this4.setCommentsData(xmlId, commentsData);
 	      });
 	      main_core_events.EventEmitter.subscribe('OnUCommentWasDeleted', function (event) {
 	        var _event$getData5 = event.getData(),
-	            _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 3),
-	            xmlId = _event$getData6[0],
-	            id = _event$getData6[1],
-	            data = _event$getData6[2];
-
+	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 3),
+	          xmlId = _event$getData6[0],
+	          id = _event$getData6[1],
+	          data = _event$getData6[2];
 	        var _this4$getCommentsDat3 = _this4.getCommentsData(xmlId),
-	            oldValue = _this4$getCommentsDat3.oldValue,
-	            allValue = _this4$getCommentsDat3.allValue;
-
+	          oldValue = _this4$getCommentsDat3.oldValue,
+	          allValue = _this4$getCommentsDat3.allValue;
 	        _this4.setCommentsData(xmlId, {
 	          allValue: main_core.Type.isInteger(allValue) ? allValue - 1 : 0,
 	          oldValue: main_core.Type.isInteger(oldValue) ? oldValue - 1 : 0
@@ -311,31 +269,25 @@ this.BX = this.BX || {};
 	    key: "changePinned",
 	    value: function changePinned(params) {
 	      var _this5 = this;
-
 	      var logId = params.logId ? parseInt(params.logId) : 0;
 	      var event = params.event ? params.event : null;
 	      var node = params.node ? params.node : null;
 	      var newState = params.newState ? params.newState : null;
 	      var panelNode = this.getPanelNode();
-
 	      if (!node && !event && logId > 0 && panelNode) {
 	        node = panelNode.querySelector(".".concat(this["class"].post, " > [data-livefeed-id=\"").concat(logId, "\"]"));
 	      }
-
 	      if (!node && event) {
 	        node = event.target;
 	      }
-
 	      return new Promise(function (resolve, reject) {
 	        if (!!_this5.getOption('pinBlocked') || !node || !newState) {
 	          return resolve();
 	        }
-
 	        _this5.setPostState({
 	          node: node,
 	          state: newState
 	        });
-
 	        var action = newState === 'Y' ? 'socialnetwork.api.livefeed.logentry.pin' : 'socialnetwork.api.livefeed.logentry.unpin';
 	        main_core.ajax.runAction(action, {
 	          data: {
@@ -352,7 +304,6 @@ this.BX = this.BX || {};
 	              node: node,
 	              state: newState === 'Y' ? 'N' : 'Y'
 	            });
-
 	            return resolve();
 	          } else {
 	            _this5.movePost({
@@ -367,7 +318,6 @@ this.BX = this.BX || {};
 	            node: node,
 	            state: newState === 'Y' ? 'N' : 'Y'
 	          });
-
 	          return resolve();
 	        });
 	      });
@@ -377,27 +327,20 @@ this.BX = this.BX || {};
 	    value: function setPostState(params) {
 	      var state = params.state ? params.state : null;
 	      var node = params.node ? params.node : null;
-
 	      if (!node || !['Y', 'N'].includes(state)) {
 	        return;
 	      }
-
 	      var post = node.closest('[data-livefeed-post-pinned]');
-
 	      if (!post) {
 	        return;
 	      }
-
 	      post.setAttribute('data-livefeed-post-pinned', state);
-
 	      if (state === 'Y') {
 	        post.classList.add("".concat(this["class"].postPinActive));
 	      } else {
 	        post.classList.remove("".concat(this["class"].postPinActive));
 	      }
-
 	      var pin = post.querySelector(".".concat(this["class"].pin));
-
 	      if (pin) {
 	        pin.setAttribute('title', main_core.Loc.getMessage("SONET_EXT_LIVEFEED_PIN_TITLE_".concat(state)));
 	      }
@@ -411,11 +354,9 @@ this.BX = this.BX || {};
 	    key: "getPinnedData",
 	    value: function getPinnedData(params) {
 	      var logId = params.logId ? parseInt(params.logId) : 0;
-
 	      if (logId <= 0) {
 	        return Promise.reject();
 	      }
-
 	      return new Promise(function (resolve, reject) {
 	        main_core.ajax.runAction('socialnetwork.api.livefeed.logentry.getPinData', {
 	          data: {
@@ -441,40 +382,30 @@ this.BX = this.BX || {};
 	    key: "movePost",
 	    value: function movePost(params) {
 	      var _this6 = this;
-
 	      var state = params.state ? params.state : null;
 	      var node = params.node ? params.node : null;
 	      return new Promise(function (resolve, reject) {
 	        if (!node || !['Y', 'N'].includes(state)) {
 	          return resolve();
 	        }
-
 	        var post = node.closest('[data-livefeed-post-pinned]');
-
 	        if (!post) {
 	          return resolve();
 	        }
-
 	        var logId = parseInt(post.getAttribute('data-livefeed-id'));
-
 	        if (!logId) {
 	          return resolve();
 	        }
-
 	        var pinnedPanelNode = _this6.getPanelNode();
-
 	        if (!pinnedPanelNode) {
 	          return resolve();
 	        }
-
 	        var postToMove = post.parentNode.classList.contains("".concat(_this6["class"].post)) ? post.parentNode : post;
 	        var entityValue = post.getAttribute('data-security-entity-pin');
 	        var tokenValue = post.getAttribute('data-security-token-pin');
-
 	        if (state === 'Y') {
 	          var originalPostHeight = postToMove.offsetHeight;
 	          postToMove.setAttribute('bx-data-height', originalPostHeight);
-
 	          _this6.getPinnedData({
 	            logId: logId,
 	            entityValue: entityValue,
@@ -483,32 +414,24 @@ this.BX = this.BX || {};
 	            var pinnedPanelTitleNode = post.querySelector('.feed-post-pinned-title');
 	            var pinnedPanelDescriptionNode = post.querySelector('.feed-post-pinned-desc');
 	            var pinnedPanelPinNode = post.querySelector(".".concat(_this6["class"].pin));
-
 	            if (pinnedPanelTitleNode) {
 	              pinnedPanelTitleNode.innerHTML = data.TITLE;
 	            }
-
 	            if (pinnedPanelDescriptionNode) {
 	              pinnedPanelDescriptionNode.innerHTML = data.DESCRIPTION;
 	            }
-
 	            if (pinnedPanelPinNode) {
 	              pinnedPanelPinNode.title = main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PIN_TITLE_Y');
 	            }
-
 	            post.classList.add("".concat(_this6["class"].postPinnedHide));
-
 	            var cancelPinnedPanel = _this6.getCancelPinnedPanel({
 	              logId: logId
 	            });
-
 	            var anchor = postToMove.nextSibling;
 	            anchor.parentNode.insertBefore(cancelPinnedPanel, anchor);
-
 	            _this6.centerCancelPinnedPanelElements({
 	              cancelPinnedPanel: cancelPinnedPanel
 	            });
-
 	            cancelPinnedPanel.setAttribute('bx-data-height', originalPostHeight);
 	            var cancelPanelHeight = cancelPinnedPanel.getAttribute('bx-data-height');
 	            Utils.setStyle(cancelPinnedPanel, {
@@ -521,16 +444,14 @@ this.BX = this.BX || {};
 	              backgroundColor: 'transparent',
 	              opacity: 0
 	            });
-
 	            var panelNode = _this6.getPanelNode();
-
 	            if (panelNode) {
 	              _this6.setOptions({
 	                panelHeight: panelNode.offsetHeight
 	              });
-	            } // list.post::hide.start, cancelPanel::show.start
+	            }
 
-
+	            // list.post::hide.start, cancelPanel::show.start
 	            setTimeout(function () {
 	              postToMove.classList.add("".concat(_this6["class"].postHide));
 	              Utils.setStyle(cancelPinnedPanel, {
@@ -540,32 +461,27 @@ this.BX = this.BX || {};
 	                height: 0,
 	                opacity: 0
 	              });
-
 	              _this6.setOptions({
 	                pinBlocked: true
 	              });
-	            }, 100); // list.post::hide.end
+	            }, 100);
 
+	            // list.post::hide.end
 	            main_core.Event.unbindAll(postToMove, 'transitionend');
 	            main_core.Event.bind(postToMove, 'transitionend', function (event) {
 	              if (!_this6.checkTransitionProperty(event, 'height')) {
 	                return;
 	              }
-
 	              main_core.Event.unbindAll(postToMove, 'transitionend');
 	              var panelPostsNode = pinnedPanelNode.querySelector(".".concat(_this6["class"].panelPosts));
 	              panelPostsNode.insertBefore(postToMove, panelPostsNode.firstChild);
-
 	              _this6.adjustCollapsedPostsPanel();
-
 	              postToMove.classList.remove("".concat(_this6["class"].postHide));
 	              post.classList.remove("".concat(_this6["class"].postPinnedHide));
-
 	              _this6.adjustPanel();
+	              _this6.showCollapsedPostsPanel();
 
-	              _this6.showCollapsedPostsPanel(); // pinnedPanel.post::show.start
-
-
+	              // pinnedPanel.post::show.start
 	              setTimeout(function () {
 	                post.classList.add("".concat(_this6["class"].postPinned));
 	                Utils.setStyle(postToMove, {
@@ -575,11 +491,9 @@ this.BX = this.BX || {};
 	                  backgroundColor: '',
 	                  opacity: 1
 	                });
-
 	                _this6.setOptions({
 	                  pinBlocked: false
 	                });
-
 	                setTimeout(function () {
 	                  postToMove.classList.remove("".concat(_this6["class"].postHide));
 	                  Utils.setStyle(postToMove, {
@@ -601,12 +515,12 @@ this.BX = this.BX || {};
 	            transition: ''
 	          });
 	          var cancelPinnedPanel = document.querySelector(".".concat(_this6["class"].cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
-
 	          if (main_core.Type.isDomNode(cancelPinnedPanel)) {
 	            Utils.setStyle(postToMove, {
 	              height: pinnedHeight + 'px'
-	            }); // pinnedPanel.post::hide.start, cancelPanel::show.start
+	            });
 
+	            // pinnedPanel.post::hide.start, cancelPanel::show.start
 	            requestAnimationFrame(function () {
 	              postToMove.classList.add("".concat(_this6["class"].postExpanding));
 	              cancelPinnedPanel.classList.add("".concat(_this6["class"].postExpanding));
@@ -620,32 +534,25 @@ this.BX = this.BX || {};
 	              });
 	            });
 	            var collapsed = pinnedPanelNode.classList.contains("".concat(_this6["class"].panelCollapsed));
-
 	            if (collapsed) {
 	              cancelPinnedPanel.parentNode.insertBefore(postToMove, cancelPinnedPanel.nextSibling);
-
 	              _this6.adjustCollapsedPostsPanel();
-
 	              _this6.adjustPanel();
 	            }
-
 	            var showCollapsed = _this6.getCollapsedPanelNode().classList.contains("".concat(_this6["class"].collapsedPanelShow));
-
 	            if (showCollapsed) {
-	              _this6.hideCollapsedPostsPanel(); // cancelPanel::show.end
+	              _this6.hideCollapsedPostsPanel();
 
-
+	              // cancelPanel::show.end
 	              main_core.Event.unbindAll(cancelPinnedPanel, 'transitionend');
 	              main_core.Event.bind(cancelPinnedPanel, 'transitionend', function (event) {
 	                if (!_this6.checkTransitionProperty(event, 'height')) {
 	                  return;
 	                }
-
 	                Utils.setStyle(postToMove, {
 	                  transform: '',
 	                  display: 'block'
 	                });
-
 	                _this6.animateCancel({
 	                  post: post,
 	                  postToMove: postToMove,
@@ -653,23 +560,19 @@ this.BX = this.BX || {};
 	                  height: height
 	                });
 	              });
-	            } // pinnedPanel.post::hide.end
+	            }
 
-
+	            // pinnedPanel.post::hide.end
 	            main_core.Event.unbindAll(postToMove, 'transitionend');
 	            main_core.Event.bind(postToMove, 'transitionend', function (event) {
 	              if (!_this6.checkTransitionProperty(event, 'opacity')) {
 	                return;
 	              }
-
 	              if (!collapsed) {
 	                cancelPinnedPanel.parentNode.insertBefore(postToMove, cancelPinnedPanel.nextSibling);
-
 	                _this6.adjustCollapsedPostsPanel();
-
 	                _this6.adjustPanel();
 	              }
-
 	              _this6.animateCancel({
 	                post: post,
 	                postToMove: postToMove,
@@ -680,35 +583,33 @@ this.BX = this.BX || {};
 	          } else {
 	            post.classList.remove("".concat(_this6["class"].postPinned));
 	            pinnedPanelNode.parentNode.insertBefore(postToMove, pinnedPanelNode.nextSibling);
-
 	            _this6.adjustPanel();
-
 	            var _originalPostHeight = postToMove.scrollHeight;
 	            postToMove.setAttribute('bx-data-height', _originalPostHeight);
 	            Utils.setStyle(postToMove, {
 	              opacity: 0,
 	              height: '80px'
-	            }); // list.post::show.start
+	            });
 
+	            // list.post::show.start
 	            setTimeout(function () {
 	              Utils.setStyle(postToMove, {
 	                opacity: 1,
 	                height: _originalPostHeight + 'px'
 	              });
-	            }, 100); // list.post::show.end
+	            }, 100);
 
+	            // list.post::show.end
 	            main_core.Event.unbindAll(postToMove, 'transitionend');
 	            main_core.Event.bind(postToMove, 'transitionend', function (event) {
 	              if (!_this6.checkTransitionProperty(event, 'height')) {
 	                return;
 	              }
-
 	              Utils.setStyle(postToMove, {
 	                height: ''
 	              });
 	            });
 	          }
-
 	          return resolve();
 	        }
 	      });
@@ -717,13 +618,13 @@ this.BX = this.BX || {};
 	    key: "animateCancel",
 	    value: function animateCancel(_ref) {
 	      var _this7 = this;
-
 	      var post = _ref.post,
-	          postToMove = _ref.postToMove,
-	          cancelPinnedPanel = _ref.cancelPinnedPanel,
-	          height = _ref.height;
-	      post.classList.remove("".concat(this["class"].postPinned)); // post.list:show.start, cancelPanel::hide.start
+	        postToMove = _ref.postToMove,
+	        cancelPinnedPanel = _ref.cancelPinnedPanel,
+	        height = _ref.height;
+	      post.classList.remove("".concat(this["class"].postPinned));
 
+	      // post.list:show.start, cancelPanel::hide.start
 	      setTimeout(function () {
 	        Utils.setStyle(postToMove, {
 	          opacity: 1,
@@ -735,14 +636,14 @@ this.BX = this.BX || {};
 	        setTimeout(function () {
 	          cancelPinnedPanel.remove();
 	        }, 100);
-	      }, 100); // post.list:show.end
+	      }, 100);
 
+	      // post.list:show.end
 	      main_core.Event.unbindAll(postToMove, 'transitionend');
 	      main_core.Event.bind(postToMove, 'transitionend', function (event) {
 	        if (!_this7.checkTransitionProperty(event, 'height')) {
 	          return;
 	        }
-
 	        post.classList.remove("".concat(_this7["class"].postPinnedHide));
 	        Utils.setStyle(postToMove, {
 	          marginBottom: '',
@@ -760,15 +661,11 @@ this.BX = this.BX || {};
 	    key: "getCancelPinnedPanel",
 	    value: function getCancelPinnedPanel(params) {
 	      var _this8 = this;
-
 	      var logId = params.logId ? parseInt(params.logId) : 0;
-
 	      if (logId <= 0) {
 	        return null;
 	      }
-
 	      var cancelPinnedPanel = document.querySelector(".".concat(this["class"].cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
-
 	      if (!main_core.Type.isDomNode(cancelPinnedPanel)) {
 	        cancelPinnedPanel = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\" bx-data-log-id=\"", "\">\n\t\t\t\t\t<div class=\"feed-post-cancel-pinned-panel-inner\">\n\t\t\t\t\t\t<div class=\"feed-post-cancel-pinned-content\">\n\t\t\t\t\t\t\t<span class=\"", "\">", "</span>\n\t\t\t\t\t\t\t<span class=\"feed-post-cancel-pinned-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-round ui-btn-sm ", "\">", "</button>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\t\n\t\t\t\t"])), this["class"].cancelPanel, logId, this["class"].cancelPanelLabel, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_TITLE'), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_DESCRIPTION'), this["class"].cancelPanelButton, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_BUTTON'));
 	        main_core.Event.bind(cancelPinnedPanel.querySelector(".".concat(this["class"].cancelPanelButton)), 'click', function () {
@@ -783,19 +680,17 @@ this.BX = this.BX || {};
 	          });
 	        });
 	      }
-
 	      return cancelPinnedPanel;
 	    }
 	  }, {
 	    key: "centerCancelPinnedPanelElements",
 	    value: function centerCancelPinnedPanelElements(_ref2) {
 	      var cancelPinnedPanel = _ref2.cancelPinnedPanel;
-
 	      if (!main_core.Type.isDomNode(cancelPinnedPanel)) {
 	        return;
-	      } // cancelPanel::show.start
+	      }
 
-
+	      // cancelPanel::show.start
 	      setTimeout(function () {
 	        Utils.setStyle(cancelPinnedPanel, {
 	          opacity: 1
@@ -815,13 +710,10 @@ this.BX = this.BX || {};
 	    key: "hidePinnedItems",
 	    value: function hidePinnedItems() {
 	      var _this9 = this;
-
 	      var pinnedPanelNode = this.getPanelNode();
-
 	      if (!pinnedPanelNode) {
 	        return;
 	      }
-
 	      Utils.setStyle(pinnedPanelNode, {
 	        height: parseInt(this.getOption('panelHeight')) + 'px'
 	      });
@@ -832,8 +724,9 @@ this.BX = this.BX || {};
 	        });
 	        Utils.setStyle(pinnedPanelNode, {
 	          transition: 'height .5s .1s linear'
-	        }); // pinnedPanel.post::hide.start
+	        });
 
+	        // pinnedPanel.post::hide.start
 	        requestAnimationFrame(function () {
 	          Utils.setStyle(item, {
 	            opacity: '0!important',
@@ -842,14 +735,14 @@ this.BX = this.BX || {};
 	          Utils.setStyle(pinnedPanelNode, {
 	            height: '58px'
 	          });
-	        }); // pinnedPanel.post::hide.end
+	        });
 
+	        // pinnedPanel.post::hide.end
 	        main_core.Event.unbindAll(item, 'transitionend');
 	        main_core.Event.bind(item, 'transitionend', function (event) {
 	          if (!_this9.checkTransitionProperty(event, 'transform')) {
 	            return;
 	          }
-
 	          Utils.setStyle(item, {
 	            display: 'none',
 	            opacity: '',
@@ -867,19 +760,17 @@ this.BX = this.BX || {};
 	    key: "showPinnedItems",
 	    value: function showPinnedItems() {
 	      var _this10 = this;
-
 	      var pinnedPanelNode = this.getPanelNode();
-
 	      if (!pinnedPanelNode) {
 	        return;
 	      }
-
 	      Array.from(pinnedPanelNode.getElementsByClassName("".concat(this["class"].post))).map(function (item, currentIndex, originalItemsList) {
 	        Utils.setStyle(item, {
 	          display: 'block',
 	          opacity: 0
-	        }); // pinnedPanel.post::show.start
+	        });
 
+	        // pinnedPanel.post::show.start
 	        requestAnimationFrame(function () {
 	          Utils.setStyle(pinnedPanelNode, {
 	            height: 84 * (currentIndex + 1) - 4 + 'px'
@@ -888,14 +779,14 @@ this.BX = this.BX || {};
 	            transform: "translateY(".concat(0, "px)"),
 	            opacity: 1
 	          });
-	        }); // pinnedPanel.post::show.end
+	        });
 
+	        // pinnedPanel.post::show.end
 	        main_core.Event.unbindAll(item, 'transitionend');
 	        main_core.Event.bind(item, 'transitionend', function (event) {
 	          if (!_this10.checkTransitionProperty(event, 'transform')) {
 	            return;
 	          }
-
 	          Utils.setStyle(item, {
 	            display: 'block',
 	            height: '',
@@ -904,7 +795,6 @@ this.BX = this.BX || {};
 	          Utils.setStyle(pinnedPanelNode, {
 	            height: ''
 	          });
-
 	          if (currentIndex + 1 === originalItemsList.length) {
 	            Utils.setStyle(pinnedPanelNode, {
 	              transition: '',
@@ -918,11 +808,9 @@ this.BX = this.BX || {};
 	    key: "animateCollapsedPanel",
 	    value: function animateCollapsedPanel() {
 	      var _this11 = this;
-
 	      // collapsedPanel::hide.start
 	      requestAnimationFrame(function () {
 	        var collapsedPanel = _this11.getCollapsedPanelNode();
-
 	        Utils.setStyle(collapsedPanel, {
 	          position: 'absolute',
 	          top: 0,
@@ -930,8 +818,9 @@ this.BX = this.BX || {};
 	          opacity: 0
 	        });
 	        collapsedPanel.classList.remove("".concat(_this11["class"].collapsedPanelHide));
-	        collapsedPanel.classList.add("".concat(_this11["class"].collapsedPanelShow)); // collapsedPanel::show.start
+	        collapsedPanel.classList.add("".concat(_this11["class"].collapsedPanelShow));
 
+	        // collapsedPanel::show.start
 	        requestAnimationFrame(function () {
 	          Utils.setStyle(collapsedPanel, {
 	            position: 'relative',
@@ -944,24 +833,19 @@ this.BX = this.BX || {};
 	    key: "adjustCollapsedPostsPanel",
 	    value: function adjustCollapsedPostsPanel() {
 	      var _this12 = this;
-
 	      var postsCounter = this.getPostsCount();
 	      var postsCounterNode = this.getCollapsedPanelNode().querySelector(".".concat(this["class"].collapsedPanelCounterPostsValue));
-
 	      if (postsCounterNode) {
 	        postsCounterNode.innerHTML = parseInt(postsCounter);
 	      }
-
 	      var commentsCounterNode = this.getCollapsedPanelNode().querySelector(".".concat(this["class"].collapsedPanelCounterComments));
 	      var commentsCounterValueNode = this.getCollapsedPanelNode().querySelector(".".concat(this["class"].collapsedPanelCounterCommentsValue));
 	      var panelNode = this.getPanelNode();
-
 	      if (commentsCounterNode && commentsCounterValueNode && panelNode) {
 	        var newCommentCounter = Array.from(panelNode.querySelectorAll(".".concat(this["class"].collapsedPanelCounterCommentsValueNewValue))).reduce(function (acc, node) {
 	          return acc + (node.closest(".".concat(_this12["class"].postUnfollowed)) ? 0 : parseInt(node.innerHTML));
 	        }, 0);
 	        commentsCounterValueNode.innerHTML = newCommentCounter;
-
 	        if (newCommentCounter > 0) {
 	          commentsCounterNode.classList.add("".concat(this["class"].collapsedPanelCounterCommentsShown));
 	        } else {
@@ -973,13 +857,10 @@ this.BX = this.BX || {};
 	    key: "adjustPanel",
 	    value: function adjustPanel() {
 	      var _this13 = this;
-
 	      var panelNode = this.getPanelNode();
-
 	      if (!panelNode) {
 	        return;
 	      }
-
 	      setTimeout(function () {
 	        if (_this13.getPostsCount() > 0) {
 	          panelNode.classList.add("".concat(_this13["class"].panelNonEmpty));
@@ -1040,32 +921,24 @@ this.BX = this.BX || {};
 	        oldNode: null,
 	        allNode: null
 	      };
-
 	      if (!main_core.Type.isStringFilled(xmlId)) {
 	        return result;
 	      }
-
 	      var commentsNode = document.querySelector(".".concat(this["class"].postComments, "[data-bx-comments-entity-xml-id=\"").concat(xmlId, "\"]"));
-
 	      if (!commentsNode) {
 	        return result;
 	      }
-
 	      var postNode = commentsNode.closest(".".concat(this["class"].postPinActive));
-
 	      if (!postNode) {
 	        return result;
 	      }
-
 	      var newPinnedCommentsNode = postNode.querySelector(".".concat(this["class"].collapsedPanelCounterCommentsValueNew));
 	      var newValuePinnedCommentsNode = postNode.querySelector(".".concat(this["class"].collapsedPanelCounterCommentsValueNewValue));
 	      var oldPinnedCommentsNode = postNode.querySelector(".".concat(this["class"].collapsedPanelCounterCommentsValueOld));
 	      var allPinnedCommentsNode = postNode.querySelector(".".concat(this["class"].collapsedPanelCounterCommentsValueAll));
-
 	      if (!newPinnedCommentsNode || !newValuePinnedCommentsNode || !oldPinnedCommentsNode || !allPinnedCommentsNode) {
 	        return result;
 	      }
-
 	      result.newNode = newPinnedCommentsNode;
 	      result.newValueNode = newValuePinnedCommentsNode;
 	      result.oldNode = oldPinnedCommentsNode;
@@ -1081,44 +954,33 @@ this.BX = this.BX || {};
 	        oldValue: null,
 	        allValue: null
 	      };
-
 	      if (!main_core.Type.isStringFilled(xmlId)) {
 	        return result;
 	      }
-
 	      var _this$getCommentsNode = this.getCommentsNodes(xmlId),
-	          newValueNode = _this$getCommentsNode.newValueNode,
-	          oldNode = _this$getCommentsNode.oldNode,
-	          allNode = _this$getCommentsNode.allNode,
-	          follow = _this$getCommentsNode.follow;
-
+	        newValueNode = _this$getCommentsNode.newValueNode,
+	        oldNode = _this$getCommentsNode.oldNode,
+	        allNode = _this$getCommentsNode.allNode,
+	        follow = _this$getCommentsNode.follow;
 	      result.follow = follow;
-
 	      if (!main_core.Type.isDomNode(newValueNode) || !main_core.Type.isDomNode(oldNode)) {
 	        return result;
 	      }
-
 	      var newCommentsValue = 0;
 	      var oldCommentsValue = 0;
 	      var allCommentsValue = 0;
 	      var matches = newValueNode.innerHTML.match(/(\d+)/);
-
 	      if (matches) {
 	        newCommentsValue = parseInt(matches[1]);
 	      }
-
 	      matches = oldNode.innerHTML.match(/(\d+)/);
-
 	      if (matches) {
 	        oldCommentsValue = parseInt(matches[1]);
 	      }
-
 	      matches = allNode.innerHTML.match(/(\d+)/);
-
 	      if (matches) {
 	        allCommentsValue = parseInt(matches[1]);
 	      }
-
 	      result.oldValue = oldCommentsValue;
 	      result.newValue = newCommentsValue;
 	      result.allValue = allCommentsValue;
@@ -1130,35 +992,28 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isStringFilled(xmlId)) {
 	        return;
 	      }
-
 	      var _this$getCommentsNode2 = this.getCommentsNodes(xmlId),
-	          newNode = _this$getCommentsNode2.newNode,
-	          newValueNode = _this$getCommentsNode2.newValueNode,
-	          oldNode = _this$getCommentsNode2.oldNode,
-	          allNode = _this$getCommentsNode2.allNode;
-
+	        newNode = _this$getCommentsNode2.newNode,
+	        newValueNode = _this$getCommentsNode2.newValueNode,
+	        oldNode = _this$getCommentsNode2.oldNode,
+	        allNode = _this$getCommentsNode2.allNode;
 	      if (!main_core.Type.isDomNode(newNode) || !main_core.Type.isDomNode(newValueNode) || !main_core.Type.isDomNode(oldNode) || !main_core.Type.isDomNode(allNode)) {
 	        return;
 	      }
-
 	      if (main_core.Type.isInteger(value.newValue)) {
 	        newValueNode.innerHTML = "".concat(value.newValue);
-
 	        if (value.newValue > 0 && !newNode.classList.contains("".concat(this["class"].collapsedPanelCounterCommentsValueNewActive))) {
 	          newNode.classList.add("".concat(this["class"].collapsedPanelCounterCommentsValueNewActive));
 	        } else if (value.newValue <= 0 && newNode.classList.contains("".concat(this["class"].collapsedPanelCounterCommentsValueNewActive))) {
 	          newNode.classList.remove("".concat(this["class"].collapsedPanelCounterCommentsValueNewActive));
 	        }
 	      }
-
 	      if (main_core.Type.isInteger(value.oldValue)) {
 	        oldNode.innerHTML = value.oldValue;
 	      }
-
 	      if (main_core.Type.isInteger(value.allValue)) {
 	        allNode.innerHTML = value.allValue;
 	      }
-
 	      this.adjustCollapsedPostsPanel();
 	    }
 	  }, {
@@ -1181,35 +1036,28 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, TaskCreator);
 	    this.initEvents();
 	  }
-
 	  babelHelpers.createClass(TaskCreator, [{
 	    key: "initEvents",
 	    value: function initEvents() {
 	      main_core_events.EventEmitter.subscribe('tasksTaskEvent', function (event) {
 	        var _event$getCompatData = event.getCompatData(),
-	            _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
-	            type = _event$getCompatData2[0],
-	            data = _event$getCompatData2[1];
-
+	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
+	          type = _event$getCompatData2[0],
+	          data = _event$getCompatData2[1];
 	        if (type !== 'ADD' || !main_core.Type.isPlainObject(data.options) || !main_core.Type.isBoolean(data.options.STAY_AT_PAGE) || data.options.STAY_AT_PAGE) {
 	          return;
 	        }
-
 	        TaskCreator.signedFiles = null;
 	      });
 	      main_core_events.EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', function (event) {
 	        var sliderInstance = event.getTarget();
-
 	        if (!sliderInstance) {
 	          return;
 	        }
-
 	        var sliderUrl = sliderInstance.getUrl();
-
 	        if (!main_core.Type.isStringFilled(sliderUrl) || sliderUrl !== TaskCreator.sliderUrl || !main_core.Type.isStringFilled(TaskCreator.signedFiles)) {
 	          return;
 	        }
-
 	        main_core.ajax.runAction('intranet.controlbutton.clearNewTaskFiles', {
 	          data: {
 	            signedFiles: TaskCreator.signedFiles
@@ -1223,7 +1071,6 @@ this.BX = this.BX || {};
 	    key: "create",
 	    value: function create(params) {
 	      var _this = this;
-
 	      if (main_core.Loc.getMessage('SONET_EXT_LIVEFEED_INTRANET_INSTALLED') === 'Y') {
 	        main_core.ajax.runAction('intranet.controlbutton.getTaskLink', {
 	          data: {
@@ -1236,18 +1083,14 @@ this.BX = this.BX || {};
 	          if (!main_core.Type.isStringFilled(response.data.SUFFIX)) {
 	            response.data.SUFFIX = '';
 	          }
-
 	          var requestData = response.data;
 	          requestData.DESCRIPTION = _this.formatTaskDescription(requestData.DESCRIPTION, requestData.URL, params.entityType, requestData.SUFFIX);
-
 	          if (parseInt(params.parentTaskId) > 0) {
 	            requestData.PARENT_ID = parseInt(params.parentTaskId);
 	          }
-
 	          if (main_core.Type.isStringFilled(requestData.UF_TASK_WEBDAV_FILES_SIGN)) {
 	            _this.signedFiles = requestData.UF_TASK_WEBDAV_FILES_SIGN;
 	          }
-
 	          _this.sliderUrl = response.data.link;
 	          BX.SidePanel.Instance.open(response.data.link, {
 	            requestMethod: 'post',
@@ -1278,7 +1121,6 @@ this.BX = this.BX || {};
 	          events: {
 	            onAfterPopupShow: function onAfterPopupShow() {
 	              _this.createTaskSetContent(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"])), _this.cssClass.popupTitle, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_WAIT')));
-
 	              main_core.ajax.runAction('socialnetwork.api.livefeed.getRawEntryData', {
 	                data: {
 	                  params: {
@@ -1303,10 +1145,8 @@ this.BX = this.BX || {};
 	                var entrySuffix = main_core.Type.isStringFilled(response.data.SUFFIX) ? response.data.SUFFIX : '';
 	                var groupsAvailable = main_core.Type.isPlainObject(response.data.GROUPS_AVAILABLE) ? response.data.GROUPS_AVAILABLE : [];
 	                var logId = !main_core.Type.isUndefined(response.data.LOG_ID) ? parseInt(response.data.LOG_ID) : 0;
-
 	                if ((main_core.Type.isStringFilled(entryTitle) || main_core.Type.isStringFilled(entryDescription)) && main_core.Type.isStringFilled(entryUrl)) {
 	                  var taskDescription = _this.formatTaskDescription(entryDescription, entryUrl, params.entityType, entrySuffix);
-
 	                  var taskData = {
 	                    TITLE: entryTitle,
 	                    DESCRIPTION: taskDescription,
@@ -1315,23 +1155,18 @@ this.BX = this.BX || {};
 	                    UF_TASK_WEBDAV_FILES: entryDiskObjects
 	                  };
 	                  var sonetGroupIdList = [];
-
 	                  for (var _i = 0, _Object$entries = Object.entries(groupsAvailable); _i < _Object$entries.length; _i++) {
 	                    var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
-	                        key = _Object$entries$_i[0],
-	                        value = _Object$entries$_i[1];
-
+	                      key = _Object$entries$_i[0],
+	                      value = _Object$entries$_i[1];
 	                    sonetGroupIdList.push(value);
 	                  }
-
 	                  if (sonetGroupIdList.length == 1) {
 	                    taskData.GROUP_ID = parseInt(sonetGroupIdList[0]);
 	                  }
-
 	                  if (parseInt(params.entityType) > 0) {
 	                    taskData.PARENT_ID = parseInt(params.entityType);
 	                  }
-
 	                  main_core.ajax.runComponentAction('bitrix:tasks.task', 'legacyAdd', {
 	                    mode: 'class',
 	                    data: {
@@ -1339,9 +1174,7 @@ this.BX = this.BX || {};
 	                    }
 	                  }).then(function (response) {
 	                    var resultData = response.data;
-
 	                    _this.createTaskSetContentSuccess(resultData.DATA.ID);
-
 	                    main_core.ajax.runAction('socialnetwork.api.livefeed.createEntityComment', {
 	                      data: {
 	                        params: {
@@ -1360,7 +1193,6 @@ this.BX = this.BX || {};
 	                      response.errors.forEach(function (error) {
 	                        errors.push(error.message);
 	                      });
-
 	                      _this.createTaskSetContentFailure(errors);
 	                    }
 	                  });
@@ -1406,11 +1238,9 @@ this.BX = this.BX || {};
 	    key: "createTaskSetContent",
 	    value: function createTaskSetContent(contentNode) {
 	      var containerNode = document.getElementById('BXCTP_content');
-
 	      if (!containerNode) {
 	        return;
 	      }
-
 	      main_core.Dom.clean(containerNode);
 	      containerNode.appendChild(contentNode);
 	    }
@@ -1419,11 +1249,9 @@ this.BX = this.BX || {};
 	    value: function formatTaskDescription(taskDescription, livefeedUrl, entityType, suffix) {
 	      var result = taskDescription;
 	      suffix = main_core.Type.isStringFilled(suffix) ? "_".concat(suffix) : '';
-
 	      if (!!livefeedUrl && !!entityType && livefeedUrl.length > 0) {
 	        result += "\n\n" + main_core.Loc.getMessage("SONET_EXT_COMMENTAUX_CREATE_TASK_".concat(entityType).concat(suffix)).replace('#A_BEGIN#', "[URL=".concat(livefeedUrl, "]")).replace('#A_END#', '[/URL]');
 	      }
-
 	      return result;
 	    }
 	  }]);
@@ -1439,17 +1267,15 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(TaskCreator, "sliderUrl", '');
 
 	var _templateObject$2;
-
 	var Post$$1 = /*#__PURE__*/function () {
 	  function Post$$1() {
 	    babelHelpers.classCallCheck(this, Post$$1);
 	  }
-
 	  babelHelpers.createClass(Post$$1, null, [{
 	    key: "showBackgroundWarning",
 	    value: function showBackgroundWarning(_ref) {
 	      var urlToEdit = _ref.urlToEdit,
-	          menuPopupWindow = _ref.menuPopupWindow;
+	        menuPopupWindow = _ref.menuPopupWindow;
 	      var content = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"])), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_DESCRIPTION'));
 	      var dialog = new main_popup.Popup('backgroundWarning', null, {
 	        autoHide: true,
@@ -1471,7 +1297,6 @@ this.BX = this.BX || {};
 	            click: function click() {
 	              window.location = urlToEdit;
 	              dialog.close();
-
 	              if (menuPopupWindow) {
 	                menuPopupWindow.close();
 	              }
@@ -1483,7 +1308,6 @@ this.BX = this.BX || {};
 	          events: {
 	            click: function click() {
 	              dialog.close();
-
 	              if (menuPopupWindow) {
 	                menuPopupWindow.close();
 	              }
@@ -1498,39 +1322,29 @@ this.BX = this.BX || {};
 	    key: "showMenu",
 	    value: function showMenu(params) {
 	      var _this = this;
-
 	      if (!main_core.Type.isPlainObject(params)) {
 	        params = {};
 	      }
-
 	      var menuElement = params.menuElement;
 	      var ind = params.ind;
 	      var menuId = this.getMenuId(ind);
 	      main_popup.MenuManager.destroy(menuId);
 	      var log_id = !main_core.Type.isUndefined(params.log_id) ? parseInt(params.log_id) : 0;
-
 	      if (log_id <= 0) {
 	        log_id = parseInt(menuElement.getAttribute('data-log-entry-log-id'));
 	      }
-
 	      if (log_id <= 0) {
 	        return false;
 	      }
-
 	      var bFavorites = params.bFavorites;
-
 	      if (main_core.Type.isUndefined(bFavorites)) {
 	        bFavorites = menuElement.getAttribute('data-log-entry-favorites') === 'Y';
 	      }
-
 	      var arMenuItemsAdditional = params.arMenuItemsAdditional;
-
 	      if (main_core.Type.isUndefined(arMenuItemsAdditional)) {
 	        arMenuItemsAdditional = menuElement.getAttribute('data-bx-items');
-
 	        try {
 	          arMenuItemsAdditional = JSON.parse(arMenuItemsAdditional);
-
 	          if (!main_core.Type.isPlainObject(arMenuItemsAdditional)) {
 	            arMenuItemsAdditional = {};
 	          }
@@ -1538,11 +1352,9 @@ this.BX = this.BX || {};
 	          arMenuItemsAdditional = {};
 	        }
 	      }
-
 	      var bindElement = params.bindElement;
 	      var itemPinned = null;
 	      var pinnedPostNode = bindElement.closest('[data-livefeed-post-pinned]');
-
 	      if (pinnedPostNode) {
 	        var pinnedState = pinnedPostNode.getAttribute('data-livefeed-post-pinned') === 'Y';
 	        itemPinned = {
@@ -1560,13 +1372,11 @@ this.BX = this.BX || {};
 	          }
 	        };
 	      }
-
 	      var itemFavorites = main_core.Loc.getMessage('sonetLbUseFavorites') !== 'N' ? {
 	        text: bFavorites ? main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y') : main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N'),
 	        className: 'menu-popup-no-icon',
 	        onclick: function onclick(e) {
 	          __logChangeFavorites(log_id, "log_entry_favorites_".concat(log_id), bFavorites ? 'N' : 'Y', true, e);
-
 	          e.preventDefault();
 	          e.stopPropagation();
 	        }
@@ -1581,14 +1391,11 @@ this.BX = this.BX || {};
 	        onclick: function onclick(e) {
 	          var menuItemText = document.getElementById("".concat(menuId, "-link-text"));
 	          var menuItemIconDone = document.getElementById("".concat(menuId, "-link-icon-done"));
-
 	          if (BX.clipboard.isCopySupported()) {
 	            if (menuItemText && menuItemText.getAttribute('data-block-click') === 'Y') {
 	              return;
 	            }
-
 	            BX.clipboard.copy(menuElement.getAttribute('data-log-entry-url'));
-
 	            if (menuItemText && menuItemIconDone) {
 	              menuItemIconDone.style.display = 'inline-block';
 	              document.getElementById("".concat(menuId, "-link-icon-animate")).classList.remove('post-menu-link-icon-animate');
@@ -1608,17 +1415,13 @@ this.BX = this.BX || {};
 	                });
 	              }, 500);
 	            }
-
 	            return;
 	          }
-
 	          var it = e.currentTarget;
 	          var height = parseInt(!!it.getAttribute('bx-height') ? it.getAttribute('bx-height') : it.offsetHeight);
-
 	          if (it.getAttribute('bx-status') !== 'shown') {
 	            it.setAttribute('bx-status', 'shown');
 	            var node = document.getElementById("".concat(menuId, "-link-text"));
-
 	            if (!document.getElementById("".concat(menuId, "-link")) && !!node) {
 	              var pos = BX.pos(node);
 	              var pos2 = BX.pos(node.parentNode);
@@ -1679,7 +1482,6 @@ this.BX = this.BX || {};
 	                e.stopPropagation();
 	              });
 	            }
-
 	            new BX.fx({
 	              time: 0.2,
 	              step: 0.05,
@@ -1718,7 +1520,6 @@ this.BX = this.BX || {};
 	              ind: ind
 	            });
 	          }
-
 	          e.stopPropagation();
 	          e.preventDefault();
 	        }
@@ -1750,7 +1551,6 @@ this.BX = this.BX || {};
 	          return e.preventDefault();
 	        }
 	      } : null];
-
 	      if (!!arMenuItemsAdditional && main_core.Type.isArray(arMenuItemsAdditional)) {
 	        arMenuItemsAdditional.forEach(function (item) {
 	          if (main_core.Type.isUndefined(item.className)) {
@@ -1759,7 +1559,6 @@ this.BX = this.BX || {};
 	        });
 	        arItems = arItems.concat(arMenuItemsAdditional);
 	      }
-
 	      var arParams = {
 	        offsetLeft: -14,
 	        offsetTop: 4,
@@ -1778,18 +1577,14 @@ this.BX = this.BX || {};
 	                  favoritesMenuItem = menuItem;
 	                }
 	              });
-
 	              if (main_core.Type.isDomNode(favoritesMenuItem)) {
 	                favoritesMenuItem.innerHTML = document.getElementById("log_entry_favorites_".concat(log_id)).classList.contains('feed-post-important-switch-active') ? main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y') : main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N');
 	              }
 	            }
-
 	            if (document.getElementById("".concat(menuId, "-link"))) {
 	              var linkMenuItem = ob.popupContainer.querySelector('.feed-entry-popup-menu-link');
-
 	              if (linkMenuItem) {
 	                var height = parseInt(!!linkMenuItem.getAttribute('bx-height') ? linkMenuItem.getAttribute('bx-height') : 0);
-
 	                if (height > 0) {
 	                  document.getElementById("".concat(menuId, "-link")).style.display = 'none';
 	                  linkMenuItem.setAttribute('bx-status', 'hidden');
@@ -1835,7 +1630,6 @@ this.BX = this.BX || {};
 	      plusHidden: 'feed-new-message-informer-counter-plus-hidden'
 	    };
 	  }
-
 	  babelHelpers.createClass(Informer, [{
 	    key: "init",
 	    value: function init() {
@@ -1848,11 +1642,9 @@ this.BX = this.BX || {};
 	      this.currentCounterType = main_core.Loc.getMessage('sonetLCounterType') ? main_core.Loc.getMessage('sonetLCounterType') : '**';
 	      this.currentSiteId = main_core.Loc.getMessage('SITE_ID');
 	      this.container = document.getElementById('sonet_log_counter_2_container');
-
 	      if (this.container) {
 	        this.container.addEventListener('click', this.showReloadAnimation.bind(this));
 	      }
-
 	      this.wrap = document.getElementById('sonet_log_counter_2_wrap');
 	      this.plus = document.getElementById('sonet_log_counter_2_plus');
 	      this.value = document.getElementById('sonet_log_counter_2');
@@ -1861,48 +1653,40 @@ this.BX = this.BX || {};
 	    key: "initEvents",
 	    value: function initEvents() {
 	      var _this = this;
-
 	      main_core_events.EventEmitter.subscribe('onGoUp', function (event) {
 	        _this.unfixWrap();
 	      });
 	      main_core_events.EventEmitter.subscribe('onPullEvent-main', function (event) {
 	        var _event$getData = event.getData(),
-	            _event$getData2 = babelHelpers.slicedToArray(_event$getData, 2),
-	            command = _event$getData2[0],
-	            eventParams = _event$getData2[1];
-
+	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 2),
+	          command = _event$getData2[0],
+	          eventParams = _event$getData2[1];
 	        if (command !== 'user_counter' || !eventParams[_this.currentSiteId] || !eventParams[_this.currentSiteId][_this.currentCounterType]) {
 	          return;
 	        }
-
 	        _this.changeCounter(main_core.Runtime.clone(eventParams[_this.currentSiteId][_this.currentCounterType]));
 	      });
 	      main_core_events.EventEmitter.subscribe('onImUpdateCounter', function (event) {
 	        var _event$getData3 = event.getData(),
-	            _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
-	            counterData = _event$getData4[0];
-
+	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
+	          counterData = _event$getData4[0];
 	        if (!main_core.Type.isObjectLike(counterData) || main_core.Type.isUndefined(counterData[_this.currentCounterType])) {
 	          return;
 	        }
-
 	        _this.changeCounter(counterData[_this.currentCounterType]);
 	      });
 	      main_core_events.EventEmitter.subscribe('OnUCCommentWasRead', function (event) {
 	        var _event$getData5 = event.getData(),
-	            _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 3),
-	            xmlId = _event$getData6[0],
-	            id = _event$getData6[1],
-	            options = _event$getData6[2];
-
+	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 3),
+	          xmlId = _event$getData6[0],
+	          id = _event$getData6[1],
+	          options = _event$getData6[2];
 	        if (!main_core.Type.isObjectLike(options) || !options.live || !options["new"]) {
 	          return;
 	        }
-
 	        main_core_events.EventEmitter.emit('onCounterDecrement', new main_core_events.BaseEvent({
 	          compatData: [1]
 	        }));
-
 	        _this.decrementCounter(1);
 	      });
 	    }
@@ -1910,11 +1694,9 @@ this.BX = this.BX || {};
 	    key: "changeCounter",
 	    value: function changeCounter(count) {
 	      this.counterValue = parseInt(count);
-
 	      if (this.counterValue <= 0) {
 	        this.counterDecrementStack = 0;
 	      }
-
 	      var valueToShow = this.counterValue - this.counterDecrementStack;
 	      this.changeAnimate({
 	        show: valueToShow > 0,
@@ -1926,18 +1708,14 @@ this.BX = this.BX || {};
 	    key: "changeAnimate",
 	    value: function changeAnimate(params) {
 	      var _this2 = this;
-
 	      var show = !!params.show;
 	      var counterValue = parseInt(params.counter);
 	      var zeroCounterFromDb = !!params.zeroCounterFromDb;
-
 	      if (!this.container) {
 	        return;
 	      }
-
 	      var counterTextNode = this.container.querySelector("span.".concat(this["class"].counterText));
 	      var reloadNode = this.container.querySelector("span.".concat(this["class"].reloadContainer));
-
 	      if (this.lockCounterAnimation) {
 	        setTimeout(function () {
 	          _this2.changeAnimate({
@@ -1947,14 +1725,11 @@ this.BX = this.BX || {};
 	        }, 200);
 	        return false;
 	      }
-
 	      if (show) {
 	        if (this.value) {
 	          this.value.innerHTML = counterValue;
 	        }
-
 	        this.showWrapAnimation();
-
 	        if (this.plus && reloadNode && !reloadNode.classList.contains('--hidden') && counterTextNode) {
 	          reloadNode.classList.add('--hidden');
 	          counterTextNode.classList.remove('--hidden');
@@ -1980,7 +1755,6 @@ this.BX = this.BX || {};
 	      if (!this.wrap) {
 	        return;
 	      }
-
 	      this.wrap.style.visibility = 'visible';
 	      this.wrap.classList.add("".concat(this["class"].informerAnimation));
 	    }
@@ -1990,7 +1764,6 @@ this.BX = this.BX || {};
 	      if (!this.wrap) {
 	        return;
 	      }
-
 	      this.wrap.classList.remove("".concat(this["class"].informerAnimation));
 	      this.wrap.style.visibility = 'hidden';
 	    }
@@ -2000,9 +1773,7 @@ this.BX = this.BX || {};
 	      if (!this.container) {
 	        return;
 	      }
-
 	      var counterWaiterNode = this.container.querySelector("span.".concat(this["class"].icon));
-
 	      if (counterWaiterNode) {
 	        counterWaiterNode.classList.add(this["class"].iconRotating);
 	      }
@@ -2013,9 +1784,7 @@ this.BX = this.BX || {};
 	      if (!this.container) {
 	        return;
 	      }
-
 	      var counterNodeWaiter = this.container.querySelector("span.".concat(this["class"].icon));
-
 	      if (counterNodeWaiter) {
 	        counterNodeWaiter.classList.remove(this["class"].iconRotating);
 	      }
@@ -2026,8 +1795,8 @@ this.BX = this.BX || {};
 	      if (!this.container || !this.wrap) {
 	        return;
 	      }
-
-	      var top = this.wrap.parentNode.getBoundingClientRect().top; //		const counterRect = this.container.getBoundingClientRect();
+	      var top = this.wrap.parentNode.getBoundingClientRect().top;
+	      //		const counterRect = this.container.getBoundingClientRect();
 
 	      if (top <= 53) {
 	        /*
@@ -2038,7 +1807,8 @@ this.BX = this.BX || {};
 	        */
 	        this.fixWrap();
 	      } else {
-	        this.unfixWrap(); //			this.container.style.left = 'auto';
+	        this.unfixWrap();
+	        //			this.container.style.left = 'auto';
 	      }
 	    }
 	  }, {
@@ -2047,7 +1817,6 @@ this.BX = this.BX || {};
 	      if (!this.wrap) {
 	        return;
 	      }
-
 	      this.wrap.classList.add("".concat(this["class"].informerFixed), "".concat(this["class"].informerFixedAnimation));
 	    }
 	  }, {
@@ -2056,7 +1825,6 @@ this.BX = this.BX || {};
 	      if (!this.wrap) {
 	        return;
 	      }
-
 	      this.wrap.classList.remove("".concat(this["class"].informerFixed), "".concat(this["class"].informerFixedAnimation));
 	    }
 	  }, {
@@ -2065,16 +1833,12 @@ this.BX = this.BX || {};
 	      if (!this.container) {
 	        return;
 	      }
-
 	      var counterContainerNode = this.container.querySelector("span.".concat(this["class"].counterContainer));
-
 	      if (!counterContainerNode) {
 	        return;
 	      }
-
 	      counterContainerNode.classList.remove('--hidden');
 	      this.hideReloadNode();
-
 	      if (this.plus) {
 	        this.plus.classList.add("".concat(this["class"].plusHidden));
 	      }
@@ -2085,26 +1849,20 @@ this.BX = this.BX || {};
 	      if (!this.container) {
 	        return;
 	      }
-
 	      var reloadNode = this.container.querySelector("span.".concat(this["class"].reloadContainer));
-
 	      if (!reloadNode) {
 	        return;
 	      }
-
 	      reloadNode.classList.add('--hidden');
 	    }
 	  }, {
 	    key: "decrementCounter",
 	    value: function decrementCounter(value) {
 	      this.counterDecrementStack += parseInt(value);
-
 	      if (!this.value) {
 	        return;
 	      }
-
 	      var counterValue = this.counterValue - this.counterDecrementStack;
-
 	      if (counterValue > 0) {
 	        this.value.innerHTML = counterValue;
 	      } else {
@@ -2127,21 +1885,16 @@ this.BX = this.BX || {};
 	  function Loader() {
 	    babelHelpers.classCallCheck(this, Loader);
 	  }
-
 	  babelHelpers.createClass(Loader, null, [{
 	    key: "showRefreshFade",
 	    value: function showRefreshFade() {
 	      var _this = this;
-
 	      var feedContainer = document.getElementById('log_internal_container');
-
 	      if (feedContainer) {
 	        feedContainer.classList.add(this.cssClass.feedMask);
 	        feedContainer.classList.remove(this.cssClass.feedNoMask);
 	      }
-
 	      var loaderContainer = document.getElementById('feed-loader-container');
-
 	      if (loaderContainer) {
 	        loaderContainer.style.display = 'block';
 	        loaderContainer.classList.remove(this.cssClass.hideLoader);
@@ -2154,14 +1907,11 @@ this.BX = this.BX || {};
 	    key: "hideRefreshFade",
 	    value: function hideRefreshFade() {
 	      var feedContainer = document.getElementById('log_internal_container');
-
 	      if (feedContainer) {
 	        feedContainer.classList.remove(this.cssClass.feedMask);
 	        feedContainer.classList.add(this.cssClass.feedNoMask);
 	      }
-
 	      var loaderContainer = document.getElementById('feed-loader-container');
-
 	      if (loaderContainer) {
 	        loaderContainer.classList.remove(this.cssClass.showLoader);
 	        loaderContainer.classList.add(this.cssClass.hideLoader);
@@ -2179,11 +1929,9 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(Loader, "onAnimationEnd", function (event) {
 	  if ('animationName' in event && event.animationName && event.animationName === 'hideLoader') {
 	    var loaderContainer = document.getElementById('feed-loader-container');
-
 	    if (!loaderContainer) {
 	      return;
 	    }
-
 	    loaderContainer.classList.remove(Loader.cssClass.showLoader);
 	    loaderContainer.classList.remove(Loader.cssClass.hideLoader);
 	    loaderContainer.style.display = '';
@@ -2195,25 +1943,20 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, MoreButton$$1);
 	    main_core_events.EventEmitter.subscribe('BX.Livefeed:recalculateComments', this.onRecalculateLivefeedComments.bind(this));
 	  }
-
 	  babelHelpers.createClass(MoreButton$$1, [{
 	    key: "onRecalculateLivefeedComments",
 	    value: function onRecalculateLivefeedComments(baseEvent) {
 	      var _baseEvent$getCompatD = baseEvent.getCompatData(),
-	          _baseEvent$getCompatD2 = babelHelpers.slicedToArray(_baseEvent$getCompatD, 1),
-	          data = _baseEvent$getCompatD2[0];
-
+	        _baseEvent$getCompatD2 = babelHelpers.slicedToArray(_baseEvent$getCompatD, 1),
+	        data = _baseEvent$getCompatD2[0];
 	      if (!main_core.Type.isDomNode(data.rootNode)) {
 	        return;
 	      }
-
 	      var informerBlock = data.rootNode;
 	      var moreBlock = informerBlock.querySelector(".".concat(MoreButton$$1.cssClass.more));
-
 	      if (moreBlock) {
 	        informerBlock.classList.remove(MoreButton$$1.cssClass.postSeparator);
 	      }
-
 	      MoreButton$$1.recalcPost({
 	        arPos: {
 	          height: data.rootNode.offsetHeight + data.rootNode.offsetTop
@@ -2227,14 +1970,11 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isDomNode(params.informerBlock)) {
 	        return;
 	      }
-
 	      var blockHeight = !main_core.Type.isUndefined(params.arPos) ? params.arPos.height : params.bodyBlock.offsetHeight;
 	      var postBlock = params.informerBlock.closest(".".concat(this.cssClass.post));
-
 	      if (!postBlock) {
 	        return;
 	      }
-
 	      if (blockHeight <= 284) {
 	        postBlock.classList.add(this.cssClass.postShort);
 	        postBlock.classList.add(this.cssClass.postSeparator);
@@ -2246,30 +1986,23 @@ this.BX = this.BX || {};
 	    key: "recalcPostsList",
 	    value: function recalcPostsList() {
 	      var _this = this;
-
 	      var buttonsList = FeedInstance.getMoreButtons();
 	      buttonsList.forEach(function (buttonData, key) {
 	        if (!main_core.Type.isPlainObject(buttonData) || !main_core.Type.isStringFilled(buttonData.bodyBlockID)) {
 	          return;
 	        }
-
 	        var bodyNode = document.getElementById(buttonData.bodyBlockID);
-
 	        if (!bodyNode) {
 	          return;
 	        }
-
 	        if (main_core.Type.isStringFilled(buttonData.outerBlockID)) {
 	          var outerNode = document.getElementById(buttonData.outerBlockID);
-
 	          if (outerNode) {
 	            if (outerNode.offsetWidth < bodyNode.offsetWidth) {
 	              var innerNode = outerNode.querySelector("div.".concat(_this.cssClass.postTextInner));
 	              innerNode.style.overflowX = 'scroll';
 	            }
-
 	            var moreButton = outerNode.querySelector(".".concat(_this.cssClass.more));
-
 	            if (moreButton) {
 	              main_core.Event.unbindAll(moreButton, 'click');
 	              main_core.Event.bind(moreButton, 'click', function (e) {
@@ -2285,38 +2018,33 @@ this.BX = this.BX || {};
 	                  }
 	                });
 	              });
+	              moreButton.hasClickListener = true;
 	            }
 	          }
 	        }
-
 	        _this.recalcPost({
 	          arPos: {
 	            height: bodyNode.offsetHeight + bodyNode.offsetTop
 	          },
 	          informerBlock: main_core.Type.isStringFilled(buttonData.informerBlockID) ? document.getElementById(buttonData.informerBlockID) : null
 	        });
-
 	        buttonsList["delete"](key);
 	      });
 	      FeedInstance.setMoreButtons(buttonsList);
 	      var feedContainer = document.getElementById('log_internal_container');
-
 	      if (!feedContainer) {
 	        return;
 	      }
-
 	      var onLoadImageList = feedContainer.querySelectorAll('[data-bx-onload="Y"]');
 	      onLoadImageList.forEach(function (imageNode) {
 	        imageNode.addEventListener('load', function (e) {
 	          var outerBlock = e.currentTarget.closest(".".concat(_this.cssClass.comment));
-
-	          if (!outerBlock) // post
+	          if (!outerBlock)
+	            // post
 	            {
 	              outerBlock = e.currentTarget.closest(".".concat(_this.cssClass.post));
-
 	              if (outerBlock) {
 	                var bodyBlock = outerBlock.querySelector(".".concat(_this.cssClass.postTextInnerInner));
-
 	                if (bodyBlock) {
 	                  _this.recalcPost({
 	                    bodyBlock: bodyBlock,
@@ -2325,7 +2053,6 @@ this.BX = this.BX || {};
 	                }
 	              }
 	            }
-
 	          e.currentTarget.setAttribute('data-bx-onload', 'N');
 	        });
 	      });
@@ -2350,46 +2077,36 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isDomNode(textBlock)) {
 	        return;
 	      }
-
 	      var postBlock = textBlock.closest(".".concat(this.cssClass.post));
-
 	      if (!postBlock) {
 	        return;
 	      }
-
 	      postBlock.classList.add(this.cssClass.postShort);
 	      postBlock.classList.add(this.cssClass.postSeparator);
 	    }
 	    /*
 	    is not used actually by disk uf
 	    */
-
 	  }, {
 	    key: "lazyLoadCheckVisibility",
 	    value: function lazyLoadCheckVisibility(image) {
 	      if (!main_core.Type.isPlainObject(image) || !main_core.Type.isDomNode(image.node)) {
 	        return true;
 	      }
-
 	      var imageNode = image.node;
 	      var textType = 'comment';
 	      var textBlock = imageNode.closest(".".concat(this.cssClass.comment));
-
 	      if (!textBlock) {
 	        textType = 'post';
 	        textBlock = imageNode.closest(".".concat(this.cssClass.postText));
 	      }
-
 	      if (!textBlock) {
 	        return true;
 	      }
-
 	      var moreBlock = textBlock.querySelector("div.".concat(this.cssClass.more));
-
 	      if (!moreBlock || moreBlock.style.display === 'none') {
 	        return true;
 	      }
-
 	      return imageNode.parentNode.parentNode.offsetTop < (textType === 'comment' ? 220 : 270);
 	    }
 	  }]);
@@ -2410,34 +2127,26 @@ this.BX = this.BX || {};
 	  function Forum() {
 	    babelHelpers.classCallCheck(this, Forum);
 	  }
-
 	  babelHelpers.createClass(Forum, null, [{
 	    key: "processSpoilerToggle",
 	    value: function processSpoilerToggle(event) {
 	      var _event$getCompatData = event.getCompatData(),
-	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
-	          params = _event$getCompatData2[0];
-
+	        _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
+	        params = _event$getCompatData2[0];
 	      if (!main_core.Type.isPlainObject(params)) {
 	        params = {};
 	      }
-
 	      if (!main_core.Type.isDomNode(params.node)) {
 	        return;
 	      }
-
 	      var outerBlock = params.node.closest('.feed-post-block');
-
 	      if (!outerBlock) {
 	        return;
 	      }
-
 	      var bodyBlock = outerBlock.querySelector('.feed-post-text-block-inner-inner');
-
 	      if (!bodyBlock) {
 	        return;
 	      }
-
 	      var moreBlock = outerBlock.querySelector('.feed-post-text-more');
 	      MoreButton$$1.recalcPost({
 	        bodyBlock: bodyBlock,
@@ -2455,23 +2164,19 @@ this.BX = this.BX || {};
 	    this.filterId = '';
 	    this.filterApi = null;
 	  }
-
 	  babelHelpers.createClass(Filter, [{
 	    key: "init",
 	    value: function init(params) {
 	      if (!main_core.Type.isPlainObject(params)) {
 	        params = {};
 	      }
-
 	      if (main_core.Type.isStringFilled(params.filterId) && !main_core.Type.isUndefined(BX.Main) && !main_core.Type.isUndefined(BX.Main.filterManager)) {
 	        var filterManager = BX.Main.filterManager.getById(params.filterId);
 	        this.filterId = params.filterId;
-
 	        if (filterManager) {
 	          this.filterApi = filterManager.getApi();
 	        }
 	      }
-
 	      this.initEvents();
 	    }
 	  }, {
@@ -2482,24 +2187,21 @@ this.BX = this.BX || {};
 	      });
 	      main_core_events.EventEmitter.subscribe('BX.Livefeed.Filter:apply', function (event) {
 	        var _event$getCompatData = event.getCompatData(),
-	            _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 3),
-	            filterValues = _event$getCompatData2[0],
-	            filterPromise = _event$getCompatData2[1],
-	            filterParams = _event$getCompatData2[2];
-
+	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 3),
+	          filterValues = _event$getCompatData2[0],
+	          filterPromise = _event$getCompatData2[1],
+	          filterParams = _event$getCompatData2[2];
 	        if (typeof filterParams != 'undefined') {
 	          filterParams.autoResolve = false;
 	        }
-
 	        PageInstance.refresh({
 	          useBXMainFilter: 'Y'
 	        }, filterPromise);
 	      });
 	      main_core_events.EventEmitter.subscribe('BX.Livefeed.Filter:searchInput', function (event) {
 	        var _event$getCompatData3 = event.getCompatData(),
-	            _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
-	            searchString = _event$getCompatData4[0];
-
+	          _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
+	          searchString = _event$getCompatData4[0];
 	        if (main_core.Type.isStringFilled(searchString)) {
 	          Loader.showRefreshFade();
 	        } else {
@@ -2520,24 +2222,19 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isStringFilled(tagValue) || !this.filterApi) {
 	        return false;
 	      }
-
 	      this.filterApi.setFields({
 	        TAG: tagValue
 	      });
 	      this.filterApi.apply();
-
 	      if (main_core.Type.isStringFilled(this.filterId) && !main_core.Type.isUndefined(BX.Main) && !main_core.Type.isUndefined(BX.Main.filterManager)) {
 	        var filterContainer = document.getElementById("".concat(this.filterId, "_filter_container"));
-
 	        if (filterContainer && BX.Main.filterManager.getById(this.filterId) && (BX.Main.filterManager.getById(this.filterId).getSearch().getSquares().length > 0 || BX.Main.filterManager.getById(this.filterId).getSearch().getSearchString().length > 0)) {
 	          var pagetitleContainer = filterContainer.closest('.pagetitle-wrap');
-
 	          if (pagetitleContainer) {
 	            pagetitleContainer.classList.add('pagetitle-wrap-filter-opened');
 	          }
 	        }
 	      }
-
 	      new BX.easing({
 	        duration: 500,
 	        start: {
@@ -2562,19 +2259,16 @@ this.BX = this.BX || {};
 	  function ContentView() {
 	    babelHelpers.classCallCheck(this, ContentView);
 	  }
-
 	  babelHelpers.createClass(ContentView, null, [{
 	    key: "registerAreaList",
 	    value: function registerAreaList() {
 	      var container = BX('log_internal_container'),
-	          fullContentArea = null;
-
+	        fullContentArea = null;
 	      if (container) {
 	        var viewAreaList = BX.findChildren(container, {
 	          tag: 'div',
 	          className: 'feed-post-contentview'
 	        }, true);
-
 	        for (var i = 0, length = viewAreaList.length; i < length; i++) {
 	          if (viewAreaList[i].id.length > 0) {
 	            fullContentArea = BX.findChild(viewAreaList[i], {
@@ -2591,11 +2285,9 @@ this.BX = this.BX || {};
 	}();
 
 	var _templateObject$3, _templateObject2$1;
-
 	var Page = /*#__PURE__*/function () {
 	  function Page() {
 	    var _this = this;
-
 	    babelHelpers.classCallCheck(this, Page);
 	    this.loadStarted = null;
 	    this.stopTrackNextPage = null;
@@ -2615,7 +2307,6 @@ this.BX = this.BX || {};
 	      _this.init();
 	    });
 	  }
-
 	  babelHelpers.createClass(Page, [{
 	    key: "init",
 	    value: function init() {
@@ -2630,11 +2321,9 @@ this.BX = this.BX || {};
 	    key: "refresh",
 	    value: function refresh(params, filterPromise) {
 	      var _this2 = this;
-
 	      if (this.loadStarted) {
 	        return;
 	      }
-
 	      this.setRequestModeNew();
 	      params = main_core.Type.isPlainObject(params) ? params : {};
 	      params.siteTemplateId = main_core.Loc.getMessage('SONET_EXT_LIVEFEED_SITE_TEMPLATE_ID');
@@ -2643,17 +2332,14 @@ this.BX = this.BX || {};
 	      Loader.showRefreshFade();
 	      MoreButton$$1.clearCommentsList();
 	      FeedInstance.clearMoreButtons();
-
 	      if (main_core.Type.isStringFilled(this.commentFormUID)) {
 	        params.commentFormUID = this.commentFormUID;
 	      }
-
 	      if (!main_core.Type.isStringFilled(params.useBXMainFilter) || params.useBXMainFilter !== 'Y') {
 	        main_core_events.EventEmitter.emit('BX.Livefeed:refresh', new main_core_events.BaseEvent({
 	          compatData: []
 	        }));
 	      }
-
 	      InformerInstance.hideReloadNode();
 	      InformerInstance.lockCounterAnimation = true;
 	      this.loadStarted = false;
@@ -2671,36 +2357,28 @@ this.BX = this.BX || {};
 	        var responseData = main_core.Type.isPlainObject(response.data) ? response.data : {};
 	        _this2.loadStarted = false;
 	        Loader.hideRefreshFade();
-
 	        if (filterPromise) {
 	          filterPromise.fulfill();
 	        }
-
 	        var emptyLivefeed = main_core.Type.isPlainObject(responseData.componentResult) && main_core.Type.isStringFilled(responseData.componentResult.EMPTY) ? responseData.componentResult.EMPTY : 'N';
 	        var forcePageRefresh = main_core.Type.isPlainObject(responseData.componentResult) && main_core.Type.isStringFilled(responseData.componentResult.FORCE_PAGE_REFRESH) ? responseData.componentResult.FORCE_PAGE_REFRESH : 'N';
 	        var isFilterUsed = main_core.Type.isPlainObject(responseData.componentResult) && main_core.Type.isStringFilled(responseData.componentResult.FILTER_USED) && responseData.componentResult.FILTER_USED === 'Y';
-
 	        if (forcePageRefresh === 'Y') {
 	          top.window.location.reload();
 	          return;
 	        }
-
 	        var loaderContainer = document.getElementById('feed-loader-container');
 	        InformerInstance.lockCounterAnimation = false;
 	        var feedContainer = document.getElementById('log_internal_container');
-
 	        if (!feedContainer) {
 	          return;
 	        }
-
 	        main_core.Dom.clean(feedContainer);
 	        var emptyBlock = document.getElementById('feed-empty-wrap');
-
 	        if (emptyBlock) {
 	          if (emptyLivefeed === 'Y') {
 	            emptyBlock.style.display = 'block';
 	            var emptyTextNode = emptyBlock.querySelector('.feed-wrap-empty');
-
 	            if (emptyTextNode) {
 	              emptyTextNode.innerHTML = isFilterUsed ? main_core.Loc.getMessage('SONET_C30_T_EMPTY_SEARCH') : main_core.Loc.getMessage('SONET_C30_T_EMPTY');
 	            }
@@ -2708,14 +2386,11 @@ this.BX = this.BX || {};
 	            emptyBlock.style.display = 'none';
 	          }
 	        }
-
 	        if (loaderContainer) {
 	          feedContainer.appendChild(loaderContainer);
 	        }
-
 	        if (responseData.html.length > 0) {
 	          _this2.clearContainerExternal();
-
 	          BX.LazyLoad.clearImages();
 	          var pageNode = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<div id=\"content_block_", "\" class=\"feed-wrap\" style=\"display: block;\"></div>"])), Math.floor(Math.random() * 1000));
 	          feedContainer.appendChild(pageNode);
@@ -2730,7 +2405,6 @@ this.BX = this.BX || {};
 	          _this2.stopTrackNextPage = false;
 	          MoreButton$$1.clearCommentsList();
 	          var informerWrap = InformerInstance.getWrap();
-
 	          if (informerWrap && informerWrap.classList.contains(InformerInstance["class"].informerFixed)) {
 	            new BX.easing({
 	              duration: 500,
@@ -2752,13 +2426,10 @@ this.BX = this.BX || {};
 	        }
 	      }, function () {
 	        _this2.loadStarted = false;
-
 	        if (filterPromise) {
 	          filterPromise.reject();
 	        }
-
 	        Loader.hideRefreshFade();
-
 	        _this2.showRefreshError();
 	      });
 	      return false;
@@ -2767,25 +2438,20 @@ this.BX = this.BX || {};
 	    key: "getNextPage",
 	    value: function getNextPage() {
 	      var _this3 = this;
-
 	      var stubContainer = document.getElementById('feed-new-message-inf-wrap');
 	      var stubFirstContainer = document.getElementById('feed-new-message-inf-wrap-first');
-
 	      if (this.loadStarted) {
 	        return false;
 	      }
-
 	      this.setRequestModeMore();
 	      this.loadStarted = true;
 	      InformerInstance.lockCounterAnimation = true;
 	      FeedInstance.clearMoreButtons();
-
 	      if (!this.nextPageFirst && stubContainer) {
 	        stubContainer.style.display = 'block';
 	      } else if (this.nextPageFirst && stubFirstContainer) {
 	        stubFirstContainer.classList.add('feed-new-message-inf-wrap-first-visible');
 	      }
-
 	      var nextUrlParamsList = new main_core.Uri(this.getNextPageUrl()).getQueryParams();
 	      var pageNumber = 1;
 	      var prevPageLogId = '';
@@ -2793,9 +2459,8 @@ this.BX = this.BX || {};
 	      var noblog = 'N';
 	      Object.entries(nextUrlParamsList).forEach(function (_ref) {
 	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	            key = _ref2[0],
-	            value = _ref2[1];
-
+	          key = _ref2[0],
+	          value = _ref2[1];
 	        if (key.match(/^PAGEN_(\d+)$/i)) {
 	          pageNumber = parseInt(value);
 	        } else if (key === 'pplogid') {
@@ -2815,15 +2480,12 @@ this.BX = this.BX || {};
 	        preset_filter_top_id: main_core.Type.isStringFilled(nextUrlParamsList.preset_filter_top_id) && nextUrlParamsList.preset_filter_top_id !== '0' ? nextUrlParamsList.preset_filter_top_id : '',
 	        preset_filter_id: main_core.Type.isStringFilled(nextUrlParamsList.preset_filter_id) && nextUrlParamsList.preset_filter_id !== '0' ? nextUrlParamsList.preset_filter_id : ''
 	      };
-
 	      if (main_core.Type.isStringFilled(this.commentFormUID)) {
 	        queryParams.commentFormUID = this.commentFormUID;
 	      }
-
 	      if (main_core.Type.isStringFilled(this.blogCommentFormUID)) {
 	        queryParams.blogCommentFormUID = this.blogCommentFormUID;
 	      }
-
 	      var queryData = {
 	        c: this.getComponentName(),
 	        logajax: 'Y',
@@ -2832,23 +2494,18 @@ this.BX = this.BX || {};
 	        // compatibility with socialnetwork.blog.post.comment
 	        params: queryParams
 	      };
-
 	      if (!main_core.Type.isUndefined(nextUrlParamsList.CREATED_BY_ID)) {
 	        queryData.flt_created_by_id = parseInt(nextUrlParamsList.CREATED_BY_ID);
 	      }
-
 	      if (!main_core.Type.isUndefined(nextUrlParamsList.flt_date_datesel)) {
 	        queryData.flt_date_datesel = nextUrlParamsList.flt_date_datesel;
 	      }
-
 	      if (!main_core.Type.isUndefined(nextUrlParamsList.flt_date_from)) {
 	        queryData.flt_date_from = decodeURIComponent(nextUrlParamsList.flt_date_from);
 	      }
-
 	      if (!main_core.Type.isUndefined(nextUrlParamsList.flt_date_to)) {
 	        queryData.flt_date_to = decodeURIComponent(nextUrlParamsList.flt_date_to);
 	      }
-
 	      main_core.ajax.runAction('socialnetwork.api.livefeed.getNextPage', {
 	        signedParameters: this.getSignedParameters(),
 	        data: queryData
@@ -2856,26 +2513,21 @@ this.BX = this.BX || {};
 	        var responseData = main_core.Type.isPlainObject(response.data) ? response.data : {};
 	        _this3.loadStarted = false;
 	        var stubContainer = document.getElementById('feed-new-message-inf-wrap');
-
 	        if (stubContainer) {
 	          main_core.Dom.clean(stubContainer);
 	          main_core.Dom.remove(stubContainer);
 	        }
-
 	        InformerInstance.lockCounterAnimation = false;
 	        var lastEntryTimestamp = main_core.Type.isPlainObject(responseData.componentResult) && !main_core.Type.isUndefined(responseData.componentResult.LAST_TS) ? parseInt(responseData.componentResult.LAST_TS) : 0;
 	        var lastEntryId = main_core.Type.isPlainObject(responseData.componentResult) && !main_core.Type.isUndefined(responseData.componentResult.LAST_ID) ? parseInt(responseData.componentResult.LAST_ID) : null;
-
 	        if (responseData.html.length > 0 && lastEntryTimestamp > 0 && (parseInt(_this3.firstPageLastTS) <= 0 || lastEntryTimestamp < parseInt(_this3.firstPageLastTS) || lastEntryTimestamp == parseInt(_this3.firstPageLastTS) && !main_core.Type.isNull(lastEntryId) && lastEntryId < parseInt(_this3.firstPageLastId))) {
 	          MoreButton$$1.clearCommentsList();
 	          var contentBlockId = "content_block_".concat(Math.floor(Math.random() * 1000));
 	          var pageNode = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"feed-wrap\" style=\"display:", ";\"></div>"])), contentBlockId, _this3.nextPageFirst ? 'none' : 'block');
 	          var feedContainer = document.getElementById('log_internal_container');
-
 	          if (!feedContainer) {
 	            return;
 	          }
-
 	          feedContainer.appendChild(pageNode);
 	          main_core.Runtime.html(pageNode, responseData.html).then(function () {
 	            if (pageNumber > 2) {
@@ -2887,21 +2539,16 @@ this.BX = this.BX || {};
 	              PinnedPanelInstance.initPosts();
 	            }
 	          });
-
 	          _this3.clearContainerExternal();
-
 	          if (pageNumber === 2) {
 	            document.getElementById('feed-new-message-inf-text-first').style.display = 'block';
 	            document.getElementById('feed-new-message-inf-loader-first').style.display = 'none';
 	            stubFirstContainer.classList.add('feed-new-message-inf-wrap-first-active');
-
 	            var f = function f() {
 	              _this3.stopTrackNextPage = false;
-
 	              if (pageNode) {
 	                pageNode.style.display = 'block';
 	              }
-
 	              main_core.Event.unbind(document.getElementById('sonet_log_more_container_first'), 'click', f);
 	              stubFirstContainer.style.display = 'none';
 	              MoreButton$$1.recalcPostsList();
@@ -2915,14 +2562,12 @@ this.BX = this.BX || {};
 	              PinnedPanelInstance.resetFlags();
 	              PinnedPanelInstance.initPosts();
 	            };
-
 	            main_core.Event.bind(document.getElementById('sonet_log_more_container_first'), 'click', f);
 	          } else {
 	            if (pageNode) {
 	              pageNode.style.display = 'block';
 	            }
 	          }
-
 	          _this3.nextPageFirst = false;
 	        } else if (document.getElementById('feed-new-message-inf-wrap-first')) {
 	          document.getElementById('feed-new-message-inf-wrap-first').style.display = 'none';
@@ -2931,13 +2576,10 @@ this.BX = this.BX || {};
 	        _this3.loadStarted = false;
 	        _this3.stopTrackNextPage = false;
 	        var stubContainer = document.getElementById('feed-new-message-inf-wrap');
-
 	        if (stubContainer) {
 	          stubContainer.style.display = 'none';
 	        }
-
 	        InformerInstance.lockCounterAnimation = false;
-
 	        _this3.clearContainerExternal();
 	      });
 	      return false;
@@ -2949,10 +2591,8 @@ this.BX = this.BX || {};
 	        InformerInstance.hideWrapAnimation();
 	        InformerInstance.recover();
 	      }
-
 	      InformerInstance.hideReloadAnimation();
 	      var counterPreset = document.getElementById('sonet_log_counter_preset');
-
 	      if (counterPreset && this.requestMode === 'new') {
 	        counterPreset.style.display = 'none';
 	      }
@@ -3009,7 +2649,6 @@ this.BX = this.BX || {};
 	      if (this.scrollInitialized) {
 	        return;
 	      }
-
 	      this.scrollInitialized = true;
 	      document.addEventListener('scroll', this.onFeedScroll.bind(this));
 	    }
@@ -3018,13 +2657,11 @@ this.BX = this.BX || {};
 	    value: function onFeedScroll() {
 	      if (!this.stopTrackNextPage) {
 	        var maxScroll = document.documentElement.scrollHeight - window.innerHeight - 500;
-
 	        if (window.pageYOffset >= maxScroll && this.getNextPageUrl()) {
 	          this.stopTrackNextPage = true;
 	          this.getNextPage();
 	        }
 	      }
-
 	      InformerInstance.onFeedScroll();
 	    }
 	  }]);
@@ -3036,14 +2673,12 @@ this.BX = this.BX || {};
 	  function CommentForm() {
 	    babelHelpers.classCallCheck(this, CommentForm);
 	  }
-
 	  babelHelpers.createClass(CommentForm, null, [{
 	    key: "appendResultFieldTaskIds",
 	    value: function appendResultFieldTaskIds(taskIdList) {
 	      if (!main_core.Type.isArray(taskIdList)) {
 	        return;
 	      }
-
 	      taskIdList = taskIdList.map(function (value) {
 	        return parseInt(value);
 	      });
@@ -3055,13 +2690,11 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isUndefined(tasks_result.ResultManager)) {
 	        return;
 	      }
-
 	      this.taskResultCommentsData = Object.assign(this.taskResultCommentsData, data);
 	      Object.entries(this.taskResultCommentsData).forEach(function (_ref) {
 	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	            taskId = _ref2[0],
-	            commentsIdList = _ref2[1];
-
+	          taskId = _ref2[0],
+	          commentsIdList = _ref2[1];
 	        tasks_result.ResultManager.getInstance().initResult({
 	          context: 'task',
 	          taskId: parseInt(taskId),
@@ -3075,7 +2708,6 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isPlainObject(data)) {
 	        data = {};
 	      }
-
 	      main_core_events.EventEmitter.emit('OnBeforeSocialnetworkCommentShowedUp', new main_core_events.BaseEvent({
 	        compatData: ['socialnetwork']
 	      }));
@@ -3090,20 +2722,16 @@ this.BX = this.BX || {};
 	      };
 	      Object.entries(postData).forEach(function (_ref3) {
 	        var _ref4 = babelHelpers.slicedToArray(_ref3, 2),
-	            key = _ref4[0],
-	            value = _ref4[1];
-
+	          key = _ref4[0],
+	          value = _ref4[1];
 	        if (!obj.form[key]) {
 	          obj.form.appendChild(main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "\">"])), key));
 	        }
-
 	        obj.form[key].value = value;
 	      });
 	      this.onLightEditorShow(text, data);
-
 	      if (!BX.Type.isUndefined(BX.Tasks)) {
 	        var matches = obj.currentEntity.ENTITY_XML_ID.match(/^TASK_(\d+)$/i);
-
 	        if (matches && this.resultFieldTaskIdList.includes(parseInt(matches[1]))) {
 	          BX.Tasks.ResultManager.showField();
 	        } else {
@@ -3117,9 +2745,7 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isPlainObject(data)) {
 	        data = {};
 	      }
-
 	      var result = {};
-
 	      if (main_core.Type.isPlainObject(data.UF)) {
 	        result = data.UF;
 	      } else {
@@ -3142,7 +2768,6 @@ this.BX = this.BX || {};
 	            VALUE: value
 	          };
 	        }
-
 	        if (data.arDocs) {
 	          result.UF_SONET_COM_FILE = {
 	            USER_TYPE_ID: 'webdav_element',
@@ -3150,7 +2775,6 @@ this.BX = this.BX || {};
 	            VALUE: main_core.Runtime.clone(data.arDocs)
 	          };
 	        }
-
 	        if (data.arDFiles) {
 	          result.UF_SONET_COM_FILE = {
 	            USER_TYPE_ID: 'disk_file',
@@ -3159,7 +2783,6 @@ this.BX = this.BX || {};
 	          };
 	        }
 	      }
-
 	      LHEPostForm.reinitData(window.SLEC.editorId, content, result);
 	    }
 	  }]);
@@ -3169,7 +2792,9 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(CommentForm, "taskResultCommentsData", {});
 
 	var _templateObject$5, _templateObject2$2;
-
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	var Feed = /*#__PURE__*/function () {
 	  function Feed() {
 	    babelHelpers.classCallCheck(this, Feed);
@@ -3177,52 +2802,41 @@ this.BX = this.BX || {};
 	    this.feedInitialized = false;
 	    this.moreButtonDataList = new Map();
 	  }
-
 	  babelHelpers.createClass(Feed, [{
 	    key: "initOnce",
 	    value: function initOnce(params) {
 	      var loaderContainer = document.getElementById('feed-loader-container');
-
 	      if (!main_core.Type.isPlainObject(params)) {
 	        params = {};
 	      }
-
 	      if (main_core.Type.isStringFilled(params.signedParameters)) {
 	        PageInstance.setSignedParameters(params.signedParameters);
 	      }
-
 	      if (main_core.Type.isStringFilled(params.componentName)) {
 	        PageInstance.setComponentName(params.componentName);
 	      }
-
 	      if (main_core.Type.isStringFilled(params.commentFormUID)) {
 	        PageInstance.commentFormUID = params.commentFormUID;
 	      }
-
 	      if (loaderContainer) {
 	        main_core.Event.bind(loaderContainer, 'animationend', Loader.onAnimationEnd);
 	        main_core.Event.bind(loaderContainer, 'webkitAnimationEnd', Loader.onAnimationEnd);
 	        main_core.Event.bind(loaderContainer, 'oanimationend', Loader.onAnimationEnd);
 	        main_core.Event.bind(loaderContainer, 'MSAnimationEnd', Loader.onAnimationEnd);
 	      }
-
 	      main_core_events.EventEmitter.subscribe('BX.Forum.Spoiler:toggle', Forum.processSpoilerToggle);
 	      FilterInstance.init({
 	        filterId: params.filterId
 	      });
-
 	      if (main_core.Type.isStringFilled(params.crmEntityTypeName) && !main_core.Type.isUndefined(params.crmEntityId) && parseInt(params.crmEntityId) > 0) {
 	        FilterInstance.initEventsCrm();
 	      }
-
 	      BX.UserContentView.init();
 	      document.getElementById('log_internal_container').addEventListener('click', function (e) {
 	        var tagValue = e.target.getAttribute('bx-tag-value');
-
 	        if (!main_core.Type.isStringFilled(tagValue)) {
 	          return;
 	        }
-
 	        if (FilterInstance.clickTag(tagValue)) {
 	          e.preventDefault();
 	          e.stopPropagation();
@@ -3230,11 +2844,9 @@ this.BX = this.BX || {};
 	      }, true);
 	      var noTasksNotificationCloseIcon = document.getElementById('feed-notification-notasks-close-btn');
 	      var noTasksNotificationReadButton = document.getElementById('feed-notification-notasks-read-btn');
-
 	      if (noTasksNotificationCloseIcon) {
 	        main_core.Event.bind(noTasksNotificationCloseIcon, 'click', this.setNoTasksNotificationRead.bind(this));
 	      }
-
 	      if (noTasksNotificationReadButton) {
 	        main_core.Event.bind(noTasksNotificationReadButton, 'click', this.setNoTasksNotificationRead.bind(this));
 	      }
@@ -3245,7 +2857,6 @@ this.BX = this.BX || {};
 	      if (this.feedInitialized) {
 	        return;
 	      }
-
 	      PinnedPanelInstance.init();
 	      InformerInstance.init();
 	      this.feedInitialized = true;
@@ -3254,13 +2865,10 @@ this.BX = this.BX || {};
 	    key: "changeFollow",
 	    value: function changeFollow(params) {
 	      var _this = this;
-
 	      var logId = params.logId ? parseInt(params.logId) : 0;
-
 	      if (!logId) {
 	        return false;
 	      }
-
 	      var followNode = document.getElementById('log_entry_follow_' + logId);
 	      var valueOld = followNode && followNode.getAttribute('data-follow') === 'Y' ? 'Y' : 'N';
 	      var valueNew = valueOld === 'Y' ? 'N' : 'Y';
@@ -3295,26 +2903,19 @@ this.BX = this.BX || {};
 	    key: "renderFollow",
 	    value: function renderFollow(params) {
 	      var logId = params.logId ? parseInt(params.logId) : 0;
-
 	      if (!logId) {
 	        return;
 	      }
-
 	      var followNode = document.getElementById('log_entry_follow_' + logId);
 	      var value = params.value && params.value === 'Y' ? 'Y' : 'N';
-
 	      if (followNode) {
 	        followNode.setAttribute('data-follow', value);
 	      }
-
 	      var textNode = followNode ? followNode.querySelector('a') : null;
-
 	      if (textNode) {
 	        textNode.innerHTML = main_core.Loc.getMessage('SONET_EXT_LIVEFEED_FOLLOW_TITLE_' + value);
 	      }
-
 	      var postNode = followNode ? followNode.closest('.feed-post-block') : null;
-
 	      if (postNode) {
 	        if (value === 'N') {
 	          postNode.classList.add('feed-post-block-unfollowed');
@@ -3327,40 +2928,30 @@ this.BX = this.BX || {};
 	    key: "changeFavorites",
 	    value: function changeFavorites(params) {
 	      var _this2 = this;
-
 	      var logId = params.logId ? parseInt(params.logId) : 0;
 	      var event = params.event ? params.event : null;
 	      var node = params.node ? params.node : null;
 	      var newState = params.newState ? params.newState : null;
-
 	      if (main_core.Type.isStringFilled(node)) {
 	        node = document.getElementById(node);
 	      }
-
 	      if (!logId) {
 	        return;
 	      }
-
 	      var menuItem = null;
-
 	      if (event) {
 	        menuItem = event.target;
-
 	        if (!menuItem.classList.contains('menu-popup-item-text')) {
 	          menuItem = menuItem.querySelector('.menu-popup-item-text');
 	        }
 	      }
-
 	      var nodeToAdjust = null;
-
 	      if (main_core.Type.isDomNode(node)) {
 	        nodeToAdjust = node.classList.contains('feed-post-important-switch') ? node : node.querySelector('.feed-post-important-switch');
 	      }
-
 	      if (typeof this.entryData[logId] == 'undefined') {
 	        this.entryData[logId] = {};
 	      }
-
 	      if (typeof this.entryData[logId].favorites != 'undefined') {
 	        newState = this.entryData[logId].favorites ? 'N' : 'Y';
 	        this.entryData[logId].favorites = !this.entryData[logId].favorites;
@@ -3368,11 +2959,9 @@ this.BX = this.BX || {};
 	        newState = nodeToAdjust.classList.contains('feed-post-important-switch-active') ? 'N' : 'Y';
 	        this.entryData[logId].favorites = newState == 'Y';
 	      }
-
 	      if (!newState) {
 	        return;
 	      }
-
 	      this.adjustFavoritesControlItem(nodeToAdjust, newState);
 	      this.adjustFavoritesMenuItem(menuItem, newState);
 	      main_core.ajax.runAction('socialnetwork.api.livefeed.changeFavorites', {
@@ -3387,9 +2976,7 @@ this.BX = this.BX || {};
 	        if (main_core.Type.isStringFilled(response.data.newValue) && ['Y', 'N'].includes(response.data.newValue)) {
 	          _this2.entryData[logId].favorites = response.data.newValue == 'Y';
 	        }
-
 	        _this2.adjustFavoritesControlItem(nodeToAdjust, response.data.newValue);
-
 	        _this2.adjustFavoritesMenuItem(menuItem, response.data.newValue);
 	      }, function () {
 	        _this2.entryData[logId].favorites = !_this2.entryData[logId].favorites;
@@ -3401,7 +2988,6 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isDomNode(menuItemNode) || !['Y', 'N'].includes(state)) {
 	        return;
 	      }
-
 	      menuItemNode.innerHTML = this.getMenuTitle(state === 'Y');
 	    }
 	  }, {
@@ -3410,9 +2996,7 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isDomNode(node) || !['Y', 'N'].includes(state)) {
 	        return;
 	      }
-
 	      node.title = this.getMenuTitle(state === 'Y');
-
 	      if (state == 'Y') {
 	        node.classList.add('feed-post-important-switch-active');
 	      } else {
@@ -3428,15 +3012,12 @@ this.BX = this.BX || {};
 	    key: "delete",
 	    value: function _delete(params) {
 	      var _this3 = this;
-
 	      var logId = params.logId ? parseInt(params.logId) : 0;
 	      var node = main_core.Type.isStringFilled(params.nodeId) ? document.getElementById(params.nodeId) : null;
 	      var ind = params.ind ? params.ind : '';
-
 	      if (logId <= 0 || !node) {
 	        return;
 	      }
-
 	      main_core.ajax.runAction('socialnetwork.api.livefeed.deleteEntry', {
 	        data: {
 	          logId: logId
@@ -3449,7 +3030,6 @@ this.BX = this.BX || {};
 	          if (!main_core.Type.isUndefined(ind)) {
 	            main_popup.MenuManager.destroy(Post$$1.getMenuId(ind));
 	          }
-
 	          _this3.deleteSuccess(node);
 	        } else {
 	          _this3.deleteFailure(node);
@@ -3464,7 +3044,6 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isDomNode(node)) {
 	        return;
 	      }
-
 	      new BX.fx({
 	        time: 0.5,
 	        step: 0.05,
@@ -3492,7 +3071,6 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isDomNode(node)) {
 	        return;
 	      }
-
 	      node.insertBefore(main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-error\" style=\"margin: 18px 37px 4px 84px;\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></div>"])), main_core.Loc.getMessage('sonetLMenuDeleteFailure')), node.firstChild);
 	    }
 	  }, {
@@ -3508,6 +3086,22 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "clearMoreButtons",
 	    value: function clearMoreButtons() {
+	      var _iterator = _createForOfIteratorHelper(this.moreButtonDataList),
+	        _step;
+	      try {
+	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	          var _document$getElementB;
+	          var buttonData = _step.value;
+	          var moreButton = (_document$getElementB = document.getElementById(buttonData.outerBlockID)) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.querySelector(".".concat(MoreButton$$1.cssClass.more));
+	          if (!(moreButton !== null && moreButton !== void 0 && moreButton.hasClickListener)) {
+	            return;
+	          }
+	        }
+	      } catch (err) {
+	        _iterator.e(err);
+	      } finally {
+	        _iterator.f();
+	      }
 	      this.moreButtonDataList.clear();
 	    }
 	  }, {
@@ -3519,18 +3113,15 @@ this.BX = this.BX || {};
 	    key: "setNoTasksNotificationRead",
 	    value: function setNoTasksNotificationRead(event) {
 	      var notificationNode = event.currentTarget.closest('.feed-notification-container');
-
 	      if (!notificationNode) {
 	        return;
 	      }
-
 	      main_core.ajax.runAction('socialnetwork.api.livefeed.readNoTasksNotification', {
 	        data: {}
 	      }).then(function (response) {
 	        if (!response.data.success) {
 	          return;
 	        }
-
 	        notificationNode.style.height = notificationNode.offsetHeight + 'px';
 	        setTimeout(function () {
 	          notificationNode.classList.add('feed-notification-container-collapsed');
@@ -3543,7 +3134,6 @@ this.BX = this.BX || {};
 	  }]);
 	  return Feed;
 	}();
-
 	var FeedInstance = new Feed();
 	var PinnedPanelInstance = new PinnedPanel();
 	var InformerInstance = new Informer();

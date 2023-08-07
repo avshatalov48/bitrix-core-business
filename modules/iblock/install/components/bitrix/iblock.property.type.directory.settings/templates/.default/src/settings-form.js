@@ -15,8 +15,7 @@ export class SettingsForm
 	{
 		const form = new SettingsForm(gridController, options);
 
-		form.app = BitrixVue.createApp(form.getAppConfig());
-		form.app.mount(options.settingsFormSelector);
+		form.app = BitrixVue.createApp(form.getAppConfig()).mount(options.settingsFormSelector);
 
 		return form;
 	}
@@ -42,6 +41,16 @@ export class SettingsForm
 		const url = new Uri(location.href);
 		url.setQueryParam('directoryTableName', directoryTableName);
 		location.href = url.toString();
+	}
+
+	getDirectoryName(): String
+	{
+		return this.app.directoryName || '';
+	}
+
+	getDirectoryValue(): String
+	{
+		return this.app.directoryValue || '';
 	}
 
 	getAppConfig()

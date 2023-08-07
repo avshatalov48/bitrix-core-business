@@ -1,6 +1,7 @@
 <?php
 /**
  * Bitrix Framework
+ *
  * @package bitrix
  * @subpackage sender
  * @copyright 2001-2012 Bitrix
@@ -13,6 +14,7 @@ use Bitrix\Sender\Internals\CodeBasedFactory;
 
 /**
  * Class Factory
+ *
  * @package Bitrix\Sender\Message
  */
 class Factory extends CodeBasedFactory
@@ -24,14 +26,14 @@ class Factory extends CodeBasedFactory
 	 */
 	protected static function getInterface()
 	{
-		return __NAMESPACE__ . '\iBase';
+		return iBase::class;
 	}
 
 	protected static function getClasses()
 	{
-		return array(
+		return [
 			iBase::EVENT_NAME => Integration\EventHandler::onSenderMessageList(),
-		);
+		];
 	}
 
 	/**
@@ -41,7 +43,7 @@ class Factory extends CodeBasedFactory
 	 */
 	public static function getAdsMessages()
 	{
-		$list = array();
+		$list = [];
 		foreach (static::getMessages() as $message)
 		{
 			if (!($message instanceof iAds))
@@ -62,7 +64,7 @@ class Factory extends CodeBasedFactory
 	 */
 	public static function getMarketingMessages()
 	{
-		$list = array();
+		$list = [];
 		foreach (static::getMessages() as $message)
 		{
 			if (!($message instanceof iMarketing))
@@ -83,7 +85,7 @@ class Factory extends CodeBasedFactory
 	 */
 	public static function getTolokaMessages()
 	{
-		$list = array();
+		$list = [];
 		foreach (static::getMessages() as $message)
 		{
 			if (!($message instanceof iToloka))
@@ -129,7 +131,7 @@ class Factory extends CodeBasedFactory
 	 */
 	public static function getMailingMessages()
 	{
-		$list = array();
+		$list = [];
 		foreach (static::getMessages() as $message)
 		{
 			if (!($message instanceof iMailable))
@@ -150,7 +152,7 @@ class Factory extends CodeBasedFactory
 	 */
 	public static function getReturnCustomerMessages()
 	{
-		$list = array();
+		$list = [];
 		foreach (static::getMessages() as $message)
 		{
 			if (!($message instanceof iReturnCustomer))
@@ -172,8 +174,7 @@ class Factory extends CodeBasedFactory
 	public static function getAdsMessageCodes()
 	{
 		return array_map(
-			function ($message)
-			{
+			function ($message) {
 				/** @var iBase $message */
 				return $message->getCode();
 			},
@@ -189,8 +190,7 @@ class Factory extends CodeBasedFactory
 	public static function getMarketingMessageCodes()
 	{
 		return array_map(
-			function ($message)
-			{
+			function ($message) {
 				/** @var iBase $message */
 				return $message->getCode();
 			},
@@ -206,8 +206,7 @@ class Factory extends CodeBasedFactory
 	public static function getMailingMessageCodes()
 	{
 		return array_map(
-			function ($message)
-			{
+			function ($message) {
 				/** @var iBase $message */
 				return $message->getCode();
 			},
@@ -223,8 +222,7 @@ class Factory extends CodeBasedFactory
 	public static function getTolokaMessageCodes()
 	{
 		return array_map(
-			function ($message)
-			{
+			function ($message) {
 				/** @var iBase $message */
 				return $message->getCode();
 			},
@@ -240,8 +238,7 @@ class Factory extends CodeBasedFactory
 	public static function getReturnCustomerMessageCodes()
 	{
 		return array_map(
-			function ($message)
-			{
+			function ($message) {
 				/** @var iBase $message */
 				return $message->getCode();
 			},

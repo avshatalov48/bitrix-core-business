@@ -8,13 +8,14 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/include.php");
 IncludeModuleLangFile(__FILE__);
 
 $strWarning = "";
+$site ??= $_REQUEST['site'] ?? null;
 $site = CFileMan::__CheckSite($site);
 $DOC_ROOT = CSite::GetSiteDocRoot($site);
 $io = CBXVirtualIo::GetInstance();
 $path = CBXVirtualIoFileSystem::ConvertCharset($path, CBXVirtualIoFileSystem::directionDecode);
 $path = $io->CombinePath("/", $path);
 $arFile = CFile::MakeFileArray($io->GetPhysicalName($DOC_ROOT.$path));
-$arFile["tmp_name"] = CBXVirtualIoFileSystem::ConvertCharset($arFile["tmp_name"], CBXVirtualIoFileSystem::directionDecode);
+$arFile["tmp_name"] = CBXVirtualIoFileSystem::ConvertCharset($arFile["tmp_name"] ?? '', CBXVirtualIoFileSystem::directionDecode);
 $arPath = Array($site, $path);
 
 if(!$USER->CanDoFileOperation('fm_download_file', $arPath))
@@ -24,6 +25,7 @@ else if(!$io->FileExists($arFile["tmp_name"]))
 elseif(!$USER->CanDoOperation('edit_php') && (HasScriptExtension($path) || mb_substr(CFileman::GetFileName($path), 0, 1) == "."))
 	$strWarning .= GetMessage("FILEMAN_FILE_DOWNLOAD_PHPERROR")."\n";
 
+$arFile["name"] = $arFile["name"] ?? '';
 if($strWarning == '')
 {
 	$fileName = str_replace(array("\r", "\n"), "", $arFile["name"]);

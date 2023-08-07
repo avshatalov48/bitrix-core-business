@@ -18,27 +18,29 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.startLineHeight = parseFloat(main_core.Dom.style(element, "line-height"));
 	    this.startLineHeight = main_core.Type.isNumber(this.startLineHeight) ? (this.startLineHeight / this.startSize).toFixed(1) : Entry.MIN_LINE_HEIGHT;
 	    this.currentLineHeight = this.startLineHeight;
-	    this.prevWidth = this.element.clientWidth;
+	    this.calcCurrentWidth();
 	    this.calcMaxHeight();
 	  }
+
 	  /**
 	   * Calculate max height by parent element
 	   */
-
-
 	  calcMaxHeight() {
 	    this.maxHeight = document.documentElement.clientHeight * 0.9;
-
 	    if (this.element.offsetParent) {
 	      // todo: need check parent height if it has, f.e. min-height: 75vh?
 	      this.maxHeight = Math.min(this.maxHeight, this.element.offsetParent.clientHeight);
 	    }
 	  }
+	  calcCurrentWidth() {
+	    main_core.Dom.addClass(this.element, Entry.WIDTH_RESET_CLASS);
+	    this.prevWidth = this.element.clientWidth;
+	    main_core.Dom.removeClass(this.element, Entry.WIDTH_RESET_CLASS);
+	  }
+
 	  /**
 	   * Resets font size style
 	   */
-
-
 	  resetSize() {
 	    this.element.style.setProperty('font-size', null);
 	    this.element.style.setProperty('letter-spacing', null);
@@ -47,39 +49,38 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.currentLineHeight = this.startLineHeight;
 	    this.currentLetterSpacing = this.letterSpacingRatio * this.startSize;
 	  }
+
 	  /**
 	   * Check needed and adjust
 	   */
-
-
 	  adjust() {
 	    this.calcMaxHeight();
-
 	    if (this.isNeedDecrease()) {
 	      this.decreaseSize();
 	    } else if (this.isNeedIncrease()) {
 	      this.increaseSize();
 	    }
 	  }
+
 	  /**
 	   * Check if need decrease size
 	   * @return {boolean}
 	   */
-
-
 	  isNeedDecrease() {
-	    return (this.element.scrollWidth > this.element.clientWidth || this.element.offsetHeight > this.maxHeight) && this.currentSize > Entry.MIN_SIZE;
+	    const fullScrollWidth = this.element.scrollWidth;
+	    main_core.Dom.addClass(this.element, Entry.WIDTH_RESET_CLASS);
+	    const res = (fullScrollWidth > this.element.clientWidth || this.element.offsetHeight > this.maxHeight) && this.currentSize > Entry.MIN_SIZE;
+	    main_core.Dom.removeClass(this.element, Entry.WIDTH_RESET_CLASS);
+	    return res;
 	  }
+
 	  /**
 	   * Decrease size step-by-step, until text is big
 	   */
-
-
 	  decreaseSize() {
 	    let newSize = this.currentSize - this.currentSize * Entry.STEP_SIZE_PERCENTS / 100;
 	    newSize = Math.floor(newSize);
 	    newSize = Math.max(Entry.MIN_SIZE, newSize);
-
 	    if (this.currentSize !== newSize) {
 	      if (!this.intervalId) {
 	        this.intervalId = setInterval(() => {
@@ -90,29 +91,31 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          }
 	        });
 	      }
-
 	      this.setFontSize(newSize);
 	    }
 	  }
+
 	  /**
 	   * Check if need increase size
 	   * @return {boolean}
 	   */
-
-
 	  isNeedIncrease() {
-	    return !this.isNeedDecrease() && this.element.clientWidth > this.prevWidth && this.element.clientWidth - this.prevWidth > this.element.clientWidth * Entry && this.currentSize < this.startSize;
+	    if (this.isNeedDecrease()) {
+	      return false;
+	    }
+	    main_core.Dom.addClass(this.element, Entry.WIDTH_RESET_CLASS);
+	    const res = this.element.clientWidth > this.prevWidth && this.element.clientWidth - this.prevWidth > this.element.clientWidth * Entry.STEP_SIZE_PERCENTS / 100 && this.currentSize < this.startSize;
+	    main_core.Dom.removeClass(this.element, Entry.WIDTH_RESET_CLASS);
+	    return res;
 	  }
+
 	  /**
 	   * Increase size step-by-step, until text is small
 	   */
-
-
 	  increaseSize() {
 	    let newSize = this.currentSize + this.currentSize * Entry.STEP_SIZE_PERCENTS / (100 - Entry.STEP_SIZE_PERCENTS);
 	    newSize = Math.ceil(newSize);
 	    newSize = Math.min(this.startSize, newSize);
-
 	    if (this.currentSize !== newSize) {
 	      if (!this.intervalId) {
 	        this.intervalId = setInterval(() => {
@@ -127,47 +130,43 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          }
 	        });
 	      }
-
 	      this.setFontSize(newSize);
 	    }
 	  }
+
 	  /**
 	   * Stop increase or decrease processing
 	   */
-
-
 	  finishAdjust() {
 	    clearInterval(this.intervalId);
 	    this.intervalId = null;
-	    this.prevWidth = this.element.clientWidth;
+	    this.calcCurrentWidth();
 	  }
+
 	  /**
 	   * Set (if needed) new font size, calculate and set new letter spacing and line height
 	   * @param size
 	   */
-
-
 	  setFontSize(size) {
 	    if (size !== this.currentSize && size <= this.startSize) {
 	      this.currentSize = size;
-	      this.element.style.setProperty('font-size', this.currentSize + "px", "important"); // LINE HEIGHT correction
+	      this.element.style.setProperty('font-size', this.currentSize + "px", "important");
 
+	      // LINE HEIGHT correction
 	      if (this.startLineHeight > Entry.MIN_LINE_HEIGHT) {
 	        let newLineHeight = Entry.MIN_LINE_HEIGHT + (this.startLineHeight - Entry.MIN_LINE_HEIGHT) * size / this.startSize;
 	        newLineHeight = newLineHeight.toFixed(1);
 	        newLineHeight = Math.max(newLineHeight, Entry.MIN_LINE_HEIGHT);
-
 	        if (newLineHeight <= this.startLineHeight && newLineHeight !== this.currentLineHeight) {
 	          this.element.style.setProperty('line-height', newLineHeight, "important");
 	          this.currentLineHeight = newLineHeight;
 	        }
-	      } // LETTER SPACING correction
+	      }
 
-
+	      // LETTER SPACING correction
 	      if (this.letterSpacingRatio > Entry.MIN_LETTER_SPACING) {
 	        let newLetterSpacing = this.letterSpacingRatio * size;
 	        newLetterSpacing = Math.round(newLetterSpacing);
-
 	        if (newLetterSpacing !== this.currentLetterSpacing) {
 	          this.element.style.setProperty('letter-spacing', newLetterSpacing + 'px', "important");
 	          this.currentLetterSpacing = newLetterSpacing;
@@ -175,12 +174,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    }
 	  }
-
 	}
 	Entry.STEP_SIZE_PERCENTS = 10;
 	Entry.MIN_SIZE = 12;
 	Entry.MIN_LINE_HEIGHT = 1.4;
 	Entry.MIN_LETTER_SPACING = 0;
+	Entry.WIDTH_RESET_CLASS = 'scroll-width-reset';
 
 	const bind = BX.Landing.Utils.bind;
 	const slice = BX.Landing.Utils.slice;
@@ -194,23 +193,21 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  static isNeedAdjust() {
 	    return BX.width(window) <= AutoFontScale.WIDTH_LIMIT;
 	  }
+
 	  /**
 	   * Checks that window resize
 	   * @return {boolean}
 	   */
-
-
 	  static isResized() {
 	    const result = lastWidth !== BX.width(window);
 	    lastWidth = BX.width(window);
 	    return result;
 	  }
+
 	  /**
 	   * Implements interface for works with responsive texts
 	   * @param {HTMLElement[]} elements
 	   */
-
-
 	  constructor(elements) {
 	    this.entries = elements.map(this.createEntry, this);
 	    this.onResize = main_core.Runtime.debounce(this.onResize, 500);
@@ -219,16 +216,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    onCustomEvent("BX.Landing.Block:init", this.onAddBlock.bind(this));
 	    this.adjust(true);
 	  }
-
 	  onResize(forceAdjust) {
 	    this.adjust(forceAdjust);
 	  }
+
 	  /**
 	   * Adjusts text
 	   * @param {boolean} [forceAdjust]
 	   */
-
-
 	  adjust(forceAdjust) {
 	    if (forceAdjust === true || AutoFontScale.isResized()) {
 	      const needAdjust = AutoFontScale.isNeedAdjust();
@@ -241,44 +236,39 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    }
 	  }
+
 	  /**
 	   * Creates entry
 	   * @param {HTMLElement} element
 	   * @return {Entry}
 	   */
-
-
 	  createEntry(element) {
 	    return new Entry(element);
 	  }
+
 	  /**
 	   * Adds elements
 	   * @param {HTMLElement[]} elements
 	   */
-
-
 	  addElements(elements) {
 	    elements.forEach(element => {
 	      const containsElement = this.entries.some(entry => {
 	        return entry.element === element;
 	      });
-
 	      if (!containsElement) {
 	        this.entries.push(this.createEntry(element));
 	      }
 	    }, this);
 	  }
+
 	  /**
 	   * Handles add block event
 	   * @param {BX.Landing.Event.Block} event
 	   */
-
-
 	  onAddBlock(event) {
 	    const elements = slice(event.block.querySelectorAll("h1, h2, h3, h4, h5, [data-auto-font-scale]"));
 	    this.addElements(elements);
 	  }
-
 	}
 	AutoFontScale.WIDTH_LIMIT = 768;
 

@@ -586,6 +586,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 		$fromEmail = $decodedData['from'];
 		$fromAddress = new \Bitrix\Main\Mail\Address($fromEmail);
+		$responsibleId = $this->getCurrentUser()->getId();
 
 		if ($fromAddress->validate())
 		{
@@ -790,32 +791,18 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			return;
 		}
 
-		// @TODO: improve mailbox detection
+		$mailboxHelper = Mail\Helper\Mailbox::findBy($data['MAILBOX_ID'], $fromEmail);
 
-		if ($data['MAILBOX_ID'] > 0)
+		$mailboxOwnerId = null;
+
+		if (!empty($mailboxHelper))
 		{
-			if ($mailbox = Mail\MailboxTable::getUserMailbox($data['MAILBOX_ID']))
+			$mailboxOwnerId = $mailboxHelper->getMailboxOwnerId();
+			if (!$mailboxHelper->isAuthenticated())
 			{
-				$mailboxHelper = Mail\Helper\Mailbox::createInstance($mailbox['ID'], false);
+				$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_IMAP_ERR_AUTH'));
+				return;
 			}
-		}
-
-		if (empty($mailboxHelper))
-		{
-			foreach (Mail\MailboxTable::getUserMailboxes() as $mailbox)
-			{
-				if ($fromEmail == $mailbox['EMAIL'])
-				{
-					$mailboxHelper = Mail\Helper\Mailbox::createInstance($mailbox['ID'], false);
-					break;
-				}
-			}
-		}
-
-		if(!empty($mailboxHelper) && !$mailboxHelper->isAuthenticated())
-		{
-			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_IMAP_ERR_AUTH'));
-			return;
 		}
 
 		$outgoingParams = [
@@ -856,9 +843,13 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 					'STORAGE_ELEMENT_IDS' => $attachmentIds,
 				)
 			);
-			$activityFields = array(
+
+			$activityFields = [
+				'RESPONSIBLE_ID' => $responsibleId,
+				'EDITOR_ID' => $responsibleId,
+				'AUTHOR_ID' => $mailboxOwnerId,
 				'COMMUNICATIONS' => $crmCommunication,
-			);
+			];
 
 			if (\CCrmEMail::createOutgoingMessageActivity($messageFields, $activityFields) !== true)
 			{

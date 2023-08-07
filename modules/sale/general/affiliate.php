@@ -1,5 +1,11 @@
 <?php
 
+use Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Context;
+use Bitrix\Main\Session\Session;
+use Bitrix\Main\Web\Cookie;
+
 IncludeModuleLangFile(__FILE__);
 
 $GLOBALS["SALE_AFFILIATE"] = Array();
@@ -10,6 +16,26 @@ $GLOBALS["SALE_CONVERT_CURRENCY_CACHE"] = array();
 
 class CAllSaleAffiliate
 {
+	private const VALUE_STORAGE_ID = 'SALE_AFFILIATE';
+	/**
+	 * Session object.
+	 *
+	 * If session is not accessible, returns null.
+	 *
+	 * @return Session|null
+	 */
+	private static function getSession(): ?Session
+	{
+		/** @var Session $session */
+		$session = Application::getInstance()->getSession();
+		if (!$session->isAccessible())
+		{
+			return null;
+		}
+
+		return $session;
+	}
+
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		/** @global CDatabase $DB */
@@ -172,35 +198,70 @@ class CAllSaleAffiliate
 
 	public static function GetAffiliate($affiliateID = 0)
 	{
-		$affiliateID = intval($affiliateID);
+		$request = Context::getCurrent()->getRequest();
+		$session = static::getSession();
+
+		$affiliateID = (int)$affiliateID;
 
 		if ($affiliateID <= 0)
 		{
-			$affiliateParam = COption::GetOptionString("sale", "affiliate_param_name", "partner");
-			if ($affiliateParam <> '' && array_key_exists($affiliateParam, $_GET))
-				$affiliateID = intval($_GET[$affiliateParam]);
+			$affiliateParam = Option::get('sale', 'affiliate_param_name', 'partner');
+			if ($affiliateParam !== '')
+			{
+				$rawValue = $request->getQuery($affiliateParam);
+				if (!is_array($rawValue))
+				{
+					$affiliateID = (int)$rawValue;
+				}
+				unset($rawValue);
+			}
+		}
+
+		if ($affiliateID <= 0 && $session !== null)
+		{
+			if ($session->has(self::VALUE_STORAGE_ID))
+			{
+				$affiliateID = (int)$session->get(self::VALUE_STORAGE_ID);
+			}
 		}
 
 		if ($affiliateID <= 0)
-			if (array_key_exists("SALE_AFFILIATE", $_SESSION))
-				$affiliateID = intval($_SESSION["SALE_AFFILIATE"]);
-
-		if ($affiliateID <= 0)
 		{
-			$cookieName = COption::GetOptionString("main", "cookie_name", "BITRIX_SM");
-			$affiliateID = intval($_COOKIE[$cookieName."_SALE_AFFILIATE"] ?? 0);
+			$affiliateID = (int)$request->getCookie(self::VALUE_STORAGE_ID);
 		}
 
 		if ($affiliateID > 0)
 		{
-			$_SESSION["SALE_AFFILIATE"] = $affiliateID;
-			$cookieTime = intval(COption::GetOptionString("sale", "affiliate_life_time", "0"));
-			$secure = false;
-			if(COption::GetOptionString("sale", "use_secure_cookies", "N") == "Y" && CMain::IsHTTPS())
-				$secure=1;
-			$GLOBALS["APPLICATION"]->set_cookie("SALE_AFFILIATE", $affiliateID, (($cookieTime <= 0) ? 0 : time() + $cookieTime * 24 * 60 * 60), "/", false, $secure, "Y", false);
+			if ($session !== null)
+			{
+				$session->set(self::VALUE_STORAGE_ID, $affiliateID);
+			}
+
+			$cookieTime = (int)Option::get('sale', 'affiliate_life_time');
+			$cookieTime =
+				$cookieTime > 0
+					? time() + $cookieTime * 86400
+					: null
+			;
+			$secureCookie = Option::get('sale', 'use_secure_cookies') === 'Y' && $request->isHttps();
+
+			$cookie = new Cookie(self::VALUE_STORAGE_ID, (string)$affiliateID, $cookieTime);
+			$cookie
+				->setSecure($secureCookie)
+				->setHttpOnly(false)
+				->setSpread(Cookie::SPREAD_DOMAIN | Cookie::SPREAD_SITES)
+			;
+
+			$response = Context::getCurrent()->getResponse();
+
+			$response->addCookie($cookie);
+
+			unset($response);
+			unset($cookie);
 
 		}
+		unset($session);
+		unset($request);
 
 		return $affiliateID;
 	}

@@ -16,12 +16,16 @@
 	padding: 20px 20px 30px 20px;
 }
 
+.ui-message-box .popup-window-titlebar + .popup-window-content {
+	padding-top: 10px;
+}
+
 .ui-message-box .popup-window-titlebar {
 	height: auto;
 }
 
 .ui-message-box .popup-window-titlebar-text {
 	color: #535C69;
-	padding: 20px 20px 0;
+	padding: 18px 20px 0;
 	line-height: normal;
 }

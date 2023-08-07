@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 (function (exports,im_lib_clipboard,im_lib_timer,im_lib_uploader,im_lib_utils,main_core_events,im_const,im_lib_logger,main_core) {

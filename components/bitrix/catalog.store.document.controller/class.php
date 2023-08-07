@@ -36,16 +36,14 @@ class CatalogStoreDocumentControllerComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		if (Loader::includeModule('catalog'))
+		if (!Loader::includeModule('catalog'))
 		{
-			if (!Catalog\Config\Feature::isInventoryManagementEnabled())
-			{
-				LocalRedirect('/shop/');
-			}
+			ShowError(\Bitrix\Main\Localization\Loc::getMessage('CATALOG_STORE_DOCUMENT_CONTROLLER_MODULE_CATALOG_NOT_INSTALLED'));
 		}
+
 		$this->initConfig();
 
-		if (\Bitrix\Main\Loader::includeModule('crm'))
+		if (Loader::includeModule('crm'))
 		{
 			/** installing demo data for crm used for PresetCrmStoreMenu creation*/
 			\CAllCrmInvoice::installExternalEntities();

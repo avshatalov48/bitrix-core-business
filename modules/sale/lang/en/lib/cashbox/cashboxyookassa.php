@@ -1,0 +1,20 @@
+<?php
+$MESS["SALE_CASHBOX_YOOKASSA_ERROR_CHECK_NOT_FOUND"] = "Receipt was not found.";
+$MESS["SALE_CASHBOX_YOOKASSA_ERROR_CHECK_PROCESSING"] = "Error processing request.";
+$MESS["SALE_CASHBOX_YOOKASSA_ERROR_CHECK_REGISTRATION"] = "Error registering receipt.";
+$MESS["SALE_CASHBOX_YOOKASSA_ERROR_CHECK_WAIT"] = "Try again later.";
+$MESS["SALE_CASHBOX_YOOKASSA_ERROR_DECODE_RESPONSE"] = "Error decoding JSON string.";
+$MESS["SALE_CASHBOX_YOOKASSA_ERROR_EMPTY_RESPONSE"] = "Empty server response.";
+$MESS["SALE_CASHBOX_YOOKASSA_SETTINGS_SNO"] = "Taxation";
+$MESS["SALE_CASHBOX_YOOKASSA_SETTINGS_SNO_LABEL"] = "Tax system";
+$MESS["SALE_CASHBOX_YOOKASSA_SETTINGS_VAT"] = "Tax rate parameters";
+$MESS["SALE_CASHBOX_YOOKASSA_SETTINGS_VAT_LABEL_NOT_VAT"] = "No tax (default)";
+$MESS["SALE_CASHBOX_YOOKASSA_SNO_ENVD"] = "Single tax on imputed income";
+$MESS["SALE_CASHBOX_YOOKASSA_SNO_ESN"] = "Single agriculture tax";
+$MESS["SALE_CASHBOX_YOOKASSA_SNO_OSN"] = "General tax system";
+$MESS["SALE_CASHBOX_YOOKASSA_SNO_PATENT"] = "Patent tax system";
+$MESS["SALE_CASHBOX_YOOKASSA_SNO_UI"] = "Simplified (income)";
+$MESS["SALE_CASHBOX_YOOKASSA_SNO_UIO"] = "Simplified (income less expenses)";
+$MESS["SALE_CASHBOX_YOOKASSA_STATUS_CHECK_CANCELLED"] = "Could not register receipt.";
+$MESS["SALE_CASHBOX_YOOKASSA_STATUS_CHECK_PENDING"] = "Receipt processing";
+$MESS["SALE_CASHBOX_YOOKASSA_TITLE"] = "YooMoney receipts";

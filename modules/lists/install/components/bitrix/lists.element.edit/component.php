@@ -507,6 +507,17 @@ if(
 		$additionalActions = array();
 		foreach($arResult["FIELDS"] as $FIELD_ID => $arField)
 		{
+			if (
+				$arResult['ELEMENT_ID'] > 0
+				&& isset($arField['SETTINGS']['EDIT_READ_ONLY_FIELD'])
+				&& $arField['SETTINGS']['EDIT_READ_ONLY_FIELD'] === 'Y'
+				&& $arField['TYPE'] !== 'L'
+			)
+			{
+				//readonly field, skip writing
+				continue;
+			}
+
 			if($FIELD_ID == "PREVIEW_PICTURE" || $FIELD_ID == "DETAIL_PICTURE")
 			{
 				$arElement[$FIELD_ID] = $_FILES[$FIELD_ID];
@@ -640,7 +651,7 @@ if(
 							}
 							break;
 						default:
-							$arProps[$arField["ID"]] = $_POST[$FIELD_ID];
+							$arProps[$arField["ID"]] = $_POST[$FIELD_ID] ?? ['VALUE' => ''];
 					}
 				}
 				else
@@ -670,8 +681,7 @@ if(
 				{
 					if(!in_array($arPropV["PROPERTY_TYPE"], $ignoreProperty))
 					{
-						if(is_array($arProps[$arPropV["ID"]]) && empty($arProps[$arPropV["ID"]])
-							|| is_string($arProps[$arPropV["ID"]]) && $arProps[$arPropV["ID"]] == '')
+						if (empty($arProps[$arPropV["ID"]]))
 						{
 							if(!array_key_exists($arPropV["ID"], $arElement["PROPERTY_VALUES"]))
 								$arElement["PROPERTY_VALUES"][$arPropV["ID"]] = array();
@@ -1035,7 +1045,7 @@ foreach($arResult["FIELDS"] as $FIELD_ID => $arField)
 	{
 		if($bVarsFromForm)
 		{
-			$data[$FIELD_ID] = $_POST[$FIELD_ID];
+			$data[$FIELD_ID] = $_POST[$FIELD_ID] ?? null;
 		}
 		elseif($arResult["ELEMENT_ID"] || $copy_id)
 		{

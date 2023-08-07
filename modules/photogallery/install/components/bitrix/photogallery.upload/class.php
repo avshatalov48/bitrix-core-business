@@ -55,7 +55,7 @@ class CPhotogalleryUpload extends \CBitrixComponent implements Main\Engine\Contr
 					'Permission' => $params['PERMISSION_EXTERNAL']),
 				array(
 					'cache_time' => $params['CACHE_TIME'],
-					'set_404' => $params['SET_STATUS_404']
+					'set_404' => $params['SET_STATUS_404'] ?? null
 				)
 			);
 
@@ -142,7 +142,10 @@ class CPhotogalleryUpload extends \CBitrixComponent implements Main\Engine\Contr
 			}
 		}
 		$params['MODERATION'] = ($params['MODERATION'] == 'Y' ? 'Y' : 'N');
-		$params['PUBLIC_BY_DEFAULT'] = ($params['SHOW_PUBLIC'] == 'N' || $params['PUBLIC_BY_DEFAULT'] != 'N' ? 'Y' : 'N');
+		$params['PUBLIC_BY_DEFAULT'] = (
+			($params['SHOW_PUBLIC'] ?? null) == 'N'
+			|| $params['PUBLIC_BY_DEFAULT'] != 'N' ? 'Y' : 'N'
+		);
 		$params['APPROVE_BY_DEFAULT'] = ($params['APPROVE_BY_DEFAULT'] == 'N' ? 'N' : 'Y');
 	}
 
@@ -155,7 +158,7 @@ class CPhotogalleryUpload extends \CBitrixComponent implements Main\Engine\Contr
 		}
 		$params['WATERMARK_RULES'] = ($params['WATERMARK_RULES'] == 'ALL' ? 'ALL' : 'USER');
 		$params['WATERMARK_TYPE'] = ($params['WATERMARK_TYPE'] == 'TEXT' ? 'TEXT' : 'PICTURE');
-		$params['WATERMARK_TEXT'] = trim($params['WATERMARK_TEXT']);
+		$params['WATERMARK_TEXT'] = trim($params['WATERMARK_TEXT'] ?? '');
 
 		$params['SHOW_WATERMARK'] = $params['WATERMARK_RULES'] == 'ALL' ? 'N' : 'Y';
 
@@ -164,12 +167,12 @@ class CPhotogalleryUpload extends \CBitrixComponent implements Main\Engine\Contr
 		{
 			$params['PATH_TO_FONT'] = 'default.ttf';
 		}
-		$params['WATERMARK_COLOR'] = '#'.trim($params['WATERMARK_COLOR'], ' #');
+		$params['WATERMARK_COLOR'] = '#'.trim($params['WATERMARK_COLOR'] ?? '', ' #');
 		$params['WATERMARK_SIZE'] = intval($params['WATERMARK_SIZE']);
-		$params['WATERMARK_FILE'] = trim($params['WATERMARK_FILE']);
+		$params['WATERMARK_FILE'] = trim($params['WATERMARK_FILE'] ?? '');
 
 		$params['WATERMARK_FILE_ORDER'] = in_array($params['WATERMARK_FILE_ORDER'], ['usual', 'resize', 'repeat']) ? : 'usual';
-		$params['WATERMARK_POSITION'] = trim($params['WATERMARK_POSITION']);
+		$params['WATERMARK_POSITION'] = trim($params['WATERMARK_POSITION'] ?? '');
 
 		$arPositions = array('TopLeft', 'TopCenter', 'TopRight', 'CenterLeft', 'Center', 'CenterRight', 'BottomLeft', 'BottomCenter', 'BottomRight');
 		$arPositions2 = array('tl', 'tc', 'tr', 'ml', 'mc', 'mr', 'bl', 'bc', 'br');
@@ -179,7 +182,7 @@ class CPhotogalleryUpload extends \CBitrixComponent implements Main\Engine\Contr
 		else
 			$params['WATERMARK_POSITION'] = 'BottomRight';
 
-		$params['WATERMARK_TRANSPARENCY'] = trim($params['WATERMARK_TRANSPARENCY']);
+		$params['WATERMARK_TRANSPARENCY'] = trim($params['WATERMARK_TRANSPARENCY'] ?? '');
 		$params['WATERMARK_MIN_PICTURE_SIZE'] = intval($params['WATERMARK_MIN_PICTURE_SIZE'] ?: 800);
 	}
 

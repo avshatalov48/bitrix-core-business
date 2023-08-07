@@ -48,6 +48,30 @@ class BasketReservationService
 
 		if ($result->isSuccess())
 		{
+			// Debug start
+			$reservation = BasketReservationTable::getRowById($result->getId());
+			if (!$reservation)
+			{
+				$logFields = [
+					'STORE_ID' => $fields['STORE_ID'] ?? 0,
+					'BASKET_ID' => $fields['BASKET_ID'] ?? 0,
+					'DATE_RESERVE' => is_object($fields['DATE_RESERVE']) ? $fields['DATE_RESERVE']->toString() : $fields['DATE_RESERVE'],
+					'DATE_RESERVE_END' => is_object($fields['DATE_RESERVE_END']) ? $fields['DATE_RESERVE_END']->toString() : $fields['DATE_RESERVE_END'],
+					'QUANTITY' => $fields['QUANTITY'] ?? 0,
+				];
+
+				$description = 'ID='.$result->getId().'; json='.\Bitrix\Main\Web\Json::encode($logFields);
+
+				\CEventLog::Add(array(
+					"SEVERITY" => \CEventLog::SEVERITY_DEBUG,
+					"AUDIT_TYPE_ID" => "SALE_RESERVATION_DEBUG",
+					"MODULE_ID" => "sale",
+					"ITEM_ID" => "",
+					"DESCRIPTION" => $description
+				));
+			}
+			// Debug end
+
 			$historyResult = $this->historyService->addByReservation($result->getId());
 			foreach ($historyResult->getErrors() as $err)
 			{

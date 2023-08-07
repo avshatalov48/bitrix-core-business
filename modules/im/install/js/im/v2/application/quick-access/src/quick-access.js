@@ -41,7 +41,7 @@ export class QuickAccessApplication
 		return new Promise((resolve) => {
 			Core.ready().then(controller => {
 				this.controller = controller;
-				Core.setApplicationData(ApplicationName.quickAccess, this.params);
+				Core.setApplicationData(this.params);
 				resolve();
 			});
 		});

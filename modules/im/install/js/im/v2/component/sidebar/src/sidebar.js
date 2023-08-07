@@ -1,34 +1,34 @@
-import {Logger} from 'im.v2.lib.logger';
-import {ImModelDialog} from 'im.v2.model';
-import {SidebarFileTabTypes} from 'im.v2.const';
-import {SidebarService} from './classes/sidebar-service';
-import {MainDetail} from './components/main/detail';
-import {MainPreview} from './components/main/preview';
-import {InfoPreview} from './components/info/preview';
-import {LinkDetail} from './components/info/link-detail';
-import {FavoriteDetail} from './components/info/favorite-detail';
-import {MediaDetail} from './components/file/media-detail';
-import {AudioDetail} from './components/file/audio-detail';
-import {DocumentDetail} from './components/file/document-detail';
-import {OtherDetail} from './components/file/other-detail';
-import {FileUnsortedPreview} from './components/file-unsorted/preview';
-import {FileUnsortedDetail} from './components/file-unsorted/detail';
-import {FilePreview} from './components/file/preview';
-import {TaskPreview} from './components/task/preview';
-import {TaskDetail} from './components/task/detail';
-import {BriefDetail} from './components/brief/detail';
-import {BriefPreview} from './components/brief/preview';
-import {MeetingPreview} from './components/meeting/preview';
-import {MeetingDetail} from './components/meeting/detail';
-import {SignPreview} from './components/sign/preview';
-import {SignDetail} from './components/sign/detail';
-import {MarketPreview} from './components/market/preview';
-import {MarketDetail} from './components/market/detail';
-import {SidebarHeader} from './components/header';
-import {DetailHeader} from './components/detail-header';
-import {DetailTabs} from './components/detail-tabs';
-import {AvailabilityManager} from './classes/availability-manager';
-import {SettingsManager} from './classes/settings-manager';
+import { Logger } from 'im.v2.lib.logger';
+import { ImModelDialog } from 'im.v2.model';
+import { SidebarFileTabTypes } from 'im.v2.const';
+import { SidebarService } from './classes/sidebar-service';
+import { MainDetail } from './components/main/detail';
+import { MainPreview } from './components/main/preview';
+import { InfoPreview } from './components/info/preview';
+import { LinkDetail } from './components/info/link-detail';
+import { FavoriteDetail } from './components/info/favorite-detail';
+import { MediaDetail } from './components/file/media-detail';
+import { AudioDetail } from './components/file/audio-detail';
+import { DocumentDetail } from './components/file/document-detail';
+import { OtherDetail } from './components/file/other-detail';
+import { FileUnsortedPreview } from './components/file-unsorted/preview';
+import { FileUnsortedDetail } from './components/file-unsorted/detail';
+import { FilePreview } from './components/file/preview';
+import { TaskPreview } from './components/task/preview';
+import { TaskDetail } from './components/task/detail';
+import { BriefDetail } from './components/brief/detail';
+import { BriefPreview } from './components/brief/preview';
+import { MeetingPreview } from './components/meeting/preview';
+import { MeetingDetail } from './components/meeting/detail';
+import { SignPreview } from './components/sign/preview';
+import { SignDetail } from './components/sign/detail';
+import { MarketPreview } from './components/market/preview';
+import { MarketDetail } from './components/market/detail';
+import { SidebarHeader } from './components/header';
+import { DetailHeader } from './components/detail-header';
+import { DetailTabs } from './components/detail-tabs';
+import { AvailabilityManager } from './classes/availability-manager';
+import { SettingsManager } from './classes/settings-manager';
 import './css/sidebar.css';
 import './css/icons.css';
 
@@ -36,29 +36,51 @@ import './css/icons.css';
 export const ChatSidebar = {
 	name: 'ChatSidebar',
 	components: {
-		DetailHeader, DetailTabs, SidebarHeader, MainDetail, MainPreview, InfoPreview, LinkDetail, FavoriteDetail, MediaDetail, AudioDetail, DocumentDetail, OtherDetail, FilePreview, TaskPreview,
-		TaskDetail, BriefDetail, BriefPreview, MeetingPreview, MeetingDetail, SignPreview, SignDetail,
-		FileUnsortedDetail, FileUnsortedPreview, MarketPreview, MarketDetail
+		DetailHeader,
+		DetailTabs,
+		SidebarHeader,
+		MainDetail,
+		MainPreview,
+		InfoPreview,
+		LinkDetail,
+		FavoriteDetail,
+		MediaDetail,
+		AudioDetail,
+		DocumentDetail,
+		OtherDetail,
+		FilePreview,
+		TaskPreview,
+		TaskDetail,
+		BriefDetail,
+		BriefPreview,
+		MeetingPreview,
+		MeetingDetail,
+		SignPreview,
+		SignDetail,
+		FileUnsortedDetail,
+		FileUnsortedPreview,
+		MarketPreview,
+		MarketDetail,
 	},
 	props:
 	{
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		sidebarDetailBlock: {
 			type: String,
-			default: null
-		}
+			default: null,
+		},
 	},
 	emits: ['back'],
-	data()
+	data(): Object
 	{
 		return {
 			isLoading: false,
 			detailBlock: null,
 			detailBlockEntityId: null,
-			detailTransition: 'right-panel-detail-transition'
+			detailTransition: 'right-panel-detail-transition',
 		};
 	},
 	computed:
@@ -92,7 +114,7 @@ export const ChatSidebar = {
 		{
 			return this.dialog.chatId;
 		},
-		dialogInited()
+		dialogInited(): boolean
 		{
 			return this.dialog.inited;
 		},
@@ -143,6 +165,11 @@ export const ChatSidebar = {
 	{
 		initializeSidebar()
 		{
+			if (this.hasInitialData)
+			{
+				return;
+			}
+
 			this.isLoading = true;
 			if (!this.dialogInited)
 			{
@@ -152,20 +179,13 @@ export const ChatSidebar = {
 			this.sidebarService.setChatId(this.chatId);
 			this.sidebarService.setDialogId(this.dialogId);
 
-			if (this.hasInitialData)
-			{
-				this.isLoading = false;
-
-				return;
-			}
-
 			this.sidebarService.requestInitialData().then(() => {
 				this.isLoading = false;
 			});
 		},
 		onOpenDetail(data: Object)
 		{
-			const {detailBlock, entityId = ''} = data;
+			const { detailBlock, entityId = '' } = data;
 			this.detailBlock = detailBlock;
 			this.detailBlockEntityId = entityId.toString();
 		},
@@ -212,5 +232,5 @@ export const ChatSidebar = {
 				/>
 			</div>
 		</transition> 
-	`
+	`,
 };

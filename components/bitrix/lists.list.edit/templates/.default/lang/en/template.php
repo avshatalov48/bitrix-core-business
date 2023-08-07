@@ -1,14 +1,19 @@
-<?
+<?php
 $MESS["CT_BLLE_ACCESS_RIGHTS"] = "User Groups Allowed To Access The List";
+$MESS["CT_BLLE_COPY_CONFIRM_BUTTON"] = "Yes, copy";
 $MESS["CT_BLLE_COPY_POPUP_ACCEPT_BUTTON"] = "Copy";
 $MESS["CT_BLLE_COPY_POPUP_CANCEL_BUTTON"] = "Cancel";
 $MESS["CT_BLLE_COPY_POPUP_CONTENT"] = "Are you sure you want to copy information?";
+$MESS["CT_BLLE_COPY_POPUP_CONTENT_1"] = "Are you sure you want to copy workflow?";
 $MESS["CT_BLLE_COPY_POPUP_COPIED_SUCCESS"] = "List has been cloned. <a href=\"#URL#\">Edit the new list's parameters</a>";
 $MESS["CT_BLLE_COPY_POPUP_COPIED_SUCCESS_PROCESS"] = "Workflow has been cloned. <a href=\"#URL#\">Edit the new workflow's parameters</a>";
 $MESS["CT_BLLE_COPY_POPUP_TITLE"] = "Confirm Copy";
+$MESS["CT_BLLE_COPY_POPUP_TITLE_1"] = "Copy workflow";
+$MESS["CT_BLLE_DELETE_CONFIRM_BUTTON"] = "Yes, delete";
 $MESS["CT_BLLE_DELETE_POPUP_ACCEPT_BUTTON"] = "Delete";
 $MESS["CT_BLLE_DELETE_POPUP_CANCEL_BUTTON"] = "Cancel";
 $MESS["CT_BLLE_DELETE_POPUP_TITLE"] = "Confirm Deletion";
+$MESS["CT_BLLE_DELETE_POPUP_TITLE_1"] = "Delete";
 $MESS["CT_BLLE_FIELD_BIZPROC"] = "Enable Business Processes";
 $MESS["CT_BLLE_FIELD_DESCRIPTION"] = "List description";
 $MESS["CT_BLLE_FIELD_DESCRIPTION_PROCESS"] = "Workflow description";
@@ -45,7 +50,9 @@ $MESS["CT_BLLE_TOOLBAR_DELETE_PROCESS"] = "Delete workflow";
 $MESS["CT_BLLE_TOOLBAR_DELETE_TITLE"] = "Delete the list and all the associated information";
 $MESS["CT_BLLE_TOOLBAR_DELETE_TITLE_PROCESS"] = "Deletes the workflow and all related information";
 $MESS["CT_BLLE_TOOLBAR_DELETE_WARNING"] = "Are you sure you want to delete this list?";
+$MESS["CT_BLLE_TOOLBAR_DELETE_WARNING_1"] = "Are you sure you want to delete this list?";
 $MESS["CT_BLLE_TOOLBAR_DELETE_WARNING_PROCESS"] = "Are you sure you want to delete this workflow?";
+$MESS["CT_BLLE_TOOLBAR_DELETE_WARNING_PROCESS_1"] = "Are you sure you want to delete workflow?";
 $MESS["CT_BLLE_TOOLBAR_FIELDS"] = "List Fields";
 $MESS["CT_BLLE_TOOLBAR_FIELDS_PROCESS"] = "Workflow fields";
 $MESS["CT_BLLE_TOOLBAR_FIELDS_TITLE"] = "Configure list fields";
@@ -59,4 +66,3 @@ $MESS["CT_BLLE_TOOLBAR_LIST_TITLE"] = "View and edit list elements";
 $MESS["CT_BLLE_TOOLBAR_MIGRATE_PROCESSES"] = "Move to workflows";
 $MESS["CT_BLLE_TOOLBAR_MIGRATE_WARNING_PROCESS"] = "Are you sure you want to move this list?";
 $MESS["CT_BLLE_TOOLBAR_RETURN_LIST_ELEMENT"] = "BACK TO LIST";
-?>

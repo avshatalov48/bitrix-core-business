@@ -1,6 +1,6 @@
 const loadImage = (file: File | Blob) => new Promise((resolve, reject) => {
 
-	const image = document.createElement('img');
+	const image: HTMLImageElement = document.createElement('img');
 	const url = URL.createObjectURL(file);
 	image.src = url;
 

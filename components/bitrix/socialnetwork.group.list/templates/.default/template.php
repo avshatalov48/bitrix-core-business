@@ -330,6 +330,7 @@ $removeButton = [
 			'SHOW_SELECTED_COUNTER' => true,
 			'SHOW_ROW_ACTIONS_MENU' => true,
 			'SHOW_ACTION_PANEL' => false,
+			'SHOW_MORE_BUTTON' => false,
 			'ACTION_PANEL' => [
 				'GROUPS' => [
 					[

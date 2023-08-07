@@ -515,7 +515,13 @@ elseif(isset($_REQUEST['process']) && $_REQUEST['process'] == "Y")
 					$DirScan->startPath = $NS['startPath'];
 
 				$r = $DirScan->Scan($DOCUMENT_ROOT_SITE);
+
+				if (!isset($NS["data_size"]))
+				{
+					$NS["data_size"] = 0;
+				}
 				$NS["data_size"] += 512 * ($tar->Block - $Block);
+
 				$tar->close();
 
 				if ($r === false)
@@ -529,7 +535,6 @@ elseif(isset($_REQUEST['process']) && $_REQUEST['process'] == "Y")
 				{
 					$NS["cnt"] = 0;
 				}
-
 				$NS["cnt"] += $DirScan->FileCount;
 
 				$status_title = GetMessage("MAIN_DUMP_SITE_PROC");

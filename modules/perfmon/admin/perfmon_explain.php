@@ -22,110 +22,63 @@ $ID = intval($ID);
 $sTableID = "tbl_perfmon_explain";
 $lAdmin = new CAdminList($sTableID);
 
-if ($DBType == "mysql")
-{
-	$arHeader = array(
-		array(
-			"id" => "select_type",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_SELECT_TYPE"),
-			"align" => "left",
-			"default" => true,
-		),
-		array(
-			"id" => "table",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_TABLE"),
-			"align" => "left",
-			"default" => true,
-		),
-		array(
-			"id" => "type",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_TYPE"),
-			"align" => "left",
-			"default" => true,
-		),
-		array(
-			"id" => "possible_keys",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_POSSIBLE_KEYS"),
-			"align" => "left",
-			"default" => true,
-		),
-		array(
-			"id" => "key",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_KEY"),
-			"align" => "left",
-			"default" => true,
-		),
-		array(
-			"id" => "key_len",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_KEY_LEN"),
-			"align" => "right",
-			"default" => true,
-		),
-		array(
-			"id" => "ref",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_REF"),
-			"align" => "left",
-			"default" => true,
-		),
-		array(
-			"id" => "rows",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_ROWS"),
-			"align" => "right",
-			"default" => true,
-		),
-		array(
-			"id" => "Extra",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_EXTRA"),
-			"align" => "left",
-			"default" => true,
-		),
-	);
-}
-elseif ($DBType == "oracle")
-{
-	$arHeader = array(
-		array(
-			"id" => "OPERATION",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_OPERATION"),
-			"align" => "left",
-			"default" => true,
-		),
-		array(
-			"id" => "OBJECT_NAME",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_OBJECT_NAME"),
-			"align" => "left",
-			"default" => true,
-		),
-		array(
-			"id" => "OBJECT_TYPE",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_OBJECT_TYPE"),
-			"align" => "left",
-			"default" => true,
-		),
-		array(
-			"id" => "OPTIONS",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_EXTRA"),
-			"align" => "left",
-			"default" => true,
-		),
-		array(
-			"id" => "CARDINALITY",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_ROWS"),
-			"align" => "right",
-			"default" => true,
-		),
-		array(
-			"id" => "COST",
-			"content" => GetMessage("PERFMON_EXPLAIN_F_COST"),
-			"align" => "right",
-			"default" => true,
-		),
-	);
-}
-else
-{
-	$arHeader = array();
-}
+$arHeader = array(
+	array(
+		"id" => "select_type",
+		"content" => GetMessage("PERFMON_EXPLAIN_F_SELECT_TYPE"),
+		"align" => "left",
+		"default" => true,
+	),
+	array(
+		"id" => "table",
+		"content" => GetMessage("PERFMON_EXPLAIN_F_TABLE"),
+		"align" => "left",
+		"default" => true,
+	),
+	array(
+		"id" => "type",
+		"content" => GetMessage("PERFMON_EXPLAIN_F_TYPE"),
+		"align" => "left",
+		"default" => true,
+	),
+	array(
+		"id" => "possible_keys",
+		"content" => GetMessage("PERFMON_EXPLAIN_F_POSSIBLE_KEYS"),
+		"align" => "left",
+		"default" => true,
+	),
+	array(
+		"id" => "key",
+		"content" => GetMessage("PERFMON_EXPLAIN_F_KEY"),
+		"align" => "left",
+		"default" => true,
+	),
+	array(
+		"id" => "key_len",
+		"content" => GetMessage("PERFMON_EXPLAIN_F_KEY_LEN"),
+		"align" => "right",
+		"default" => true,
+	),
+	array(
+		"id" => "ref",
+		"content" => GetMessage("PERFMON_EXPLAIN_F_REF"),
+		"align" => "left",
+		"default" => true,
+	),
+	array(
+		"id" => "rows",
+		"content" => GetMessage("PERFMON_EXPLAIN_F_ROWS"),
+		"align" => "right",
+		"default" => true,
+	),
+	array(
+		"id" => "Extra",
+		"content" => GetMessage("PERFMON_EXPLAIN_F_EXTRA"),
+		"align" => "left",
+		"default" => true,
+	),
+);
+
 $lAdmin->AddHeaders($arHeader);
 
 $arPlan = false;
@@ -135,23 +88,7 @@ $arSQL = $rsSQL->Fetch();
 $strSQL = CPerfQuery::transform2select($arSQL["SQL_TEXT"]);
 if ($strSQL)
 {
-	if ($DBType == "mysql")
-	{
-		$rsData = $DB->Query("explain ".$strSQL, true);
-	}
-	elseif ($DBType == "oracle")
-	{
-		$rsData = $DB->Query("explain plan for ".$strSQL, true);
-		if ($rsData)
-		{
-			$rsData = $DB->Query("select * from plan_table order by ID");
-			$arPlan = $rsData->Fetch();
-		}
-	}
-	else
-	{
-		$rsData = false;
-	}
+	$rsData = $DB->Query("explain ".$strSQL, true);
 }
 else
 {

@@ -1,73 +1,54 @@
 this.BX = this.BX || {};
-(function (exports,ui_designTokens,ui_fonts_opensans,main_core_events,main_core) {
+(function (exports,ui_designTokens,ui_buttons,ui_fonts_opensans,main_core_events,main_core) {
 	'use strict';
 
-	var _templateObject, _templateObject2;
-
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
 	var _loadingMessagesStubInGridWrapper = /*#__PURE__*/new WeakMap();
-
 	var _gridWrapper = /*#__PURE__*/new WeakMap();
-
 	var _id = /*#__PURE__*/new WeakMap();
-
 	var _allRowsSelectedStatus = /*#__PURE__*/new WeakMap();
-
 	var _panel = /*#__PURE__*/new WeakMap();
-
 	var _checkboxNodeForCheckAll = /*#__PURE__*/new WeakMap();
-
 	var _compareGrid = /*#__PURE__*/new WeakSet();
-
 	var MessageGrid = /*#__PURE__*/function () {
 	  function MessageGrid() {
 	    var _this = this;
-
+	    var mailboxIsAvailable = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 	    babelHelpers.classCallCheck(this, MessageGrid);
-
 	    _classPrivateMethodInitSpec(this, _compareGrid);
-
+	    babelHelpers.defineProperty(this, "EXPAND_LICENSE_URL", '/settings/license_all.php');
 	    _classPrivateFieldInitSpec(this, _loadingMessagesStubInGridWrapper, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _gridWrapper, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _id, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _allRowsSelectedStatus, {
 	      writable: true,
 	      value: false
 	    });
-
 	    _classPrivateFieldInitSpec(this, _panel, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _checkboxNodeForCheckAll, {
 	      writable: true,
 	      value: void 0
 	    });
-
+	    this.mailboxIsAvailable = mailboxIsAvailable;
 	    if (babelHelpers["typeof"](MessageGrid.instance) === 'object') {
 	      return MessageGrid.instance;
 	    }
-
 	    MessageGrid.instance = this;
 	    main_core_events.EventEmitter.subscribe('Grid::allRowsSelected', function (event) {
 	      if (_classPrivateMethodGet(_this, _compareGrid, _compareGrid2).call(_this, event)) babelHelpers.classPrivateFieldSet(_this, _allRowsSelectedStatus, true);
@@ -80,7 +61,6 @@ this.BX = this.BX || {};
 	        if (babelHelpers.classPrivateFieldGet(_this, _checkboxNodeForCheckAll) !== undefined) {
 	          babelHelpers.classPrivateFieldGet(_this, _checkboxNodeForCheckAll).checked = true;
 	        }
-
 	        _this.selectAll();
 	      }
 	    });
@@ -95,9 +75,8 @@ this.BX = this.BX || {};
 	    });
 	    main_core_events.EventEmitter.subscribe('Grid::updated', function (event) {
 	      var _event$getCompatData = event.getCompatData(),
-	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
-	          grid = _event$getCompatData2[0];
-
+	        _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
+	        grid = _event$getCompatData2[0];
 	      if (grid !== undefined && main_core.Type.isFunction(grid.getId) && grid.getId() === _this.getId()) {
 	        _this.replaceTheBlankEmailStub();
 	      }
@@ -105,7 +84,6 @@ this.BX = this.BX || {};
 	    this.replaceTheBlankEmailStub();
 	    return MessageGrid.instance;
 	  }
-
 	  babelHelpers.createClass(MessageGrid, [{
 	    key: "setGridWrapper",
 	    value: function setGridWrapper(gridWrapper) {
@@ -120,7 +98,6 @@ this.BX = this.BX || {};
 	    key: "enableLoadingMessagesStub",
 	    value: function enableLoadingMessagesStub() {
 	      var _this2 = this;
-
 	      if (this.getGridWrapper() !== undefined) {
 	        babelHelpers.classPrivateFieldSet(this, _loadingMessagesStubInGridWrapper, this.getGridWrapper().appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader mail-msg-list-grid-loader-animate\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-inner\">\n\t\t\t\t\t\t\t<img src=\"/bitrix/images/mail/mail-loader.svg\" alt=\"Load...\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>"])))));
 	        setTimeout(function () {
@@ -133,13 +110,23 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "replaceTheBlankEmailStub",
 	    value: function replaceTheBlankEmailStub() {
+	      var _this3 = this;
 	      var blankEmailStubs = document.getElementsByClassName("main-grid-row main-grid-row-empty main-grid-row-body");
-
 	      if (blankEmailStubs.length > 0) {
 	        var blankEmailStub = blankEmailStubs[0];
-
 	        if (blankEmailStub.firstElementChild.firstElementChild) {
-	          blankEmailStub.firstElementChild.firstElementChild.replaceWith(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"mail-msg-list-grid-empty\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-empty-inner\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-empty-title\">", "</div>\n\t\t\t\t\t\t<p class=\"mail-msg-list-grid-empty-text\">", "</p>\n\t\t\t\t\t\t<p class=\"mail-msg-list-grid-empty-text\">", "</p>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>"])), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TITLE"), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TEXT_1"), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TEXT_2")));
+	          if (this.mailboxIsAvailable) {
+	            blankEmailStub.firstElementChild.firstElementChild.replaceWith(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-empty\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-empty-inner\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-empty-title\">", "</div>\n\t\t\t\t\t\t<p class=\"mail-msg-list-grid-empty-text\">", "</p>\n\t\t\t\t\t\t<p class=\"mail-msg-list-grid-empty-text\">", "</p>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>"])), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TITLE"), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TEXT_1"), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TEXT_2")));
+	          } else {
+	            var tariffButton = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-round ui-btn-lg ui-btn-success\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>"])), main_core.Loc.getMessage("MAIL_MSG_LIST_MAILBOX_TARIFF_RESTRICTIONS_BUTTON"));
+	            tariffButton.onclick = function (event) {
+	              event.preventDefault();
+	              window.open(_this3.EXPAND_LICENSE_URL, '_blank');
+	            };
+	            var tariffPlug = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"mail-msg-list-grid-empty\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-empty-inner\">\n\t\t\t\t\t\t\t<div class=\"mail-msg-list-grid-empty-title\">", "</div>\n\t\t\t\t\t\t\t<p class=\"mail-msg-list-grid-empty-text\">", "</p>\n\t\t\t\t\t\t\t<p class=\"mail-msg-list-grid-empty-text\">", "</p>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<br/>\n\t\t\t\t\t</div>"])), main_core.Loc.getMessage("MAIL_MSG_LIST_MAILBOX_TARIFF_RESTRICTIONS_TITLE"), main_core.Loc.getMessage("MAIL_MSG_LIST_MAILBOX_TARIFF_RESTRICTIONS_TEXT_1"), main_core.Loc.getMessage("MAIL_MSG_LIST_MAILBOX_TARIFF_RESTRICTIONS_TEXT_2"));
+	            tariffPlug.append(tariffButton);
+	            blankEmailStub.firstElementChild.firstElementChild.replaceWith(tariffPlug);
+	          }
 	        }
 	      }
 	    }
@@ -162,7 +149,6 @@ this.BX = this.BX || {};
 	    key: "hidePanel",
 	    value: function hidePanel() {
 	      var panel = this.getPanel();
-
 	      if (panel && main_core.Type.isFunction(panel.hidePanel())) {
 	        this.getPanel().hidePanel();
 	      }
@@ -189,7 +175,6 @@ this.BX = this.BX || {};
 	      if (babelHelpers.classPrivateFieldGet(this, _id) === gridId) {
 	        return;
 	      }
-
 	      babelHelpers.classPrivateFieldSet(this, _id, gridId);
 	      this.grid = BX.Main.gridManager.getInstanceById(gridId);
 	    }
@@ -259,24 +244,19 @@ this.BX = this.BX || {};
 	  }]);
 	  return MessageGrid;
 	}();
-
 	function _compareGrid2(eventWithGrid, grid) {
 	  if (this.getId() !== undefined) {
 	    if (grid === undefined && eventWithGrid.getCompatData()) {
 	      var _eventWithGrid$getCom = eventWithGrid.getCompatData();
-
 	      var _eventWithGrid$getCom2 = babelHelpers.slicedToArray(_eventWithGrid$getCom, 1);
-
 	      grid = _eventWithGrid$getCom2[0];
 	    }
-
 	    if (grid !== undefined && main_core.Type.isFunction(grid.getId) && grid.getId() === this.getId()) return true;
 	  }
-
 	  return false;
 	}
 
 	exports.MessageGrid = MessageGrid;
 
-}((this.BX.Mail = this.BX.Mail || {}),BX,BX,BX.Event,BX));
+}((this.BX.Mail = this.BX.Mail || {}),BX,BX.UI,BX,BX.Event,BX));
 //# sourceMappingURL=messagegrid.bundle.js.map

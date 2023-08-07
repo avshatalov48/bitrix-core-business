@@ -17,6 +17,7 @@ function JCIBlockGenerator(arParams)
 	this.CHECKED_MAP = [];
 	this.SELECTED_PROPERTIES = [];
 	this.lockProperties = false;
+	this.subIBlockId = arParams.subIBlockId;
 
 	BX.ready(BX.proxy(this.Init, this));
 }
@@ -368,10 +369,11 @@ JCIBlockGenerator.prototype.addPropertyImages = function()
 
 	this.disableControls();
 	postData = {
-		"PROPERTY_CHECK": this.CHECKED_MAP,
-		"PROPERTY_VALUE": this.PROPERTY_MAP,
-		"AJAX_MODE": 'Y',
-		"sessid": BX.bitrix_sessid()
+		'subIBlockId': this.subIBlockId,
+		'PROPERTY_CHECK': this.CHECKED_MAP,
+		'PROPERTY_VALUE': this.PROPERTY_MAP,
+		'AJAX_MODE': 'Y',
+		'sessid': BX.bitrix_sessid()
 	};
 	BX.showWait('ib_seg_add_images_button');
 	BX.ajax.post('/bitrix/tools/catalog/iblock_subelement_generator.php', postData, BX.proxy(this.fPropertyImagesResult, this));

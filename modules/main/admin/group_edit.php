@@ -395,8 +395,8 @@ $tabControl->BeginNextTab();
 							?> OnChange="CatGroupsActivate(this, <?=$ind?>)"></td>
 					<td align="left"><label for="USER_ID_ACT_ID_<?=$ind?>">[<a href="/bitrix/admin/user_edit.php?ID=<?=$arUsers["ID"]?>&lang=<?=LANGUAGE_ID?>" title="<?=GetMessage("MAIN_VIEW_USER")?>"><?=$arUsers["ID"]?></a>] (<?=htmlspecialcharsbx($arUsers["LOGIN"])?>) <?=htmlspecialcharsbx($arUsers["NAME"])?> <?=htmlspecialcharsbx($arUsers["LAST_NAME"])?></label></td>
 					<td>
-						<?=CalendarDate("USER_ID_FROM_".$ind, (array_key_exists($arUsers["ID"], $str_USER_ID) ? htmlspecialcharsbx($str_USER_ID[$arUsers["ID"]]["DATE_ACTIVE_FROM"]) : ""), "form1", "10", (array_key_exists($arUsers["ID"], $str_USER_ID) ? " " : " disabled"))?>
-						<?=CalendarDate("USER_ID_TO_".$ind, (array_key_exists($arUsers["ID"], $str_USER_ID) ? htmlspecialcharsbx($str_USER_ID[$arUsers["ID"]]["DATE_ACTIVE_TO"]) : ""), "form1", "10", (array_key_exists($arUsers["ID"], $str_USER_ID) ? " " : " disabled"))?>
+						<?=CalendarDate("USER_ID_FROM_".$ind, (array_key_exists($arUsers["ID"], $str_USER_ID) ? htmlspecialcharsbx($str_USER_ID[$arUsers["ID"]]["DATE_ACTIVE_FROM"]) : ""), "form1", "22", (array_key_exists($arUsers["ID"], $str_USER_ID) ? " " : " disabled"))?>
+						<?=CalendarDate("USER_ID_TO_".$ind, (array_key_exists($arUsers["ID"], $str_USER_ID) ? htmlspecialcharsbx($str_USER_ID[$arUsers["ID"]]["DATE_ACTIVE_TO"]) : ""), "form1", "22", (array_key_exists($arUsers["ID"], $str_USER_ID) ? " " : " disabled"))?>
 					</td>
 				</tr>
 				<?

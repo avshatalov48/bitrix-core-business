@@ -16,7 +16,7 @@ elseif (!IsModuleInstalled("iblock"))
 	$arParams["IS_SOCNET"] = ($arParams["IS_SOCNET"] == "Y" ? "Y" : "N");
 
 	// For blog
-	$arParams["BLOG_URL"] = trim($arParams["BLOG_URL"]);
+	$arParams["BLOG_URL"] = trim($arParams["BLOG_URL"] ?? '');
 //***************** URL ********************************************/
 	$URL_NAME_DEFAULT = array("detail" => "PAGE_NAME=detail&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
@@ -36,8 +36,16 @@ elseif (!IsModuleInstalled("iblock"))
 	else
 		$arParams["CACHE_TIME"] = 0;
 
-	if (intval($_REQUEST['ELEMENT_ID']) > 0 && $_REQUEST['save_photo_comment'] == 'Y')
-		PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $arParams["SECTION_ID"]));
+	if (
+		intval($_REQUEST['ELEMENT_ID'] ?? null) > 0
+		&& ($_REQUEST['save_photo_comment'] ?? null) == 'Y'
+	)
+	{
+		PClearComponentCacheEx(
+			$arParams["IBLOCK_ID"],
+			[0, $arParams["SECTION_ID"]]
+		);
+	}
 /********************************************************************
 				/Input params
 ********************************************************************/

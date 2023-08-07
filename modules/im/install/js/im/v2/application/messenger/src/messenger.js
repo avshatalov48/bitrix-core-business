@@ -42,7 +42,7 @@ export class MessengerApplication
 		return new Promise((resolve) => {
 			Core.ready().then(controller => {
 				this.controller = controller;
-				Core.setApplicationData(ApplicationName.messenger, this.params);
+				Core.setApplicationData(this.params);
 				resolve();
 			});
 		});

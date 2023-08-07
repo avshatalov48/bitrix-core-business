@@ -47,7 +47,7 @@ class PersonalOrderSection extends CBitrixComponent
 
 		$params['SHOW_ACCOUNT_COMPONENT'] = (string)($params['SHOW_ACCOUNT_COMPONENT'] ?? 'Y');
 		$params['SHOW_ACCOUNT_PAY_COMPONENT'] = (string)($params['SHOW_ACCOUNT_PAY_COMPONENT'] ?? 'Y');
-		$params['ACCOUNT_PAYMENT_SELL_CURRENCY'] = (string)($params['ACCOUNT_PAYMENT_SELL_CURRENCY'] ?? 'Y');
+		$params['ACCOUNT_PAYMENT_SELL_CURRENCY'] = (string)($params['ACCOUNT_PAYMENT_SELL_CURRENCY'] ?? '');
 		$params['ACCOUNT_PAYMENT_PERSON_TYPE'] = (string)($params['ACCOUNT_PAYMENT_PERSON_TYPE'] ?? '');
 		$params['ACCOUNT_PAYMENT_ELIMINATED_PAY_SYSTEMS'] ??= [];
 		if (!is_array($params['ACCOUNT_PAYMENT_ELIMINATED_PAY_SYSTEMS']))

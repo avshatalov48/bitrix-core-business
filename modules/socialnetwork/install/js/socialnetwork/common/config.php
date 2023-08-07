@@ -19,6 +19,7 @@ return array(
 		'ui.icons',
 		'ui.buttons',
 		'ui.fonts.opensans',
+		'im.public',
 	],
 	'lang_additional' => [
 		'USER_SONET_ADMIN' => (\CSocNetUser::isCurrentUserModuleAdmin() ? 'Y' : 'N'),

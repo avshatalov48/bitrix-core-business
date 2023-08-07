@@ -482,8 +482,10 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 		// $this->etag = $result['etag'];
 		$this->syncSectionConnection->setVersionId($result['etag'] ?? null);
 		$this->defaultRemind = $result['defaultReminders'][0] ?? null;
-		$this->modified = Date::createDateTimeFromFormat($result['updated'],
-			Helper::DATE_TIME_FORMAT_WITH_MICROSECONDS);
+		$this->modified = ($result['updated'] ?? null)
+			? Date::createDateTimeFromFormat($result['updated'], Helper::DATE_TIME_FORMAT_WITH_MICROSECONDS)
+			: new Date()
+		;
 		// TODO: Remake it: Overdependence from $this->httpClient
 		$status = $this->httpClient->getStatus();
 		$this->lastSyncStatus = \Bitrix\Calendar\Sync\Dictionary::SYNC_SECTION_ACTION['success'];

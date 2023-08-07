@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,ui_designTokens,landing_loc,ui_draganddrop_draggable,landing_ui_panel_fieldspanel,landing_ui_component_listitem,landing_ui_component_actionpanel,landing_ui_field_textfield,main_core_events,landing_ui_form_formsettingsform,crm_form_client,landing_ui_field_listsettingsfield,landing_ui_panel_separatorpanel,landing_pageobject,main_loader,landing_ui_field_productfield,calendar_resourcebookinguserfield,socnetlogdest,ui_hint,landing_ui_component_iconbutton,main_core,landing_ui_field_basefield) {
+(function (exports,ui_designTokens,landing_loc,ui_draganddrop_draggable,landing_ui_panel_fieldspanel,landing_ui_component_listitem,landing_ui_component_actionpanel,landing_ui_field_textfield,main_core_events,landing_ui_form_formsettingsform,crm_form_fileLimit,crm_form_client,landing_ui_field_listsettingsfield,landing_ui_panel_separatorpanel,landing_pageobject,main_loader,landing_ui_field_productfield,calendar_resourcebookinguserfield,socnetlogdest,ui_hint,landing_ui_component_iconbutton,main_core,landing_ui_field_basefield) {
 	'use strict';
 
 	var _templateObject, _templateObject2;
@@ -117,7 +117,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return RequisiteSettingsField;
 	}(landing_ui_field_basefield.BaseField);
 
-	var _templateObject$1, _templateObject2$1;
+	var _templateObject$1, _templateObject2$1, _templateObject3, _templateObject4, _templateObject5;
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
@@ -401,6 +401,110 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return defaultValueField;
 	    }
 	  }, {
+	    key: "createFileLimitationFields",
+	    value: function createFileLimitationFields(field) {
+	      var _this5 = this;
+	      var limitationFields = [];
+	      if (main_core.Type.isInteger(this.options.dictionary.defaultMaxFileFieldSizeMbValue)) {
+	        var defaultSizeValue = this.options.dictionary.defaultMaxFileFieldSizeMbValue;
+	        var lastSizeValue = field.maxSizeMb || defaultSizeValue;
+	        if (lastSizeValue < 0) {
+	          lastSizeValue = '';
+	        }
+	        var sizeField = new landing_ui_field_textfield.TextField({
+	          id: 'maxSizeMb',
+	          selector: 'maxSizeMb',
+	          title: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_MAX_FILE_SIZE'),
+	          content: String(lastSizeValue),
+	          textOnly: true,
+	          help: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_MAX_FILE_SIZE_HINT'),
+	          onValueChange: function onValueChange(e) {
+	            if (e.getValue() === '') {
+	              return;
+	            }
+	            if (e.getValue() === lastSizeValue) return;
+	            var value = Number(e.getValue());
+	            if (Number.isNaN(value)) {
+	              e.setValue(lastSizeValue);
+	              return;
+	            }
+	            if (String(value) !== e.getValue()) {
+	              e.setValue(String(value));
+	              return;
+	            }
+	            field.maxSizeMb = value;
+	            lastSizeValue = e.getValue();
+	          }
+	        });
+	        var titleText = '';
+	        var configureNodeText = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_CONFIGURE_FULL');
+	        if (main_core.Type.isInteger(this.options.dictionary.dailyFileLimitSizeMbValue)) {
+	          titleText = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_TITLE').replace('%size%', this.options.dictionary.dailyFileLimitSizeMbValue);
+	          configureNodeText = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_CONFIGURE');
+	        }
+	        var dailyLimitTitleNode = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<span style=\"margin-right: 5px\">", "</span>\n\t\t\t"])), titleText);
+	        var dailyLimitConfigureNode = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"landing-ui-field-fields-list-item-button\">", "</div>\n\t\t\t"])), configureNodeText);
+	        var dailyLimitNode = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-color-light ui-text-4\" style=\"margin-top: 4px\"> \n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t"])), dailyLimitTitleNode, dailyLimitConfigureNode);
+	        dailyLimitConfigureNode.addEventListener('click', function () {
+	          crm_form_fileLimit.FileLimit.instance().subscribe('onSuccessLimitChanged', function (event) {
+	            if (main_core.Type.isUndefined(event.data.limit)) return;
+	            _this5.options.dictionary.dailyFileLimitSizeMbValue = event.data.limit;
+	            if (main_core.Type.isInteger(event.data.limit)) {
+	              dailyLimitTitleNode.innerText = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_TITLE').replace('%size%', event.data.limit);
+	              dailyLimitConfigureNode.innerText = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_CONFIGURE');
+	            }
+	            if (main_core.Type.isNull(event.data.limit)) {
+	              dailyLimitTitleNode.innerText = '';
+	              dailyLimitConfigureNode.innerText = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_CONFIGURE_FULL');
+	            }
+	          }).open();
+	        });
+	        sizeField.getLayout().appendChild(dailyLimitNode);
+	        limitationFields.push(sizeField);
+	      }
+	      if (main_core.Type.isArrayFilled(this.options.dictionary.contentTypes)) {
+	        var selectedContentTypes = main_core.Type.isArrayFilled(field.contentTypes) ? field.contentTypes : ['any'];
+	        var lastValue = selectedContentTypes;
+	        var contentTypesField = new BX.Landing.UI.Field.Checkbox({
+	          selector: 'contentTypes',
+	          title: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_FILE_TYPE'),
+	          value: selectedContentTypes,
+	          items: [function () {
+	            if (landing_loc.Loc.hasMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE')) {
+	              return {
+	                name: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE'),
+	                value: 'any'
+	              };
+	            }
+	            return undefined;
+	          }()].concat(babelHelpers.toConsumableArray(this.options.dictionary.contentTypes.map(function (item) {
+	            var hint = item.hint ? "<span class=\"ui-hint\" data-hint=\"".concat(main_core.Text.encode(item.hint), "\"></span>") : '';
+	            return {
+	              html: "<span style=\"display: flex; align-items: center;\">".concat(main_core.Text.encode(item.name), " ").concat(hint, "</span>"),
+	              name: '',
+	              value: item.id
+	            };
+	          }))),
+	          onValueChange: function onValueChange() {
+	            var value = contentTypesField.getValue();
+	            if (value.includes('any')) {
+	              if (lastValue.includes('any')) {
+	                contentTypesField.setValue(value.filter(function (item) {
+	                  return item !== 'any';
+	                }));
+	              } else {
+	                contentTypesField.setValue(['any']);
+	              }
+	            }
+	            lastValue = contentTypesField.getValue();
+	          }
+	        });
+	        BX.UI.Hint.init(contentTypesField.getLayout());
+	        limitationFields.push(contentTypesField);
+	      }
+	      return limitationFields;
+	    }
+	  }, {
 	    key: "createDefaultValueField",
 	    value: function createDefaultValueField(field) {
 	      return new BX.Landing.UI.Field.Dropdown({
@@ -421,7 +525,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "createFieldSettingsForm",
 	    value: function createFieldSettingsForm(field) {
-	      var _this5 = this;
+	      var _this6 = this;
 	      var fields = [];
 	      var form = new landing_ui_form_formsettingsform.FormSettingsForm({
 	        serializeModifier: function serializeModifier(value) {
@@ -496,7 +600,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          iblockId: this.options.dictionary.catalog.id,
 	          onChange: function onChange() {
 	            var oldCustomPrice = form.fields.get('customPrice');
-	            var newCustomPrice = _this5.createCustomPriceDropdown(_objectSpread(_objectSpread({}, field), {}, {
+	            var newCustomPrice = _this6.createCustomPriceDropdown(_objectSpread(_objectSpread({}, field), {}, {
 	              items: form.serialize().items
 	            }));
 	            var useCustomPrice = field.items.some(function (item) {
@@ -511,7 +615,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            newCustomPrice.setValue(oldCustomPrice.getValue());
 	            form.replaceField(oldCustomPrice, newCustomPrice);
 	            var oldDefaultValue = form.fields.get('productDefaultValue');
-	            var newDefaultValue = _this5.createProductDefaultValueDropdown(_objectSpread(_objectSpread({}, field), {}, {
+	            var newDefaultValue = _this6.createProductDefaultValueDropdown(_objectSpread(_objectSpread({}, field), {}, {
 	              items: form.serialize().items
 	            }));
 	            form.replaceField(oldDefaultValue, newDefaultValue);
@@ -628,7 +732,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          var currentDefaultValueField = form.fields.find(function (item) {
 	            return item.selector === 'value';
 	          });
-	          form.replaceField(currentDefaultValueField, _this5.createDefaultValueField(_objectSpread(_objectSpread({}, field), {}, {
+	          form.replaceField(currentDefaultValueField, _this6.createDefaultValueField(_objectSpread(_objectSpread({}, field), {}, {
 	            items: form.serialize().items,
 	            value: currentDefaultValueField.getValue()
 	          })));
@@ -648,46 +752,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            };
 	          })
 	        }));
-	      }
-	      if (field.type === 'file' && main_core.Type.isArrayFilled(this.options.dictionary.contentTypes)) {
-	        var selectedContentTypes = main_core.Type.isArrayFilled(field.contentTypes) ? field.contentTypes : ['any'];
-	        var lastValue = selectedContentTypes;
-	        var contentTypesField = new BX.Landing.UI.Field.Checkbox({
-	          selector: 'contentTypes',
-	          title: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_FILE_TYPE'),
-	          value: selectedContentTypes,
-	          items: [function () {
-	            if (landing_loc.Loc.hasMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE')) {
-	              return {
-	                name: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE'),
-	                value: 'any'
-	              };
-	            }
-	            return undefined;
-	          }()].concat(babelHelpers.toConsumableArray(this.options.dictionary.contentTypes.map(function (item) {
-	            var hint = item.hint ? "<span class=\"ui-hint\" data-hint=\"".concat(main_core.Text.encode(item.hint), "\"></span>") : '';
-	            return {
-	              html: "<span style=\"display: flex; align-items: center;\">".concat(main_core.Text.encode(item.name), " ").concat(hint, "</span>"),
-	              name: '',
-	              value: item.id
-	            };
-	          }))),
-	          onValueChange: function onValueChange() {
-	            var value = contentTypesField.getValue();
-	            if (value.includes('any')) {
-	              if (lastValue.includes('any')) {
-	                contentTypesField.setValue(value.filter(function (item) {
-	                  return item !== 'any';
-	                }));
-	              } else {
-	                contentTypesField.setValue(['any']);
-	              }
-	            }
-	            lastValue = contentTypesField.getValue();
-	          }
-	        });
-	        BX.UI.Hint.init(contentTypesField.getLayout());
-	        fields.push(contentTypesField);
 	      }
 	      if (main_core.Text.toBoolean(field.editing.supportAutocomplete) === true) {
 	        fields.push(new BX.Landing.UI.Field.Checkbox({
@@ -722,6 +786,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          value: field.hintOnFocus ? ['hintOnFocus'] : false
 	        }));
 	      }
+	      if (field.type === 'file') {
+	        var limitationFields = this.createFileLimitationFields(field);
+	        limitationFields.forEach(function (item) {
+	          fields.push(item);
+	        });
+	      }
 	      fields.forEach(function (currentField) {
 	        form.addField(currentField);
 	      });
@@ -731,13 +801,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getListContainer",
 	    value: function getListContainer() {
 	      return this.cache.remember('listContainer', function () {
-	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-fields-list-container\"></div>"])));
+	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-fields-list-container\"></div>"])));
 	      });
 	    }
 	  }, {
 	    key: "onSelectFieldButtonClick",
 	    value: function onSelectFieldButtonClick(event) {
-	      var _this6 = this;
+	      var _this7 = this;
 	      event.preventDefault();
 	      landing_ui_panel_fieldspanel.FieldsPanel.getInstance({
 	        isLeadEnabled: this.options.isLeadEnabled
@@ -748,15 +818,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        allowedTypes: _classPrivateMethodGet(this, _getFieldsPanelAllowedTypes, _getFieldsPanelAllowedTypes2).call(this)
 	      }).then(function (selectedFields) {
 	        if (main_core.Type.isArrayFilled(selectedFields)) {
-	          _this6.options.crmFields = landing_ui_panel_fieldspanel.FieldsPanel.getInstance().getOriginalCrmFields();
-	          _this6.onFieldsSelect(selectedFields);
+	          _this7.options.crmFields = landing_ui_panel_fieldspanel.FieldsPanel.getInstance().getOriginalCrmFields();
+	          _this7.onFieldsSelect(selectedFields);
 	        }
 	      });
 	    }
 	  }, {
 	    key: "onFieldsSelect",
 	    value: function onFieldsSelect(selectedFields) {
-	      var _this7 = this;
+	      var _this8 = this;
 	      var preparingOptions = {
 	        fields: selectedFields.map(function (fieldId) {
 	          return {
@@ -766,12 +836,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      };
 	      void this.showLoader();
 	      crm_form_client.FormClient.getInstance().prepareOptions(this.options.formOptions, preparingOptions).then(function (result) {
-	        void _this7.hideLoader();
+	        void _this8.hideLoader();
 	        return Promise.all(result.data.fields.map(function (field) {
-	          return _this7.addItem(field);
+	          return _this8.addItem(field);
 	        }));
 	      }).then(function () {
-	        _this7.emit('onChange', {
+	        _this8.emit('onChange', {
 	          skipPrepare: true
 	        });
 	      });
@@ -786,7 +856,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onSelectProductsButtonClick",
 	    value: function onSelectProductsButtonClick(event) {
-	      var _this8 = this;
+	      var _this9 = this;
 	      event.preventDefault();
 	      var preparingOptions = {
 	        fields: [{
@@ -795,12 +865,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      };
 	      void this.showLoader();
 	      crm_form_client.FormClient.getInstance().prepareOptions(this.options.formOptions, preparingOptions).then(function (result) {
-	        void _this8.hideLoader();
+	        void _this9.hideLoader();
 	        var promises = result.data.fields.map(function (field) {
-	          return _this8.addItem(field);
+	          return _this9.addItem(field);
 	        });
 	        Promise.all(promises).then(function () {
-	          _this8.emit('onChange', {
+	          _this9.emit('onChange', {
 	            skipPrepare: true
 	          });
 	        });
@@ -809,33 +879,33 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onSelectSeparatorButtonClick",
 	    value: function onSelectSeparatorButtonClick(event) {
-	      var _this9 = this;
+	      var _this10 = this;
 	      event.preventDefault();
 	      landing_ui_panel_separatorpanel.SeparatorPanel.getInstance().show().then(function (separator) {
 	        var fields = [separator];
-	        if (separator.type === 'page' && !_this9.items.find(function (item) {
+	        if (separator.type === 'page' && !_this10.items.find(function (item) {
 	          return item.options.type === 'page';
 	        })) {
 	          fields.push(_objectSpread({}, fields[0]));
 	        }
-	        void _this9.showLoader();
-	        crm_form_client.FormClient.getInstance().prepareOptions(_this9.options.formOptions, {
+	        void _this10.showLoader();
+	        crm_form_client.FormClient.getInstance().prepareOptions(_this10.options.formOptions, {
 	          fields: fields
 	        }).then(function (result) {
-	          void _this9.hideLoader();
+	          void _this10.hideLoader();
 	          var separatorPromise = Promise.resolve();
-	          if (separator.type === 'page' && !_this9.items.find(function (item) {
+	          if (separator.type === 'page' && !_this10.items.find(function (item) {
 	            return item.options.type === 'page';
 	          })) {
 	            result.data.fields[0].label = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_PAGE_TITLE').replace('#number#', 1);
 	            result.data.fields[1].label = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_PAGE_TITLE').replace('#number#', 2);
-	            separatorPromise = Promise.all([_this9.prependItem(result.data.fields[0]), _this9.insertItemAfterIndex(result.data.fields[1], 1)]);
+	            separatorPromise = Promise.all([_this10.prependItem(result.data.fields[0]), _this10.insertItemAfterIndex(result.data.fields[1], 1)]);
 	          } else {
 	            result.data.fields.forEach(function (field) {
 	              var _field$id$split = field.id.split('_'),
 	                _field$id$split2 = babelHelpers.slicedToArray(_field$id$split, 1),
 	                type = _field$id$split2[0];
-	              var count = _this9.items.filter(function (item) {
+	              var count = _this10.items.filter(function (item) {
 	                return item.options.id.startsWith(type);
 	              }).length;
 	              if (type === 'page') {
@@ -847,11 +917,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	              if (type === 'hr') {
 	                field.label = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_LINE_TITLE').replace('#number#', count + 1);
 	              }
-	              separatorPromise = _this9.addItem(field);
+	              separatorPromise = _this10.addItem(field);
 	            });
 	          }
 	          separatorPromise.then(function () {
-	            _this9.emit('onChange', {
+	            _this10.emit('onChange', {
 	              skipPrepare: true
 	            });
 	          });
@@ -871,7 +941,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onItemEdit",
 	    value: function onItemEdit(event) {
-	      var _this10 = this;
+	      var _this11 = this;
 	      var _event$getTarget = event.getTarget(),
 	        options = _event$getTarget.options;
 	      if (options.fieldController) {
@@ -888,7 +958,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	                settings_data[key].value = settings_data[key].value.join('|');
 	              }
 	            });
-	            _this10.emit('onChange', {
+	            _this11.emit('onChange', {
 	              skipPrepare: true
 	            });
 	          });
@@ -908,15 +978,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onDragEnd",
 	    value: function onDragEnd() {
-	      var _this11 = this;
+	      var _this12 = this;
 	      setTimeout(function () {
-	        _this11.items = babelHelpers.toConsumableArray(_this11.getListContainer().children).map(function (itemNode) {
+	        _this12.items = babelHelpers.toConsumableArray(_this12.getListContainer().children).map(function (itemNode) {
 	          var itemNodeId = main_core.Dom.attr(itemNode, 'data-id');
-	          return _this11.items.find(function (item) {
+	          return _this12.items.find(function (item) {
 	            return item.options.id === itemNodeId;
 	          });
 	        });
-	        _this11.emit('onChange', {
+	        _this12.emit('onChange', {
 	          skipPrepare: true
 	        });
 	      });
@@ -983,5 +1053,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.FieldsListField = FieldsListField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Landing,BX.UI.DragAndDrop,BX.Landing.UI.Panel,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing.UI.Field,BX.Event,BX.Landing.UI.Form,BX.Crm.Form,BX.Landing.UI.Field,BX.Landing.UI.Panel,BX.Landing,BX,BX.Landing.Ui.Field,BX.Calendar,BX,BX,BX.Landing.UI.Component,BX,BX.Landing.UI.Field));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Landing,BX.UI.DragAndDrop,BX.Landing.UI.Panel,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing.UI.Field,BX.Event,BX.Landing.UI.Form,BX.Crm.Form,BX.Crm.Form,BX.Landing.UI.Field,BX.Landing.UI.Panel,BX.Landing,BX,BX.Landing.Ui.Field,BX.Calendar,BX,BX,BX.Landing.UI.Component,BX,BX.Landing.UI.Field));
 //# sourceMappingURL=fieldslistfield.bundle.js.map

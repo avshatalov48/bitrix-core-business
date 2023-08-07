@@ -50,6 +50,10 @@ abstract class Check extends AbstractCheck
 	public const PAYMENT_OBJECT_COMMODITY_MARKING_EXCISE = 'commodity_marking_excise';
 	public const PAYMENT_OBJECT_COMMODITY_MARKING_NO_MARKING = 'commodity_marking_no_marking';
 	public const PAYMENT_OBJECT_COMMODITY_MARKING = 'commodity_marking';
+	public const PAYMENT_OBJECT_INSURANCE_PREMIUM = 'insurance_premium';
+	public const PAYMENT_OBJECT_FINE = 'fine';
+	public const PAYMENT_OBJECT_TAX = 'tax';
+	public const PAYMENT_OBJECT_AGENT_WITHDRAWALS = 'agent_withdrawals';
 
 	private const MARKING_TYPE_CODE = '444D';
 
@@ -277,6 +281,7 @@ abstract class Check extends AbstractCheck
 						'base_price' => $product['BASE_PRICE'],
 						'price' => $product['PRICE'],
 						'sum' => $product['SUM'],
+						'currency' => $product['CURRENCY'],
 						'quantity' => $product['QUANTITY'],
 						'measure_code' => $product['MEASURE_CODE'] ?? '',
 						'vat' => $product['VAT'] ?? 0,
@@ -336,6 +341,7 @@ abstract class Check extends AbstractCheck
 						'base_price' => $delivery['BASE_PRICE'],
 						'price' => $delivery['PRICE'],
 						'sum' => $delivery['SUM'],
+						'currency' => $delivery['CURRENCY'],
 						'quantity' => $delivery['QUANTITY'],
 						'vat' => $delivery['VAT'],
 						'vat_sum' => $delivery['VAT_SUM'],
@@ -589,6 +595,7 @@ abstract class Check extends AbstractCheck
 				'BASE_PRICE' => (float)$shipment->getField('BASE_PRICE_DELIVERY'),
 				'PRICE' => (float)$shipment->getPrice(),
 				'SUM' => (float)$shipment->getPrice(),
+				'CURRENCY' => $shipment->getCurrency(),
 				'QUANTITY' => 1,
 				'VAT' => $this->getDeliveryVatId($shipment),
 				'PAYMENT_OBJECT' => static::PAYMENT_OBJECT_SERVICE
@@ -646,6 +653,7 @@ abstract class Check extends AbstractCheck
 			'BASE_PRICE' => $basketItem->getBasePriceWithVat(),
 			'PRICE' => $basketItem->getPriceWithVat(),
 			'SUM' => $basketItem->getFinalPrice(),
+			'CURRENCY' => $basketItem->getCurrency(),
 			'QUANTITY' => (float)$basketItem->getQuantity(),
 			'MEASURE_CODE' => $basketItem->getField('MEASURE_CODE'),
 			'VAT' => $this->getProductVatId($basketItem),

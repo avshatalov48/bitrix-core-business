@@ -30,6 +30,7 @@ export const MessengerTabs = {
 			currentElementIndex: 0,
 			highlightOffsetLeft: 0,
 			highlightWidth: 0,
+			isFirstCall: true,
 		};
 	},
 	computed:
@@ -38,7 +39,7 @@ export const MessengerTabs = {
 		{
 			return {
 				left: `${this.highlightOffsetLeft}px`,
-				width: `${this.highlightWidth}px`
+				width: `${this.highlightWidth}px`,
 			};
 		},
 		colorSchemeClass(): string
@@ -57,12 +58,27 @@ export const MessengerTabs = {
 	},
 	mounted()
 	{
+		const savedTabIndex = localStorage.getItem('lastOpenedTabIndex');
 		if (this.$refs.tabs.scrollWidth > this.$refs.tabs.offsetWidth)
 		{
 			this.hasRightControl = true;
 		}
 
+		if (savedTabIndex)
+		{
+			this.currentElementIndex = parseInt(savedTabIndex, 10);
+		}
+
 		this.updateHighlightPosition(this.currentElementIndex);
+
+		setTimeout(() => {
+			this.isFirstCall = false;
+		}, 100);
+
+	},
+	beforeUnmount()
+	{
+		localStorage.setItem('lastOpenedTabIndex', this.currentElementIndex.toString());
 	},
 	methods:
 	{
@@ -124,7 +140,7 @@ export const MessengerTabs = {
 				<div class="bx-im-elements-tabs__forward-icon"></div>
 			</div>
 			<div class="bx-im-elements-tabs__elements" ref="tabs" @scroll.passive="updateControlsVisibility">
-				<div class="bx-im-elements-tabs__highlight" :style="highlightStyle"></div>
+				<div class="bx-im-elements-tabs__highlight" :class="isFirstCall ? '' : '--transition'" :style="highlightStyle"></div>
 				<div
 					v-for="(tab, index) in tabs"
 					:key="tab.id"
@@ -133,7 +149,7 @@ export const MessengerTabs = {
 					@click="onTabClick({index: index})"
 					:title="tab.title"
 				>
-					<div class="bx-im-elements-tabs__item-title">{{ tab.title }}</div>
+					<div class="bx-im-elements-tabs__item-title" :class="isFirstCall ? '' : '--transition'">{{ tab.title }}</div>
 				</div>
 			</div>
 		</div>

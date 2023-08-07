@@ -1,5 +1,4 @@
 import { Extension, Runtime, Type } from 'main.core';
-import type { ServerOptions } from '../types/server-options';
 import UploadController from './upload-controller';
 import AbstractUploadController from './abstract-upload-controller';
 import ServerLoadController from './server-load-controller';
@@ -7,6 +6,9 @@ import AbstractLoadController from './abstract-load-controller';
 import ClientLoadController from './client-load-controller';
 import AbstractRemoveController from './abstract-remove-controller';
 import RemoveController from './remove-controller';
+import ServerlessLoadController from './serverless-load-controller';
+
+import type { ServerOptions } from '../types/server-options';
 
 export default class Server
 {
@@ -26,12 +28,12 @@ export default class Server
 
 	constructor(serverOptions: ServerOptions)
 	{
-		const options = Type.isPlainObject(serverOptions) ? serverOptions : {};
+		const options: ServerOptions = Type.isPlainObject(serverOptions) ? serverOptions : {};
 
 		this.#controller = Type.isStringFilled(options.controller) ? options.controller : null;
 		this.#controllerOptions = Type.isPlainObject(options.controllerOptions) ? options.controllerOptions : null;
 
-		const chunkSize =
+		const chunkSize: number =
 			Type.isNumber(options.chunkSize) && options.chunkSize > 0
 				? options.chunkSize
 				: this.getDefaultChunkSize()
@@ -48,8 +50,8 @@ export default class Server
 			this.#chunkRetryDelays = options.chunkRetryDelays;
 		}
 
-		['uploadControllerClass', 'loadControllerClass', 'removeControllerClass'].forEach((controllerClass: string) => {
-
+		const controllerClasses: string[] = ['uploadControllerClass', 'loadControllerClass', 'removeControllerClass'];
+		controllerClasses.forEach((controllerClass: string): void => {
 			let fn = null;
 			if (Type.isStringFilled(options[controllerClass]))
 			{
@@ -95,7 +97,7 @@ export default class Server
 	{
 		if (this.#uploadControllerClass)
 		{
-			const controller = new this.#uploadControllerClass(this, this.#uploadControllerOptions);
+			const controller: AbstractUploadController = new this.#uploadControllerClass(this, this.#uploadControllerOptions);
 			if (!(controller instanceof AbstractUploadController))
 			{
 				throw new Error(
@@ -113,11 +115,11 @@ export default class Server
 		return null;
 	}
 
-	createLoadController(): ServerLoadController
+	createServerLoadController(): AbstractLoadController
 	{
 		if (this.#loadControllerClass)
 		{
-			const controller = new this.#loadControllerClass(this, this.#loadControllerOptions);
+			const controller: AbstractLoadController = new this.#loadControllerClass(this, this.#loadControllerOptions);
 			if (!(controller instanceof AbstractLoadController))
 			{
 				throw new Error(
@@ -128,6 +130,11 @@ export default class Server
 			return controller;
 		}
 
+		return this.createDefaultServerLoadController();
+	}
+
+	createDefaultServerLoadController(): ServerLoadController
+	{
 		return new ServerLoadController(this, this.#loadControllerOptions);
 	}
 
@@ -136,11 +143,16 @@ export default class Server
 		return new ClientLoadController(this, this.#loadControllerOptions);
 	}
 
+	createServerlessLoadController(): ServerlessLoadController
+	{
+		return new ServerlessLoadController(this, this.#loadControllerOptions);
+	}
+
 	createRemoveController(): ?AbstractRemoveController
 	{
 		if (this.#removeControllerClass)
 		{
-			const controller = new this.#removeControllerClass(this, this.#removeControllerOptions);
+			const controller: AbstractRemoveController = new this.#removeControllerClass(this, this.#removeControllerOptions);
 			if (!(controller instanceof AbstractRemoveController))
 			{
 				throw new Error(

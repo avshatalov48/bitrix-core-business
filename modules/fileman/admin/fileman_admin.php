@@ -29,11 +29,12 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/prolog.php");
 
 $io = CBXVirtualIo::GetInstance();
 
-$path = $APPLICATION->UnJSEscape(trim($_REQUEST['path']));
-$site = $_REQUEST['site'];
+$path = $APPLICATION->UnJSEscape(trim($_REQUEST['path'] ?? ''));
+$site = $_REQUEST['site'] ?? null;
 $site = CFileMan::__CheckSite($site);
 $show_perms_for = isset($_REQUEST['show_perms_for']) ? intval($_REQUEST['show_perms_for']) : 0;
 
+$_GET["fu_action"] = $_GET["fu_action"] ?? '';
 if($_SERVER["REQUEST_METHOD"]=="POST" && $_GET["fu_action"] <> '' && check_bitrix_sessid())
 {
 	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/classes/general/fileman_utils.php");
@@ -76,7 +77,7 @@ if (!$bSearch)
 		global $strError, $find_timestamp_1, $find_timestamp_2, $lAdmin;
 		$str = "";
 
-		if (trim($find_timestamp_1) <> '' || trim($find_timestamp_2) <> '')
+		if (trim($find_timestamp_1 ?? '') <> '' || trim($find_timestamp_2 ?? '') <> '')
 		{
 			$date_1_ok = false;
 			$date1_stm = MkDateTime(FmtDate($find_timestamp_1,"D.M.Y"),"d.m.Y");
@@ -101,7 +102,7 @@ if (!$bSearch)
 
 	if(CheckFilter($arFilterFields))
 		$arFilter = Array(
-			"NAME" => ($find!='' && $find_type == "name"? $find : $find_name),
+			"NAME" => (($find ?? null)!='' && $find_type == "name"? $find : $find_name),
 			"TIMESTAMP_1"	=> $find_timestamp_1,
 			"TIMESTAMP_2"	=> $find_timestamp_2,
 			"TYPE" => $find_type
@@ -119,6 +120,7 @@ $documentRoot = CSite::GetSiteDocRoot($site);
 $arSite = CSite::GetById($site);
 $arSite = $arSite->Fetch();
 
+$logical = $logical ?? null;
 $addUrl = 'lang='.LANGUAGE_ID.($logical == "Y" ? '&logical=Y' : '');
 $addUrl_s = $addUrl;
 
@@ -149,6 +151,7 @@ $handle_action = true;
 CFileMan::SaveLastPath($path);
 
 // Check user rights
+$FIELDS = $FIELDS ?? null;
 if ($lAdmin->EditAction() && ($USER->CanDoOperation('fileman_admin_files') || $USER->CanDoOperation('fileman_admin_folders')) && is_array($FIELDS))
 {
 	foreach ($FIELDS as $ID => $arFields)
@@ -261,7 +264,7 @@ if ($lAdmin->EditAction() && ($USER->CanDoOperation('fileman_admin_files') || $U
 // Handling actions: group and single
 if (($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('fileman_admin_files') || $USER->CanDoOperation('fileman_admin_folders')) && $handle_action)
 {
-	if ($_REQUEST['action_target'] == 'selected')
+	if (($_REQUEST['action_target'] ?? null) == 'selected')
 	{
 		$arID = array();
 		if ($bSearch)
@@ -442,13 +445,13 @@ else // Displaying search result
 			"ABS_PATH" => $elPath,
 			"NAME" => CFileman::GetFileName($elPath),
 			"PERMISSION" => $arPerm[0],
-			"TIMESTAMP" => $searchRes[$i]['time'],
-			"DATE" => date($date_format, $searchRes[$i]['time']),
-			"SIZE" => $bIsDir ? 0 : $searchRes[$i]['size'],
+			"TIMESTAMP" => $searchRes[$i]['time'] ?? null,
+			"DATE" => date($date_format, $searchRes[$i]['time'] ?? null),
+			"SIZE" => $bIsDir ? 0 : $searchRes[$i]['size'] ?? null,
 			"TYPE" => $bIsDir ? "D" : "F"
 		);
 
-		if (is_array($arPerm[1]) && count($arPerm[1]) > 0)
+		if (is_array($arPerm[1] ?? null) && count($arPerm[1]) > 0)
 		{
 			$arEl["PERMISSION_EX"] = $arPerm[1];
 		}
@@ -506,6 +509,7 @@ if(!$bSearch && $path <> '' && ($logical != "Y" || rtrim($arSite["DIR"], "/") !=
 	$row =& $lAdmin->AddRow(".", array("NAME" => GetMessage("FILEMAN_UP")));
 
 	$dbSitesList = CSite::GetList("lendir", "desc");
+	$resSites = [];
 	while ($arSite = $dbSitesList->GetNext())
 	{
 		if ($arSite['DOC_ROOT'] == CSite::GetSiteDocRoot($site) || $arSite['DOC_ROOT'] == '')
@@ -562,6 +566,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 	$arPath = Array($site, $Elem['ABS_PATH']);
 	$fpath = $bSearch ? $Elem['ABS_PATH'] : ($path == "/" ? "" : $path)."/".$Elem["NAME"];
 	$fpathUrl = urlencode($fpath);
+	$cnt_resSites = count($resSites ?? []);
 	for($i = 0; $i < $cnt_resSites; $i++)
 	{
 		$dir = trim($resSites[$i]["DIR"], "/");
@@ -636,7 +641,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 	{
 		$showFieldIcon = "";
 		$showFieldText = "";
-		if($f_LOGIC_NAME == '')
+		if(($f_LOGIC_NAME ?? null) == '')
 			$f_LOGIC_NAME = htmlspecialcharsbx(GetMessage("FILEMAN_ADM_UNTITLED"));
 
 		if($Elem["TYPE"] == "D")
@@ -950,6 +955,7 @@ $strHTML =
 
 // Show form with add buttons
 $arGrActionAr = Array();
+$type = $type ?? '';
 if($USER->CanDoFileOperation('fm_delete_'.$type,$arPath))
 	$arGrActionAr["delete"] = GetMessage("MAIN_ADMIN_LIST_DELETE");
 
@@ -970,6 +976,7 @@ if($USER->CanDoFileOperation('fm_edit_permission',$arPath))
 	}
 }
 
+$arrIsDir = $arrIsDir ?? null;
 if($USER->CanDoFileOperation('fm_create_new_'.$type,$arPath))
 {
 	//$arGrActionAr["copy"] = GetMessage("FILEMAN_ADM_COPY");
@@ -1173,20 +1180,35 @@ $aContext[] = array("HTML"=>$s);
 
 if (isset($_POST['bx_search_file']))
 {
+	$postData = [
+		'bx_search_file' => $_POST['bx_search_file'] ?? null,
+		'bx_search_phrase' => $_POST['bx_search_phrase'] ?? null,
+		'bx_replace_phrase' => $_POST['bx_replace_phrase'] ?? null,
+		'bx_search_dir' => $_POST['bx_search_dir'] ?? null,
+		'bx_search_subdir' => $_POST['bx_search_subdir'] ?? null,
+		'bx_search_date_sel' => $_POST['bx_search_date_sel'] ?? null,
+		'bx_search_date_from' => $_POST['bx_search_date_from'] ?? null,
+		'bx_search_date_to' => $_POST['bx_search_date_to'] ?? null,
+		'bx_search_size_sel' => $_POST['bx_search_size_sel'] ?? null,
+		'bx_search_size_from' => $_POST['bx_search_size_from'] ?? null,
+		'bx_search_size_to' => $_POST['bx_search_size_to'] ?? null,
+		'bx_search_dirs_too' => $_POST['bx_search_dirs_too'] ?? null,
+		'bx_search_case' => $_POST['bx_search_case'] ?? null,
+	];
 	$sFormValues = CUtil::PhpToJSObject(array(
-		'file' => $_POST['bx_search_file'],
-		'search_phrase' => $_POST['bx_search_phrase'],
-		'replace_phrase' => $_POST['bx_replace_phrase'],
-		'dir' => $_POST['bx_search_dir'],
-		'subdir' => $_POST['bx_search_subdir'] == "Y",
-		'date_sel' => $_POST['bx_search_date_sel'],
-		'date_from' => $_POST['bx_search_date_from'],
-		'date_to' => $_POST['bx_search_date_to'],
-		'size_sel' => $_POST['bx_search_size_sel'],
-		'size_from' => intval($_POST['bx_search_size_from']),
-		'size_to' => intval($_POST['bx_search_size_to']),
-		'dirs_too' => $_POST['bx_search_dirs_too'] == 'Y',
-		'case_sens' => $_POST['bx_search_case'] == 'Y'
+		'file' => $postData['bx_search_file'],
+		'search_phrase' => $postData['bx_search_phrase'],
+		'replace_phrase' => $postData['bx_replace_phrase'],
+		'dir' => $postData['bx_search_dir'],
+		'subdir' => $postData['bx_search_subdir'] == "Y",
+		'date_sel' => $postData['bx_search_date_sel'],
+		'date_from' => $postData['bx_search_date_from'],
+		'date_to' => $postData['bx_search_date_to'],
+		'size_sel' => $postData['bx_search_size_sel'],
+		'size_from' => intval($postData['bx_search_size_from']),
+		'size_to' => intval($postData['bx_search_size_to']),
+		'dirs_too' => $postData['bx_search_dirs_too'] == 'Y',
+		'case_sens' => $postData['bx_search_case'] == 'Y'
 	));
 }
 else
@@ -1376,7 +1398,7 @@ function setCopyMove(site, path, bCopy, isDir)
 	{
 		<?if ($bSearch): // only for action_target and search results mode
 			for($i = 0, $l = count($searchRes); $i < $l; $i++):?>
-				arFiles.push({'path' : '<?= CUtil::JSEscape($searchRes[$i]['path'])?>', 'isDir' : '<?= CUtil::JSEscape($searchRes[$i]['b_dir'])?>'});
+				arFiles.push({'path' : '<?= CUtil::JSEscape($searchRes[$i]['path'])?>', 'isDir' : '<?= CUtil::JSEscape($searchRes[$i]['b_dir'] ?? null)?>'});
 			<?endfor;
 		endif;?>
 	}
@@ -1416,7 +1438,7 @@ function setPackUnpack(site, path, bPack, isDir)
 	{
 		<?if ($bSearch): // only for action_target and search results mode
 			for($i = 0, $l = count($searchRes); $i < $l; $i++):?>
-				arFiles.push({'path' : '<?= CUtil::JSEscape($searchRes[$i]['path'])?>', 'isDir' : '<?= CUtil::JSEscape($searchRes[$i]['b_dir'])?>'});
+				arFiles.push({'path' : '<?= CUtil::JSEscape($searchRes[$i]['path'])?>', 'isDir' : '<?= CUtil::JSEscape($searchRes[$i]['b_dir'] ?? null)?>'});
 			<?endfor;
 		else:?>
 				arFiles.push('action_target');
@@ -1505,7 +1527,7 @@ $oFilter->Begin();
 		?></td>
 </tr>
 <?
-$oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage().'?'.$addUrl_s."&site=".urlencode($site)."&path=".urlencode($path."/".$Elem["NAME"]), "form"=>"find_form"));
+$oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage().'?'.$addUrl_s."&site=".urlencode($site)."&path=".urlencode($path."/".($Elem["NAME"] ?? '')), "form"=>"find_form"));
 $oFilter->End();
 ?>
 </form>

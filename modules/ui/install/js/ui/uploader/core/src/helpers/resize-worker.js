@@ -1,56 +1,100 @@
-// We can't use createImageBitmap due to the bug in Chrome (https://bugs.chromium.org/p/chromium/issues/detail?id=1220671).
-// Chrome doesn't respect JPEG Orientation.
+const ResizeWorker = (): void => {
+	self.onmessage = (event: MessageEvent): void => {
+		// Hack for Safari. Workers can become unpredictable.
+		// Sometimes 'self.postMessage' doesn't emit 'onmessage' event.
+		setTimeout((): void => {
+			const {
+				file,
+				options = {},
+				getResizedImageSizeSource,
+				createImagePreviewCanvasSource,
+				sharpenSource,
+				shouldSharpenSource,
+				type,
+			} = event.data.message;
 
-// Use 'bitmaprenderer' and transferFromImageBitmap to make a blob from the ImageBitmap;
-/*
-	const canvas = document.createElement('canvas');
-	canvas.width = bitmap.width;
-	canvas.height = bitmap.height;
-	const ctx = canvas.getContext('bitmaprenderer');
-	if (ctx)
-	{
-		ctx.transferFromImageBitmap(bitmap);
-	}
-	else
-	{
-		// twice in memory...
-		canvas.getContext('2d').drawImage(bitmap, 0, 0);
-	}
-*/
+			createImageBitmap(file)
+				.then(bitmap => {
 
-export const ResizeWorker = function() {
-	self.onmessage = event => {
-		const { file, options = {}, calcTargetSizeFn } = event.data.message;
-		self.createImageBitmap(file)
-			.then(bitmap => {
+					const getResizedImageSize = new Function('return ' + getResizedImageSizeSource)();
+					const { targetWidth, targetHeight, useOriginalSize } = getResizedImageSize(bitmap, options);
 
-				const calcTargetSize = new Function('return ' + calcTargetSizeFn.toString())();
-				const { targetWidth, targetHeight } = calcTargetSize(bitmap, options);
-				const resizeOptions = { resizeWidth: targetWidth, resizeHeight: targetHeight };
+					if (useOriginalSize)
+					{
+						bitmap.close();
 
-				self.createImageBitmap(bitmap, resizeOptions).then(previewBitmap => {
-					bitmap.close();
+						self.postMessage({
+							id: event?.data?.id,
+							message: {
+								useOriginalSize,
+								targetWidth,
+								targetHeight,
+							},
+						}, []);
+					}
+					else
+					{
+						const createImagePreviewCanvas = new Function('return ' + createImagePreviewCanvasSource)();
+						let offscreenCanvas: OffscreenCanvas = createImagePreviewCanvas(bitmap, targetWidth, targetHeight);
+
+						const sharpen = new Function('return ' + sharpenSource)();
+						const shouldSharpen = new Function('return ' + shouldSharpenSource)();
+						if (shouldSharpen(bitmap, targetWidth, targetHeight))
+						{
+							sharpen(offscreenCanvas, targetWidth, targetHeight, 0.2);
+						}
+
+						bitmap.close();
+
+						const previewBitmap = offscreenCanvas.transferToImageBitmap();
+
+						offscreenCanvas.width = 0;
+						offscreenCanvas.height = 0;
+						offscreenCanvas = null;
+
+						self.postMessage({
+							id: event?.data?.id,
+							message: {
+								bitmap: previewBitmap,
+								useOriginalSize,
+								targetWidth,
+								targetHeight,
+							},
+						}, [previewBitmap]);
+
+						// const { quality = 0.92 } = options;
+						// offscreenCanvas.convertToBlob({ quality, type })
+						// 	.then((blob: Blob): void => {
+						// 		self.postMessage({
+						// 			id: event?.data?.id,
+						// 			message: {
+						// 				blob,
+						// 				useOriginalSize,
+						// 				targetWidth,
+						// 				targetHeight,
+						// 			},
+						// 		}, []);
+						// 	})
+						// 	.catch((error): void => {
+						// 		console.log('Resize Worker Error (convertToBlob)', error);
+						// 		self.postMessage({
+						// 			id: event.data.id,
+						// 			message: null,
+						// 		}, []);
+						// 	})
+						// ;
+					}
+				})
+				.catch((error): void => {
+					console.log('Resize Worker Error (createImageBitmap)', error);
 					self.postMessage({
 						id: event.data.id,
-						message: {
-							bitmap: previewBitmap,
-							targetWidth,
-							targetHeight,
-						},
-					}, [previewBitmap]);
-				});
-
-				/*const canvas = new OffscreenCanvas(targetWidth, targetHeight);
-				const context = canvas.getContext('2d');
-				context.imageSmoothingQuality = 'high';
-				context.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
-				const previewBitmap = canvas.transferToImageBitmap();*/
-
-			})
-			.catch((error) => {
-				console.warn('worker error', error);
-				self.postMessage({ id: event.data.id, message: null });
-			})
-		;
+						message: null,
+					}, []);
+				})
+			;
+		}, 0);
 	};
 };
+
+export default ResizeWorker;

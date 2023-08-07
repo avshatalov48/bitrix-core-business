@@ -81,11 +81,6 @@
 	 * @param {DefineFactory} factory
 	 */
 	let define = function (id, factory) {
-		if (Object.prototype.hasOwnProperty.call(modules, id))
-		{
-			throw new Error('module ' + id + ' already defined');
-		}
-
 		modules[id] = {
 			id: id,
 			factory: factory

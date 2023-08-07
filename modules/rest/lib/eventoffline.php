@@ -119,76 +119,46 @@ class EventOfflineTable extends Main\Entity\DataManager
 		return "\\Bitrix\\Rest\\EventOfflineTable::cleanProcessAgent();";
 	}
 
-	public static function callEvent(array $fields): void
+	public static function callEvent($fields)
 	{
-		if (!isset($fields['CONNECTOR_ID']))
+		if(!isset($fields['CONNECTOR_ID']))
 		{
 			$fields['CONNECTOR_ID'] = '';
 		}
 
-		if (!isset($fields['PROCESS_ID']))
-		{
-			$fields['PROCESS_ID'] = '';
-		}
-
-		if (!isset($fields['MESSAGE_ID']))
-		{
-			$fields['MESSAGE_ID'] = static::getMessageId($fields);
-		}
-
-		$addFields = [
+		$addFields = array(
 			'TIMESTAMP_X' => new Main\Type\DateTime(),
 			'MESSAGE_ID' => static::getMessageId($fields),
 			'APP_ID' => $fields['APP_ID'],
 			'EVENT_NAME' => $fields['EVENT_NAME'],
-			'EVENT_DATA' => $fields['EVENT_DATA'],
-			'EVENT_ADDITIONAL' => $fields['EVENT_ADDITIONAL'],
+			'EVENT_DATA' => serialize($fields['EVENT_DATA']),
+			'EVENT_ADDITIONAL' => serialize($fields['EVENT_ADDITIONAL']),
 			'CONNECTOR_ID' => $fields['CONNECTOR_ID'],
-		];
+		);
 
-		$updateFields = [
+		$updateFields = array(
 			'TIMESTAMP_X' => new Main\Type\DateTime(),
-			'EVENT_DATA' => $fields['EVENT_DATA'],
-			'EVENT_ADDITIONAL' => $fields['EVENT_ADDITIONAL'],
-		];
+			'EVENT_DATA' => serialize($fields['EVENT_DATA']),
+			'EVENT_ADDITIONAL' => serialize($fields['EVENT_ADDITIONAL']),
+		);
 
 		if(array_key_exists('ERROR', $fields))
 		{
-			$addFields['ERROR'] = (int)$fields['ERROR'] > 0 ? 1 : 0;
-			$updateFields['ERROR'] = (int)$fields['ERROR'] > 0 ? 1 : 0;
+			$addFields['ERROR'] = intval($fields['ERROR']) > 0 ? 1 : 0;
+			$updateFields['ERROR'] = intval($fields['ERROR']) > 0 ? 1 : 0;
 		}
 
-		$filter = [
-			'=APP_ID' => $fields['APP_ID'],
-			'=MESSAGE_ID' => $fields['MESSAGE_ID']
-		];
-		if ($fields['CONNECTOR_ID'] !== '')
-		{
-			$filter['=CONNECTOR_ID'] = $fields['CONNECTOR_ID'];
-		}
+		$connection = Main\Application::getConnection();
+		$queries = $connection->getSqlHelper()->prepareMerge(
+			static::getTableName(),
+			array('MESSAGE_ID', 'APP_ID', 'CONNECTOR_ID', 'PROCESS_ID'),
+			$addFields,
+			$updateFields
+		);
 
-		if ($fields['PROCESS_ID'] !== '')
+		foreach($queries as $query)
 		{
-			$filter['=PROCESS_ID'] = $fields['PROCESS_ID'];
-		}
-
-		$dbResult = static::getList([
-			'select' => ['ID'],
-			'filter' => $filter,
-			'limit' => 1,
-		]);
-
-		$eventOffline = $dbResult->fetch();
-		if ($eventOffline)
-		{
-			static::update(
-				$eventOffline['ID'],
-				$updateFields
-			);
-		}
-		else
-		{
-			static::add($addFields);
+			$connection->queryExecute($query);
 		}
 	}
 

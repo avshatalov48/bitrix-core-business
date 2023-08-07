@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/messagegrid.bundle.js',
 	'rel' => [
 		'ui.design-tokens',
+		'ui.buttons',
 		'ui.fonts.opensans',
 		'main.core.events',
 		'main.core',

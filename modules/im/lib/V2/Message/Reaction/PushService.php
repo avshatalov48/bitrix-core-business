@@ -30,15 +30,23 @@ class PushService
 			'userId' => $reaction->getUserId(),
 			'reaction' => $converter->process($reaction->getReaction()),
 			'actualReactions' => (new RestAdapter($reactionMessage))->toRestFormat(),
+			'dialogId' => Chat::getInstance($reaction->getChatId())->getDialogId(),
 		];
+		$chat = Chat::getInstance($reaction->getChatId());
+
+		if ($chat instanceof Chat\PrivateChat)
+		{
+			$this->sendToPrivateChat($params, $eventName, $reaction);
+
+			return;
+		}
+
 		\Bitrix\Pull\Event::add($this->getRecipient($reaction), [
 			'module_id' => 'im',
 			'command' => $eventName,
 			'params' => $params,
 			'extra' => \Bitrix\Im\Common::getPullExtra()
 		]);
-
-		$chat = Chat::getInstance($reaction->getChatId());
 
 		if ($chat->getType() === Chat::IM_TYPE_OPEN || $chat->getType() === Chat::IM_TYPE_OPEN_LINE)
 		{
@@ -48,6 +56,22 @@ class PushService
 				'params' => $params,
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
+		}
+	}
+
+	private function sendToPrivateChat(array $params, string $eventName, ReactionItem $reaction): void
+	{
+		/** @var Chat\PrivateChat $chat */
+		$chat = Chat::getInstance($reaction->getChatId());
+		foreach ($this->getRecipient($reaction) as $recipient)
+		{
+			$params['dialogId'] = $chat->getCompanion($recipient)->getId();
+			\Bitrix\Pull\Event::add($recipient, [
+				'module_id' => 'im',
+				'command' => $eventName,
+				'params' => $params,
+				'extra' => \Bitrix\Im\Common::getPullExtra()
+			]);
 		}
 	}
 

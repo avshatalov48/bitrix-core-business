@@ -33,7 +33,7 @@ class filemanMedialibUpload
 			return false;
 		}
 		$package["collectionId"] = $post["collectionId"];
-		$package["ml_type"] = $post["ml_type"];
+		$package["ml_type"] = $post["ml_type"] ?? null;
 		return true;
 	}
 
@@ -406,6 +406,7 @@ CJSCore::Init(array("core", "ajax", "uploader", "canvas"));
 $uploaderID = "medialib";
 $options = CUserOptions::GetOption("fileman", "uploader_html5", array());
 $options = (is_array($options) ? $options : array());
+$options["template"] ??= null;
 ?>
 <div class="upl-main-wrap">
 <form id="<?=$uploaderID?>_form" name="<?=$uploaderID?>_form" action="<?=$APPLICATION->GetCurPageParam("type_ml=".urlencode($_GET["type"])."&".bitrix_sessid_get(), array("type_ml", "sessid"))?>" method="POST" enctype="multipart/form-data" class="bxiu-photo-form">

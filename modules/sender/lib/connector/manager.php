@@ -137,6 +137,11 @@ class Manager
 							{
 							}
 						}
+						else if ($field && is_array($field))
+						{
+							$fieldsTmp[$moduleId][$code][$num] = $field;
+							continue;
+						}
 						else
 						{
 							$field = null;

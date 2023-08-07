@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -43,24 +44,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    color: '#cfeefa',
 	    type: ThemeType.light
 	  },
-	  8: {
-	    color: '#c5ecde',
-	    type: ThemeType.light
-	  },
 	  9: {
 	    color: '#efded3',
 	    type: ThemeType.light
 	  },
-	  10: {
-	    color: '#dff0bc',
-	    type: ThemeType.light
-	  },
 	  11: {
 	    color: '#eff4f6',
-	    type: ThemeType.light
-	  },
-	  12: {
-	    color: '#f5f3e1',
 	    type: ThemeType.light
 	  }
 	});
@@ -74,12 +63,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  isLightTheme() {
 	    const selectedBackgroundId = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.dialog.background);
 	    const selectedColorScheme = ThemeColorScheme[selectedBackgroundId];
-	    return selectedColorScheme.type === ThemeType.light;
+	    return (selectedColorScheme == null ? void 0 : selectedColorScheme.type) === ThemeType.light;
 	  },
 	  isDarkTheme() {
 	    const selectedBackgroundId = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.dialog.background);
 	    const selectedColorScheme = ThemeColorScheme[selectedBackgroundId];
-	    return selectedColorScheme.type === ThemeType.dark;
+	    return (selectedColorScheme == null ? void 0 : selectedColorScheme.type) === ThemeType.dark;
 	  },
 	  getCurrentBackgroundStyle() {
 	    const selectedBackgroundId = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.dialog.background);

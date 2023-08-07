@@ -13,9 +13,9 @@ export class Activate extends BaseContent
 	#supportLink: string;
 	#docLink: string;
 
-	constructor(supportLink: ?string, docLink: ?string) {
+	constructor(supportLink: ?string, docLink: ?string, errors: Array = []) {
 		super();
-		this.#errors = new ErrorCollection();
+		this.#errors = errors.length > 0 ? new ErrorCollection(errors) : new ErrorCollection();
 		this.#formData = new FormData();
 		this.#supportLink = !Type.isNil(supportLink) ? supportLink : '';
 		this.#docLink = !Type.isNil(docLink) ? docLink : '';

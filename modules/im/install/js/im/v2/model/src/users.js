@@ -5,6 +5,8 @@ import {Core} from 'im.v2.application.core';
 import {Utils} from 'im.v2.lib.utils';
 import {UserStatus, BotType, Color} from 'im.v2.const';
 
+import type {User as ImModelUser} from './type/user';
+
 export class UsersModel extends BuilderModel
 {
 	getName()
@@ -36,6 +38,7 @@ export class UsersModel extends BuilderModel
 			color: Color.base,
 			workPosition: '',
 			gender: 'M',
+			isAdmin: false,
 			extranet: false,
 			network: false,
 			bot: false,
@@ -64,6 +67,7 @@ export class UsersModel extends BuilderModel
 	getGetters()
 	{
 		return {
+			/** @function users/get */
 			get: state => (userId, getTemporary = false) =>
 			{
 				userId = Number.parseInt(userId, 10);
@@ -93,10 +97,12 @@ export class UsersModel extends BuilderModel
 
 				return user;
 			},
+			/** @function users/getBlank */
 			getBlank: () => params =>
 			{
 				return this.getElementState(params);
 			},
+			/** @function users/getList */
 			getList: state => (userList) => {
 				const result = [];
 
@@ -118,6 +124,7 @@ export class UsersModel extends BuilderModel
 
 				return result;
 			},
+			/** @function users/hasBirthday */
 			hasBirthday: state => userId => {
 				userId = Number.parseInt(userId, 10);
 
@@ -129,6 +136,7 @@ export class UsersModel extends BuilderModel
 
 				return user.isBirthday;
 			},
+			/** @function users/hasVacation */
 			hasVacation: state => userId => {
 				userId = Number.parseInt(userId, 10);
 
@@ -140,6 +148,7 @@ export class UsersModel extends BuilderModel
 
 				return user.isAbsent;
 			},
+			/** @function users/getStatus */
 			getStatus: state => userId => {
 				userId = Number.parseInt(userId, 10);
 
@@ -169,6 +178,7 @@ export class UsersModel extends BuilderModel
 					return user.status;
 				}
 			},
+			/** @function users/getLastOnline */
 			getLastOnline: state => userId => {
 				userId = Number.parseInt(userId, 10);
 
@@ -180,6 +190,7 @@ export class UsersModel extends BuilderModel
 
 				return Utils.user.getLastDateText(user);
 			},
+			/** @function users/getPosition */
 			getPosition: state => userId => {
 				userId = Number.parseInt(userId, 10);
 
@@ -196,6 +207,7 @@ export class UsersModel extends BuilderModel
 
 				return Loc.getMessage('IM_MODEL_USERS_DEFAULT_NAME');
 			},
+			/** @function users/getBotType */
 			getBotType: state => userId => {
 				userId = Number.parseInt(userId, 10);
 
@@ -220,6 +232,7 @@ export class UsersModel extends BuilderModel
 	getActions()
 	{
 		return {
+			/** @function users/set */
 			set: (store, payload) =>
 			{
 				if (!Array.isArray(payload) && Type.isPlainObject(payload))
@@ -247,6 +260,7 @@ export class UsersModel extends BuilderModel
 					}
 				});
 			},
+			/** @function users/add */
 			add: (store, payload) =>
 			{
 				if (!Array.isArray(payload) && Type.isPlainObject(payload))
@@ -267,6 +281,7 @@ export class UsersModel extends BuilderModel
 					}
 				});
 			},
+			/** @function users/update */
 			update: (store, payload) =>
 			{
 				payload.id = Number.parseInt(payload.id, 10);
@@ -282,14 +297,17 @@ export class UsersModel extends BuilderModel
 					fields: this.validate(payload.fields)
 				});
 			},
+			/** @function users/delete */
 			delete: (store, payload) =>
 			{
 				store.commit('delete', payload.id);
 			},
+			/** @function users/setBotList */
 			setBotList: (store, payload) =>
 			{
 				store.commit('setBotList', payload);
 			},
+			/** @function users/setStatus */
 			setStatus: (store, payload: {status: string}) =>
 			{
 				store.commit('update', {
@@ -303,78 +321,29 @@ export class UsersModel extends BuilderModel
 	getMutations()
 	{
 		return {
-			add: (state, payload) =>
-			{
+			add: (state, payload) => {
+				// eslint-disable-next-line no-param-reassign
 				state.collection[payload.id] = payload.fields;
-				const user = state.collection[payload.id];
 
-				if (Utils.user.isOnline(user.lastActivityDate))
-				{
-					user.isOnline = true;
-					this.addToOnlineList(user.id);
-				}
-
-				if (Utils.user.isMobileOnline(user.lastActivityDate, user.mobileLastDate))
-				{
-					user.isMobileOnline = true;
-					this.addToMobileOnlineList(user.id);
-				}
-
-				if (user.birthday && Utils.user.isBirthdayToday(user.birthday))
-				{
-					user.isBirthday = true;
-					setTimeout(() => {
-						user.isBirthday = false;
-					}, Utils.date.getTimeToNextMidnight());
-				}
-
-				if (user.absent)
-				{
-					user.isAbsent = true;
-					this.addToAbsentList(user.id);
-				}
+				this.handleUserStatusFlags(state, payload.fields);
 
 				this.startOnlineCheckInterval();
 				this.startAbsentCheckInterval();
 			},
-			update: (state, payload) =>
-			{
-				const user = state.collection[payload.id];
-				if (Utils.user.isOnline(payload.fields.lastActivityDate))
-				{
-					user.isOnline = true;
-					this.addToOnlineList(payload.fields.id);
-				}
+			update: (state, payload) => {
+				// eslint-disable-next-line no-param-reassign
+				state.collection[payload.id] = { ...state.collection[payload.id], ...payload.fields };
 
-				if (Utils.user.isMobileOnline(payload.fields.lastActivityDate, payload.fields.mobileLastDate))
-				{
-					user.isMobileOnline = true;
-					this.addToMobileOnlineList(payload.fields.id);
-				}
-
-				if (payload.fields.absent === false)
-				{
-					state.absentList = state.absentList.filter(element => {
-						return element !== payload.id;
-					});
-					state.collection[payload.id].isAbsent = false;
-				}
-				else if (Type.isDate(payload.fields.absent))
-				{
-					state.collection[payload.id].isAbsent = true;
-					this.addToAbsentList(payload.id);
-				}
-
-				state.collection[payload.id] = {...state.collection[payload.id], ...payload.fields};
+				this.handleUserStatusFlags(state, payload.fields);
 			},
-			delete: (state, payload) =>
-			{
+			delete: (state, payload) => {
+				// eslint-disable-next-line no-param-reassign
 				delete state.collection[payload.id];
 			},
-			setBotList: (state, payload) =>
-			{
+			setBotList: (state, payload) => {
+				// eslint-disable-next-line no-param-reassign
 				state.botList = payload;
-			}
+			},
 		};
 	}
 
@@ -436,6 +405,11 @@ export class UsersModel extends BuilderModel
 		if (Type.isStringFilled(fields.birthday))
 		{
 			result.birthday = fields.birthday;
+		}
+
+		if (Type.isBoolean(fields.isAdmin))
+		{
+			result.isAdmin = fields.isAdmin;
 		}
 
 		if (Type.isBoolean(fields.extranet))
@@ -585,6 +559,44 @@ export class UsersModel extends BuilderModel
 		}
 
 		return result;
+	}
+
+	handleUserStatusFlags(state, fields: ImModelUser)
+	{
+		const user = state.collection[fields.id];
+		if (Utils.user.isOnline(fields.lastActivityDate))
+		{
+			user.isOnline = true;
+			this.addToOnlineList(fields.id);
+		}
+
+		if (Utils.user.isMobileOnline(fields.lastActivityDate, fields.mobileLastDate))
+		{
+			user.isMobileOnline = true;
+			this.addToMobileOnlineList(fields.id);
+		}
+
+		if (fields.birthday && Utils.user.isBirthdayToday(fields.birthday))
+		{
+			user.isBirthday = true;
+			setTimeout(() => {
+				user.isBirthday = false;
+			}, Utils.date.getTimeToNextMidnight());
+		}
+
+		if (fields.absent === false)
+		{
+			user.isAbsent = false;
+			// eslint-disable-next-line no-param-reassign
+			state.absentList = state.absentList.filter((element) => {
+				return element !== fields.id;
+			});
+		}
+		else if (Type.isDate(fields.absent))
+		{
+			user.isAbsent = true;
+			this.addToAbsentList(fields.id);
+		}
 	}
 
 	addToOnlineList(id)

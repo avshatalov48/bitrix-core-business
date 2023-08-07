@@ -14,6 +14,7 @@ import type {
 	MessageAddParams,
 	MessageUpdateParams,
 	MessageDeleteParams,
+	MessageDeleteCompleteParams,
 	ReadMessageParams,
 	ReadMessageOpponentParams,
 	PinAddParams,
@@ -72,10 +73,10 @@ export class MessagePullHandler
 			this.#handleAddingMessageToModel(params);
 		}
 
-		//stop writing event
+		// stop writing event
 		this.#store.dispatch('dialogues/stopWriting', {
 			dialogId: params.dialogId,
-			userId: params.message.senderId
+			userId: params.message.senderId,
 		});
 
 		this.#updateDialog(params);
@@ -86,7 +87,7 @@ export class MessagePullHandler
 		Logger.warn('MessagePullHandler: handleMessageUpdate', params);
 		this.#store.dispatch('dialogues/stopWriting', {
 			dialogId: params.dialogId,
-			userId: params.senderId
+			userId: params.senderId,
 		});
 		this.#store.dispatch('messages/update', {
 			id: params.id,
@@ -103,7 +104,7 @@ export class MessagePullHandler
 		Logger.warn('MessagePullHandler: handleMessageDelete', params);
 		this.#store.dispatch('dialogues/stopWriting', {
 			dialogId: params.dialogId,
-			userId: params.senderId
+			userId: params.senderId,
 		});
 		this.#store.dispatch('messages/update', {
 			id: params.id,
@@ -113,24 +114,43 @@ export class MessagePullHandler
 		});
 	}
 
-	handleMessageDeleteComplete(params)
+	handleMessageDeleteComplete(params: MessageDeleteCompleteParams)
 	{
 		Logger.warn('MessagePullHandler: handleMessageDeleteComplete', params);
-		// this.store.dispatch('messages/delete', {
-		// 	id: params.id,
-		// 	chatId: params.chatId,
-		// });
+		this.#store.dispatch('dialogues/stopWriting', {
+			dialogId: params.dialogId,
+			userId: params.senderId,
+		});
 
-		// this.store.dispatch('dialogues/stopWriting', {
-		// 	dialogId: params.dialogId,
-		// 	userId: params.senderId
-		// });
+		this.#store.dispatch('messages/delete', {
+			id: params.id,
+		});
+
+		const dialogUpdateFields = {
+			counter: params.counter,
+		};
+
+		const lastMessageWasDeleted = Boolean(params.newLastMessage);
+		if (lastMessageWasDeleted)
+		{
+			dialogUpdateFields.lastMessageId = params.newLastMessage.id;
+			dialogUpdateFields.lastMessageViews = params.lastMessageViews;
+		}
+
+		this.#store.dispatch('dialogues/update', {
+			dialogId: params.dialogId,
+			fields: dialogUpdateFields,
+		});
 	}
 
 	handleAddReaction(params: AddReactionParams)
 	{
 		Logger.warn('MessagePullHandler: handleAddReaction', params);
-		const {actualReactions: {reaction: actualReactionsState, usersShort}, userId, reaction} = params;
+		const {
+			actualReactions: { reaction: actualReactionsState, usersShort },
+			userId,
+			reaction,
+		} = params;
 		if (Core.getUserId() === userId)
 		{
 			actualReactionsState.ownReactions = [reaction];
@@ -152,13 +172,12 @@ export class MessagePullHandler
 	handleMessageParamsUpdate(params)
 	{
 		Logger.warn('MessagePullHandler: handleMessageParamsUpdate', params);
-		// this.store.dispatch('messages/update', {
-		// 	id: params.id,
-		// 	chatId: params.chatId,
-		// 	fields: {params: params.params}
-		// }).then(() => {
-		// 	EventEmitter.emit(EventType.dialog.scrollToBottom, {chatId: params.chatId, cancelIfScrollChange: true});
-		// });
+
+		this.#store.dispatch('messages/update', {
+			id: params.id,
+			chatId: params.chatId,
+			fields: {params: params.params}
+		});
 	}
 
 	handleReadMessage(params: ReadMessageParams, extra: PullExtraParams)
@@ -199,12 +218,12 @@ export class MessagePullHandler
 		Logger.warn('MessagePullHandler: handlePinAdd', params);
 		this.#setFiles(params);
 		this.#setUsers(params);
-		this.#store.dispatch('messages/store', params.link.message);
+		this.#store.dispatch('messages/store', params.pin.message);
 		this.#store.dispatch('messages/pin/add', {
-			chatId: params.link.chatId,
-			messageId: params.link.messageId
+			chatId: params.pin.chatId,
+			messageId: params.pin.messageId,
 		});
-		if (Core.getUserId() !== params.link.authorId)
+		if (Core.getUserId() !== params.pin.authorId)
 		{
 			// this.#sendScrollEvent(params.link.chatId);
 		}

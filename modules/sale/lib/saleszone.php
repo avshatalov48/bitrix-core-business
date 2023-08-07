@@ -314,11 +314,11 @@ class SalesZone
 	}
 
 	/**
-	 * A very important function. Here we decide what locations we need to take, 
+	 * A very important function. Here we decide what locations we need to take,
 	 * making a descision based on $_REQUEST from sales zone selector.
-	 * 
+	 *
 	 * Then we normalize the selection and store to database.
-	 * 
+	 *
 	 * Also this function is used in data migrator.
 	 */
 	public static function saveSelectedTypes($typeList, $siteId)
@@ -348,9 +348,9 @@ class SalesZone
 
 		// make up list of ids
 		$res = Location\LocationTable::getList(array('select' => array(
-			'ID', 
-			'COUNTRY_ID', 
-			'REGION_ID', 
+			'ID',
+			'COUNTRY_ID',
+			'REGION_ID',
 			'CITY_ID',
 			'TYPE_ID',
 			//'LNAME' => 'NAME.NAME'
@@ -387,7 +387,7 @@ class SalesZone
 						$allRegions // we take all regions (of selected countries)
 						&& // and
 						$countryTaken // country is selected already
-					) 
+					)
 					|| // or ..
 					isset($typeList['REGION'][$regionId]) // we manually selected this region
 					|| // or ..
@@ -405,7 +405,7 @@ class SalesZone
 						$allCities // we take all cities (of selected regions of selected countries)
 						&& // and
 						$regionTaken // region is selected already
-					) 
+					)
 					|| // or..
 					isset($typeList['REGION'][$regionId]) // we manually selected this city
 					|| // or ..
@@ -468,11 +468,11 @@ class SalesZone
 
 		$regions = array();
 		$regionsList = static::getAllRegions($lang);
-		$getCountryNull = in_array("NULL", $countriesIds) ? true : false;
+		$getCountryNull = in_array("NULL", $countriesIds);
 		$filter = in_array("", $countriesIds) ? array() : array(($getCountryNull ? "+" : "")."COUNTRY_ID" => $countriesIds);
 
 		$dbLocationsList = \CSaleLocation::GetList(
-			array("SORT"=>"ASC", "REGION_NAME_LANG"=>"ASC"),
+			array(),
 			$filter,
 			array("REGION_ID", "COUNTRY_ID")
 		);
@@ -496,10 +496,10 @@ class SalesZone
 	{
 		$cities = array();
 		$citiesList = static::getAllCities($lang);
-		$getRegionNull = in_array("NULL", $regionsIds) ? true : false;
-		$getRegionAll = in_array("", $regionsIds) ? true : false;
-		$getCountryNull = in_array("NULL", $countriesIds) ? true : false;
-		$getCountryAll = in_array("", $countriesIds) ? true : false;
+		$getRegionNull = in_array("NULL", $regionsIds);
+		$getRegionAll = in_array("", $regionsIds);
+		$getCountryNull = in_array("NULL", $countriesIds);
+		$getCountryAll = in_array("", $countriesIds);
 
 		$filter = in_array("", $regionsIds) ? array() : array(($getRegionNull ? "+" : "")."REGION_ID" => $regionsIds);
 
@@ -509,7 +509,7 @@ class SalesZone
 				$filter[($getCountryNull ? "+" : "")."COUNTRY_ID"] = $countryId;
 
 			$dbLocationsList = \CSaleLocation::GetList(
-				array("SORT"=>"ASC", "CITY_NAME_LANG"=>"ASC"),
+				array(),
 				$filter,
 				array("CITY_ID")
 			);

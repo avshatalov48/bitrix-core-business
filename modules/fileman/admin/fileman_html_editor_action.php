@@ -9,7 +9,7 @@ CModule::IncludeModule("fileman");
 
 $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : false;
 
-if ($GLOBALS['USER'] instanceof \CAllUser
+if ($GLOBALS['USER'] instanceof CUser
 	&& $GLOBALS['USER']->getId()
 	&& check_bitrix_sessid())
 {

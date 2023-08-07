@@ -42,6 +42,7 @@ $extensionsList = [
 	'ui_date',
 	'ui.notification',
 	'ui.info-helper',
+	'ai.picker',
 ];
 
 if (in_array('tasks', $arResult['tabs'], true))
@@ -623,12 +624,31 @@ HTML;
 							"PROPERTIES" => [
 								array_key_exists("UF_BLOG_POST_FILE", $arResult["POST_PROPERTIES"]["DATA"]) ?
 									array_merge(
-										(is_array($arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_FILE"]) ? $arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_FILE"] : []),
-										($arResult['bVarsFromForm'] && is_array($_POST["UF_BLOG_POST_FILE"]) ? [ "VALUE" => $_POST["UF_BLOG_POST_FILE"] ] : []))
+										(
+											is_array($arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_FILE"])
+												? $arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_FILE"]
+												: []
+										),
+										(
+											$arResult['bVarsFromForm']
+											&& is_array($_POST["UF_BLOG_POST_FILE"] ?? null)
+												? [ "VALUE" => $_POST["UF_BLOG_POST_FILE"] ]
+												: []
+										)
+									)
 									:
 									array_merge(
-										(is_array($arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_DOC"]) ? $arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_DOC"] : []),
-										($arResult['bVarsFromForm'] && is_array($_POST["UF_BLOG_POST_DOC"]) ? [ "VALUE" => $_POST["UF_BLOG_POST_DOC"] ] : []),
+										(
+											is_array($arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_DOC"])
+												? $arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_DOC"]
+												: []
+										),
+										(
+											$arResult['bVarsFromForm']
+											&& is_array($_POST["UF_BLOG_POST_DOC"] ?? null)
+												? [ "VALUE" => $_POST["UF_BLOG_POST_DOC"] ]
+												: []
+										),
 										[ "POSTFIX" => "file"]
 									),
 								array_key_exists("UF_BLOG_POST_URL_PRV", $arResult["POST_PROPERTIES"]["DATA"]) ?
@@ -1062,6 +1082,10 @@ HTML;
 						text: '<?=CUtil::JSEscape($formParams["TEXT"]["VALUE"])?>',
 						restoreAutosave: <?=(empty($arResult["ERROR_MESSAGE"]) ? 'true' : 'false')?>,
 						createdFromEmail: <?= (!empty($arResult['POST_PROPERTIES']['DATA']['UF_MAIL_MESSAGE']['VALUE']) ? 'true' : 'false') ?>,
+						isAITextAvailable: '<?= $arResult['isAITextAvailable'] === true ? 'Y' : 'N' ?>',
+						AITextContextId: '<?= $arResult['AITextContextId'] ?>',
+						isAIImageAvailable: '<?= $arResult['isAIImageAvailable'] === true ? 'Y' : 'N' ?>',
+						AIImageContextId: '<?= $arResult['AIImageContextId'] ?>',
 					});
 
 				</script>

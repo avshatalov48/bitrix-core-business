@@ -1,13 +1,13 @@
-import {Store} from 'ui.vue3.vuex';
-import {RestClient} from 'rest.client';
+import { Store } from 'ui.vue3.vuex';
+import { RestClient } from 'rest.client';
 
-import {Core} from 'im.v2.application.core';
-import {RestMethod} from 'im.v2.const';
-import {Logger} from 'im.v2.lib.logger';
-import {UuidManager} from 'im.v2.lib.uuid';
-import {runAction} from 'im.v2.lib.rest';
+import { Core } from 'im.v2.application.core';
+import { RestMethod } from 'im.v2.const';
+import { Logger } from 'im.v2.lib.logger';
+import { UuidManager } from 'im.v2.lib.uuid';
+import { runAction } from 'im.v2.lib.rest';
 
-import type {ImModelDialog} from 'im.v2.model';
+import type { ImModelDialog, ImModelRecentItem } from 'im.v2.model';
 
 type ReadResult = {
 	chatId: number,
@@ -103,19 +103,25 @@ export class ReadService
 	clearDialogMark(dialogId: string)
 	{
 		Logger.warn('ReadService: clear dialog mark', dialogId);
+		const dialog: ImModelDialog = this.#store.getters['dialogues/get'](dialogId);
+		const recentItem: ImModelRecentItem = this.#store.getters['recent/get'](dialogId);
+		if (dialog.markedId === 0 && recentItem && !recentItem.unread)
+		{
+			return;
+		}
 		this.#store.dispatch('recent/unread', {
 			id: dialogId,
-			action: false
+			action: false,
 		});
 		this.#store.dispatch('dialogues/update', {
 			dialogId,
 			fields: {
-				markedId: 0
-			}
+				markedId: 0,
+			},
 		});
 		this.#restClient.callMethod(RestMethod.imV2ChatRead, {
 			dialogId,
-			onlyRecent: true
+			onlyRecent: true,
 		}).catch(error => {
 			console.error('ReadService: error clearing dialog mark', error);
 		});

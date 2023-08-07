@@ -301,57 +301,64 @@ class Product extends DataConverter
 		return $result;
 	}
 
-	protected static function getEbayCategoriesParams($iblockId, array $bitrixCategories = array())
+	protected static function getEbayCategoriesParams($iblockId, array $bitrixCategories = [])
 	{
-		static $entitiesIds = array();
+		static $entitiesIds = [];
 
-		if(empty($entitiesIds[$iblockId]))
+		if (empty($entitiesIds[$iblockId]))
 		{
 			$res = \Bitrix\Sale\TradingPlatform\Ebay\MapHelper::getCategoryEntityId($iblockId);
 
-			if(!$res)
-				return array();
+			if (!$res)
+			{
+				return [];
+			}
 
 			$entitiesIds[$iblockId] = $res;
 		}
 
-		static $params  = array();
+		static $params = array();
 
-		if(!isset($params[$iblockId]))
+		if (!isset($params[$iblockId]))
 		{
-			$params[$iblockId] = array();
+			$params[$iblockId] = [];
 
-			$catRes = \Bitrix\Sale\TradingPlatform\MapTable::getList(array(
-				'filter' => array(
+			$catRes = \Bitrix\Sale\TradingPlatform\MapTable::getList([
+				'filter' => [
 					'=ENTITY_ID' => $entitiesIds[$iblockId],
-				),
-			));
+				],
+			]);
 
 			while($category = $catRes->fetch())
-				if(intval($category["VALUE_INTERNAL"]) > 0)
+			{
+				if ((int)$category["VALUE_INTERNAL"] > 0)
+				{
 					$params[$iblockId][$category["VALUE_INTERNAL"]] = $category;
-
+				}
+			}
+			unset($catRes);
 		}
 
 		$result = array();
 
-		if(!empty($bitrixCategories))
+		if (!empty($bitrixCategories))
 		{
-			foreach($bitrixCategories as $catId)
+			foreach ($bitrixCategories as $catId)
 			{
-				if(isset($params[$iblockId][$catId]) && is_array($params[$iblockId][$catId]))
+				if (isset($params[$iblockId][$catId]) && is_array($params[$iblockId][$catId]))
 				{
 					$result[] = $params[$iblockId][$catId];
 				}
 				else
 				{
-					$res = \CIBlockSection::GetNavChain($iblockId, $catId);
-
-					while($row = $res->fetch())
+					$res = \CIBlockSection::GetNavChain($iblockId, $catId, ['ID'], true);
+					foreach ($res as $row)
 					{
-
-						if(isset($params[$iblockId][$row['ID']]) && is_array($params[$iblockId][$row['ID']]))
-							$result[] = $params[$iblockId][$row['ID']];
+						$id = (int)$row['ID'];
+						if (isset($params[$iblockId][$id]) && is_array($params[$iblockId][$id]))
+						{
+							$result[] = $params[$iblockId][$id];
+						}
 					}
 				}
 			}
@@ -419,4 +426,4 @@ class Product extends DataConverter
 
 		return $result[$ebayCategory];
 	}
-} 
+}

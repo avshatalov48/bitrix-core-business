@@ -7,15 +7,14 @@ this.BX.UI = this.BX.UI || {};
 	  function ItemNodeComparator() {
 	    babelHelpers.classCallCheck(this, ItemNodeComparator);
 	  }
-
 	  babelHelpers.createClass(ItemNodeComparator, null, [{
 	    key: "makeMultipleComparator",
 	    value: function makeMultipleComparator(order) {
 	      var _this = this;
-
 	      var props = Object.keys(order).map(function (property) {
 	        return "get".concat(main_core.Text.capitalize(property));
 	      });
+
 	      /*
 	      asc *
 	      asc nulls last *
@@ -24,14 +23,13 @@ this.BX.UI = this.BX.UI || {};
 	      desc nulls first *
 	      desc nulls last
 	      */
-
 	      var directions = [];
 	      Object.values(order).forEach(function (element) {
-	        var direction = element.toLowerCase().trim(); // Default sorting: 'asc' || 'asc nulls last'
+	        var direction = element.toLowerCase().trim();
 
+	        // Default sorting: 'asc' || 'asc nulls last'
 	        var ascOrdering = true;
 	        var nullsOrdering = true;
-
 	        if (direction === 'desc' || direction === 'desc nulls first') {
 	          ascOrdering = false;
 	        } else if (direction === 'asc nulls first') {
@@ -40,7 +38,6 @@ this.BX.UI = this.BX.UI || {};
 	          ascOrdering = false;
 	          nullsOrdering = false;
 	        }
-
 	        directions.push({
 	          ascOrdering: ascOrdering,
 	          nullsOrdering: nullsOrdering
@@ -50,14 +47,12 @@ this.BX.UI = this.BX.UI || {};
 	      return function (nodeA, nodeB) {
 	        var i = 0;
 	        var result = 0;
-
 	        while (result === 0 && i < numberOfProperties) {
 	          var propertyGetter = props[i];
 	          var direction = directions[i];
 	          result = _this.compareItemNodes(nodeA, nodeB, propertyGetter, direction.ascOrdering, direction.nullsOrdering);
 	          i += 1;
 	        }
-
 	        return result;
 	      };
 	    }
@@ -70,7 +65,6 @@ this.BX.UI = this.BX.UI || {};
 	      var valueA = itemA[propertyGetter]();
 	      var valueB = itemB[propertyGetter]();
 	      var result = 0;
-
 	      if (valueA !== null && valueB === null) {
 	        result = nullsOrdering ? -1 : 1;
 	      } else if (valueA === null && valueB !== null) {
@@ -84,7 +78,6 @@ this.BX.UI = this.BX.UI || {};
 	          result = valueA - valueB;
 	        }
 	      }
-
 	      var sortOrder = ascOrdering ? 1 : -1;
 	      return result * sortOrder;
 	    }
@@ -96,7 +89,6 @@ this.BX.UI = this.BX.UI || {};
 	  function TextNodeType() {
 	    babelHelpers.classCallCheck(this, TextNodeType);
 	  }
-
 	  babelHelpers.createClass(TextNodeType, null, [{
 	    key: "isValid",
 	    value: function isValid(type) {
@@ -105,7 +97,6 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return TextNodeType;
 	}();
-
 	babelHelpers.defineProperty(TextNodeType, "TEXT", 'text');
 	babelHelpers.defineProperty(TextNodeType, "HTML", 'html');
 
@@ -114,12 +105,10 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classCallCheck(this, TextNode);
 	    babelHelpers.defineProperty(this, "text", null);
 	    babelHelpers.defineProperty(this, "type", null);
-
 	    if (main_core.Type.isPlainObject(options)) {
 	      if (main_core.Type.isString(options.text)) {
 	        this.text = options.text;
 	      }
-
 	      if (TextNodeType.isValid(options.type)) {
 	        this.type = options.type;
 	      }
@@ -127,7 +116,6 @@ this.BX.UI = this.BX.UI || {};
 	      this.text = options;
 	    }
 	  }
-
 	  babelHelpers.createClass(TextNode, [{
 	    key: "getText",
 	    value: function getText() {
@@ -147,11 +135,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "renderTo",
 	    value: function renderTo(element) {
 	      var text = this.getText();
-
 	      if (text === null) {
 	        return;
 	      }
-
 	      if (this.getType() === null || this.getType() === TextNodeType.TEXT) {
 	        element.textContent = text;
 	      } else if (this.getType() === TextNodeType.HTML) {
@@ -162,7 +148,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "toString",
 	    value: function toString() {
 	      var _this$getText;
-
 	      return (_this$getText = this.getText()) !== null && _this$getText !== void 0 ? _this$getText : '';
 	    }
 	  }, {
@@ -185,24 +170,19 @@ this.BX.UI = this.BX.UI || {};
 	  function Highlighter() {
 	    babelHelpers.classCallCheck(this, Highlighter);
 	  }
-
 	  babelHelpers.createClass(Highlighter, null, [{
 	    key: "mark",
 	    value: function mark(text, matches) {
 	      var encode = true;
-
 	      if (text instanceof TextNode) {
 	        if (text.getType() === 'html') {
 	          encode = false;
 	        }
-
 	        text = text.getText();
 	      }
-
 	      if (!main_core.Type.isStringFilled(text) || !matches || matches.count() === 0) {
 	        return text;
 	      }
-
 	      var result = '';
 	      var offset = 0;
 	      var chunk = '';
@@ -210,7 +190,6 @@ this.BX.UI = this.BX.UI || {};
 	        if (offset > match.getStartIndex()) {
 	          return;
 	        }
-
 	        chunk = text.substring(offset, match.getStartIndex());
 	        result += encode ? main_core.Text.encode(chunk) : chunk;
 	        result += '<span class="ui-selector-highlight-mark">';
@@ -239,7 +218,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.setTextColor(options.textColor);
 	    this.setBgColor(options.bgColor);
 	  }
-
 	  babelHelpers.createClass(ItemBadge, [{
 	    key: "getTitle",
 	    value: function getTitle() {
@@ -286,13 +264,11 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContainer",
 	    value: function getContainer(target) {
 	      var container = this.containers.get(target);
-
 	      if (!container) {
 	        container = document.createElement('span');
 	        container.className = 'ui-selector-item-badge';
 	        this.containers.set(target, container);
 	      }
-
 	      return container;
 	    }
 	  }, {
@@ -300,13 +276,11 @@ this.BX.UI = this.BX.UI || {};
 	    value: function renderTo(target) {
 	      var container = this.getContainer(target);
 	      var titleNode = this.getTitleNode();
-
 	      if (titleNode) {
 	        this.getTitleNode().renderTo(container);
 	      } else {
 	        container.textContent = '';
 	      }
-
 	      main_core.Dom.style(container, 'color', this.getTextColor());
 	      main_core.Dom.style(container, 'background-color', this.getBgColor());
 	      main_core.Dom.append(container, target);
@@ -333,18 +307,15 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "system", false);
 	    babelHelpers.defineProperty(this, "sort", null);
 	    var options = main_core.Type.isPlainObject(fieldOptions) ? fieldOptions : {};
-
 	    if (!main_core.Type.isStringFilled(options.name)) {
 	      throw new Error('EntitySelector.SearchField: "name" parameter is required.');
 	    }
-
 	    this.name = options.name;
 	    this.setType(options.type);
 	    this.setSystem(options.system);
 	    this.setSort(options.sort);
 	    this.setSearchable(options.searchable);
 	  }
-
 	  babelHelpers.createClass(SearchField, [{
 	    key: "getName",
 	    value: function getName() {
@@ -419,7 +390,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.startIndex = startIndex;
 	    this.endIndex = startIndex + queryWord.length;
 	  }
-
 	  babelHelpers.createClass(MatchIndex, [{
 	    key: "getField",
 	    value: function getField() {
@@ -451,7 +421,6 @@ this.BX.UI = this.BX.UI || {};
 	    return a.getStartIndex() > b.getStartIndex() ? 1 : -1;
 	  }
 	};
-
 	var MatchField = /*#__PURE__*/function () {
 	  function MatchField(field) {
 	    var indexes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
@@ -461,7 +430,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.field = field;
 	    this.addIndexes(indexes);
 	  }
-
 	  babelHelpers.createClass(MatchField, [{
 	    key: "getField",
 	    value: function getField() {
@@ -481,7 +449,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "addIndexes",
 	    value: function addIndexes(matchIndexes) {
 	      var _this = this;
-
 	      if (main_core.Type.isArray(matchIndexes)) {
 	        matchIndexes.forEach(function (matchIndex) {
 	          _this.addIndex(matchIndex);
@@ -496,7 +463,6 @@ this.BX.UI = this.BX.UI || {};
 	  function Animation() {
 	    babelHelpers.classCallCheck(this, Animation);
 	  }
-
 	  babelHelpers.createClass(Animation, null, [{
 	    key: "handleTransitionEnd",
 	    value: function handleTransitionEnd(element, propertyName) {
@@ -506,15 +472,12 @@ this.BX.UI = this.BX.UI || {};
 	          if (event.target !== element || !properties.has(event.propertyName)) {
 	            return;
 	          }
-
 	          properties["delete"](event.propertyName);
-
 	          if (properties.size === 0) {
 	            resolve(event);
 	            main_core.Event.unbind(element, 'transitionend', handler);
 	          }
 	        };
-
 	        main_core.Event.bind(element, 'transitionend', handler);
 	      });
 	    }
@@ -528,7 +491,6 @@ this.BX.UI = this.BX.UI || {};
 	            main_core.Event.unbind(element, 'animationend', handler);
 	          }
 	        };
-
 	        main_core.Event.bind(element, 'animationend', handler);
 	      });
 	    }
@@ -537,47 +499,35 @@ this.BX.UI = this.BX.UI || {};
 	}();
 
 	var regexp = /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/;
-
 	var isDataUri = function isDataUri(str) {
 	  return typeof str === 'string' ? str.match(regexp) : false;
 	};
-
 	function encodeUrl(url) {
 	  if (isDataUri(url)) {
 	    return url;
 	  }
-
 	  return encodeURI(url);
 	}
 
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
-
 	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
-
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var RenderMode = function RenderMode() {
 	  babelHelpers.classCallCheck(this, RenderMode);
 	};
 	babelHelpers.defineProperty(RenderMode, "PARTIAL", 'partial');
 	babelHelpers.defineProperty(RenderMode, "OVERRIDE", 'override');
-
 	var _setHidden = /*#__PURE__*/new WeakSet();
-
 	var _makeEllipsisTitle = /*#__PURE__*/new WeakSet();
-
 	var ItemNode = /*#__PURE__*/function () {
 	  // for the fast access
+
 	  function ItemNode(item, nodeOptions) {
 	    babelHelpers.classCallCheck(this, ItemNode);
-
 	    _classPrivateMethodInitSpec(this, _makeEllipsisTitle);
-
 	    _classPrivateMethodInitSpec(this, _setHidden);
-
 	    babelHelpers.defineProperty(this, "item", null);
 	    babelHelpers.defineProperty(this, "tab", null);
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
@@ -608,22 +558,17 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "highlights", []);
 	    babelHelpers.defineProperty(this, "renderWithDebounce", main_core.Runtime.debounce(this.render, 50, this));
 	    var options = main_core.Type.isPlainObject(nodeOptions) ? nodeOptions : {};
-
 	    if (main_core.Type.isObject(item)) {
 	      this.item = item;
 	    }
-
 	    var comparator = null;
-
 	    if (main_core.Type.isFunction(options.itemOrder)) {
 	      comparator = options.itemOrder;
 	    } else if (main_core.Type.isPlainObject(options.itemOrder)) {
 	      comparator = ItemNodeComparator.makeMultipleComparator(options.itemOrder);
 	    }
-
 	    this.children = new main_core_collections.OrderedArray(comparator);
 	    this.renderMode = options.renderMode === RenderMode.OVERRIDE ? RenderMode.OVERRIDE : RenderMode.PARTIAL;
-
 	    if (this.renderMode === RenderMode.OVERRIDE) {
 	      this.setTitle('');
 	      this.setSubtitle('');
@@ -650,7 +595,6 @@ this.BX.UI = this.BX.UI || {};
 	        maxWidth: null
 	      };
 	    }
-
 	    this.setTitle(options.title);
 	    this.setSubtitle(options.subtitle);
 	    this.setSupertitle(options.supertitle);
@@ -666,7 +610,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.setDynamic(options.dynamic);
 	    this.setOpen(options.open);
 	  }
-
 	  babelHelpers.createClass(ItemNode, [{
 	    key: "getItem",
 	    value: function getItem() {
@@ -708,7 +651,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getParentNode()) {
 	        return null;
 	      }
-
 	      var siblings = this.getParentNode().getChildren();
 	      var index = siblings.getIndex(this);
 	      return siblings.getByIndex(index + 1);
@@ -719,7 +661,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getParentNode()) {
 	        return null;
 	      }
-
 	      var siblings = this.getParentNode().getChildren();
 	      var index = siblings.getIndex(this);
 	      return siblings.getByIndex(index - 1);
@@ -728,18 +669,13 @@ this.BX.UI = this.BX.UI || {};
 	    key: "addChildren",
 	    value: function addChildren(children) {
 	      var _this = this;
-
 	      if (!main_core.Type.isArray(children)) {
 	        return;
 	      }
-
 	      children.forEach(function (childOptions) {
 	        delete childOptions.tabs;
-
 	        var childItem = _this.getDialog().addItem(childOptions);
-
 	        var childNode = _this.addItem(childItem, childOptions.nodeOptions);
-
 	        childNode.addChildren(childOptions.children);
 	      });
 	    }
@@ -749,24 +685,19 @@ this.BX.UI = this.BX.UI || {};
 	      if (!(child instanceof ItemNode)) {
 	        throw new Error('EntitySelector.ItemNode: an item must be an instance of EntitySelector.ItemNode.');
 	      }
-
 	      if (this.isChildOf(child) || child === this) {
 	        throw new Error('EntitySelector.ItemNode: a child item cannot be a parent of current item.');
 	      }
-
 	      if (this.getChildren().has(child) || this.childItems.has(child.getItem())) {
 	        return null;
 	      }
-
 	      this.getChildren().add(child);
 	      this.childItems.set(child.getItem(), child);
 	      child.setTab(this.getTab());
 	      child.setParentNode(this);
-
 	      if (this.isRendered()) {
 	        this.renderWithDebounce();
 	      }
-
 	      return child;
 	    }
 	  }, {
@@ -778,19 +709,16 @@ this.BX.UI = this.BX.UI || {};
 	    key: "addItem",
 	    value: function addItem(item, nodeOptions) {
 	      var itemNode = this.childItems.get(item);
-
 	      if (!itemNode) {
 	        itemNode = item.createNode(nodeOptions);
 	        this.addChild(itemNode);
 	      }
-
 	      return itemNode;
 	    }
 	  }, {
 	    key: "addItems",
 	    value: function addItems(items) {
 	      var _this2 = this;
-
 	      if (main_core.Type.isArray(items)) {
 	        this.disableRender();
 	        items.forEach(function (item) {
@@ -801,7 +729,6 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        });
 	        this.enableRender();
-
 	        if (this.isRendered()) {
 	          this.renderWithDebounce();
 	        }
@@ -818,22 +745,17 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getChildren().has(child)) {
 	        return false;
 	      }
-
 	      child.removeChildren();
-
 	      if (child.isFocused()) {
 	        child.unfocus();
 	      }
-
 	      child.setParentNode(null);
 	      child.getItem().removeNode(child);
 	      this.getChildren()["delete"](child);
 	      this.childItems["delete"](child.getItem());
-
 	      if (this.isRendered()) {
 	        main_core.Dom.remove(child.getOuterContainer());
 	      }
-
 	      return true;
 	    }
 	  }, {
@@ -842,20 +764,16 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.hasChildren()) {
 	        return;
 	      }
-
 	      this.getChildren().forEach(function (node) {
 	        node.removeChildren();
-
 	        if (node.isFocused()) {
 	          node.unfocus();
 	        }
-
 	        node.setParentNode(null);
 	        node.getItem().removeNode(node);
 	      });
 	      this.getChildren().clear();
 	      this.childItems = new WeakMap();
-
 	      if (this.isRendered()) {
 	        if (main_core.Browser.isIE()) {
 	          main_core.Dom.clean(this.getChildrenContainer());
@@ -873,15 +791,12 @@ this.BX.UI = this.BX.UI || {};
 	    key: "isChildOf",
 	    value: function isChildOf(parent) {
 	      var parentNode = this.getParentNode();
-
 	      while (parentNode !== null) {
 	        if (parentNode === parent) {
 	          return true;
 	        }
-
 	        parentNode = parentNode.getParentNode();
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -908,15 +823,12 @@ this.BX.UI = this.BX.UI || {};
 	    key: "loadChildren",
 	    value: function loadChildren() {
 	      var _this3 = this;
-
 	      if (!this.isDynamic()) {
 	        throw new Error('EntitySelector.ItemNode.loadChildren: an item node is not dynamic.');
 	      }
-
 	      if (this.dynamicPromise) {
 	        return this.dynamicPromise;
 	      }
-
 	      this.dynamicPromise = main_core.ajax.runAction('ui.entityselector.getChildren', {
 	        json: {
 	          parentItem: this.getItem().getAjaxJson(),
@@ -929,10 +841,8 @@ this.BX.UI = this.BX.UI || {};
 	      this.dynamicPromise.then(function (response) {
 	        if (response && response.data && main_core.Type.isPlainObject(response.data.dialog)) {
 	          _this3.addChildren(response.data.dialog.items);
-
 	          _this3.render();
 	        }
-
 	        _this3.loaded = true;
 	      });
 	      this.dynamicPromise["catch"](function (error) {
@@ -996,7 +906,6 @@ this.BX.UI = this.BX.UI || {};
 	          size: 30
 	        });
 	      }
-
 	      return this.loader;
 	    }
 	  }, {
@@ -1022,21 +931,17 @@ this.BX.UI = this.BX.UI || {};
 	    key: "expand",
 	    value: function expand() {
 	      var _this4 = this;
-
 	      if (this.isOpen() || !this.hasChildren() && !this.isDynamic()) {
 	        return;
 	      }
-
 	      if (this.isDynamic() && !this.isLoaded()) {
 	        this.loadChildren().then(function () {
 	          _this4.destroyLoader();
-
 	          _this4.expand();
 	        });
 	        this.showLoader();
 	        return;
 	      }
-
 	      main_core.Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-open');
 	      main_core.Dom.style(this.getChildrenContainer(), 'height', '0px');
 	      main_core.Dom.style(this.getChildrenContainer(), 'opacity', 0);
@@ -1048,7 +953,6 @@ this.BX.UI = this.BX.UI || {};
 	            main_core.Dom.style(_this4.getChildrenContainer(), 'height', null);
 	            main_core.Dom.style(_this4.getChildrenContainer(), 'opacity', null);
 	            main_core.Dom.addClass(_this4.getOuterContainer(), 'ui-selector-item-box-open');
-
 	            _this4.setOpen(true);
 	          });
 	        });
@@ -1058,11 +962,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "collapse",
 	    value: function collapse() {
 	      var _this5 = this;
-
 	      if (!this.isOpen()) {
 	        return;
 	      }
-
 	      main_core.Dom.style(this.getChildrenContainer(), 'height', "".concat(this.getChildrenContainer().offsetHeight, "px"));
 	      requestAnimationFrame(function () {
 	        requestAnimationFrame(function () {
@@ -1072,7 +974,6 @@ this.BX.UI = this.BX.UI || {};
 	            main_core.Dom.style(_this5.getChildrenContainer(), 'height', null);
 	            main_core.Dom.style(_this5.getChildrenContainer(), 'opacity', null);
 	            main_core.Dom.removeClass(_this5.getOuterContainer(), 'ui-selector-item-box-open');
-
 	            _this5.setOpen(false);
 	          });
 	        });
@@ -1082,158 +983,120 @@ this.BX.UI = this.BX.UI || {};
 	    key: "render",
 	    value: function render() {
 	      var _this6 = this;
-
 	      var appendChildren = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
 	      if (this.isRoot()) {
 	        this.renderRoot(appendChildren);
 	        return;
 	      }
-
 	      var titleNode = this.getTitleNode();
-
 	      if (titleNode) {
 	        titleNode.renderTo(this.getTitleContainer());
 	      } else {
 	        this.getTitleContainer().textContent = '';
 	      }
-
 	      var supertitleNode = this.getSupertitleNode();
-
 	      if (supertitleNode) {
 	        supertitleNode.renderTo(this.getSupertitleContainer());
 	      } else {
 	        this.getSupertitleContainer().textContent = '';
 	      }
-
 	      var subtitleNode = this.getSubtitleNode();
-
 	      if (subtitleNode) {
 	        subtitleNode.renderTo(this.getSubtitleContainer());
 	      } else {
 	        this.getSubtitleContainer().textContent = '';
 	      }
-
 	      var captionNode = this.getCaptionNode();
-
 	      if (captionNode) {
 	        captionNode.renderTo(this.getCaptionContainer());
 	      } else {
 	        this.getCaptionContainer().textContent = '';
 	      }
-
 	      var captionFitContent = this.getCaptionOption('fitContent');
-
 	      if (main_core.Type.isBoolean(captionFitContent)) {
 	        main_core.Dom.style(this.getCaptionContainer(), 'flex-shrink', captionFitContent ? 0 : null);
 	      }
-
 	      var captionMaxWidth = this.getCaptionOption('maxWidth');
-
 	      if (main_core.Type.isString(captionMaxWidth) || main_core.Type.isNumber(captionMaxWidth)) {
 	        main_core.Dom.style(this.getCaptionContainer(), 'max-width', main_core.Type.isNumber(captionMaxWidth) ? "".concat(captionMaxWidth, "px") : captionMaxWidth);
 	      }
-
 	      if (main_core.Type.isStringFilled(this.getTextColor())) {
 	        this.getTitleContainer().style.color = this.getTextColor();
 	      } else {
 	        this.getTitleContainer().style.removeProperty('color');
 	      }
-
 	      var avatar = this.getAvatar();
-
 	      if (main_core.Type.isStringFilled(avatar)) {
 	        this.getAvatarContainer().style.backgroundImage = "url('".concat(encodeUrl(avatar), "')");
 	      } else {
 	        var bgImage = this.getAvatarOption('bgImage');
-
 	        if (main_core.Type.isStringFilled(bgImage)) {
 	          this.getAvatarContainer().style.backgroundImage = bgImage;
 	        } else {
 	          this.getAvatarContainer().style.removeProperty('background-image');
 	        }
 	      }
-
 	      var bgColor = this.getAvatarOption('bgColor');
-
 	      if (main_core.Type.isStringFilled(bgColor)) {
 	        this.getAvatarContainer().style.backgroundColor = bgColor;
 	      } else {
 	        this.getAvatarContainer().style.removeProperty('background-color');
 	      }
-
 	      var bgSize = this.getAvatarOption('bgSize');
-
 	      if (main_core.Type.isStringFilled(bgSize)) {
 	        this.getAvatarContainer().style.backgroundSize = bgSize;
 	      } else {
 	        this.getAvatarContainer().style.removeProperty('background-size');
 	      }
-
 	      var border = this.getAvatarOption('border');
-
 	      if (main_core.Type.isStringFilled(border)) {
 	        this.getAvatarContainer().style.border = border;
 	      } else {
 	        this.getAvatarContainer().style.removeProperty('border');
 	      }
-
 	      var borderRadius = this.getAvatarOption('borderRadius');
-
 	      if (main_core.Type.isStringFilled(borderRadius)) {
 	        this.getAvatarContainer().style.borderRadius = borderRadius;
 	      } else {
 	        this.getAvatarContainer().style.removeProperty('border-radius');
 	      }
-
 	      main_core.Dom.clean(this.getBadgeContainer());
 	      this.getBadges().forEach(function (badge) {
 	        badge.renderTo(_this6.getBadgeContainer());
 	      });
 	      var badgesFitContent = this.getBadgesOption('fitContent');
-
 	      if (main_core.Type.isBoolean(badgesFitContent)) {
 	        main_core.Dom.style(this.getBadgeContainer(), 'flex-shrink', badgesFitContent ? 0 : null);
 	      }
-
 	      var badgesMaxWidth = this.getBadgesOption('maxWidth');
-
 	      if (main_core.Type.isString(badgesMaxWidth) || main_core.Type.isNumber(badgesMaxWidth)) {
 	        main_core.Dom.style(this.getBadgeContainer(), 'max-width', main_core.Type.isNumber(badgesMaxWidth) ? "".concat(badgesMaxWidth, "px") : badgesMaxWidth);
 	      }
-
 	      var linkTitleNode = this.getLinkTitleNode();
-
 	      if (linkTitleNode) {
 	        linkTitleNode.renderTo(this.getLinkTextContainer());
 	      } else {
 	        this.getLinkTextContainer().textContent = '';
 	      }
-
 	      if (this.hasChildren() || this.isDynamic()) {
 	        main_core.Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-has-children');
-
 	        if (this.getDepthLevel() >= this.getTab().getItemMaxDepth()) {
 	          main_core.Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-max-depth');
 	        }
 	      } else if (this.getOuterContainer().classList.contains('ui-selector-item-box-has-children')) {
 	        main_core.Dom.removeClass(this.getOuterContainer(), ['ui-selector-item-box-has-children', 'ui-selector-item-box-max-depth']);
 	      }
-
 	      if (this.hasChildren()) {
 	        var hasVisibleChild = this.getChildren().getAll().some(function (child) {
 	          return child.isHidden() !== true;
 	        });
-
 	        if (!hasVisibleChild) {
 	          _classPrivateMethodGet(this, _setHidden, _setHidden2).call(this, true);
 	        }
 	      }
-
 	      this.toggleVisibility();
 	      this.highlight();
 	      this.renderChildren(appendChildren);
-
 	      if (this.isAutoOpen()) {
 	        this.setAutoOpen(false);
 	        requestAnimationFrame(function () {
@@ -1242,13 +1105,11 @@ this.BX.UI = this.BX.UI || {};
 	          });
 	        });
 	      }
-
 	      this.rendered = true;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "renderRoot",
 	    value: function renderRoot() {
@@ -1256,7 +1117,6 @@ this.BX.UI = this.BX.UI || {};
 	      this.renderChildren(appendChildren);
 	      this.rendered = true;
 	      var stub = this.getTab().getStub();
-
 	      if (stub && stub.isAutoShow() && (this.getDialog().isLoaded() || !this.getDialog().hasDynamicLoad())) {
 	        if (this.hasChildren()) {
 	          stub.hide();
@@ -1268,14 +1128,11 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "renderChildren",
 	    value: function renderChildren() {
 	      var _this7 = this;
-
 	      var appendChildren = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
 	      if (!appendChildren) {
 	        if (main_core.Browser.isIE()) {
 	          main_core.Dom.clean(this.getChildrenContainer());
@@ -1283,17 +1140,14 @@ this.BX.UI = this.BX.UI || {};
 	          this.getChildrenContainer().textContent = '';
 	        }
 	      }
-
 	      if (this.hasChildren()) {
 	        var previousSibling = null;
 	        this.getChildren().forEach(function (child) {
 	          child.render(appendChildren);
 	          var container = child.getOuterContainer();
-
 	          if (!appendChildren) {
 	            main_core.Dom.append(container, _this7.getChildrenContainer());
 	          }
-
 	          if (!container.parentNode) {
 	            if (previousSibling !== null) {
 	              main_core.Dom.insertAfter(container, previousSibling.getOuterContainer());
@@ -1301,7 +1155,6 @@ this.BX.UI = this.BX.UI || {};
 	              main_core.Dom.append(container, _this7.getChildrenContainer());
 	            }
 	          }
-
 	          previousSibling = child;
 	        });
 	      }
@@ -1337,39 +1190,29 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isBoolean(flag) || this.isRoot()) {
 	        return;
 	      }
-
 	      _classPrivateMethodGet(this, _setHidden, _setHidden2).call(this, flag);
-
 	      if (this.isRendered()) {
 	        this.toggleVisibility();
 	        var parentNode = this.getParentNode();
 	        var isHidden = this.isHidden();
-
 	        while (parentNode.isRoot() === false) {
 	          if (isHidden) {
 	            var hasVisibleChild = parentNode.getChildren().getAll().some(function (child) {
 	              return child.isHidden() !== true;
 	            });
-
 	            if (!hasVisibleChild) {
 	              var _parentNode;
-
 	              _classPrivateMethodGet(_parentNode = parentNode, _setHidden, _setHidden2).call(_parentNode, true);
 	            }
-
 	            parentNode.toggleVisibility();
 	          } else {
 	            var _parentNode2;
-
 	            _classPrivateMethodGet(_parentNode2 = parentNode, _setHidden, _setHidden2).call(_parentNode2, false);
-
 	            parentNode.toggleVisibility();
-
 	            if (parentNode.isHidden()) {
 	              break;
 	            }
 	          }
-
 	          parentNode = parentNode.getParentNode();
 	        }
 	      }
@@ -1469,7 +1312,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isUndefined(this.captionOptions[option])) {
 	        return this.captionOptions[option];
 	      }
-
 	      return this.getItem().getCaptionOption(option);
 	    }
 	  }, {
@@ -1483,7 +1325,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setCaptionOptions",
 	    value: function setCaptionOptions(options) {
 	      var _this8 = this;
-
 	      if (main_core.Type.isPlainObject(options)) {
 	        Object.keys(options).forEach(function (option) {
 	          _this8.setCaptionOption(option, options[option]);
@@ -1514,7 +1355,6 @@ this.BX.UI = this.BX.UI || {};
 	        if (this.avatarOptions === null) {
 	          this.avatarOptions = {};
 	        }
-
 	        this.avatarOptions[option] = value;
 	      }
 	    }
@@ -1522,7 +1362,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setAvatarOptions",
 	    value: function setAvatarOptions(avatarOptions) {
 	      var _this9 = this;
-
 	      if (main_core.Type.isPlainObject(avatarOptions)) {
 	        Object.keys(avatarOptions).forEach(function (option) {
 	          _this9.setAvatarOption(option, avatarOptions[option]);
@@ -1582,7 +1421,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setBadges",
 	    value: function setBadges(badges) {
 	      var _this10 = this;
-
 	      if (main_core.Type.isArray(badges)) {
 	        this.badges = [];
 	        badges.forEach(function (badge) {
@@ -1598,7 +1436,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isUndefined(this.badgesOptions[option])) {
 	        return this.badgesOptions[option];
 	      }
-
 	      return this.getItem().getBadgesOption(option);
 	    }
 	  }, {
@@ -1612,7 +1449,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setBadgesOptions",
 	    value: function setBadgesOptions(options) {
 	      var _this11 = this;
-
 	      if (main_core.Type.isPlainObject(options)) {
 	        Object.keys(options).forEach(function (option) {
 	          _this11.setBadgesOption(option, options[option]);
@@ -1623,24 +1459,19 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getOuterContainer",
 	    value: function getOuterContainer() {
 	      var _this12 = this;
-
 	      return this.cache.remember('outer-container', function () {
 	        var className = '';
-
 	        if (_this12.hasChildren() || _this12.isDynamic()) {
 	          className += ' ui-selector-item-box-has-children';
-
 	          if (_this12.getDepthLevel() >= _this12.getTab().getItemMaxDepth()) {
 	            className += ' ui-selector-item-box-max-depth';
 	          }
 	        } else if (_this12.getItem().isSelected()) {
 	          className += ' ui-selector-item-box-selected';
 	        }
-
 	        if (_this12.isOpen()) {
 	          className += ' ui-selector-item-box-open';
 	        }
-
 	        var div = document.createElement('div');
 	        div.className = "ui-selector-item-box".concat(className);
 	        div.appendChild(_this12.getContainer());
@@ -1654,7 +1485,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.isRoot() && this.getTab()) {
 	        return this.getTab().getItemsContainer();
 	      }
-
 	      return this.cache.remember('children-container', function () {
 	        var div = document.createElement('div');
 	        div.className = 'ui-selector-item-children';
@@ -1665,7 +1495,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      var _this13 = this;
-
 	      return this.cache.remember('container', function () {
 	        var div = document.createElement('div');
 	        div.className = 'ui-selector-item';
@@ -1675,11 +1504,9 @@ this.BX.UI = this.BX.UI || {};
 	        div.appendChild(_this13.getAvatarContainer());
 	        div.appendChild(_this13.getTitlesContainer());
 	        div.appendChild(_this13.getIndicatorContainer());
-
 	        if (main_core.Type.isStringFilled(_this13.getLink())) {
 	          div.appendChild(_this13.getLinkContainer());
 	        }
-
 	        return div;
 	      });
 	    }
@@ -1696,7 +1523,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getTitlesContainer",
 	    value: function getTitlesContainer() {
 	      var _this14 = this;
-
 	      return this.cache.remember('titles', function () {
 	        var div = document.createElement('div');
 	        div.className = 'ui-selector-item-titles';
@@ -1710,7 +1536,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getTitleBoxContainer",
 	    value: function getTitleBoxContainer() {
 	      var _this15 = this;
-
 	      return this.cache.remember('title-box', function () {
 	        var div = document.createElement('div');
 	        div.className = 'ui-selector-item-title-box';
@@ -1778,7 +1603,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getLinkContainer",
 	    value: function getLinkContainer() {
 	      var _this16 = this;
-
 	      return this.cache.remember('link', function () {
 	        var anchor = document.createElement('a');
 	        anchor.className = 'ui-selector-item-link';
@@ -1803,7 +1627,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "showLink",
 	    value: function showLink() {
 	      var _this17 = this;
-
 	      if (main_core.Type.isStringFilled(this.getLink())) {
 	        main_core.Dom.addClass(this.getLinkContainer(), 'ui-selector-item-link--show');
 	        requestAnimationFrame(function () {
@@ -1834,14 +1657,11 @@ this.BX.UI = this.BX.UI || {};
 	    key: "highlight",
 	    value: function highlight() {
 	      var _this18 = this;
-
 	      this.getHighlights().forEach(function (matchField) {
 	        var field = matchField.getField();
 	        var fieldName = field.getName();
-
 	        if (field.isCustom()) {
 	          var text = _this18.getItem().getCustomData().get(fieldName);
-
 	          _this18.getSubtitleContainer().innerHTML = Highlighter.mark(text, matchField.getMatches());
 	        } else if (field.getName() === 'title') {
 	          _this18.getTitleContainer().innerHTML = Highlighter.mark(_this18.getItem().getTitleNode(), matchField.getMatches());
@@ -1858,7 +1678,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.hasChildren() || this.isDynamic()) {
 	        return;
 	      }
-
 	      main_core.Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-selected');
 	    }
 	  }, {
@@ -1867,7 +1686,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.hasChildren() || this.isDynamic()) {
 	        return;
 	      }
-
 	      main_core.Dom.removeClass(this.getOuterContainer(), 'ui-selector-item-box-selected');
 	    }
 	  }, {
@@ -1876,7 +1694,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.isFocused()) {
 	        return;
 	      }
-
 	      this.focused = true;
 	      main_core.Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-focused');
 	      this.getDialog().emit('ItemNode:onFocus', {
@@ -1889,7 +1706,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.isFocused()) {
 	        return;
 	      }
-
 	      this.focused = false;
 	      main_core.Dom.removeClass(this.getOuterContainer(), 'ui-selector-item-box-focused');
 	      this.getDialog().emit('ItemNode:onUnfocus', {
@@ -1915,23 +1731,19 @@ this.BX.UI = this.BX.UI || {};
 	          if (this.getItem().isDeselectable()) {
 	            this.getItem().deselect();
 	          }
-
 	          if (this.getDialog().shouldHideOnDeselect()) {
 	            this.getDialog().hide();
 	          }
 	        } else {
 	          this.getItem().select();
-
 	          if (this.getDialog().shouldClearSearchOnSelect()) {
 	            this.getDialog().clearSearch();
 	          }
-
 	          if (this.getDialog().shouldHideOnSelect()) {
 	            this.getDialog().hide();
 	          }
 	        }
 	      }
-
 	      this.getDialog().focusSearch();
 	    }
 	  }, {
@@ -1943,10 +1755,12 @@ this.BX.UI = this.BX.UI || {};
 	      var nodeRect = main_core.Dom.getPosition(nodeContainer);
 	      var margin = 9; // 'ui-selector-items' padding - 'ui-selector-item' margin = 10 - 1
 
-	      if (nodeRect.top < tabRect.top) // scroll up
+	      if (nodeRect.top < tabRect.top)
+	        // scroll up
 	        {
 	          tabContainer.scrollTop -= tabRect.top - nodeRect.top + margin;
-	        } else if (nodeRect.bottom > tabRect.bottom) // scroll down
+	        } else if (nodeRect.bottom > tabRect.bottom)
+	        // scroll down
 	        {
 	          tabContainer.scrollTop += nodeRect.bottom - tabRect.bottom + margin;
 	        }
@@ -1970,7 +1784,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function handleMouseEnter() {
 	      this.focus();
 	      this.showLink();
-
 	      _classPrivateMethodGet(this, _makeEllipsisTitle, _makeEllipsisTitle2).call(this);
 	    }
 	  }, {
@@ -1982,46 +1795,36 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return ItemNode;
 	}();
-
 	function _setHidden2(flag) {
 	  if (main_core.Type.isBoolean(flag) && !this.isRoot()) {
 	    this.hidden = flag;
 	  }
 	}
-
 	function _makeEllipsisTitle2() {
 	  var _this19 = this;
-
 	  var _this$constructor;
-
 	  if (_classStaticPrivateMethodGet(_this$constructor = this.constructor, ItemNode, _isEllipsisActive).call(_this$constructor, this.getTitleContainer())) {
 	    var _this$constructor2;
-
 	    this.getContainer().setAttribute('title', _classStaticPrivateMethodGet(_this$constructor2 = this.constructor, ItemNode, _sanitizeTitle).call(_this$constructor2, this.getTitleContainer().textContent));
 	  } else {
 	    main_core.Dom.attr(this.getContainer(), 'title', null);
 	  }
-
 	  var containers = [this.getSupertitleContainer(), this.getSubtitleContainer(), this.getCaptionContainer()].concat(babelHelpers.toConsumableArray(this.getBadges().map(function (badge) {
 	    return badge.getContainer(_this19.getBadgeContainer());
 	  })));
 	  containers.forEach(function (container) {
 	    var _this$constructor3;
-
 	    if (_classStaticPrivateMethodGet(_this$constructor3 = _this19.constructor, ItemNode, _isEllipsisActive).call(_this$constructor3, container)) {
 	      var _this$constructor4;
-
 	      container.setAttribute('title', _classStaticPrivateMethodGet(_this$constructor4 = _this19.constructor, ItemNode, _sanitizeTitle).call(_this$constructor4, container.textContent));
 	    } else {
 	      main_core.Dom.attr(container, 'title', null);
 	    }
 	  });
 	}
-
 	function _isEllipsisActive(element) {
 	  return element.offsetWidth < element.scrollWidth;
 	}
-
 	function _sanitizeTitle(text) {
 	  return text.replace(/[\t ]+/gm, ' ').replace(/\n+/gm, '\n').trim();
 	}
@@ -2035,7 +1838,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.field = field;
 	    this.addIndexes(indexes);
 	  }
-
 	  babelHelpers.createClass(SearchFieldIndex, [{
 	    key: "getField",
 	    value: function getField() {
@@ -2055,7 +1857,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "addIndexes",
 	    value: function addIndexes(indexes) {
 	      var _this = this;
-
 	      indexes.forEach(function (index) {
 	        _this.addIndex(index);
 	      });
@@ -2072,7 +1873,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.setWord(word);
 	    this.setStartIndex(startIndex);
 	  }
-
 	  babelHelpers.createClass(WordIndex, [{
 	    key: "getWord",
 	    value: function getWord() {
@@ -2084,7 +1884,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isStringFilled(word)) {
 	        this.word = word;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -2098,7 +1897,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isNumber(index) && index >= 0) {
 	        this.startIndex = index;
 	      }
-
 	      return this;
 	    }
 	  }]);
@@ -2131,8 +1929,8 @@ this.BX.UI = this.BX.UI || {};
 	var rsUpperRange = 'A-Z\\xc0-\\xd6\\xd8-\\xde';
 	var rsVarRange = "\\ufe0e\\ufe0f";
 	var rsBreakRange = rsMathOpRange + rsNonCharRange + rsPunctuationRange + rsSpaceRange;
-	/** Used to compose unicode capture groups. */
 
+	/** Used to compose unicode capture groups. */
 	var rsApos = "['\u2019]";
 	var rsBreak = "[".concat(rsBreakRange, "]");
 	var rsCombo = "[".concat(rsComboRange, "]");
@@ -2147,8 +1945,8 @@ this.BX.UI = this.BX.UI || {};
 	var rsSurrPair = "[\\ud800-\\udbff][\\udc00-\\udfff]";
 	var rsUpper = "[".concat(rsUpperRange, "]");
 	var rsZWJ = "\\u200d";
-	/** Used to compose unicode regexes. */
 
+	/** Used to compose unicode regexes. */
 	var rsMiscLower = "(?:".concat(rsLower, "|").concat(rsMisc, ")");
 	var rsMiscUpper = "(?:".concat(rsUpper, "|").concat(rsMisc, ")");
 	var rsOptContrLower = "(?:".concat(rsApos, "(?:d|ll|m|re|s|t|ve))?");
@@ -2167,13 +1965,11 @@ this.BX.UI = this.BX.UI || {};
 	var nonWhitespaceRegExp = /[^\s]+/g;
 	var specialChars = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}";
 	var specialCharsRegExp = new RegExp("[".concat(specialChars, "]"));
-
 	var SearchIndex = /*#__PURE__*/function () {
 	  function SearchIndex() {
 	    babelHelpers.classCallCheck(this, SearchIndex);
 	    babelHelpers.defineProperty(this, "indexes", []);
 	  }
-
 	  babelHelpers.createClass(SearchIndex, [{
 	    key: "addIndex",
 	    value: function addIndex(fieldIndex) {
@@ -2190,20 +1986,16 @@ this.BX.UI = this.BX.UI || {};
 	    key: "create",
 	    value: function create(item) {
 	      var _this = this;
-
 	      var index = new SearchIndex();
 	      var entity = item.getEntity();
-
 	      if (!item.isSearchable() || !entity.isSearchable() || item.isHidden()) {
 	        return index;
 	      }
-
 	      var searchFields = entity.getSearchFields();
 	      searchFields.forEach(function (field) {
 	        if (!field.isSearchable()) {
 	          return;
 	        }
-
 	        if (field.isSystem()) {
 	          if (field.getName() === 'title') {
 	            var textNode = item.getTitleNode();
@@ -2211,20 +2003,15 @@ this.BX.UI = this.BX.UI || {};
 	            index.addIndex(_this.createIndex(field, item.getTitle(), stripTags));
 	          } else if (field.getName() === 'subtitle') {
 	            var _textNode = item.getSubtitleNode();
-
 	            var _stripTags = _textNode !== null && _textNode.getType() === 'html';
-
 	            index.addIndex(_this.createIndex(field, item.getSubtitle(), _stripTags));
 	          } else if (field.getName() === 'supertitle') {
 	            var _textNode2 = item.getSupertitleNode();
-
 	            var _stripTags2 = _textNode2 !== null && _textNode2.getType() === 'html';
-
 	            index.addIndex(_this.createIndex(field, item.getSupertitle(), _stripTags2));
 	          }
 	        } else {
 	          var customData = item.getCustomData().get(field.getName());
-
 	          if (!main_core.Type.isUndefined(customData)) {
 	            index.addIndex(_this.createIndex(field, customData));
 	          }
@@ -2236,11 +2023,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "createIndex",
 	    value: function createIndex(field, text) {
 	      var stripTags = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
 	      if (!main_core.Type.isStringFilled(text)) {
 	        return null;
 	      }
-
 	      if (stripTags) {
 	        text = text.replace(/<\/?[^>]+>/g, function (match) {
 	          return ' '.repeat(match.length);
@@ -2249,12 +2034,9 @@ this.BX.UI = this.BX.UI || {};
 	          return ' '.repeat(match.length);
 	        });
 	      }
-
 	      var index = null;
-
 	      if (field.getType() === 'string') {
 	        var wordIndexes = this.splitText(text);
-
 	        if (main_core.Type.isArrayFilled(wordIndexes)) {
 	          // "GoPro111 Leto15"
 	          // [go, pro, 111, leto, 15] + [gopro111, leto15]
@@ -2264,12 +2046,10 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      } else if (field.getType() === 'email') {
 	        var position = text.indexOf('@');
-
 	        if (position !== -1) {
 	          index = new SearchFieldIndex(field, [new WordIndex(text.toLowerCase(), 0), new WordIndex(text.substr(position + 1).toLowerCase(), position + 1)]);
 	        }
 	      }
-
 	      return index;
 	    }
 	  }, {
@@ -2278,7 +2058,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isStringFilled(text)) {
 	        return [];
 	      }
-
 	      return this.hasUnicodeWord(text) ? this.splitUnicodeText(text) : this.splitAsciiText(text);
 	    }
 	  }, {
@@ -2302,42 +2081,34 @@ this.BX.UI = this.BX.UI || {};
 	      var match;
 	      var result = [];
 	      regExp.lastIndex = 0;
-
 	      while ((match = regExp.exec(text)) !== null) {
 	        if (match.index === regExp.lastIndex) {
 	          regExp.lastIndex++;
 	        }
-
 	        result.push(new WordIndex(match[0].toLowerCase(), match.index));
 	      }
-
 	      return result;
 	    }
 	    /**
 	     *  @private
 	     */
-
 	  }, {
 	    key: "fillComplexWords",
 	    value: function fillComplexWords(indexes) {
 	      if (indexes.length < 2) {
 	        return;
 	      }
-
 	      var complexWord = null;
 	      var startIndex = null;
 	      indexes.forEach(function (currentIndex, currentArrayIndex) {
 	        var nextIndex = indexes[currentArrayIndex + 1];
-
 	        if (nextIndex) {
 	          var sameWord = currentIndex.getStartIndex() + currentIndex.getWord().length === nextIndex.getStartIndex();
-
 	          if (sameWord) {
 	            if (complexWord === null) {
 	              complexWord = currentIndex.getWord();
 	              startIndex = currentIndex.getStartIndex();
 	            }
-
 	            complexWord += nextIndex.getWord();
 	          } else if (complexWord !== null) {
 	            indexes.push(new WordIndex(complexWord, startIndex));
@@ -2354,42 +2125,32 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     *  @private
 	     */
-
 	  }, {
 	    key: "fillNonCharWords",
 	    value: function fillNonCharWords(indexes, text) {
 	      if (!specialCharsRegExp.test(text)) {
 	        return;
 	      }
-
 	      var match;
-
 	      while ((match = nonWhitespaceRegExp.exec(text)) !== null) {
 	        if (match.index === nonWhitespaceRegExp.lastIndex) {
 	          nonWhitespaceRegExp.lastIndex++;
 	        }
-
 	        var word = match[0];
-
 	        if (specialCharsRegExp.test(word)) {
 	          indexes.push(new WordIndex(word.toLowerCase(), match.index));
-
 	          for (var i = 0; i < word.length; i++) {
 	            var _char = word[i];
-
 	            if (!specialChars.includes(_char)) {
 	              break;
 	            }
-
 	            var wordToIndex = word.substr(i + 1);
-
 	            if (wordToIndex.length) {
 	              indexes.push(new WordIndex(wordToIndex.toLowerCase(), match.index + i + 1));
 	            }
 	          }
 	        }
 	      }
-
 	      nonWhitespaceRegExp.lastIndex = 0;
 	    }
 	  }]);
@@ -2405,7 +2166,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.id = options.id;
 	    this.options = options.options;
 	  }
-
 	  babelHelpers.createClass(EntityFilter, [{
 	    key: "getId",
 	    value: function getId() {
@@ -2431,11 +2191,9 @@ this.BX.UI = this.BX.UI || {};
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
-
 	var Entity = /*#__PURE__*/function () {
 	  function Entity(entityOptions) {
 	    var _this = this;
-
 	    babelHelpers.classCallCheck(this, Entity);
 	    babelHelpers.defineProperty(this, "id", null);
 	    babelHelpers.defineProperty(this, "options", {});
@@ -2450,11 +2208,9 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "badgeOptions", []);
 	    babelHelpers.defineProperty(this, "textNodes", new Map());
 	    var options = main_core.Type.isPlainObject(entityOptions) ? entityOptions : {};
-
 	    if (!main_core.Type.isStringFilled(options.id)) {
 	      throw new Error('EntitySelector.Entity: "id" parameter is required.');
 	    }
-
 	    var defaultOptions = this.constructor.getEntityDefaultOptions(options.id) || {};
 	    options = main_core.Runtime.merge(JSON.parse(JSON.stringify(defaultOptions)), options);
 	    this.id = options.id.toLowerCase();
@@ -2462,13 +2218,11 @@ this.BX.UI = this.BX.UI || {};
 	    this.itemOptions = main_core.Type.isPlainObject(options.itemOptions) ? options.itemOptions : {};
 	    this.tagOptions = main_core.Type.isPlainObject(options.tagOptions) ? options.tagOptions : {};
 	    this.badgeOptions = main_core.Type.isArray(options.badgeOptions) ? options.badgeOptions : [];
-
 	    if (main_core.Type.isArray(options.filters)) {
 	      options.filters.forEach(function (filterOptions) {
 	        _this.addFilter(filterOptions);
 	      });
 	    }
-
 	    this.searchFields = new main_core_collections.OrderedArray(function (fieldA, fieldB) {
 	      if (fieldA.getSort() !== null && fieldB.getSort() === null) {
 	        return -1;
@@ -2486,7 +2240,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.setSearchFields(options.searchFields);
 	    this.setSearchCacheLimits(options.searchCacheLimits);
 	  }
-
 	  babelHelpers.createClass(Entity, [{
 	    key: "getId",
 	    value: function getId() {
@@ -2529,7 +2282,6 @@ this.BX.UI = this.BX.UI || {};
 	              return;
 	            }
 	          }
-
 	          badges.push(badge);
 	        }
 	      });
@@ -2541,25 +2293,20 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isString(option)) {
 	        return null;
 	      }
-
 	      if (!main_core.Type.isString(entityType)) {
 	        entityType = 'default';
 	      }
-
 	      var optionNodes = this.textNodes.get(option);
 	      var node = optionNodes ? optionNodes.get(entityType) : undefined;
-
 	      if (main_core.Type.isUndefined(node)) {
 	        if (!optionNodes) {
 	          optionNodes = new Map();
 	          this.textNodes.set(option, optionNodes);
 	        }
-
 	        var itemOption = this.getItemOption(option, entityType);
 	        node = main_core.Type.isString(itemOption) || main_core.Type.isPlainObject(itemOption) ? new TextNode(itemOption) : null;
 	        optionNodes.set(entityType, node);
 	      }
-
 	      return node;
 	    }
 	  }, {
@@ -2583,9 +2330,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setSearchFields",
 	    value: function setSearchFields(searchFields) {
 	      var _this2 = this;
+	      this.searchFields.clear();
 
-	      this.searchFields.clear(); // Default Search Fields
-
+	      // Default Search Fields
 	      var titleField = new SearchField({
 	        name: 'title',
 	        searchable: true,
@@ -2599,13 +2346,14 @@ this.BX.UI = this.BX.UI || {};
 	        type: 'string'
 	      });
 	      this.searchFields.add(titleField);
-	      this.searchFields.add(subtitleField); // Custom Search Fields
+	      this.searchFields.add(subtitleField);
 
+	      // Custom Search Fields
 	      var customFields = main_core.Type.isArray(searchFields) ? searchFields : [];
 	      customFields.forEach(function (fieldOptions) {
 	        var field = new SearchField(fieldOptions);
-
-	        if (field.isSystem()) // Entity can override default fields.
+	        if (field.isSystem())
+	          // Entity can override default fields.
 	          {
 	            // delete a default title field
 	            if (field.getName() === 'title') {
@@ -2614,7 +2362,6 @@ this.BX.UI = this.BX.UI || {};
 	              _this2.searchFields["delete"](subtitleField);
 	            }
 	          }
-
 	        _this2.searchFields.add(field);
 	      });
 	      this.searchFields.forEach(function (field, index) {
@@ -2625,7 +2372,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setSearchCacheLimits",
 	    value: function setSearchCacheLimits(limits) {
 	      var _this3 = this;
-
 	      if (main_core.Type.isArrayFilled(limits)) {
 	        limits.forEach(function (limit) {
 	          if (main_core.Type.isStringFilled(limit)) {
@@ -2672,7 +2418,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "addFilters",
 	    value: function addFilters(filters) {
 	      var _this4 = this;
-
 	      if (main_core.Type.isArray(filters)) {
 	        filters.forEach(function (filterOptions) {
 	          _this4.addFilter(filterOptions);
@@ -2708,7 +2453,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getDefaultOptions",
 	    value: function getDefaultOptions() {
 	      var _this5 = this;
-
 	      if (this.defaultOptions === null) {
 	        this.defaultOptions = {};
 	        this.getExtensions().forEach(function (extension) {
@@ -2731,7 +2475,6 @@ this.BX.UI = this.BX.UI || {};
 	        var settings = main_core.Extension.getSettings('ui.entity-selector');
 	        this.extensions = settings.get('extensions', []);
 	      }
-
 	      return this.extensions;
 	    }
 	  }, {
@@ -2745,10 +2488,8 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isStringFilled(entityId)) {
 	        return null;
 	      }
-
 	      var options = this.getEntityDefaultOptions(entityId);
 	      var itemOptions = options && options['itemOptions'] ? options['itemOptions'] : null;
-
 	      if (main_core.Type.isUndefined(entityType)) {
 	        return itemOptions;
 	      } else {
@@ -2761,10 +2502,8 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isStringFilled(entityId)) {
 	        return null;
 	      }
-
 	      var options = this.getEntityDefaultOptions(entityId);
 	      var tagOptions = options && options['tagOptions'] ? options['tagOptions'] : null;
-
 	      if (main_core.Type.isUndefined(entityType)) {
 	        return tagOptions;
 	      } else {
@@ -2787,19 +2526,16 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isPlainObject(options)) {
 	        return null;
 	      }
-
 	      if (options[type] && !main_core.Type.isUndefined(options[type][option])) {
 	        return options[type][option];
 	      } else if (options['default'] && !main_core.Type.isUndefined(options['default'][option])) {
 	        return options['default'][option];
 	      }
-
 	      return null;
 	    }
 	  }]);
 	  return Entity;
 	}();
-
 	babelHelpers.defineProperty(Entity, "extensions", null);
 	babelHelpers.defineProperty(Entity, "defaultOptions", null);
 
@@ -2807,16 +2543,13 @@ this.BX.UI = this.BX.UI || {};
 	  function TypeUtils() {
 	    babelHelpers.classCallCheck(this, TypeUtils);
 	  }
-
 	  babelHelpers.createClass(TypeUtils, null, [{
 	    key: "createMapFromOptions",
 	    value: function createMapFromOptions(options) {
 	      if (main_core.Type.isPlainObject(options)) {
 	        return new Map(Object.entries(options));
 	      }
-
 	      var map = new Map();
-
 	      if (main_core.Type.isArrayFilled(options)) {
 	        options.forEach(function (element) {
 	          if (main_core.Type.isArray(element) && element.length === 2 && main_core.Type.isString(element[0])) {
@@ -2824,14 +2557,12 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        });
 	      }
-
 	      return map;
 	    }
 	  }, {
 	    key: "convertMapToObject",
 	    value: function convertMapToObject(map) {
 	      var obj = {};
-
 	      if (main_core.Type.isMap(map)) {
 	        map.forEach(function (value, key) {
 	          if (main_core.Type.isString(key)) {
@@ -2839,7 +2570,6 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        });
 	      }
-
 	      return obj;
 	    }
 	  }]);
@@ -2847,13 +2577,9 @@ this.BX.UI = this.BX.UI || {};
 	}();
 
 	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
-
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
 	var _renderNodes = /*#__PURE__*/new WeakSet();
-
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 * @package ui.entity-selector
@@ -2861,9 +2587,7 @@ this.BX.UI = this.BX.UI || {};
 	var Item = /*#__PURE__*/function () {
 	  function Item(itemOptions) {
 	    babelHelpers.classCallCheck(this, Item);
-
 	    _classPrivateMethodInitSpec$1(this, _renderNodes);
-
 	    babelHelpers.defineProperty(this, "id", null);
 	    babelHelpers.defineProperty(this, "entityId", null);
 	    babelHelpers.defineProperty(this, "entityType", null);
@@ -2893,15 +2617,12 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "contextSort", null);
 	    babelHelpers.defineProperty(this, "globalSort", null);
 	    var options = main_core.Type.isPlainObject(itemOptions) ? itemOptions : {};
-
 	    if (!main_core.Type.isStringFilled(options.id) && !main_core.Type.isNumber(options.id)) {
 	      throw new Error('EntitySelector.Item: "id" parameter is required.');
 	    }
-
 	    if (!main_core.Type.isStringFilled(options.entityId)) {
 	      throw new Error('EntitySelector.Item: "entityId" parameter is required.');
 	    }
-
 	    this.id = options.id;
 	    this.entityId = options.entityId.toLowerCase();
 	    this.entityType = main_core.Type.isStringFilled(options.entityType) ? options.entityType : 'default';
@@ -2928,7 +2649,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.setGlobalSort(options.globalSort);
 	    this.setSort(options.sort);
 	  }
-
 	  babelHelpers.createClass(Item, [{
 	    key: "getId",
 	    value: function getId() {
@@ -2943,14 +2663,12 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getEntity",
 	    value: function getEntity() {
 	      var entity = this.getDialog().getEntity(this.getEntityId());
-
 	      if (entity === null) {
 	        entity = new Entity({
 	          id: this.getEntityId()
 	        });
 	        this.getDialog().addEntity(entity);
 	      }
-
 	      return entity;
 	    }
 	  }, {
@@ -2975,7 +2693,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isStringFilled(title) || main_core.Type.isPlainObject(title) || title === null) {
 	        this.title = title === null ? null : new TextNode(title);
 	        this.resetSearchIndex();
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -2996,7 +2713,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(subtitle) || main_core.Type.isPlainObject(subtitle) || subtitle === null) {
 	        this.subtitle = subtitle === null ? null : new TextNode(subtitle);
 	        this.resetSearchIndex();
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -3017,7 +2733,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(supertitle) || main_core.Type.isPlainObject(supertitle) || supertitle === null) {
 	        this.supertitle = supertitle === null ? null : new TextNode(supertitle);
 	        this.resetSearchIndex();
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -3038,7 +2753,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(caption) || main_core.Type.isPlainObject(caption) || caption === null) {
 	        this.caption = caption === null ? null : new TextNode(caption);
 	        this.resetSearchIndex();
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -3048,13 +2762,10 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isUndefined(this.captionOptions[option])) {
 	        return this.captionOptions[option];
 	      }
-
 	      var captionOptions = this.getEntityItemOption('captionOptions');
-
 	      if (main_core.Type.isPlainObject(captionOptions) && !main_core.Type.isUndefined(captionOptions[option])) {
 	        return captionOptions[option];
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -3062,7 +2773,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setCaptionOption(option, value) {
 	      if (main_core.Type.isStringFilled(option) && !main_core.Type.isUndefined(value)) {
 	        this.captionOptions[option] = value;
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -3070,7 +2780,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setCaptionOptions",
 	    value: function setCaptionOptions(options) {
 	      var _this = this;
-
 	      if (main_core.Type.isPlainObject(options)) {
 	        Object.keys(options).forEach(function (option) {
 	          _this.setCaptionOption(option, options[option]);
@@ -3087,7 +2796,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setAvatar(avatar) {
 	      if (main_core.Type.isString(avatar) || avatar === null) {
 	        this.avatar = avatar;
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -3097,13 +2805,10 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.avatarOptions !== null && !main_core.Type.isUndefined(this.avatarOptions[option])) {
 	        return this.avatarOptions[option];
 	      }
-
 	      var avatarOptions = this.getEntityItemOption('avatarOptions');
-
 	      if (main_core.Type.isPlainObject(avatarOptions) && !main_core.Type.isUndefined(avatarOptions[option])) {
 	        return avatarOptions[option];
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -3113,9 +2818,7 @@ this.BX.UI = this.BX.UI || {};
 	        if (this.avatarOptions === null) {
 	          this.avatarOptions = {};
 	        }
-
 	        this.avatarOptions[option] = value;
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -3123,7 +2826,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setAvatarOptions",
 	    value: function setAvatarOptions(options) {
 	      var _this2 = this;
-
 	      if (main_core.Type.isPlainObject(options)) {
 	        Object.keys(options).forEach(function (option) {
 	          _this2.setAvatarOption(option, options[option]);
@@ -3140,7 +2842,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setTextColor(textColor) {
 	      if (main_core.Type.isString(textColor) || textColor === null) {
 	        this.textColor = textColor;
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -3155,7 +2856,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setLink(link) {
 	      if (main_core.Type.isString(link) || link === null) {
 	        this.link = link;
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -3175,7 +2875,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setLinkTitle(linkTitle) {
 	      if (main_core.Type.isString(linkTitle) || main_core.Type.isPlainObject(linkTitle) || linkTitle === null) {
 	        this.linkTitle = linkTitle === null ? null : new TextNode(linkTitle);
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -3185,32 +2884,26 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.badges !== null) {
 	        return this.badges;
 	      }
-
 	      var badges = this.getEntity().getBadges(this);
-
 	      if (main_core.Type.isArray(badges)) {
 	        this.setBadges(badges);
 	      } else {
 	        this.badges = [];
 	      }
-
 	      return this.badges;
 	    }
 	  }, {
 	    key: "setBadges",
 	    value: function setBadges(badges) {
 	      var _this3 = this;
-
 	      if (main_core.Type.isArray(badges)) {
 	        this.badges = [];
 	        badges.forEach(function (badge) {
 	          _this3.badges.push(new ItemBadge(badge));
 	        });
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      } else if (badges === null) {
 	        this.badges = null;
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -3220,13 +2913,10 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isUndefined(this.badgesOptions[option])) {
 	        return this.badgesOptions[option];
 	      }
-
 	      var badgesOptions = this.getEntityItemOption('badgesOptions');
-
 	      if (main_core.Type.isPlainObject(badgesOptions) && !main_core.Type.isUndefined(badgesOptions[option])) {
 	        return badgesOptions[option];
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -3234,7 +2924,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setBadgesOption(option, value) {
 	      if (main_core.Type.isStringFilled(option) && !main_core.Type.isUndefined(value)) {
 	        this.badgesOptions[option] = value;
-
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
@@ -3242,7 +2931,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setBadgesOptions",
 	    value: function setBadgesOptions(options) {
 	      var _this4 = this;
-
 	      if (main_core.Type.isPlainObject(options)) {
 	        Object.keys(options).forEach(function (option) {
 	          _this4.setBadgesOption(option, options[option]);
@@ -3252,7 +2940,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "setDialog",
 	    value: function setDialog(dialog) {
@@ -3284,14 +2971,11 @@ this.BX.UI = this.BX.UI || {};
 	    key: "select",
 	    value: function select() {
 	      var preselectedMode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
 	      if (this.selected) {
 	        return;
 	      }
-
 	      var dialog = this.getDialog();
 	      var emitEvents = dialog && !preselectedMode;
-
 	      if (emitEvents) {
 	        var event = new main_core_events.BaseEvent({
 	          data: {
@@ -3299,24 +2983,19 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        });
 	        dialog.emit('Item:onBeforeSelect', event);
-
 	        if (event.isDefaultPrevented()) {
 	          return;
 	        }
 	      }
-
 	      this.selected = true;
-
 	      if (dialog) {
 	        dialog.handleItemSelect(this, !preselectedMode);
 	      }
-
 	      if (this.isRendered()) {
 	        this.getNodes().forEach(function (node) {
 	          node.select();
 	        });
 	      }
-
 	      if (emitEvents) {
 	        dialog.emit('Item:onSelect', {
 	          item: this
@@ -3330,9 +3009,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.selected) {
 	        return;
 	      }
-
 	      var dialog = this.getDialog();
-
 	      if (dialog) {
 	        var event = new main_core_events.BaseEvent({
 	          data: {
@@ -3340,20 +3017,16 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        });
 	        dialog.emit('Item:onBeforeDeselect', event);
-
 	        if (event.isDefaultPrevented()) {
 	          return;
 	        }
 	      }
-
 	      this.selected = false;
-
 	      if (this.isRendered()) {
 	        this.getNodes().forEach(function (node) {
 	          node.deselect();
 	        });
 	      }
-
 	      if (dialog) {
 	        dialog.handleItemDeselect(this);
 	        dialog.emit('Item:onDeselect', {
@@ -3395,13 +3068,11 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setDeselectable(flag) {
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.deselectable = flag;
-
 	        if (this.getDialog() && this.getDialog().getTagSelector()) {
 	          var tag = this.getDialog().getTagSelector().getTag({
 	            id: this.getId(),
 	            entityId: this.getEntityId()
 	          });
-
 	          if (tag) {
 	            tag.setDeselectable(flag);
 	          }
@@ -3418,7 +3089,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setHidden(flag) {
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.hidden = flag;
-
 	        if (this.isRendered()) {
 	          this.getNodes().forEach(function (node) {
 	            node.setHidden(flag);
@@ -3473,7 +3143,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.searchIndex === null) {
 	        this.searchIndex = SearchIndex.create(this);
 	      }
-
 	      return this.searchIndex;
 	    }
 	  }, {
@@ -3515,44 +3184,34 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getTagOption",
 	    value: function getTagOption(option) {
 	      var value = this.getTagOptions().get(option);
-
 	      if (!main_core.Type.isUndefined(value)) {
 	        return value;
 	      }
-
 	      return null;
 	    }
 	  }, {
 	    key: "getTagGlobalOption",
 	    value: function getTagGlobalOption(option) {
 	      var useItemOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
 	      if (!main_core.Type.isStringFilled(option)) {
 	        return null;
 	      }
-
 	      var value = this.getTagOption(option);
-
 	      if (value === null && useItemOptions === true && this[option] !== null) {
 	        value = this[option];
 	      }
-
 	      if (value === null && this.getDialog().getTagSelector()) {
 	        var fn = "getTag".concat(main_core.Text.toPascalCase(option));
-
 	        if (main_core.Type.isFunction(this.getDialog().getTagSelector()[fn])) {
 	          value = this.getDialog().getTagSelector()[fn]();
 	        }
 	      }
-
 	      if (value === null) {
 	        value = this.getEntityTagOption(option);
 	      }
-
 	      if (value === null && useItemOptions === true) {
 	        value = this.getEntityItemOption(option);
 	      }
-
 	      return value;
 	    }
 	  }, {
@@ -3593,20 +3252,17 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "replaceMacros",
 	    value: function replaceMacros(str) {
 	      if (!main_core.Type.isStringFilled(str)) {
 	        return str;
 	      }
-
 	      return str.replace(/#id#/i, this.getId()).replace(/#element_id#/i, this.getId());
 	    }
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "createTag",
 	    value: function createTag() {
@@ -3661,7 +3317,6 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return Item;
 	}();
-
 	function _renderNodes2() {
 	  if (this.isRendered()) {
 	    this.getNodes().forEach(function (node) {
@@ -3671,7 +3326,6 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	var _templateObject;
-
 	var BaseStub = /*#__PURE__*/function () {
 	  function BaseStub(tab, options) {
 	    babelHelpers.classCallCheck(this, BaseStub);
@@ -3683,11 +3337,10 @@ this.BX.UI = this.BX.UI || {};
 	    this.tab = tab;
 	    this.autoShow = this.getOption('autoShow', true);
 	  }
+
 	  /**
 	   * @abstract
 	   */
-
-
 	  babelHelpers.createClass(BaseStub, [{
 	    key: "render",
 	    value: function render() {
@@ -3702,7 +3355,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getOuterContainer",
 	    value: function getOuterContainer() {
 	      var _this = this;
-
 	      return this.cache.remember('outer-container', function () {
 	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-stub\">", "</div>\n\t\t\t"])), _this.render());
 	      });
@@ -3739,7 +3391,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (!main_core.Type.isUndefined(defaultValue)) {
 	        return defaultValue;
 	      }
-
 	      return null;
 	    }
 	  }]);
@@ -3747,37 +3398,27 @@ this.BX.UI = this.BX.UI || {};
 	}();
 
 	var _templateObject$1, _templateObject2, _templateObject3, _templateObject4;
-
 	var DefaultStub = /*#__PURE__*/function (_BaseStub) {
 	  babelHelpers.inherits(DefaultStub, _BaseStub);
-
 	  function DefaultStub(tab, options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, DefaultStub);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DefaultStub).call(this, tab, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "content", null);
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(DefaultStub, [{
 	    key: "getContainer",
 	    value: function getContainer() {
 	      var _this2 = this;
-
 	      return this.cache.remember('container', function () {
 	        var subtitle = _this2.getOption('subtitle');
-
 	        var title = main_core.Type.isStringFilled(_this2.getOption('title')) ? _this2.getOption('title') : _this2.getDefaultTitle();
-
 	        var icon = _this2.getOption('icon') || _this2.getTab().getIcon('default');
-
 	        var iconOpacity = 35;
-
 	        if (main_core.Type.isNumber(_this2.getOption('iconOpacity'))) {
 	          iconOpacity = Math.min(100, Math.max(0, _this2.getOption('iconOpacity')));
 	        }
-
 	        var iconStyle = main_core.Type.isStringFilled(icon) ? "style=\"background-image: url('".concat(encodeUrl(icon), "'); opacity: ").concat(iconOpacity / 100, ";\"") : '';
 	        var arrow = _this2.getOption('arrow', false) && _this2.getTab().getDialog().getActiveFooter() !== null;
 	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-default-stub\">\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-icon\" ", "></div>\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-titles\">\n\t\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-title\">", "</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), iconStyle, title, subtitle ? main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-default-stub-subtitle\">", "</div>"])), subtitle) : '', arrow ? main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-default-stub-arrow\"></div>"]))) : '');
@@ -3801,7 +3442,6 @@ this.BX.UI = this.BX.UI || {};
 	}(BaseStub);
 
 	var _templateObject$2;
-
 	var BaseHeader = /*#__PURE__*/function () {
 	  function BaseHeader(context, options) {
 	    babelHelpers.classCallCheck(this, BaseHeader);
@@ -3810,7 +3450,6 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "container", null);
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
 	    this.options = main_core.Type.isPlainObject(options) ? options : {};
-
 	    if (context instanceof Dialog) {
 	      this.dialog = context;
 	    } else {
@@ -3818,7 +3457,6 @@ this.BX.UI = this.BX.UI || {};
 	      this.dialog = this.tab.getDialog();
 	    }
 	  }
-
 	  babelHelpers.createClass(BaseHeader, [{
 	    key: "getDialog",
 	    value: function getDialog() {
@@ -3852,7 +3490,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (!main_core.Type.isUndefined(defaultValue)) {
 	        return defaultValue;
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -3861,13 +3498,11 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.container === null) {
 	        this.container = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-header\">", "</div>\n\t\t\t"])), this.render());
 	      }
-
 	      return this.container;
 	    }
 	    /**
 	     * @abstract
 	     */
-
 	  }, {
 	    key: "render",
 	    value: function render() {
@@ -3878,7 +3513,6 @@ this.BX.UI = this.BX.UI || {};
 	}();
 
 	var _templateObject$3;
-
 	var BaseFooter = /*#__PURE__*/function () {
 	  function BaseFooter(context, options) {
 	    babelHelpers.classCallCheck(this, BaseFooter);
@@ -3887,7 +3521,6 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "container", null);
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
 	    this.options = main_core.Type.isPlainObject(options) ? options : {};
-
 	    if (context instanceof Dialog) {
 	      this.dialog = context;
 	    } else {
@@ -3895,7 +3528,6 @@ this.BX.UI = this.BX.UI || {};
 	      this.dialog = this.tab.getDialog();
 	    }
 	  }
-
 	  babelHelpers.createClass(BaseFooter, [{
 	    key: "getDialog",
 	    value: function getDialog() {
@@ -3929,7 +3561,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (!main_core.Type.isUndefined(defaultValue)) {
 	        return defaultValue;
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -3938,13 +3569,11 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.container === null) {
 	        this.container = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer\">", "</div>\n\t\t\t"])), this.render());
 	      }
-
 	      return this.container;
 	    }
 	    /**
 	     * @abstract
 	     */
-
 	  }, {
 	    key: "render",
 	    value: function render() {
@@ -3955,7 +3584,6 @@ this.BX.UI = this.BX.UI || {};
 	}();
 
 	var _templateObject$4, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5;
-
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
@@ -3983,11 +3611,9 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "showAvatars", null);
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
 	    var options = main_core.Type.isPlainObject(tabOptions) ? tabOptions : {};
-
 	    if (!main_core.Type.isStringFilled(options.id)) {
 	      throw new Error('EntitySelector.Tab: "id" parameter is required.');
 	    }
-
 	    this.setDialog(dialog);
 	    this.id = options.id;
 	    this.showDefaultHeader = options.showDefaultHeader !== false;
@@ -4007,7 +3633,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.setFooter(options.footer, options.footerOptions);
 	    this.setShowAvatars(options.showAvatars);
 	  }
-
 	  babelHelpers.createClass(Tab, [{
 	    key: "getId",
 	    value: function getId() {
@@ -4016,7 +3641,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "setDialog",
 	    value: function setDialog(dialog) {
@@ -4037,24 +3661,19 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setStub(stub, stubOptions) {
 	      var instance = null;
 	      var options = main_core.Type.isPlainObject(stubOptions) ? stubOptions : {};
-
 	      if (main_core.Type.isString(stub) || main_core.Type.isFunction(stub)) {
 	        var className = main_core.Type.isString(stub) ? main_core.Reflection.getClass(stub) : stub;
-
 	        if (main_core.Type.isFunction(className)) {
 	          instance = new className(this, options);
-
 	          if (!(instance instanceof BaseStub)) {
 	            console.error('EntitySelector: stub is not an instance of BaseStub.');
 	            instance = null;
 	          }
 	        }
 	      }
-
 	      if (!instance && stub !== false) {
 	        instance = new DefaultStub(this, options);
 	      }
-
 	      this.stub = instance;
 	    }
 	  }, {
@@ -4067,22 +3686,17 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setHeader(headerContent, headerOptions) {
 	      /** @var {BaseHeader} */
 	      var header = null;
-
 	      if (headerContent !== null) {
 	        header = Dialog.createHeader(this, headerContent, headerOptions);
-
 	        if (header === null) {
 	          return;
 	        }
 	      }
-
 	      if (this.isRendered() && this.getHeader() !== null) {
 	        main_core.Dom.remove(this.getHeader().getContainer());
 	        this.getDialog().adjustHeader();
 	      }
-
 	      this.header = header;
-
 	      if (this.isRendered()) {
 	        this.getDialog().appendHeader(header);
 	        this.getDialog().adjustHeader();
@@ -4115,22 +3729,17 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setFooter(footerContent, footerOptions) {
 	      /** @var {BaseFooter} */
 	      var footer = null;
-
 	      if (footerContent !== null) {
 	        footer = Dialog.createFooter(this, footerContent, footerOptions);
-
 	        if (footer === null) {
 	          return;
 	        }
 	      }
-
 	      if (this.isRendered() && this.getFooter() !== null) {
 	        main_core.Dom.remove(this.getFooter().getContainer());
 	        this.getDialog().adjustFooter();
 	      }
-
 	      this.footer = footer;
-
 	      if (this.isRendered()) {
 	        this.getDialog().appendFooter(footer);
 	        this.getDialog().adjustFooter();
@@ -4158,7 +3767,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setShowAvatars(flag) {
 	      if (main_core.Type.isBoolean(flag) || flag === null) {
 	        this.showAvatars = flag;
-
 	        if (this.isRendered()) {
 	          this.renderContainer();
 	        }
@@ -4168,7 +3776,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "shouldShowAvatars",
 	    value: function shouldShowAvatars() {
 	      var _this$showAvatars;
-
 	      return (_this$showAvatars = this.showAvatars) !== null && _this$showAvatars !== void 0 ? _this$showAvatars : this.getDialog().shouldShowAvatars();
 	    }
 	  }, {
@@ -4181,7 +3788,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setTitle(title) {
 	      if (main_core.Type.isStringFilled(title) || main_core.Type.isPlainObject(title) || title === null) {
 	        this.title = title === null ? null : new TextNode(title);
-
 	        if (this.isRendered()) {
 	          this.renderLabel();
 	        }
@@ -4231,16 +3837,13 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "setProperty",
 	    value: function setProperty(name, states) {
 	      var property = this[name];
-
 	      if (!property) {
 	        return;
 	      }
-
 	      if (main_core.Type.isPlainObject(states)) {
 	        Object.keys(states).forEach(function (state) {
 	          if (main_core.Type.isStringFilled(states[state])) {
@@ -4254,28 +3857,23 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "getPropertyByState",
 	    value: function getPropertyByState(name, state) {
 	      var property = this[name];
 	      var labelState = main_core.Type.isStringFilled(state) ? state : 'default';
-
 	      if (!main_core.Type.isUndefined(property) && !main_core.Type.isUndefined(property[labelState])) {
 	        return property[labelState];
 	      }
-
 	      return null;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "getPropertyByCurrentState",
 	    value: function getPropertyByCurrentState(name) {
 	      var property = this[name];
-
 	      if (this.isSelected() && this.isHovered() && property.selectedHovered) {
 	        return property.selectedHovered;
 	      } else if (this.isSelected() && property.selected) {
@@ -4285,7 +3883,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (property["default"]) {
 	        return property["default"];
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -4304,7 +3901,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      var _this = this;
-
 	      return this.cache.remember('container', function () {
 	        return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-content\">", "</div>\n\t\t\t"])), _this.getItemsContainer());
 	      });
@@ -4313,7 +3909,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getLabelContainer",
 	    value: function getLabelContainer() {
 	      var _this2 = this;
-
 	      return this.cache.remember('label', function () {
 	        var className = _this2.isVisible() ? '' : ' ui-selector-tab-label-hidden';
 	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-tab-label", "\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\tonmouseenter=\"", "\"\n\t\t\t\t\tonmouseleave=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), className, _this2.handleLabelClick.bind(_this2), _this2.handleLabelMouseEnter.bind(_this2), _this2.handleLabelMouseLeave.bind(_this2), _this2.getIconContainer(), _this2.getTitleContainer());
@@ -4345,9 +3940,7 @@ this.BX.UI = this.BX.UI || {};
 	    value: function render() {
 	      this.getRootNode().render();
 	      this.rendered = true;
-	    }
-	    /** @internal **/
-
+	    } /** @internal **/
 	  }, {
 	    key: "renderLabel",
 	    value: function renderLabel() {
@@ -4356,20 +3949,16 @@ this.BX.UI = this.BX.UI || {};
 	      var icon = this.getPropertyByCurrentState('icon');
 	      main_core.Dom.style(this.getIconContainer(), 'background-image', icon ? "url('".concat(encodeUrl(icon), "')") : null);
 	      var titleNode = this.getTitleNode();
-
 	      if (titleNode) {
 	        this.getTitleNode().renderTo(this.getTitleContainer());
 	      } else {
 	        this.getTitleContainer().textContent = '';
 	      }
-	    }
-	    /** @internal **/
-
+	    } /** @internal **/
 	  }, {
 	    key: "renderContainer",
 	    value: function renderContainer() {
 	      var className = 'ui-selector-tab-content--hide-avatars';
-
 	      if (this.shouldShowAvatars()) {
 	        main_core.Dom.removeClass(this.getContainer(), className);
 	      } else {
@@ -4386,7 +3975,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setVisible(flag) {
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.visible = flag;
-
 	        if (this.isRendered()) {
 	          if (this.visible) {
 	            main_core.Dom.remove(this.getLabelContainer(), 'ui-selector-tab-label-hidden');
@@ -4404,35 +3992,27 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "select",
 	    value: function select() {
 	      if (this.isSelected()) {
 	        return;
 	      }
-
 	      main_core.Dom.addClass(this.getContainer(), 'ui-selector-tab-content-active');
-
 	      if (this.isVisible()) {
 	        main_core.Dom.addClass(this.getLabelContainer(), 'ui-selector-tab-label-active');
 	        this.renderLabel();
 	      }
-
 	      this.selected = true;
-
 	      if (this.isVisible()) {
 	        this.renderLabel();
 	      }
-
 	      if (this.getHeader()) {
 	        this.getHeader().show();
 	      }
-
 	      if (this.getFooter()) {
 	        this.getFooter().show();
 	      }
-
 	      this.getDialog().emit('Tab:onSelect', {
 	        tab: this
 	      });
@@ -4440,34 +4020,26 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "deselect",
 	    value: function deselect() {
 	      if (!this.isSelected()) {
 	        return;
 	      }
-
 	      main_core.Dom.removeClass(this.getContainer(), 'ui-selector-tab-content-active');
-
 	      if (this.isVisible()) {
 	        main_core.Dom.removeClass(this.getLabelContainer(), 'ui-selector-tab-label-active');
 	      }
-
 	      this.selected = false;
-
 	      if (this.isVisible()) {
 	        this.renderLabel();
 	      }
-
 	      if (this.getHeader()) {
 	        this.getHeader().hide();
 	      }
-
 	      if (this.getFooter()) {
 	        this.getFooter().hide();
 	      }
-
 	      this.getDialog().emit('Tab:onDeselect', {
 	        tab: this
 	      });
@@ -4478,7 +4050,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.isHovered()) {
 	        return;
 	      }
-
 	      main_core.Dom.addClass(this.getLabelContainer(), 'ui-selector-tab-label-hover');
 	      this.hovered = true;
 	      this.renderLabel();
@@ -4489,7 +4060,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.isHovered()) {
 	        return;
 	      }
-
 	      main_core.Dom.removeClass(this.getLabelContainer(), 'ui-selector-tab-label-hover');
 	      this.hovered = false;
 	      this.renderLabel();
@@ -4541,7 +4111,6 @@ this.BX.UI = this.BX.UI || {};
 	}();
 
 	var _templateObject$5, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$1, _templateObject6;
-
 	var TagItem = /*#__PURE__*/function () {
 	  function TagItem(itemOptions) {
 	    babelHelpers.classCallCheck(this, TagItem);
@@ -4563,15 +4132,12 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "selector", null);
 	    babelHelpers.defineProperty(this, "rendered", false);
 	    var options = main_core.Type.isPlainObject(itemOptions) ? itemOptions : {};
-
 	    if (!main_core.Type.isStringFilled(options.id) && !main_core.Type.isNumber(options.id)) {
 	      throw new Error('TagSelector.TagItem: "id" parameter is required.');
 	    }
-
 	    if (!main_core.Type.isStringFilled(options.entityId)) {
 	      throw new Error('TagSelector.TagItem: "entityId" parameter is required.');
 	    }
-
 	    this.id = options.id;
 	    this.entityId = options.entityId.toLowerCase();
 	    this.entityType = main_core.Type.isStringFilled(options.entityType) ? options.entityType : 'default';
@@ -4587,7 +4153,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.setBgColor(options.bgColor);
 	    this.setFontWeight(options.fontWeight);
 	  }
-
 	  babelHelpers.createClass(TagItem, [{
 	    key: "getId",
 	    value: function getId() {
@@ -4640,7 +4205,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (this.getEntityTagOption('avatar') !== null) {
 	        return this.getEntityTagOption('avatar');
 	      }
-
 	      return this.getEntityItemOption('avatar');
 	    }
 	  }, {
@@ -4656,25 +4220,18 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.avatarOptions !== null && !main_core.Type.isUndefined(this.avatarOptions[option])) {
 	        return this.avatarOptions[option];
 	      }
-
 	      var selectorAvatarOption = this.getSelector().getTagAvatarOption(option);
-
 	      if (selectorAvatarOption !== null) {
 	        return selectorAvatarOption[option];
 	      }
-
 	      var entityTagAvatarOptions = this.getEntityTagOption('avatarOptions');
-
 	      if (main_core.Type.isPlainObject(entityTagAvatarOptions) && !main_core.Type.isUndefined(entityTagAvatarOptions[option])) {
 	        return entityTagAvatarOptions[option];
 	      }
-
 	      var entityItemAvatarOptions = this.getEntityItemOption('avatarOptions');
-
 	      if (main_core.Type.isPlainObject(entityItemAvatarOptions) && !main_core.Type.isUndefined(entityItemAvatarOptions[option])) {
 	        return entityItemAvatarOptions[option];
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -4684,7 +4241,6 @@ this.BX.UI = this.BX.UI || {};
 	        if (this.avatarOptions === null) {
 	          this.avatarOptions = {};
 	        }
-
 	        this.avatarOptions[option] = value;
 	      }
 	    }
@@ -4692,7 +4248,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setAvatarOptions",
 	    value: function setAvatarOptions(options) {
 	      var _this = this;
-
 	      if (main_core.Type.isPlainObject(options)) {
 	        Object.keys(options).forEach(function (option) {
 	          _this.setAvatarOption(option, options[option]);
@@ -4707,7 +4262,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (this.getSelector().getTagTextColor() !== null) {
 	        return this.getSelector().getTagTextColor();
 	      }
-
 	      return this.getEntityTagOption('textColor');
 	    }
 	  }, {
@@ -4725,7 +4279,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (this.getSelector().getTagBgColor() !== null) {
 	        return this.getSelector().getTagBgColor();
 	      }
-
 	      return this.getEntityTagOption('bgColor');
 	    }
 	  }, {
@@ -4743,7 +4296,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (this.getSelector().getTagFontWeight() !== null) {
 	        return this.getSelector().getTagFontWeight();
 	      }
-
 	      return this.getEntityTagOption('fontWeight');
 	    }
 	  }, {
@@ -4761,7 +4313,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (this.getSelector().getTagMaxWidth() !== null) {
 	        return this.getSelector().getTagMaxWidth();
 	      }
-
 	      return this.getEntityTagOption('maxWidth');
 	    }
 	  }, {
@@ -4802,23 +4353,21 @@ this.BX.UI = this.BX.UI || {};
 	    key: "render",
 	    value: function render() {
 	      var titleNode = this.getTitleNode();
-
 	      if (titleNode) {
-	        titleNode.renderTo(this.getTitleContainer()); //Dom.attr(this.getContentContainer(), 'title', this.getTitle());
+	        titleNode.renderTo(this.getTitleContainer());
+
+	        //Dom.attr(this.getContentContainer(), 'title', this.getTitle());
 	      } else {
 	        this.getTitleContainer().textContent = '';
 	        main_core.Dom.attr(this.getContentContainer(), 'title', '');
 	      }
-
 	      var avatar = this.getAvatar();
 	      var bgImage = this.getAvatarOption('bgImage');
-
 	      if (main_core.Type.isStringFilled(avatar)) {
 	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', "url('".concat(encodeUrl(avatar), "')"));
 	      } else {
 	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', bgImage);
 	      }
-
 	      var bgColor = this.getAvatarOption('bgColor');
 	      var bgSize = this.getAvatarOption('bgSize');
 	      var border = this.getAvatarOption('border');
@@ -4828,27 +4377,22 @@ this.BX.UI = this.BX.UI || {};
 	      main_core.Dom.style(this.getAvatarContainer(), 'border', border);
 	      main_core.Dom.style(this.getAvatarContainer(), 'border-radius', borderRadius);
 	      var hasAvatar = avatar || bgColor && bgColor !== 'none' || bgImage && bgImage !== 'none';
-
 	      if (hasAvatar) {
 	        main_core.Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
 	      } else {
 	        main_core.Dom.removeClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
 	      }
-
 	      var maxWidth = this.getMaxWidth();
-
 	      if (maxWidth > 0) {
 	        main_core.Dom.style(this.getContainer(), 'max-width', "".concat(maxWidth, "px"));
 	      } else {
 	        main_core.Dom.style(this.getContainer(), 'max-width', null);
 	      }
-
 	      if (this.isDeselectable()) {
 	        main_core.Dom.removeClass(this.getContainer(), 'ui-tag-selector-tag-readonly');
 	      } else {
 	        main_core.Dom.addClass(this.getContainer(), 'ui-tag-selector-tag-readonly');
 	      }
-
 	      main_core.Dom.style(this.getTitleContainer(), 'color', this.getTextColor());
 	      main_core.Dom.style(this.getTitleContainer(), 'font-weight', this.getFontWeight());
 	      main_core.Dom.style(this.getContainer(), 'background-color', this.getBgColor());
@@ -4858,7 +4402,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      var _this2 = this;
-
 	      return this.cache.remember('container', function () {
 	        return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-item ui-tag-selector-tag\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), _this2.getContentContainer(), _this2.getRemoveIcon());
 	      });
@@ -4867,7 +4410,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContentContainer",
 	    value: function getContentContainer() {
 	      var _this3 = this;
-
 	      return this.cache.remember('content-container', function () {
 	        if (main_core.Type.isStringFilled(_this3.getLink())) {
 	          return main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a\n\t\t\t\t\t\tclass=\"ui-tag-selector-tag-content\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t\thref=\"", "\"\n\t\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"])), _this3.handleContainerClick.bind(_this3), _this3.getLink(), _this3.getAvatarContainer(), _this3.getTitleContainer());
@@ -4895,7 +4437,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getRemoveIcon",
 	    value: function getRemoveIcon() {
 	      var _this4 = this;
-
 	      return this.cache.remember('remove-icon', function () {
 	        return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-remove\" onclick=\"", "\"></div>\n\t\t\t"])), _this4.handleRemoveIconClick.bind(_this4));
 	      });
@@ -4919,14 +4460,11 @@ this.BX.UI = this.BX.UI || {};
 	    key: "remove",
 	    value: function remove() {
 	      var _this5 = this;
-
 	      var animate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
 	      if (animate === false) {
 	        main_core.Dom.remove(this.getContainer());
 	        return Promise.resolve();
 	      }
-
 	      return new Promise(function (resolve) {
 	        main_core.Dom.style(_this5.getContainer(), 'width', "".concat(_this5.getContainer().offsetWidth, "px"));
 	        main_core.Dom.addClass(_this5.getContainer(), 'ui-tag-selector-tag--remove');
@@ -4940,7 +4478,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "show",
 	    value: function show() {
 	      var _this6 = this;
-
 	      return new Promise(function (resolve) {
 	        main_core.Dom.addClass(_this6.getContainer(), 'ui-tag-selector-tag--show');
 	        Animation.handleAnimationEnd(_this6.getContainer(), 'ui-tag-selector-tag-show').then(function () {
@@ -4953,7 +4490,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleContainerClick",
 	    value: function handleContainerClick() {
 	      var fn = this.getOnclick();
-
 	      if (main_core.Type.isFunction(fn)) {
 	        fn(this);
 	      }
@@ -4962,7 +4498,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleRemoveIconClick",
 	    value: function handleRemoveIconClick(event) {
 	      event.stopPropagation();
-
 	      if (this.isDeselectable()) {
 	        this.getSelector().removeTag(this);
 	      }
@@ -4972,16 +4507,13 @@ this.BX.UI = this.BX.UI || {};
 	}();
 
 	var _templateObject$6, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7;
-
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
 	var TagSelector = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(TagSelector, _EventEmitter);
-
 	  function TagSelector(selectorOptions) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, TagSelector);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TagSelector).call(this));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tags", []);
@@ -5008,55 +4540,34 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagFontWeight", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagMaxWidth", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "dialog", null);
-
 	    _this.setEventNamespace('BX.UI.EntitySelector.TagSelector');
-
 	    var options = main_core.Type.isPlainObject(selectorOptions) ? selectorOptions : {};
 	    _this.id = main_core.Type.isStringFilled(options.id) ? options.id : "ui-tag-selector-".concat(main_core.Text.getRandom().toLowerCase());
 	    _this.multiple = main_core.Type.isBoolean(options.multiple) ? options.multiple : true;
 	    _this.addButtonVisible = options.showAddButton !== false;
 	    _this.createButtonVisible = options.showCreateButton === true;
 	    _this.textBoxVisible = options.showTextBox === true;
-
 	    _this.setReadonly(options.readonly);
-
 	    _this.setLocked(options.locked);
-
 	    _this.setAddButtonCaption(options.addButtonCaption);
-
 	    _this.setAddButtonCaptionMore(options.addButtonCaptionMore);
-
 	    _this.setCreateButtonCaption(options.createButtonCaption);
-
 	    _this.setPlaceholder(options.placeholder);
-
 	    _this.setTextBoxAutoHide(options.textBoxAutoHide);
-
 	    _this.setTextBoxWidth(options.textBoxWidth);
-
 	    _this.setDeselectable(options.deselectable);
-
 	    _this.setMaxHeight(options.maxHeight);
-
 	    _this.setTagAvatar(options.tagAvatar);
-
 	    _this.setTagAvatarOptions(options.tagAvatarOptions);
-
 	    _this.setTagMaxWidth(options.tagMaxWidth);
-
 	    _this.setTagTextColor(options.tagTextColor);
-
 	    _this.setTagBgColor(options.tagBgColor);
-
 	    _this.setTagFontWeight(options.tagFontWeight);
-
 	    if (main_core.Type.isPlainObject(options.dialogOptions)) {
 	      var selectedItems = main_core.Type.isArray(options.items) ? options.items : [];
-
 	      if (main_core.Type.isArray(options.dialogOptions.selectedItems)) {
 	        selectedItems = selectedItems.concat(options.dialogOptions.selectedItems);
 	      }
-
 	      var dialogOptions = Object.assign({}, options.dialogOptions, {
 	        tagSelectorOptions: null,
 	        selectedItems: selectedItems,
@@ -5069,12 +4580,9 @@ this.BX.UI = this.BX.UI || {};
 	        _this.addTag(item);
 	      });
 	    }
-
 	    _this.subscribeFromOptions(options.events);
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(TagSelector, [{
 	    key: "getDialog",
 	    value: function getDialog() {
@@ -5084,7 +4592,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @internal
 	     * @param dialog
 	     */
-
 	  }, {
 	    key: "setDialog",
 	    value: function setDialog(dialog) {
@@ -5095,7 +4602,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setReadonly(flag) {
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.readonly = flag;
-
 	        if (this.isRendered()) {
 	          if (flag) {
 	            main_core.Dom.addClass(this.getOuterContainer(), 'ui-tag-selector-container-readonly');
@@ -5115,7 +4621,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setLocked(flag) {
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.locked = flag;
-
 	        if (flag) {
 	          main_core.Dom.addClass(this.getOuterContainer(), 'ui-tag-selector-container-locked');
 	          this.getTextBox().disabled = true;
@@ -5155,7 +4660,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isBoolean(flag)) {
 	        var changed = this.deselectable !== flag;
 	        this.deselectable = flag;
-
 	        if (changed) {
 	          this.updateTags();
 	        }
@@ -5175,27 +4679,23 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	      } else if (main_core.Type.isPlainObject(tagItem)) {
 	        var id = tagItem.id,
-	            entityId = tagItem.entityId;
+	          entityId = tagItem.entityId;
 	        return this.getTags().find(function (tag) {
 	          return tag.getId() === id && tag.getEntityId() === entityId;
 	        });
 	      }
-
 	      return null;
 	    }
 	  }, {
 	    key: "addTag",
 	    value: function addTag(tagOptions) {
 	      var _this2 = this;
-
 	      if (!main_core.Type.isObjectLike(tagOptions)) {
 	        throw new Error('TagSelector.addTag: wrong item options.');
 	      }
-
 	      if (this.getTag(tagOptions)) {
 	        return null;
 	      }
-
 	      var tag = new TagItem(tagOptions);
 	      tag.setSelector(this);
 	      var event = new main_core_events.BaseEvent({
@@ -5204,28 +4704,22 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      });
 	      this.emit('onBeforeTagAdd', event);
-
 	      if (event.isDefaultPrevented()) {
 	        return null;
 	      }
-
 	      if (!this.isMultiple()) {
 	        this.removeTags();
 	      }
-
 	      this.tags.push(tag);
 	      this.emit('onTagAdd', {
 	        tag: tag
 	      });
-
 	      if (this.isRendered()) {
 	        tag.render();
 	        this.getItemsContainer().insertBefore(tag.getContainer(), this.getTextBox());
-
 	        if (tagOptions.animate !== false) {
 	          tag.show().then(function () {
 	            _this2.getContainer().scrollTop = _this2.getContainer().scrollHeight - _this2.getContainer().offsetHeight;
-
 	            _this2.emit('onAfterTagAdd', {
 	              tag: tag
 	            });
@@ -5235,50 +4729,41 @@ this.BX.UI = this.BX.UI || {};
 	            tag: tag
 	          });
 	        }
-
 	        this.toggleAddButtonCaption();
 	      } else {
 	        this.emit('onAfterTagAdd', {
 	          tag: tag
 	        });
 	      }
-
 	      return tag;
 	    }
 	  }, {
 	    key: "removeTag",
 	    value: function removeTag(item) {
 	      var _this3 = this;
-
 	      var animate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 	      var tagItem = this.getTag(item);
-
 	      if (!tagItem) {
 	        return;
 	      }
-
 	      var event = new main_core_events.BaseEvent({
 	        data: {
 	          tag: tagItem
 	        }
 	      });
 	      this.emit('onBeforeTagRemove', event);
-
 	      if (event.isDefaultPrevented()) {
 	        return;
 	      }
-
 	      this.tags = this.tags.filter(function (el) {
 	        return el !== tagItem;
 	      });
 	      this.emit('onTagRemove', {
 	        tag: tagItem
 	      });
-
 	      if (this.isRendered()) {
 	        tagItem.remove(animate).then(function () {
 	          _this3.toggleAddButtonCaption();
-
 	          _this3.emit('onAfterTagRemove', {
 	            tag: tagItem
 	          });
@@ -5293,7 +4778,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "removeTags",
 	    value: function removeTags() {
 	      var _this4 = this;
-
 	      this.getTags().forEach(function (tag) {
 	        _this4.removeTag(tag, false);
 	      });
@@ -5307,14 +4791,11 @@ this.BX.UI = this.BX.UI || {};
 	    key: "renderTo",
 	    value: function renderTo(node) {
 	      var _this5 = this;
-
 	      this.rendered = true;
 	      this.getTags().forEach(function (tag) {
 	        tag.render();
-
 	        _this5.getItemsContainer().insertBefore(tag.getContainer(), _this5.getTextBox());
 	      });
-
 	      if (main_core.Type.isDomNode(node)) {
 	        main_core.Dom.append(this.getOuterContainer(), node);
 	      }
@@ -5327,7 +4808,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "updateTags",
 	    value: function updateTags() {
@@ -5341,7 +4821,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getOuterContainer",
 	    value: function getOuterContainer() {
 	      var _this6 = this;
-
 	      return this.cache.remember('outer-container', function () {
 	        var className = _this6.isReadonly() ? ' ui-tag-selector-container-readonly' : '';
 	        className += _this6.isLocked() ? ' ui-tag-selector-container-locked' : '';
@@ -5352,7 +4831,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      var _this7 = this;
-
 	      return this.cache.remember('container', function () {
 	        var style = _this7.getMaxHeight() ? " style=\"max-height: ".concat(_this7.getMaxHeight(), "px; -ms-overflow-style: -ms-autohiding-scrollbar;\"") : '';
 	        return main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-tag-selector-container\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t", "\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this7.handleContainerClick.bind(_this7), style, _this7.getItemsContainer(), _this7.getCreateButton());
@@ -5362,7 +4840,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getItemsContainer",
 	    value: function getItemsContainer() {
 	      var _this8 = this;
-
 	      return this.cache.remember('items-container', function () {
 	        return main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-items\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this8.getTextBox(), _this8.getAddButton());
 	      });
@@ -5371,21 +4848,16 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getTextBox",
 	    value: function getTextBox() {
 	      var _this9 = this;
-
 	      return this.cache.remember('text-box', function () {
 	        var className = _this9.textBoxVisible ? '' : ' ui-tag-selector-item-hidden';
 	        var input = main_core.Tag.render(_templateObject4$3 || (_templateObject4$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\ttype=\"text\" \n\t\t\t\t\tclass=\"ui-tag-selector-item ui-tag-selector-text-box", "\" \n\t\t\t\t\tautocomplete=\"off\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t\toninput=\"", "\"\n\t\t\t\t\tonblur=\"", "\"\n\t\t\t\t\tonkeyup=\"", "\"\n\t\t\t\t\tonkeydown=\"", "\"\n\t\t\t\t\tvalue=\"\"\n\t\t\t\t>\n\t\t\t"])), className, main_core.Text.encode(_this9.getPlaceholder()), _this9.handleTextBoxInput.bind(_this9), _this9.handleTextBoxBlur.bind(_this9), _this9.handleTextBoxKeyUp.bind(_this9), _this9.handleTextBoxKeyDown.bind(_this9));
-
 	        var width = _this9.getTextBoxWidth();
-
 	        if (width !== null) {
 	          main_core.Dom.style(input, 'width', main_core.Type.isStringFilled(width) ? width : "".concat(width, "px"));
 	        }
-
 	        if (_this9.isLocked()) {
 	          input.disabled = true;
 	        }
-
 	        return input;
 	      });
 	    }
@@ -5400,7 +4872,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.getMaxHeight() !== null) {
 	        return Math.min(this.getItemsHeight(), this.getMaxHeight());
 	      }
-
 	      return Math.max(this.getItemsHeight(), this.getMinHeight());
 	    }
 	  }, {
@@ -5448,13 +4919,11 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setTextBoxWidth(width) {
 	      if (main_core.Type.isStringFilled(width) || width === null) {
 	        this.textBoxWidth = width;
-
 	        if (this.isRendered()) {
 	          main_core.Dom.style(this.getTextBox(), 'width', width);
 	        }
 	      } else if (main_core.Type.isNumber(width) && width > 0) {
 	        this.textBoxWidth = width;
-
 	        if (this.isRendered()) {
 	          main_core.Dom.style(this.getTextBox(), 'width', "".concat(width, "px"));
 	        }
@@ -5497,7 +4966,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.tagAvatarOptions !== null && !main_core.Type.isUndefined(this.tagAvatarOptions[option])) {
 	        return this.tagAvatarOptions[option];
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -5507,7 +4975,6 @@ this.BX.UI = this.BX.UI || {};
 	        if (this.tagAvatarOptions === null) {
 	          this.tagAvatarOptions = {};
 	        }
-
 	        this.tagAvatarOptions[option] = value;
 	        this.updateTags();
 	      }
@@ -5516,7 +4983,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setTagAvatarOptions",
 	    value: function setTagAvatarOptions(options) {
 	      var _this10 = this;
-
 	      if (main_core.Type.isPlainObject(options)) {
 	        Object.keys(options).forEach(function (option) {
 	          _this10.setTagAvatarOption(option, options[option]);
@@ -5572,7 +5038,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setPlaceholder(placeholder) {
 	      if (main_core.Type.isStringFilled(placeholder)) {
 	        this.placeholder = placeholder;
-
 	        if (this.isRendered()) {
 	          this.getTextBox().placeholder = placeholder;
 	        }
@@ -5593,7 +5058,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setMaxHeight(height) {
 	      if (main_core.Type.isNumber(height) && height > 0 || height === null) {
 	        this.maxHeight = height;
-
 	        if (this.isRendered()) {
 	          main_core.Dom.style(this.getContainer(), 'max-height', height > 0 ? "".concat(height, "px") : null);
 	          main_core.Dom.style(this.getContainer(), '-ms-overflow-style', height > 0 ? '-ms-autohiding-scrollbar' : null);
@@ -5604,7 +5068,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getAddButton",
 	    value: function getAddButton() {
 	      var _this11 = this;
-
 	      return this.cache.remember('add-button', function () {
 	        var className = _this11.addButtonVisible ? '' : ' ui-tag-selector-item-hidden';
 	        return main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tag-selector-item ui-tag-selector-add-button", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), className, _this11.getAddButtonLink());
@@ -5614,7 +5077,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getAddButtonLink",
 	    value: function getAddButtonLink() {
 	      var _this12 = this;
-
 	      return this.cache.remember('add-button-link', function () {
 	        var caption = main_core.Text.encode(_this12.getActualButtonCaption());
 	        return main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"ui-tag-selector-add-button-caption\" \n\t\t\t\t\tonclick=\"", "\">", "</span>\n\t\t\t"])), _this12.handleAddButtonClick.bind(_this12), caption);
@@ -5630,7 +5092,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setAddButtonCaption(caption) {
 	      if (main_core.Type.isStringFilled(caption)) {
 	        this.addButtonCaption = caption;
-
 	        if (this.isRendered()) {
 	          this.toggleAddButtonCaption();
 	        }
@@ -5646,7 +5107,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setAddButtonCaptionMore(caption) {
 	      if (main_core.Type.isStringFilled(caption)) {
 	        this.addButtonCaptionMore = caption;
-
 	        if (this.isRendered()) {
 	          this.toggleAddButtonCaption();
 	        }
@@ -5658,7 +5118,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.getAddButtonCaptionMore() === null) {
 	        return;
 	      }
-
 	      this.getAddButtonLink().textContent = this.getActualButtonCaption();
 	    }
 	  }, {
@@ -5682,7 +5141,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCreateButton",
 	    value: function getCreateButton() {
 	      var _this13 = this;
-
 	      return this.cache.remember('create-button', function () {
 	        var className = _this13.createButtonVisible ? '' : ' ui-tag-selector-item-hidden';
 	        return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-create-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-create-button-caption\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>", "</span>\n\t\t\t\t</div>\n\t\t\t"])), className, _this13.handleCreateButtonClick.bind(_this13), main_core.Text.encode(_this13.getCreateButtonCaption()));
@@ -5710,7 +5168,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setCreateButtonCaption(caption) {
 	      if (main_core.Type.isStringFilled(caption)) {
 	        this.createButtonCaption = caption;
-
 	        if (this.isRendered()) {
 	          this.getCreateButton().children[0].textContent = caption;
 	        }
@@ -5727,7 +5184,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleTextBoxInput",
 	    value: function handleTextBoxInput(event) {
 	      var newValue = this.getTextBoxValue();
-
 	      if (newValue !== this.textBoxOldValue) {
 	        this.textBoxOldValue = newValue;
 	        this.emit('onInput', {
@@ -5741,7 +5197,6 @@ this.BX.UI = this.BX.UI || {};
 	      this.emit('onBlur', {
 	        event: event
 	      });
-
 	      if (this.textBoxAutoHide) {
 	        this.clearTextBox();
 	        this.showAddButton();
@@ -5754,12 +5209,10 @@ this.BX.UI = this.BX.UI || {};
 	      this.emit('onKeyUp', {
 	        event: event
 	      });
-
 	      if (event.key === 'Enter') {
 	        this.emit('onEnter', {
 	          event: event
 	        });
-
 	        if (this.textBoxAutoHide) {
 	          this.clearTextBox();
 	          this.showAddButton();
@@ -5773,14 +5226,12 @@ this.BX.UI = this.BX.UI || {};
 	      if (event.key === 'Enter') {
 	        // prevent a form submit
 	        event.preventDefault();
-
 	        if (main_core.Browser.isMac() && event.metaKey || event.ctrlKey) {
 	          this.emit('onMetaEnter', {
 	            event: event
 	          });
 	        }
 	      }
-
 	      this.emit('onKeyDown', {
 	        event: event
 	      });
@@ -5808,6 +5259,7 @@ this.BX.UI = this.BX.UI || {};
 
 	var Navigation = /*#__PURE__*/function () {
 	  // IE/Edge compatible event names
+
 	  function Navigation(dialog) {
 	    babelHelpers.classCallCheck(this, Navigation);
 	    babelHelpers.defineProperty(this, "dialog", null);
@@ -5820,7 +5272,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.handleDocumentKeyDown = this.handleDocumentKeyDown.bind(this);
 	    this.handleDocumentMouseMove = this.handleDocumentMouseMove.bind(this);
 	  }
-
 	  babelHelpers.createClass(Navigation, [{
 	    key: "getDialog",
 	    value: function getDialog() {
@@ -5832,7 +5283,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.isEnabled()) {
 	        this.bindEvents();
 	      }
-
 	      this.enabled = true;
 	    }
 	  }, {
@@ -5842,7 +5292,6 @@ this.BX.UI = this.BX.UI || {};
 	        this.unbindEvents();
 	        this.unlockTab();
 	      }
-
 	      this.enabled = false;
 	    }
 	  }, {
@@ -5866,24 +5315,18 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getActiveNode()) {
 	        return null;
 	      }
-
 	      var nextNode = null;
 	      var currentNode = this.getActiveNode();
-
 	      if (currentNode.hasChildren() && currentNode.isOpen()) {
 	        nextNode = currentNode.getFirstChild();
 	      }
-
 	      while (nextNode === null && currentNode !== null) {
 	        nextNode = currentNode.getNextSibling();
-
 	        if (nextNode) {
 	          break;
 	        }
-
 	        currentNode = currentNode.getParentNode();
 	      }
-
 	      return nextNode;
 	    }
 	  }, {
@@ -5892,17 +5335,13 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getActiveNode()) {
 	        return null;
 	      }
-
 	      var previousNode = this.getActiveNode().getPreviousSibling();
-
 	      if (previousNode) {
 	        while (previousNode.hasChildren() && previousNode.isOpen()) {
 	          var lastChild = previousNode.getLastChild();
-
 	          if (lastChild === null) {
 	            break;
 	          }
-
 	          previousNode = lastChild;
 	        }
 	      } else {
@@ -5910,7 +5349,6 @@ this.BX.UI = this.BX.UI || {};
 	          previousNode = this.getActiveNode().getParentNode();
 	        }
 	      }
-
 	      return previousNode;
 	    }
 	  }, {
@@ -5923,25 +5361,19 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getLastNode",
 	    value: function getLastNode() {
 	      var tab = this.getDialog().getActiveTab();
-
 	      if (!tab) {
 	        return null;
 	      }
-
 	      var lastNode = tab.getRootNode().getLastChild();
-
 	      if (lastNode !== null) {
 	        while (lastNode.hasChildren() && lastNode.isOpen()) {
 	          var lastChild = lastNode.getLastChild();
-
 	          if (lastChild === null) {
 	            break;
 	          }
-
 	          lastNode = lastChild;
 	        }
 	      }
-
 	      return lastNode;
 	    }
 	  }, {
@@ -5961,13 +5393,11 @@ this.BX.UI = this.BX.UI || {};
 	    key: "lockTab",
 	    value: function lockTab() {
 	      var activeTab = this.getDialog().getActiveTab();
-
 	      if (this.lockedTab === activeTab) {
 	        return;
 	      } else if (this.lockedTab !== null) {
 	        this.unlockTab();
 	      }
-
 	      this.lockedTab = activeTab;
 	      this.lockedTab.lock();
 	      main_core.Event.bind(document, 'mousemove', this.handleDocumentMouseMove);
@@ -5978,7 +5408,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.lockedTab === null) {
 	        return;
 	      }
-
 	      this.lockedTab.unlock();
 	      this.lockedTab = null;
 	      main_core.Event.unbind(document, 'mousemove', this.handleDocumentMouseMove);
@@ -6010,25 +5439,18 @@ this.BX.UI = this.BX.UI || {};
 	        this.unbindEvents();
 	        return;
 	      }
-
 	      if (event.metaKey || event.ctrlKey || event.altKey) {
 	        return;
 	      }
-
 	      var activeTab = this.getDialog().getActiveTab();
-
 	      if (!activeTab) {
 	        return;
 	      }
-
 	      var keyName = this.constructor.keyMap[event.key] || event.key;
-
 	      if (activeTab === this.getDialog().getSearchTab() && ['ArrowLeft', 'ArrowRight'].includes(keyName)) {
 	        return;
 	      }
-
 	      var handler = this["handle".concat(keyName, "Press")];
-
 	      if (handler) {
 	        handler.call(this, event);
 	        this.lockTab(activeTab);
@@ -6043,12 +5465,10 @@ this.BX.UI = this.BX.UI || {};
 	        this.focusOnNode(firstNode);
 	      } else {
 	        var nextNode = this.getNextNode();
-
 	        if (nextNode) {
 	          this.focusOnNode(nextNode);
 	        } else {
 	          var _firstNode = this.getFirstNode();
-
 	          this.focusOnNode(_firstNode);
 	        }
 	      }
@@ -6061,12 +5481,10 @@ this.BX.UI = this.BX.UI || {};
 	        this.focusOnNode(lastNode);
 	      } else {
 	        var previousNode = this.getPreviousNode();
-
 	        if (previousNode) {
 	          this.focusOnNode(previousNode);
 	        } else {
 	          var _lastNode = this.getLastNode();
-
 	          this.focusOnNode(_lastNode);
 	        }
 	      }
@@ -6084,12 +5502,10 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getActiveNode()) {
 	        return;
 	      }
-
 	      if (this.getActiveNode().isOpen()) {
 	        this.getActiveNode().collapse();
 	      } else {
 	        var parentNode = this.getActiveNode().getParentNode();
-
 	        if (parentNode && !parentNode.isRoot()) {
 	          this.focusOnNode(parentNode);
 	        }
@@ -6111,20 +5527,16 @@ this.BX.UI = this.BX.UI || {};
 	    		event.preventDefault();
 	    	}
 	    }*/
-
 	  }, {
 	    key: "handleTabPress",
 	    value: function handleTabPress(event) {
 	      var activeTab = this.getDialog().getActiveTab();
-
 	      if (!activeTab) {
 	        this.getDialog().selectFirstTab();
 	        return;
 	      }
-
 	      if (event.shiftKey) {
 	        var previousTab = this.getDialog().getPreviousTab();
-
 	        if (previousTab) {
 	          this.getDialog().selectTab(previousTab.getId());
 	        } else {
@@ -6132,7 +5544,6 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      } else {
 	        var nextTab = this.getDialog().getNextTab();
-
 	        if (nextTab) {
 	          this.getDialog().selectTab(nextTab.getId());
 	        } else {
@@ -6143,7 +5554,6 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return Navigation;
 	}();
-
 	babelHelpers.defineProperty(Navigation, "keyMap", {
 	  'Down': 'ArrowDown',
 	  'Up': 'ArrowUp',
@@ -6151,7 +5561,6 @@ this.BX.UI = this.BX.UI || {};
 	  'Right': 'ArrowRight',
 	  'Spacebar': 'Space',
 	  ' ': 'Space' // For all browsers
-
 	});
 
 	var SliderIntegration = /*#__PURE__*/function () {
@@ -6167,7 +5576,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.handleSliderClose = this.handleSliderClose.bind(this);
 	    this.handleSliderDestroy = this.handleSliderDestroy.bind(this);
 	  }
-
 	  babelHelpers.createClass(SliderIntegration, [{
 	    key: "getDialog",
 	    value: function getDialog() {
@@ -6177,7 +5585,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "bindEvents",
 	    value: function bindEvents() {
 	      this.unbindEvents();
-
 	      if (top.BX) {
 	        top.BX.Event.EventEmitter.subscribe('SidePanel.Slider:onOpen', this.handleSliderOpen);
 	        top.BX.Event.EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', this.handleSliderClose);
@@ -6225,11 +5632,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleSliderOpen",
 	    value: function handleSliderOpen(event) {
 	      var _event$getData = event.getData(),
-	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
-	          sliderEvent = _event$getData2[0];
-
+	        _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
+	        sliderEvent = _event$getData2[0];
 	      var slider = sliderEvent.getSlider();
-
 	      if (!this.isDialogInSlider(slider)) {
 	        this.sliders.add(slider);
 	        this.getDialog().freeze();
@@ -6239,12 +5644,10 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleSliderClose",
 	    value: function handleSliderClose(event) {
 	      var _event$getData3 = event.getData(),
-	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
-	          sliderEvent = _event$getData4[0];
-
+	        _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
+	        sliderEvent = _event$getData4[0];
 	      var slider = sliderEvent.getSlider();
 	      this.sliders["delete"](slider);
-
 	      if (this.sliders.size === 0) {
 	        this.getDialog().unfreeze();
 	      }
@@ -6253,17 +5656,14 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleSliderDestroy",
 	    value: function handleSliderDestroy(event) {
 	      var _event$getData5 = event.getData(),
-	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 1),
-	          sliderEvent = _event$getData6[0];
-
+	        _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 1),
+	        sliderEvent = _event$getData6[0];
 	      var slider = sliderEvent.getSlider();
-
 	      if (this.isDialogInSlider(slider)) {
 	        this.unbindEvents();
 	        this.dialog.destroy();
 	      } else {
 	        this.sliders["delete"](slider);
-
 	        if (this.sliders.size === 0) {
 	          this.getDialog().unfreeze();
 	        }
@@ -6274,22 +5674,16 @@ this.BX.UI = this.BX.UI || {};
 	}();
 
 	var _templateObject$7;
-
 	var DefaultHeader = /*#__PURE__*/function (_BaseHeader) {
 	  babelHelpers.inherits(DefaultHeader, _BaseHeader);
-
 	  function DefaultHeader(context, options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, DefaultHeader);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DefaultHeader).call(this, context, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "content", null);
-
 	    _this.setContent(_this.getOption('content'));
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(DefaultHeader, [{
 	    key: "render",
 	    value: function render() {
@@ -6317,22 +5711,16 @@ this.BX.UI = this.BX.UI || {};
 	}(BaseHeader);
 
 	var _templateObject$8;
-
 	var DefaultFooter = /*#__PURE__*/function (_BaseFooter) {
 	  babelHelpers.inherits(DefaultFooter, _BaseFooter);
-
 	  function DefaultFooter(context, options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, DefaultFooter);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DefaultFooter).call(this, context, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "content", null);
-
 	    _this.setContent(_this.getOption('content'));
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(DefaultFooter, [{
 	    key: "render",
 	    value: function render() {
@@ -6361,7 +5749,6 @@ this.BX.UI = this.BX.UI || {};
 
 	var RecentTab = /*#__PURE__*/function (_Tab) {
 	  babelHelpers.inherits(RecentTab, _Tab);
-
 	  function RecentTab(dialog, tabOptions) {
 	    babelHelpers.classCallCheck(this, RecentTab);
 	    var icon = 'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2223%22%20fill%3D%' + '22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M14.432%2013.985a.96.' + '96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM14.432%2011.' + '009a.96.96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM14.' + '432%208.033a.96.96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.' + '96z%22%20fill%3D%22%23ABB1B8%22/%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd' + '%22%20d%3D%22M10.988%2019.52c1.8%200%203.469-.558%204.844-1.51l2.205%202.204a1.525%201.525%200%20' + '102.157-2.157l-2.205-2.205a8.512%208.512%200%2010-7%203.668zm0-2.403a6.108%206.108%200%20100-12.2' + '16%206.108%206.108%200%20000%2012.216z%22%20fill%3D%22%23ABB1B8%22/%3E%3C/svg%3E';
@@ -6383,7 +5770,6 @@ this.BX.UI = this.BX.UI || {};
 	    options.id = 'recents';
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(RecentTab).call(this, dialog, options));
 	  }
-
 	  return RecentTab;
 	}(Tab);
 
@@ -6399,7 +5785,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.queryWords = queryWords;
 	    this.addIndexes(matchIndexes);
 	  }
-
 	  babelHelpers.createClass(MatchResult, [{
 	    key: "getItem",
 	    value: function getItem() {
@@ -6424,24 +5809,20 @@ this.BX.UI = this.BX.UI || {};
 	    key: "addIndex",
 	    value: function addIndex(matchIndex) {
 	      var matchField = this.matchFields.get(matchIndex.getField());
-
 	      if (!matchField) {
 	        matchField = new MatchField(matchIndex.getField());
 	        this.matchFields.set(matchIndex.getField(), matchField);
 	        var fieldSort = matchIndex.getField().getSort();
-
 	        if (fieldSort !== null) {
 	          this.sort = this.sort === null ? fieldSort : Math.min(this.sort, fieldSort);
 	        }
 	      }
-
 	      matchField.addIndex(matchIndex);
 	    }
 	  }, {
 	    key: "addIndexes",
 	    value: function addIndexes(matchIndexes) {
 	      var _this = this;
-
 	      matchIndexes.forEach(function (matchIndex) {
 	        _this.addIndex(matchIndex);
 	      });
@@ -6453,54 +5834,46 @@ this.BX.UI = this.BX.UI || {};
 	var collator = new Intl.Collator(undefined, {
 	  sensitivity: 'base'
 	});
-
 	var SearchEngine = /*#__PURE__*/function () {
 	  function SearchEngine() {
 	    babelHelpers.classCallCheck(this, SearchEngine);
 	  }
-
 	  babelHelpers.createClass(SearchEngine, null, [{
 	    key: "matchItems",
 	    value: function matchItems(items, searchQuery) {
 	      var matchResults = [];
 	      var queryWords = searchQuery.getQueryWords();
 	      var limit = searchQuery.getResultLimit();
-
 	      for (var i = 0; i < items.length; i++) {
 	        if (limit === 0) {
 	          break;
 	        }
-
 	        var item = items[i];
-
 	        if (item.isSelected() || !item.isSearchable() || item.isHidden() || !item.getEntity().isSearchable()) {
 	          continue;
 	        }
-
 	        var matchResult = this.matchItem(item, queryWords);
-
 	        if (matchResult) {
 	          matchResults.push(matchResult);
 	          limit--;
 	        }
 	      }
-
 	      return matchResults;
 	    }
 	  }, {
 	    key: "matchItem",
 	    value: function matchItem(item, queryWords) {
 	      var matches = [];
-
 	      for (var i = 0; i < queryWords.length; i++) {
 	        var queryWord = queryWords[i];
-	        var results = this.matchWord(item, queryWord); //const match = this.matchWord(item, queryWord);
+	        var results = this.matchWord(item, queryWord);
+	        //const match = this.matchWord(item, queryWord);
 	        //if (match === null)
-
 	        if (results.length === 0) {
 	          return null;
 	        } else {
-	          matches = matches.concat(results); //matches.push(match);
+	          matches = matches.concat(results);
+	          //matches.push(match);
 	        }
 	      }
 
@@ -6515,17 +5888,15 @@ this.BX.UI = this.BX.UI || {};
 	    value: function matchWord(item, queryWord) {
 	      var searchIndexes = item.getSearchIndex().getIndexes();
 	      var matches = [];
-
 	      for (var i = 0; i < searchIndexes.length; i++) {
 	        var fieldIndex = searchIndexes[i];
 	        var indexes = fieldIndex.getIndexes();
-
 	        for (var j = 0; j < indexes.length; j++) {
 	          var index = indexes[j];
 	          var word = index.getWord().substring(0, queryWord.length);
-
 	          if (collator.compare(queryWord, word) === 0) {
-	            matches.push(new MatchIndex(fieldIndex.getField(), queryWord, index.getStartIndex())); //return new MatchIndex(field, queryWord, index[i][1]);
+	            matches.push(new MatchIndex(fieldIndex.getField(), queryWord, index.getStartIndex()));
+	            //return new MatchIndex(field, queryWord, index[i][1]);
 	          }
 	        }
 
@@ -6533,8 +5904,8 @@ this.BX.UI = this.BX.UI || {};
 	          break;
 	        }
 	      }
-
-	      return matches; //return null;
+	      return matches;
+	      //return null;
 	    }
 	  }]);
 	  return SearchEngine;
@@ -6551,7 +5922,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.query = query.trim().replace(/\s\s+/g, ' ');
 	    this.queryWords = main_core.Type.isStringFilled(this.query) ? this.query.split(' ') : [];
 	  }
-
 	  babelHelpers.createClass(SearchQuery, [{
 	    key: "getQueryWords",
 	    value: function getQueryWords() {
@@ -6605,7 +5975,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setDynamicSearchEntities",
 	    value: function setDynamicSearchEntities(entities) {
 	      var _this = this;
-
 	      if (main_core.Type.isArrayFilled(entities)) {
 	        entities.forEach(function (entityId) {
 	          if (main_core.Type.isStringFilled(entityId) && !_this.hasDynamicSearchEntity(entityId)) {
@@ -6613,7 +5982,6 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        });
 	      }
-
 	      return this.dynamicSearchEntities;
 	    }
 	  }, {
@@ -6640,7 +6008,6 @@ this.BX.UI = this.BX.UI || {};
 	}();
 
 	var _templateObject$9, _templateObject2$4, _templateObject3$4, _templateObject4$4, _templateObject5$3;
-
 	var SearchLoader = /*#__PURE__*/function () {
 	  function SearchLoader(tab) {
 	    babelHelpers.classCallCheck(this, SearchLoader);
@@ -6649,7 +6016,6 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
 	    this.tab = tab;
 	  }
-
 	  babelHelpers.createClass(SearchLoader, [{
 	    key: "getTab",
 	    value: function getTab() {
@@ -6664,14 +6030,12 @@ this.BX.UI = this.BX.UI || {};
 	          size: 32
 	        });
 	      }
-
 	      return this.loader;
 	    }
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
 	      var _this = this;
-
 	      return this.cache.remember('container', function () {
 	        return main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this.getBoxContainer(), _this.getSpacerContainer());
 	      });
@@ -6680,7 +6044,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getBoxContainer",
 	    value: function getBoxContainer() {
 	      var _this2 = this;
-
 	      return this.cache.remember('box-container', function () {
 	        return main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader-box\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), _this2.getIconContainer(), _this2.getTextContainer());
 	      });
@@ -6710,11 +6073,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "show",
 	    value: function show() {
 	      var _this3 = this;
-
 	      if (!this.getContainer().parentNode) {
 	        main_core.Dom.append(this.getContainer(), this.getTab().getContainer());
 	      }
-
 	      void this.getLoader().show();
 	      main_core.Dom.addClass(this.getContainer(), 'ui-selector-search-loader--show');
 	      requestAnimationFrame(function () {
@@ -6727,7 +6088,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.loader === null) {
 	        return;
 	      }
-
 	      main_core.Dom.removeClass(this.getContainer(), ['ui-selector-search-loader--show', 'ui-selector-search-loader--animate']);
 	      void this.getLoader().hide();
 	    }
@@ -6741,28 +6101,20 @@ this.BX.UI = this.BX.UI || {};
 	}();
 
 	var _templateObject$a, _templateObject2$5, _templateObject3$5, _templateObject4$5;
-
 	var SearchTabFooter = /*#__PURE__*/function (_BaseFooter) {
 	  babelHelpers.inherits(SearchTabFooter, _BaseFooter);
-
 	  function SearchTabFooter(tab, options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, SearchTabFooter);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SearchTabFooter).call(this, tab, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "loader", null);
-
 	    _this.getDialog().subscribe('onSearch', _this.handleOnSearch.bind(babelHelpers.assertThisInitialized(_this)));
-
 	    var tagSelector = _this.getDialog().getTagSelector();
-
 	    if (tagSelector) {
 	      tagSelector.subscribe('onMetaEnter', _this.handleMetaEnter.bind(babelHelpers.assertThisInitialized(_this)));
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(SearchTabFooter, [{
 	    key: "render",
 	    value: function render() {
@@ -6778,7 +6130,6 @@ this.BX.UI = this.BX.UI || {};
 	          color: 'rgba(82, 92, 105, 0.9)'
 	        });
 	      }
-
 	      return this.loader;
 	    }
 	  }, {
@@ -6802,7 +6153,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getLabelContainer",
 	    value: function getLabelContainer() {
 	      var _this2 = this;
-
 	      return this.cache.remember('label', function () {
 	        return main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-selector-search-footer-label\">", "</span>\n\t\t\t"])), _this2.getOption('label', main_core.Loc.getMessage('UI_SELECTOR_CREATE_ITEM_LABEL')));
 	      });
@@ -6825,41 +6175,30 @@ this.BX.UI = this.BX.UI || {};
 	    key: "createItem",
 	    value: function createItem() {
 	      var _this3 = this;
-
 	      var tagSelector = this.getDialog().getTagSelector();
-
 	      if (tagSelector && tagSelector.isLocked()) {
 	        return;
 	      }
-
 	      var finalize = function finalize() {
 	        _this3.hideLoader();
-
 	        if (_this3.getDialog().getTagSelector()) {
 	          _this3.getDialog().getTagSelector().unlock();
-
 	          _this3.getDialog().focusSearch();
 	        }
 	      };
-
 	      event.preventDefault();
 	      this.showLoader();
-
 	      if (tagSelector) {
 	        tagSelector.lock();
 	      }
-
 	      this.getDialog().emitAsync('Search:onItemCreateAsync', {
 	        searchQuery: this.getTab().getLastSearchQuery()
 	      }).then(function () {
 	        _this3.getTab().clearResults();
-
 	        _this3.getDialog().clearSearch();
-
 	        if (_this3.getDialog().getActiveTab() === _this3.getTab()) {
 	          _this3.getDialog().selectFirstTab();
 	        }
-
 	        finalize();
 	      })["catch"](function () {
 	        finalize();
@@ -6876,15 +6215,13 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.getDialog().getActiveTab() !== this.getTab()) {
 	        return;
 	      }
-
 	      this.handleClick();
 	    }
 	  }, {
 	    key: "handleOnSearch",
 	    value: function handleOnSearch(event) {
 	      var _event$getData = event.getData(),
-	          query = _event$getData.query;
-
+	        query = _event$getData.query;
 	      this.getQueryContainer().textContent = query;
 	    }
 	  }]);
@@ -6893,10 +6230,8 @@ this.BX.UI = this.BX.UI || {};
 
 	var SearchTab = /*#__PURE__*/function (_Tab) {
 	  babelHelpers.inherits(SearchTab, _Tab);
-
 	  function SearchTab(dialog, tabOptions, searchOptions) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, SearchTab);
 	    var defaults = {
 	      title: main_core.Loc.getMessage('UI_SELECTOR_SEARCH_TAB_TITLE'),
@@ -6918,39 +6253,31 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "searchLoader", new SearchLoader(babelHelpers.assertThisInitialized(_this)));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "allowCreateItem", false);
 	    searchOptions = main_core.Type.isPlainObject(searchOptions) ? searchOptions : {};
-
 	    _this.setAllowCreateItem(searchOptions.allowCreateItem, searchOptions.footerOptions);
-
 	    _this.loadWithDebounce = main_core.Runtime.debounce(function () {
 	      _this.load(_this.getLastSearchQuery());
 	    }, 500);
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(SearchTab, [{
 	    key: "search",
 	    value: function search(query) {
 	      var searchQuery = new SearchQuery(query);
 	      var dynamicEntities = this.getDynamicEntities(searchQuery);
 	      searchQuery.setDynamicSearchEntities(dynamicEntities);
-
 	      if (searchQuery.isEmpty()) {
 	        this.getSearchLoader().hide();
 	        return;
 	      }
-
 	      this.lastSearchQuery = searchQuery;
 	      var matchResults = SearchEngine.matchItems(this.getDialog().getItems(), searchQuery);
 	      this.clearResults();
 	      this.appendResults(matchResults);
-
 	      if (this.getDialog().shouldFocusOnFirst()) {
 	        this.getDialog().focusOnFirstNode();
 	      }
-
 	      if (this.shouldLoad(searchQuery)) {
 	        this.loadWithDebounce();
-
 	        if (!this.isEmptyResult()) {
 	          this.getStub().hide();
 	        }
@@ -6970,7 +6297,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setAllowCreateItem(flag, options) {
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.allowCreateItem = flag;
-
 	        if (flag) {
 	          this.setFooter(SearchTabFooter, options);
 	        } else {
@@ -6987,24 +6313,19 @@ this.BX.UI = this.BX.UI || {};
 	    key: "appendResults",
 	    value: function appendResults(matchResults) {
 	      var _this2 = this;
-
 	      matchResults.sort(function (a, b) {
 	        var matchSortA = a.getSort();
 	        var matchSortB = b.getSort();
-
 	        if (matchSortA !== null && matchSortB !== null && matchSortA !== matchSortB) {
 	          return matchSortA - matchSortB;
 	        }
-
 	        if (matchSortA !== null && matchSortB === null) {
 	          return -1;
 	        } else if (matchSortA === null && matchSortB !== null) {
 	          return 1;
 	        }
-
 	        var contextSortA = a.getItem().getContextSort();
 	        var contextSortB = b.getItem().getContextSort();
-
 	        if (contextSortA !== null && contextSortB === null) {
 	          return -1;
 	        } else if (contextSortA === null && contextSortB !== null) {
@@ -7014,7 +6335,6 @@ this.BX.UI = this.BX.UI || {};
 	        } else {
 	          var globalSortA = a.getItem().getGlobalSort();
 	          var globalSortB = b.getItem().getGlobalSort();
-
 	          if (globalSortA !== null && globalSortB === null) {
 	            return -1;
 	          } else if (globalSortA === null && globalSortB !== null) {
@@ -7022,17 +6342,14 @@ this.BX.UI = this.BX.UI || {};
 	          } else if (globalSortA !== null && globalSortB !== null) {
 	            return globalSortB - globalSortA;
 	          }
-
 	          return 0;
 	        }
 	      });
 	      this.getRootNode().disableRender();
 	      matchResults.forEach(function (matchResult) {
 	        var item = matchResult.getItem();
-
 	        if (!_this2.getRootNode().hasItem(item)) {
 	          var node = _this2.getRootNode().addItem(item);
-
 	          node.setHighlights(matchResult.getMatchFields());
 	        }
 	      });
@@ -7048,7 +6365,6 @@ this.BX.UI = this.BX.UI || {};
 	          var hasCacheLimit = entity.getSearchCacheLimits().some(function (pattern) {
 	            return pattern.test(searchQuery.getQuery());
 	          });
-
 	          if (hasCacheLimit) {
 	            result.push(entity.getId());
 	          }
@@ -7090,18 +6406,15 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.isQueryCacheable(searchQuery)) {
 	        return true;
 	      }
-
 	      if (!this.getDialog().hasDynamicSearch()) {
 	        return false;
 	      }
-
 	      return !this.isQueryLoaded(searchQuery);
 	    }
 	  }, {
 	    key: "load",
 	    value: function load(searchQuery) {
 	      var _this3 = this;
-
 	      if (!this.shouldLoad(searchQuery)) {
 	        return;
 	      }
@@ -7109,7 +6422,6 @@ this.BX.UI = this.BX.UI || {};
 	      {
 	      	this.queryXhr.abort();
 	      }*/
-
 
 	      this.addCacheQuery(searchQuery);
 	      this.getStub().hide();
@@ -7127,57 +6439,40 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }).then(function (response) {
 	        _this3.getSearchLoader().hide();
-
 	        if (!response || !response.data || !response.data.dialog || !response.data.dialog.items) {
 	          _this3.removeCacheQuery(searchQuery);
-
 	          _this3.toggleEmptyResult();
-
 	          _this3.getDialog().emit('SearchTab:onLoad', {
 	            searchTab: _this3
 	          });
-
 	          return;
 	        }
-
 	        if (response.data.searchQuery && response.data.searchQuery.cacheable === false) {
 	          _this3.removeCacheQuery(searchQuery);
 	        }
-
 	        if (main_core.Type.isArrayFilled(response.data.dialog.items)) {
 	          var items = new Set();
 	          response.data.dialog.items.forEach(function (itemOptions) {
 	            delete itemOptions.tabs;
 	            delete itemOptions.children;
-
 	            var item = _this3.getDialog().addItem(itemOptions);
-
 	            items.add(item);
 	          });
-
 	          var isTabEmpty = _this3.isEmptyResult();
-
 	          var matchResults = SearchEngine.matchItems(Array.from(items.values()), _this3.getLastSearchQuery());
-
 	          _this3.appendResults(matchResults);
-
 	          if (isTabEmpty && _this3.getDialog().shouldFocusOnFirst()) {
 	            _this3.getDialog().focusOnFirstNode();
 	          }
 	        }
-
 	        _this3.toggleEmptyResult();
-
 	        _this3.getDialog().emit('SearchTab:onLoad', {
 	          searchTab: _this3
 	        });
 	      })["catch"](function (error) {
 	        _this3.removeCacheQuery(searchQuery);
-
 	        _this3.getSearchLoader().hide();
-
 	        _this3.toggleEmptyResult();
-
 	        console.error(error);
 	      });
 	    }
@@ -7210,26 +6505,22 @@ this.BX.UI = this.BX.UI || {};
 	}(Tab);
 
 	var _templateObject$b, _templateObject2$6, _templateObject3$6, _templateObject4$6, _templateObject5$4, _templateObject6$2, _templateObject7$1;
-
 	var LoadState = function LoadState() {
 	  babelHelpers.classCallCheck(this, LoadState);
 	};
-
 	babelHelpers.defineProperty(LoadState, "UNSENT", 'UNSENT');
 	babelHelpers.defineProperty(LoadState, "LOADING", 'LOADING');
 	babelHelpers.defineProperty(LoadState, "DONE", 'DONE');
-
 	var TagSelectorMode = function TagSelectorMode() {
 	  babelHelpers.classCallCheck(this, TagSelectorMode);
 	};
-
 	babelHelpers.defineProperty(TagSelectorMode, "INSIDE", 'INSIDE');
 	babelHelpers.defineProperty(TagSelectorMode, "OUTSIDE", 'OUTSIDE');
 	var instances = new Map();
+
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
-
 	var Dialog = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Dialog, _EventEmitter);
 	  babelHelpers.createClass(Dialog, null, [{
@@ -7243,10 +6534,8 @@ this.BX.UI = this.BX.UI || {};
 	      return Array.from(instances.values());
 	    }
 	  }]);
-
 	  function Dialog(dialogOptions) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Dialog);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Dialog).call(this));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "id", null);
@@ -7259,6 +6548,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "multiple", true);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "hideOnSelect", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "hideOnDeselect", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "addTagOnSelect", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "clearSearchOnSelect", true);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "context", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "selectedItems", new Set());
@@ -7298,9 +6588,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "focusedNode", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "clearUnavailableItems", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "overlappingObserver", null);
-
 	    _this.setEventNamespace('BX.UI.EntitySelector.Dialog');
-
 	    var options = main_core.Type.isPlainObject(dialogOptions) ? dialogOptions : {};
 	    _this.id = main_core.Type.isStringFilled(options.id) ? options.id : "ui-selector-".concat(main_core.Text.getRandom().toLowerCase());
 	    _this.multiple = main_core.Type.isBoolean(options.multiple) ? options.multiple : true;
@@ -7308,16 +6596,13 @@ this.BX.UI = this.BX.UI || {};
 	    _this.clearUnavailableItems = options.clearUnavailableItems === true;
 	    _this.compactView = options.compactView === true;
 	    _this.dropdownMode = main_core.Type.isBoolean(options.dropdownMode) ? options.dropdownMode : false;
-
 	    if (main_core.Type.isArray(options.entities)) {
 	      options.entities.forEach(function (entity) {
 	        _this.addEntity(entity);
 	      });
 	    }
-
 	    if (options.tagSelector instanceof TagSelector) {
 	      _this.tagSelectorMode = TagSelectorMode.OUTSIDE;
-
 	      _this.setTagSelector(options.tagSelector);
 	    } else if (options.enableSearch === true) {
 	      var defaultOptions = {
@@ -7336,57 +6621,34 @@ this.BX.UI = this.BX.UI || {};
 	      var tagSelectorOptions = Object.assign(defaultOptions, customOptions, mandatoryOptions);
 	      var tagSelector = new TagSelector(tagSelectorOptions);
 	      _this.tagSelectorMode = TagSelectorMode.INSIDE;
-
 	      _this.setTagSelector(tagSelector);
 	    }
-
 	    _this.setTargetNode(options.targetNode);
-
 	    _this.setHideOnSelect(options.hideOnSelect);
-
 	    _this.setHideOnDeselect(options.hideOnDeselect);
-
+	    _this.setAddTagOnSelect(options.addTagOnSelect);
 	    _this.setClearSearchOnSelect(options.clearSearchOnSelect);
-
 	    _this.setWidth(options.width);
-
 	    void _this.setHeight(options.height);
-
 	    _this.setAutoHide(options.autoHide);
-
 	    _this.setAutoHideHandler(options.autoHideHandler);
-
 	    _this.setHideByEsc(options.hideByEsc);
-
 	    _this.setOffsetLeft(options.offsetLeft);
-
 	    _this.setOffsetTop(options.offsetTop);
-
 	    _this.setCacheable(options.cacheable);
-
 	    _this.setFocusOnFirst(options.focusOnFirst);
-
 	    _this.setShowAvatars(options.showAvatars);
-
 	    _this.recentTab = new RecentTab(babelHelpers.assertThisInitialized(_this), options.recentTabOptions);
 	    _this.searchTab = new SearchTab(babelHelpers.assertThisInitialized(_this), options.searchTabOptions, options.searchOptions);
-
 	    _this.addTab(_this.recentTab);
-
 	    _this.addTab(_this.searchTab);
-
 	    _this.setPreselectedItems(options.preselectedItems);
-
 	    _this.setUndeselectedItems(options.undeselectedItems);
-
 	    _this.setOptions(options);
-
 	    var preload = options.preload === true || _this.getPreselectedItems().length > 0;
-
 	    if (preload) {
 	      _this.load();
 	    }
-
 	    if (main_core.Type.isPlainObject(options.popupOptions)) {
 	      var allowedOptions = ['overlay', 'bindOptions', 'targetContainer', 'zIndexOptions'];
 	      var popupOptions = {};
@@ -7397,20 +6659,14 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	      _this.popupOptions = popupOptions;
 	    }
-
 	    _this.navigation = new Navigation(babelHelpers.assertThisInitialized(_this));
 	    new SliderIntegration(babelHelpers.assertThisInitialized(_this));
-
 	    _this.subscribe('ItemNode:onFocus', _this.handleItemNodeFocus.bind(babelHelpers.assertThisInitialized(_this)));
-
 	    _this.subscribe('ItemNode:onUnfocus', _this.handleItemNodeUnfocus.bind(babelHelpers.assertThisInitialized(_this)));
-
 	    _this.subscribeFromOptions(options.events);
-
 	    instances.set(_this.id, babelHelpers.assertThisInitialized(_this));
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Dialog, [{
 	    key: "show",
 	    value: function show() {
@@ -7428,22 +6684,18 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.destroying) {
 	        return;
 	      }
-
 	      this.destroying = true;
 	      this.emit('onDestroy');
 	      this.disconnectTabOverlapping();
 	      instances["delete"](this.getId());
-
 	      if (this.isRendered()) {
 	        this.getPopup().destroy();
 	      }
-
 	      for (var property in this) {
 	        if (this.hasOwnProperty(property)) {
 	          delete this[property];
 	        }
 	      }
-
 	      Object.setPrototypeOf(this, null);
 	    }
 	  }, {
@@ -7468,14 +6720,11 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      });
 	      this.emit('onBeforeSearch', event);
-
 	      if (event.isDefaultPrevented()) {
 	        return;
 	      }
-
 	      if (!main_core.Type.isStringFilled(query)) {
 	        this.selectFirstTab();
-
 	        if (this.getSearchTab()) {
 	          this.getSearchTab().clearResults();
 	        }
@@ -7483,7 +6732,6 @@ this.BX.UI = this.BX.UI || {};
 	        this.selectTab(this.getSearchTab().getId());
 	        this.getSearchTab().search(query);
 	      }
-
 	      this.emit('onSearch', {
 	        query: query
 	      });
@@ -7492,58 +6740,44 @@ this.BX.UI = this.BX.UI || {};
 	    key: "addItem",
 	    value: function addItem(options) {
 	      var _this2 = this;
-
 	      if (!main_core.Type.isPlainObject(options)) {
 	        throw new Error('EntitySelector.addItem: wrong item options.');
 	      }
-
 	      var item = this.getItem(options);
-
 	      if (!item) {
 	        item = new Item(options);
 	        var undeselectable = this.getUndeselectedItems().some(function (itemId) {
 	          return itemId[0] === item.getEntityId() && String(itemId[1]) === String(item.getId());
 	        });
-
 	        if (undeselectable) {
 	          item.setDeselectable(false);
 	        }
-
 	        item.setDialog(this);
 	        var entity = this.getEntity(item.getEntityId());
-
 	        if (entity === null) {
 	          this.addEntity({
 	            id: item.getEntityId()
 	          });
 	        }
-
 	        var entityItems = this.items.get(item.getEntityId());
-
 	        if (!entityItems) {
 	          entityItems = new Map();
 	          this.items.set(item.getEntityId(), entityItems);
 	        }
-
 	        entityItems.set(String(item.getId()), item);
-
 	        if (item.isSelected()) {
 	          this.handleItemSelect(item);
 	        }
 	      }
-
 	      var tabs = [];
-
 	      if (main_core.Type.isArray(options.tabs)) {
 	        tabs = options.tabs;
 	      } else if (main_core.Type.isStringFilled(options.tabs)) {
 	        tabs = [options.tabs];
 	      }
-
 	      var children = main_core.Type.isArray(options.children) ? options.children : [];
 	      tabs.forEach(function (tabId) {
 	        var tab = _this2.getTab(tabId);
-
 	        if (tab) {
 	          var itemNode = tab.getRootNode().addItem(item, options.nodeOptions);
 	          itemNode.addChildren(children);
@@ -7555,30 +6789,25 @@ this.BX.UI = this.BX.UI || {};
 	    key: "removeItem",
 	    value: function removeItem(item) {
 	      item = this.getItem(item);
-
 	      if (item) {
 	        this.handleItemDeselect(item);
 	        item.getNodes().forEach(function (node) {
 	          node.getParentNode().removeChild(node);
 	        });
 	        var entityItems = this.getEntityItemsInternal(item.getEntityId());
-
 	        if (entityItems) {
 	          entityItems["delete"](String(item.getId()));
-
 	          if (entityItems.size === 0) {
 	            this.items["delete"](item.getEntityId());
 	          }
 	        }
 	      }
-
 	      return item;
 	    }
 	  }, {
 	    key: "removeItems",
 	    value: function removeItems() {
 	      var _this3 = this;
-
 	      this.getItemsInternal().forEach(function (items) {
 	        items.forEach(function (item) {
 	          _this3.removeItem(item);
@@ -7590,10 +6819,8 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getItem(item) {
 	      var id = null;
 	      var entityId = null;
-
 	      if (main_core.Type.isArray(item) && item.length === 2) {
 	        var _item = babelHelpers.slicedToArray(item, 2);
-
 	        entityId = _item[0];
 	        id = _item[1];
 	      } else if (item instanceof Item) {
@@ -7603,13 +6830,10 @@ this.BX.UI = this.BX.UI || {};
 	        id = item.id;
 	        entityId = item.entityId;
 	      }
-
 	      var entityItems = this.getEntityItemsInternal(entityId);
-
 	      if (entityItems) {
 	        return entityItems.get(String(id)) || null;
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -7629,7 +6853,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "getItemsInternal",
 	    value: function getItemsInternal() {
@@ -7644,7 +6867,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "getEntityItemsInternal",
 	    value: function getEntityItemsInternal(entityId) {
@@ -7653,24 +6875,20 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "validateItemIds",
 	    value: function validateItemIds(itemIds) {
 	      if (!main_core.Type.isArrayFilled(itemIds)) {
 	        return [];
 	      }
-
 	      var result = [];
 	      itemIds.forEach(function (itemId) {
 	        if (!main_core.Type.isArray(itemId) || itemId.length !== 2) {
 	          return;
 	        }
-
 	        var _itemId = babelHelpers.slicedToArray(itemId, 2),
-	            entityId = _itemId[0],
-	            id = _itemId[1];
-
+	          entityId = _itemId[0],
+	          id = _itemId[1];
 	        if (main_core.Type.isStringFilled(entityId) && (main_core.Type.isStringFilled(id) || main_core.Type.isNumber(id))) {
 	          result.push(itemId);
 	        }
@@ -7683,23 +6901,18 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isPlainObject(tab)) {
 	        tab = new Tab(this, tab);
 	      }
-
 	      if (!(tab instanceof Tab)) {
 	        throw new Error('EntitySelector: a tab must be an instance of EntitySelector.Tab.');
 	      }
-
 	      if (this.getTab(tab.getId())) {
 	        console.error("EntitySelector: the \"".concat(tab.getId(), "\" tab is already existed."));
 	        return tab;
 	      }
-
 	      tab.setDialog(this);
 	      this.tabs.set(tab.getId(), tab);
-
 	      if (this.isRendered()) {
 	        this.insertTab(tab);
 	      }
-
 	      return tab;
 	    }
 	  }, {
@@ -7726,35 +6939,27 @@ this.BX.UI = this.BX.UI || {};
 	    key: "selectTab",
 	    value: function selectTab(id) {
 	      var _this4 = this;
-
 	      var newActiveTab = this.getTab(id);
-
 	      if (!newActiveTab || newActiveTab === this.getActiveTab()) {
 	        return newActiveTab;
 	      }
-
 	      if (this.getActiveTab()) {
 	        this.getActiveTab().deselect();
 	      }
-
 	      this.activeTab = newActiveTab;
 	      newActiveTab.select();
-
 	      if (!newActiveTab.isRendered()) {
 	        newActiveTab.render();
 	      }
-
 	      requestAnimationFrame(function () {
 	        requestAnimationFrame(function () {
 	          _this4.focusSearch();
 	        });
 	      });
 	      this.clearNodeFocus();
-
 	      if (this.shouldFocusOnFirst()) {
 	        this.focusOnFirstNode();
 	      }
-
 	      this.adjustHeader();
 	      this.adjustFooter();
 	      return newActiveTab;
@@ -7762,7 +6967,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "insertTab",
 	    value: function insertTab(tab) {
@@ -7770,11 +6974,9 @@ this.BX.UI = this.BX.UI || {};
 	      tab.renderContainer();
 	      main_core.Dom.append(tab.getLabelContainer(), this.getLabelsContainer());
 	      main_core.Dom.append(tab.getContainer(), this.getTabContentsContainer());
-
 	      if (tab.getHeader()) {
 	        main_core.Dom.append(tab.getHeader().getContainer(), this.getHeaderContainer());
 	      }
-
 	      if (tab.getFooter()) {
 	        main_core.Dom.append(tab.getFooter().getContainer(), this.getFooterContainer());
 	      }
@@ -7784,19 +6986,15 @@ this.BX.UI = this.BX.UI || {};
 	    value: function selectFirstTab() {
 	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 	      var tabs = this.getTabs();
-
 	      for (var i = 0; i < tabs.length; i++) {
 	        var tab = tabs[i];
-
 	        if (onlyVisible === false || tab.isVisible()) {
 	          return this.selectTab(tab.getId());
 	        }
 	      }
-
 	      if (this.isDropdownMode()) {
 	        return this.selectTab(this.getRecentTab().getId());
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -7804,19 +7002,15 @@ this.BX.UI = this.BX.UI || {};
 	    value: function selectLastTab() {
 	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 	      var tabs = this.getTabs();
-
 	      for (var i = tabs.length - 1; i >= 0; i--) {
 	        var tab = tabs[i];
-
 	        if (onlyVisible === false || tab.isVisible()) {
 	          return this.selectTab(tab.getId());
 	        }
 	      }
-
 	      if (this.isDropdownMode()) {
 	        return this.selectTab(this.getRecentTab().getId());
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -7831,14 +7025,11 @@ this.BX.UI = this.BX.UI || {};
 	      var nextTab = null;
 	      var activeFound = false;
 	      var tabs = this.getTabs();
-
 	      for (var i = 0; i < tabs.length; i++) {
 	        var tab = tabs[i];
-
 	        if (onlyVisible && !tab.isVisible()) {
 	          continue;
 	        }
-
 	        if (tab === this.getActiveTab()) {
 	          activeFound = true;
 	        } else if (activeFound) {
@@ -7846,7 +7037,6 @@ this.BX.UI = this.BX.UI || {};
 	          break;
 	        }
 	      }
-
 	      return nextTab;
 	    }
 	  }, {
@@ -7856,14 +7046,11 @@ this.BX.UI = this.BX.UI || {};
 	      var previousTab = null;
 	      var activeFound = false;
 	      var tabs = this.getTabs();
-
 	      for (var i = tabs.length - 1; i >= 0; i--) {
 	        var tab = tabs[i];
-
 	        if (onlyVisible && !tab.isVisible()) {
 	          continue;
 	        }
-
 	        if (tab === this.getActiveTab()) {
 	          activeFound = true;
 	        } else if (activeFound) {
@@ -7871,31 +7058,25 @@ this.BX.UI = this.BX.UI || {};
 	          break;
 	        }
 	      }
-
 	      return previousTab;
 	    }
 	  }, {
 	    key: "removeTab",
 	    value: function removeTab(id) {
 	      var tab = this.getTab(id);
-
 	      if (!tab) {
 	        return;
 	      }
-
 	      tab.getRootNode().removeChildren();
 	      this.tabs["delete"](id);
 	      main_core.Dom.remove(tab.getLabelContainer(), this.getLabelsContainer());
 	      main_core.Dom.remove(tab.getContainer(), this.getTabContentsContainer());
-
 	      if (tab.getHeader()) {
 	        main_core.Dom.remove(tab.getHeader().getContainer(), this.getHeaderContainer());
 	      }
-
 	      if (tab.getFooter()) {
 	        main_core.Dom.remove(tab.getFooter().getContainer(), this.getFooterContainer());
 	      }
-
 	      this.selectFirstTab();
 	    }
 	  }, {
@@ -7904,16 +7085,13 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isPlainObject(entity)) {
 	        entity = new Entity(entity);
 	      }
-
 	      if (!(entity instanceof Entity)) {
 	        throw new Error('EntitySelector: an entity must be an instance of EntitySelector.Entity.');
 	      }
-
 	      if (this.hasEntity(entity.getId())) {
 	        console.error("EntitySelector: the \"".concat(entity.getId(), "\" entity is already existed."));
 	        return entity;
 	      }
-
 	      this.entities.set(entity.getId(), entity);
 	      return entity;
 	    }
@@ -7942,9 +7120,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "removeEntityItems",
 	    value: function removeEntityItems(id) {
 	      var _this5 = this;
-
 	      var items = this.getEntityItemsInternal(id);
-
 	      if (items) {
 	        items.forEach(function (item) {
 	          _this5.removeItem(item);
@@ -7962,29 +7138,24 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getActiveTab()) {
 	        return null;
 	      }
-
 	      if (this.getActiveTab().getHeader()) {
 	        return this.getActiveTab().getHeader();
 	      }
-
 	      return this.getHeader() && this.getActiveTab().canShowDefaultHeader() ? this.getHeader() : null;
 	    }
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "adjustHeader",
 	    value: function adjustHeader() {
 	      if (!this.getActiveTab()) {
 	        return;
 	      }
-
 	      if (this.getActiveTab().getHeader()) {
 	        if (this.getHeader()) {
 	          this.getHeader().hide();
 	        }
-
 	        this.getActiveTab().getHeader().show();
 	      } else {
 	        if (this.getHeader()) {
@@ -8001,33 +7172,26 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setHeader(headerContent, headerOptions) {
 	      /** @var {BaseHeader} */
 	      var header = null;
-
 	      if (headerContent !== null) {
 	        header = this.constructor.createHeader(this, headerContent, headerOptions);
-
 	        if (header === null) {
 	          return null;
 	        }
 	      }
-
 	      if (this.isRendered() && this.getHeader() !== null) {
 	        main_core.Dom.remove(this.getHeader().getContainer());
 	        this.adjustHeader();
 	      }
-
 	      this.header = header;
-
 	      if (this.isRendered()) {
 	        this.appendHeader(header);
 	        this.adjustHeader();
 	      }
-
 	      return header;
 	    }
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "appendHeader",
 	    value: function appendHeader(header) {
@@ -8038,7 +7202,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "getFooter",
 	    value: function getFooter() {
@@ -8050,29 +7213,24 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getActiveTab()) {
 	        return null;
 	      }
-
 	      if (this.getActiveTab().getFooter()) {
 	        return this.getActiveTab().getFooter();
 	      }
-
 	      return this.getFooter() && this.getActiveTab().canShowDefaultFooter() ? this.getFooter() : null;
 	    }
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "adjustFooter",
 	    value: function adjustFooter() {
 	      if (!this.getActiveTab()) {
 	        return;
 	      }
-
 	      if (this.getActiveTab().getFooter()) {
 	        if (this.getFooter()) {
 	          this.getFooter().hide();
 	        }
-
 	        this.getActiveTab().getFooter().show();
 	      } else {
 	        if (this.getFooter()) {
@@ -8089,33 +7247,26 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setFooter(footerContent, footerOptions) {
 	      /** @var {BaseFooter} */
 	      var footer = null;
-
 	      if (footerContent !== null) {
 	        footer = this.constructor.createFooter(this, footerContent, footerOptions);
-
 	        if (footer === null) {
 	          return null;
 	        }
 	      }
-
 	      if (this.isRendered() && this.getFooter() !== null) {
 	        main_core.Dom.remove(this.getFooter().getContainer());
 	        this.adjustFooter();
 	      }
-
 	      this.footer = footer;
-
 	      if (this.isRendered()) {
 	        this.appendFooter(footer);
 	        this.adjustFooter();
 	      }
-
 	      return footer;
 	    }
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "appendFooter",
 	    value: function appendFooter(footer) {
@@ -8126,7 +7277,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "getId",
 	    value: function getId() {
@@ -8160,9 +7310,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isDomNode(node) && !main_core.Type.isNull(node) && !main_core.Type.isObject(node)) {
 	        return;
 	      }
-
 	      this.targetNode = node;
-
 	      if (this.isRendered()) {
 	        this.getPopup().setBindElement(this.targetNode);
 	        this.getPopup().adjustPosition();
@@ -8176,7 +7324,6 @@ this.BX.UI = this.BX.UI || {};
 	          return this.getTagSelector().getOuterContainer();
 	        }
 	      }
-
 	      return this.targetNode;
 	    }
 	  }, {
@@ -8192,7 +7339,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.hideOnSelect !== null) {
 	        return this.hideOnSelect;
 	      }
-
 	      return !this.isMultiple();
 	    }
 	  }, {
@@ -8208,7 +7354,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.hideOnDeselect !== null) {
 	        return this.hideOnDeselect;
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -8224,11 +7369,25 @@ this.BX.UI = this.BX.UI || {};
 	      return this.clearSearchOnSelect;
 	    }
 	  }, {
+	    key: "setAddTagOnSelect",
+	    value: function setAddTagOnSelect(flag) {
+	      if (main_core.Type.isBoolean(flag)) {
+	        this.addTagOnSelect = flag;
+	      }
+	    }
+	  }, {
+	    key: "shouldAddTagOnSelect",
+	    value: function shouldAddTagOnSelect() {
+	      if (this.addTagOnSelect !== null) {
+	        return this.addTagOnSelect;
+	      }
+	      return this.isMultiple() || this.isTagSelectorOutside();
+	    }
+	  }, {
 	    key: "setShowAvatars",
 	    value: function setShowAvatars(flag) {
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.showAvatars = flag;
-
 	        if (this.isRendered()) {
 	          this.getTabs().forEach(function (tab) {
 	            tab.renderContainer();
@@ -8251,7 +7410,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setAutoHide(enable) {
 	      if (main_core.Type.isBoolean(enable)) {
 	        this.autoHide = enable;
-
 	        if (this.isRendered()) {
 	          this.getPopup().setAutoHide(enable);
 	        }
@@ -8274,7 +7432,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setHideByEsc(enable) {
 	      if (main_core.Type.isBoolean(enable)) {
 	        this.hideByEsc = enable;
-
 	        if (this.isRendered()) {
 	          this.getPopup().setClosingByEsc(enable);
 	        }
@@ -8295,7 +7452,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setWidth(width) {
 	      if (main_core.Type.isNumber(width) && width > 0) {
 	        this.width = width;
-
 	        if (this.isRendered()) {
 	          main_core.Dom.style(this.getContainer(), 'width', "".concat(width, "px"));
 	        }
@@ -8311,7 +7467,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setHeight(height) {
 	      if (main_core.Type.isNumber(height) && height > 0) {
 	        this.height = height;
-
 	        if (this.isRendered()) {
 	          main_core.Dom.style(this.getContainer(), 'height', "".concat(height, "px"));
 	          return Animation.handleTransitionEnd(this.getContainer(), 'height');
@@ -8332,7 +7487,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setOffsetLeft(offset) {
 	      if (main_core.Type.isNumber(offset) && offset >= 0) {
 	        this.offsetLeft = offset;
-
 	        if (this.isRendered()) {
 	          this.getPopup().setOffset({
 	            offsetLeft: offset
@@ -8351,7 +7505,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setOffsetTop(offset) {
 	      if (main_core.Type.isNumber(offset) && offset >= 0) {
 	        this.offsetTop = offset;
-
 	        if (this.isRendered()) {
 	          this.getPopup().setOffset({
 	            offsetTop: offset
@@ -8375,7 +7528,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setCacheable(cacheable) {
 	      if (main_core.Type.isBoolean(cacheable)) {
 	        this.cacheable = cacheable;
-
 	        if (this.isRendered()) {
 	          this.getPopup().setCacheable(cacheable);
 	        }
@@ -8398,13 +7550,11 @@ this.BX.UI = this.BX.UI || {};
 	    value: function focusOnFirstNode() {
 	      if (this.getActiveTab()) {
 	        var itemNode = this.getActiveTab().getRootNode().getFirstChild();
-
 	        if (itemNode) {
 	          itemNode.focus();
 	          return itemNode;
 	        }
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -8448,35 +7598,28 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "setOptions",
 	    value: function setOptions(dialogOptions) {
 	      var _this6 = this;
-
 	      var options = main_core.Type.isPlainObject(dialogOptions) ? dialogOptions : {};
-
 	      if (main_core.Type.isArray(options.tabs)) {
 	        options.tabs.forEach(function (tab) {
 	          _this6.addTab(tab);
 	        });
 	      }
-
 	      if (main_core.Type.isArray(options.selectedItems)) {
 	        options.selectedItems.forEach(function (itemOptions) {
 	          var options = Object.assign({}, main_core.Type.isPlainObject(itemOptions) ? itemOptions : {});
 	          options.selected = true;
-
 	          _this6.addItem(options);
 	        });
 	      }
-
 	      if (main_core.Type.isArray(options.items)) {
 	        options.items.forEach(function (itemOptions) {
 	          _this6.addItem(itemOptions);
 	        });
 	      }
-
 	      this.setHeader(options.header, options.headerOptions);
 	      this.setFooter(options.footer, options.footerOptions);
 	    }
@@ -8518,7 +7661,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "setTagSelector",
 	    value: function setTagSelector(tagSelector) {
@@ -8538,7 +7680,6 @@ this.BX.UI = this.BX.UI || {};
 	        if (this.getActiveTab() !== this.getSearchTab()) {
 	          this.getTagSelector().clearTextBox();
 	        }
-
 	        this.getTagSelector().focusTextBox();
 	      }
 	    }
@@ -8547,7 +7688,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function clearSearch() {
 	      if (this.getTagSelector()) {
 	        this.getTagSelector().clearTextBox();
-
 	        if (this.getActiveTab() === this.getSearchTab()) {
 	          this.selectFirstTab();
 	        }
@@ -8562,7 +7702,6 @@ this.BX.UI = this.BX.UI || {};
 	          size: 100
 	        });
 	      }
-
 	      return this.loader;
 	    }
 	  }, {
@@ -8583,18 +7722,15 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.loader !== null) {
 	        this.getLoader().destroy();
 	      }
-
 	      this.loader = null;
 	    }
 	  }, {
 	    key: "getPopup",
 	    value: function getPopup() {
 	      var _this7 = this;
-
 	      if (this.popup !== null) {
 	        return this.popup;
 	      }
-
 	      this.getTabs().forEach(function (tab) {
 	        _this7.insertTab(tab);
 	      });
@@ -8637,16 +7773,12 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      var _this8 = this;
-
 	      return this.cache.remember('container', function () {
 	        var searchContainer = '';
-
 	        if (_this8.getTagSelectorMode() === TagSelectorMode.INSIDE) {
 	          searchContainer = main_core.Tag.render(_templateObject$b || (_templateObject$b = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search\"></div>"])));
-
 	          _this8.getTagSelector().renderTo(searchContainer);
 	        }
-
 	        var className = _this8.isCompactView() ? ' ui-selector-dialog--compact-view' : '';
 	        return main_core.Tag.render(_templateObject2$6 || (_templateObject2$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-dialog", "\" \n\t\t\t\t\tstyle=\"width:", "px; height:", "px;\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), className, _this8.getWidth(), _this8.getHeight(), _this8.getHeaderContainer(), searchContainer, _this8.getTabsContainer(), _this8.getFooterContainer());
 	      });
@@ -8655,7 +7787,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getTabsContainer",
 	    value: function getTabsContainer() {
 	      var _this9 = this;
-
 	      return this.cache.remember('tabs-container', function () {
 	        return main_core.Tag.render(_templateObject3$6 || (_templateObject3$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tabs\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this9.getTabContentsContainer(), _this9.getLabelsContainer());
 	      });
@@ -8671,7 +7802,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getLabelsContainer",
 	    value: function getLabelsContainer() {
 	      var _this10 = this;
-
 	      return this.cache.remember('labels-container', function () {
 	        return main_core.Tag.render(_templateObject5$4 || (_templateObject5$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-tab-labels\"\n\t\t\t\t\tonmouseenter=\"", "\"\n\t\t\t\t\tonmouseleave=\"", "\"\n\t\t\t\t></div>\n\t\t\t"])), _this10.handleLabelsMouseEnter.bind(_this10), _this10.handleLabelsMouseLeave.bind(_this10));
 	      });
@@ -8680,10 +7810,8 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getHeaderContainer",
 	    value: function getHeaderContainer() {
 	      var _this11 = this;
-
 	      return this.cache.remember('header', function () {
 	        var header = _this11.getHeader() && _this11.getHeader().getContainer();
-
 	        return main_core.Tag.render(_templateObject6$2 || (_templateObject6$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-header-container\">", "</div>\n\t\t\t"])), header ? header : '');
 	      });
 	    }
@@ -8691,10 +7819,8 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getFooterContainer",
 	    value: function getFooterContainer() {
 	      var _this12 = this;
-
 	      return this.cache.remember('footer', function () {
 	        var footer = _this12.getFooter() && _this12.getFooter().getContainer();
-
 	        return main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer-container\">", "</div>\n\t\t\t"])), footer ? footer : '');
 	      });
 	    }
@@ -8704,7 +7830,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.isFrozen()) {
 	        return;
 	      }
-
 	      this.frozenProps = {
 	        autoHide: this.isAutoHide(),
 	        hideByEsc: this.shouldHideByEsc()
@@ -8721,7 +7846,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.isFrozen()) {
 	        return;
 	      }
-
 	      this.setAutoHide(this.frozenProps.autoHide !== false);
 	      this.setHideByEsc(this.frozenProps.hideByEsc !== false);
 	      this.getNavigation().enable();
@@ -8737,7 +7861,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "hasRecentItems",
 	    value: function hasRecentItems() {
 	      var _this13 = this;
-
 	      return new Promise(function (resolve, reject) {
 	        main_core.ajax.runAction('ui.entityselector.load', {
 	          json: {
@@ -8757,15 +7880,12 @@ this.BX.UI = this.BX.UI || {};
 	    key: "load",
 	    value: function load() {
 	      var _this14 = this;
-
 	      if (this.loadState !== LoadState.UNSENT || !this.hasDynamicLoad()) {
 	        return;
 	      }
-
 	      if (this.getTagSelector()) {
 	        this.getTagSelector().lock();
 	      }
-
 	      setTimeout(function () {
 	        if (_this14.isLoading()) {
 	          _this14.showLoader();
@@ -8785,57 +7905,43 @@ this.BX.UI = this.BX.UI || {};
 	          var entities = main_core.Type.isArrayFilled(response.data.dialog.entities) ? response.data.dialog.entities : [];
 	          entities.forEach(function (entityOptions) {
 	            var entity = _this14.getEntity(entityOptions.id);
-
 	            if (entity) {
 	              entity.setDynamicSearch(entityOptions.dynamicSearch);
 	            }
 	          });
-
 	          _this14.setOptions(response.data.dialog);
-
 	          _this14.getPreselectedItems().forEach(function (preselectedItem) {
 	            var item = _this14.getItem(preselectedItem);
-
 	            if (item) {
 	              item.select(true);
 	            }
 	          });
-
 	          var recentItems = response.data.dialog.recentItems;
-
 	          if (main_core.Type.isArray(recentItems)) {
 	            var nodeOptionsMap = new Map();
 	            var itemsOptions = response.data.dialog.items;
-
 	            if (main_core.Type.isArray(itemsOptions)) {
 	              itemsOptions.forEach(function (itemOptions) {
 	                if (itemOptions.nodeOptions) {
 	                  var item = _this14.getItem(itemOptions);
-
 	                  if (item) {
 	                    nodeOptionsMap.set(item, itemOptions.nodeOptions);
 	                  }
 	                }
 	              });
 	            }
-
 	            var items = recentItems.map(function (recentItem) {
 	              var item = _this14.getItem(recentItem);
-
 	              return [item, nodeOptionsMap.get(item)];
 	            });
-
 	            _this14.getRecentTab().getRootNode().addItems(items);
 	          }
-
 	          if (!_this14.getRecentTab().getRootNode().hasChildren() && _this14.getRecentTab().getStub()) {
 	            _this14.getRecentTab().getStub().show();
 	          }
-
 	          if (_this14.getTagSelector()) {
 	            _this14.getTagSelector().unlock();
 	          }
-
 	          if (_this14.isRendered()) {
 	            if (_this14.isDropdownMode() && _this14.getActiveTab() === _this14.getRecentTab()) {
 	              _this14.selectFirstTab();
@@ -8843,32 +7949,23 @@ this.BX.UI = this.BX.UI || {};
 	              _this14.selectFirstTab();
 	            }
 	          }
-
 	          _this14.focusSearch();
-
 	          _this14.destroyLoader();
-
 	          if (_this14.shouldFocusOnFirst()) {
 	            _this14.focusOnFirstNode();
 	          }
-
 	          _this14.emit('onLoad');
 	        }
 	      })["catch"](function (error) {
 	        _this14.loadState = LoadState.UNSENT;
-
 	        if (_this14.getTagSelector()) {
 	          _this14.getTagSelector().unlock();
 	        }
-
 	        _this14.focusSearch();
-
 	        _this14.destroyLoader();
-
 	        _this14.emit('onLoadError', {
 	          error: error
 	        });
-
 	        console.error(error);
 	      });
 	    }
@@ -8906,21 +8003,18 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.getContext() === null || !item.isSaveable()) {
 	        return;
 	      }
-
 	      this.recentItemsToSave.push(item);
 	      this.saveRecentItemsWithDebounce();
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "saveRecentItems",
 	    value: function saveRecentItems() {
 	      if (!main_core.Type.isArrayFilled(this.recentItemsToSave)) {
 	        return;
 	      }
-
 	      main_core.ajax.runAction('ui.entityselector.saveRecentItems', {
 	        json: {
 	          dialog: this.getAjaxJson(),
@@ -8944,21 +8038,18 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleTagSelectorInput",
 	    value: function handleTagSelectorInput() {
 	      if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE && !this.isOpen()) {
 	        this.show();
 	      }
-
 	      var query = this.getTagSelector().getTextBoxValue();
 	      this.search(query);
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleTagSelectorAddButtonClick",
 	    value: function handleTagSelectorAddButtonClick() {
@@ -8967,28 +8058,23 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleTagSelectorTagRemove",
 	    value: function handleTagSelectorTagRemove(event) {
 	      var _event$getData = event.getData(),
-	          tag = _event$getData.tag;
-
+	        tag = _event$getData.tag;
 	      var item = this.getItem({
 	        id: tag.getId(),
 	        entityId: tag.getEntityId()
 	      });
-
 	      if (item) {
 	        item.deselect();
 	      }
-
 	      this.focusSearch();
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleTagSelectorAfterTagRemove",
 	    value: function handleTagSelectorAfterTagRemove() {
@@ -8997,7 +8083,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleTagSelectorAfterTagAdd",
 	    value: function handleTagSelectorAfterTagAdd() {
@@ -9006,21 +8091,17 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "adjustByTagSelector",
 	    value: function adjustByTagSelector() {
 	      var _this15 = this;
-
 	      if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE) {
 	        this.adjustPosition();
 	      } else if (this.getTagSelectorMode() === TagSelectorMode.INSIDE) {
 	        var newTagSelectorHeight = this.getTagSelector().calcHeight();
-
 	        if (newTagSelectorHeight > 0) {
 	          var offset = newTagSelectorHeight - (this.tagSelectorHeight || this.getTagSelector().getMinHeight());
 	          this.tagSelectorHeight = newTagSelectorHeight;
-
 	          if (offset !== 0) {
 	            var height = this.getHeight();
 	            this.setHeight(height + offset).then(function () {
@@ -9033,7 +8114,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleTagSelectorClick",
 	    value: function handleTagSelectorClick() {
@@ -9042,48 +8122,42 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "handleItemSelect",
 	    value: function handleItemSelect(item) {
 	      var animate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
+	      var shouldAnimate = this.isMultiple() ? animate : this.getSelectedItems().length === 0;
 	      if (!this.isMultiple()) {
 	        this.deselectAll();
-
 	        if (this.getSelectedItems().length > 0) {
 	          console.error('EntitySelector: some items are still selected.', this.getSelectedItems());
 	        }
 	      }
-
-	      if (this.getTagSelector() && (this.isMultiple() || this.isTagSelectorOutside())) {
+	      if (this.getTagSelector() && this.shouldAddTagOnSelect()) {
 	        var tag = item.createTag();
-	        tag.animate = animate;
+	        tag.animate = shouldAnimate;
 	        this.getTagSelector().addTag(tag);
 	      }
-
 	      this.selectedItems.add(item);
 	    }
 	    /**
 	     * @internal
 	     */
-
 	  }, {
 	    key: "handleItemDeselect",
 	    value: function handleItemDeselect(item) {
+	      var shouldAnimate = this.isMultiple();
 	      this.selectedItems["delete"](item);
-
 	      if (this.getTagSelector()) {
 	        this.getTagSelector().removeTag({
 	          id: item.getId(),
 	          entityId: item.getEntityId()
-	        });
+	        }, shouldAnimate);
 	      }
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handlePopupAfterShow",
 	    value: function handlePopupAfterShow() {
@@ -9094,12 +8168,10 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handlePopupFirstShow",
 	    value: function handlePopupFirstShow() {
 	      var _this16 = this;
-
 	      this.emit('onFirstShow');
 	      requestAnimationFrame(function () {
 	        requestAnimationFrame(function () {
@@ -9111,45 +8183,36 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleAutoHide",
 	    value: function handleAutoHide(event) {
 	      var target = event.target;
 	      var el = this.getPopup().getPopupContainer();
-
 	      if (target === el || el.contains(target)) {
 	        return false;
 	      }
-
 	      if (this.isTagSelectorOutside() && target === this.getTagSelector().getTextBox() && main_core.Type.isStringFilled(this.getTagSelector().getTextBoxValue())) {
 	        return false;
 	      }
-
 	      if (this.autoHideHandler !== null) {
 	        var result = this.autoHideHandler(event, this);
-
 	        if (main_core.Type.isBoolean(result)) {
 	          return result;
 	        }
 	      }
-
 	      return true;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "observeTabOverlapping",
 	    value: function observeTabOverlapping() {
 	      var _this17 = this;
-
 	      this.disconnectTabOverlapping();
 	      this.overlappingObserver = new MutationObserver(function () {
 	        if (_this17.getLabelsContainer().offsetWidth > 0) {
 	          var left = parseInt(_this17.getPopup().getPopupContainer().style.left, 10);
-
 	          if (left < _this17.getMinLabelWidth()) {
 	            main_core.Dom.style(_this17.getPopup().getPopupContainer(), 'left', "".concat(_this17.getMinLabelWidth(), "px"));
 	          }
@@ -9163,7 +8226,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "disconnectTabOverlapping",
 	    value: function disconnectTabOverlapping() {
@@ -9174,7 +8236,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handlePopupAfterClose",
 	    value: function handlePopupAfterClose() {
@@ -9182,18 +8243,15 @@ this.BX.UI = this.BX.UI || {};
 	        if (this.getActiveTab() && this.getActiveTab() === this.getSearchTab()) {
 	          this.selectFirstTab();
 	        }
-
 	        this.getTagSelector().clearTextBox();
 	        this.getTagSelector().showAddButton();
 	        this.getTagSelector().hideTextBox();
 	      }
-
 	      this.emit('onHide');
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handlePopupDestroy",
 	    value: function handlePopupDestroy() {
@@ -9202,15 +8260,12 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleLabelsMouseEnter",
 	    value: function handleLabelsMouseEnter() {
 	      var _this18 = this;
-
 	      var rect = main_core.Dom.getRelativePosition(this.getLabelsContainer(), this.getPopup().getTargetContainer());
 	      var freeSpace = rect.right;
-
 	      if (freeSpace > this.getMinLabelWidth()) {
 	        main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
 	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
@@ -9226,12 +8281,10 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleLabelsMouseLeave",
 	    value: function handleLabelsMouseLeave() {
 	      var _this19 = this;
-
 	      main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
 	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
 	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
@@ -9243,24 +8296,20 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleItemNodeFocus",
 	    value: function handleItemNodeFocus(event) {
 	      var _event$getData2 = event.getData(),
-	          node = _event$getData2.node;
-
+	        node = _event$getData2.node;
 	      if (this.focusedNode === node) {
 	        return;
 	      }
-
 	      this.clearNodeFocus();
 	      this.focusedNode = node;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleItemNodeUnfocus",
 	    value: function handleItemNodeUnfocus() {
@@ -9283,31 +8332,25 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isStringFilled(headerContent) && !main_core.Type.isArrayFilled(headerContent) && !main_core.Type.isDomNode(headerContent) && !main_core.Type.isFunction(headerContent)) {
 	        return null;
 	      }
+
 	      /** @var {BaseHeader} */
-
-
 	      var header = null;
 	      var options = main_core.Type.isPlainObject(headerOptions) ? headerOptions : {};
-
 	      if (main_core.Type.isFunction(headerContent) || main_core.Type.isString(headerContent)) {
 	        var className = main_core.Type.isString(headerContent) ? main_core.Reflection.getClass(headerContent) : headerContent;
-
 	        if (main_core.Type.isFunction(className)) {
 	          header = new className(context, options);
-
 	          if (!(header instanceof BaseHeader)) {
 	            console.error('EntitySelector: header is not an instance of BaseHeader.');
 	            header = null;
 	          }
 	        }
 	      }
-
 	      if (headerContent !== null && !header) {
 	        header = new DefaultHeader(context, Object.assign({}, options, {
 	          content: headerContent
 	        }));
 	      }
-
 	      return header;
 	    }
 	  }, {
@@ -9316,31 +8359,25 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isStringFilled(footerContent) && !main_core.Type.isArrayFilled(footerContent) && !main_core.Type.isDomNode(footerContent) && !main_core.Type.isFunction(footerContent)) {
 	        return null;
 	      }
+
 	      /** @var {BaseFooter} */
-
-
 	      var footer = null;
 	      var options = main_core.Type.isPlainObject(footerOptions) ? footerOptions : {};
-
 	      if (main_core.Type.isFunction(footerContent) || main_core.Type.isString(footerContent)) {
 	        var className = main_core.Type.isString(footerContent) ? main_core.Reflection.getClass(footerContent) : footerContent;
-
 	        if (main_core.Type.isFunction(className)) {
 	          footer = new className(context, options);
-
 	          if (!(footer instanceof BaseFooter)) {
 	            console.error('EntitySelector: footer is not an instance of BaseFooter.');
 	            footer = null;
 	          }
 	        }
 	      }
-
 	      if (footerContent !== null && !footer) {
 	        footer = new DefaultFooter(context, Object.assign({}, options, {
 	          content: footerContent
 	        }));
 	      }
-
 	      return footer;
 	    }
 	  }]);

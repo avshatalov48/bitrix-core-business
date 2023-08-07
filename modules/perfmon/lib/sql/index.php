@@ -6,6 +6,7 @@ class Index extends BaseObject
 {
 	public $unique = false;
 	public $fulltext = false;
+	public $using = '';
 	public $columns = array();
 
 	/**
@@ -97,7 +98,18 @@ class Index extends BaseObject
 			}
 
 			if (!$tokenizer->testText(')'))
+			{
 				throw new NotSupportedException("')' expected. line:".$tokenizer->getCurrentToken()->line);
+			}
+
+			//USING BTREE
+			$tokenizer->skipWhiteSpace();
+			if ($tokenizer->testText('USING'))
+			{
+				$tokenizer->skipWhiteSpace();
+				$token = $tokenizer->nextToken();
+				$index->using = $token->text;
+			}
 		}
 		else
 		{

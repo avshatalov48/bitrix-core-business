@@ -200,7 +200,7 @@ class CPhotogalleryElement
 
 	public static function OnAfterIBlockElementAdd($res)
 	{
-		$ID = doubleval($res["ID"]); 
+		$ID = doubleval($res["ID"] ?? null);
 		if (CPhotogalleryElement::CheckElement($ID, $arElement, $arSection, $arGallery))
 		{
 			$GLOBALS["UF_GALLERY_SIZE"] = $GLOBALS["PHOTOGALLERY_VARS"]["arGalleries"][$arGallery["ID"]]["UF_GALLERY_SIZE"] = (doubleval($arGallery["UF_GALLERY_SIZE"]) + $arElement["FILE"]["FILE_SIZE"]); 

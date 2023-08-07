@@ -61,7 +61,7 @@ export const DetailUser = {
 						@click="onClickContextMenu"
 					></div>
 				</div>
-				<div class="bx-im-sidebar-main-detail__position-text">
+				<div class="bx-im-sidebar-main-detail__position-text" :title="position">
 					{{ position }}
 				</div>
 			</div>

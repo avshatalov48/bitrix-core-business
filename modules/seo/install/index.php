@@ -43,10 +43,13 @@ class seo extends CModule
 	function InstallDB()
 	{
 		global $DB, $APPLICATION;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
-		if(!$DB->Query("SELECT 'x' FROM b_seo_search_engine", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/seo/install/db/mysql/install.sql");
+
+		if (!$DB->TableExists('b_seo_search_engine'))
+		{
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/seo/install/db/' . $connection->getType() . '/install.sql');
+		}
 
 		if($this->errors !== false)
 		{
@@ -71,19 +74,14 @@ class seo extends CModule
 		$eventManager->registerEventHandler("iblock", "OnAfterIBlockSectionAdd", "seo", "\\Bitrix\\Seo\\SitemapIblock", "addSection");
 		$eventManager->registerEventHandler("iblock", "OnAfterIBlockElementAdd", "seo", "\\Bitrix\\Seo\\SitemapIblock", "addElement");
 
-		$eventManager->registerEventHandler("iblock", "OnBeforeIBlockSectionDelete", "seo", "\\Bitrix\\Seo\\SitemapIblock", "beforeDeleteSection");
-		$eventManager->registerEventHandler("iblock", "OnBeforeIBlockElementDelete", "seo", "\\Bitrix\\Seo\\SitemapIblock", "beforeDeleteElement");
-		$eventManager->registerEventHandler("iblock", "OnAfterIBlockSectionDelete", "seo", "\\Bitrix\\Seo\\SitemapIblock", "deleteSection");
-		$eventManager->registerEventHandler("iblock", "OnAfterIBlockElementDelete", "seo", "\\Bitrix\\Seo\\SitemapIblock", "deleteElement");
+		$eventManager->registerEventHandler("iblock", "OnAfterIBlockSectionDelete", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Iblock", "deleteSection");
+		$eventManager->registerEventHandler("iblock", "OnAfterIBlockElementDelete", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Iblock", "deleteElement");
+		$eventManager->registerEventHandler("iblock", "OnAfterIBlockSectionUpdate", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Iblock", "updateSection");
+		$eventManager->registerEventHandler("iblock", "OnAfterIBlockElementUpdate", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Iblock", "updateElement");
 
-		$eventManager->registerEventHandler("iblock", "OnBeforeIBlockSectionUpdate", "seo", "\\Bitrix\\Seo\\SitemapIblock", "beforeUpdateSection");
-		$eventManager->registerEventHandler("iblock", "OnBeforeIBlockElementUpdate", "seo", "\\Bitrix\\Seo\\SitemapIblock", "beforeUpdateElement");
-		$eventManager->registerEventHandler("iblock", "OnAfterIBlockSectionUpdate", "seo", "\\Bitrix\\Seo\\SitemapIblock", "updateSection");
-		$eventManager->registerEventHandler("iblock", "OnAfterIBlockElementUpdate", "seo", "\\Bitrix\\Seo\\SitemapIblock", "updateElement");
-
-		$eventManager->registerEventHandler("forum", "onAfterTopicAdd", "seo", "\\Bitrix\\Seo\\SitemapForum", "addTopic");
-		$eventManager->registerEventHandler("forum", "onAfterTopicUpdate", "seo", "\\Bitrix\\Seo\\SitemapForum", "updateTopic");
-		$eventManager->registerEventHandler("forum", "onAfterTopicDelete", "seo", "\\Bitrix\\Seo\\SitemapForum", "deleteTopic");
+		$eventManager->registerEventHandler("forum", "onAfterTopicAdd", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Forum", "addTopic");
+		$eventManager->registerEventHandler("forum", "onAfterTopicUpdate", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Forum", "updateTopic");
+		$eventManager->registerEventHandler("forum", "onAfterTopicDelete", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Forum", "deleteTopic");
 
 		$eventManager->registerEventHandler("main", "OnAdminIBlockElementEdit", "seo", "\\Bitrix\\Seo\\AdvTabEngine", "eventHandler");
 		$eventManager->registerEventHandler("main", "OnBeforeProlog", "seo", "\\Bitrix\\Seo\\AdvSession", "checkSession");
@@ -169,12 +167,12 @@ class seo extends CModule
 	function UnInstallDB($arParams = Array())
 	{
 		global $APPLICATION, $DB, $errors;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		if (!$arParams['savedata'])
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/seo/install/db/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/seo/install/db/".$connection->getType()."/uninstall.sql");
 
 			if(empty($this->errors))
 			{
@@ -198,16 +196,24 @@ class seo extends CModule
 		$eventManager->unRegisterEventHandler("iblock", "OnAfterIBlockSectionAdd", "seo", "\\Bitrix\\Seo\\SitemapIblock", "addSection");
 		$eventManager->unRegisterEventHandler("iblock", "OnAfterIBlockElementAdd", "seo", "\\Bitrix\\Seo\\SitemapIblock", "addElement");
 
+		$eventManager->unRegisterEventHandler("iblock", "OnAfterIBlockSectionDelete", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Iblock", "deleteSection");
+		$eventManager->unRegisterEventHandler("iblock", "OnAfterIBlockElementDelete", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Iblock", "deleteElement");
+		$eventManager->unRegisterEventHandler("iblock", "OnAfterIBlockSectionUpdate", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Iblock", "updateSection");
+		$eventManager->unRegisterEventHandler("iblock", "OnAfterIBlockElementUpdate", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Iblock", "updateElement");
+		// compatibility
 		$eventManager->unRegisterEventHandler("iblock", "OnBeforeIBlockSectionDelete", "seo", "\\Bitrix\\Seo\\SitemapIblock", "beforeDeleteSection");
 		$eventManager->unRegisterEventHandler("iblock", "OnBeforeIBlockElementDelete", "seo", "\\Bitrix\\Seo\\SitemapIblock", "beforeDeleteElement");
 		$eventManager->unRegisterEventHandler("iblock", "OnAfterIBlockSectionDelete", "seo", "\\Bitrix\\Seo\\SitemapIblock", "deleteSection");
 		$eventManager->unRegisterEventHandler("iblock", "OnAfterIBlockElementDelete", "seo", "\\Bitrix\\Seo\\SitemapIblock", "deleteElement");
-
 		$eventManager->unRegisterEventHandler("iblock", "OnBeforeIBlockSectionUpdate", "seo", "\\Bitrix\\Seo\\SitemapIblock", "beforeUpdateSection");
 		$eventManager->unRegisterEventHandler("iblock", "OnBeforeIBlockElementUpdate", "seo", "\\Bitrix\\Seo\\SitemapIblock", "beforeUpdateElement");
 		$eventManager->unRegisterEventHandler("iblock", "OnAfterIBlockSectionUpdate", "seo", "\\Bitrix\\Seo\\SitemapIblock", "updateSection");
 		$eventManager->unRegisterEventHandler("iblock", "OnAfterIBlockElementUpdate", "seo", "\\Bitrix\\Seo\\SitemapIblock", "updateElement");
 
+		$eventManager->unRegisterEventHandler("forum", "onAfterTopicAdd", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Forum", "addTopic");
+		$eventManager->unRegisterEventHandler("forum", "onAfterTopicUpdate", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Forum", "updateTopic");
+		$eventManager->unRegisterEventHandler("forum", "onAfterTopicDelete", "seo", "\\Bitrix\\Seo\\Sitemap\\Source\\Forum", "deleteTopic");
+		// compatibility
 		$eventManager->unRegisterEventHandler("forum", "onAfterTopicAdd", "seo", "\\Bitrix\\Seo\\SitemapForum", "addTopic");
 		$eventManager->unRegisterEventHandler("forum", "onAfterTopicUpdate", "seo", "\\Bitrix\\Seo\\SitemapForum", "updateTopic");
 		$eventManager->unRegisterEventHandler("forum", "onAfterTopicDelete", "seo", "\\Bitrix\\Seo\\SitemapForum", "deleteTopic");

@@ -59,12 +59,32 @@ class CacheEngineRedis extends CacheEngine
 
 	public function getSet($key) : array
 	{
-		$result = self::$engine->sMembers($key);
-		if (!is_array($result))
+		$list = self::$engine->sMembers($key);
+		if (!is_array($list))
 		{
-			$result = [];
+			$list = [];
 		}
-		return $result;
+		return $list;
+	}
+
+	public function deleteBySet($key, $prefix = '')
+	{
+		$list = self::$engine->sMembers($key);
+
+		if (is_array($list)  && !empty($list))
+		{
+			if ($prefix == '')
+			{
+				self::$engine->del($list);
+			}
+			else
+			{
+				foreach ($list as $key)
+				{
+					self::$engine->del($prefix . $key);
+				}
+			}
+		}
 	}
 
 	public function delFromSet($key, $member)

@@ -589,7 +589,10 @@
 
 				_this.editor.skipPasteHandler = false;
 				_this.editor.skipPasteControl = false;
-				_this.editor.iframeView.pasteLoader.hide();
+				if (_this.editor.iframeView.pasteLoader && _this.editor.iframeView.pasteLoader.hide)
+				{
+					_this.editor.iframeView.pasteLoader.hide();
+				}
 			}, 20);
 		},
 
@@ -1757,7 +1760,7 @@
 		{
 			//open context menu only in admin html-editor
 			const targetBxTag = this.editor.GetBxTag(target);
-			if (targetBxTag.tag === 'diskfile0')
+			if (targetBxTag.tag === 'diskfile0' || targetBxTag.hideContextMenu)
 			{
 				return;
 			}
@@ -2119,6 +2122,7 @@
 				res = [
 					//{id: 'SearchButton', wrap: 'left', compact: true},
 					{id: 'ChangeView', wrap: 'left', compact: true, sort: 10},
+					{id: 'placeholder_selector',  compact: true, sort: 15},
 					{id: 'Undo', compact: false, sort: 20},
 					{id: 'Redo', compact: false, sort: 30},
 					{id: 'StyleSelector', compact: true, sort: 40},
@@ -2175,7 +2179,13 @@
 			if (this.shown)
 			{
 				if (!this.height)
+				{
 					this.height = parseInt(this.editor.dom.toolbarCont.offsetHeight);
+				}
+				if (this.height === 0)
+				{
+					this.height = parseInt(getComputedStyle(this.editor.dom.toolbarCont).height);
+				}
 
 				res = this.height;
 			}

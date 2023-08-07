@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -968,15 +969,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    return foundItems;
 	  }
-	  //endregion
-
 	  getRecentListItems() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _store$3)[_store$3].getters['recent/getSortedCollection'].map(item => {
 	      const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$3)[_store$3].getters['dialogues/get'](item.dialogId, true);
 	      const isUser = dialog.type === im_v2_const.DialogType.user;
 	      const recentListItem = {
 	        dialogId: item.dialogId,
-	        dialog: dialog
+	        dialog
 	      };
 	      if (isUser) {
 	        recentListItem.user = babelHelpers.classPrivateFieldLooseBase(this, _store$3)[_store$3].getters['users/get'](item.dialogId, true);
@@ -1568,7 +1567,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  return this.storeUpdater.update({
 	    items: filteredItems,
-	    onlyAdd: onlyAdd
+	    onlyAdd
 	  }).then(() => {
 	    return filteredItems;
 	  });
@@ -2239,7 +2238,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    SearchResultNetworkItem,
 	    SearchResultDepartmentItem,
 	    SearchResultItem,
-	    Button: im_v2_component_elements.Button,
+	    MessengerButton: im_v2_component_elements.Button,
 	    Loader: im_v2_component_elements.Loader
 	  },
 	  props: {
@@ -2265,7 +2264,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      default: () => []
 	    }
 	  },
-	  data: function () {
+	  data() {
 	    return {
 	      isRecentLoading: false,
 	      isLocalLoading: false,
@@ -2315,13 +2314,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.cleanQuery.length > 0;
 	    },
 	    isNetworkSearchCode() {
-	      return !!(this.cleanQuery.length === 32 && /[\da-f]{32}/.test(this.cleanQuery));
+	      return Boolean(this.cleanQuery.length === 32 && /[\da-f]{32}/.test(this.cleanQuery));
 	    },
 	    isNetworkSectionAvailable() {
 	      if (!this.searchService.isNetworkAvailable()) {
 	        return false;
 	      }
 	      return this.isNetworkSearchEnabled || this.isNetworkSearchCode;
+	    },
+	    recentUsers() {
+	      return this.$store.getters['recent/getSortedCollection'];
 	    }
 	  },
 	  watch: {
@@ -2343,6 +2345,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          this.searchService.disableNetworkSearch();
 	        }
 	      this.loadRecentSearchFromServer();
+	    },
+	    recentUsers() {
+	      this.loadRecentUsers();
 	    }
 	  },
 	  created() {
@@ -2364,10 +2369,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.search.keyPressed, this.onPressEnterKey);
 	  },
 	  methods: {
-	    loadInitialRecentResult() {
+	    loadRecentUsers() {
 	      this.searchService.loadRecentUsers().then(items => {
 	        this.result.recentUsers = items;
 	      });
+	    },
+	    loadInitialRecentResult() {
+	      this.loadRecentUsers();
 
 	      // we don't need an extra request to get recent items while messenger initialization
 	      this.searchService.loadRecentSearchFromCache().then(recentItems => {
@@ -2617,7 +2625,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 							@clickItem="onClickItem"
 						/>
 						<div class="bx-im-search-result__network-button-container">
-							<Button
+							<MessengerButton
 								v-if="!isNetworkButtonClicked"
 								:text="$Bitrix.Loc.getMessage('IM_SEARCH_SECTION_NETWORK_BUTTON')"
 								:color="ButtonColor.Primary"

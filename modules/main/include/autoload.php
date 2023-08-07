@@ -24,6 +24,12 @@ foreach(
 }
 unset($namespace, $namespacePath);
 
+if (is_dir($documentRoot . '/bitrix/modules/main/dev'))
+{
+	// developer mode
+	Loader::registerNamespace('Dev\Main', $documentRoot . '/bitrix/modules/main/dev');
+}
+
 spl_autoload_register([Loader::class, 'autoLoad']);
 
 Loader::registerAutoLoadClasses(

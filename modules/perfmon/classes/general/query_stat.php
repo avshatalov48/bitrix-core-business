@@ -164,11 +164,11 @@ class CPerfQueryStat
 				$rs = $DB->Query($d="
 					select count(1) CNT
 					from ".$DB->ForSQL($table)."
-					where ".$DB->ForSQL($column)." = '".$DB->ForSQL($value)."'
+					where `".$DB->ForSQL($column)."` = '".$DB->ForSQL($value)."'
 				");
 			else
 				$rs = $DB->Query($d="
-					select count(distinct ".$DB->ForSQL($column).") CNT
+					select count(distinct `".$DB->ForSQL($column)."`) CNT
 					from ".$DB->ForSQL($table)."
 				");
 

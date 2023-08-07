@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -81,6 +82,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    withSpecialTypes: {
 	      type: Boolean,
 	      default: true
+	    },
+	    withTooltip: {
+	      type: Boolean,
+	      default: true
 	    }
 	  },
 	  data() {
@@ -107,6 +112,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    isSpecialType() {
 	      const commonTypes = [im_v2_const.DialogType.user, im_v2_const.DialogType.chat, im_v2_const.DialogType.open];
 	      return !commonTypes.includes(this.dialog.type);
+	    },
+	    containerTitle() {
+	      if (!this.withTooltip) {
+	        return '';
+	      }
+	      return this.dialog.name;
 	    },
 	    containerClasses() {
 	      const classes = [`--size-${this.size.toLowerCase()}`];
@@ -175,7 +186,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div :title="dialog.name" :class="containerClasses" class="bx-im-avatar__scope bx-im-avatar__container">
+		<div :title="containerTitle" :class="containerClasses" class="bx-im-avatar__scope bx-im-avatar__container">
 			<!-- Avatar -->
 			<template v-if="hasImage">
 				<img :src="avatarUrl" :alt="dialog.name" class="bx-im-avatar__content --image" @error="onImageLoadError"/>
@@ -700,7 +711,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  task: 'task',
 	  meeting: 'meeting',
 	  summary: 'summary',
-	  vote: 'vote'
+	  vote: 'vote',
+	  aiText: 'ai-text',
+	  aiImage: 'ai-image'
 	};
 
 	// @vue/component
@@ -2270,8 +2283,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	const SpinnerSize = Object.freeze({
+	  XXS: 'XXS',
 	  S: 'S',
 	  L: 'L'
+	});
+	const SpinnerColor = Object.freeze({
+	  grey: 'grey',
+	  blue: 'blue'
 	});
 
 	// @vue/component
@@ -2281,16 +2299,23 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    size: {
 	      type: String,
 	      default: SpinnerSize.S
+	    },
+	    color: {
+	      type: String,
+	      default: SpinnerColor.blue
 	    }
 	  },
 	  computed: {
 	    sizeClassName() {
 	      return `--size-${this.size.toLowerCase()}`;
+	    },
+	    colorClassName() {
+	      return `--color-${this.color.toLowerCase()}`;
 	    }
 	  },
 	  template: `
 		<div class="bx-im-elements-spinner__container">
-			<div class="bx-im-elements-spinner__spinner" :class="sizeClassName"></div>
+			<div class="bx-im-elements-spinner__spinner" :class="[sizeClassName, colorClassName]"></div>
 		</div>
 	`
 	};
@@ -2347,10 +2372,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    item: {
 	      type: Object,
 	      required: true
+	    },
+	    messageId: {
+	      type: [String, Number],
+	      required: true
 	    }
-	  },
-	  data() {
-	    return {};
 	  },
 	  computed: {
 	    file() {
@@ -2421,7 +2447,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      });
 	      this.progressBarManager.subscribe(im_v2_lib_progressbar.ProgressBarManager.event.cancel, () => {
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.uploader.cancel, {
-	          taskId: this.file.id
+	          tempFileId: this.file.id,
+	          tempMessageId: this.messageId
 	        });
 	      });
 	      this.progressBarManager.subscribe(im_v2_lib_progressbar.ProgressBarManager.event.destroy, () => {
@@ -2467,9 +2494,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  directives: {
 	    lazyload: ui_vue3_directives_lazyload.lazyload
 	  },
-	  data() {
-	    return {};
-	  },
 	  computed: {
 	    imageSize() {
 	      const aspectRatio = this.file.width > MAX_IMAGE_SIZE$1 ? MAX_IMAGE_SIZE$1 / this.file.width : 1;
@@ -2485,14 +2509,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-media-image__container" @click="download" ref="container">
+		<div v-bind="viewerAttributes" class="bx-im-media-image__container" @click="download" ref="container">
 			<img
 				v-lazyload
 				data-lazyload-dont-hide
 				:data-lazyload-src="file.urlPreview"
-				v-bind="viewerAttributes"
 				:title="loc('IM_ELEMENTS_MEDIA_IMAGE_TITLE', {'#NAME#': file.name, '#SIZE#': file.size})"
 				:style="imageSize"
+				:alt="file.name"
 				class="bx-im-media-image__source"
 			/>
 		</div>
@@ -2513,10 +2537,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    messageType: {
 	      type: String,
 	      required: true
+	    },
+	    messageId: {
+	      type: [String, Number],
+	      required: true
 	    }
-	  },
-	  data() {
-	    return {};
 	  },
 	  computed: {
 	    file() {
@@ -2540,9 +2565,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  name: 'VideoComponent',
 	  components: {
 	    SocialVideo: ui_vue3_components_socialvideo.SocialVideo
-	  },
-	  data() {
-	    return {};
 	  },
 	  computed: {
 	    autoplay() {
@@ -2592,7 +2614,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      hasRightControl: false,
 	      currentElementIndex: 0,
 	      highlightOffsetLeft: 0,
-	      highlightWidth: 0
+	      highlightWidth: 0,
+	      isFirstCall: true
 	    };
 	  },
 	  computed: {
@@ -2614,10 +2637,20 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  mounted() {
+	    const savedTabIndex = localStorage.getItem('lastOpenedTabIndex');
 	    if (this.$refs.tabs.scrollWidth > this.$refs.tabs.offsetWidth) {
 	      this.hasRightControl = true;
 	    }
+	    if (savedTabIndex) {
+	      this.currentElementIndex = parseInt(savedTabIndex, 10);
+	    }
 	    this.updateHighlightPosition(this.currentElementIndex);
+	    setTimeout(() => {
+	      this.isFirstCall = false;
+	    }, 100);
+	  },
+	  beforeUnmount() {
+	    localStorage.setItem('lastOpenedTabIndex', this.currentElementIndex.toString());
 	  },
 	  methods: {
 	    getElementNodeByIndex(index) {
@@ -2667,7 +2700,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<div class="bx-im-elements-tabs__forward-icon"></div>
 			</div>
 			<div class="bx-im-elements-tabs__elements" ref="tabs" @scroll.passive="updateControlsVisibility">
-				<div class="bx-im-elements-tabs__highlight" :style="highlightStyle"></div>
+				<div class="bx-im-elements-tabs__highlight" :class="isFirstCall ? '' : '--transition'" :style="highlightStyle"></div>
 				<div
 					v-for="(tab, index) in tabs"
 					:key="tab.id"
@@ -2676,7 +2709,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					@click="onTabClick({index: index})"
 					:title="tab.title"
 				>
-					<div class="bx-im-elements-tabs__item-title">{{ tab.title }}</div>
+					<div class="bx-im-elements-tabs__item-title" :class="isFirstCall ? '' : '--transition'">{{ tab.title }}</div>
 				</div>
 			</div>
 		</div>
@@ -2705,6 +2738,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.Loader = Loader;
 	exports.Spinner = Spinner;
 	exports.SpinnerSize = SpinnerSize;
+	exports.SpinnerColor = SpinnerColor;
 	exports.Toggle = Toggle;
 	exports.ToggleSize = ToggleSize;
 	exports.File = File;

@@ -211,8 +211,8 @@
 
 		showRestrictionParamsDialog: function(content, rstrParams)
 		{
-			if(rstrParams.class == '\\Bitrix\\Sale\\Delivery\\Restrictions\\ByLocation'
-				|| rstrParams.class == '\\Bitrix\\Sale\\Delivery\\Restrictions\\ExcludeLocation')
+			if(rstrParams.class === '\\Bitrix\\Sale\\Delivery\\Restrictions\\ByLocation'
+				|| rstrParams.class === '\\Bitrix\\Sale\\Delivery\\Restrictions\\ExcludeLocation')
 			{
 				var width = 1030;
 			}
@@ -271,6 +271,7 @@
 					className: rstrParams.class,
 					deliveryId: rstrParams.deliveryId,
 					restrictionId: rstrParams.restrictionId,
+					publicMode: rstrParams.publicMode,
 					sessid: BX.bitrix_sessid(),
 					lang: BX.message('LANGUAGE_ID')
 				};
@@ -308,7 +309,7 @@
 			});
 		},
 
-		deleteRestriction: function(restrictionId, deliveryId)
+		deleteRestriction: function(restrictionId, deliveryId, publicMode)
 		{
 			if(!restrictionId)
 				return;
@@ -319,6 +320,7 @@
 				action: "delete_restriction",
 				restrictionId: restrictionId,
 				deliveryId: deliveryId,
+				publicMode: publicMode,
 				sessid: BX.bitrix_sessid(),
 				lang: BX.message('LANGUAGE_ID')
 			};

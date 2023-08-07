@@ -15,6 +15,7 @@ return [
 		'im.debug',
 		'im.application.launch',
 		'im.component.conference.conference-public',
+		'im.v2.lib.desktop-api',
 		'im.call',
 		'im.model',
 		'im.controller',

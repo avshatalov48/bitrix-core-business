@@ -1,7 +1,7 @@
-import {ajax, Loc} from 'main.core';
+import { ajax, Loc } from 'main.core';
 import { Popup } from 'main.popup';
-import {Button, ButtonColor} from 'ui.buttons';
-import {Slider} from 'catalog.store-use'
+import { Button, ButtonColor } from 'ui.buttons';
+import { Slider } from 'catalog.store-use';
 
 export class DocumentGridManager
 {
@@ -12,23 +12,32 @@ export class DocumentGridManager
 		this.grid = BX.Main.gridManager.getInstanceById(this.gridId);
 		this.isConductDisabled = options.isConductDisabled;
 		this.masterSliderUrl = options.masterSliderUrl;
+		this.isInventoryManagementDisabled = options.isInventoryManagementDisabled;
+		this.inventoryManagementFeatureCode = options.inventoryManagementFeatureCode;
 		this.inventoryManagementSource = options.inventoryManagementSource;
 	}
 
 	getSelectedIds()
 	{
-		return this.grid.getRows().getSelectedIds()
+		return this.grid.getRows().getSelectedIds();
 	}
 
 	deleteDocument(documentId)
 	{
-		let popup = new Popup({
+		if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode)
+		{
+			top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+
+			return;
+		}
+
+		const popup = new Popup({
 			id: 'catalog_delete_document_popup',
 			titleBar: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_TITLE'),
 			content: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_CONTENT'),
 			buttons: [
 				new Button({
-					text:  Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
+					text: Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
 					color: ButtonColor.SUCCESS,
 					onclick: (button, event) => {
 						button.setDisabled();
@@ -41,7 +50,7 @@ export class DocumentGridManager
 								analyticsLabel: {
 									inventoryManagementSource: this.inventoryManagementSource,
 								},
-							}
+							},
 						).then((response) => {
 							popup.destroy();
 							this.grid.reload();
@@ -61,7 +70,7 @@ export class DocumentGridManager
 					color: ButtonColor.DANGER,
 					onclick: (button, event) => {
 						popup.destroy();
-					}
+					},
 				}),
 			],
 		});
@@ -70,41 +79,49 @@ export class DocumentGridManager
 
 	conductDocument(documentId, documentType = '')
 	{
-		if (this.isConductDisabled)
+		if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode)
 		{
-			this.openStoreMasterSlider();
+			top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+
 			return;
 		}
 
-		let actionConfig = {
+		if (this.isConductDisabled)
+		{
+			this.openStoreMasterSlider();
+
+			return;
+		}
+
+		const actionConfig = {
 			data: {
 				documentIds: [documentId],
-			}
+			},
 		};
 		if (documentType !== '')
 		{
 			actionConfig.analyticsLabel = {
 				documentType,
-			}
+			};
 		}
 
 		actionConfig.analyticsLabel.inventoryManagementSource = this.inventoryManagementSource;
 
 		actionConfig.analyticsLabel.mode = 'single';
 
-		let popup = new Popup({
+		const popup = new Popup({
 			id: 'catalog_delete_document_popup',
 			titleBar: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_TITLE'),
 			content: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_CONTENT'),
 			buttons: [
 				new Button({
-					text:  Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
+					text: Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
 					color: ButtonColor.SUCCESS,
 					onclick: (button, event) => {
 						button.setDisabled();
 						ajax.runAction(
 							'catalog.document.conductList',
-							actionConfig
+							actionConfig,
 						).then((response) => {
 							popup.destroy();
 							this.grid.reload();
@@ -124,7 +141,7 @@ export class DocumentGridManager
 					color: ButtonColor.DANGER,
 					onclick: (button, event) => {
 						popup.destroy();
-					}
+					},
 				}),
 			],
 		});
@@ -133,41 +150,49 @@ export class DocumentGridManager
 
 	cancelDocument(documentId, documentType = '')
 	{
-		if (this.isConductDisabled)
+		if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode)
 		{
-			this.openStoreMasterSlider();
+			top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+
 			return;
 		}
 
-		let actionConfig = {
+		if (this.isConductDisabled)
+		{
+			this.openStoreMasterSlider();
+
+			return;
+		}
+
+		const actionConfig = {
 			data: {
 				documentIds: [documentId],
-			}
+			},
 		};
 		if (documentType !== '')
 		{
 			actionConfig.analyticsLabel = {
 				documentType,
-			}
+			};
 		}
 
 		actionConfig.analyticsLabel.mode = 'single';
 
 		actionConfig.analyticsLabel.inventoryManagementSource = this.inventoryManagementSource;
 
-		let popup = new Popup({
+		const popup = new Popup({
 			id: 'catalog_delete_document_popup',
 			titleBar: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_TITLE'),
 			content: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_CONTENT'),
 			buttons: [
 				new Button({
-					text:  Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
+					text: Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
 					color: ButtonColor.SUCCESS,
 					onclick: (button, event) => {
 						button.setDisabled();
 						ajax.runAction(
 							'catalog.document.cancelList',
-							actionConfig
+							actionConfig,
 						).then((response) => {
 							popup.destroy();
 							this.grid.reload();
@@ -187,7 +212,7 @@ export class DocumentGridManager
 					color: ButtonColor.DANGER,
 					onclick: (button, event) => {
 						popup.destroy();
-					}
+					},
 				}),
 			],
 		});
@@ -196,17 +221,24 @@ export class DocumentGridManager
 
 	deleteSelectedDocuments()
 	{
-		let documentIds = this.getSelectedIds();
+		if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode)
+		{
+			top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+
+			return;
+		}
+
+		const documentIds = this.getSelectedIds();
 		ajax.runAction(
 			'catalog.document.deleteList',
 			{
 				data: {
-					documentIds
+					documentIds,
 				},
 				analyticsLabel: {
 					inventoryManagementSource: this.inventoryManagementSource,
 				},
-			}
+			},
 		).then((response) => {
 			this.grid.reload();
 		}).catch((response) => {
@@ -227,23 +259,31 @@ export class DocumentGridManager
 
 	conductSelectedDocuments()
 	{
+		if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode)
+		{
+			top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+
+			return;
+		}
+
 		if (this.isConductDisabled)
 		{
 			this.openStoreMasterSlider();
+
 			return;
 		}
-		let documentIds = this.getSelectedIds();
+		const documentIds = this.getSelectedIds();
 		ajax.runAction(
 			'catalog.document.conductList',
 			{
 				data: {
-					documentIds
+					documentIds,
 				},
 				analyticsLabel: {
 					mode: 'list',
 					inventoryManagementSource: this.inventoryManagementSource,
 				},
-			}
+			},
 		).then((response) => {
 			this.grid.reload();
 		}).catch((response) => {
@@ -264,23 +304,31 @@ export class DocumentGridManager
 
 	cancelSelectedDocuments()
 	{
+		if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode)
+		{
+			top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
+
+			return;
+		}
+
 		if (this.isConductDisabled)
 		{
 			this.openStoreMasterSlider();
+
 			return;
 		}
-		let documentIds = this.getSelectedIds();
+		const documentIds = this.getSelectedIds();
 		ajax.runAction(
 			'catalog.document.cancelList',
 			{
 				data: {
-					documentIds
+					documentIds,
 				},
 				analyticsLabel: {
 					mode: 'list',
 					inventoryManagementSource: this.inventoryManagementSource,
 				},
-			}
+			},
 		).then((response) => {
 			this.grid.reload();
 		}).catch((response) => {
@@ -301,13 +349,14 @@ export class DocumentGridManager
 
 	processApplyButtonClick()
 	{
-		let actionValues = this.grid.getActionsPanel().getValues();
-		let selectedAction = actionValues['action_button_' + this.gridId];
+		const actionValues = this.grid.getActionsPanel().getValues();
+		const selectedAction = actionValues[`action_button_${this.gridId}`];
 
 		if (selectedAction === 'conduct')
 		{
 			this.conductSelectedDocuments();
 		}
+
 		if (selectedAction === 'cancel')
 		{
 			this.cancelSelectedDocuments();
@@ -316,7 +365,7 @@ export class DocumentGridManager
 
 	applyFilter(options)
 	{
-		let filterManager = BX.Main.filterManager.getById(this.filterId);
+		const filterManager = BX.Main.filterManager.getById(this.filterId);
 		if (!filterManager)
 		{
 			return;
@@ -327,36 +376,36 @@ export class DocumentGridManager
 
 	openHowToStart()
 	{
-		if(top.BX.Helper)
+		if (top.BX.Helper)
 		{
-			top.BX.Helper.show("redirect=detail&code=14566618");
+			top.BX.Helper.show('redirect=detail&code=14566618');
 			event.preventDefault();
 		}
 	}
 
 	openHowToTransfer()
 	{
-		if(top.BX.Helper)
+		if (top.BX.Helper)
 		{
-			top.BX.Helper.show("redirect=detail&code=14566610");
+			top.BX.Helper.show('redirect=detail&code=14566610');
 			event.preventDefault();
 		}
 	}
 
 	openHowToControlGoodsMovement()
 	{
-		if(top.BX.Helper)
+		if (top.BX.Helper)
 		{
-			top.BX.Helper.show("redirect=detail&code=14566670");
+			top.BX.Helper.show('redirect=detail&code=14566670');
 			event.preventDefault();
 		}
 	}
 
 	openHowToAccountForLosses()
 	{
-		if(top.BX.Helper)
+		if (top.BX.Helper)
 		{
-			top.BX.Helper.show("redirect=detail&code=14566652");
+			top.BX.Helper.show('redirect=detail&code=14566652');
 			event.preventDefault();
 		}
 	}
@@ -371,7 +420,7 @@ export class DocumentGridManager
 				},
 				events: {
 					onCloseComplete: function(event) {
-						let slider = event.getSlider();
+						const slider = event.getSlider();
 						if (!slider)
 						{
 							return;
@@ -381,9 +430,9 @@ export class DocumentGridManager
 						{
 							document.location.reload();
 						}
-					}
-				}
-			}
+					},
+				},
+			},
 		);
 	}
 }

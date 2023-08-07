@@ -12,6 +12,9 @@ use Bitrix\Catalog\Access\Permission\PermissionDictionary;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
+use Bitrix\UI\Buttons\JsHandler;
+use Bitrix\UI\Buttons\SettingsButton;
+use Bitrix\UI\Toolbar\ButtonLocation;
 
 \Bitrix\Main\Loader::includeModule('catalog');
 
@@ -233,7 +236,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 			[
 				'TITLE' => Loc::getMessage('STORE_LIST_ACTION_OPEN_TITLE_2'),
 				'TEXT' => Loc::getMessage('STORE_LIST_ACTION_OPEN_TEXT_2'),
-				'ONCLICK' => "openStoreSlider({$item['ID']})",
+				'ONCLICK' => "BX.Catalog.Store.Grid.openStoreSlider({$item['ID']})",
 				'DEFAULT' => true,
 			],
 		];
@@ -303,6 +306,13 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 	private function prepareToolbar()
 	{
+		$this->prepareToolbarFilter();
+		$this->prepareToolbarCreateButton();
+		$this->prepareToolbarSettingsButton();
+	}
+
+	private function prepareToolbarFilter(): void
+	{
 		$filterOptions = [
 			'GRID_ID' => self::GRID_ID,
 			'FILTER_ID' => $this->filter->getID(),
@@ -315,7 +325,10 @@ class CatalogStoreAdminList extends CBitrixComponent
 			]
 		];
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterOptions);
+	}
 
+	private function prepareToolbarCreateButton(): void
+	{
 		$button = null;
 		if ($this->checkStoreModifyRights())
 		{
@@ -323,7 +336,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 			if (Catalog\Config\State::isAllowedNewStore())
 			{
 				$buttonConfig = [
-					'onclick' => 'openStoreCreation',
+					'onclick' => 'BX.Catalog.Store.Grid.openStoreCreation',
 				];
 			}
 			else
@@ -334,7 +347,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 					\Bitrix\Main\Loader::includeModule('ui');
 					\Bitrix\Main\UI\Extension::load(['ui.info-helper']);
 					$buttonConfig = [
-						'click' => 'openTariffHelp',
+						'click' => 'BX.Catalog.Store.Grid.openTariffHelp',
 					];
 				}
 				unset($helpLink);
@@ -342,8 +355,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 			if ($buttonConfig)
 			{
-				$buttonConfig['text'] = Loc::getMessage('STORE_LIST_ADD_STORE_BUTTON');
-				$buttonConfig['color'] = \Bitrix\UI\Buttons\Color::PRIMARY;
+				$buttonConfig['classList'] = ['ui-btn-no-caps'];
 				$button = \Bitrix\UI\Buttons\CreateButton::create($buttonConfig);
 			}
 		}
@@ -359,6 +371,35 @@ class CatalogStoreAdminList extends CBitrixComponent
 		if ($button)
 		{
 			\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($button, \Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE);
+		}
+	}
+
+	private function prepareToolbarSettingsButton(): void
+	{
+		if (!$this->checkStoreModifyRights() || !\Bitrix\Main\Loader::includeModule('intranet'))
+		{
+			return;
+		}
+
+		$menuItems = [];
+
+		if (isset($this->arParams['PATH_TO']['UF']))
+		{
+			$menuItems[] = [
+				'text' => Loc::getMessage('STORE_LIST_SETTINGS_BUTTON_UF_FIELDS'),
+				'href' => $this->arParams['PATH_TO']['UF'],
+				'onclick' => new JsHandler('BX.Catalog.Store.Grid.openUfSilder'),
+			];
+		}
+
+		if (!empty($menuItems))
+		{
+			$settingsButton = new SettingsButton();
+			$settingsButton->setMenu([
+				'items' => $menuItems,
+			]);
+
+			\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($settingsButton, ButtonLocation::RIGHT);
 		}
 	}
 

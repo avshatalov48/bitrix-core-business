@@ -45,17 +45,22 @@ class Promotion
 			"USER_TYPE" => self::USER_TYPE_OLD,
 			"DEVICE_TYPE" => self::DEVICE_TYPE_WEB
 		];
-*/
 		$result[] = [
 			"ID" => 'im:mask:06122022:desktop',
 			"USER_TYPE" => self::USER_TYPE_OLD,
 			"DEVICE_TYPE" => self::DEVICE_TYPE_DESKTOP
 		];
+*/
+		$result[] = [
+			"ID" => 'im:ai:15062023:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+		];
 
 		$settings = \Bitrix\Main\Config\Configuration::getValue('im');
 		if (isset($settings['promotion']) && is_array($settings['promotion']))
 		{
-			$result = $settings['promotion'];
+			$result = array_merge($result, $settings['promotion']);
 		}
 
 		return $result;

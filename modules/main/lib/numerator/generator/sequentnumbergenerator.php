@@ -54,7 +54,7 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 		$this->setFromArrayOrDefault('isDirectNumeration', $config, false, 'bool');
 		$this->setFromArrayOrDefault('periodicBy', $config);
 		$this->setFromArrayOrDefault('nowTime', $config, time());
-		if (isset($config['numeratorId']))
+		if (is_array($config) && isset($config['numeratorId']))
 		{
 			$this->lastInvocationTime = $config['lastInvocationTime'] ?? null;
 			$this->numeratorId = $config['numeratorId'];

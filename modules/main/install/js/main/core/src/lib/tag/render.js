@@ -27,20 +27,38 @@ export default function render(sections: Array<string>, ...substitutions: Array<
 
 	if (ast.length === 1)
 	{
-		return renderNode({
+		const refs = [];
+		const renderedNode = renderNode({
 			node: ast[0],
 			substitutions,
+			refs,
 		});
+
+		if (Type.isArrayFilled(refs))
+		{
+			return Object.fromEntries([['root', renderedNode], ...refs]);
+		}
+
+		return renderedNode;
 	}
 
 	if (ast.length > 1)
 	{
-		return ast.map((node) => {
+		const refs = [];
+		const renderedNodes = ast.map((node) => {
 			return renderNode({
 				node,
 				substitutions,
+				refs,
 			});
 		});
+
+		if (Type.isArrayFilled(refs))
+		{
+			return Object.fromEntries([['root', renderedNodes], ...refs]);
+		}
+
+		return renderedNodes;
 	}
 
 	return false;

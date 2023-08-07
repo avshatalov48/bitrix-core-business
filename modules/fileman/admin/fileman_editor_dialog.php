@@ -777,7 +777,10 @@ CAdminFileDialog::ShowScript(Array
 	(
 		"event" => "OpenFileBrowserWindImage",
 		"arResultDest" => Array("FUNCTION_NAME" => "SetUrl"),
-		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>($str_FILENAME <> '' ? GetDirPath($str_FILENAME) : '')),
+		"arPath" => Array(
+			"SITE" => $_GET["site"] ?? null,
+			"PATH" =>(($str_FILENAME ?? '') <> '' ? GetDirPath($str_FILENAME) : '')
+		),
 		"select" => 'F',// F - file only, D - folder only
 		"operation" => 'O',// O - open, S - save
 		"showUploadTab" => true,
@@ -2122,7 +2125,10 @@ CAdminFileDialog::ShowScript(Array
 	(
 		"event" => "OpenFileBrowserWindFlash",
 		"arResultDest" => Array("FUNCTION_NAME" => "SetUrl"),
-		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>($str_FILENAME <> '' ? GetDirPath($str_FILENAME) : '')),
+		"arPath" => Array(
+			"SITE" => $_GET["site"] ?? null,
+			"PATH" =>(($str_FILENAME ?? '') <> '' ? GetDirPath($str_FILENAME) : '')
+		),
 		"select" => 'F',// F - file only, D - folder only,
 		"operation" => 'O',// O - open, S - save
 		"showUploadTab" => true,
@@ -2766,7 +2772,7 @@ $tabControlDialog->Begin();?>
 	if (!window.oBXEditorDialog.bUseTabControl)
 	{
 		window.oBXEditorDialog.Show();
-		window.oBXEditorDialog.SetContent('<?= CUtil::JSEscape($dialogHTML)?>');
+		window.oBXEditorDialog.SetContent('<?= CUtil::JSEscape($dialogHTML ?? null)?>');
 		OnLoad(window.oBXEditorDialog.editorParams || {});
 	}
 	else

@@ -393,6 +393,7 @@ describe('Uploader File Events', () => {
 			name: 'image.png',
 			size: 1041,
 			type: 'image/png',
+			preload: true,
 		});
 	});
 
@@ -496,12 +497,10 @@ describe('Uploader File Events', () => {
 	it('should emit File:onStateChange', (done) => {
 		const changes = {
 			name: 'file new name',
-			originalName: 'file new originalName',
 			type: 'image/jpeg',
 			size: 1010,
-			serverId: 123,
+			serverFileId: 123,
 			downloadUrl: '/dddd/',
-			removeUrl: '/reeeeee/',
 			width: 150,
 			height: 230,
 			clientPreviewUrl: null,
@@ -530,12 +529,10 @@ describe('Uploader File Events', () => {
 
 					const file: UploaderFile = event.getData().file;
 					file.setName(changes.name);
-					file.setOriginalName(changes.originalName);
 					file.setType(changes.type);
 					file.setSize(changes.size);
-					file.setServerId(changes.serverId);
+					file.setServerFileId(changes.serverFileId);
 					file.setDownloadUrl(changes.downloadUrl);
-					file.setRemoveUrl(changes.removeUrl);
 
 					file.setWidth(changes.width);
 					file.setHeight(changes.height);

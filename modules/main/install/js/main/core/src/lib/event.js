@@ -16,14 +16,6 @@ export default class Event
 	static unbind: unbind = unbind;
 	static unbindAll: unbindAll = unbindAll;
 	static ready: ready = ready;
-
-	/**
-	 * @deprecated use import { EventEmitter } from 'main.core.events'
-	 */
 	static EventEmitter: EventEmitter = EventEmitter;
-	/**
-	 * @deprecated use import { BaseEvent } from 'main.core.events'
-	 */
 	static BaseEvent: BaseEvent = BaseEvent;
-
 }

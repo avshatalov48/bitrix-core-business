@@ -37,7 +37,12 @@ class BotService
 			$message->toArray(),
 			$this->sendingConfig->toArray(),
 			[
-				'COMMAND_CONTEXT' => 'TEXTAREA'
+				'FROM_USER_ID' => $message->getAuthorId(),
+				'TO_USER_ID' => $chat->getType() == Chat::IM_TYPE_PRIVATE ? $chat->getOpponentId() : 0,
+				'BOT_IN_CHAT' => $chat->getType() != Chat::IM_TYPE_PRIVATE ? $chat->getBotInChat() : [],
+				'MESSAGE_TYPE' => $chat->getType(),
+				'CHAT_ENTITY_TYPE' => $chat->getEntityType(),
+				'COMMAND_CONTEXT' => 'TEXTAREA',
 			]
 		);
 		$result = Im\Command::onCommandAdd($message->getMessageId(), $arFields);

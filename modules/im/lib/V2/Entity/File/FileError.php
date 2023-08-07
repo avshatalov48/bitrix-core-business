@@ -14,7 +14,14 @@ class FileError extends Error
 
 	protected function loadErrorMessage($code, $replacements): string
 	{
-		return Loc::getMessage("ERROR_FILE_{$code}", $replacements) ?: '';
+		$postfix = '';
+
+		if ($code === self::CREATE_SYMLINK)
+		{
+			$postfix = '_V3';
+		}
+
+		return Loc::getMessage("ERROR_FILE_{$code}{$postfix}", $replacements) ?: '';
 	}
 
 	protected function loadErrorDescription($code, $replacements): string

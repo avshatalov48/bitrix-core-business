@@ -1,11 +1,11 @@
-import {Store} from 'ui.vue3.vuex';
-import {RestClient} from 'rest.client';
+import { Store } from 'ui.vue3.vuex';
+import { RestClient } from 'rest.client';
 
-import {Core} from 'im.v2.application.core';
-import {RestMethod} from 'im.v2.const';
-import {Logger} from 'im.v2.lib.logger';
+import { Core } from 'im.v2.application.core';
+import { RestMethod } from 'im.v2.const';
+import { Logger } from 'im.v2.lib.logger';
 
-import type {ImModelDialog} from 'im.v2.model';
+import type { ImModelDialog } from 'im.v2.model';
 
 export class EditService
 {
@@ -27,8 +27,8 @@ export class EditService
 			id: messageId,
 			fields: {
 				text,
-				isEdited: true
-			}
+				isEdited: true,
+			},
 		});
 
 		const dialog: ImModelDialog = this.#store.getters['dialogues/getByChatId'](this.#chatId);
@@ -37,16 +37,16 @@ export class EditService
 			this.#store.dispatch('recent/update', {
 				id: dialog.dialogId,
 				fields: {
-					message: {text}
-				}
+					message: { text },
+				},
 			});
 		}
 
 		this.#restClient.callMethod(RestMethod.imMessageUpdate, {
-			'ID': messageId,
-			'MESSAGE': text
-		}).catch(error => {
-			console.error('MessageService: editMessageText error:', error);
+			ID: messageId,
+			MESSAGE: text,
+		}).catch((error) => {
+			Logger.error('MessageService: editMessageText error:', error);
 		});
 	}
 }

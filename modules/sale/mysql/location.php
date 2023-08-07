@@ -214,7 +214,7 @@ class CSaleLocation extends CAllSaleLocation
 			"FROM b_sale_location_country C ".
 			"	LEFT JOIN b_sale_location_country_lang CL ON (C.ID = CL.COUNTRY_ID AND CL.LID = '".$DB->ForSql($strLang, 2)."') ".
 			(
-				$arOrder["SORT"] <> ''
+				($arOrder['SORT'] ?? '') !== ''
 				?
 				"	LEFT JOIN b_sale_location SL ON (SL.COUNTRY_ID = C.ID AND (SL.CITY_ID = 0 OR ISNULL(SL.CITY_ID))) "
 				:
@@ -256,8 +256,7 @@ class CSaleLocation extends CAllSaleLocation
 
 		$strSql .= $strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		return $db_res;
+		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
 	/**

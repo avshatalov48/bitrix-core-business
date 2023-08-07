@@ -17,6 +17,7 @@ IncludeModuleLangFile(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/prolog.php");
 
 $APPLICATION->SetTitle(GetMessage("FILEMAN_DOC_ROOT_TITLE"));
+$_REQUEST["mode"] ??= null;
 if($_REQUEST["mode"] == "list")
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 else

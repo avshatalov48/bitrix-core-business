@@ -76,12 +76,12 @@ export const StackPreview = {
 						</div>
 						<div
 							v-if="[Sizes.LARGE, Sizes.MEDIUM].includes(widgetOptions.size)"
-							:title="item.originalName"
+							:title="item.name"
 							class="ui-uploader-stack-preview-file-name"
 						>{{
 							items.length > 1
 							? this.$Bitrix.Loc.getMessage('STACK_WIDGET_FILE_COUNT', { '#count#': items.length })
-							: item.originalName
+							: item.name
 						}}</div>
 						<div 
 							v-if="items.length > 1 && [Sizes.SMALL, Sizes.TINY].includes(widgetOptions.size)"

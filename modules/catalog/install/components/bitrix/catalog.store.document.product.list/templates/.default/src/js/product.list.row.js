@@ -50,6 +50,7 @@ export class Row
 		this.initFields(fields);
 		this.#initSelector();
 		this.#initBarcode();
+		this.#initSimpleFields();
 		// this.#initPriceExtra();
 		this.#initStoreSelector(this.getSettingValue('storeHeaderMap', {}));
 		this.#initActions();
@@ -252,6 +253,23 @@ export class Row
 			'onBeforeCreate',
 			this.#handleBeforeCreateProduct.bind(this)
 		);
+	}
+
+	#initSimpleFields()
+	{
+		const fields = [
+			'COMMENT',
+		];
+
+		for (const name of fields)
+		{
+			const input = this.getNode().querySelector(`[name="${name}"]`);
+			if (input)
+			{
+				const value = this.getField(name);
+				input.value = Type.isNil(value) ? '' : value;
+			}
+		}
 	}
 
 	#initBarcode()
@@ -666,6 +684,10 @@ export class Row
 			case 'SORT':
 				this.changeSort(value, mode);
 				break;
+
+			case 'COMMENT':
+				this.changeComment(value, mode);
+				break;
 		}
 	}
 
@@ -925,6 +947,16 @@ export class Row
 
 		if (isChangedValue)
 		{
+			this.addActionProductChange();
+		}
+	}
+
+	changeComment(value)
+	{
+		const preparedValue = Type.isNil(value) ? '' : value.toString().trim();
+		if (preparedValue !== this.getField('COMMENT'))
+		{
+			this.setField('COMMENT', preparedValue);
 			this.addActionProductChange();
 		}
 	}

@@ -5,6 +5,7 @@
  * @subpackage sender
  * @copyright 2001-2012 Bitrix
  */
+
 namespace Bitrix\Sender\Entity;
 
 use Bitrix\Main\Localization\Loc;
@@ -29,23 +30,23 @@ class Toloka extends Letter
 			$messageCodes[] = $message->getCode();
 		}
 
-		return array(
-			array(
+		return [
+			[
 				'CODE' => null,
 				'VALUE' => 'N',
-				'FILTER' => '=CAMPAIGN.IS_TRIGGER'
-			),
-			array(
+				'FILTER' => '=CAMPAIGN.IS_TRIGGER',
+			],
+			[
 				'CODE' => 'IS_ADS',
 				'VALUE' => 'N',
-				'FILTER' => '=IS_ADS'
-			),
-			array(
+				'FILTER' => '=IS_ADS',
+			],
+			[
 				'CODE' => 'MESSAGE_CODE',
 				'VALUE' => $messageCodes,
-				'FILTER' => '=MESSAGE_CODE'
-			),
-		);
+				'FILTER' => '=MESSAGE_CODE',
+			],
+		];
 	}
 
 	/**

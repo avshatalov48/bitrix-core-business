@@ -116,7 +116,7 @@ elseif($action == 'save_sticker')
 			'COLLAPSED' => $_POST['collapsed'] == 'Y' ? 'Y' : 'N',
 			'COMPLETED' => $_POST['completed'] == 'Y' ? 'Y' : 'N',
 			'CLOSED' => $_POST['closed'] == 'Y' ? 'Y' : 'N',
-			'DELETED' => $_POST['deleted'] == 'Y' ? 'Y' : 'N',
+			'DELETED' => ($_POST['deleted'] ?? null) == 'Y' ? 'Y' : 'N',
 
 			'MARKER_TOP' => isset($_POST['marker']['top']) ? intval($_POST['marker']['top']) : 0,
 			'MARKER_LEFT' => isset($_POST['marker']['left']) ? intval($_POST['marker']['left']) : 0,
@@ -166,7 +166,7 @@ elseif ($action == 'show_list')
 		}
 	}
 
-	$bJustResult = $_REQUEST['sticker_just_res'] == "Y";
+	$bJustResult = ($_REQUEST['sticker_just_res'] ?? null) == "Y";
 	$colorSchemes = array('bxst-yellow', 'bxst-green', 'bxst-blue', 'bxst-red', 'bxst-purple', 'bxst-gray');
 	$curPage = urldecode($_REQUEST['cur_page']);
 
@@ -246,7 +246,7 @@ elseif ($action == 'show_list')
 			)
 		));
 
-	$naviSize = intval($_REQUEST['navi_size']);
+	$naviSize = intval(($_REQUEST['navi_size'] ?? null));
 	if (!$naviSize)
 	{
 		$naviSize = CUserOptions::GetOption('fileman', "stickers_navi_size", 5);

@@ -16,6 +16,7 @@ use Bitrix\Rest\RestException;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\Helper\Workgroup;
 use Bitrix\Socialnetwork\Item\Helper;
+use Bitrix\Socialnetwork\Item\UserToGroup;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
 if (!Loader::includeModule('rest'))
@@ -2351,6 +2352,13 @@ class CSocNetLogRestService extends IRestService
 			]))
 			{
 				$successUserId[] = $userId;
+
+				UserToGroup::addInfoToChat([
+					'group_id' => $groupId,
+					'user_id' => $userId,
+					'action' => UserToGroup::CHAT_ACTION_IN,
+					'role' => UserToGroupTable::ROLE_USER
+				]);
 			}
 		}
 

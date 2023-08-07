@@ -319,6 +319,7 @@
 	cursor: pointer;
 	transition: background-color .3s cubic-bezier(.000, .465, .750, .750);
 	white-space: nowrap;
+	background: #fff;
 	border-bottom: 1px #EDEEF0 solid;
 }
 

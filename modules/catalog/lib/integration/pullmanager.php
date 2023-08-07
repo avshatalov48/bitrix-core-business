@@ -8,7 +8,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\AccessController;
-use Bitrix\Mobile\Integration\Catalog\StoreDocumentList\Item;
+use Bitrix\CatalogMobile\StoreDocumentList\Item;
 use Bitrix\Pull\Event;
 use Bitrix\Pull\Model\WatchTable;
 
@@ -41,7 +41,10 @@ class PullManager
 	public function __construct()
 	{
 		$this->isEnabled = $this->includeModule();
-		$this->isMobileIncluded = Loader::includeModule('mobile');
+		$this->isMobileIncluded =
+			Loader::includeModule('mobile')
+			&& Loader::includeModule('catalogmobile')
+		;
 	}
 
 	private function __clone()

@@ -308,7 +308,7 @@
 		var
 			deltaLength = this.entries.length - entries.length,
 			globalIndex = deltaLength,
-			from, to, index,
+			from,
 			fromTs, toTs,
 			fromCode, toCode;
 
@@ -318,12 +318,15 @@
 			fromCode = this.calendar.util.getDayCode(entry.from);
 			toCode = this.calendar.util.getDayCode(entry.to);
 
-			index = 0;
+			const dayCode = fromCode;
 			this.entryParts.push({
-				index: index,
-				dayCode: fromCode,
+				dayCode,
 				from: entry.from,
-				entry: entry
+				fromCode,
+				toCode,
+				entry,
+				allDay: entry.isFullDay() || (dayCode !== fromCode && dayCode !== toCode),
+				isUntil: (dayCode !== fromCode && dayCode === toCode),
 			});
 			if (fromCode !== toCode)
 			{
@@ -332,49 +335,23 @@
 				toTs = new Date(entry.to.getFullYear(), entry.to.getMonth(), entry.to.getDate()).getTime();
 				while (fromTs <= toTs)
 				{
+					const dayCode = this.calendar.util.getDayCode(from);
 					this.entryParts.push({
-						index: ++index,
-						dayCode: this.calendar.util.getDayCode(from),
-						from: from,
-						entry: entry
+						dayCode,
+						from,
+						fromCode,
+						toCode,
+						entry,
+						allDay: entry.isFullDay() || (dayCode !== fromCode && dayCode !== toCode),
+						isUntil: (dayCode !== fromCode && dayCode === toCode),
 					});
 					fromTs +=  this.calendar.util.dayLength;
 					from = new Date(from.getTime() + this.calendar.util.dayLength);
 				}
-				entry.lastPartIndex = index;
 			}
 		}, this);
 
-		//var reverseSort = this.currentLoadMode == 'previous';
-		var reverseSort = false;
-		this.entryParts.sort(function(a, b)
-		{
-			if (a.dayCode === b.dayCode)
-			{
-				if (a.entry.isTask() !== b.entry.isTask())
-				{
-					if (a.entry.isTask())
-						return 1;
-					if (b.entry.isTask())
-						return -1;
-				}
-
-				if (a.entry.isFullDay() !== b.entry.isFullDay())
-				{
-					if (a.entry.isFullDay())
-						return -1;
-					if (b.entry.isFullDay())
-						return 1;
-				}
-			}
-
-			if (a.index > 0 || b.index > 0)
-			{
-				return !reverseSort ? a.index - b.index : b.index - a.index;
-			}
-
-			return !reverseSort ? a.entry.from.getTime() - b.entry.from.getTime() : b.entry.from.getTime() - a.entry.from.getTime();
-		});
+		this.entryParts = this.sortParts(this.entryParts);
 
 		this.today = new Date();
 		for (let partIndex = 0; partIndex < this.entryParts.length; partIndex++)
@@ -403,6 +380,87 @@
 			}
 			this.streamScrollWrap.style.height = this.util.getViewHeight() + 'px';
 		}, 300);
+	};
+
+	/**
+	 * 1. non-daily events that start on this day, sorted by start date
+	 * 2. non-daily events that do not start on this day, but that end on this day, sorted by end date
+	 * 3. whole-day events (or long ones that do not end and do not start on this day, because they pass through the day), sorted by start date
+	 * 4. tasks that start on this day, sorted by start date
+	 * 5. tasks that do not start on this day, but that end on this day, sorted by end date
+	 * 6. tasks that run entirely through the day, sorted by start date
+	 *
+	 * if something is equal then sort by id
+	 */
+	ListView.prototype.sortParts = function(parts)
+	{
+		parts.sort((a, b) => {
+			if (a.entry.isTask() !== b.entry.isTask())
+			{
+				if (a.entry.isTask())
+				{
+					return 1;
+				}
+				if (b.entry.isTask())
+				{
+					return -1;
+				}
+			}
+			if (a.allDay !== b.allDay)
+			{
+				if (a.allDay)
+				{
+					return 1;
+				}
+				if (b.allDay)
+				{
+					return -1;
+				}
+			}
+			if (a.allDay && b.allDay)
+			{
+				if (a.from.getTime() === b.from.getTime())
+				{
+					if (a.entry.from.getTime() === b.entry.from.getTime())
+					{
+						return parseInt(a.entry.id) - parseInt(b.entry.id);
+					}
+
+					return a.entry.from.getTime() - b.entry.from.getTime();
+				}
+
+				return a.from.getTime() - b.from.getTime();
+			}
+			if (a.isUntil !== b.isUntil)
+			{
+				if (a.isUntil)
+				{
+					return 1;
+				}
+				if (b.isUntil)
+				{
+					return -1;
+				}
+			}
+			if (a.isUntil && b.isUntil)
+			{
+				return a.entry.to.getTime() - b.entry.to.getTime();
+			}
+
+			if (a.from.getTime() === b.from.getTime())
+			{
+				if (a.entry.to.getTime() === b.entry.to.getTime())
+				{
+					return parseInt(a.entry.id) - parseInt(b.entry.id);
+				}
+
+				return a.entry.to.getTime() - b.entry.to.getTime();
+			}
+
+			return a.from.getTime() - b.from.getTime();
+		});
+
+		return parts;
 	};
 
 	ListView.prototype.displayEntry = function(part)
@@ -445,11 +503,11 @@
 			}
 			else if (entry.isLongWithTime())
 			{
-				if (part.index === 0)
+				if (part.dayCode === part.fromCode)
 				{
 					timeLabel = this.calendar.util.formatTime(entry.from);
 				}
-				else if (part.index === entry.lastPartIndex)
+				else if (part.dayCode === part.toCode)
 				{
 					timeLabel = BX.message('EC_TILL_TIME').replace('#TIME#', this.calendar.util.formatTime(entry.to));
 				}
@@ -1188,7 +1246,7 @@
 
 	ListView.prototype.loadMoreEntries = function(params)
 	{
-		if (this.currentLoadMode || this.filterMode || this.entryController.isAwaitingAnyResponses())
+		if (this.filterMode || this.entryController.isAwaitingAnyResponses())
 		{
 			return;
 		}
@@ -1231,8 +1289,6 @@
 
 			this.updateBoundaryOfPastReached();
 			this.updateBoundaryOfFutureReached();
-
-			this.currentLoadMode = false;
 		});
 	};
 

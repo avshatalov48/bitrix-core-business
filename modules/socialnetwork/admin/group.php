@@ -80,7 +80,6 @@ if ($lAdmin->EditAction() && $socialnetworkModulePermissions >= "W")
 
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 		$bError = false;
 
@@ -98,6 +97,8 @@ if ($lAdmin->EditAction() && $socialnetworkModulePermissions >= "W")
 			if (!$bAllowed)
 				unset($arFields[$key]);
 		}
+
+		$DB->StartTransaction();
 
 		if (!CSocNetGroup::Update($ID, $arFields, false))
 		{
@@ -199,9 +200,11 @@ if ($lAdmin->EditAction() && $socialnetworkModulePermissions >= "W")
 			{
 				$DB->Rollback();
 			}
+			else
+			{
+				$DB->Commit();
+			}
 		}
-
-		$DB->Commit();
 	}
 }
 
@@ -242,8 +245,10 @@ if (($arID = $lAdmin->GroupAction()) && $socialnetworkModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(GetMessage("SONET_DELETE_ERROR"), $ID);
 				}
-
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 
 				break;
 		}

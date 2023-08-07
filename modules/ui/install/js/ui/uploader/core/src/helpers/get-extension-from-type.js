@@ -1,6 +1,6 @@
 import { Type } from 'main.core';
 
-const getExtensionFromType = (type) => {
+const getExtensionFromType = (type): string => {
 	if (!Type.isStringFilled(type))
 	{
 		return '';

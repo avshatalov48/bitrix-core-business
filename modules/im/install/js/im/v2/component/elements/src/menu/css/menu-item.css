@@ -142,3 +142,11 @@
 .bx-im-menu_item__icon.--vote {
 	background-image: url('./images/vote.svg');
 }
+
+.bx-im-menu_item__icon.--ai-text {
+	background-image: url('./images/ai-text.svg');
+}
+
+.bx-im-menu_item__icon.--ai-image {
+	background-image: url('./images/ai-image.svg');
+}

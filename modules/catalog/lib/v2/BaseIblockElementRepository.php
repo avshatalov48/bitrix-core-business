@@ -24,8 +24,10 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 	protected $factory;
 	/** @var \Bitrix\Catalog\v2\Iblock\IblockInfo */
 	protected $iblockInfo;
-	/** @var string */
-	private $detailUrlTemplate;
+
+	private ?string $detailUrlTemplate = null;
+
+	private bool $allowedDetailUrl;
 
 	/**
 	 * BaseIblockElementRepository constructor.
@@ -37,6 +39,7 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 	{
 		$this->factory = $factory;
 		$this->iblockInfo = $iblockInfo;
+		$this->setAutoloadDetailUrl(false);
 	}
 
 	public function getEntityById(int $id): ?BaseIblockElementEntity
@@ -155,9 +158,23 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 		return $result;
 	}
 
+	public function setAutoloadDetailUrl(bool $state): self
+	{
+		$this->allowedDetailUrl = $state;
+
+		return $this;
+	}
+
+	public function checkAutoloadDetailUrl(): bool
+	{
+		return $this->allowedDetailUrl;
+	}
+
 	public function setDetailUrlTemplate(?string $template): self
 	{
 		$this->detailUrlTemplate = $template;
+
+		$this->setAutoloadDetailUrl($template !== null);
 
 		return $this;
 	}
@@ -167,6 +184,46 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 		return $this->detailUrlTemplate;
 	}
 
+	protected function getDefaultElementSelect(): array
+	{
+		$result = [
+			'ID',
+			'TIMESTAMP_X',
+			'MODIFIED_BY',
+			'DATE_CREATE',
+			'CREATED_BY',
+			'IBLOCK_ID',
+			'IBLOCK_SECTION_ID',
+			'ACTIVE',
+			'ACTIVE_FROM',
+			'ACTIVE_TO',
+			'SORT',
+			'NAME',
+			'PREVIEW_PICTURE',
+			'PREVIEW_TEXT',
+			'PREVIEW_TEXT_TYPE',
+			'DETAIL_PICTURE',
+			'DETAIL_TEXT',
+			'DETAIL_TEXT_TYPE',
+			'WF_STATUS_ID',
+			'WF_PARENT_ELEMENT_ID',
+			'WF_NEW',
+			'IN_SECTIONS',
+			'SHOW_COUNTER',
+			'SHOW_COUNTER_START',
+			'CODE',
+			'TAGS',
+			'XML_ID',
+			'TMP_ID',
+		];
+		if ($this->checkAutoloadDetailUrl())
+		{
+			$result[] = 'DETAIL_PAGE_URL';
+		}
+
+		return $result;
+	}
+
 	protected function getList(array $params): array
 	{
 		$filter = $params['filter'] ?? [];
@@ -174,62 +231,89 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 		$nav = $params['nav'] ?? false;
 
 		$iblockElements = [];
+		$listIds = [];
 
-		$elementsIterator = \CIBlockElement::GetList(
+		$iterator = \CIBlockElement::GetList(
 			$order,
 			array_merge(
-				[
-					// 'ACTIVE' => 'Y',
-					// 'ACTIVE_DATE' => 'Y',
-				],
 				$filter,
-				$this->getAdditionalFilter()
+				$this->getAdditionalFilter(),
+				$this->getAdditionalProductFilter(),
 			),
 			false,
 			$nav,
-			['*']
+			[
+				'ID',
+				'IBLOCK_ID',
+			],
 		);
-		if ($detailUrlTemplate = $this->getDetailUrlTemplate())
+		while ($row = $iterator->fetch())
 		{
-			$elementsIterator->SetUrlTemplates($detailUrlTemplate);
+			$id = (int)$row['ID'];
+			$iblockElements[$id] = $row;
+			$listIds[] = $id;
 		}
-		while ($element = $elementsIterator->getNext())
+		unset($iterator);
+
+		if (empty($iblockElements))
 		{
-			$iblockElements[$element['ID']] = $this->replaceRawFromTilda($element);
+			return [];
 		}
 
-		$result = array_fill_keys(array_keys($iblockElements), false);
+		$elementSelect = $this->getDefaultElementSelect();
+		$detailUrlTemplate = $this->checkAutoloadDetailUrl() ? $this->getDetailUrlTemplate() : null;
+		$specificFields = [
+			'QUANTITY_TRACE' => 'QUANTITY_TRACE_ORIG',
+			'CAN_BUY_ZERO' => 'CAN_BUY_ZERO_ORIG',
+			'SUBSCRIBE' => 'SUBSCRIBE_ORIG',
+		];
+		$productSelect = array_merge(['*', 'UF_*'], array_values($specificFields));
 
-		if (!empty($iblockElements))
+		foreach (array_chunk($listIds, CATALOG_PAGE_SIZE) as $pageIds)
 		{
-			$specificFields = [
-				'QUANTITY_TRACE' => 'QUANTITY_TRACE_ORIG',
-				'CAN_BUY_ZERO' => 'CAN_BUY_ZERO_ORIG',
-				'SUBSCRIBE' => 'SUBSCRIBE_ORIG',
-			];
-			$catalogResult = ProductTable::getList([
-				'select' => array_merge(['*', 'UF_*'], array_values($specificFields)),
-				'filter' => array_merge(
-					[
-						'@ID' => array_keys($iblockElements),
-					],
-					$this->getAdditionalProductFilter()
-				),
-			])->fetchAll();
-
-			foreach ($catalogResult as $item)
+			$elementsIterator = \CIBlockElement::GetList(
+				[],
+				[
+					'ID' => $pageIds,
+					'CHECK_PERMISSIONS' => 'N',
+					'SHOW_NEW' => 'Y',
+				],
+				false,
+				false,
+				$elementSelect,
+			);
+			if ($detailUrlTemplate)
 			{
+				$elementsIterator->SetUrlTemplates($detailUrlTemplate);
+			}
+			while ($element = $elementsIterator->getNext())
+			{
+				$id = (int)$element['ID'];
+				$iblockElements[$id] += $this->replaceRawFromTilda($element);
+			}
+			unset($elementsIterator);
+
+			$productIterator = ProductTable::getList([
+				'select' => $productSelect,
+				'filter' => [
+					'@ID' => $pageIds,
+				],
+			]);
+			while ($product = $productIterator->fetch())
+			{
+				$id = (int)$product['ID'];
+				unset($product['ID']);
 				foreach ($specificFields as $field => $originalField)
 				{
-					$item[$field] = $item[$originalField];
-					unset($item[$originalField]);
+					$product[$field] = $product[$originalField];
+					unset($product[$originalField]);
 				}
-
-				$result[$item['ID']] = $iblockElements[$item['ID']] + $item;
+				$iblockElements[$id] += $product;
 			}
+			unset($productIterator);
 		}
 
-		return array_filter($result);
+		return $iblockElements;
 	}
 
 	protected function getAdditionalFilter(): array

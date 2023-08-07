@@ -660,7 +660,7 @@ class OrderBasket
 				if($params['MODULE'] != 'catalog')
 					continue;
 
-				if(!isset(self::$productsOffersSkuParams[$params["PRODUCT_ID"]]) || !isset(self::$productsOffersSkuParams[$params["PRODUCT_ID"]]))
+				if (!isset(self::$productsOffersSkuParams[$params["PRODUCT_ID"]]))
 				{
 					if(isset($tmpPropsOff[$params["PRODUCT_ID"]]))
 					{
@@ -691,39 +691,6 @@ class OrderBasket
 							}
 						}
 					}
-					else
-					{
-						$res = \CIBlockElement::GetPropertyValues($params["IBLOCK_ID"], array('ID' => $params['PRODUCT_ID']));
-						$tmpProps = $res->Fetch();
-
-						if(is_array($tmpProps))
-						{
-							foreach($tmpProps as $id => $val)
-							{
-								if(!empty($val))
-								{
-									if(!isset($iblockPropsUsed[$id]))
-										$iblockPropsUsed[$id] = array();
-
-									if(is_array($val))
-									{
-										$iblockPropsUsed[$id] = array_merge(
-											$iblockPropsUsed[$id],
-											array_diff(
-												$val,
-												$iblockPropsUsed[$id]
-											)
-										);
-									}
-									else
-									{
-										if(!in_array($val, $iblockPropsUsed[$id]))
-											$iblockPropsUsed[$id][] = $val;
-									}
-								}
-							}
-						}
-					}
 				}
 			}
 
@@ -742,15 +709,6 @@ class OrderBasket
 					self::$iblockPropsParams[$params["OFFERS_IBLOCK_ID"]] = static::getPropsParams(
 						$params["OFFERS_IBLOCK_ID"],
 						array(),
-						$iblockPropsUsed
-					);
-				}
-
-				if(intval($params["IBLOCK_ID"]) > 0 && !isset(self::$iblockPropsParams[$params["IBLOCK_ID"]]))
-				{
-					self::$iblockPropsParams[$params["IBLOCK_ID"]] = static::getPropsParams(
-						$params["IBLOCK_ID"],
-						$visibleColumns,
 						$iblockPropsUsed
 					);
 				}

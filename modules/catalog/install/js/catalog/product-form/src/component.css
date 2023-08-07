@@ -1360,3 +1360,8 @@ label.ui-ctl-radio-selector {
 	color: rgba(128, 134, 142, .7);
 	line-height: 16px;
 }
+
+.catalog-pf-product-panel-compilation-message .ui-card-message-without-angle {
+	margin-top: 14px;
+	margin-bottom: 5px;
+}

@@ -2,6 +2,28 @@
 IncludeModuleLangFile(__FILE__);
 class CLightHTMLEditor // LHE
 {
+	private $Id;
+	private $cssPath;
+	private $arJSPath;
+	private $bBBCode;
+	private $bRecreate;
+	private $mess;
+	private $messOld;
+	private $bAutorized;
+	private $bUseFileDialogs;
+	private $bUseMedialib;
+	private $bResizable;
+	private $bManualResize;
+	private $bAutoResize;
+	private $bInitByJS;
+	private $bSaveOnBlur;
+	private $content;
+	private $inputName;
+	private $inputId;
+	private $videoSettings;
+	private $jsObjName;
+	private $JSConfig;
+
 	function Init(&$arParams)
 	{
 		global $USER, $APPLICATION;
@@ -19,8 +41,8 @@ class CLightHTMLEditor // LHE
 			$basePath.'le_core.js'
 		);
 
-		$this->bBBCode = $arParams['BBCode'] === true;
-		$this->bRecreate = $arParams['bRecreate'] === true;
+		$this->bBBCode = ($arParams['BBCode'] ?? null) === true;
+		$this->bRecreate = ($arParams['bRecreate'] ?? null) === true;
 		$arJS = Array();
 		$arCSS = Array();
 
@@ -63,17 +85,19 @@ class CLightHTMLEditor // LHE
 
 		$this->bAutorized = is_object($USER) && $USER->IsAuthorized();
 		$this->bUseFileDialogs = $arParams['bUseFileDialogs'] !== false && $this->bAutorized;
-		$this->bUseMedialib = $arParams['bUseMedialib'] !== false && COption::GetOptionString('fileman', "use_medialib", "Y") == "Y" && CMedialib::CanDoOperation('medialib_view_collection', 0);
+		$this->bUseMedialib = ($arParams['bUseMedialib'] ?? null) !== false && COption::GetOptionString('fileman', "use_medialib", "Y") == "Y" && CMedialib::CanDoOperation('medialib_view_collection', 0);
 
-		$this->bResizable = $arParams['bResizable'] === true;
-		$this->bManualResize = $this->bResizable && $arParams['bManualResize'] !== false;
-		$this->bAutoResize = $arParams['bAutoResize'] !== false;
-		$this->bInitByJS = $arParams['bInitByJS'] === true;
-		$this->bSaveOnBlur = $arParams['bSaveOnBlur'] !== false;
-		$this->content = $arParams['content'];
+		$this->bResizable = ($arParams['bResizable'] ?? null) === true;
+		$this->bManualResize = $this->bResizable && ($arParams['bManualResize'] ?? null) !== false;
+		$this->bAutoResize = ($arParams['bAutoResize'] ?? null) !== false;
+		$this->bInitByJS = ($arParams['bInitByJS'] ?? null) === true;
+		$this->bSaveOnBlur = ($arParams['bSaveOnBlur'] ?? null) !== false;
+		$this->content = ($arParams['content'] ?? null);
+		$arParams['inputName'] ??= null;
 		$this->inputName = isset($arParams['inputName']) ? $arParams['inputName'] : 'lha_content';
+		$arParams['inputId'] ??= null;
 		$this->inputId = isset($arParams['inputId']) ? $arParams['inputId'] : 'lha_content_id';
-		$this->videoSettings = is_array($arParams['videoSettings']) ? $arParams['videoSettings'] : array(
+		$this->videoSettings = is_array($arParams['videoSettings'] ?? null) ? $arParams['videoSettings'] : array(
 				'maxWidth' => 640,
 				'maxHeight' => 480,
 				'WMode' => 'transparent',
@@ -83,10 +107,10 @@ class CLightHTMLEditor // LHE
 				'logo' => ''
 			);
 
-		if (!is_array($arParams['arFonts']) || count($arParams['arFonts']) <= 0)
+		if (!is_array($arParams['arFonts'] ?? null) || count($arParams['arFonts']) <= 0)
 			$arParams['arFonts'] = array('Arial', 'Verdana', 'Times New Roman', 'Courier', 'Tahoma', 'Georgia', 'Optima', 'Impact', 'Geneva', 'Helvetica');
 
-		if (!is_array($arParams['arFontSizes']) || count($arParams['arFontSizes']) <= 0)
+		if (!is_array($arParams['arFontSizes'] ?? null) || count($arParams['arFontSizes']) <= 0)
 			$arParams['arFontSizes'] = array('1' => 'xx-small', '2' => 'x-small', '3' => 'small', '4' => 'medium', '5' => 'large', '6' => 'x-large', '7' => 'xx-large');
 
 		// Tables
@@ -111,21 +135,21 @@ class CLightHTMLEditor // LHE
 			'bBBCode' => $this->bBBCode,
 			'bUseFileDialogs' => $this->bUseFileDialogs,
 			'bUseMedialib' => $this->bUseMedialib,
-			'arSmiles' => $arParams['arSmiles'],
-			'arFonts' => $arParams['arFonts'],
-			'arFontSizes' => $arParams['arFontSizes'],
+			'arSmiles' => ($arParams['arSmiles'] ?? null),
+			'arFonts' => ($arParams['arFonts'] ?? null),
+			'arFontSizes' => ($arParams['arFontSizes'] ?? null),
 			'inputName' => $this->inputName,
 			'inputId' => $this->inputId,
 			'videoSettings' => $this->videoSettings,
 			'bSaveOnBlur' => $this->bSaveOnBlur,
 			'bResizable' => $this->bResizable,
-			'autoResizeSaveSize' => $arParams['autoResizeSaveSize'] !== false,
+			'autoResizeSaveSize' => ($arParams['autoResizeSaveSize'] ?? null) !== false,
 			'bManualResize' => $this->bManualResize,
 			'bAutoResize' => $this->bAutoResize,
 			'bReplaceTabToNbsp' => true,
 			'bSetDefaultCodeView' => isset($arParams['bSetDefaultCodeView']) && $arParams['bSetDefaultCodeView'],
 			'bBBParseImageSize' => isset($arParams['bBBParseImageSize']) && $arParams['bBBParseImageSize'],
-			'smileCountInToolbar' => intval($arParams['smileCountInToolbar']),
+			'smileCountInToolbar' => intval(($arParams['smileCountInToolbar'] ?? null)),
 			'bQuoteFromSelection' => isset($arParams['bQuoteFromSelection']) && $arParams['bQuoteFromSelection'],
 			'bConvertContentFromBBCodes' => isset($arParams['bConvertContentFromBBCodes']) && $arParams['bConvertContentFromBBCodes'],
 			'oneGif' => '/bitrix/images/1.gif',

@@ -161,6 +161,7 @@ this.BX = this.BX || {};
 	      cacheable = _ref.cacheable,
 	      contentPadding = _ref.contentPadding,
 	      padding = _ref.padding,
+	      offsetTop = _ref.offsetTop,
 	      blurBackground = _ref.blurBackground;
 	    babelHelpers.classCallCheck(this, PopupComponentsMaker);
 	    this.id = main_core.Type.isString(id) ? id : null;
@@ -174,6 +175,7 @@ this.BX = this.BX || {};
 	    this.cacheable = main_core.Type.isBoolean(cacheable) ? cacheable : true;
 	    this.contentPadding = main_core.Type.isNumber(contentPadding) ? contentPadding : 0;
 	    this.padding = main_core.Type.isNumber(padding) ? padding : 13;
+	    this.offsetTop = main_core.Type.isNumber(offsetTop) ? offsetTop : 0;
 	    this.blurBlackground = main_core.Type.isBoolean(blurBackground) ? blurBackground : false;
 	  }
 	  babelHelpers.createClass(PopupComponentsMaker, [{
@@ -207,6 +209,7 @@ this.BX = this.BX || {};
 	          angle: {
 	            offset: popupWidth / 2 - 16
 	          },
+	          offsetTop: this.offsetTop,
 	          width: popupWidth,
 	          offsetLeft: -(popupWidth / 2) + (this.target ? this.target.offsetWidth / 2 : 0) + 40,
 	          autoHide: true,

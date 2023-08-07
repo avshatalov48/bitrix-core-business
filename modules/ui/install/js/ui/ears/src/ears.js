@@ -88,7 +88,7 @@ export class Ears extends EventEmitter
 			}
 		}
 	}
-	
+
 	init(): this
 	{
 		if (!this.container)
@@ -115,6 +115,7 @@ export class Ears extends EventEmitter
 				activeItem ? this.scrollToActiveItem(activeItem) : null;
 			}
 
+			this.toggleEars();
 		}, 600);
 		return this;
 	}
@@ -349,9 +350,7 @@ export class Ears extends EventEmitter
 
 	scrollTop()
 	{
-		console.log('scrollTop');
 		this.stopScroll('bottom');
-		let previous = this.container.scrollTop;
 		this.container.scrollTop -= 10;
 		this.emit('onEarsAreMoved');
 		if (this.container.scrollTop <= 10)
@@ -370,7 +369,6 @@ export class Ears extends EventEmitter
 
 	scrollBottom()
 	{
-		console.log('scrollBottom');
 		this.stopScroll('top');
 		let previous = this.container.scrollTop;
 		this.container.scrollTop += 10;

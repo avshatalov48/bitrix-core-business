@@ -5,6 +5,7 @@ namespace Bitrix\MobileApp\Janative\Entity;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\IO\Path;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Web\Json;
 use Bitrix\MobileApp\Janative\Manager;
 use Bitrix\MobileApp\Janative\Utils;
 
@@ -113,7 +114,7 @@ JS;
 
 		if (!empty($result) && is_array($result))
 		{
-			return json_encode($result);
+			return Json::encode($result);
 		}
 
 		return null;

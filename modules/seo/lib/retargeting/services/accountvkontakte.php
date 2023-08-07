@@ -2,6 +2,7 @@
 
 namespace Bitrix\Seo\Retargeting\Services;
 
+use Bitrix\Main\Context;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Web\Uri;
 use \Bitrix\Seo\Retargeting\Account;
@@ -19,16 +20,33 @@ class AccountVkontakte extends Account
 
 	public function getList()
 	{
-		$response = $this->getRequest()->send(array(
+		$result =  $this->getRequest()->send([
 			'methodName' => 'retargeting.account.list',
-			'parameters' => array()
-		));
-		$data = $response->getData();
-		$data = array_values(array_filter($data, function ($item) {
-			return ($item['account_type'] == 'general'); // only "general" is supported
-		}));
-		$response->setData($data);
-		return $response;
+		]);
+
+		if ($result->isSuccess())
+		{
+			$list = [];
+			while ($item = $result->fetch())
+			{
+				if (
+					(
+						isset($item['CLIENT_NAME'])
+						|| isset($item['NAME'])
+					)
+					&& isset($item['ID'])
+				)
+				{
+					$list[] = [
+						'NAME' => !empty(trim($item['CLIENT_NAME'])) ? $item['CLIENT_NAME'] : $item['NAME'],
+						'ACCOUNT_ID' => $item['ID'],
+					];
+				}
+			}
+			$result->setData($list);
+		}
+
+		return $result;
 	}
 
 	public function getProfile()
@@ -45,7 +63,9 @@ class AccountVkontakte extends Account
 				'ID' => $data['ID'],
 				'NAME' => $data['FIRST_NAME'] . ' ' . $data['LAST_NAME'],
 				'LINK' => 'https://vk.com/' . $data['SCREEN_NAME'],
-				'PICTURE' => $data['PHOTO_50'],
+				'PICTURE' => (Context::getCurrent()->getRequest()->isHttps() ? 'https' : 'http')
+					. '://'
+					.  Context::getCurrent()->getServer()->getHttpHost() . '/bitrix/images/seo/integration/vklogo.svg',
 			);
 		}
 

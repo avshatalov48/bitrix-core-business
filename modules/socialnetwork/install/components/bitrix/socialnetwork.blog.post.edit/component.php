@@ -24,6 +24,7 @@ use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Helper\Mention;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
+use Bitrix\Socialnetwork\Integration;
 
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
@@ -1645,7 +1646,7 @@ if (
 									}
 
 									$filesList = (
-										is_array($arFields["UF_BLOG_POST_FILE"])
+										is_array($arFields["UF_BLOG_POST_FILE"] ?? null)
 											? array_values($arFields["UF_BLOG_POST_FILE"])
 											: []
 									);
@@ -1825,8 +1826,7 @@ if (
 
 						$logEntryActivated = false;
 						if (
-							is_array($arOldPost)
-							&& ($arOldPost["PUBLISH_STATUS"] ?? '') != BLOG_PUBLISH_STATUS_READY
+							($arOldPost["PUBLISH_STATUS"] ?? '') != BLOG_PUBLISH_STATUS_PUBLISH
 							&& ($arFields["PUBLISH_STATUS"] ?? '') == BLOG_PUBLISH_STATUS_PUBLISH
 						)
 						{
@@ -2396,11 +2396,10 @@ if (
 		$arResult["Category"] = [];
 
 		if (
-			($arResult["PostToShow"]["CategoryText"] ?? null) === ''
+			($arResult["PostToShow"]["CategoryText"] ?? '') == ''
 			&& !empty($arResult["PostToShow"]["CATEGORY_ID"])
 		)
 		{
-
 			$selectedCategoriesList = [];
 			$res = CBlogCategory::GetList(array("NAME" => "ASC"), array("BLOG_ID" => $arBlog["ID"]));
 			while ($arCategory = $res->GetNext())
@@ -2417,7 +2416,7 @@ if (
 					$arCategory["Selected"] = "Y";
 				}
 
-				if ($arCategory['Selected'] === 'Y')
+				if (($arCategory['Selected'] ?? null) === 'Y')
 				{
 					$selectedCategoriesList[(int)$arCategory['ID']] = $arCategory["~NAME"];
 				}
@@ -2934,6 +2933,18 @@ else
 {
 	$arResult['FATAL_MESSAGE'] = Loc::getMessage('BLOG_ERR_NO_RIGHTS');
 }
+
+$arResult['AITextContextId'] = 'sonet_blog_post_text_' . $user_id;
+$arResult['AIImageContextId'] = 'sonet_blog_post_image_' . $user_id;
+
+$arResult['isAITextAvailable'] = Integration\AI\Controller::isAvailable(
+	Integration\AI\Controller::TEXT_CATEGORY,
+	$arResult['AITextContextId']
+);
+$arResult['isAIImageAvailable'] = Integration\AI\Controller::isAvailable(
+	Integration\AI\Controller::IMAGE_CATEGORY,
+	$arResult['AIImageContextId']
+);
 
 CSocNetTools::InitGlobalExtranetArrays();
 Loader::includeModule('intranet'); // for gov/public language messages

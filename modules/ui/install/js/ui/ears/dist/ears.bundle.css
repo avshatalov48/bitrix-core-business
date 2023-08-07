@@ -27,20 +27,6 @@
 
 .ui-ear-left,
 .ui-ear-right {
-
-	background-repeat: no-repeat;
-	background-position: center;
-
-	cursor: pointer;
-	z-index: 11;
-	opacity: 0;
-	-webkit-transition: .3s;
-	-o-transition: .3s;
-	transition: .3s;
-}
-
-.ui-ear-left,
-.ui-ear-right {
 	top: 0;
 	bottom: 0;
 	width: 49px;
@@ -75,7 +61,6 @@
 	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='95' height='50' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M.542 49.5a47.407 47.407 0 01-.042-2c0-25.957 21.043-47 47-47s47 21.043 47 47c0 .67-.014 1.337-.042 2H.542z' fill='%23525C69'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M48.285 32.167l-9.247-9.247a1 1 0 00-1.414 0l-1.71 1.71a1 1 0 000 1.414l11.618 11.618a.997.997 0 00.753.292 1 1 0 00.753-.292l11.618-11.618a1 1 0 000-1.414l-1.71-1.71a1 1 0 00-1.414 0l-9.247 9.247z' fill='%23fff'/%3E%3C/svg%3E");
 }
 
-
 .ui-ear:hover {
 	opacity: .3;
 }
@@ -101,13 +86,6 @@
 .ui-ears-wrapper-sm .ui-ear-left,
 .ui-ears-wrapper-sm .ui-ear-right {
 	background-size: 37px 71px;
-}
-
-.ui-ears-wrapper-sm .ui-ear.ui-ear-top,
-.ui-ears-wrapper-sm .ui-ear.ui-ear-bottom {
-	width: unset;
-	height: 37px;
-	background-size: 71px 37px;
 }
 
 .ui-ears-wrapper-sm .ui-ear.ui-ear-top,

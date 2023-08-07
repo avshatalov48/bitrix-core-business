@@ -231,7 +231,7 @@ class CPerfomanceComponent
 			$strHaving = "HAVING COUNT(*) > ".intval($arFilter["COUNT"])."";
 		}
 
-		if (is_array($arNavStartParams) && $arNavStartParams["nTopCount"] > 0)
+		if (is_array($arNavStartParams) && isset($arNavStartParams["nTopCount"]) && $arNavStartParams["nTopCount"] > 0)
 		{
 			$strSql = $DB->TopSQL("
 				SELECT ".implode(", ", $arQuerySelect)."

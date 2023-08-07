@@ -57,6 +57,7 @@ $MESS["SALE_EXPIRATION_PROCESSING_EVENTS"] = "Process legacy events:";
 $MESS["SALE_GRAPH_HEIGHT"] = "Order statistics chart height:";
 $MESS["SALE_GRAPH_WEIGHT"] = "Order statistics chart width:";
 $MESS["SALE_HALF_PAY_TO_STATUS"] = "Order status after partial payment has been received:";
+$MESS["SALE_HINT_NEED_ADMIN_RIGHTS_FOR_CHANGE"] = "You need administrator permissions to change this parameter.";
 $MESS["SALE_IS_SHOP"] = "Enable web store capability for websites (select one or more):";
 $MESS["SALE_LANG"] = "Website";
 $MESS["SALE_LOCATION_SELECTOR_APPEARANCE"] = "Location selector design";

@@ -31,6 +31,7 @@ $defaultChunkSize = 10 * $megabyte;
 $defaultChunkSize = isset($settings['defaultChunkSize']) ? Ini::unformatInt($settings['defaultChunkSize']) : $defaultChunkSize;
 $defaultChunkSize = min(max($chunkMinSize, $defaultChunkSize), $chunkMaxSize);
 
+\Bitrix\Main\Loader::includeModule('ui');
 $defaultConfig = new Configuration();
 
 return [
@@ -56,7 +57,7 @@ return [
 		'imageMaxFileSize' => $defaultConfig->getImageMaxFileSize(),
 		'imageMinFileSize' => $defaultConfig->getImageMinFileSize(),
 		'acceptOnlyImages' => $defaultConfig->shouldAcceptOnlyImages(),
-		'acceptedFileTypes' => $defaultConfig->getAcceptedFileTypes(),
+		'acceptedFileTypes' => empty($defaultConfig->getAcceptedFileTypes()) ? null : $defaultConfig->getAcceptedFileTypes(),
 		'ignoredFileNames' => $defaultConfig->getIgnoredFileNames(),
 
 		'imageExtensions' => Configuration::getImageExtensions(),

@@ -208,13 +208,24 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 
 	public function isSystem(): bool
 	{
-		$notifyEvent = $this->getNotifyEvent();
-		if (!isset($notifyEvent))
+		return $this->isSystem;
+	}
+
+	public function isDisappearing(): bool
+	{
+		return (bool)$this->getDisappearingTime();
+	}
+
+	public function getDisappearingTime(): ?DateTime
+	{
+		if ($this->getMessageId())
 		{
-			return $this->isSystem;
+			$row = Im\Model\MessageDisappearingTable::getRowById($this->getMessageId());
+
+			return $row['DATE_REMOVE'];
 		}
 
-		return $this->getAuthorId() === 0 || $notifyEvent === 'private_system';
+		return null;
 	}
 
 	/**
@@ -226,6 +237,17 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		$this->getParams()->load($params);
 
 		return $this;
+	}
+
+	/**
+	 * @param array $params
+	 * @return $this
+	 */
+	public function resetParams($params): self
+	{
+		$this->getParams()->delete();
+
+		return $this->setParams($params);
 	}
 
 	/**
@@ -667,11 +689,23 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		return $this->messageId;
 	}
 
-	public function setAuthorId(int $value): self
+	public function setAuthorId(int $authorId): self
 	{
-		$this->authorId = $value > 0 ? $value : 0;
+		$this->authorId = $authorId;
+
+		$this->processChangeAuthorId($authorId);
 
 		return $this;
+	}
+
+	public function processChangeAuthorId(int $authorId): int
+	{
+		if ($authorId === 0)
+		{
+			$this->markAsSystem(true);
+		}
+
+		return $authorId;
 	}
 
 	public function getAuthorId(): int
@@ -886,10 +920,23 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 	 * @see \Bitrix\Im\Notify
 	 * @return string|null
 	 */
-	public function setNotifyEvent(?string $value): self
+	public function setNotifyEvent(?string $notifyEvent): self
 	{
-		$this->notifyEvent = $value;
+		$this->notifyEvent = $notifyEvent;
+
+		$this->processChangeNotifyEvent($notifyEvent);
+
 		return $this;
+	}
+
+	public function processChangeNotifyEvent(?string $notifyEvent): ?string
+	{
+		if ($notifyEvent === Notify::EVENT_PRIVATE_SYSTEM)
+		{
+			$this->markAsSystem(true);
+		}
+
+		return $notifyEvent;
 	}
 
 	/**
@@ -1103,6 +1150,7 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 				'field' => 'authorId', /** @see Message::$authorId */
 				'set' => 'setAuthorId', /** @see Message::setAuthorId */
 				'get' => 'getAuthorId', /** @see Message::getAuthorId */
+				'loadFilter' => 'processChangeAuthorId', /** @see Message::processChangeAuthorId */
 			],
 			'FROM_USER_ID' => [
 				'alias' => 'AUTHOR_ID',
@@ -1148,7 +1196,8 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 				'field' => 'notifyEvent', /** @see Message::$notifyEvent */
 				'set' => 'setNotifyEvent', /** @see Message::setNotifyEvent */
 				'get' => 'getNotifyEvent', /** @see Message::getNotifyEvent */
-				'default' => 'getDefaultNotifyEvent',/** @see Message::getDefaultNotifyEvent */
+				'default' => 'getDefaultNotifyEvent', /** @see Message::getDefaultNotifyEvent */
+				'loadFilter' => 'processChangeNotifyEvent', /** @see Message::processChangeNotifyEvent */
 			],
 			'NOTIFY_TAG' => [
 				'field' => 'notifyTag', /** @see Message::$notifyTag */
@@ -1432,6 +1481,14 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		return $text;
 	}
 
+	public function hasAccess(?int $userId = null): bool
+	{
+		$userId ??= $this->getContext()->getUserId();
+		$chat = $this->getChat();
+
+		return $this->getId() && $chat->hasAccess($userId) && $chat->getStartId($userId) <= $this->getId();
+	}
+
 	public static function getRestEntityName(): string
 	{
 		return 'message';
@@ -1615,5 +1672,26 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 	public static function loadPhrases(): void
 	{
 		Loc::loadMessages(__FILE__);
+	}
+
+	public function deleteSoft(): Result
+	{
+		$service = new Im\V2\Message\Delete\DeleteService($this);
+		$service->setMode(Im\V2\Message\Delete\DeleteService::MODE_SOFT);
+		return $service->delete();
+	}
+
+	public function deleteHard(): Result
+	{
+		$service = new Im\V2\Message\Delete\DeleteService($this);
+		$service->setMode(Im\V2\Message\Delete\DeleteService::MODE_HARD);
+		return $service->delete();
+	}
+
+	public function deleteComplete(): Result
+	{
+		$service = new Im\V2\Message\Delete\DeleteService($this);
+		$service->setMode(Im\V2\Message\Delete\DeleteService::MODE_COMPLETE);
+		return $service->delete();
 	}
 }

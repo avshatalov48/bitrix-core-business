@@ -582,8 +582,10 @@ class CSocNetLogTools
 
 	public static function FormatEvent_GetEntity($arFields, $arParams, $bMail)
 	{
+		$arEntity = [];
+
 		if (
-			$arFields["ENTITY_TYPE"] == SONET_SUBSCRIBE_ENTITY_USER
+			($arFields["ENTITY_TYPE"] ?? null) == SONET_SUBSCRIBE_ENTITY_USER
 			&& intval($arFields["ENTITY_ID"]) > 0
 		)
 		{
@@ -787,7 +789,7 @@ class CSocNetLogTools
 		if (!$bMail)
 		{
 			if (
-				$arParams["NEW_TEMPLATE"] != "Y"
+				($arParams["NEW_TEMPLATE"] ?? null) != "Y"
 				|| $arFields["EVENT_ID"] == "idea"
 			)
 			{
@@ -938,7 +940,7 @@ class CSocNetLogTools
 		)
 			$post_tmp = '<a href="'.$arLog["URL"].'">'.$arLog["TITLE"].'</a>';
 		else
-			$post_tmp = $arLog["TITLE"];
+			$post_tmp = $arLog["TITLE"] ?? '';
 
 		$title = str_replace(
 			array("#TITLE#", "#ENTITY#", "#CREATED_BY#"),
@@ -1484,7 +1486,7 @@ class CSocNetLogTools
 			],
 			[
 				$topic_tmp,
-				is_string($arResult["ENTITY"]["FORMATTED"]) ? $arResult["ENTITY"]["FORMATTED"] : '',
+				is_string($arResult["ENTITY"]["FORMATTED"] ?? null) ? $arResult["ENTITY"]["FORMATTED"] : '',
 				($bMail ? $arResult["CREATED_BY"]["FORMATTED"] : "")
 			],
 			$title_tmp
@@ -5378,6 +5380,8 @@ class CSocNetLogTools
 		{
 			return false;
 		}
+
+		$log_type = '';
 
 		switch ($rating_entity_type_id)
 		{

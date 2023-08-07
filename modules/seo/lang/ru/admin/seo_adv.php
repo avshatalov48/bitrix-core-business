@@ -251,6 +251,7 @@ $MESS["SEO_YANDEX_STATS_BANNER_STATS"] = "Статистика объявлен�
 $MESS["SEO_YANDEX_STATS_LOAD"] = "Посмотреть детальную статистику";
 $MESS["SEO_YANDEX_STATS_DELETE_LINK"] = "отвязать объявление";
 $MESS["SEO_YANDEX_REGISTER"] = "Регистрация";
+$MESS["SEO_YANDEX_REGISTER_FULL"] = "Регистрация в Яндекс.Директ";
 $MESS["SEO_YANDEX_REGISTER_RPOGRESS"] = "Регистрация...";
 $MESS["SEO_YANDEX_AUTH_RPOGRESS"] = "Авторизация...";
 $MESS["SEO_YANDEX_AUTH_CONFIRM_RPOGRESS"] = "Подтверждение авторизации...";

@@ -405,7 +405,7 @@ class LiveFeedAjaxController extends Controller
 			{
 				$userId = mb_substr($right['GROUP_CODE'], 1);
 				$users = CUser::GetList("id", "asc",
-					array('ID' => $userId),
+					array('ID' => $userId, 'ACTIVE' => 'Y'),
 					array('FIELDS' => array('ID', 'PERSONAL_PHOTO', 'NAME', 'LAST_NAME'))
 				);
 				$user = $users->fetch();
@@ -661,7 +661,7 @@ class LiveFeedAjaxController extends Controller
 				{
 					$userQuery = CUser::getList(
 						'ID', 'ASC',
-						array('ID' => $userId),
+						array('ID' => $userId, 'ACTIVE' => 'Y'),
 						array('FIELDS' => array('ID' ,'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'TITLE', 'EMAIL')
 						)
 					);
@@ -703,8 +703,10 @@ class LiveFeedAjaxController extends Controller
 
 	protected function processActionCheckDataElementCreation()
 	{
-		if($_POST["save"] != "Y" && $_POST["changePostFormTab"] != "lists" && !check_bitrix_sessid())
-			$this->errorCollection->add(array(new Error(Loc::getMessage('LISTS_SEAC_CONNECTION_MODULE_IBLOCK'))));
+		if(($_POST["save"] ?? '') != "Y" && ($_POST["changePostFormTab"] ?? '') != "lists" && !check_bitrix_sessid())
+		{
+			$this->errorCollection->add([new Error(Loc::getMessage('LISTS_SEAC_CONNECTION_MODULE_IBLOCK'))]);
+		}
 
 		if (!$this->isFeatureEnabled())
 			$this->errorCollection->add(array(new Error(Loc::getMessage('LISTS_SEAC_CONNECTION_MODULE_BIZPROC'))));
@@ -804,7 +806,10 @@ class LiveFeedAjaxController extends Controller
 			}
 			elseif($fieldId == 'ACTIVE_FROM' || $fieldId == 'ACTIVE_TO')
 			{
-				$elementData[$fieldId] = array_shift($_POST[$fieldId]);
+				$elementData[$fieldId] = is_array($_POST[$fieldId])
+					? array_shift($_POST[$fieldId])
+					: $_POST[$fieldId]
+				;
 			}
 			elseif($list->is_field($fieldId))
 			{
@@ -907,7 +912,7 @@ class LiveFeedAjaxController extends Controller
 			}
 			else
 			{
-				$props[$field["ID"]] = $_POST[$fieldId];
+				$props[$field["ID"]] = $_POST[$fieldId] ?? '';
 			}
 		}
 		$elementData["MODIFIED_BY"] = $this->getUser()->getID();
@@ -1183,10 +1188,8 @@ class LiveFeedAjaxController extends Controller
 			$this->lists['SELECT']
 		);
 		$element = $elements->getNextElement();
-		if(is_object($element))
-			$this->lists['ELEMENT_FIELDS'] = $element->getFields();
-		else
-			$this->lists['ELEMENT_FIELDS'] = array();
+
+		$this->lists['ELEMENT_FIELDS'] = is_object($element) ? $element->getFields() : [];
 	}
 
 	protected function createPreparedFields()
@@ -1200,6 +1203,24 @@ class LiveFeedAjaxController extends Controller
 
 		foreach($this->lists['FIELDS'] as $fieldId => $field)
 		{
+			if ($field['TYPE'] === 'S:employee')
+			{
+				//todo: its too slow in Newsfeed
+				$field['SETTINGS']['USE_ENTITY_SELECTOR'] = 'Y';
+			}
+
+			$isReadOnly = ($field['SETTINGS']['ADD_READ_ONLY_FIELD'] ?? '') === 'Y';
+
+			if ($isReadOnly)
+			{
+				$field['VALUE'] = $this->lists['FORM_DATA'][$fieldId] ?? null;
+				$preparedField = \Bitrix\Lists\Field::prepareFieldDataForEditForm($field);
+
+				$this->lists['PREPARED_FIELDS'][$fieldId] = $preparedField;
+
+				continue;
+			}
+
 			if($fieldId == 'ACTIVE_FROM' || $fieldId == 'ACTIVE_TO')
 			{
 				$this->lists['PREPARED_FIELDS'][$fieldId] = array(
@@ -1797,7 +1818,6 @@ class LiveFeedAjaxController extends Controller
 					$this->lists['PREPARED_FIELDS'][$fieldId]['show'] = 'Y';
 				}
 			}
-
 		}
 	}
 
@@ -1893,7 +1913,7 @@ class LiveFeedAjaxController extends Controller
 
 		$obFile = new CListFile(
 			$this->iblockId,
-			$this->lists['ELEMENT_FIELDS']["IBLOCK_SECTION_ID"],
+			$this->lists['ELEMENT_FIELDS']["IBLOCK_SECTION_ID"] ?? 0,
 			$this->lists['ELEMENT_ID'],
 			$fieldId,
 			$value["VALUE"]
@@ -2052,7 +2072,7 @@ class LiveFeedAjaxController extends Controller
 				<?
 					$customHtml = (isset($field['value'])? $field['value'] : $this->lists['FORM_DATA'][$field['id']]);
 					$params = '';
-					if(is_array($field['params']) && $field['type'] <> 'file')
+					if(is_array($field['params'] ?? null) && $field['type'] <> 'file')
 					{
 						foreach($field['params'] as $p => $v)
 							$params .= ' '.$p.'="'.$v.'"';
@@ -2172,7 +2192,7 @@ class LiveFeedAjaxController extends Controller
 										<span class="webform-small-button bx-lists-small-button">
 											<?= Loc::getMessage('LISTS_SEAC_FILE_ADD') ?></span>
 										<input name="<?= $field['id'] ?>"
-										       size="<?= HtmlFilter::encode($field['params']['size']) ?>" type="file">
+											size="<?= HtmlFilter::encode($field['params']['size'] ?? '') ?>" type="file">
 									</span>
 									<span class="fileformlabel bx-lists-input-file-name"></span>
 								</span>

@@ -617,15 +617,13 @@ class Workgroup
 			if ($ex = $APPLICATION->getException())
 			{
 				$errorMessage = $ex->getString();
-				$errorCode = $ex->getId();
 			}
 			else
 			{
 				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
-				$errorCode = 100;
 			}
 
-			throw new \Exception($errorMessage, $errorCode);
+			throw new \Exception($errorMessage, 100);
 		}
 
 		return true;
@@ -756,15 +754,13 @@ class Workgroup
 			if ($ex = $APPLICATION->getException())
 			{
 				$errorMessage = $ex->getString();
-				$errorCode = $ex->getId();
 			}
 			else
 			{
 				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
-				$errorCode = 100;
 			}
 
-			throw new \Exception($errorMessage, $errorCode);
+			throw new \Exception($errorMessage, 100);
 		}
 
 		return true;
@@ -817,15 +813,13 @@ class Workgroup
 			if ($ex = $APPLICATION->getException())
 			{
 				$errorMessage = $ex->getString();
-				$errorCode = $ex->getId();
 			}
 			else
 			{
 				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
-				$errorCode = 100;
 			}
 
-			throw new \Exception($errorMessage, $errorCode);
+			throw new \Exception($errorMessage, 100);
 		}
 
 		return true;
@@ -1220,15 +1214,13 @@ class Workgroup
 			if ($ex = $APPLICATION->getException())
 			{
 				$errorMessage = $ex->getString();
-				$errorCode = $ex->getId();
 			}
 			else
 			{
 				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
-				$errorCode = 100;
 			}
 
-			throw new \Exception($errorMessage, $errorCode);
+			throw new \Exception($errorMessage, 100);
 		}
 
 		return true;
@@ -1261,15 +1253,13 @@ class Workgroup
 			if ($ex = $APPLICATION->getException())
 			{
 				$errorMessage = $ex->getString();
-				$errorCode = $ex->getId();
 			}
 			else
 			{
 				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
-				$errorCode = 100;
 			}
 
-			throw new \Exception($errorMessage, $errorCode);
+			throw new \Exception($errorMessage, 100);
 		}
 
 		return true;
@@ -1321,15 +1311,13 @@ class Workgroup
 			if ($ex = $APPLICATION->getException())
 			{
 				$errorMessage = $ex->getString();
-				$errorCode = $ex->getId();
 			}
 			else
 			{
 				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
-				$errorCode = 100;
 			}
 
-			throw new \Exception($errorMessage, $errorCode);
+			throw new \Exception($errorMessage, 100);
 		}
 
 		return true;
@@ -1369,15 +1357,13 @@ class Workgroup
 			if ($ex = $APPLICATION->getException())
 			{
 				$errorMessage = $ex->getString();
-				$errorCode = $ex->getId();
 			}
 			else
 			{
 				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
-				$errorCode = 100;
 			}
 
-			throw new \Exception($errorMessage, $errorCode);
+			throw new \Exception($errorMessage, 100);
 		}
 
 		return true;
@@ -1429,15 +1415,13 @@ class Workgroup
 			if ($ex = $APPLICATION->getException())
 			{
 				$errorMessage = $ex->getString();
-				$errorCode = $ex->getId();
 			}
 			else
 			{
 				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
-				$errorCode = 100;
 			}
 
-			throw new \Exception($errorMessage, $errorCode);
+			throw new \Exception($errorMessage, 100);
 		}
 
 		return true;
@@ -1500,15 +1484,13 @@ class Workgroup
 			if ($ex = $APPLICATION->getException())
 			{
 				$errorMessage = $ex->getString();
-				$errorCode = $ex->getId();
 			}
 			else
 			{
 				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
-				$errorCode = 100;
 			}
 
-			throw new \Exception($errorMessage, $errorCode);
+			throw new \Exception($errorMessage, 100);
 		}
 
 		return true;

@@ -42,15 +42,23 @@ class DeleteCashboxesOnDisabledFiscalization implements IExecuteEvent
 		]);
 		foreach ($cashboxList as $cashboxItem)
 		{
-			$serviceCashbox = Sale\Cashbox\Manager::getObjectById($cashboxItem['ID']);
-			$deleteResult = Sale\Cashbox\Manager::delete($cashboxItem['ID']);
-			if ($deleteResult->isSuccess())
+			$cashboxId = $cashboxItem['ID'];
+			$serviceCashbox = Sale\Cashbox\Manager::getObjectById($cashboxId);
+			if (Sale\Cashbox\Manager::isCashboxChecksExist($cashboxId))
 			{
-				AddEventToStatFile('sale', 'deleteCashbox', '', $serviceCashbox::getCode());
+				Sale\Cashbox\Manager::deactivateCashbox($cashboxId);
 			}
 			else
 			{
-				$result->addErrors($deleteResult->getErrors());
+				$deleteResult = Sale\Cashbox\Manager::delete($cashboxId);
+				if ($deleteResult->isSuccess())
+				{
+					AddEventToStatFile('sale', 'deleteCashbox', '', $serviceCashbox::getCode());
+				}
+				else
+				{
+					$result->addErrors($deleteResult->getErrors());
+				}
 			}
 		}
 

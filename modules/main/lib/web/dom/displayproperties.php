@@ -201,7 +201,11 @@ class DisplayProperties
 	 */
 	protected function isDeletedTag($tagName)
 	{
-		return mb_strtolower($tagName) == 'del';
+		$deletedTagNames = [
+			'del' => true, 's' => true,
+		];
+
+		return isset($deletedTagNames[mb_strtolower($tagName)]);
 	}
 
 	/**

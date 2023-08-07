@@ -28,6 +28,7 @@ import type { PopupOptions } from 'main.popup';
 import type { HeaderOptions, HeaderContent } from './header/header-content';
 import type { FooterOptions, FooterContent } from './footer/footer-content';
 import type { ItemNodeOptions } from '../item/item-node-options';
+import type { TagItemOptions } from '../tag-selector/tag-item-options';
 
 class LoadState
 {
@@ -59,6 +60,7 @@ export default class Dialog extends EventEmitter
 	multiple: boolean = true;
 	hideOnSelect: boolean = null;
 	hideOnDeselect: boolean = null;
+	addTagOnSelect: boolean = null;
 	clearSearchOnSelect: boolean = true;
 	context: string = null;
 	selectedItems: Set<Item> = new Set();
@@ -172,6 +174,7 @@ export default class Dialog extends EventEmitter
 		this.setTargetNode(options.targetNode);
 		this.setHideOnSelect(options.hideOnSelect);
 		this.setHideOnDeselect(options.hideOnDeselect);
+		this.setAddTagOnSelect(options.addTagOnSelect);
 		this.setClearSearchOnSelect(options.clearSearchOnSelect);
 		this.setWidth(options.width);
 		void this.setHeight(options.height);
@@ -1175,6 +1178,24 @@ export default class Dialog extends EventEmitter
 		return this.clearSearchOnSelect;
 	}
 
+	setAddTagOnSelect(flag: boolean): void
+	{
+		if (Type.isBoolean(flag))
+		{
+			this.addTagOnSelect = flag;
+		}
+	}
+
+	shouldAddTagOnSelect(): boolean
+	{
+		if (this.addTagOnSelect !== null)
+		{
+			return this.addTagOnSelect;
+		}
+
+		return this.isMultiple() || this.isTagSelectorOutside();
+	}
+
 	setShowAvatars(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
@@ -2063,6 +2084,12 @@ export default class Dialog extends EventEmitter
 	 */
 	handleItemSelect(item: Item, animate: boolean = true): void
 	{
+		const shouldAnimate: boolean =
+			this.isMultiple()
+				? animate
+				: this.getSelectedItems().length === 0
+		;
+
 		if (!this.isMultiple())
 		{
 			this.deselectAll();
@@ -2073,10 +2100,10 @@ export default class Dialog extends EventEmitter
 			}
 		}
 
-		if (this.getTagSelector() && (this.isMultiple() || this.isTagSelectorOutside()))
+		if (this.getTagSelector() && this.shouldAddTagOnSelect())
 		{
-			const tag = item.createTag();
-			tag.animate = animate;
+			const tag: TagItemOptions = item.createTag();
+			tag.animate = shouldAnimate;
 			this.getTagSelector().addTag(tag);
 		}
 
@@ -2088,6 +2115,8 @@ export default class Dialog extends EventEmitter
 	 */
 	handleItemDeselect(item: Item): void
 	{
+		const shouldAnimate: boolean = this.isMultiple();
+
 		this.selectedItems.delete(item);
 
 		if (this.getTagSelector())
@@ -2095,7 +2124,7 @@ export default class Dialog extends EventEmitter
 			this.getTagSelector().removeTag({
 				id: item.getId(),
 				entityId: item.getEntityId()
-			});
+			}, shouldAnimate);
 		}
 	}
 

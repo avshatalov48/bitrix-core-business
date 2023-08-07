@@ -5,7 +5,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Catalog\StoreTable;
+use Bitrix\Intranet\Util;
 use Bitrix\Main;
+use Bitrix\Main\Loader;
 
 /** @global \CMain $APPLICATION */
 /** @var array $arResult */
@@ -21,6 +24,12 @@ Main\UI\Extension::load('ui.notification');
 $pathToDetail = $arResult['PATH_TO']['DETAILS'];
 $pathToDetailJS = str_replace('#ID#', '(\d+)', $pathToDetail);
 
+$userFieldCreatePageUrl = null;
+if (Loader::includeModule('intranet'))
+{
+	$userFieldCreatePageUrl = Util::getUserFieldDetailConfigUrl('catalog', StoreTable::getUfId());
+}
+
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',
@@ -30,6 +39,7 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_PARAMS' => [
 			'ID' => (int)($arResult['VARIABLES']['ID'] ?? 0),
 			'PATH_TO_DETAIL' => $pathToDetail,
+			'USER_FIELD_CREATE_PAGE_URL' => $userFieldCreatePageUrl,
 		],
 		'RELOAD_GRID_AFTER_SAVE' => true,
 		'CLOSE_AFTER_SAVE' => true,

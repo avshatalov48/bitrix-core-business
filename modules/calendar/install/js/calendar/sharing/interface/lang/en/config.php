@@ -31,5 +31,9 @@ $MESS["SHARING_INFO_POPUP_SLOT_DESC"] = "&nbsp;";
 $MESS["SHARING_INFO_POPUP_WHAT_SEE_USERS"] = "What will my contacts see?";
 $MESS["SHARING_WARNING_POPUP_CANCEL_BUTTON"] = "Cancel";
 $MESS["SHARING_WARNING_POPUP_CONTENT"] = "A new guest link will be created if you open access to the calendar again. The old link will be invalid.";
+$MESS["SHARING_WARNING_POPUP_CONTENT_1"] = "Closing the access will deactivate your current link. <br>
+You will have to open access to the slots again to receive a new valid link.";
 $MESS["SHARING_WARNING_POPUP_SUBMIT_BUTTON"] = "Close access";
+$MESS["SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW"] = "Yes, close the access";
 $MESS["SHARING_WARNING_POPUP_TITLE"] = "You're about to close access";
+$MESS["SHARING_WARNING_POPUP_TITLE_1"] = "Close access to open slots";

@@ -1,5 +1,6 @@
+/* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,im_lib_utils,ui_switcher,ui_dialogs_messagebox,ui_buttons,main_core_events,main_popup,main_core,loader,resize_observer,webrtc_adapter,im_lib_localstorage) {
+(function (exports,im_lib_utils,ui_switcher,ui_dialogs_messagebox,ui_buttons,im_v2_lib_desktopApi,main_core_events,main_popup,main_core,loader,resize_observer,webrtc_adapter,im_lib_localstorage) {
 	'use strict';
 
 	// screensharing workaround
@@ -53,7 +54,7 @@ this.BX = this.BX || {};
 	      }
 	      var html = "<div id=\"bx-desktop-loader\" class=\"bx-desktop-loader-wrap\">\n\t\t\t\t\t\t<div class=\"bx-desktop-loader\">\n\t\t\t\t\t\t\t<svg class=\"bx-desktop-loader-circular\" viewBox=\"25 25 50 50\">\n\t\t\t\t\t\t\t\t<circle class=\"bx-desktop-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div id=\"placeholder\"></div>";
 	      var js = "BX.Runtime.loadExtension(\"im.v2.component.call-background\").then(function(exports) {\n\t\t\t\tBX.Vue3.BitrixVue.createApp({\n\t\t\t\t\tcomponents: {CallBackground: exports.CallBackground},\n\t\t\t\t\ttemplate: '<CallBackground tab=\"".concat(tab, "\"/>',\n\t\t\t\t}).mount(\"#placeholder\");\n\t\t\t});");
-	      (opener || top).BX.desktop.createWindow("callBackground", function (controller) {
+	      im_v2_lib_desktopApi.DesktopApi.createWindow("callBackground", function (controller) {
 	        var title = _this.isMaskAvailable() ? BX.message('BXD_CALL_BG_MASK_TITLE') : BX.message('BXD_CALL_BG_TITLE');
 	        controller.SetProperty("title", title);
 	        controller.SetProperty("clientSize", {
@@ -66,7 +67,7 @@ this.BX = this.BX || {};
 	        });
 	        controller.SetProperty("backgroundColor", "#2B3038");
 	        controller.ExecuteCommand("center");
-	        controller.ExecuteCommand("html.load", (opener || top).BXIM.desktop.getHtmlPage(html, js, false));
+	        controller.ExecuteCommand("html.load", im_v2_lib_desktopApi.DesktopApi.prepareHtml(html, js));
 	      });
 	      return true;
 	    }
@@ -384,8 +385,8 @@ this.BX = this.BX || {};
 	    key: "log",
 	    value: function log() {
 	      var text = Util$1.getLogMessage.apply(null, arguments);
-	      if (BX.desktop && BX.desktop.ready()) {
-	        BX.desktop.log(BX.message('USER_ID') + '.video.log', text.substr(3));
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.log(BX.message('USER_ID') + '.video.log', text.substr(3));
 	      }
 	      if (CallEngine.debugFlag && console) {
 	        var a = ['Call log [' + Util$1.getTimeForLog() + ']: '];
@@ -3338,8 +3339,8 @@ this.BX = this.BX || {};
 	        this.emit(Events.onChangeMirroringVideo, {
 	          enableMirroring: enableMirroring
 	        });
-	        if (BX.desktop) {
-	          BX.desktop.onCustomEvent(Events.onChangeMirroringVideo, [enableMirroring]);
+	        if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	          im_v2_lib_desktopApi.DesktopApi.emit(Events.onChangeMirroringVideo, [enableMirroring]);
 	        }
 	        if (localStorage) {
 	          localStorage.setItem(lsKey.enableMirroring, enableMirroring ? 'Y' : 'N');
@@ -5383,8 +5384,8 @@ this.BX = this.BX || {};
 	        speakerEnabled: !this.speakerMuted,
 	        speakerId: this.speakerId,
 	        allowHdVideo: Hardware.preferHdQuality,
-	        faceImproveEnabled: Util$1.isDesktop() && typeof BX.desktop !== 'undefined' && BX.desktop.cameraSmoothingStatus(),
-	        allowFaceImprove: Util$1.isDesktop() && typeof BX.desktop !== 'undefined' && BX.desktop.enableInVersion(64),
+	        faceImproveEnabled: Util$1.isDesktop() && im_v2_lib_desktopApi.DesktopApi.isDesktop() && im_v2_lib_desktopApi.DesktopApi.getCameraSmoothingStatus(),
+	        allowFaceImprove: Util$1.isDesktop() && im_v2_lib_desktopApi.DesktopApi.isDesktop() && im_v2_lib_desktopApi.DesktopApi.getApiVersion() > 64,
 	        allowBackground: BackgroundDialog.isAvailable() && this.isIntranetOrExtranet,
 	        allowMask: BackgroundDialog.isMaskAvailable() && this.isIntranetOrExtranet,
 	        allowAdvancedSettings: typeof BXIM !== 'undefined' && this.isIntranetOrExtranet,
@@ -11454,7 +11455,6 @@ this.BX = this.BX || {};
 	    key: "allowVideoFrom",
 	    /**
 	     * Updates list of users,
-	     * @param {UserMnemonic | int[]} userList
 	     */
 	    value: function allowVideoFrom(userList) {
 	      if (this.videoAllowedFrom == userList) {
@@ -13114,8 +13114,8 @@ this.BX = this.BX || {};
 	    key: "log",
 	    value: function log() {
 	      var text = Util$1.getLogMessage.call(Util$1, arguments);
-	      if (BX.desktop && BX.desktop.ready()) {
-	        BX.desktop.log(BX.message('USER_ID') + '.video.log', text);
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.log(BX.message('USER_ID') + '.video.log', text);
 	      }
 	      if (this.debugFlag) {
 	        if (console) {
@@ -13714,7 +13714,6 @@ this.BX = this.BX || {};
 	  stopMediaStream: stopMediaStream
 	};
 
-	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$3(obj, privateMap); privateMap.set(obj, value); }
 	function _classPrivateMethodInitSpec$3(obj, privateSet) { _checkPrivateRedeclaration$3(obj, privateSet); privateSet.add(obj); }
 	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$3(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
@@ -13729,21 +13728,17 @@ this.BX = this.BX || {};
 	  onButtonClick: "CallNotification::onButtonClick"
 	};
 	var _subscribeEvents = /*#__PURE__*/new WeakSet();
-	var _onContentReady = /*#__PURE__*/new WeakMap();
+	var _onButtonClick = /*#__PURE__*/new WeakSet();
+	var _onContentReady = /*#__PURE__*/new WeakSet();
 	var IncomingNotification = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(IncomingNotification, _EventEmitter);
 	  function IncomingNotification(_config) {
 	    var _this;
 	    babelHelpers.classCallCheck(this, IncomingNotification);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(IncomingNotification).call(this));
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _onContentReady);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _onButtonClick);
 	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _subscribeEvents);
-	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onContentReady, {
-	      writable: true,
-	      value: function value() {
-	        _this.contentReady = true;
-	        _this.sendPostponedEvents();
-	      }
-	    });
 	    _this.setEventNamespace('BX.Call.IncomingNotification');
 	    _this.popup = null;
 	    _this.window = null;
@@ -13760,11 +13755,11 @@ this.BX = this.BX || {};
 	    _this.contentReady = false;
 	    _this.postponedEvents = [];
 	    _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this), _subscribeEvents, _subscribeEvents2).call(babelHelpers.assertThisInitialized(_this), _config);
-	    if (BX.desktop) {
-	      BX.desktop.addCustomEvent(InternalEvents.onButtonClick, function (e) {
-	        return _this.emit(Events$1.onButtonClick, e);
-	      });
-	      BX.desktop.addCustomEvent(InternalEvents.contentReady, babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onContentReady));
+	    if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	      _this.onButtonClickHandler = _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this), _onButtonClick, _onButtonClick2).bind(babelHelpers.assertThisInitialized(_this));
+	      _this.onContentReadyHandler = _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this), _onContentReady, _onContentReady2).bind(babelHelpers.assertThisInitialized(_this));
+	      im_v2_lib_desktopApi.DesktopApi.subscribe(InternalEvents.onButtonClick, _this.onButtonClickHandler);
+	      im_v2_lib_desktopApi.DesktopApi.subscribe(InternalEvents.contentReady, _this.onContentReadyHandler);
 	    }
 	    return _this;
 	  }
@@ -13772,7 +13767,7 @@ this.BX = this.BX || {};
 	    key: "show",
 	    value: function show() {
 	      var _this2 = this;
-	      if (BX.desktop) {
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
 	        var params = {
 	          video: this.video,
 	          hasCamera: this.hasCamera,
@@ -13784,7 +13779,9 @@ this.BX = this.BX || {};
 	        if (this.window) {
 	          this.window.BXDesktopWindow.ExecuteCommand("show");
 	        } else {
-	          this.window = BXDesktopSystem.ExecuteCommand('topmost.show.html', BX.desktop.getHtmlPage("", "window.callNotification = new BX.Call.IncomingNotificationContent(" + JSON.stringify(params) + "); window.callNotification.showInDesktop();"));
+	          var js = "\n\t\t\t\t\twindow.callNotification = new BX.Call.IncomingNotificationContent(".concat(JSON.stringify(params), ");\n\t\t\t\t\twindow.callNotification.showInDesktop();\n\t\t\t\t");
+	          var htmlContent = im_v2_lib_desktopApi.DesktopApi.prepareHtml("", js);
+	          this.window = im_v2_lib_desktopApi.DesktopApi.createTopmostWindow(htmlContent);
 	        }
 	      } else {
 	        this.content = new IncomingNotificationContent({
@@ -13846,7 +13843,7 @@ this.BX = this.BX || {};
 	      if (this.window) {
 	        // desktop; send event to the window
 	        if (this.contentReady) {
-	          BX.desktop.onCustomEvent(InternalEvents.setHasCamera, [hasCamera]);
+	          im_v2_lib_desktopApi.DesktopApi.emit(InternalEvents.setHasCamera, [hasCamera]);
 	        } else {
 	          this.postponedEvents.push({
 	            name: InternalEvents.setHasCamera,
@@ -13861,7 +13858,7 @@ this.BX = this.BX || {};
 	    key: "sendPostponedEvents",
 	    value: function sendPostponedEvents() {
 	      this.postponedEvents.forEach(function (event) {
-	        BX.desktop.onCustomEvent(event.name, event.params);
+	        im_v2_lib_desktopApi.DesktopApi.emit(event.name, event.params);
 	      });
 	      this.postponedEvents = [];
 	    }
@@ -13891,9 +13888,9 @@ this.BX = this.BX || {};
 	        this.content.destroy();
 	        this.content = null;
 	      }
-	      if (BX.desktop) {
-	        BX.desktop.removeCustomEvents(InternalEvents.onButtonClick);
-	        BX.desktop.removeCustomEvents(InternalEvents.contentReady);
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.unsubscribe(InternalEvents.onButtonClick, this.onButtonClickHandler);
+	        im_v2_lib_desktopApi.DesktopApi.unsubscribe(InternalEvents.contentReady, this.onContentReadyHandler);
 	      }
 	      this.emit(Events$1.onDestroy);
 	      this.unsubscribeAll(Events$1.onButtonClick);
@@ -13912,8 +13909,16 @@ this.BX = this.BX || {};
 	    }
 	  }
 	}
+	function _onButtonClick2(event) {
+	  this.emit(Events$1.onButtonClick, event);
+	}
+	function _onContentReady2() {
+	  this.contentReady = true;
+	  this.sendPostponedEvents();
+	}
 	babelHelpers.defineProperty(IncomingNotification, "Events", Events$1);
 	var _subscribeEvents3 = /*#__PURE__*/new WeakSet();
+	var _onHasCamera = /*#__PURE__*/new WeakSet();
 	var _onAnswerButtonClick = /*#__PURE__*/new WeakSet();
 	var _onAnswerWithVideoButtonClick = /*#__PURE__*/new WeakSet();
 	var _onDeclineButtonClick = /*#__PURE__*/new WeakSet();
@@ -13926,6 +13931,7 @@ this.BX = this.BX || {};
 	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this4), _onDeclineButtonClick);
 	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this4), _onAnswerWithVideoButtonClick);
 	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this4), _onAnswerButtonClick);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this4), _onHasCamera);
 	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this4), _subscribeEvents3);
 	    _this4.setEventNamespace('BX.Call.IncomingNotificationContent');
 	    _this4.video = !!_config2.video;
@@ -13942,11 +13948,10 @@ this.BX = this.BX || {};
 	      }
 	    };
 	    _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this4), _subscribeEvents3, _subscribeEvents4).call(babelHelpers.assertThisInitialized(_this4), _config2);
-	    if (BX.desktop) {
-	      BX.desktop.addCustomEvent(InternalEvents.setHasCamera, function (hasCamera) {
-	        return _this4.setHasCamera(hasCamera);
-	      });
-	      BX.desktop.onCustomEvent("main", InternalEvents.contentReady, []);
+	    if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	      _this4.onHasCameraHandler = _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this4), _onHasCamera, _onHasCamera2).bind(babelHelpers.assertThisInitialized(_this4));
+	      im_v2_lib_desktopApi.DesktopApi.subscribe(InternalEvents.setHasCamera, _this4.onHasCameraHandler);
+	      im_v2_lib_desktopApi.DesktopApi.emitToMainWindow(InternalEvents.contentReady, []);
 	    }
 	    return _this4;
 	  }
@@ -14131,20 +14136,21 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showInDesktop",
 	    value: function showInDesktop() {
+	      var _window$opener$BXIM;
 	      // Workaround to prevent incoming call window from hanging.
 	      // Without it, there is a possible scenario, when BXDesktopWindow.ExecuteCommand("close") is executed too early
 	      // (if invite window is closed before appearing), which leads to hanging of the window
-	      if (!window.opener.BXIM.callController.callNotification) {
+	      if ((_window$opener$BXIM = window.opener.BXIM) !== null && _window$opener$BXIM !== void 0 && _window$opener$BXIM.callController && !window.opener.BXIM.callController.callNotification) {
 	        BXDesktopWindow.ExecuteCommand("close");
 	        return;
 	      }
 	      this.render();
 	      document.body.appendChild(this.elements.root);
-	      BX.desktop.setWindowPosition({
-	        X: STP_CENTER,
-	        Y: STP_VCENTER,
-	        Width: 351,
-	        Height: 510
+	      im_v2_lib_desktopApi.DesktopApi.setWindowPosition({
+	        x: STP_CENTER,
+	        y: STP_VCENTER,
+	        width: 351,
+	        height: 510
 	      });
 	    }
 	  }, {
@@ -14158,8 +14164,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "destroy",
 	    value: function destroy() {
-	      if (BX.desktop) {
-	        BX.desktop.removeCustomEvents(InternalEvents.setHasCamera);
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.unsubscribe(InternalEvents.setHasCamera, this.onHasCameraHandler);
 	      }
 	      this.unsubscribeAll(Events$1.onButtonClick);
 	      this.unsubscribeAll(Events$1.onClick);
@@ -14177,10 +14183,11 @@ this.BX = this.BX || {};
 	    }
 	  }
 	}
+	function _onHasCamera2() {}
 	function _onAnswerButtonClick2() {
-	  if (BX.desktop) {
-	    BXDesktopWindow.ExecuteCommand("close");
-	    BX.desktop.onCustomEvent("main", InternalEvents.onButtonClick, [{
+	  if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	    im_v2_lib_desktopApi.DesktopApi.closeWindow();
+	    im_v2_lib_desktopApi.DesktopApi.emitToMainWindow(InternalEvents.onButtonClick, [{
 	      button: 'answer',
 	      video: false
 	    }]);
@@ -14195,9 +14202,9 @@ this.BX = this.BX || {};
 	  if (!this.hasCamera) {
 	    return;
 	  }
-	  if (BX.desktop) {
-	    BXDesktopWindow.ExecuteCommand("close");
-	    BX.desktop.onCustomEvent("main", InternalEvents.onButtonClick, [{
+	  if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	    im_v2_lib_desktopApi.DesktopApi.closeWindow();
+	    im_v2_lib_desktopApi.DesktopApi.emitToMainWindow(InternalEvents.onButtonClick, [{
 	      button: 'answer',
 	      video: true
 	    }]);
@@ -14209,9 +14216,9 @@ this.BX = this.BX || {};
 	  }
 	}
 	function _onDeclineButtonClick2() {
-	  if (BX.desktop) {
-	    BXDesktopWindow.ExecuteCommand("close");
-	    BX.desktop.onCustomEvent("main", InternalEvents.onButtonClick, [{
+	  if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	    im_v2_lib_desktopApi.DesktopApi.closeWindow();
+	    im_v2_lib_desktopApi.DesktopApi.emitToMainWindow(InternalEvents.onButtonClick, [{
 	      button: 'decline'
 	    }]);
 	  } else {
@@ -14254,14 +14261,14 @@ this.BX = this.BX || {};
 	      onButtonClick: main_core.Type.isFunction(config.onButtonClick) ? config.onButtonClick : BX.DoNothing
 	    };
 	    this._onContentButtonClickHandler = this._onContentButtonClick.bind(this);
-	    if (BX.desktop) {
-	      BX.desktop.addCustomEvent(Events$2.onButtonClick, this._onContentButtonClickHandler);
+	    if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	      im_v2_lib_desktopApi.DesktopApi.subscribe(Events$2.onButtonClick, this._onContentButtonClickHandler);
 	    }
 	  }
 	  babelHelpers.createClass(ConferenceNotifications, [{
 	    key: "show",
 	    value: function show() {
-	      if (BX.desktop) {
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
 	        var params = {
 	          callerAvatar: this.callerAvatar,
 	          callerName: this.callerName,
@@ -14270,7 +14277,9 @@ this.BX = this.BX || {};
 	        if (this.window) {
 	          this.window.BXDesktopWindow.ExecuteCommand("show");
 	        } else {
-	          this.window = BXDesktopSystem.ExecuteCommand('topmost.show.html', BX.desktop.getHtmlPage("", "window.conferenceNotification = new BX.Call.NotificationConferenceContent(" + JSON.stringify(params) + "); window.conferenceNotification.showInDesktop();"));
+	          var js = "\n\t\t\t\t\twindow.conferenceNotification = new BX.Call.NotificationConferenceContent(".concat(JSON.stringify(params), ");\n\t\t\t\t\twindow.conferenceNotification.showInDesktop();\n\t\t\t\t");
+	          var html = im_v2_lib_desktopApi.DesktopApi.prepareHtml('', js);
+	          this.window = im_v2_lib_desktopApi.DesktopApi.createTopmostWindow(html);
 	        }
 	      } else {
 	        this.content = new NotificationConferenceContent({
@@ -14337,8 +14346,8 @@ this.BX = this.BX || {};
 	        this.window.BXDesktopWindow.ExecuteCommand("close");
 	        this.window = null;
 	      }
-	      if (BX.desktop) {
-	        BX.desktop.removeCustomEvents(Events$2.onButtonClick);
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.unsubscribe(Events$2.onButtonClick, this._onContentButtonClickHandler);
 	      }
 	      this.callbacks.onDestroy();
 	    }
@@ -14515,19 +14524,19 @@ this.BX = this.BX || {};
 	    value: function showInDesktop() {
 	      this.render();
 	      document.body.appendChild(this.elements.root);
-	      BX.desktop.setWindowPosition({
-	        X: STP_CENTER,
-	        Y: STP_VCENTER,
-	        Width: 351,
-	        Height: 510
+	      im_v2_lib_desktopApi.DesktopApi.setWindowPosition({
+	        x: STP_CENTER,
+	        y: STP_VCENTER,
+	        width: 351,
+	        height: 510
 	      });
 	    }
 	  }, {
 	    key: "_onAnswerConferenceButtonClick",
 	    value: function _onAnswerConferenceButtonClick(e) {
-	      if (BX.desktop) {
-	        BXDesktopWindow.ExecuteCommand("close");
-	        BX.desktop.onCustomEvent("main", Events$2.onButtonClick, [{
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.closeWindow();
+	        im_v2_lib_desktopApi.DesktopApi.emitToMainWindow(Events$2.onButtonClick, [{
 	          button: 'answerConference'
 	        }]);
 	      } else {
@@ -14539,9 +14548,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_onSkipConferenceButtonClick",
 	    value: function _onSkipConferenceButtonClick(e) {
-	      if (BX.desktop) {
-	        BXDesktopWindow.ExecuteCommand("close");
-	        BX.desktop.onCustomEvent("main", Events$2.onButtonClick, [{
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.closeWindow();
+	        im_v2_lib_desktopApi.DesktopApi.emitToMainWindow(Events$2.onButtonClick, [{
 	          button: 'skipConference'
 	        }]);
 	      } else {
@@ -14575,7 +14584,6 @@ this.BX = this.BX || {};
 	    if (babelHelpers["typeof"](config) !== "object") {
 	      config = {};
 	    }
-	    this.desktop = config.desktop || BX.desktop;
 	    this.darkMode = config.darkMode || false;
 	    this.window = null;
 	    this.sharedWindowX = null;
@@ -14599,9 +14607,9 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(FloatingScreenShare, [{
 	    key: "bindEventHandlers",
 	    value: function bindEventHandlers() {
-	      this.desktop.addCustomEvent(Events$3.onBackToCallClick, this._onBackToCallClickHandler);
-	      this.desktop.addCustomEvent(Events$3.onStopSharingClick, this._onStopSharingClickHandler);
-	      this.desktop.addCustomEvent(Events$3.onChangeScreenClick, this._onChangeScreenClickHandler);
+	      im_v2_lib_desktopApi.DesktopApi.subscribe(Events$3.onBackToCallClick, this._onBackToCallClickHandler);
+	      im_v2_lib_desktopApi.DesktopApi.subscribe(Events$3.onStopSharingClick, this._onStopSharingClickHandler);
+	      im_v2_lib_desktopApi.DesktopApi.subscribe(Events$3.onChangeScreenClick, this._onChangeScreenClickHandler);
 	    }
 	  }, {
 	    key: "saveExistingScreens",
@@ -14670,7 +14678,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "show",
 	    value: function show() {
-	      if (!this.desktop) {
+	      if (!im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
 	        return;
 	      }
 	      if (this.window) {
@@ -14686,7 +14694,9 @@ this.BX = this.BX || {};
 	          screenToUse: this.screenToUse,
 	          darkMode: this.darkMode
 	        };
-	        this.window = BXDesktopSystem.ExecuteCommand('topmost.show.html', this.desktop.getHtmlPage("", "window.FSSC = new BX.Call.FloatingScreenShareContent(" + JSON.stringify(params) + ");"));
+	        var js = "window.FSSC = new BX.Call.FloatingScreenShareContent(".concat(JSON.stringify(params), ");");
+	        var htmlContent = im_v2_lib_desktopApi.DesktopApi.prepareHtml('', js);
+	        this.window = im_v2_lib_desktopApi.DesktopApi.createTopmostWindow(htmlContent);
 	      }
 	    }
 	  }, {
@@ -14711,12 +14721,12 @@ this.BX = this.BX || {};
 	    key: "destroy",
 	    value: function destroy() {
 	      if (this.window) {
-	        this.window.BXDesktopWindow.ExecuteCommand("close");
+	        im_v2_lib_desktopApi.DesktopApi.closeWindow();
 	        this.window = null;
 	      }
-	      this.desktop.removeCustomEvents(Events$3.onBackToCallClick);
-	      this.desktop.removeCustomEvents(Events$3.onStopSharingClick);
-	      this.desktop.removeCustomEvents(Events$3.onChangeScreenClick);
+	      im_v2_lib_desktopApi.DesktopApi.unsubscribe(Events$3.onBackToCallClick, this._onBackToCallClickHandler);
+	      im_v2_lib_desktopApi.DesktopApi.unsubscribe(Events$3.onStopSharingClick, this._onStopSharingClickHandler);
+	      im_v2_lib_desktopApi.DesktopApi.unsubscribe(Events$3.onChangeScreenClick, this._onChangeScreenClickHandler);
 	    }
 	  }]);
 	  return FloatingScreenShare;
@@ -15682,7 +15692,6 @@ this.BX = this.BX || {};
 	        this.call.allowVideoFrom(UserMnemonic.none);
 	      } else if (this.strategyType === StrategyType.CurrentlyTalking) {
 	        var talkingUsers = this.getActiveUsers();
-	        console.log("talking users", talkingUsers);
 	        if (talkingUsers.length === 0) {
 	          this.call.allowVideoFrom(UserMnemonic.none);
 	        } else {
@@ -15763,14 +15772,14 @@ this.BX = this.BX || {};
 	  }]);
 	  return VideoStrategy;
 	}();
-	babelHelpers.defineProperty(VideoStrategy, "Type", main_core.Type);
+	babelHelpers.defineProperty(VideoStrategy, "Type", StrategyType);
 	var User = /*#__PURE__*/function () {
 	  function User(config) {
 	    babelHelpers.classCallCheck(this, User);
+	    babelHelpers.defineProperty(this, "talking", false);
+	    babelHelpers.defineProperty(this, "sharing", false);
+	    babelHelpers.defineProperty(this, "active", false);
 	    this.id = config.id;
-	    this.talking = false;
-	    this.sharing = false;
-	    this.active = false;
 	    this.callbacks = {
 	      onActiveChanged: main_core.Type.isFunction(config.onActiveChanged) ? config.onActiveChanged : BX.DoNothing
 	    };
@@ -15808,7 +15817,7 @@ this.BX = this.BX || {};
 	    key: "updateActive",
 	    value: function updateActive() {
 	      var newActive = !!(this.sharing || this.talking || this.turnOffVideoTimeout);
-	      if (newActive != this.active) {
+	      if (newActive !== this.active) {
 	        this.active = newActive;
 	      }
 	      this.callbacks.onActiveChanged({
@@ -15950,7 +15959,7 @@ this.BX = this.BX || {};
 	    _this._onChildCallFirstMediaHandler = _this._onChildCallFirstMedia.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onWindowFocusHandler = _this._onWindowFocus.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onWindowBlurHandler = _this._onWindowBlur.bind(babelHelpers.assertThisInitialized(_this));
-	    if (BX.desktop && false) {
+	    if (im_v2_lib_desktopApi.DesktopApi.isDesktop() && false) {
 	      _this.floatingWindow = new FloatingVideo({
 	        onMainAreaClick: _this._onFloatingVideoMainAreaClick.bind(babelHelpers.assertThisInitialized(_this)),
 	        onButtonClick: _this._onFloatingVideoButtonClick.bind(babelHelpers.assertThisInitialized(_this))
@@ -15959,7 +15968,7 @@ this.BX = this.BX || {};
 	    }
 	    _this.showFloatingWindowTimeout = 0;
 	    _this.hideIncomingCallTimeout = 0;
-	    if (BX.desktop) {
+	    if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
 	      _this.floatingScreenShareWindow = new FloatingScreenShare({
 	        darkMode: _this.messengerFacade.isThemeDark(),
 	        onBackToCallClick: _this._onFloatingScreenShareBackToCallClick.bind(babelHelpers.assertThisInitialized(_this)),
@@ -15986,10 +15995,10 @@ this.BX = this.BX || {};
 	      BX.addCustomEvent(window, "CallEvents::incomingCall", this.onIncomingCall.bind(this));
 	      Hardware.subscribe(Hardware.Events.deviceChanged, this._onDeviceChange.bind(this));
 	      Hardware.subscribe(Hardware.Events.onChangeMirroringVideo, this._onCallLocalCameraFlipHandler);
-	      if (BX.desktop && this.floatingWindow) {
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop() && this.floatingWindow) {
 	        window.addEventListener("blur", this._onWindowBlurHandler);
 	        window.addEventListener("focus", this._onWindowFocusHandler);
-	        BX.desktop.addCustomEvent("BXForegroundChanged", function (focus) {
+	        im_v2_lib_desktopApi.DesktopApi.subscribe("BXForegroundChanged", function (focus) {
 	          if (focus) {
 	            _this2._onWindowFocus();
 	          } else {
@@ -15997,8 +16006,8 @@ this.BX = this.BX || {};
 	          }
 	        });
 	      }
-	      if (BX.desktop && this.floatingScreenShareWindow) {
-	        BX.desktop.addCustomEvent("BXScreenMediaSharing", function (id, title, x, y, width, height, app) {
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop() && this.floatingScreenShareWindow) {
+	        im_v2_lib_desktopApi.DesktopApi.subscribe("BXScreenMediaSharing", function (id, title, x, y, width, height, app) {
 	          _this2.floatingScreenShareWindow.close();
 	          _this2.floatingScreenShareWindow.setSharingData({
 	            title: title,
@@ -16015,7 +16024,7 @@ this.BX = this.BX || {};
 	        });
 	        window.addEventListener("blur", this._onWindowBlurHandler);
 	        window.addEventListener("focus", this._onWindowFocusHandler);
-	        BX.desktop.addCustomEvent("BXForegroundChanged", function (focus) {
+	        im_v2_lib_desktopApi.DesktopApi.subscribe("BXForegroundChanged", function (focus) {
 	          if (focus) {
 	            _this2._onWindowFocus();
 	          } else {
@@ -16023,8 +16032,8 @@ this.BX = this.BX || {};
 	          }
 	        });
 	      }
-	      if (BX.desktop) {
-	        BX.desktop.addCustomEvent(Hardware.Events.onChangeMirroringVideo, this._onCallLocalCameraFlipInDesktopHandler);
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.subscribe(Hardware.Events.onChangeMirroringVideo, this._onCallLocalCameraFlipInDesktopHandler);
 	      }
 	      if (window['VoxImplant']) {
 	        VoxImplant.getInstance().addEventListener(VoxImplant.Events.MicAccessResult, this.voxMicAccessResult.bind(this));
@@ -16361,8 +16370,11 @@ this.BX = this.BX || {};
 	    value: function checkDesktop() {
 	      if (main_core.Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager')) {
 	        return new Promise(function (resolve) {
-	          BX.Messenger.v2.Lib.DesktopManager.getInstance().checkRunStatus().then(function () {})["catch"](function () {
-	            return resolve();
+	          var desktop = BX.Messenger.v2.Lib.DesktopManager.getInstance();
+	          desktop.checkStatusInDifferentContext().then(function (result) {
+	            if (result === false) {
+	              resolve();
+	            }
 	          });
 	        });
 	      }
@@ -16490,7 +16502,7 @@ this.BX = this.BX || {};
 	    key: "showUnsupportedNotification",
 	    value: function showUnsupportedNotification() {
 	      var messageBox;
-	      if (BX.desktop && BX.desktop.apiReady) {
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
 	        messageBox = new ui_dialogs_messagebox.MessageBox({
 	          message: BX.message('IM_CALL_DESKTOP_TOO_OLD'),
 	          buttons: ui_dialogs_messagebox.MessageBoxButtons.OK_CANCEL,
@@ -16519,8 +16531,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "isUserAgentSupported",
 	    value: function isUserAgentSupported() {
-	      if (BX.desktop && BX.desktop.apiReady) {
-	        return BX.desktop.enableInVersion(48);
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        return im_v2_lib_desktopApi.DesktopApi.getApiVersion() > 48;
 	      }
 	      if ('VoxImplant' in window) {
 	        return VoxImplant.getInstance().isRTCsupported();
@@ -16739,7 +16751,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "canRecord",
 	    value: function canRecord() {
-	      return BX.desktop && BX.desktop.getApiVersion() >= 54;
+	      return im_v2_lib_desktopApi.DesktopApi.isDesktop() && im_v2_lib_desktopApi.DesktopApi.getApiVersion() >= 54;
 	    }
 	  }, {
 	    key: "isRecording",
@@ -16803,7 +16815,7 @@ this.BX = this.BX || {};
 	    key: "showChat",
 	    value: function showChat() {
 	      var _this9 = this;
-	      if (BX.desktop && this.floatingWindow) {
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop() && this.floatingWindow) {
 	        this.detached = true;
 	        this.callView.hide();
 	        this.floatingWindow.setTitle(this.currentCall.associatedEntity.name);
@@ -16819,7 +16831,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "fold",
 	    value: function fold(foldedCallTitle) {
-	      if (this.folded || BX.desktop && this.floatingWindow) {
+	      if (this.folded || im_v2_lib_desktopApi.DesktopApi.isDesktop() && this.floatingWindow) {
 	        return;
 	      }
 	      if (!foldedCallTitle && this.currentCall) {
@@ -17400,8 +17412,8 @@ this.BX = this.BX || {};
 	    key: "_onAnswerButtonClick",
 	    value: function _onAnswerButtonClick(withVideo) {
 	      var _this18 = this;
-	      if (BX.desktop) {
-	        BX.desktop.windowCommand("show");
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.showWindow();
 	      }
 	      if (!this.isUserAgentSupported()) {
 	        this.log("Error: unsupported user agent");
@@ -17518,8 +17530,8 @@ this.BX = this.BX || {};
 	      if (this.documentsMenu) {
 	        this.documentsMenu.close();
 	      }
-	      if (BX.desktop) {
-	        BX.desktop.closeWindow('callBackground');
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.closeWindowByName('callBackground');
 	      }
 	      this.closePromo();
 	      this._closeReconnectionBaloon();
@@ -17700,7 +17712,7 @@ this.BX = this.BX || {};
 	          var forceRecord = BX.prop.getBoolean(event, "forceRecord", View.RecordType.None);
 	          if (forceRecord !== View.RecordType.None) {
 	            this._startRecordCall(forceRecord);
-	          } else if (BX.desktop && BX.desktop.enableInVersion(55)) {
+	          } else if (im_v2_lib_desktopApi.DesktopApi.isDesktop() && im_v2_lib_desktopApi.DesktopApi.getApiVersion() > 55) {
 	            if (!this.callRecordMenu) {
 	              this.callRecordMenu = new BX.PopupMenuWindow({
 	                bindElement: event.node,
@@ -17894,10 +17906,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_onCallViewChangeFaceImprove",
 	    value: function _onCallViewChangeFaceImprove(e) {
-	      if (typeof BX.desktop === 'undefined') {
+	      if (!im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
 	        return;
 	      }
-	      BX.desktop.cameraSmoothingStatus(e.faceImproveEnabled);
+	      im_v2_lib_desktopApi.DesktopApi.setCameraSmoothingStatus(e.faceImproveEnabled);
 	    }
 	  }, {
 	    key: "_onCallViewOpenAdvancedSettings",
@@ -17962,8 +17974,8 @@ this.BX = this.BX || {};
 	      if (this.mutePopup) {
 	        this.mutePopup.close();
 	      }
-	      if (BX.desktop) {
-	        BX.desktop.closeWindow('callBackground');
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.closeWindowByName('callBackground');
 	      }
 	      this.closePromo();
 	      this.allowMutePopup = true;
@@ -18069,7 +18081,7 @@ this.BX = this.BX || {};
 	        this.callView.flipLocalVideo(flipVideo);
 	        this.callView.setButtonActive("screen", e.tag == "screen");
 	        if (e.tag == "screen") {
-	          if (!BX.desktop) {
+	          if (!im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
 	            this.showWebScreenSharePopup();
 	          }
 	          this.callView.blockSwitchCamera();
@@ -18103,6 +18115,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_onCallLocalCameraFlipInDesktop",
 	    value: function _onCallLocalCameraFlipInDesktop(e) {
+	      console.error('FLIPPING LOCAL VIDEO');
 	      if (this.callView) {
 	        this.callView.flipLocalVideo(e);
 	      }
@@ -18187,7 +18200,7 @@ this.BX = this.BX || {};
 	      if (e.userId == CallEngine.getCurrentUserId()) {
 	        this.callView.setButtonActive("screen", e.screenState);
 	        if (e.screenState) {
-	          if (!BX.desktop) {
+	          if (!im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
 	            this.showWebScreenSharePopup();
 	          }
 	          this.callView.blockSwitchCamera();
@@ -18232,6 +18245,7 @@ this.BX = this.BX || {};
 	        CallEngine.getRestClient().callMethod("im.call.onStartRecord", {
 	          callId: this.currentCall.id
 	        });
+	        console.error('DIALOG ID', _dialogId2);
 	        BXDesktopSystem.CallRecordStart({
 	          windowId: windowId,
 	          fileName: fileName,
@@ -18478,8 +18492,8 @@ this.BX = this.BX || {};
 	        this.mutePopup.close();
 	      }
 	      this.allowMutePopup = true;
-	      if (BX.desktop) {
-	        BX.desktop.closeWindow('callBackground');
+	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        im_v2_lib_desktopApi.DesktopApi.closeWindowByName('callBackground');
 	      }
 	      this.closePromo();
 	      this._closeReconnectionBaloon();
@@ -18664,8 +18678,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_onFloatingVideoMainAreaClick",
 	    value: function _onFloatingVideoMainAreaClick() {
-	      BX.desktop.windowCommand("show");
-	      BX.desktop.changeTab("im");
+	      im_v2_lib_desktopApi.DesktopApi.showWindow();
+	      im_v2_lib_desktopApi.DesktopApi.changeTab("im");
 	      if (!this.currentCall) {
 	        return;
 	      }
@@ -18695,8 +18709,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_onFloatingScreenShareBackToCallClick",
 	    value: function _onFloatingScreenShareBackToCallClick() {
-	      BX.desktop.windowCommand("show");
-	      BX.desktop.changeTab("im");
+	      im_v2_lib_desktopApi.DesktopApi.showWindow();
+	      im_v2_lib_desktopApi.DesktopApi.changeTab("im");
 	      if (this.floatingScreenShareWindow) {
 	        this.floatingScreenShareWindow.hide();
 	      }
@@ -18704,8 +18718,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_onFloatingScreenShareStopClick",
 	    value: function _onFloatingScreenShareStopClick() {
-	      BX.desktop.windowCommand("show");
-	      BX.desktop.changeTab("im");
+	      im_v2_lib_desktopApi.DesktopApi.showWindow();
+	      im_v2_lib_desktopApi.DesktopApi.changeTab("im");
 	      this.currentCall.stopScreenSharing();
 	      if (this.floatingScreenShareWindow) {
 	        this.floatingScreenShareWindow.close();
@@ -19436,5 +19450,5 @@ this.BX = this.BX || {};
 	exports.View = View;
 	exports.WebScreenSharePopup = WebScreenSharePopup;
 
-}((this.BX.Call = this.BX.Call || {}),BX.Messenger.Lib,BX.UI,BX.UI.Dialogs,BX.UI,BX.Event,BX.Main,BX,BX,BX,BX,BX.Messenger.Lib));
+}((this.BX.Call = this.BX.Call || {}),BX.Messenger.Lib,BX.UI,BX.UI.Dialogs,BX.UI,BX.Messenger.v2.Lib,BX.Event,BX.Main,BX,BX,BX,BX,BX.Messenger.Lib));
 //# sourceMappingURL=call.bundle.js.map

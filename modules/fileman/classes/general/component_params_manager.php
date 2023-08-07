@@ -58,17 +58,26 @@ class CComponentParamsManager
 		if (isset($_REQUEST['component_params_manager']))
 		{
 			$reqId = intval($_REQUEST['component_params_manager']);
+			$requestData = [
+				'component_name' => $_REQUEST['component_name'] ?? null,
+				'component_template' => $_REQUEST['component_template'] ?? null,
+				'site_template' => $_REQUEST['site_template'] ?? null,
+				'current_values' => $_REQUEST['current_values'] ?? null,
+			];
 			$result = self::GetComponentProperties(
-				$_REQUEST['component_name'],
-				$_REQUEST['component_template'],
-				$_REQUEST['site_template'],
-				$_REQUEST['current_values']
+				$requestData['component_name'],
+				$requestData['component_template'],
+				$requestData['site_template'],
+				$requestData['current_values']
 			);
 
 			$templateMatch = false;
 			for ($i = 0, $l = count($result['templates']); $i < $l; $i++)
 			{
-				if ($result['templates'][$i]['NAME'] == $_REQUEST['component_template'] || ($_REQUEST['component_template'] == '' && $result['templates'][$i]['NAME'] == '.default'))
+				if (
+					$result['templates'][$i]['NAME'] == $requestData['component_template']
+					|| ($requestData['component_template'] == '' && $result['templates'][$i]['NAME'] == '.default')
+				)
 				{
 					$templateMatch = true;
 					break;
@@ -77,14 +86,14 @@ class CComponentParamsManager
 			if (!$templateMatch && $l > 0)
 			{
 				$result = self::GetComponentProperties(
-					$_REQUEST['component_name'],
+					$requestData['component_name'],
 					$result['templates'][0]['NAME'],
-					$_REQUEST['site_template'],
-					$_REQUEST['current_values']
+					$requestData['site_template'],
+					$requestData['current_values']
 				);
 			}
 
-			$result['description'] = CComponentUtil::GetComponentDescr($_REQUEST['component_name']);
+			$result['description'] = CComponentUtil::GetComponentDescr($requestData['component_name']);
 			?>
 			<script>
 				window.__bxResult['<?= $reqId?>'] = <?=CUtil::PhpToJSObject($result)?>;
@@ -161,7 +170,7 @@ class CComponentParamsManager
 			}
 			$result['parameters'][] = $arParam;
 
-			if ($arParam['TYPE'] == 'FILE')
+			if (($arParam['TYPE'] ?? null) == 'FILE')
 			{
 				self::$fileDialogs[] = array(
 					'NAME' => $arParam['ID'],

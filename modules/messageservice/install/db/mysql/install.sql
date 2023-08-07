@@ -52,4 +52,14 @@ CREATE TABLE b_messageservice_incoming_message (
 	EXTERNAL_ID varchar(128) null,
 	PRIMARY KEY (ID),
 	UNIQUE INDEX UX_MS_INCOMING_MESSAGE_1(SENDER_ID, EXTERNAL_ID)
-)
+);
+
+CREATE TABLE b_messageservice_restriction (
+	ID int not null auto_increment,
+	CODE varchar(128) not null,
+	COUNTER int,
+	DATE_CREATE DATE not null,
+	ADDITIONAL_PARAMS text not null,
+	PRIMARY KEY (ID),
+	UNIQUE INDEX UX_MESSAGESERVISE_RESTRICTION_1(CODE, DATE_CREATE)
+);

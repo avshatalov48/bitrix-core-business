@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_popup,ui_buttons,ui_uploader_core,ui_uploader_tileWidget,main_core,ui_uploader_stackWidget) {
+(function (exports,main_popup,ui_buttons,ui_uploader_vue,ui_uploader_core,ui_uploader_tileWidget,main_core,ui_uploader_stackWidget) {
 	'use strict';
 
 	const StackWidgetSize = {
@@ -47,7 +47,6 @@ this.BX.UI = this.BX.UI || {};
 	  emits: ['showPopup', 'abortUpload'],
 	  computed: {
 	    StackWidgetSize: () => StackWidgetSize,
-
 	    uploadFileTitle() {
 	      if (this.queueItems.length > 1) {
 	        return main_core.Loc.getMessage('STACK_WIDGET_FILES_UPLOADING');
@@ -55,18 +54,15 @@ this.BX.UI = this.BX.UI || {};
 	        return main_core.Loc.getMessage('STACK_WIDGET_FILE_UPLOADING');
 	      }
 	    },
-
 	    progress() {
 	      if (this.queueItems.length === 0) {
 	        return 0;
 	      }
-
 	      const progress = this.queueItems.reduce((total, item) => {
 	        return total + item.progress;
 	      }, 0);
 	      return Math.floor(progress / this.queueItems.length);
 	    },
-
 	    progressOptions() {
 	      const {
 	        width,
@@ -78,7 +74,6 @@ this.BX.UI = this.BX.UI || {};
 	        progress: Math.max(this.progress, 10)
 	      };
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -152,18 +147,15 @@ this.BX.UI = this.BX.UI || {};
 	  computed: {
 	    FileStatus: () => ui_uploader_core.FileStatus,
 	    Sizes: () => StackWidgetSize,
-
 	    item() {
 	      const item = this.items.find(item => {
 	        return item.status !== ui_uploader_core.FileStatus.LOAD_FAILED || item.status !== ui_uploader_core.FileStatus.UPLOAD_FAILED;
 	      });
 	      return item || {};
 	    },
-
 	    fileIconSize() {
 	      return fileIconSizes[this.widgetOptions.size];
 	    },
-
 	    errorsCount() {
 	      return this.items.reduce((errors, item) => {
 	        if (item.status === ui_uploader_core.FileStatus.LOAD_FAILED || item.status === ui_uploader_core.FileStatus.UPLOAD_FAILED) {
@@ -173,7 +165,6 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }, 0);
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -199,12 +190,12 @@ this.BX.UI = this.BX.UI || {};
 						</div>
 						<div
 							v-if="[Sizes.LARGE, Sizes.MEDIUM].includes(widgetOptions.size)"
-							:title="item.originalName"
+							:title="item.name"
 							class="ui-uploader-stack-preview-file-name"
 						>{{
 							items.length > 1
 							? this.$Bitrix.Loc.getMessage('STACK_WIDGET_FILE_COUNT', { '#count#': items.length })
-							: item.originalName
+							: item.name
 						}}</div>
 						<div 
 							v-if="items.length > 1 && [Sizes.SMALL, Sizes.TINY].includes(widgetOptions.size)"
@@ -228,16 +219,13 @@ this.BX.UI = this.BX.UI || {};
 	const StackDropArea = {
 	  name: 'StackDropArea',
 	  inject: ['uploader', 'widgetOptions'],
-
 	  data() {
 	    return {
 	      isHovering: false
 	    };
 	  },
-
 	  computed: {
 	    StackWidgetSize: () => ui_uploader_stackWidget.StackWidgetSize,
-
 	    uploadFileTitle() {
 	      if (this.uploader.shouldAcceptOnlyImages()) {
 	        if (this.uploader.isMultiple()) {
@@ -253,7 +241,6 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }
 	    },
-
 	    dragFileHint() {
 	      if (this.uploader.isMultiple()) {
 	        return main_core.Loc.getMessage('STACK_WIDGET_DRAG_FILES_HINT');
@@ -261,14 +248,11 @@ this.BX.UI = this.BX.UI || {};
 	        return main_core.Loc.getMessage('STACK_WIDGET_DRAG_FILE_HINT');
 	      }
 	    }
-
 	  },
-
 	  mounted() {
 	    this.uploader.assignDropzone(this.$refs.container);
 	    this.uploader.assignBrowse(this.$refs.container);
 	  },
-
 	  // language=Vue
 	  template: `
 		<div
@@ -295,14 +279,13 @@ this.BX.UI = this.BX.UI || {};
 	};
 
 	const isItemLoading = item => item.status === ui_uploader_core.FileStatus.LOADING;
+
 	/**
 	 * @memberof BX.UI.Uploader
 	 */
-
-
 	const StackWidgetComponent = {
 	  name: 'StackWidget',
-	  extends: ui_uploader_core.VueUploaderComponent,
+	  extends: ui_uploader_vue.VueUploaderComponent,
 	  components: {
 	    TileList: ui_uploader_tileWidget.TileList,
 	    ErrorPopup: ui_uploader_tileWidget.ErrorPopup,
@@ -327,27 +310,21 @@ this.BX.UI = this.BX.UI || {};
 	        '--many-items': this.items.length > 1
 	      }, `--${this.widgetOptions.size}`];
 	    },
-
 	    currentComponent() {
 	      if (this.items.length === 0 || this.dragOver) {
 	        if (this.dragOver) {
 	          this.dragMode = true;
 	        }
-
 	        return StackDropArea;
 	      }
-
 	      if (this.queueItems.length > 0) {
 	        return StackUpload;
 	      }
-
 	      if (this.items.some(isItemLoading)) {
 	        return StackLoad;
 	      }
-
 	      return StackPreview;
 	    },
-
 	    currentComponentProps() {
 	      if (this.currentComponent === StackDropArea || this.currentComponent === StackLoad) {
 	        return {};
@@ -362,17 +339,14 @@ this.BX.UI = this.BX.UI || {};
 	        };
 	      }
 	    },
-
 	    error() {
 	      if (this.uploaderError) {
 	        return this.uploaderError;
 	      } else if (this.errorsCount > 0) {
 	        return main_core.Loc.getMessage('STACK_WIDGET_FILE_UPLOAD_ERROR');
 	      }
-
 	      return null;
 	    },
-
 	    errorsCount() {
 	      return this.items.reduce((errors, item) => {
 	        if (item.status === ui_uploader_core.FileStatus.LOAD_FAILED || item.status === ui_uploader_core.FileStatus.UPLOAD_FAILED) {
@@ -382,7 +356,6 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }, 0);
 	    },
-
 	    errorPopupOptions() {
 	      return {
 	        bindElement: this.$refs.item,
@@ -398,7 +371,6 @@ this.BX.UI = this.BX.UI || {};
 	        closeIcon: this.uploaderError !== null
 	      };
 	    }
-
 	  },
 	  watch: {
 	    currentComponent(newValue, oldValue) {
@@ -413,18 +385,15 @@ this.BX.UI = this.BX.UI || {};
 	        this.enableAnimation = true;
 	      }
 	    },
-
 	    items: {
 	      handler() {
 	        if (this.items.length === 0 && this.popup) {
 	          this.popup.close();
 	        }
 	      },
-
 	      deep: true
 	    }
 	  },
-
 	  created() {
 	    this.popup = null;
 	    this.adapter.subscribe('Uploader:onUploadStart', () => {
@@ -440,7 +409,6 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	    this.adapter.subscribe('Item:onAdd', event => {
 	      this.uploaderError = null;
-
 	      if (this.uploader.getStatus() === ui_uploader_core.UploaderStatus.STARTED) {
 	        const item = event.getData().item;
 	        item.queued = true;
@@ -451,18 +419,15 @@ this.BX.UI = this.BX.UI || {};
 	      this.uploaderError = null;
 	      const item = event.getData().item;
 	      const position = this.queueItems.indexOf(item);
-
 	      if (position >= 0) {
 	        this.queueItems.splice(position, 1);
 	      }
 	    });
 	  },
-
 	  mounted() {
 	    this.uploader.assignBrowse(this.$refs['add-button']);
 	    this.isMounted = true;
 	  },
-
 	  methods: {
 	    showPopup() {
 	      if (!this.popup) {
@@ -491,10 +456,8 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	        this.popupContentId = `#${id}`;
 	      }
-
 	      this.popup.show();
 	    },
-
 	    abortUpload() {
 	      const items = Array.from(this.queueItems);
 	      this.queueItems = [];
@@ -502,13 +465,11 @@ this.BX.UI = this.BX.UI || {};
 	        this.uploader.removeFile(item.id);
 	      });
 	    },
-
 	    handlePopupDestroy(error) {
 	      if (this.uploaderError === error) {
 	        this.uploaderError = null;
 	      }
 	    }
-
 	  },
 	  // language=Vue
 	  template: `
@@ -546,21 +507,19 @@ this.BX.UI = this.BX.UI || {};
 	/**
 	 * @memberof BX.UI.Uploader
 	 */
-	class StackWidget extends ui_uploader_core.VueUploaderWidget {
+	class StackWidget extends ui_uploader_vue.VueUploaderWidget {
 	  constructor(uploaderOptions, stackWidgetOptions) {
 	    const widgetOptions = main_core.Type.isPlainObject(stackWidgetOptions) ? Object.assign({}, stackWidgetOptions) : {};
 	    super(uploaderOptions, widgetOptions);
 	  }
-
-	  getRootComponent() {
+	  defineComponent() {
 	    return StackWidgetComponent;
 	  }
-
 	}
 
 	exports.StackWidget = StackWidget;
 	exports.StackWidgetComponent = StackWidgetComponent;
 	exports.StackWidgetSize = StackWidgetSize;
 
-}((this.BX.UI.Uploader = this.BX.UI.Uploader || {}),BX.Main,BX.UI,BX.UI.Uploader,BX.UI.Uploader,BX,BX.UI.Uploader));
+}((this.BX.UI.Uploader = this.BX.UI.Uploader || {}),BX.Main,BX.UI,BX.UI.Uploader,BX.UI.Uploader,BX.UI.Uploader,BX,BX.UI.Uploader));
 //# sourceMappingURL=ui.uploader.stack-widget.bundle.js.map

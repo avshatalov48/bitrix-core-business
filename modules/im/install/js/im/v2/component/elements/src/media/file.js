@@ -17,10 +17,10 @@ export const File = {
 			type: Object,
 			required: true
 		},
-	},
-	data()
-	{
-		return {};
+		messageId: {
+			type: [String, Number],
+			required: true
+		}
 	},
 	computed:
 	{
@@ -112,7 +112,10 @@ export const File = {
 			});
 
 			this.progressBarManager.subscribe(ProgressBarManager.event.cancel, () => {
-				EventEmitter.emit(EventType.uploader.cancel, {taskId: this.file.id});
+				EventEmitter.emit(EventType.uploader.cancel, {
+					tempFileId: this.file.id,
+					tempMessageId: this.messageId
+				});
 			});
 			this.progressBarManager.subscribe(ProgressBarManager.event.destroy, () => {
 				if (this.progressBar)

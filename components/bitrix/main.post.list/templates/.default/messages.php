@@ -96,6 +96,10 @@ BX.message({
 	MPL_SAFE_EDIT : '<?=GetMessageJS('MPL_SAFE_EDIT')?>',
 	MPL_ERROR_OCCURRED : '<?=GetMessageJS('MPL_ERROR_OCCURRED')?>',
 	MPL_CLOSE : '<?=GetMessageJS('MPL_CLOSE')?>',
+	MPL_MOBILE_HINTS : '<?=GetMessageJS('MPL_MOBILE_HINTS')?>',
+	MPL_MOBILE_HINTS_DETAILS : '<?=GetMessageJS('MPL_MOBILE_HINTS_DETAILS')?>',
+	MPL_MOBILE_POPUP_TITLE : '<?=GetMessageJS('MPL_MOBILE_POPUP_TITLE')?>',
+	MPL_MOBILE_POPUP_BOTTOM_TEXT : '<?=GetMessageJS('MPL_MOBILE_POPUP_BOTTOM_TEXT')?>',
 	MPL_LINK_COPIED : '<?=GetMessageJS('MPL_LINK_COPIED')?>'
 	<?
 		if (IsModuleInstalled("socialnetwork"))

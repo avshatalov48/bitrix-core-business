@@ -462,7 +462,7 @@ class Sender
 		}
 	}
 
-	public static function prepareUserMailboxes($userId = null, $getUserIds = false)
+	public static function prepareUserMailboxes($userId = null)
 	{
 		global $USER;
 
@@ -585,10 +585,7 @@ class Sender
 				$item['name'], $item['email']
 			);
 
-			if($getUserIds)
-			{
-				$mailboxes[$userId][$key]['id'] = $userId;
-			}
+			$mailboxes[$userId][$key]['userId'] = $userId;
 		}
 
 		$mailboxes[$userId] = array_values($mailboxes[$userId]);

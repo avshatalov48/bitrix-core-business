@@ -43,7 +43,7 @@ class CCatalogStoreDocsElement
 
 		if (empty($arSelectFields))
 			$arSelectFields = array("ID", "DOC_ID", "STORE_FROM", "STORE_TO", "ELEMENT_ID", "AMOUNT", "PURCHASING_PRICE",
-				"BASE_PRICE", "BASE_PRICE_EXTRA", "BASE_PRICE_EXTRA_RATE"
+				"BASE_PRICE", "BASE_PRICE_EXTRA", "BASE_PRICE_EXTRA_RATE", "COMMENT",
 			);
 
 		$arFields = array(
@@ -57,6 +57,7 @@ class CCatalogStoreDocsElement
 			"BASE_PRICE" => array("FIELD" => "DE.BASE_PRICE", "TYPE" => "double"),
 			"BASE_PRICE_EXTRA" => array("FIELD" => "DE.BASE_PRICE_EXTRA", "TYPE" => "double"),
 			"BASE_PRICE_EXTRA_RATE" => array("FIELD" => "DE.BASE_PRICE_EXTRA_RATE", "TYPE" => "int"),
+			"COMMENT" => array("FIELD" => "DE.COMMENT", "TYPE" => "string"),
 
 			"IS_MULTIPLY_BARCODE" => array("FIELD" => "CP.BARCODE_MULTI", "TYPE" => "char", "FROM" => "INNER JOIN b_catalog_product CP ON (DE.ELEMENT_ID = CP.ID)"),
 			"RESERVED" => array("FIELD" => "CP.QUANTITY_RESERVED", "TYPE" => "double", "FROM" => "INNER JOIN b_catalog_product CP ON (DE.ELEMENT_ID = CP.ID)"),

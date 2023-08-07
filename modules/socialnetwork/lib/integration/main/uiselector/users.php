@@ -281,7 +281,7 @@ class Users extends \Bitrix\Main\UI\Selector\EntityBase
 
 		$search = $requestFields['searchString'];
 		$searchConverted = (!empty($requestFields['searchStringConverted']) ? $requestFields['searchStringConverted'] : false);
-		$nameTemplate = self::getNameTemplate($commonOptions['userNameTemplate']);
+		$nameTemplate = self::getNameTemplate($commonOptions['userNameTemplate'] ?? '');
 
 		$searchModified = false;
 		$result["ITEMS"] = \CSocNetLogDestination::searchUsers(

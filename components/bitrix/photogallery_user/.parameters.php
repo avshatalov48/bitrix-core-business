@@ -12,14 +12,16 @@ while ($arr=$rsIBlockType->Fetch())
 }
 
 $arIBlock = array();
-$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
+$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"] ?? null, "ACTIVE"=>"Y"));
 while($arr=$rsIBlock->Fetch())
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
 
 $arUGroupsEx = Array();
 $dbUGroups = CGroup::GetList();
-if ($arCurrentValues["IBLOCK_ID"] > 0)
+if (($arCurrentValues["IBLOCK_ID"] ?? null) > 0)
+{
 	$arUGroupsExPermission = CIBlock::GetGroupPermissions($arCurrentValues["IBLOCK_ID"]);
+}
 
 while($arUGroups = $dbUGroups -> Fetch())
 {
@@ -53,7 +55,7 @@ if ($handle)
 if (!$file_exist)
 	$arFiles = array("" => GetMessage("P_FONTS_NONE"));
 
-$hidden = ($arCurrentValues["USE_LIGHT_VIEW"] == "N" ? "N" : "Y");
+$hidden = (($arCurrentValues["USE_LIGHT_VIEW"] ?? null) == "N" ? "N" : "Y");
 
 $arComponentParameters = array(
 	"GROUPS" => array(
@@ -142,7 +144,7 @@ $arComponentParameters = array(
 				"sort" => GetMessage("IBLOCK_SORT_SORT"),
 				"timestamp_x" => GetMessage("IBLOCK_SORT_TIMESTAMP"),
 				"name" => GetMessage("IBLOCK_SORT_NAME"),
-				"id" => $arCurrentValues["DRAG_SORT"] == "N" ? GetMessage("IBLOCK_SORT_ID") : GetMessage("IBLOCK_SORT_ID_SORTED"),
+				"id" => ($arCurrentValues["DRAG_SORT"] ?? null) == "N" ? GetMessage("IBLOCK_SORT_ID") : GetMessage("IBLOCK_SORT_ID_SORTED"),
 				"rating" => GetMessage("IBLOCK_SORT_RATING"),
 				"comments" => GetMessage("IBLOCK_SORT_COMMENTS")
 			),
@@ -344,8 +346,10 @@ $arComponentParameters = array(
 if ($hidden == "Y")
 	unset($arComponentParameters["GROUPS"]["PAGE_SETTINGS"]);
 
-if($arCurrentValues["USE_PERMISSIONS"]!="Y")
+if(($arCurrentValues["USE_PERMISSIONS"] ?? null) != "Y")
+{
 	unset($arComponentParameters["PARAMETERS"]["GROUP_PERMISSIONS"]);
+}
 
 $arComponentParameters["PARAMETERS"]["SHOW_NAVIGATION"] = array(
 	"PARENT" => "BASE",
@@ -355,7 +359,7 @@ $arComponentParameters["PARAMETERS"]["SHOW_NAVIGATION"] = array(
 );
 
 /* UPLOADER PARAMS */
-if ($arCurrentValues["UPLOADER_TYPE"])
+if ($arCurrentValues["UPLOADER_TYPE"] ?? null)
 {
 	$arComponentParameters["PARAMETERS"]["UPLOADER_TYPE"] = array(
 		"PARENT" => "UPLOADER",
@@ -372,7 +376,7 @@ if ($arCurrentValues["UPLOADER_TYPE"])
 	);
 }
 
-if ($arCurrentValues["UPLOADER_TYPE"] == "applet")
+if (($arCurrentValues["UPLOADER_TYPE"] ?? null) == "applet")
 {
 	$arComponentParameters["PARAMETERS"]["APPLET_LAYOUT"] = array(
 			"PARENT" => "UPLOADER",
@@ -425,7 +429,7 @@ $arComponentParameters["PARAMETERS"]["USE_WATERMARK"] = array(
 	"REFRESH" => "Y"
 );
 
-if ($arCurrentValues["USE_WATERMARK"] != "N")
+if (($arCurrentValues["USE_WATERMARK"] ?? null) != "N")
 {
 	$arComponentParameters["PARAMETERS"]["WATERMARK_RULES"] = array(
 		"PARENT" => "UPLOADER",
@@ -438,7 +442,7 @@ if ($arCurrentValues["USE_WATERMARK"] != "N")
 		"REFRESH" => "Y"
 	);
 
-	if ($arCurrentValues["WATERMARK_RULES"] == "ALL")
+	if (($arCurrentValues["WATERMARK_RULES"] ?? null) == "ALL")
 	{
 		// Applly  watermark to all photos on server
 		$arComponentParameters["PARAMETERS"]["WATERMARK_TYPE"] = array(
@@ -452,7 +456,7 @@ if ($arCurrentValues["USE_WATERMARK"] != "N")
 			"DEFAULT" => "PICTURE",
 			"REFRESH" => "Y"
 		);
-		if ($arCurrentValues["WATERMARK_TYPE"] == "TEXT")
+		if (($arCurrentValues["WATERMARK_TYPE"] ?? null) == "TEXT")
 		{
 			$arComponentParameters["PARAMETERS"]["WATERMARK_TEXT"] = array(
 				"PARENT" => "UPLOADER",
@@ -511,7 +515,7 @@ if ($arCurrentValues["USE_WATERMARK"] != "N")
 			"DEFAULT" => "mc"
 		);
 
-		if ($arCurrentValues["WATERMARK_TYPE"] != "TEXT")
+		if (($arCurrentValues["WATERMARK_TYPE"] ?? null) != "TEXT")
 			$arComponentParameters["PARAMETERS"]["WATERMARK_TRANSPARENCY"] = array(
 				"PARENT" => "UPLOADER",
 				"NAME" => GetMessage("P_WATERMARK_TRANSPARENCY"),
@@ -520,7 +524,7 @@ if ($arCurrentValues["USE_WATERMARK"] != "N")
 			);
 	}
 
-	if ($arCurrentValues["UPLOADER_TYPE"] != "applet")
+	if (($arCurrentValues["UPLOADER_TYPE"] ?? null) != "applet")
 	{
 		$arComponentParameters["PARAMETERS"]["PATH_TO_FONT"] = array(
 			"PARENT" => "UPLOADER",
@@ -538,7 +542,7 @@ if ($arCurrentValues["USE_WATERMARK"] != "N")
 	);
 }
 
-if($arCurrentValues["USE_RATING"]=="Y")
+if(($arCurrentValues["USE_RATING"] ?? null) == "Y")
 {
 	$arComponentParameters["PARAMETERS"]["MAX_VOTE"] = array(
 		"PARENT" => "RATING_SETTINGS",
@@ -565,7 +569,7 @@ if($arCurrentValues["USE_RATING"]=="Y")
 		"DEFAULT" => "rating",
 		"REFRESH" => "Y"
 	);
-	if($arCurrentValues["DISPLAY_AS_RATING"]=="rating_main")
+	if(($arCurrentValues["DISPLAY_AS_RATING"] ?? null) == "rating_main")
 	{
 		$arComponentParameters["PARAMETERS"]["RATING_MAIN_TYPE"] = array(
 			"PARENT" => "RATING_SETTINGS",
@@ -593,7 +597,7 @@ if (IsModuleInstalled("blog") || IsModuleInstalled("forum"))
 			"DEFAULT" => "N",
 			"REFRESH" => "Y");
 
-	if ($arCurrentValues["USE_COMMENTS"]=="Y")
+	if (($arCurrentValues["USE_COMMENTS"] ?? null) == "Y")
 	{
 		$arr = array();
 		if (IsModuleInstalled("blog"))
@@ -610,9 +614,9 @@ if (IsModuleInstalled("blog") || IsModuleInstalled("forum"))
 			"REFRESH" => "Y"
 		);
 
-		$arCurrentValues["COMMENTS_TYPE"] = ($arCurrentValues["COMMENTS_TYPE"] == "forum" ? "forum" : "blog");
+		$arCurrentValues["COMMENTS_TYPE"] = (($arCurrentValues["COMMENTS_TYPE"] ?? null) == "forum" ? "forum" : "blog");
 
-		if (IsModuleInstalled("blog") && $arCurrentValues["COMMENTS_TYPE"]=="blog")
+		if (IsModuleInstalled("blog") && ($arCurrentValues["COMMENTS_TYPE"] ?? null) == "blog")
 		{
 			$arBlogs = array();
 			if(CModule::IncludeModule("blog"))
@@ -651,7 +655,7 @@ if (IsModuleInstalled("blog") || IsModuleInstalled("forum"))
 				"DEFAULT" => "/bitrix/images/blog/smile/",
 				"HIDDEN" => $hidden);
 		}
-		elseif (IsModuleInstalled("forum") && $arCurrentValues["COMMENTS_TYPE"]=="forum")
+		elseif (IsModuleInstalled("forum") && ($arCurrentValues["COMMENTS_TYPE"] ?? null) == "forum")
 		{
 			$arForum = array();
 			$fid = 0;
@@ -734,7 +738,7 @@ if (IsModuleInstalled("search"))
 		"DEFAULT" => "tags/",
 		"VARIABLES" => array());
 
-	if($arCurrentValues["SHOW_TAGS"]=="Y")
+	if(($arCurrentValues["SHOW_TAGS"] ?? null) == "Y")
 	{
 		$arComponentParameters["PARAMETERS"]["TAGS_PAGE_ELEMENTS"] = array(
 			"PARENT" => "TAGS_CLOUD",

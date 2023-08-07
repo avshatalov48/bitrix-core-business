@@ -67,12 +67,18 @@
 
 #landing-design-form .ui-form-row-hidden,
 #landing-site-design-form .ui-form-row-hidden {
+	transition-timing-function: ease-out;
 	visibility: hidden;
+	padding-bottom: 0;
+	padding-top: 0;
+	box-sizing: border-box;
 }
 
 #landing-design-form .ui-form-row-hidden.ui-form-row-hidden-show,
 #landing-site-design-form .ui-form-row-hidden.ui-form-row-hidden-show {
 	visibility: inherit;
+	margin-top: 15px;
+	margin-bottom: 25px;
 }
 
 .ui-ctl-textbox {

@@ -169,12 +169,12 @@ this.BX = this.BX || {};
 				<div class="${0}">
 					<div class="ui-advice__avatar-box">
 						<span class="ui-advice__avatar ui-icon ui-icon-common-user">
-							<i style="background-image: url('${0}')"></i>
+							<i ${0}></i>
 						</span>
 					</div>
 					<div class="${0}"></div>
 				</div>
-				`), babelHelpers.classPrivateFieldLooseBase(this, _getContainerClassname)[_getContainerClassname](), encodeURI(this.getAvatar()), babelHelpers.classPrivateFieldLooseBase(this, _getTextBoxClassname)[_getTextBoxClassname]());
+				`), babelHelpers.classPrivateFieldLooseBase(this, _getContainerClassname)[_getContainerClassname](), babelHelpers.classPrivateFieldLooseBase(this, _avatar)[_avatar] ? `style="background-image: url(${encodeURI(this.getAvatar())})"` : '', babelHelpers.classPrivateFieldLooseBase(this, _getTextBoxClassname)[_getTextBoxClassname]());
 
 	    const contentContainer = babelHelpers.classPrivateFieldLooseBase(this, _container)[_container].querySelector(`.${babelHelpers.classPrivateFieldLooseBase(this, _textBoxBaseClassname)[_textBoxBaseClassname]}`);
 
@@ -197,5 +197,5 @@ this.BX = this.BX || {};
 	exports.AdviceAnglePosition = AdviceAnglePosition;
 	exports.Advice = Advice;
 
-}((this.BX.Ui = this.BX.Ui || {}),BX));
+}((this.BX.UI = this.BX.UI || {}),BX));
 //# sourceMappingURL=advice.bundle.js.map

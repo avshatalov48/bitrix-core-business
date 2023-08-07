@@ -43,6 +43,12 @@ export const DateUtil = {
 	isToday(date): boolean
 	{
 		return this.cast(date).toDateString() === (new Date()).toDateString();
-	}
+	},
 
+	isSameDay(firstDate: Date, secondDate: Date): boolean
+	{
+		return firstDate.getFullYear() === secondDate.getFullYear()
+			&& firstDate.getMonth() === secondDate.getMonth()
+			&& firstDate.getDate() === secondDate.getDate();
+	}
 };

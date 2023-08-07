@@ -5,9 +5,11 @@ namespace Bitrix\Im\V2\Controller;
 use Bitrix\Im\Dialog;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Controller\Filter\ActionUuidHandler;
+use Bitrix\Im\V2\Controller\Filter\AuthorizationPrefilter;
 use Bitrix\Im\V2\Controller\Filter\CheckChatAccess;
 use Bitrix\Im\V2\Controller\Filter\SameChatMessageFilter;
 use Bitrix\Im\V2\Controller\Filter\StartIdFilter;
+use Bitrix\Im\V2\Controller\Filter\UpdateStatus;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\MessageError;
 use Bitrix\Im\V2\Rest\RestAdapter;
@@ -16,7 +18,7 @@ use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Engine\Response\Converter;
 
-class BaseController extends Controller
+abstract class BaseController extends Controller
 {
 	protected const MAX_LIMIT = 200;
 	protected const DEFAULT_LIMIT = 50;
@@ -53,6 +55,9 @@ class BaseController extends Controller
 	protected function getDefaultPreFilters()
 	{
 		return array_merge(
+			[
+				new AuthorizationPrefilter(),
+			],
 			parent::getDefaultPreFilters(),
 			[
 				new SameChatMessageFilter(),
@@ -63,14 +68,24 @@ class BaseController extends Controller
 		);
 	}
 
+	protected function getDefaultPostFilters()
+	{
+		return array_merge(
+			parent::getDefaultPostFilters(),
+			[
+				new UpdateStatus(),
+			]
+		);
+	}
+
 	protected function getLimit(int $limit): int
 	{
 		return $limit > 0 && $limit <= static::MAX_LIMIT ? $limit : static::DEFAULT_LIMIT;
 	}
 
-	protected function toRestFormat(RestConvertible $entity): array
+	protected function toRestFormat(RestConvertible ...$entities): array
 	{
-		return (new RestAdapter($entity))->toRestFormat();
+		return (new RestAdapter(...$entities))->toRestFormat();
 	}
 
 	public static function recursiveWhiteList($fields, $whiteList, bool $sanitizeOnly = false)

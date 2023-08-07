@@ -10,6 +10,7 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/prolog.php");
 
+$logical = $logical ?? null;
 $addUrl = 'lang='.LANGUAGE_ID.($logical == "Y"?'&logical=Y':'');
 
 if (!($USER->CanDoOperation('fileman_admin_files') || $USER->CanDoOperation('fileman_edit_existent_files')))
@@ -32,7 +33,7 @@ while($arSiteTemplate = $rsSiteTemplates->Fetch())
 
 $io = CBXVirtualIo::GetInstance();
 
-$path = $io->CombinePath("/", $path);
+$path = $io->CombinePath("/", $path ?? null);
 $path_list = GetDirPath($path);
 
 $bVarsFromForm = false; //  if 'true' - we will get content  and variables from form, if 'false' - from saved file
@@ -53,6 +54,7 @@ $new = (isset($new) && mb_strtolower($new) == 'y') ? 'y' : '';
 if ($new == 'y' && $filename <> '')
 	$path = $path."/".$filename;
 
+$site ??= $_REQUEST['site'] ?? null;
 $site = CFileMan::__CheckSite($site);
 if(!$site)
 	$site = CSite::GetSiteByFullPath($_SERVER["DOCUMENT_ROOT"].$path);
@@ -76,7 +78,7 @@ if($new == '' && $filename == '' && $oldname == '' && !$io->FileExists($abs_path
 }
 
 $useEditor3 = COption::GetOptionString('fileman', "use_editor_3", "Y") == "Y";
-$bFullPHP = ($full_src == "Y") && $USER->CanDoOperation('edit_php');
+$bFullPHP = (($full_src ?? null) == "Y") && $USER->CanDoOperation('edit_php');
 $NEW_ROW_CNT = 1;
 
 $arParsedPath = CFileMan::ParsePath(Array($site, $path), true, false, "", $logical == "Y");
@@ -160,16 +162,20 @@ elseif($strWarning == '')
 	}
 }
 
-$bFullScreen = ($_REQUEST['fullscreen'] ? $_REQUEST['fullscreen']=='Y' : COption::GetOptionString("fileman", "htmleditor_fullscreen", "N")=="Y");
+$bFullScreen = (($_REQUEST['fullscreen'] ?? false) ? ($_REQUEST['fullscreen'] ?? null)=='Y' : COption::GetOptionString("fileman", "htmleditor_fullscreen", "N")=="Y");
 
+$back_url = $back_url ?? null;
 if($back_url <> '' && mb_strpos($back_url, "/bitrix/admin/fileman_file_edit.php") !== 0)
 	$url = "/".ltrim($back_url, "/");
 else
-	$url = "/bitrix/admin/fileman_admin.php?".$addUrl."&site=".Urlencode($site)."&path=".UrlEncode($arParsedPath["PREV"]);
+	$url = "/bitrix/admin/fileman_admin.php?".$addUrl."&site=".Urlencode($site)."&path=".UrlEncode($io->CombinePath("/", $arParsedPath["PREV"]));
 
 $module_id = "fileman";
 $localRedirectUrl = '';
 
+$template = $template ?? null;
+$title = $title ?? null;
+$filesrc = $filesrc ?? null;
 if($strWarning == '')
 {
 	if($bEdit)
@@ -198,7 +204,7 @@ if($strWarning == '')
 		}
 	}
 
-	if($REQUEST_METHOD == "POST" && $save <> '' && $propeditmore == '')
+	if($REQUEST_METHOD == "POST" && $save <> '' && ($propeditmore ?? null) == '')
 	{
 		if(!check_bitrix_sessid())
 		{
@@ -315,7 +321,7 @@ if($strWarning == '')
 						);
 				}
 				// menu saving
-				if($add_to_menu=="Y" && $menutype <> '' && $USER->CanDoOperation('fileman_add_element_to_menu') && $USER->CanDoFileOperation('fm_add_to_menu',$arPath))
+				if($add_to_menu ?? null =="Y" && $menutype <> '' && $USER->CanDoOperation('fileman_add_element_to_menu') && $USER->CanDoFileOperation('fm_add_to_menu',$arPath))
 				{
 					$menu_path = $io->CombinePath("/", $arParsedPath["PREV"], ".".$menutype.".menu.php");
 
@@ -325,6 +331,7 @@ if($strWarning == '')
 						$aMenuLinksTmp = $res["aMenuLinks"];
 						$sMenuTemplateTmp = $res["sMenuTemplate"];
 
+						$menuitem ??= null;
 						$menuitem = intval($menuitem);
 						if($itemtype=="e") //means in exist item
 						{
@@ -362,7 +369,7 @@ if($strWarning == '')
 					}
 				}
 
-				if($strWarning == '' && $apply == '' && $apply2 == '')
+				if($strWarning == '' && ($apply ?? null) == '' && $apply2 == '')
 					$localRedirectUrl = $url;
 				else
 					$localRedirectUrl = "/bitrix/admin/fileman_html_edit.php?".$addUrl."&site=".Urlencode($site)."&path=".UrlEncode($path)."&back_url=".UrlEncode($back_url)."&fullscreen=".($bFullScreen?"Y":"N")."&tabControl_active_tab=".urlencode($tabControl_active_tab);
@@ -376,7 +383,7 @@ if($strWarning == '')
 	}
 }
 
-if($propeditmore <> '')
+if(($propeditmore ?? null) <> '')
 	$bVarsFromForm = True;
 
 $bEditProps = false;
@@ -438,7 +445,7 @@ if(!$bVarsFromForm)
 	if((CFileman::IsPHP($filesrc) || $isScriptExt) && !($USER->CanDoOperation('edit_php') || $limit_php_access))
 		$strWarning = GetMessage("FILEMAN_FILEEDIT_CHANGE_ACCESS");
 }
-elseif($prop_edit=="Y")
+elseif(($prop_edit ?? null)=="Y")
 	$bEditProps = true;
 
 if($bEdit)
@@ -507,6 +514,7 @@ if ($bEdit)
 
 $ismenu = preg_match('/^\.(.*)?\.menu\.(php|html|php3|php4|php5|phtml)$/i', $arParsedPath["LAST"], $regs);
 $aDDMenuEdit = array();
+$templateID = $templateID ?? null;
 if (!$ismenu)
 {
 	$aDDMenuEdit[] = array(
@@ -759,7 +767,7 @@ $tabControl->BeginNextTab();
 
 			<input type="hidden" name="new" id="new" value="n">
 			<input type="hidden" name="filename" id="filename" value="<?=htmlspecialcharsbx($arParsedPath["LAST"])?>">
-			<input type="hidden" name="ofp_id" id="ofp_id" value="<?=htmlspecialcharsbx($ofp_id)?>">
+			<input type="hidden" name="ofp_id" id="ofp_id" value="<?=htmlspecialcharsbx($ofp_id ?? '')?>">
 			</td>
 		</tr>
 	<tr>
@@ -769,7 +777,7 @@ $tabControl->BeginNextTab();
 		<? /* Transliteration - only for new files*/
 		if (!$bEdit && COption::GetOptionString("fileman", "use_translit", true))
 		{
-			$bLinked = !isset($_REQUEST['filename']) && $_REQUEST['bxfm_linked'] != "N" && $filename != 'index.php';
+			$bLinked = !isset($_REQUEST['filename']) && ($_REQUEST['bxfm_linked'] ?? null) != "N" && $filename != 'index.php';
 			?>
 			<input type="hidden" name="bxfm_linked" id="bxfm_linked" value="<? echo $bLinked ? "Y" : "N";?>)" />
 			<?
@@ -985,7 +993,7 @@ $tabControl->BeginNextTab();
 				$ind=-1;
 				$arAllPropFields = Array();
 
-
+				$page_properties = $page_properties ?? null;
 				if(is_array($page_properties))
 				{
 					foreach($page_properties as $f_CODE => $f_VALUE)
@@ -1055,6 +1063,7 @@ $tabControl->BeginNextTab();
 				for($i = 0; $i < $cntProp; $i++)
 				{
 					$arProp = $arAllPropFields[$i];
+					$arProp["NAME"] = $arProp["NAME"] ?? null;
 					?>
 					<tr>
 						<td  valign="top" >
@@ -1102,10 +1111,10 @@ $tabControl->BeginNextTab();
 	?>
 	<tr>
 		<td width="40%"><label for="add_to_menu"><?= GetMessage("FILEMAN_H_EDIT_ADD")?></label></td>
-		<td width="60%"><input type="checkbox" id="add_to_menu" name="add_to_menu" value="Y" onclick="__heAddToMenu()" <?if($_POST['add_to_menu'] == 'Y') echo 'checked';?>></td>
+		<td width="60%"><input type="checkbox" id="add_to_menu" name="add_to_menu" value="Y" onclick="__heAddToMenu()" <?if(($_POST['add_to_menu'] ?? null) == 'Y') echo 'checked';?>></td>
 	</tr>
 
-	<tr id="ex"<?if($_POST['add_to_menu']!='Y') echo ' style="display:none;"';?>>
+	<tr id="ex"<?if(($_POST['add_to_menu'] ?? null)!='Y') echo ' style="display:none;"';?>>
 		<td><?= GetMessage("FILEMAN_H_EDIT_TMENU")?></td>
 		<td>
 			<select id="menutype" name="menutype" onChange="chtyp()">
@@ -1291,7 +1300,7 @@ BX.ready(function() {
 
 	BX.addCustomEvent(document.forms.ffilemanedit, 'onAutoSaveRestore', function (ob, data)
 	{
-		var i = <?=count($arAllPropFields)?>;
+		var i = <?=count($arAllPropFields ?? [])?>;
 		while (typeof data['CODE_' + i] != 'undefined')
 		{
 			_MoreRProps(data['CODE_' + i], data['VALUE_' + i]);
@@ -1300,6 +1309,9 @@ BX.ready(function() {
 	});
 })
 </script>
+<?php
+$_REQUEST['add_to_menu'] = $_REQUEST['add_to_menu'] ?? null;
+?>
 <tr id="e0"<?if($_REQUEST['add_to_menu']!='Y')echo ' style="display:none;"';?>>
 	<td valign="top"><?= GetMessage("FILEMAN_H_EDIT_MENUIT")?></td>
 	<td>
@@ -1316,7 +1328,7 @@ BX.ready(function() {
 	<td><?echo GetMessage("FILEMAN_H_EDIT_MENU_INS_BEFORE")?></td>
 	<td>
 		<select name="newppos" id="newppos"><?
-			$arItems = $arAllItems[$strSelected];
+			$arItems = (array)$arAllItems[$strSelected];
 			$l = count($arItems);
 			for($i = 0; $i < $l; $i++):
 				?><option value="<?= $i + 1?>" <?if(isset($_POST['newppos']) && $_POST['newppos'] == $i + 1) echo 'selected';?>><?= $arItems[$i]?></option><?
@@ -1329,7 +1341,7 @@ BX.ready(function() {
 	<td><?echo GetMessage("FILEMAN_H_EDIT_MENU_ITEM")?></td>
 	<td>
 		<select name="menuitem" id="menuitem"><?
-			$arItems = $arAllItems[$strSelected];
+			$arItems = (array)$arAllItems[$strSelected];
 			$l = count($arItems);
 			for($i = 0; $i < $l; $i++):
 			?><option value="<?= $i + 1?>" <?if(isset($_POST['menuitem']) && $_POST['menuitem'] == $i + 1) echo 'selected';?>><?= $arItems[$i]?></option><?

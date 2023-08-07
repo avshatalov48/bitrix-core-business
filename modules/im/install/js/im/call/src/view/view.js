@@ -1,6 +1,7 @@
 import {Browser, Dom, Runtime, Text, Type} from 'main.core';
 import {BaseEvent, EventEmitter} from 'main.core.events';
 import {Popup} from 'main.popup';
+import {DesktopApi} from 'im.v2.lib.desktop-api';
 
 import {UserModel, UserRegistry} from './user-registry'
 import * as Buttons from './buttons';
@@ -1667,8 +1668,8 @@ export class View
 			speakerEnabled: !this.speakerMuted,
 			speakerId: this.speakerId,
 			allowHdVideo: Hardware.preferHdQuality,
-			faceImproveEnabled: Util.isDesktop() && typeof (BX.desktop) !== 'undefined' && BX.desktop.cameraSmoothingStatus(),
-			allowFaceImprove: Util.isDesktop() && typeof (BX.desktop) !== 'undefined' && BX.desktop.enableInVersion(64),
+			faceImproveEnabled: Util.isDesktop() && DesktopApi.isDesktop() && DesktopApi.getCameraSmoothingStatus(),
+			allowFaceImprove: Util.isDesktop() && DesktopApi.isDesktop() && DesktopApi.getApiVersion() > 64,
 			allowBackground: BackgroundDialog.isAvailable() && this.isIntranetOrExtranet,
 			allowMask: BackgroundDialog.isMaskAvailable() && this.isIntranetOrExtranet,
 			allowAdvancedSettings: typeof (BXIM) !== 'undefined' && this.isIntranetOrExtranet,

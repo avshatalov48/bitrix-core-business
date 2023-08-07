@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -87,7 +88,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _handleAddingMessageToModel)[_handleAddingMessageToModel](params);
 	    }
 
-	    //stop writing event
+	    // stop writing event
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('dialogues/stopWriting', {
 	      dialogId: params.dialogId,
 	      userId: params.message.senderId
@@ -124,17 +125,26 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	  handleMessageDeleteComplete(params) {
 	    im_v2_lib_logger.Logger.warn('MessagePullHandler: handleMessageDeleteComplete', params);
-	    // this.store.dispatch('messages/delete', {
-	    // 	id: params.id,
-	    // 	chatId: params.chatId,
-	    // });
-
-	    // this.store.dispatch('dialogues/stopWriting', {
-	    // 	dialogId: params.dialogId,
-	    // 	userId: params.senderId
-	    // });
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('dialogues/stopWriting', {
+	      dialogId: params.dialogId,
+	      userId: params.senderId
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/delete', {
+	      id: params.id
+	    });
+	    const dialogUpdateFields = {
+	      counter: params.counter
+	    };
+	    const lastMessageWasDeleted = Boolean(params.newLastMessage);
+	    if (lastMessageWasDeleted) {
+	      dialogUpdateFields.lastMessageId = params.newLastMessage.id;
+	      dialogUpdateFields.lastMessageViews = params.lastMessageViews;
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('dialogues/update', {
+	      dialogId: params.dialogId,
+	      fields: dialogUpdateFields
+	    });
 	  }
-
 	  handleAddReaction(params) {
 	    im_v2_lib_logger.Logger.warn('MessagePullHandler: handleAddReaction', params);
 	    const {
@@ -163,15 +173,14 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	  handleMessageParamsUpdate(params) {
 	    im_v2_lib_logger.Logger.warn('MessagePullHandler: handleMessageParamsUpdate', params);
-	    // this.store.dispatch('messages/update', {
-	    // 	id: params.id,
-	    // 	chatId: params.chatId,
-	    // 	fields: {params: params.params}
-	    // }).then(() => {
-	    // 	EventEmitter.emit(EventType.dialog.scrollToBottom, {chatId: params.chatId, cancelIfScrollChange: true});
-	    // });
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/update', {
+	      id: params.id,
+	      chatId: params.chatId,
+	      fields: {
+	        params: params.params
+	      }
+	    });
 	  }
-
 	  handleReadMessage(params, extra) {
 	    im_v2_lib_logger.Logger.warn('MessagePullHandler: handleReadMessage', params);
 	    const uuidManager = im_v2_lib_uuid.UuidManager.getInstance();
@@ -202,12 +211,12 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    im_v2_lib_logger.Logger.warn('MessagePullHandler: handlePinAdd', params);
 	    babelHelpers.classPrivateFieldLooseBase(this, _setFiles)[_setFiles](params);
 	    babelHelpers.classPrivateFieldLooseBase(this, _setUsers)[_setUsers](params);
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/store', params.link.message);
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/store', params.pin.message);
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/pin/add', {
-	      chatId: params.link.chatId,
-	      messageId: params.link.messageId
+	      chatId: params.pin.chatId,
+	      messageId: params.pin.messageId
 	    });
-	    if (im_v2_application_core.Core.getUserId() !== params.link.authorId) ;
+	    if (im_v2_application_core.Core.getUserId() !== params.pin.authorId) ;
 	  }
 	  handlePinDelete(params) {
 	    im_v2_lib_logger.Logger.warn('MessagePullHandler: handlePinDelete', params);
@@ -512,7 +521,6 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    im_v2_lib_logger.Logger.warn('DesktopPullHandler: handleDesktopOnline', params);
 	    const desktopManager = im_v2_lib_desktop.DesktopManager.getInstance();
 	    desktopManager.setDesktopActive(true);
-	    desktopManager.setDesktopVersion(params.version);
 	    im_v2_lib_counter.CounterManager.getInstance().removeBrowserTitleCounter();
 	  }
 	  handleDesktopOffline() {
@@ -662,11 +670,11 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	  handleMessageAdd(params) {
 	    if (params.lines) {
-	      return false;
+	      return;
 	    }
 	    const currentUserId = im_v2_application_core.Core.getUserId();
 	    if (currentUserId && params.userInChat[params.chatId] && !params.userInChat[params.chatId].includes(currentUserId)) {
-	      return false;
+	      return;
 	    }
 	    let attach = false;
 	    if (main_core.Type.isArray(params.message.params['ATTACH'])) {
@@ -717,7 +725,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  handleMessageUpdate(params, extra, command) {
 	    const recentItem = this.store.getters['recent/get'](params.dialogId);
 	    if (!recentItem || recentItem.message.id !== params.id) {
-	      return false;
+	      return;
 	    }
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleMessageUpdate', params, command);
 	    let text = params.text;
@@ -729,7 +737,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      fields: {
 	        message: {
 	          id: params.id,
-	          text: text,
+	          text,
 	          date: recentItem.message.date,
 	          status: recentItem.message.status,
 	          senderId: params.senderId,
@@ -743,6 +751,18 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	  handleMessageDelete(params, extra, command) {
 	    this.handleMessageUpdate(params, extra, command);
+	  }
+	  handleMessageDeleteComplete(params) {
+	    const lastMessageWasDeleted = Boolean(params.newLastMessage);
+	    if (lastMessageWasDeleted) {
+	      this.store.dispatch('recent/update', {
+	        id: params.dialogId,
+	        fields: {
+	          message: params.newLastMessage
+	        }
+	      });
+	    }
+	    this.updateUnloadedChatCounter(params);
 	  }
 
 	  /* region Counters handling */
@@ -782,7 +802,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    const recentItem = this.store.getters['recent/get'](params.dialogId);
 	    const lastReadMessage = Number.parseInt(params.lastId, 10);
 	    if (!recentItem || recentItem.message.id !== lastReadMessage) {
-	      return false;
+	      return;
 	    }
 	    this.store.dispatch('recent/update', {
 	      id: params.dialogId,
@@ -801,7 +821,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleUnreadMessageOpponent', params);
 	    const recentItem = this.store.getters['recent/get'](params.dialogId);
 	    if (!recentItem) {
-	      return false;
+	      return;
 	    }
 	    this.store.dispatch('recent/update', {
 	      id: params.dialogId,
@@ -817,7 +837,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleUnreadMessageChatOpponent', params);
 	    const recentItem = this.store.getters['recent/get'](params.dialogId);
 	    if (!recentItem) {
-	      return false;
+	      return;
 	    }
 	    this.store.dispatch('recent/update', {
 	      id: params.dialogId,
@@ -833,20 +853,20 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleAddReaction', params);
 	    const recentItem = this.store.getters['recent/get'](params.dialogId);
 	    if (!recentItem) {
-	      return false;
+	      return;
 	    }
 	    const chatIsOpened = this.store.getters['application/isChatOpen'](params.dialogId);
 	    if (chatIsOpened) {
-	      return false;
+	      return;
 	    }
-	    const isOwnLike = im_v2_application_core.Core.getUserId() === params.senderId;
+	    const isOwnLike = im_v2_application_core.Core.getUserId() === params.userId;
 	    const isOwnLastMessage = im_v2_application_core.Core.getUserId() === recentItem.message.senderId;
 	    if (isOwnLike || !isOwnLastMessage) {
-	      return false;
+	      return;
 	    }
 	    this.store.dispatch('recent/like', {
 	      id: params.dialogId,
-	      messageId: params.id,
+	      messageId: params.actualReactions.reaction.messageId,
 	      liked: true
 	    });
 	  }
@@ -862,7 +882,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleChatPin', params);
 	    const recentItem = this.store.getters['recent/get'](params.dialogId);
 	    if (!recentItem) {
-	      return false;
+	      return;
 	    }
 	    this.store.dispatch('recent/pin', {
 	      id: params.dialogId,
@@ -873,7 +893,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleChatHide', params);
 	    const recentItem = this.store.getters['recent/get'](params.dialogId);
 	    if (!recentItem) {
-	      return false;
+	      return;
 	    }
 	    this.store.dispatch('recent/delete', {
 	      id: params.dialogId
@@ -883,10 +903,10 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleChatUserLeave', params);
 	    const recentItem = this.store.getters['recent/get'](params.dialogId);
 	    if (!recentItem) {
-	      return false;
+	      return;
 	    }
 	    if (params.userId !== im_v2_application_core.Core.getUserId()) {
-	      return false;
+	      return;
 	    }
 	    this.store.dispatch('recent/delete', {
 	      id: params.dialogId
@@ -930,7 +950,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      muted,
 	      unread
 	    });
-	    let newCounter;
+	    let newCounter = 0;
 	    if (muted) {
 	      newCounter = 0;
 	    } else if (unread && counter === 0) {
@@ -1201,11 +1221,11 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	var _shouldShowNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("shouldShowNotification");
 	var _isChatOpened = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isChatOpened");
 	var _isUserDnd = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isUserDnd");
-	var _isDesktopActive = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDesktopActive");
+	var _desktopWillShowNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("desktopWillShowNotification");
 	class NotifierPullHandler {
 	  constructor() {
-	    Object.defineProperty(this, _isDesktopActive, {
-	      value: _isDesktopActive2
+	    Object.defineProperty(this, _desktopWillShowNotification, {
+	      value: _desktopWillShowNotification2
 	    });
 	    Object.defineProperty(this, _isUserDnd, {
 	      value: _isUserDnd2
@@ -1242,7 +1262,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    im_v2_lib_notifier.NotifierManager.getInstance().showMessage(message, dialog, user);
 	  }
 	  handleNotifyAdd(params) {
-	    if (params.onlyFlash === true || babelHelpers.classPrivateFieldLooseBase(this, _isUserDnd)[_isUserDnd]() || babelHelpers.classPrivateFieldLooseBase(this, _isDesktopActive)[_isDesktopActive]()) {
+	    if (params.onlyFlash === true || babelHelpers.classPrivateFieldLooseBase(this, _isUserDnd)[_isUserDnd]() || babelHelpers.classPrivateFieldLooseBase(this, _desktopWillShowNotification)[_desktopWillShowNotification]()) {
 	      return;
 	    }
 	    if (document.hasFocus()) {
@@ -1264,7 +1284,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  if (im_v2_application_core.Core.getUserId() === params.message.senderId) {
 	    return false;
 	  }
-	  if (!params.notify || ((_params$message = params.message) == null ? void 0 : (_params$message$param = _params$message.params) == null ? void 0 : _params$message$param.NOTIFY) === 'N' || babelHelpers.classPrivateFieldLooseBase(this, _isUserDnd)[_isUserDnd]() || babelHelpers.classPrivateFieldLooseBase(this, _isDesktopActive)[_isDesktopActive]()) {
+	  if (!params.notify || ((_params$message = params.message) == null ? void 0 : (_params$message$param = _params$message.params) == null ? void 0 : _params$message$param.NOTIFY) === 'N' || babelHelpers.classPrivateFieldLooseBase(this, _isUserDnd)[_isUserDnd]() || babelHelpers.classPrivateFieldLooseBase(this, _desktopWillShowNotification)[_desktopWillShowNotification]()) {
 	    return false;
 	  }
 	  const dialog = this.store.getters['dialogues/get'](params.dialogId, true);
@@ -1289,8 +1309,9 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  const currentUser = this.store.getters['users/get'](im_v2_application_core.Core.getUserId(), true);
 	  return currentUser.status === im_v2_const.UserStatus.dnd;
 	}
-	function _isDesktopActive2() {
-	  return im_v2_lib_desktop.DesktopManager.getInstance().isDesktopActive();
+	function _desktopWillShowNotification2() {
+	  const isDesktopChatWindow = im_v2_lib_desktop.DesktopManager.isDesktop() && im_v2_lib_desktop.DesktopManager.isChatWindow();
+	  return !isDesktopChatWindow && im_v2_lib_desktop.DesktopManager.getInstance().isDesktopActive();
 	}
 
 	exports.BasePullHandler = BasePullHandler;

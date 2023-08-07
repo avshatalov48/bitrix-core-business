@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 (function (exports,im_application_core,im_controller,im_provider_rest,ui_vue,ui_vue_vuex,im_lib_utils,im_component_recent,im_component_dialog,im_component_textarea,pull_component_status,main_core_events,ui_entitySelector,im_const,im_eventHandler) {

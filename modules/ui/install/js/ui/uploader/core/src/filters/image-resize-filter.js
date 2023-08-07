@@ -6,6 +6,7 @@ import resizeImage from '../helpers/resize-image';
 
 import type Uploader from '../uploader';
 import type UploaderFile from '../uploader-file';
+import type { UploaderOptions } from '../types/uploader-options';
 import type {
 	ResizeImageOptions,
 	ResizeImageMimeTypeMode,
@@ -21,53 +22,69 @@ export default class ImageResizeFilter extends Filter
 	#resizeMimeType: ResizeImageMimeType = 'image/jpeg';
 	#resizeMimeTypeMode: ResizeImageMimeTypeMode = 'auto';
 	#resizeQuality: number = 0.92;
+	#resizeFilter: Function = null;
 
-	constructor(uploader: Uploader, filterOptions: { [key: string]: any } = {})
+	constructor(uploader: Uploader, filterOptions: UploaderOptions = {})
 	{
 		super(uploader);
 
-		const options = Type.isPlainObject(filterOptions) ? filterOptions : {};
+		const options: UploaderOptions = Type.isPlainObject(filterOptions) ? filterOptions : {};
 
-		this.setResizeWidth(options['imageResizeWidth'])
-		this.setResizeHeight(options['imageResizeHeight'])
-		this.setResizeMode(options['imageResizeMode']);
-		this.setResizeMimeType(options['imageResizeMimeType']);
-		this.setResizeMimeTypeMode(options['imageResizeMimeTypeMode']);
-		this.setResizeQuality(options['imageResizeQuality']);
+		this.setResizeWidth(options.imageResizeWidth);
+		this.setResizeHeight(options.imageResizeHeight);
+		this.setResizeMode(options.imageResizeMode);
+		this.setResizeMimeType(options.imageResizeMimeType);
+		this.setResizeMimeTypeMode(options.imageResizeMimeTypeMode);
+		this.setResizeQuality(options.imageResizeQuality);
+		this.setResizeFilter(options.imageResizeFilter);
 	}
 
 	apply(file: UploaderFile): Promise
 	{
-		return new Promise((resolve, reject) => {
-
+		return new Promise((resolve): void => {
 			if (this.getResizeWidth() === null && this.getResizeHeight() === null)
 			{
-				return resolve();
+				resolve();
+
+				return;
 			}
 
-			if (!isResizableImage(file.getBinary()))
+			if (file.shouldTreatImageAsFile() || !isResizableImage(file.getBinary()))
 			{
-				return resolve();
+				resolve();
+
+				return;
 			}
 
+			const result: boolean | ResizeImageOptions = this.invokeFilter(file);
+			if (result === false)
+			{
+				resolve();
+
+				return;
+			}
+
+			const overrides = Type.isPlainObject(result) ? result : {};
 			const options: ResizeImageOptions = {
-				width: this.getResizeWidth(),
-				height: this.getResizeHeight(),
-				mode: this.getResizeMode(),
-				quality: this.getResizeQuality(),
-				mimeType: this.getResizeMimeType(),
-				mimeTypeMode: this.getResizeMimeTypeMode(),
+				width: Type.isNumber(overrides.width) ? overrides.width : this.getResizeWidth(),
+				height: Type.isNumber(overrides.height) ? overrides.height : this.getResizeHeight(),
+				mode: Type.isStringFilled(overrides.mode) ? overrides.mode : this.getResizeMode(),
+				quality: Type.isNumber(overrides.quality) ? overrides.quality : this.getResizeQuality(),
+				mimeType: Type.isStringFilled(overrides.mimeType) ? overrides.mimeType : this.getResizeMimeType(),
+				mimeTypeMode: (
+					Type.isStringFilled(overrides.mimeTypeMode) ? overrides.mimeTypeMode : this.getResizeMimeTypeMode()
+				),
 			};
 
 			resizeImage(file.getBinary(), options)
-				.then(({ preview, width, height }) => {
+				.then(({ preview, width, height }): void => {
 					file.setWidth(width);
 					file.setHeight(height);
 					file.setFile(preview);
 
 					resolve();
 				})
-				.catch((error) => {
+				.catch((error): void => {
 					if (error)
 					{
 						console.log('image resize error', error);
@@ -84,7 +101,7 @@ export default class ImageResizeFilter extends Filter
 		return this.#resizeWidth;
 	}
 
-	setResizeWidth(value: ?number)
+	setResizeWidth(value: ?number): void
 	{
 		if ((Type.isNumber(value) && value > 0) || Type.isNull(value))
 		{
@@ -97,7 +114,7 @@ export default class ImageResizeFilter extends Filter
 		return this.#resizeHeight;
 	}
 
-	setResizeHeight(value: ?number)
+	setResizeHeight(value: ?number): void
 	{
 		if ((Type.isNumber(value) && value > 0) || Type.isNull(value))
 		{
@@ -149,11 +166,33 @@ export default class ImageResizeFilter extends Filter
 		return this.#resizeQuality;
 	}
 
-	setResizeQuality(value: number)
+	setResizeQuality(value: number): void
 	{
 		if (Type.isNumber(value) && value > 0.1 && value <= 1)
 		{
 			this.#resizeQuality = value;
 		}
+	}
+
+	setResizeFilter(fn: Function): void
+	{
+		if (Type.isFunction(fn))
+		{
+			this.#resizeFilter = fn;
+		}
+	}
+
+	invokeFilter(file: UploaderFile): boolean | ResizeImageOptions
+	{
+		if (this.#resizeFilter !== null)
+		{
+			const result = this.#resizeFilter(file);
+			if (Type.isBoolean(result) || Type.isPlainObject(result))
+			{
+				return result;
+			}
+		}
+
+		return true;
 	}
 }

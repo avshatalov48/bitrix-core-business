@@ -4,6 +4,7 @@ import {Popup, Menu} from 'main.popup';
 import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
 import {Button} from 'ui.buttons';
 import {LocalStorage} from 'im.lib.localstorage';
+import {DesktopApi} from 'im.v2.lib.desktop-api';
 
 import {BackgroundDialog} from './dialogs/background_dialog'
 import {PromoPopup, PromoPopup3D} from './dialogs/promo_popup';
@@ -199,7 +200,7 @@ export class CallController extends EventEmitter
 		this._onWindowFocusHandler = this._onWindowFocus.bind(this);
 		this._onWindowBlurHandler = this._onWindowBlur.bind(this);
 
-		if (BX.desktop && false)
+		if (DesktopApi.isDesktop() && false)
 		{
 			this.floatingWindow = new FloatingVideo({
 				onMainAreaClick: this._onFloatingVideoMainAreaClick.bind(this),
@@ -210,7 +211,7 @@ export class CallController extends EventEmitter
 		this.showFloatingWindowTimeout = 0;
 		this.hideIncomingCallTimeout = 0;
 
-		if (BX.desktop)
+		if (DesktopApi.isDesktop())
 		{
 			this.floatingScreenShareWindow = new FloatingScreenShare({
 				darkMode: this.messengerFacade.isThemeDark(),
@@ -276,12 +277,12 @@ export class CallController extends EventEmitter
 		BX.addCustomEvent(window, "CallEvents::incomingCall", this.onIncomingCall.bind(this));
 		Hardware.subscribe(Hardware.Events.deviceChanged, this._onDeviceChange.bind(this));
 		Hardware.subscribe(Hardware.Events.onChangeMirroringVideo, this._onCallLocalCameraFlipHandler);
-		if (BX.desktop && this.floatingWindow)
+		if (DesktopApi.isDesktop() && this.floatingWindow)
 		{
 			window.addEventListener("blur", this._onWindowBlurHandler);
 			window.addEventListener("focus", this._onWindowFocusHandler);
 
-			BX.desktop.addCustomEvent("BXForegroundChanged", (focus) =>
+			DesktopApi.subscribe("BXForegroundChanged", (focus) =>
 			{
 				if (focus)
 				{
@@ -294,9 +295,9 @@ export class CallController extends EventEmitter
 			});
 		}
 
-		if (BX.desktop && this.floatingScreenShareWindow)
+		if (DesktopApi.isDesktop() && this.floatingScreenShareWindow)
 		{
-			BX.desktop.addCustomEvent("BXScreenMediaSharing", (id, title, x, y, width, height, app) =>
+			DesktopApi.subscribe("BXScreenMediaSharing", (id, title, x, y, width, height, app) =>
 			{
 				this.floatingScreenShareWindow.close();
 
@@ -319,7 +320,7 @@ export class CallController extends EventEmitter
 			window.addEventListener("blur", this._onWindowBlurHandler);
 			window.addEventListener("focus", this._onWindowFocusHandler);
 
-			BX.desktop.addCustomEvent("BXForegroundChanged", (focus) =>
+			DesktopApi.subscribe("BXForegroundChanged", (focus) =>
 			{
 				if (focus)
 				{
@@ -332,9 +333,9 @@ export class CallController extends EventEmitter
 			});
 		}
 
-		if (BX.desktop)
+		if (DesktopApi.isDesktop())
 		{
-			BX.desktop.addCustomEvent(Hardware.Events.onChangeMirroringVideo, this._onCallLocalCameraFlipInDesktopHandler);
+			DesktopApi.subscribe(Hardware.Events.onChangeMirroringVideo, this._onCallLocalCameraFlipInDesktopHandler);
 		}
 
 		if (window['VoxImplant'])
@@ -750,10 +751,14 @@ export class CallController extends EventEmitter
 		if (Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager'))
 		{
 			return new Promise((resolve) => {
-				BX.Messenger.v2.Lib.DesktopManager.getInstance().checkRunStatus()
-					.then(() => {})
-					.catch(() => resolve())
-				;
+				const desktop = BX.Messenger.v2.Lib.DesktopManager.getInstance();
+				desktop.checkStatusInDifferentContext()
+					.then((result) => {
+						if (result === false)
+						{
+							resolve();
+						}
+					});
 			});
 		}
 
@@ -905,7 +910,7 @@ export class CallController extends EventEmitter
 	showUnsupportedNotification()
 	{
 		let messageBox;
-		if (BX.desktop && BX.desktop.apiReady)
+		if (DesktopApi.isDesktop())
 		{
 			messageBox = new MessageBox({
 				message: BX.message('IM_CALL_DESKTOP_TOO_OLD'),
@@ -939,9 +944,9 @@ export class CallController extends EventEmitter
 
 	isUserAgentSupported()
 	{
-		if (BX.desktop && BX.desktop.apiReady)
+		if (DesktopApi.isDesktop())
 		{
-			return BX.desktop.enableInVersion(48);
+			return DesktopApi.getApiVersion() > 48;
 		}
 		if ('VoxImplant' in window)
 		{
@@ -1233,7 +1238,7 @@ export class CallController extends EventEmitter
 
 	canRecord()
 	{
-		return BX.desktop && BX.desktop.getApiVersion() >= 54;
+		return DesktopApi.isDesktop() && DesktopApi.getApiVersion() >= 54;
 	}
 
 	isRecording()
@@ -1310,7 +1315,7 @@ export class CallController extends EventEmitter
 
 	showChat()
 	{
-		if (BX.desktop && this.floatingWindow)
+		if (DesktopApi.isDesktop() && this.floatingWindow)
 		{
 			this.detached = true;
 			this.callView.hide();
@@ -1331,7 +1336,7 @@ export class CallController extends EventEmitter
 
 	fold(foldedCallTitle)
 	{
-		if (this.folded || (BX.desktop && this.floatingWindow))
+		if (this.folded || (DesktopApi.isDesktop() && this.floatingWindow))
 		{
 			return;
 		}
@@ -2034,9 +2039,9 @@ export class CallController extends EventEmitter
 
 	_onAnswerButtonClick(withVideo)
 	{
-		if (BX.desktop)
+		if (DesktopApi.isDesktop())
 		{
-			BX.desktop.windowCommand("show");
+			DesktopApi.showWindow();
 		}
 
 		if (!this.isUserAgentSupported())
@@ -2181,9 +2186,9 @@ export class CallController extends EventEmitter
 		{
 			this.documentsMenu.close();
 		}
-		if (BX.desktop)
+		if (DesktopApi.isDesktop())
 		{
-			BX.desktop.closeWindow('callBackground');
+			DesktopApi.closeWindowByName('callBackground');
 		}
 		this.closePromo();
 
@@ -2403,7 +2408,7 @@ export class CallController extends EventEmitter
 				{
 					this._startRecordCall(forceRecord);
 				}
-				else if (BX.desktop && BX.desktop.enableInVersion(55))
+				else if (DesktopApi.isDesktop() && DesktopApi.getApiVersion() > 55)
 				{
 					if (!this.callRecordMenu)
 					{
@@ -2638,12 +2643,12 @@ export class CallController extends EventEmitter
 
 	_onCallViewChangeFaceImprove(e)
 	{
-		if (typeof (BX.desktop) === 'undefined')
+		if (!DesktopApi.isDesktop())
 		{
 			return;
 		}
 
-		BX.desktop.cameraSmoothingStatus(e.faceImproveEnabled);
+		DesktopApi.setCameraSmoothingStatus(e.faceImproveEnabled);
 	}
 
 	_onCallViewOpenAdvancedSettings()
@@ -2721,9 +2726,9 @@ export class CallController extends EventEmitter
 		{
 			this.mutePopup.close();
 		}
-		if (BX.desktop)
+		if (DesktopApi.isDesktop())
 		{
-			BX.desktop.closeWindow('callBackground');
+			DesktopApi.closeWindowByName('callBackground');
 		}
 		this.closePromo();
 
@@ -2869,7 +2874,7 @@ export class CallController extends EventEmitter
 			this.callView.setButtonActive("screen", e.tag == "screen");
 			if (e.tag == "screen")
 			{
-				if (!BX.desktop)
+				if (!DesktopApi.isDesktop())
 				{
 					this.showWebScreenSharePopup();
 				}
@@ -2913,6 +2918,7 @@ export class CallController extends EventEmitter
 
 	_onCallLocalCameraFlipInDesktop(e)
 	{
+		console.error('FLIPPING LOCAL VIDEO');
 		if (this.callView)
 		{
 			this.callView.flipLocalVideo(e);
@@ -3022,7 +3028,7 @@ export class CallController extends EventEmitter
 			this.callView.setButtonActive("screen", e.screenState);
 			if (e.screenState)
 			{
-				if (!BX.desktop)
+				if (!DesktopApi.isDesktop())
 				{
 					this.showWebScreenSharePopup();
 				}
@@ -3090,6 +3096,7 @@ export class CallController extends EventEmitter
 
 			CallEngine.getRestClient().callMethod("im.call.onStartRecord", {callId: this.currentCall.id});
 
+			console.error('DIALOG ID', dialogId);
 			BXDesktopSystem.CallRecordStart({
 				windowId: windowId,
 				fileName: fileName,
@@ -3418,9 +3425,9 @@ export class CallController extends EventEmitter
 		}
 		this.allowMutePopup = true;
 
-		if (BX.desktop)
+		if (DesktopApi.isDesktop())
 		{
-			BX.desktop.closeWindow('callBackground');
+			DesktopApi.closeWindowByName('callBackground');
 		}
 
 		this.closePromo();
@@ -3663,8 +3670,8 @@ export class CallController extends EventEmitter
 
 	_onFloatingVideoMainAreaClick()
 	{
-		BX.desktop.windowCommand("show");
-		BX.desktop.changeTab("im");
+		DesktopApi.showWindow();
+		DesktopApi.changeTab("im");
 
 		if (!this.currentCall)
 		{
@@ -3703,8 +3710,8 @@ export class CallController extends EventEmitter
 
 	_onFloatingScreenShareBackToCallClick()
 	{
-		BX.desktop.windowCommand("show");
-		BX.desktop.changeTab("im");
+		DesktopApi.showWindow();
+		DesktopApi.changeTab("im");
 		if (this.floatingScreenShareWindow)
 		{
 			this.floatingScreenShareWindow.hide();
@@ -3713,8 +3720,8 @@ export class CallController extends EventEmitter
 
 	_onFloatingScreenShareStopClick()
 	{
-		BX.desktop.windowCommand("show");
-		BX.desktop.changeTab("im");
+		DesktopApi.showWindow();
+		DesktopApi.changeTab("im");
 
 		this.currentCall.stopScreenSharing();
 

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_designTokens,ui_fonts_opensans,main_core,ui_vue,im_lib_logger,im_lib_clipboard) {
 	'use strict';

@@ -1,5 +1,5 @@
 .bx-im-reaction-list__container {
-	--im-reaction-list__background-color_item: rgba(0, 0, 0, 0.08);
+	--im-reaction-list__background-color_item: rgba(0, 0, 0, 0.1);
 	--im-reaction-list__background-color_item-selected: var(--im-color-palette-blue-50);
 
 	--im-reaction-list__font-color_counter: var(--im-color-palette-gray-80);
@@ -34,6 +34,7 @@
 	font: 11px var(--im-font-family-system);
 	font-weight: var(--im-font-weight-semi-bold);
 	color: var(--im-reaction-list__font-color_counter);
+	user-select: none;
 }
 
 .bx-im-reaction-list__item.--selected {
@@ -56,6 +57,7 @@
 	margin-left: -4px;
 	border-radius: 50%;
 	background-size: contain;
+	user-select: none;
 }
 
 .bx-im-reaction-list__user_avatar:last-child {

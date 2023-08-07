@@ -1,9 +1,9 @@
-import {Type, Loc, ajax} from 'main.core';
-import {MenuManager} from 'main.popup'
-
-import {Waiter} from './waiter.js';
-import {SonetGroupMenu} from './sonetgroupmenu.js';
-import {RecallJoinRequest} from './recalljoinrequest.js';
+import { Type, Loc, ajax } from 'main.core';
+import { MenuManager } from 'main.popup';
+import { Messenger } from 'im.public';
+import { Waiter } from './waiter.js';
+import { SonetGroupMenu } from './sonetgroupmenu.js';
+import { RecallJoinRequest } from './recalljoinrequest.js';
 
 class Common
 {
@@ -546,6 +546,20 @@ class Common
 		}
 
 		win.BX.Socialnetwork.UIGroupMenu.getInstance().menuPopup.close();
+	}
+
+	static openMessenger(groupId: number): Promise
+	{
+		return ajax.runAction('socialnetwork.api.workgroup.getChatId', {
+			data: {
+				groupId: parseInt(groupId, 10),
+			},
+		}).then((response) => {
+			if (response.data)
+			{
+				Messenger.openChat(`chat${parseInt(response.data, 10)}`);
+			}
+		}).catch(() => {});
 	}
 
 	static showError = RecallJoinRequest.showError;

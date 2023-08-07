@@ -37,18 +37,10 @@ export const BriefPreview = {
 		{
 			return this.dialog.chatId;
 		},
-		dialogInited()
-		{
-			return this.dialog.inited;
-		},
 		firstBrief(): ?ImModelSidebarFileItem
 		{
 			return this.$store.getters['sidebar/files/get'](this.chatId, SidebarFileTypes.brief)[0];
 		},
-		isLoadingState(): boolean
-		{
-			return !this.dialogInited || this.isLoading;
-		}
 	},
 	created()
 	{
@@ -81,7 +73,7 @@ export const BriefPreview = {
 	},
 	template: `
 		<div class="bx-im-sidebar-brief-preview__scope">
-			<div v-if="isLoadingState" class="bx-im-sidebar-brief-preview__skeleton"></div>
+			<div v-if="isLoading" class="bx-im-sidebar-brief-preview__skeleton"></div>
 			<div v-else class="bx-im-sidebar-brief-preview__container">
 				<div 
 					class="bx-im-sidebar-brief-preview__header_container" 

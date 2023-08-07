@@ -3,11 +3,12 @@
 <?php
 \CModule::IncludeModule('im');
 $darkClass = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'isCurrentThemeDark')? 'style="background: #313131"': '';
+$styleFilePath = \Bitrix\Im\Settings::isBetaActivated() ? "/template_styles_v2.css" : '/template_styles_v1.css';
 ?>
 <html <?=$darkClass?>>
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=<?=SITE_CHARSET?>"/>
-	<link href="<?=CUtil::GetAdditionalFileURL(SITE_TEMPLATE_PATH."/template_styles.css")?>" type="text/css" rel="stylesheet" />
+	<link href="<?=CUtil::GetAdditionalFileURL(SITE_TEMPLATE_PATH . $styleFilePath)?>" type="text/css" rel="stylesheet" />
 	<?
 	\Bitrix\Main\UI\Extension::load([
 		'ui.design-tokens',

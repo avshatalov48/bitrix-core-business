@@ -1,6 +1,6 @@
 import {Type, Browser} from 'main.core';
 
-import {DesktopManager} from 'im.v2.lib.desktop';
+import {DesktopApi} from 'im.v2.lib.desktop-api';
 
 const UA = navigator.userAgent.toLowerCase();
 
@@ -24,15 +24,15 @@ export const PlatformUtil = {
 	},
 	isBitrixDesktop(): boolean
 	{
-		return DesktopManager.isDesktop();
+		return DesktopApi.isDesktop();
 	},
 	getDesktopVersion(): number
 	{
-		return DesktopManager.getInstance().getDesktopVersion();
+		return DesktopApi.getApiVersion();
 	},
 	isDesktopFeatureEnabled(code: string): boolean
 	{
-		return DesktopManager.getInstance().isDesktopFeatureEnabled(code);
+		return DesktopApi.isFeatureEnabled(code);
 	},
 	isMobile(): boolean
 	{

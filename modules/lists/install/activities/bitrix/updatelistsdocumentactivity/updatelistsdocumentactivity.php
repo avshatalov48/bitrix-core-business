@@ -5,6 +5,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @property-write string|null ErrorMessage */
 class CBPUpdateListsDocumentActivity extends CBPActivity
 {
 	public function __construct($name)
@@ -15,7 +16,13 @@ class CBPUpdateListsDocumentActivity extends CBPActivity
 			"DocumentType" => null,
 			"Fields" => null,
 			'ElementId' => null,
+			//return
+			'ErrorMessage' => null,
 		);
+
+		$this->setPropertiesTypes([
+			'ErrorMessage' => ['Type' => 'string'],
+		]);
 	}
 
 	public function Execute()
@@ -50,15 +57,31 @@ class CBPUpdateListsDocumentActivity extends CBPActivity
 		if (!$realDocumentType || $realDocumentType !== $documentType)
 		{
 			$this->WriteToTrackingService(GetMessage('BPULDA_ERROR_DT'), 0, CBPTrackingType::Error);
+			$this->ErrorMessage = GetMessage('BPULDA_ERROR_DT');
+
 			return CBPActivityExecutionStatus::Closed;
 		}
 
 		$fields = $this->prepareFieldsValues($documentId, $documentType, $fields);
 
-		$this->logDebugFields($documentType, $fields);
-		$documentService->UpdateDocument($documentId, $fields);
+		try
+		{
+			$this->logDebugFields($documentType, $fields);
+			$documentService->UpdateDocument($documentId, $fields);
+		}
+		catch (Exception $e)
+		{
+			$this->writeToTrackingService($e->getMessage(), 0, CBPTrackingType::Error);
+			$this->ErrorMessage = $e->getMessage();
+		}
 
 		return CBPActivityExecutionStatus::Closed;
+	}
+
+	protected function reInitialize()
+	{
+		parent::reInitialize();
+		$this->ErrorMessage = null;
 	}
 
 	public static function ValidateProperties($testProperties = array(), CBPWorkflowTemplateUser $user = null)
@@ -464,7 +487,8 @@ class CBPUpdateListsDocumentActivity extends CBPActivity
 				if ($fieldTypeObject)
 				{
 					$fieldTypeObject->setDocumentId($documentId);
-					$value = $fieldTypeObject->externalizeValue('Document', $value);
+					$fieldTypeObject->setValue($value);
+					$value = $fieldTypeObject->externalizeValue('Document', $fieldTypeObject->getValue());
 				}
 			}
 

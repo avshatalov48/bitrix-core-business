@@ -195,7 +195,7 @@ final class CheckManager
 			}
 
 			$cashbox = Manager::getObjectById($item['ID']);
-			if ($cashbox->isCorrection())
+			if ($cashbox && $cashbox->isCorrection())
 			{
 				return true;
 			}
@@ -439,14 +439,18 @@ final class CheckManager
 		}
 		else
 		{
-			$updateResult = CashboxCheckTable::update(
-				$checkId,
-				array(
-					'STATUS' => 'Y',
-					'LINK_PARAMS' => $data['LINK_PARAMS'],
-					'DATE_PRINT_END' => new Main\Type\DateTime()
-				)
-			);
+			$updateParams = [
+				'STATUS' => 'Y',
+				'LINK_PARAMS' => $data['LINK_PARAMS'],
+				'DATE_PRINT_END' => new Main\Type\DateTime(),
+			];
+
+			if (isset($data['EXTERNAL_UUID']))
+			{
+				$updateParams['EXTERNAL_UUID'] = $data['EXTERNAL_UUID'];
+			}
+
+			$updateResult = CashboxCheckTable::update($checkId, $updateParams);
 
 			if ($updateResult->isSuccess())
 			{

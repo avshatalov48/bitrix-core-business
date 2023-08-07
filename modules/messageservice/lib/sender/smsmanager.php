@@ -8,6 +8,7 @@ use Bitrix\MessageService\Internal\Entity\MessageTable;
 use Bitrix\MessageService\Message;
 use Bitrix\MessageService\MessageType;
 use Bitrix\Main\ORM\Data\AddResult;
+use Bitrix\MessageService\Sender\Result\SendMessage;
 
 class SmsManager
 {
@@ -356,12 +357,13 @@ class SmsManager
 	/**
 	 * @param array $messageFields
 	 * @param Base|null $sender
-	 * @return Result\SendMessage
+	 * @return SendMessage
 	 * @throws Main\ArgumentTypeException
 	 */
 	public static function sendMessageDirectly(array $messageFields, Base $sender = null)
 	{
 		$message = static::createMessage($messageFields, $sender);
+
 		return $message->sendDirectly();
 	}
 

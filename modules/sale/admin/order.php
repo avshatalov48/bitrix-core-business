@@ -348,8 +348,8 @@ if (!empty($filter_group_id) && is_array($filter_group_id))
 		$runtimeFields['REQUIRED_UG_PRESENTED'] = [
 			'data_type' => 'boolean',
 			'expression' => [
-				'case when exists (select USER_ID from b_user_group where USER_ID = %s and GROUP_ID in '
-					. $whereExpression . ') then 1 else 0 end'
+				'CASE WHEN EXISTS (SELECT USER_ID FROM b_user_group WHERE USER_ID = %s AND GROUP_ID IN '
+					. $whereExpression . ') THEN 1 ELSE 0 END'
 				,
 				'USER_ID',
 			],

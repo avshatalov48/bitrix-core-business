@@ -120,7 +120,7 @@ class FavoriteChat extends PrivateChat
 		}
 
 		$row = ChatTable::query()
-			->setSelect(['ID'])
+			->setSelect(['ID', 'TYPE', 'ENTITY_TYPE', 'ENTITY_ID'])
 			->where('TYPE', self::IM_TYPE_PRIVATE)
 			->where('ENTITY_TYPE', self::ENTITY_TYPE_FAVORITE)
 			->where('AUTHOR_ID', (int)$params['TO_USER_ID'])
@@ -130,7 +130,10 @@ class FavoriteChat extends PrivateChat
 		if ($row)
 		{
 			$result->setResult([
-				'ID' => (int)$row['ID']
+				'ID' => (int)$row['ID'],
+				'TYPE' => $row['TYPE'],
+				'ENTITY_TYPE' => $row['ENTITY_TYPE'],
+				'ENTITY_ID' => $row['ENTITY_ID'],
 			]);
 		}
 

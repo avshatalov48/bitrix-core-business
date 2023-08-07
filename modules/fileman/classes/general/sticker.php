@@ -17,7 +17,7 @@ class CSticker
 		if (!is_array($arOp))
 			$arOp = array();
 
-		if (!is_array($arOp[$key]))
+		if (!is_array($arOp[$key] ?? null))
 		{
 			$res = CSticker::GetAccessPermissions();
 			$arOp[$key]  = array();
@@ -101,7 +101,7 @@ class CSticker
 
 		global $DB, $USER;
 		$bDBResult = isset($Params['bDBResult'])? $Params['bDBResult']: false;
-		$Params['arFilter']['PAGE_URL'] = str_replace(' ', '%20', $Params['arFilter']['PAGE_URL']);
+		$Params['arFilter']['PAGE_URL'] = str_replace(' ', '%20', $Params['arFilter']['PAGE_URL'] ?? '');
 		$arFilter = $Params['arFilter'];
 		$arOrder = isset($Params['arOrder']) ? $Params['arOrder'] : Array('ID' => 'asc');
 
@@ -187,7 +187,7 @@ class CSticker
 			$strOrderBy = "ORDER BY ".rtrim($strOrderBy, ",");
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
-		if (is_array($arFilter['COLORS']))
+		if (is_array($arFilter['COLORS'] ?? null))
 		{
 			$strColors = "";
 			for($i=0; $i < count($arFilter['COLORS']); $i++)
@@ -214,7 +214,7 @@ class CSticker
 			{
 				if ($arFilter['USER_ID'] > 0 && $arRes['CREATED_BY'] != $arFilter['USER_ID'] &&
 				($arRes['PERSONAL'] == 'Y'/* It's another user's personal sticker*/
-				|| $arFilter['ONLY_OWNER'] == 'Y'/* display only owner's stickers*/))
+				|| ($arFilter['ONLY_OWNER'] ?? null) == 'Y'/* display only owner's stickers*/))
 					continue;
 
 				if (!$bDBResult)
@@ -462,7 +462,7 @@ class CSticker
 		return true;
 	}
 
-	public static function SetHiden($ids = array(), $bHide)
+	public static function SetHiden($ids = array(), $bHide = false)
 	{
 		if (!is_array($ids))
 			$ids = array($ids);
@@ -771,7 +771,7 @@ class CSticker
 			{
 				if ($Filter['type'])
 					$result['type'] = $Filter['type'] == 'my' ? 'my' : 'all';
-				if ($Filter['status'] && in_array($Filter['status'], array('all', 'opened', 'closed')))
+				if (($Filter['status'] ?? null) && in_array($Filter['status'], array('all', 'opened', 'closed')))
 					$result['status'] = $Filter['status'];
 				if ($Filter['page'])
 					$result['page'] = $Filter['page'];

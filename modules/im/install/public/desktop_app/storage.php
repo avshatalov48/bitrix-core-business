@@ -19,7 +19,7 @@ try
 	}
 	require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
 
-	/** @var CAllMain $APPLICATION */
+	/** @var CMain $APPLICATION */
 	$diskEnabled = false;
 	if(IsModuleInstalled('disk'))
 	{

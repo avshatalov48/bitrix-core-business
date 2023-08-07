@@ -15347,6 +15347,16 @@ var Html5 = function (_Tech) {
 
   Html5.prototype.duration = function duration() {
     var _this4 = this;
+    //workaround for chrome bug with Infinite <video> duration
+    if (this.el_.duration === Infinity && !this.durationLoaded)
+    {
+      this.el_.addEventListener('durationchange', () => {
+        this.durationLoaded = true;
+        this.el_.currentTime = 0;
+        this.trigger('durationchange');
+      }, false);
+      this.el_.currentTime = 2 * 60 * 60; //fake big time
+    }
 
     // Android Chrome will report duration as Infinity for VOD HLS until after
     // playback has started, which triggers the live display erroneously.

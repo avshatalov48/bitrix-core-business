@@ -1,0 +1,38 @@
+.bx-im-content-chat-drop-area__scope {
+	--im-content-chat-drop-area__border-color_container: #fff;
+	--im-content-chat-drop-area__background_icon: url('data:image/svg+xml,%3Csvg%20width%3D%2248%22%20height%3D%2258%22%20viewBox%3D%220%200%2048%2058%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M6.81099%205.99092V51.8709H41.2587V19.3324C41.2587%2019.1752%2041.2383%2019.02%2041.199%2018.8702H30.5114C29.9592%2018.8702%2029.5114%2018.4225%2029.5114%2017.8702V6.12666C29.2948%206.03795%2029.0607%205.99092%2028.8216%205.99092H6.81099ZM4.7922%200.132324C2.67153%200.132324%200.952393%201.85146%200.952393%203.97213V53.8896C0.952393%2056.0103%202.67154%2057.7295%204.7922%2057.7295H43.2775C45.3981%2057.7295%2047.1173%2056.0103%2047.1173%2053.8896V19.3324C47.1173%2017.4041%2046.3918%2015.5464%2045.0851%2014.1283L34.469%202.60783C33.015%201.02996%2030.9672%200.132324%2028.8216%200.132324H4.7922ZM11.3825%2028.0044C11.3825%2026.3295%2012.7403%2024.9718%2014.4151%2024.9718H33.3889C35.0638%2024.9718%2036.4215%2026.3295%2036.4215%2028.0044C36.4215%2029.6792%2035.0638%2031.0369%2033.3889%2031.0369H14.4151C12.7402%2031.0369%2011.3825%2029.6792%2011.3825%2028.0044ZM11.382%2039.3695C11.382%2037.6947%2012.7397%2036.337%2014.4146%2036.337H27.6202C29.295%2036.337%2030.6527%2037.6947%2030.6527%2039.3695C30.6527%2041.0443%2029.295%2042.4021%2027.6202%2042.4021H14.4146C12.7397%2042.4021%2011.382%2041.0443%2011.382%2039.3695Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E%0A') no-repeat center;
+	--im-content-chat-drop-area__color_label_text: rgb(255 255 255 / 94%);
+}
+
+.bx-im-content-chat-drop-area__container {
+	border: 2px dashed var(--im-content-chat-drop-area__border-color_container);
+	position: absolute;
+	backdrop-filter: blur(22px);
+	z-index: 90;
+	border-radius: 10px;
+	inset: 16px 16px 10px;
+}
+
+.bx-im-content-chat-drop-area__box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
+	padding: 0 10px;
+	height: 100%;
+}
+
+.bx-im-content-chat-drop-area__icon {
+	width: 120px;
+	height: 120px;
+	opacity: 0.3;
+	border: 2px solid var(--im-content-chat-drop-area__border-color_container);
+	border-radius: 50%;
+	background: var(--im-content-chat-drop-area__background_icon);
+}
+
+.bx-im-content-chat-drop-area__label-text {
+	font: 26px var(--im-font-family-system);
+	color: var(--im-content-chat-drop-area__color_label_text)
+}

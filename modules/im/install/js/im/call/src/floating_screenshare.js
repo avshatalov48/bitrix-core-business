@@ -1,4 +1,6 @@
 import {Dom, Type} from 'main.core';
+import {DesktopApi} from 'im.v2.lib.desktop-api';
+
 import './css/floating-screenshare.css';
 
 const Events = {
@@ -25,8 +27,6 @@ export class FloatingScreenShare
 		{
 			config = {};
 		}
-
-		this.desktop = config.desktop || BX.desktop;
 		this.darkMode = config.darkMode || false;
 
 		this.window = null;
@@ -54,9 +54,9 @@ export class FloatingScreenShare
 
 	bindEventHandlers()
 	{
-		this.desktop.addCustomEvent(Events.onBackToCallClick, this._onBackToCallClickHandler);
-		this.desktop.addCustomEvent(Events.onStopSharingClick, this._onStopSharingClickHandler);
-		this.desktop.addCustomEvent(Events.onChangeScreenClick, this._onChangeScreenClickHandler);
+		DesktopApi.subscribe(Events.onBackToCallClick, this._onBackToCallClickHandler);
+		DesktopApi.subscribe(Events.onStopSharingClick, this._onStopSharingClickHandler);
+		DesktopApi.subscribe(Events.onChangeScreenClick, this._onChangeScreenClickHandler);
 	}
 
 	saveExistingScreens()
@@ -142,7 +142,7 @@ export class FloatingScreenShare
 
 	show()
 	{
-		if (!this.desktop)
+		if (!DesktopApi.isDesktop())
 		{
 			return;
 		}
@@ -164,13 +164,9 @@ export class FloatingScreenShare
 				darkMode: this.darkMode
 			};
 
-			this.window = BXDesktopSystem.ExecuteCommand(
-				'topmost.show.html',
-				this.desktop.getHtmlPage(
-					"",
-					"window.FSSC = new BX.Call.FloatingScreenShareContent(" + JSON.stringify(params) + ");"
-				)
-			);
+			const js = `window.FSSC = new BX.Call.FloatingScreenShareContent(${JSON.stringify(params)});`;
+			const htmlContent = DesktopApi.prepareHtml('', js);
+			this.window = DesktopApi.createTopmostWindow(htmlContent);
 		}
 	}
 
@@ -200,13 +196,13 @@ export class FloatingScreenShare
 	{
 		if (this.window)
 		{
-			this.window.BXDesktopWindow.ExecuteCommand("close");
+			DesktopApi.closeWindow();
 			this.window = null;
 		}
 
-		this.desktop.removeCustomEvents(Events.onBackToCallClick);
-		this.desktop.removeCustomEvents(Events.onStopSharingClick);
-		this.desktop.removeCustomEvents(Events.onChangeScreenClick);
+		DesktopApi.unsubscribe(Events.onBackToCallClick, this._onBackToCallClickHandler);
+		DesktopApi.unsubscribe(Events.onStopSharingClick, this._onStopSharingClickHandler);
+		DesktopApi.unsubscribe(Events.onChangeScreenClick, this._onChangeScreenClickHandler);
 	}
 }
 

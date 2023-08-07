@@ -3,9 +3,11 @@ namespace Bitrix\Im;
 
 use Bitrix\Im\Model\BlockUserTable;
 use Bitrix\Im\V2\Message\CounterService;
+use Bitrix\Im\V2\Message\Delete\DisappearService;
 use Bitrix\Im\V2\Message\ReadService;
 use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\DateTime;
 
 Loc::loadMessages(__FILE__);
 
@@ -695,6 +697,22 @@ class Chat
 			}
 		}
 
+		$disappearing = DisappearService::getMessagesDisappearingTime(array_keys($messages));
+		foreach ($messages as $messageId => $message)
+		{
+			if (
+				isset($disappearing[$messageId])
+				&& $disappearing[$messageId]['DATE_REMOVE'] instanceof DateTime
+			)
+			{
+				$messages[$messageId]['DISAPPEARING_DATE'] = $disappearing[$messageId]['DATE_REMOVE']->format(DATE_ATOM);
+			}
+			else
+			{
+				$messages[$messageId]['DISAPPEARING_DATE'] = null;
+			}
+		}
+
 		$messages = \CIMMessageLink::prepareShow($messages, $params);
 
 		$files = \CIMDisk::GetFiles($chatId, $fileIds);
@@ -1028,8 +1046,13 @@ class Chat
 			'MUTE_LIST' => $muteList,
 			'DATE_CREATE' => $chat['DATE_CREATE'],
 			'MESSAGE_TYPE' => $chat["TYPE"],
+			'DISAPPEARING_TIME' => (int)$chat['DISAPPEARING_TIME'],
 			'PUBLIC' => $publicOption,
 			'ROLE' => mb_strtolower(self::getRole($chat)),
+			'MANAGE_USERS' => (string)$chat['MANAGE_USERS'],
+			'MANAGE_UI' => (string)$chat['MANAGE_UI'],
+			'MANAGE_SETTINGS' => (string)$chat['MANAGE_SETTINGS'],
+			'CAN_POST' => (string)$chat['CAN_POST'],
 		);
 	}
 

@@ -75,6 +75,23 @@ class TaskItem extends BaseLinkItem
 		return $taskItem;
 	}
 
+	public static function getByMessageId(int $messageId): ?self
+	{
+		$chatTask = LinkTaskTable::query()
+			->setSelect(['ID', 'MESSAGE_ID', 'CHAT_ID', 'TASK_ID', 'AUTHOR_ID', 'DATE_CREATE'])
+			->where('MESSAGE_ID', $messageId)
+			->setLimit(1)
+			->fetchObject()
+		;
+
+		if ($chatTask === null)
+		{
+			return null;
+		}
+
+		return new static($chatTask);
+	}
+
 	protected static function getEntityIdFieldName(): string
 	{
 		return 'TASK_ID';

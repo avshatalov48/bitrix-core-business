@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["PERFMON_OPT_ACTIVE"] = "Активность монитора";
 $MESS["PERFMON_OPT_ACTIVE_Y"] = "Работает";
 $MESS["PERFMON_OPT_ACTIVE_N"] = "Отключен";
@@ -37,4 +37,4 @@ $MESS["PERFMON_OPTIONS_SECTION_GENERATOR_SETTINGS"] = "Параметры ген
 $MESS["PERFMON_OPTIONS_TABLET_SHORT_ALIASES"] = "Использовать короткие алиасы классов:";
 $MESS["PERFMON_OPTIONS_TABLET_OBJECT_SETTINGS"] = "Описание параметров полей таблета через методы:";
 $MESS["PERFMON_OPTIONS_TABLET_USE_MAP_INDEX"] = "Имена полей в карте:";
-?>
+$MESS['PERFMON_OPTIONS_TABLET_VALIDATION_CLOSURE'] = "Проверка значений в виде замыканий";

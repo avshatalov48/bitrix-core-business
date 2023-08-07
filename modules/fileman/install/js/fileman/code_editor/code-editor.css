@@ -6,7 +6,7 @@
 .bxce .bxce-base-cont{background-color: #3F3F3F; padding: 0; margin: 0; overflow: auto; overflow-x: auto; overflow-y: auto;  z-index: 40;position: relative !important; clear: both; border-radius: 4px 3px 0 0;}
 .bxce .bxce-top-cont{height: 2px; background-color: #9D9D9D; padding: 0; margin: 0; display: none;}
 .bxce .bxce-base-cont .bxce-num-cell{width: 80px; background-color: #000000; padding: 0; margin: 0;}
-.bxce .bxce-foot-cont{height: 20px !important; background-color: #313131; padding: 0; margin: 0; position: relative !important; color: #8C8C8C !important; font-size: 11px !important; font-family: Verdana,Arial !important; border-radius: 0 0 4px 4px;}
+.bxce .bxce-foot-cont{display: flex;height: 20px !important;background-color: #313131;padding: 0;margin: 0;position: relative !important;color: #8C8C8C !important;font-size: 11px !important;font-family: Verdana,Arial !important;border-radius: 0 0 4px 4px;}
 .bxce .bxce-foot-cont *{color: #8C8C8C !important; font-size: 11px !important; font-family: Verdana,Arial !important;}
 .bxce .bxce-go-to-line-cont{height:15px; margin: 2px 0 0 0; display:inline-block; background:url("/bitrix/images/fileman/codeeditor/but.png") no-repeat -74px -62px; width: 54px;}
 .bxce .bxce-go-to-line{width: 40px;height:14px; border-style: none; color: #FFFFFF!important; font-family: monospace!important;font-size:13px!important; line-height:15px!important; text-align: right; background:transparent;}
@@ -35,7 +35,7 @@ font-family: consolas, monospace!important;font-size:12px!important;line-height:
 .bxce .bxce-info-total-line{margin: 0 1px 0 2px;}
 .bxce .bxce-info-total-char{margin: 0 10px 0 2px;}
 
-.bxce .bxce-foot-cont .bxce-mode-link{display:block; cursor:pointer; text-decoration:none;background:url("/bitrix/images/fileman/codeeditor/but.png") no-repeat 0 -48px;  height:14px !important; padding:0 0 0 5px !important; position: absolute !important; right: 140px; top: 3px;}
+.bxce .bxce-foot-cont .bxce-mode-link{display:block; cursor:pointer; text-decoration:none;background:url("/bitrix/images/fileman/codeeditor/but.png") no-repeat 0 -48px;  height:14px !important; padding:0 0 0 5px !important; margin: 3px 0 0 auto}
 .bxce .bxce-foot-cont .bxce-mode-link .bxce-mode-txt{color:#8c8c8c!important; font-size:10px !important; line-height:12px !important;}
 .bxce .bxce-foot-cont .bxce-mode-link span.bxce-mode-txt {display:inline-block !important; vertical-align:top !important;height:14px !important; white-space:nowrap !important;}
 .bxce .bxce-foot-cont .bxce-mode-link i{background:url("/bitrix/images/fileman/codeeditor/but.png") no-repeat -175px -48px; display:inline-block; height:14px; width:5px;vertical-align:top;}
@@ -52,7 +52,7 @@ font-family: consolas, monospace!important;font-size:12px!important;line-height:
 .bxce--light .bxce-foot-cont .bxce-mode-link-on i {background:url("/bitrix/images/fileman/codeeditor/but.png") no-repeat -175px -16px;}
 
 /* theme link*/
-.bxce-foot-cont a.bxce-theme-toggle{cursor:pointer; color:#858585!important; text-decoration:underline; display:block; height:15px; position:absolute !important; right:0; top:2px; min-width:90px; padding-right:10px; width:120px;}
+.bxce-foot-cont a.bxce-theme-toggle{cursor:pointer; color:#858585!important; text-decoration:underline; display:block; height:15px; min-width:90px; padding-right:10px; margin: 3px 0 0 5px }
 .bxce-theme-toggle-text{display:block; color:#b3b3b3; float:right !important; margin: 0 15px 0 0!important; font-family: Verdana,sans-serif !important; font-size: 11px !important; white-space:nowrap !important;}
 .bxce-theme-toggle i{background:url("/bitrix/images/fileman/codeeditor/but.png") no-repeat -29px -67px; display:block; margin:6px 0 0; float:right; height:6px; width:6px;}
 .bxce-theme-toggle:hover {display:block;}

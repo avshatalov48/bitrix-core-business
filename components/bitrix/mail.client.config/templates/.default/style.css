@@ -558,6 +558,7 @@
 	background: url(images/lock.png) no-repeat center;
 	cursor: pointer;
 	margin-left: 5px;
+	margin-right: 5px;
 }
 
 .mail-connect-form-label {

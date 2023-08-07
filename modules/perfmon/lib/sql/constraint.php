@@ -3,6 +3,7 @@ namespace Bitrix\Perfmon\Sql;
 
 class Constraint extends BaseObject
 {
+	public $columns = array();
 	/**
 	 * Creates constraint object from tokens.
 	 * <p>
@@ -30,9 +31,31 @@ class Constraint extends BaseObject
 
 		$token = $tokenizer->getCurrentToken();
 		$level = $token->level;
+		$column = '';
 		$constraintDefinition = '';
 		do
 		{
+			if ($token->text === '(' && $token->level == $level)
+			{
+				$column = '';
+			}
+			elseif (
+				$token->text === ','
+				|| ($token->text === ')' && $token->level == $level)
+			)
+			{
+				$column = trim($column);
+				if ($column)
+				{
+					$constraint->columns[] = trim($column);
+					$column = '';
+				}
+			}
+			else
+			{
+				$column .= $token->text;
+			}
+
 			if ($token->level == $level && $token->text == ',')
 				break;
 			if ($token->level < $level && $token->text == ')')

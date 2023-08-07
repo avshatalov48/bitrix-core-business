@@ -1,8 +1,9 @@
-import { Type } from 'main.core';
+import {Type} from 'main.core';
 import FileType from './file-type';
+import {getFileTypeIcon} from './file-type-icon';
 import type {FileIconOptions} from "./file-icon-options";
 
-const presets = {
+export const presets = Object.freeze({
 	'RAR': {color: '#7eab34', fileType: 'archive'},
 	'ZIP': {color: '#ac5fbd', fileType: 'archive'},
 	'GZIP': {color: '#8F44A0', fileType: 'archive'},
@@ -16,7 +17,7 @@ const presets = {
 	'3GP': {color: '#ACB75F', fileType: 'media'},
 	'WEBM': {color: '#ACB75F', fileType: 'media'},
 	'AVI': {color: '#FF5752', fileType: 'media'},
-	'MP3': '#0B66C3',
+	'MP3': {color: '#0B66C3', fileType: 'audio'},
 	'WAV': '#1D62AA',
 	'PHP': '#746781',
 	'PDF': '#d73b41',
@@ -29,12 +30,24 @@ const presets = {
 	'XLS': '#54b51e',
 	'XLSX': '#54b51e',
 	'none': '#7e8997',
+});
+
+const docColorByType = {
+	[FileType.PICTURE]: '#C3F0FF',
+	[FileType.AUDIO]: '#C3F0FF',
 }
+
+const angleColorByType = {
+	[FileType.PICTURE]: '#00789E',
+	[FileType.AUDIO]: '#00789E',
+}
+
+const fileTypesWithoutShowingExtension = [FileType.PICTURE, FileType.AUDIO];
 
 /**
  * @namespace {BX.UI.Icons.Generator}
  */
-export default class FileIcon
+export class FileIcon
 {
 	constructor(iconOptions: FileIconOptions)
 	{
@@ -46,6 +59,7 @@ export default class FileIcon
 		this.align = Type.isStringFilled(options.align) ? options.align : "left";
 		this.color = null;
 		this.size = Type.isNumber(options.size) ? options.size : null;
+		this.mini = Type.isBoolean(options.mini) ? options.mini : false;
 
 		this.setColor(options.color);
 		this.setName(options.name);
@@ -94,8 +108,71 @@ export default class FileIcon
 
 	generate(): SVGElement
 	{
-		let iconSize,
-			viewBoxParam = '0 0 100 117';
+		const icon = this.#getBaseIcon();
+
+		this.#addFileTypeIcon(icon);
+
+		if (this.name && this.#isShowFileExtension())
+		{
+			this.#addFileExtensionToIcon(icon);
+		}
+
+		return icon;
+	}
+
+	#getBaseIcon(): SVGElement
+	{
+		const {viewBox, size} = this.#getBaseIconParams();
+
+		const container = this.#createSvgElement('svg', {
+			'width': size ? `${size}px` : '100%',
+			'viewBox': viewBox,
+			'style': 'display:block',
+			'fill': 'none',
+		});
+
+		const sheetIcon = this.#createSvgElement('path', {
+			'fill-rule': "evenodd",
+			'clip-rule': 'evenodd',
+			'd': `
+				M 0 5
+				c 0 0 0 -4 5 -5
+				H 63
+				l 26 28
+				v 82
+				c 0 0 0 4 -5 5
+				h -79
+				c 0 0 -4 0 -5 -5
+				Z`,
+			'fill': docColorByType[this.fileType] || '#e5e8eb',
+		});
+
+		const sheetAngleIconStartPosX = 63;
+		const sheetAngleIcon = this.#createSvgElement('path', {
+			'fill-rule': "evenodd",
+			'clip-rule': 'evenodd',
+			'opacity': '0.3',
+			'd': `
+				M ${sheetAngleIconStartPosX} 0
+			 	L ${sheetAngleIconStartPosX + 26} 28
+			 	H ${sheetAngleIconStartPosX + 3}
+			 	C ${sheetAngleIconStartPosX + 3} 28 ${sheetAngleIconStartPosX} 28 ${sheetAngleIconStartPosX} 25
+			 	V ${sheetAngleIconStartPosX}
+			 	Z`,
+			'fill': angleColorByType[this.fileType] || '#535c69',
+		});
+
+		container.appendChild(sheetIcon);
+		container.appendChild(sheetAngleIcon);
+
+		return container;
+	}
+
+	#getBaseIconParams(): number
+	{
+		let iconSize;
+		let viewBoxParam = '0 0 100 117';
+
 		if (this.name)
 		{
 			if (this.align === 'center')
@@ -122,29 +199,54 @@ export default class FileIcon
 			}
 		}
 
-		const container = this.#createSvgElement('svg', {
-			'width': iconSize + "px",
-			'viewBox': viewBoxParam,
-			'style': 'display:block',
-			'fill': 'none',
-		});
-		const path1 = this.#createSvgElement('path', {
-			'fill-rule': "evenodd",
-			'clip-rule': 'evenodd',
-			'd': 'M0 0H63.3929L89.2857 25.8929V116.071H0V0Z',
-			'fill': '#e5e8eb',
-		});
-		const path2 = this.#createSvgElement('path', {
-			'fill-rule': "evenodd",
-			'clip-rule': 'evenodd',
-			'opacity': '0.3',
-			'd': 'M63.3929 0L89.2857 25.8929H63.3929V0Z',
-			'fill': '#535c69',
+		return {
+			size: iconSize,
+			viewBox: viewBoxParam,
+		}
+	}
+
+	#addFileExtensionToIcon(container: SVGElement): void
+	{
+		const nameNode = this.#createSvgElement('svg', {
+			'width': "65",
+			'height': "33",
+			'x': '35',
+			'y': '53',
 		});
 
-		container.appendChild(path1);
-		container.appendChild(path2);
+		let rect = this.#createSvgElement('rect', {
+			'width': "100%",
+			'height': '33',
+			'x': '0',
+			'y': '0',
+			'fill': (this.color) ? this.color : "#7e8997",
+			'rx': 2,
+			'ry': 2,
+		});
 
+		let text = this.#createSvgElement('text', {
+			"x": "50%",
+			"y": "54%",
+			"dominant-baseline": "middle",
+			"fill": "#fff",
+			"text-anchor": "middle",
+			"style": 'color:#fff;' +
+				'font-family: "OpenSans-Semibold", "Open Sans", Helvetica, Arial, sans-serif;' +
+				'font-weight: 500;' +
+				'font-size: 23px;' +
+				'line-height: 25px;'
+		}, this.name);
+
+		let textNode = document.createTextNode(this.name);
+		text.appendChild(textNode);
+		nameNode.appendChild(rect);
+		nameNode.appendChild(text);
+
+		container.appendChild(nameNode);
+	}
+
+	#addFileTypeIcon(container: SVGElement): void
+	{
 		if (this.fileType === FileType.ARCHIVE)
 		{
 			const iconType = this.#createSvgElement('path', {
@@ -167,54 +269,29 @@ export default class FileIcon
 		}
 		else if (this.fileType === FileType.PICTURE)
 		{
-			const iconType = this.#createSvgElement('path', {
-				'fill-rule': 'evenodd',
-				'clip-rule': 'evenodd',
-				'd': 'M11.6071 42.8571H75.4348H77.6785V108.929H11.6071V106.687V42.8571ZM13.8491 106.687H75.435V45.1009H13.8491V106.687ZM67.5987 61.1226C67.5987 64.4852 64.8718 67.2112 61.5082 67.2112C58.1443 67.2112 55.4176 64.4852 55.4176 61.1226C55.4176 57.76 58.1443 55.0341 61.5082 55.0341C64.8718 55.0341 67.5987 57.76 67.5987 61.1226ZM17.9371 102.805H71.3468V99.293L57.1052 85.2417L49.9824 92.2684L32.1785 74.7047L17.9371 88.7541V102.805Z',
-				'fill': "#b9bec4",
+			const iconContainer = this.#createSvgElement('g', {
+				style: "transform: scale(1.65) translate(3px, 19px);",
 			});
-			container.appendChild(iconType);
-		}
 
-		if (this.name)
+			iconContainer.appendChild(getFileTypeIcon(this.fileType));
+
+			container.appendChild(iconContainer);
+		}
+		else if (this.fileType === FileType.AUDIO)
 		{
-			const nameNode = this.#createSvgElement('svg', {
-				'width': "65",
-				'height': "33",
-				'x': '35',
-				'y': '53',
+			const iconContainer = this.#createSvgElement('g', {
+				style: "transform: scale(1.65) translate(7px, 19px);",
 			});
 
-			let rect = this.#createSvgElement('rect', {
-				'width': "100%",
-				'height': '33',
-				'x': '0',
-				'y': '0',
-				'fill': (this.color) ? this.color : "#7e8997",
-			});
+			iconContainer.appendChild(getFileTypeIcon(this.fileType));
 
-			let text = this.#createSvgElement('text', {
-				"x": "50%",
-				"y": "54%",
-				"dominant-baseline": "middle",
-				"fill": "#fff",
-				"text-anchor": "middle",
-				"style": 'color:#fff;' +
-					'font-family: "OpenSans-Semibold", "Open Sans", Helvetica, Arial, sans-serif;' +
-					'font-weight: 500;' +
-					'font-size: 23px;' +
-					'line-height: 25px;'
-			}, this.name);
-
-			let textNode = document.createTextNode(this.name);
-			text.appendChild(textNode);
-			nameNode.appendChild(rect);
-			nameNode.appendChild(text);
-
-			container.appendChild(nameNode);
+			container.appendChild(iconContainer);
 		}
+	}
 
-		return container;
+	#isShowFileExtension(): boolean
+	{
+		return !fileTypesWithoutShowingExtension.includes(this.fileType);
 	}
 
 	#createSvgElement(tag, params): SVGElement

@@ -8,6 +8,7 @@ type RenderNodeOptions = {
 	node: any,
 	parentElement: HTMLElement,
 	substitutions: Array<any>,
+	refs: Array<Array<string, HTMLElement | HTMLTemplateElement | SVGElement>>,
 };
 
 const appendElement = (current: HTMLElement | HTMLTemplateElement, target: HTMLElement | HTMLTemplateElement) => {
@@ -27,7 +28,7 @@ const appendElement = (current: HTMLElement | HTMLTemplateElement, target: HTMLE
 
 export default function renderNode(options: RenderNodeOptions): HTMLDivElement | Array<HTMLDivElement>
 {
-	const {node, parentElement, substitutions} = options;
+	const {node, parentElement, substitutions, refs = []} = options;
 
 	if (node.type === 'tag')
 	{
@@ -39,6 +40,12 @@ export default function renderNode(options: RenderNodeOptions): HTMLDivElement |
 
 			return document.createElement(node.name);
 		})();
+
+		if (Object.hasOwn(node.attrs, 'ref'))
+		{
+			refs.push([node.attrs.ref, element]);
+			delete node.attrs.ref;
+		}
 
 		Object.entries(node.attrs).forEach(([key, value]) => {
 			if (key.startsWith('on') && (new RegExp(matchers.placeholder)).test(value))
@@ -85,7 +92,8 @@ export default function renderNode(options: RenderNodeOptions): HTMLDivElement |
 			const result = renderNode({
 				node: childNode,
 				parentElement: element,
-				substitutions
+				substitutions,
+				refs,
 			});
 
 			if (Type.isArray(result))

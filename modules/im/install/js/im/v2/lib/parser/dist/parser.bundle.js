@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -25,9 +26,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	};
 
-	const isDesktop = main_core.Type.isObject(window.BXDesktopSystem);
+	// const isDesktop = Type.isObject(window.BXDesktopSystem);
 	const settings = main_core.Extension.getSettings('im.v2.lib.parser');
-	const v2 = settings.get('v2') && !isDesktop;
+	const v2 = settings.get('v2');
 	const getCore = () => {
 	  return v2 ? BX.Messenger.v2.Application.Core : BX.Messenger.Embedding.Application.Core;
 	};
@@ -123,9 +124,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      attach,
 	      files
 	    } = config;
-	    if (main_core.Type.isArray(files) && files.length > 0) {
+	    if (main_core.Type.isArrayFilled(files) || files === true) {
 	      text = this.getTextForFile(text, files);
-	    } else if (attach === true || main_core.Type.isArray(attach) && attach.length > 0 || main_core.Type.isStringFilled(attach)) {
+	    } else if (attach === true || main_core.Type.isArrayFilled(attach) || main_core.Type.isStringFilled(attach)) {
 	      text = this.getTextForAttach(text, attach);
 	    }
 	    return text.trim();
@@ -158,14 +159,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    return `[${main_core.Loc.getMessage('IM_PARSER_ICON_TYPE_FILE')}]`;
 	  },
-	  getTextForFile(text, files) {
+	  getTextForFile(rawText, files) {
+	    let preparedText = rawText;
 	    if (main_core.Type.isArray(files) && files.length > 0) {
 	      const [firstFile] = files;
-	      text = this.getIconTextForFile(text, firstFile);
+	      preparedText = this.getIconTextForFile(rawText, firstFile);
 	    } else if (files === true) {
-	      text = this.getIconTextForFileType(text, FileIconType.file);
+	      preparedText = this.getIconTextForFileType(rawText, FileIconType.file);
 	    }
-	    return text;
+	    return preparedText;
 	  },
 	  getTextForAttach(text, attach) {
 	    let attachDescription = '';
@@ -1217,11 +1219,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	  },
 	  decodeSmileForLegacyCore(text, options) {
-	    options.ratioConfig = Object.freeze({
+	    const legacyConfig = {
+	      ...options
+	    };
+	    legacyConfig.ratioConfig = Object.freeze({
 	      Default: 1,
 	      Big: 1.6
 	    });
-	    return ParserSmile.decodeSmile(text, options);
+	    return ParserSmile.decodeSmile(text, legacyConfig);
 	  },
 	  decode(config) {
 	    if (!main_core.Type.isPlainObject(config)) {
@@ -1339,8 +1344,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const {
 	      attach = false,
 	      files = false,
-	      replaces = [],
-	      showIconIfEmptyText = true,
 	      showPhraseMessageWasDeleted = true
 	    } = config;
 	    if (!main_core.Type.isString(text)) {
@@ -1407,11 +1410,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      attach,
 	      files
 	    });
-	    if (text.length > 0) {
-	      text = main_core.Text.decode(text);
-	    } else {
-	      text = main_core.Loc.getMessage('IM_PARSER_MESSAGE_DELETED');
-	    }
+	    text = text.length > 0 ? main_core.Text.decode(text) : main_core.Loc.getMessage('IM_PARSER_MESSAGE_DELETED');
 	    return text.trim();
 	  },
 	  prepareEdit(message) {

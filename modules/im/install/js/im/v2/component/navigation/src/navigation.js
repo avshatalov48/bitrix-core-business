@@ -1,13 +1,16 @@
-import {hint} from 'ui.vue3.directives.hint';
-import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
+import { Type } from 'main.core';
+import { hint } from 'ui.vue3.directives.hint';
+import { MessageBox, MessageBoxButtons } from 'ui.dialogs.messagebox';
+import { Monitor } from 'timeman.monitor';
 
-import {Logger} from 'im.v2.lib.logger';
-import {MessengerSlider} from 'im.v2.lib.slider';
-import {CallManager} from 'im.v2.lib.call';
-import {Layout} from 'im.v2.const';
+import { Logger } from 'im.v2.lib.logger';
+import { MessengerSlider } from 'im.v2.lib.slider';
+import { CallManager } from 'im.v2.lib.call';
+import { Layout } from 'im.v2.const';
+import { DesktopManager } from 'im.v2.lib.desktop';
 
-import {UserSettings} from './components/user-settings';
-import {MarketApps} from './components/market-apps';
+import { UserSettings } from './components/user-settings';
+import { MarketApps } from './components/market-apps';
 
 import './css/navigation.css';
 
@@ -15,64 +18,82 @@ type MenuItem = {
 	id: string,
 	text: string,
 	counter: number,
-	active: boolean
+	active: boolean,
+	clickHandler: Function,
 };
 
 // @vue/component
 export const MessengerNavigation = {
 	name: 'MessengerNavigation',
-	directives: {hint},
-	components: {UserSettings, MarketApps},
+	directives: { hint },
+	components: { UserSettings, MarketApps },
 	props: {
 		currentLayoutName: {
 			type: String,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['navigationClick'],
 	data()
 	{
 		return {
 			needTopShadow: false,
-			needBottomShadow: false
+			needBottomShadow: false,
 		};
 	},
 	computed:
 	{
 		menuItems(): MenuItem[]
 		{
-			return [
+			const menuItems = [
 				{
 					id: Layout.chat.name,
 					text: this.prepareNavigationText('IM_NAVIGATION_CHATS'),
 					counter: this.formatCounter(this.$store.getters['recent/getTotalCounter']),
-					active: true
+					active: true,
 				},
 				{
 					id: Layout.notification.name,
 					text: this.prepareNavigationText('IM_NAVIGATION_NOTIFICATIONS'),
 					counter: this.formatCounter(this.$store.getters['notifications/getCounter']),
-					active: true
+					active: true,
 				},
 				{
 					id: Layout.openline.name,
 					text: this.prepareNavigationText('IM_NAVIGATION_OPENLINES'),
 					counter: 0,
-					active: false
+					active: false,
 				},
 				{
 					id: Layout.call.name,
 					text: this.prepareNavigationText('IM_NAVIGATION_CALLS'),
 					counter: 0,
-					active: false
+					active: false,
 				},
 				{
 					id: 'settings',
 					text: this.prepareNavigationText('IM_NAVIGATION_SETTINGS'),
 					counter: 0,
-					active: false
+					active: false,
 				},
 			];
+
+			if (this.isTimeManagerActive())
+			{
+				menuItems.push({
+					id: 'timemanager',
+					text: this.prepareNavigationText('IM_NAVIGATION_TIMEMANAGER'),
+					counter: 0,
+					active: true,
+					clickHandler: this.onTimeManagerClick,
+				});
+			}
+
+			return menuItems;
+		},
+		isDesktop(): boolean
+		{
+			return DesktopManager.isDesktop();
 		},
 	},
 	created()
@@ -81,25 +102,32 @@ export const MessengerNavigation = {
 	},
 	mounted()
 	{
-		const container = this.$refs['navigation'];
+		const container = this.$refs.navigation;
 		this.needBottomShadow = container.scrollTop + container.clientHeight !== container.scrollHeight;
 	},
 	methods:
 	{
-		onMenuItemClick(item: MenuItem)
+		onMenuItemClick(item: MenuItem, event: PointerEvent)
 		{
 			if (!item.active)
 			{
 				return;
 			}
 
-			this.$emit('navigationClick', {layoutName: item.id, layoutEntityId: ''});
+			if (Type.isFunction(item.clickHandler))
+			{
+				item.clickHandler();
+
+				return;
+			}
+
+			this.$emit('navigationClick', { layoutName: item.id, layoutEntityId: '' });
 		},
-		onMarketMenuItemClick({layoutName, layoutEntityId})
+		onMarketMenuItemClick({ layoutName, layoutEntityId })
 		{
 			this.$emit('navigationClick', {
-				layoutName: layoutName,
-				layoutEntityId: layoutEntityId
+				layoutName,
+				layoutEntityId,
 			});
 		},
 		closeSlider()
@@ -108,17 +136,18 @@ export const MessengerNavigation = {
 			if (hasCall)
 			{
 				this.showExitConfirm();
+
 				return;
 			}
 
 			MessengerSlider.getInstance().getCurrent().close();
 		},
-		getMenuItemClasses(item: MenuItem)
+		getMenuItemClasses(item: MenuItem): Object<string, boolean>
 		{
 			return {
 				'--selected': item.id === this.currentLayoutName,
 				'--with-counter': item.counter && item.id !== this.currentLayoutName,
-				'--active': item.active
+				'--active': item.active,
 			};
 		},
 		formatCounter(counter: number): string
@@ -128,9 +157,9 @@ export const MessengerNavigation = {
 				return '';
 			}
 
-			return counter > 99 ? '99+' : `${counter}`;
+			return counter > 99 ? '99+' : String(counter);
 		},
-		getHintContent(item: MenuItem)
+		getHintContent(item: MenuItem): ?{text: string, popupOptions: Object<string, any>}
 		{
 			if (item.active)
 			{
@@ -140,17 +169,17 @@ export const MessengerNavigation = {
 			return {
 				text: this.loc('IM_MESSENGER_NOT_AVAILABLE'),
 				popupOptions: {
-					angle: {position: 'left'},
+					angle: { position: 'left' },
 					targetContainer: document.body,
 					offsetLeft: 80,
-					offsetTop: -54
-				}
+					offsetTop: -54,
+				},
 			};
 		},
 		prepareNavigationText(phraseCode: string): string
 		{
 			return this.loc(phraseCode, {
-				'#BR#': '</br>'
+				'#BR#': '</br>',
 			});
 		},
 		showExitConfirm()
@@ -166,7 +195,7 @@ export const MessengerNavigation = {
 				},
 				onCancel: (messageBox: MessageBox) => {
 					messageBox.close();
-				}
+				},
 			});
 		},
 		loc(phraseCode: string, replacements: {[string]: string} = {}): string
@@ -181,6 +210,7 @@ export const MessengerNavigation = {
 			if (event.target.scrollTop === 0)
 			{
 				this.needTopShadow = false;
+
 				return;
 			}
 
@@ -188,17 +218,25 @@ export const MessengerNavigation = {
 		},
 		onClickScrollDown()
 		{
-			this.$refs['navigation'].scrollTo({
-				top: this.$refs['navigation'].scrollHeight,
+			this.$refs.navigation.scrollTo({
+				top: this.$refs.navigation.scrollHeight,
 				behavior: 'smooth',
 			});
 		},
 		onClickScrollUp()
 		{
-			this.$refs['navigation'].scrollTo({
+			this.$refs.navigation.scrollTo({
 				top: 0,
 				behavior: 'smooth',
 			});
+		},
+		isTimeManagerActive(): boolean
+		{
+			return Boolean(Monitor?.isEnabled());
+		},
+		onTimeManagerClick()
+		{
+			Monitor?.openReport();
 		},
 	},
 	template: `
@@ -207,19 +245,21 @@ export const MessengerNavigation = {
 				<div class="bx-im-navigation__scroll-button" @click="onClickScrollUp"></div>
 			</div>
 			<div class="bx-im-navigation__top" @scroll="onScroll" ref="navigation">
-				<!-- Close -->
-				<div class="bx-im-navigation__close_container" @click="closeSlider">
-					<div class="bx-im-navigation__close"></div>
-				</div>
-				<!-- Separator -->
-				<div class="bx-im-navigation__separator_container">
-					<div class="bx-im-navigation__close_separator"></div>
-				</div>
+				<template v-if="!isDesktop">
+					<!-- Close -->
+					<div class="bx-im-navigation__close_container" @click="closeSlider">
+						<div class="bx-im-navigation__close"></div>
+					</div>
+					<!-- Separator -->
+					<div class="bx-im-navigation__separator_container">
+						<div class="bx-im-navigation__close_separator"></div>
+					</div>
+				</template>
 				<!-- Menu items -->
 				<div
 					v-for="item in menuItems"
 					v-hint="getHintContent(item)"
-					@click="onMenuItemClick(item)"
+					@click="onMenuItemClick(item, $event)"
 					class="bx-im-navigation__item_container"
 				>
 					<div :class="getMenuItemClasses(item)" class="bx-im-navigation__item">
@@ -242,5 +282,5 @@ export const MessengerNavigation = {
 				<UserSettings />
 			</div>
 		</div>
-	`
+	`,
 };

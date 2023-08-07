@@ -21,6 +21,10 @@ $arActivityDescription = [
 			'NAME' => 'Id',
 			'TYPE' => 'int',
 		],
+		'ErrorMessage' => [
+			'NAME' => GetMessage('BPCLDA_DESCR_ERROR_MESSAGE'),
+			'TYPE' => 'string',
+		],
 	],
 	'ROBOT_SETTINGS' => [
 		'CATEGORY' => 'employee',

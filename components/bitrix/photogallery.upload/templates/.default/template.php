@@ -30,7 +30,7 @@ $APPLICATION->AddHeadString('<link href="/bitrix/components/bitrix/search.tags.i
 /*************************************************************************
 	Processing of received parameters
 *************************************************************************/
-$arParams["WATERMARK"] = ($arParams["WATERMARK"] == "N" ? "N" : "Y");
+$arParams["WATERMARK"] = (($arParams["WATERMARK"] ?? null) == "N" ? "N" : "Y");
 $arParams["SHOW_WATERMARK"] = ($arParams["SHOW_WATERMARK"] == "N" ? "N" : "Y");
 if ($arParams["USE_WATERMARK"] != "Y" || $arParams["WATERMARK"] != "Y")
 	$arParams["SHOW_WATERMARK"] = "N";
@@ -58,8 +58,9 @@ $arWatermarkDefault = array(
 	"opacity" => (isset($arParams["WATERMARK_TRANSPARENCY"]) ? intval($arParams["WATERMARK_TRANSPARENCY"]) : 50),
 	"text" => $arParams["WATERMARK_TEXT"],
 	"file" => $arParams["WATERMARK_FILE_REL"],
-	"fileWidth" => $arParams["WATERMARK_FILE_WIDTH"],
-	"fileHeight" => $arParams["WATERMARK_FILE_HEIGHT"]);
+	"fileWidth" => $arParams["WATERMARK_FILE_WIDTH"] ?? null,
+	"fileHeight" => $arParams["WATERMARK_FILE_HEIGHT"] ?? null,
+);
 
 $arWatermark = $arWatermarkDefault;
 if ($arParams["WATERMARK_RULES"] == "USER" && is_array($arParams["USER_SETTINGS"]))
@@ -71,11 +72,15 @@ $arWatermark["use"] = ($arWatermark["use"] == "Y" ? "Y" : "N");
 $arWatermark["type"] = (in_array($arWatermark["type"], array("text", "image")) ? $arWatermark["type"] : "text");
 $arWatermark["copyright"] = ($arWatermark["copyright"] == "Y" ? "Y" : "N");
 $arWatermark["color"] = htmlspecialcharsbx($arWatermark["color"] ?: "#FF0000");
-$arWatermark["size"] = (in_array($arWatermark["size"], array("real", "big", "middle", "small")) ? $arWatermark["size"] : "real");
+$arWatermark["size"] = (
+	in_array($arWatermark["size"] ?? null, ["real", "big", "middle", "small"])
+		? $arWatermark["size"]
+		: "real"
+);
 $arWatermark["position"] = (in_array($arWatermark["position"], $arWatermarkPos) ? $arWatermark["position"] : "BottomRight");
 $arWatermark["opacity"] = intval($arWatermark["opacity"] ?: 50);
 $arWatermark["text"] = htmlspecialcharsbx($arWatermark["text"]);
-$arWatermark["original_size"] = intval($arWatermark["original_size"]);
+$arWatermark["original_size"] = intval($arWatermark["original_size"] ?? null);
 $htmlSettings = array();
 
 if($arParams["SHOW_RESIZER"] == "Y")
@@ -214,9 +219,9 @@ HTML;
 </div>
 <?endif;
 
-if($arParams["SHOW_MAGIC_QUOTES_NOTICE_ADMIN"])
+if ($arParams["SHOW_MAGIC_QUOTES_NOTICE_ADMIN"] ?? null)
 	echo GetMessage("MAGIC_QUOTES_NOTICE_ADMIN", array("#URL#" => "/bitrix/admin/site_checker.php"))."<br/><br/>";
-elseif($arParams["SHOW_MAGIC_QUOTES_NOTICE"])
+elseif ($arParams["SHOW_MAGIC_QUOTES_NOTICE"] ?? null)
 	echo GetMessage("MAGIC_QUOTES_NOTICE")."<br/><br/>";
 /* ************** Select uploader type ************** */
 CJSCore::Init(array("uploader", "canvas"));
@@ -280,7 +285,7 @@ $params = array_merge($arParams["bxu"]->params, array(
 	<input type="hidden" name="SECTION_ID" value="<?=$arParams["SECTION_ID"]?>" />
 	<input type="hidden" name="photo_resize_size" value="" />
 	<input type="hidden" name="photo_public" value="" />
-<div class="bxu-thumbnails bxu-thumbnails-start<?=($arParams["USER_SETTINGS"]["template"]=="full" ? "" : " bxu-main-block-reduced-size")?><?
+<div class="bxu-thumbnails bxu-thumbnails-start<?=(($arParams["USER_SETTINGS"]["template"] ?? null)=="full" ? "" : " bxu-main-block-reduced-size")?><?
 	?><?=($arWatermark["additional"] ? " bxu-thumbnails-settings-are" : "")?>" id="bxuMain<?=$arParams["id"]?>"> <!-- bxu-thumbnails-loading bxu-thumbnails-start-->
 	<div class="bxu-top-block"><div class="bxu-top-block-inner">
 		<label class="pg-top-bar-text" for="photo_album_id<?=$arParams["UPLOADER_ID"]?>"><?=GetMessage("P_TO_ALBUM")?>:</label>
@@ -301,8 +306,8 @@ $params = array_merge($arParams["bxu"]->params, array(
 		</span><?
 		?><div class="bxu-settings-block">
 			<span class="bxu-settings-block-templates">
-				<span class="bxu-templates-btn bxu-templates-btn-small<?=($arParams["USER_SETTINGS"]["template"]=="full" ? "" : " bxu-templates-btn-active")?>" id="bxuReduced<?=$arParams["id"]?>" title="<?=GetMessage("MFU_SIMPLIFIED")?>"></span><?
-				?><span id="bxuEnlarge<?=$arParams["id"]?>" class="bxu-templates-btn bxu-templates-btn-big<?=($arParams["USER_SETTINGS"]["template"]=="full" ? " bxu-templates-btn-active" : "")?>" title="<?=GetMessage("MFU_NORMAL")?>"></span>
+				<span class="bxu-templates-btn bxu-templates-btn-small<?=(($arParams["USER_SETTINGS"]["template"] ?? null)=="full" ? "" : " bxu-templates-btn-active")?>" id="bxuReduced<?=$arParams["id"]?>" title="<?=GetMessage("MFU_SIMPLIFIED")?>"></span><?
+				?><span id="bxuEnlarge<?=$arParams["id"]?>" class="bxu-templates-btn bxu-templates-btn-big<?=(($arParams["USER_SETTINGS"]["template"] ?? null)=="full" ? " bxu-templates-btn-active" : "")?>" title="<?=GetMessage("MFU_NORMAL")?>"></span>
 			</span>
 		</div>
 	</div></div>
@@ -365,7 +370,10 @@ if ($arParams["ORIGINAL_SIZE"] || $arResult["UPLOAD_MAX_FILE_SIZE_MB"] && $arPar
 <? if ($arParams["ORIGINAL_SIZE"]):?>
 	<p><?= GetMessage("P_MAX_FILE_DIMENTIONS_NOTICE", Array("#MAX_FILE_DIMENTIONS#" => intval($arParams["ORIGINAL_SIZE"])));?></p>
 <?endif;?>
-<? if ($arResult["UPLOAD_MAX_FILE_SIZE_MB"] && $arParams["ALLOW_UPLOAD_BIG_FILES"] != "Y"):?>
+<? if (
+	$arResult["UPLOAD_MAX_FILE_SIZE_MB"]
+	&& ($arParams["ALLOW_UPLOAD_BIG_FILES"] ?? null) != "Y"
+):?>
 	<p><?= GetMessage("P_MAX_FILE_SIZE_NOTICE", Array("#POST_MAX_SIZE_STR#" => $arResult["UPLOAD_MAX_FILE_SIZE_MB"]));?></p>
 <?endif;?>
 </div>

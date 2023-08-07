@@ -44,8 +44,8 @@ if($arResult['userField']['EDIT_IN_LIST'] === 'Y')
 elseif($arResult['additionalParameters']['VALUE'] <> '')
 {
 	$explode = MoneyType::unFormatFromDB($arResult['additionalParameters']['VALUE']);
-	$currentValue = $explode[0]? $explode[0] : '';
-	$currentCurrency = $explode[1]? $explode[1] : '';
+	$currentValue = $explode[0]?: '';
+	$currentCurrency = $explode[1]?? '';
 
 	if(!$currentCurrency)
 	{

@@ -1586,14 +1586,14 @@ final class CatalogStoreDocumentProductListComponent
 					return [
 						'MAIN_INFO','PURCHASING_PRICE', 'BASE_PRICE',
 						'AMOUNT', 'STORE_TO_INFO', 'STORE_TO_AMOUNT', 'BARCODE_INFO',
-						'TOTAL_PRICE',
+						'TOTAL_PRICE', 'COMMENT',
 					];
 				}
 
 				return [
 					'MAIN_INFO', 'BARCODE_INFO', 'PURCHASING_PRICE', 'BASE_PRICE',
 					'AMOUNT', 'STORE_TO_INFO', 'STORE_TO_AMOUNT',
-					'TOTAL_PRICE',
+					'TOTAL_PRICE', 'COMMENT',
 				];
 			case StoreDocumentTable::TYPE_DEDUCT:
 				if ($this->isReadOnly())
@@ -1602,7 +1602,7 @@ final class CatalogStoreDocumentProductListComponent
 						'MAIN_INFO',
 						'STORE_FROM_INFO', 'STORE_FROM_AMOUNT', 'AMOUNT',
 						'PURCHASING_PRICE', 'BASE_PRICE', 'BARCODE_INFO',
-						'TOTAL_PRICE',
+						'TOTAL_PRICE', 'COMMENT',
 					];
 				}
 
@@ -1610,7 +1610,7 @@ final class CatalogStoreDocumentProductListComponent
 					'MAIN_INFO', 'BARCODE_INFO', 'AMOUNT',
 					'STORE_FROM_INFO', 'STORE_FROM_AMOUNT',
 					'PURCHASING_PRICE', 'BASE_PRICE',
-					'TOTAL_PRICE',
+					'TOTAL_PRICE', 'COMMENT',
 				];
 			case StoreDocumentTable::TYPE_MOVING:
 				if ($this->isReadOnly())
@@ -1620,7 +1620,7 @@ final class CatalogStoreDocumentProductListComponent
 						'STORE_FROM_INFO', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_AMOUNT',
 						'STORE_TO_INFO', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_AMOUNT', 'AMOUNT',
 						'PURCHASING_PRICE', 'BASE_PRICE', 'BARCODE_INFO',
-						'TOTAL_PRICE',
+						'TOTAL_PRICE', 'COMMENT',
 					];
 				}
 
@@ -1629,7 +1629,7 @@ final class CatalogStoreDocumentProductListComponent
 					'STORE_FROM_INFO', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_AMOUNT',
 					'STORE_TO_INFO', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_AMOUNT',
 					'PURCHASING_PRICE', 'BASE_PRICE',
-					'TOTAL_PRICE',
+					'TOTAL_PRICE', 'COMMENT',
 				];
 		}
 
@@ -1828,6 +1828,21 @@ final class CatalogStoreDocumentProductListComponent
 			'editable' => false,
 			'width' => $columnDefaultWidth,
 		];
+
+		$result['COMMENT'] = [
+			'id' => 'COMMENT',
+			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_COMMENT'),
+			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_COMMENT'),
+			'sort' => null,
+			'default' => false,
+			'editable' => true,
+			'width' => $columnDefaultWidth,
+		];
+		if ($this->getDocumentType() === StoreDocumentTable::TYPE_DEDUCT)
+		{
+			$result['COMMENT']['name'] = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_COMMENT_DEDUCT');
+			$result['COMMENT']['title'] = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_COMMENT_DEDUCT');
+		}
 
 		foreach ($result as &$item)
 		{

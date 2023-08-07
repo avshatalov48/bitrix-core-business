@@ -81,8 +81,8 @@ class SearchEngineTable extends Entity\DataManager
 
 	public static function getByCode($code)
 	{
-		return SearchEngineTable::getList(array(
-			'filter' => array('CODE' => $code),
-		));
+		return SearchEngineTable::getList([
+			'filter' => ['=CODE' => $code],
+		]);
 	}
 }

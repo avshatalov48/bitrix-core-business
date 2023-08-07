@@ -1,18 +1,18 @@
-import {Avatar, AvatarSize} from 'im.v2.component.elements';
+import { Avatar, AvatarSize } from 'im.v2.component.elements';
 
-import type {ImModelUser} from 'im.v2.model';
+import type { ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const ReactionUser = {
-	components: {Avatar},
+	components: { Avatar },
 	props:
 	{
 		userId: {
 			type: Number,
-			required: true
+			required: true,
 		},
 	},
-	data()
+	data(): Object
 	{
 		return {};
 	},
@@ -23,21 +23,27 @@ export const ReactionUser = {
 		{
 			return this.$store.getters['users/get'](this.userId);
 		},
-		avatarStyle()
+		avatarStyle(): Object
 		{
 			if (!this.user.avatar)
 			{
-				return;
+				return {};
 			}
 
 			return {
-				backgroundImage: `url('${this.user.avatar}')`
+				backgroundImage: `url('${this.user.avatar}')`,
 			};
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-reaction-list__user_avatar">
-			<Avatar :dialogId="userId" :size="AvatarSize.XS" :withAvatarLetters="false" :withStatus="false" />
+			<Avatar 
+				:dialogId="userId" 
+				:size="AvatarSize.XS" 
+				:withAvatarLetters="false" 
+				:withStatus="false" 
+				:withTooltip="false"
+			/>
 		</div>
-	`
+	`,
 };

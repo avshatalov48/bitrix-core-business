@@ -5,4 +5,5 @@ export type FileIconOptions = {
 	fileType?: FileType,
 	color?: string,
 	size?: number,
+	mini: boolean,
 };

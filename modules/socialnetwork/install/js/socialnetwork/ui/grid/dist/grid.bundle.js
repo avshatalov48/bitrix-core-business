@@ -11,7 +11,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    this.bindEvents();
 	    this.colorPinnedRows();
 	  }
-
 	  babelHelpers.createClass(Pin, [{
 	    key: "bindEvents",
 	    value: function bindEvents() {
@@ -26,7 +25,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "colorPinnedRows",
 	    value: function colorPinnedRows() {
 	      var _this = this;
-
 	      this.getRows().forEach(function (row) {
 	        var node = row.getNode();
 	        _this.getIsPinned(row.getId()) ? main_core.Dom.addClass(node, Pin["class"].pinned) : main_core.Dom.removeClass(node, Pin["class"].pinned);
@@ -46,16 +44,13 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "getLastPinnedRowId",
 	    value: function getLastPinnedRowId() {
 	      var _this2 = this;
-
 	      var pinnedRows = Object.values(this.getRows()).filter(function (row) {
 	        return _this2.getIsPinned(row.getId());
 	      });
 	      var keys = Object.keys(pinnedRows);
-
 	      if (keys.length > 0) {
 	        return pinnedRows[keys[keys.length - 1]].getId();
 	      }
-
 	      return 0;
 	    }
 	  }, {
@@ -94,7 +89,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      };
 	    }
 	  }]);
-
 	  function Grid(options) {
 	    babelHelpers.classCallCheck(this, Grid);
 	    this.grid = BX.Main.gridManager.getInstanceById(options.id);
@@ -109,7 +103,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    this.init();
 	    this.bindEvents();
 	  }
-
 	  babelHelpers.createClass(Grid, [{
 	    key: "init",
 	    value: function init() {}
@@ -124,7 +117,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      var data = event.getData();
 	      var grid = data[1];
 	      var column = data[0];
-
 	      if (grid === this.getGrid()) {
 	        this.sort = {};
 	        this.sort[column.sort_by] = column.sort_order;
@@ -152,11 +144,11 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	        id: id,
 	        columns: data.columns,
 	        actions: data.actions,
-	        cellActions: data.cellActions //			counters: data.counters,
-
+	        cellActions: data.cellActions
+	        //			counters: data.counters,
 	      };
-	      var moveParams = params.moveParams || {};
 
+	      var moveParams = params.moveParams || {};
 	      if (moveParams.rowBefore) {
 	        options.insertAfter = moveParams.rowBefore;
 	      } else if (moveParams.rowAfter) {
@@ -164,14 +156,11 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      } else {
 	        options.append = true;
 	      }
-
 	      if (this.items.size > this.getCurrentPage() * this.pageSize) {
 	        var lastRowId = this.getLastRowId();
 	        this.removeItem(lastRowId);
 	        main_core.Dom.remove(this.getRowNodeById(lastRowId));
-	        this.showMoreButton();
 	      }
-
 	      this.hideStub();
 	      this.getRealtime().addRow(options);
 	      this.getPinController().colorPinnedRows();
@@ -183,27 +172,21 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "updateRow",
 	    value: function updateRow(id, data, params) {
 	      var _this = this;
-
 	      var row = this.getRowById(id);
-
 	      if (main_core.Type.isPlainObject(data)) {
 	        if (!main_core.Type.isUndefined(data.columns)) {
 	          row.setCellsContent(data.columns);
 	        }
-
 	        if (!main_core.Type.isUndefined(data.actions)) {
 	          row.setActions(data.actions);
 	        }
-
 	        if (!main_core.Type.isUndefined(data.cellActions)) {
 	          row.setCellActions(data.cellActions);
 	        }
-
 	        if (!main_core.Type.isUndefined(data.counters)) {
 	          row.setCounters(data.counters);
 	        }
 	      }
-
 	      this.resetRows();
 	      this.moveRow(id, params.moveParams || {});
 	      this.highlightRow(id, params.highlightParams || {}).then(function () {
@@ -222,7 +205,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      if (!this.isRowExist(rowId)) {
 	        return;
 	      }
-
 	      this.removeItem(rowId);
 	      this.grid.removeRow(rowId);
 	    }
@@ -232,10 +214,8 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      if (params.skip) {
 	        return;
 	      }
-
 	      var rowBefore = params.rowBefore || 0;
 	      var rowAfter = params.rowAfter || 0;
-
 	      if (rowBefore) {
 	        this.getRows().insertAfter(rowId, rowBefore);
 	      } else if (rowAfter) {
@@ -246,35 +226,27 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "highlightRow",
 	    value: function highlightRow(rowId, params) {
 	      var _this2 = this;
-
 	      params = params || {};
 	      return new Promise(function (resolve, reject) {
 	        if (!_this2.isRowExist(rowId)) {
 	          reject();
 	          return;
 	        }
-
 	        if (params.skip) {
 	          resolve();
 	          return;
 	        }
-
 	        var node = _this2.getRowNodeById(rowId);
-
 	        var isPinned = main_core.Dom.hasClass(node, Pin["class"].pinned);
-
 	        if (isPinned) {
 	          main_core.Dom.removeClass(node, Pin["class"].pinned);
 	        }
-
 	        main_core.Dom.addClass(node, Grid["class"].highlighted);
 	        setTimeout(function () {
 	          main_core.Dom.removeClass(node, Grid["class"].highlighted);
-
 	          if (isPinned) {
 	            main_core.Dom.addClass(node, Pin["class"].pinned);
 	          }
-
 	          resolve();
 	        }, 900);
 	      });
@@ -325,7 +297,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "fillItems",
 	    value: function fillItems(items) {
 	      var _this3 = this;
-
 	      Object.keys(items).forEach(function (id) {
 	        return _this3.addItem(id);
 	      });
@@ -374,16 +345,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    value: function hideStub() {
 	      this.getGrid().hideEmptyStub();
 	    }
-	  }, {
-	    key: "showMoreButton",
-	    value: function showMoreButton() {
-	      this.getGrid().getMoreButton().getNode().style.display = 'inline-block';
-	    }
-	  }, {
-	    key: "hideMoreButton",
-	    value: function hideMoreButton() {
-	      this.getGrid().getMoreButton().getNode().style.display = 'none';
-	    }
 	  }]);
 	  return Grid;
 	}();
@@ -395,18 +356,14 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    this.componentName = options.componentName;
 	    this.signedParameters = options.signedParameters;
 	  }
-
 	  babelHelpers.createClass(MembersPopup, [{
 	    key: "showPopup",
 	    value: function showPopup(groupId, groupType, bindNode) {
 	      var _this = this;
-
 	      var type = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'all';
-
 	      if (this.isPopupShown) {
 	        this.popup.destroy();
 	      }
-
 	      this.groupId = groupId;
 	      this.resetPopupData(groupType);
 	      this.changeType(type, false);
@@ -438,11 +395,8 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	          },
 	          onAfterPopupShow: function onAfterPopupShow(popup) {
 	            popup.contentContainer.appendChild(_this.renderContainer());
-
 	            _this.showLoader();
-
 	            _this.showUsers(groupId, type);
-
 	            _this.isPopupShown = true;
 	          }
 	        }
@@ -459,17 +413,13 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "popupScroll",
 	    value: function popupScroll(groupId, type) {
 	      var _this2 = this;
-
 	      if (!main_core.Type.isDomNode(this.getCurrentPopupData().innerContainer)) {
 	        return;
 	      }
-
 	      main_core.Event.bind(this.getCurrentPopupData().innerContainer, 'scroll', function (event) {
 	        var area = event.target;
-
 	        if (area.scrollTop > (area.scrollHeight - area.offsetHeight) / 1.5) {
 	          _this2.showUsers(groupId, type);
-
 	          main_core.Event.unbindAll(_this2.getCurrentPopupData().innerContainer);
 	        }
 	      });
@@ -478,7 +428,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "showUsers",
 	    value: function showUsers(groupId, type) {
 	      var _this3 = this;
-
 	      main_core.ajax.runAction('socialnetwork.api.workgroup.getGridPopupMembers', {
 	        data: {
 	          groupId: groupId,
@@ -490,20 +439,15 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      }).then(function (response) {
 	        if (_this3.groupId !== groupId || _this3.currentType !== type) {
 	          _this3.hideLoader();
-
 	          return;
 	        }
-
 	        if (response.data.length > 0) {
 	          _this3.renderUsers(response.data);
-
 	          _this3.popupScroll(groupId, _this3.currentType);
 	        } else if (!_this3.getCurrentPopupData().innerContainer.hasChildNodes()) {
 	          _this3.getCurrentPopupData().innerContainer.innerText = main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_EMPTY');
 	        }
-
 	        _this3.getCurrentPopupData().currentPage++;
-
 	        _this3.hideLoader();
 	      }, function () {
 	        return _this3.hideLoader();
@@ -513,14 +457,11 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "renderUsers",
 	    value: function renderUsers(users) {
 	      var _this4 = this;
-
 	      Object.values(users).forEach(function (user) {
 	        if (_this4.getCurrentPopupData().renderedUsers.indexOf(user.ID) >= 0) {
 	          return;
 	        }
-
 	        _this4.getCurrentPopupData().renderedUsers.push(user.ID);
-
 	        _this4.getCurrentPopupData().innerContainer.appendChild(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a class=\"sonet-ui-members-popup-item\" href=\"", "\" target=\"_blank\">\n\t\t\t\t\t\t<span class=\"sonet-ui-members-popup-avatar-new\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<span class=\"sonet-ui-members-popup-avatar-status-icon\"></span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class=\"sonet-ui-members-popup-name\">", "</span>\n\t\t\t\t\t</a>\n\t\t\t\t"])), user['HREF'], _this4.getAvatar(user), user['FORMATTED_NAME']));
 	      });
 	    }
@@ -530,7 +471,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      if (main_core.Type.isStringFilled(user['PHOTO'])) {
 	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-icon ui-icon-common-user sonet-ui-members-popup-avatar-img\">\n\t\t\t\t\t<i style=\"background-image: url('", "')\"></i>\n\t\t\t\t</div>\n\t\t\t"])), encodeURI(user['PHOTO']));
 	      }
-
 	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-icon ui-icon-common-user sonet-ui-members-popup-avatar-img\"><i></i></div>\n\t\t"])));
 	    }
 	  }, {
@@ -542,7 +482,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	          size: 40
 	        });
 	      }
-
 	      void this.loader.show();
 	    }
 	  }, {
@@ -563,11 +502,9 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	        main_core.Dom.removeClass(item.tab, 'sonet-ui-members-popup-head-item-current');
 	      });
 	      main_core.Dom.addClass(this.getCurrentPopupData().tab, 'sonet-ui-members-popup-head-item-current');
-
 	      if (oldType) {
 	        main_core.Dom.replace(this.popupData[oldType].innerContainer, this.getCurrentPopupData().innerContainer);
 	      }
-
 	      if (loadUsers && this.getCurrentPopupData().currentPage === 1) {
 	        this.showLoader();
 	        this.showUsers(this.groupId, newType);
@@ -578,12 +515,10 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    value: function resetPopupData(groupType) {
 	      var headTitle = main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_TITLE_HEADS');
 	      var membersTitle = main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_TITLE_MEMBERS');
-
 	      if (groupType === 'project') {
 	        headTitle = main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_TITLE_HEADS_PROJECT');
 	        membersTitle = main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_TITLE_MEMBERS_PROJECT');
 	      }
-
 	      this.popupData = {
 	        all: {
 	          currentPage: 1,
@@ -617,12 +552,10 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11;
 	var ScrumMembersPopup = /*#__PURE__*/function (_MembersPopup) {
 	  babelHelpers.inherits(ScrumMembersPopup, _MembersPopup);
-
 	  function ScrumMembersPopup() {
 	    babelHelpers.classCallCheck(this, ScrumMembersPopup);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ScrumMembersPopup).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(ScrumMembersPopup, [{
 	    key: "renderContainer",
 	    value: function renderContainer() {
@@ -656,25 +589,20 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "renderUsers",
 	    value: function renderUsers(users) {
 	      var _this = this;
-
 	      if (this.currentType === 'scrumTeam') {
 	        this.renderLabels(users);
 	        Object.values(users).forEach(function (user) {
 	          if (_this.getCurrentPopupData().renderedUsers.indexOf(user.ID) >= 0 && user.ROLE !== 'M') {
 	            return;
 	          }
-
 	          _this.getCurrentPopupData().renderedUsers.push(user.ID);
-
 	          var containersMap = new Map();
 	          containersMap.set('A', 'sonet-ui-scrum-members-popup-owner-container');
 	          containersMap.set('M', 'sonet-ui-scrum-members-popup-master-container');
 	          containersMap.set('E', 'sonet-ui-scrum-members-popup-team-container');
-
 	          if (main_core.Type.isUndefined(containersMap.get(user.ROLE))) {
 	            return;
 	          }
-
 	          _this.getCurrentPopupData().innerContainer.querySelector('.' + containersMap.get(user.ROLE)).appendChild(main_core.Tag.render(_templateObject8$1 || (_templateObject8$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<a\n\t\t\t\t\t\t\t\tclass=\"sonet-ui-members-popup-item\"\n\t\t\t\t\t\t\t\thref=\"", "\"\n\t\t\t\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t<span class=\"sonet-ui-members-popup-avatar-new\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t\t\tclass=\"sonet-ui-members-popup-avatar-status-icon\"\n\t\t\t\t\t\t\t\t\t></span>\n\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t\tclass=\"sonet-ui-scrum-members-popup-name\"\n\t\t\t\t\t\t\t\t>", "</span>\n\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t"])), user['HREF'], _this.getAvatar(user), user['FORMATTED_NAME']));
 	        });
 	      } else {
@@ -693,19 +621,16 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      var hasTeam = users.find(function (user) {
 	        return user.ROLE === 'E';
 	      });
-
 	      if (hasOwner) {
 	        if (main_core.Type.isNull(this.getCurrentPopupData().innerContainer.querySelector('.sonet-ui-scrum-members-popup-owner-container'))) {
 	          this.getCurrentPopupData().innerContainer.appendChild(main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"sonet-ui-scrum-members-popup-owner-container\">\n\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label\">\n\t\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_LABEL_SCRUM_OWNER')));
 	        }
 	      }
-
 	      if (hasMaster) {
 	        if (main_core.Type.isNull(this.getCurrentPopupData().innerContainer.querySelector('.sonet-ui-scrum-members-popup-master-container'))) {
 	          this.getCurrentPopupData().innerContainer.appendChild(main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"sonet-ui-scrum-members-popup-master-container\">\n\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label\">\n\t\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_LABEL_SCRUM_MASTER')));
 	        }
 	      }
-
 	      if (hasTeam) {
 	        if (main_core.Type.isNull(this.getCurrentPopupData().innerContainer.querySelector('.sonet-ui-scrum-members-popup-team-container'))) {
 	          this.getCurrentPopupData().innerContainer.appendChild(main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"sonet-ui-scrum-members-popup-team-container\">\n\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label\">\n\t\t\t\t\t\t\t<span class=\"sonet-ui-scrum-members-popup-label-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('SONET_EXT_UI_GRID_MEMBERS_POPUP_LABEL_SCRUM_TEAM')));
@@ -720,7 +645,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	  function Actions() {
 	    babelHelpers.classCallCheck(this, Actions);
 	  }
-
 	  babelHelpers.createClass(Actions, null, [{
 	    key: "setOptions",
 	    value: function setOptions(options) {
@@ -735,8 +659,7 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "changePin",
 	    value: function changePin(groupId, event) {
 	      var _event$getData = event.getData(),
-	          button = _event$getData.button;
-
+	        button = _event$getData.button;
 	      var action = main_core.Dom.hasClass(button, Actions["class"].active) ? 'unpin' : 'pin';
 	      main_core.ajax.runAction('socialnetwork.api.workgroup.changePin', {
 	        data: {
@@ -766,13 +689,10 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      if (!main_core.Type.isUndefined(params.groupId)) {
 	        return [params.groupId];
 	      }
-
 	      var selected = Actions.getSelectedRows();
-
 	      if (selected.length === 0) {
 	        return [];
 	      }
-
 	      return selected.map(function (row) {
 	        return row.getDataset().id;
 	      });
@@ -783,7 +703,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      if (!Actions.actionsPanel) {
 	        return;
 	      }
-
 	      Actions.actionsPanel.hidePanel();
 	    }
 	  }, {
@@ -815,7 +734,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	  function Tag() {
 	    babelHelpers.classCallCheck(this, Tag);
 	  }
-
 	  babelHelpers.createClass(Tag, null, [{
 	    key: "setOptions",
 	    value: function setOptions(options) {
@@ -831,7 +749,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "onTagAddClick",
 	    value: function onTagAddClick(groupId, event) {
 	      main_core.Runtime.loadExtension('socialnetwork.entity-selector').then(function (exports) {
-
 	        var onTagsChange = function onTagsChange(event) {
 	          var dialog = event.getTarget();
 	          var tags = dialog.getSelectedItems().map(function (item) {
@@ -839,9 +756,8 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	          });
 	          void Tag.update(groupId, tags);
 	        };
-
 	        var Dialog = exports.Dialog,
-	            Footer = exports.Footer;
+	          Footer = exports.Footer;
 	        var dialog = new Dialog({
 	          targetNode: event.getData().button,
 	          enableSearch: true,
@@ -883,8 +799,7 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	            'Search:onItemCreateAsync': function SearchOnItemCreateAsync(event) {
 	              return new Promise(function (resolve) {
 	                var _event$getData2 = event.getData(),
-	                    searchQuery = _event$getData2.searchQuery;
-
+	                  searchQuery = _event$getData2.searchQuery;
 	                var name = searchQuery.getQuery().toLowerCase();
 	                var dialog = event.getTarget();
 	                setTimeout(function () {
@@ -894,11 +809,9 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	                    title: name,
 	                    tabs: 'all'
 	                  });
-
 	                  if (item) {
 	                    item.select();
 	                  }
-
 	                  resolve();
 	                }, 1000);
 	              });
@@ -933,17 +846,14 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	  function Filter(options) {
 	    babelHelpers.classCallCheck(this, Filter);
 	    this.filterInstance = BX.Main.filterManager.getById(options.filterId);
-
 	    if (!this.filterInstance) {
 	      return;
 	    }
-
 	    this.defaultFilterPresetId = options.defaultFilterPresetId;
 	    this.gridId = options.gridId;
 	    this.init();
 	    this.bindEvents();
 	  }
-
 	  babelHelpers.createClass(Filter, [{
 	    key: "init",
 	    value: function init() {
@@ -968,15 +878,12 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    key: "toggleByField",
 	    value: function toggleByField(field) {
 	      var _this = this;
-
 	      var name = Object.keys(field)[0];
 	      var value = field[name];
-
 	      if (!this.isFilteredByFieldValue(name, value)) {
 	        this.filterInstance.getApi().extendFilter(babelHelpers.defineProperty({}, name, value));
 	        return;
 	      }
-
 	      this.filterInstance.getFilterFields().forEach(function (field) {
 	        if (field.getAttribute('data-name') === name) {
 	          _this.filterInstance.getFields().deleteField(field);
@@ -995,11 +902,9 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      if (!Object.keys(this.fields).includes(field)) {
 	        return false;
 	      }
-
 	      if (main_core.Type.isArray(this.fields[field])) {
 	        return this.fields[field].length > 0;
 	      }
-
 	      return this.fields[field] !== '';
 	    }
 	  }]);
@@ -1013,7 +918,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	      return Controller.repo.get(id);
 	    }
 	  }]);
-
 	  function Controller(options) {
 	    babelHelpers.classCallCheck(this, Controller);
 	    this.gridInstance = new Grid(options);
@@ -1021,7 +925,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	    this.scrumMembersPopup = new ScrumMembersPopup(options);
 	    Controller.repo.set(options.id, this);
 	  }
-
 	  babelHelpers.createClass(Controller, [{
 	    key: "getMembersPopup",
 	    value: function getMembersPopup() {
@@ -1045,7 +948,6 @@ this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {};
 	  }]);
 	  return Controller;
 	}();
-
 	babelHelpers.defineProperty(Controller, "repo", new Map());
 
 	exports.Controller = Controller;

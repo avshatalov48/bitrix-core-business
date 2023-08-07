@@ -1,9 +1,13 @@
 import {BaseEvent, EventEmitter} from 'main.core.events';
+
 import {Core} from 'im.v2.application.core';
 import {FileStatus, FileType, RestMethod} from 'im.v2.const';
 import {Utils} from 'im.v2.lib.utils';
+
 import {UploadManager} from './upload-manager';
+
 import type {ImModelDialog, ImModelUser} from 'im.v2.model';
+import type {UploaderFile} from 'ui.uploader.core';
 
 export type FileFromDisk = {
 	id: string;
@@ -19,10 +23,9 @@ export type FileFromDisk = {
 };
 
 export type MessageWithFile = {
-	temporaryMessageId?: string,
-	temporaryFileId: string,
-	rawFile: FileFromDisk | File,
-	diskFolderId?: number,
+	tempMessageId?: string,
+	tempFileId: string,
+	file: FileFromDisk | File,
 	dialogId: string,
 	chatId?: number
 }
@@ -34,9 +37,8 @@ export class FileService extends EventEmitter
 	#isRequestingDiskFolderId: boolean = false;
 	#diskFolderIdRequestPromise: {[string]: Promise} = {};
 	#uploadManager: UploadManager;
-	#uploadRegistry: {[string]: {dialogId: string, chatId: string}} = {};
 
-	static eventNamespace = 'BX.Messenger.v2.Textarea.UploadingService';
+	static eventNamespace = 'BX.Messenger.v2.Service.Sending.FileService';
 
 	static events = {
 		sendMessageWithFile: 'sendMessageWithFile',
@@ -49,41 +51,43 @@ export class FileService extends EventEmitter
 
 		this.#store = Core.getStore();
 		this.#restClient = Core.getRestClient();
-		this.#uploadManager = new UploadManager();
 
 		this.#initUploadManager();
 	}
 
-	uploadFile(messageWithFile: MessageWithFile): Promise
+	uploadFiles(files: File[], dialogId: string)
 	{
-		const {temporaryFileId, rawFile, diskFolderId} = messageWithFile;
+		this.checkDiskFolderId(dialogId).then((diskFolderId: number) => {
+			const tasks = [];
+			files.forEach((file: File) => {
+				const messageWithFile = this.#prepareMessageWithFile(file, dialogId);
+				this.#uploadManager.createUploader({
+					tempMessageId: messageWithFile.tempMessageId,
+					diskFolderId: diskFolderId
+				});
 
-		this.#addFileToUploadRegistry(temporaryFileId, messageWithFile);
+				tasks.push(messageWithFile);
+			});
 
-		return this.#uploadManager.addUploadTask(temporaryFileId, rawFile, diskFolderId).then(uploadTask => {
-			return this.#addFileToModel(uploadTask);
+			this.#uploadManager.addUploadTasks(tasks);
 		});
 	}
 
 	uploadFileFromDisk(messageWithFile: MessageWithFile): Promise
 	{
-		const {temporaryFileId, rawFile} = messageWithFile;
-
-		this.#addFileToUploadRegistry(temporaryFileId, messageWithFile);
-
-		return this.#addFileFromDiskToModel(temporaryFileId, rawFile);
+		return this.#addFileFromDiskToModel(messageWithFile);
 	}
 
-	#addFileFromDiskToModel(id: string, file: FileFromDisk): Promise
+	#addFileFromDiskToModel(messageWithFile: MessageWithFile): Promise
 	{
 		return this.#store.dispatch('files/add', {
-			id: id,
-			chatId: this.getMessageWithFile(id).chatId,
+			id: messageWithFile.tempFileId,
+			chatId: messageWithFile.chatId,
 			authorId: Core.getUserId(),
-			name: file.name,
-			type: Utils.file.getFileTypeByExtension(file.ext),
-			extension: file.ext,
-			size: file.sizeInt,
+			name: messageWithFile.file.name,
+			type: Utils.file.getFileTypeByExtension(messageWithFile.file.ext),
+			extension: messageWithFile.file.ext,
+			size: messageWithFile.file.sizeInt,
 			status: FileStatus.wait,
 			progress: 0,
 			authorName: this.#getCurrentUser().name,
@@ -93,27 +97,40 @@ export class FileService extends EventEmitter
 	#initUploadManager()
 	{
 		this.#uploadManager = new UploadManager();
-		this.#uploadManager.subscribe(UploadManager.events.onFileUploadProgress, (event: BaseEvent) => {
-			const {task} = event.getData();
-			this.#updateFileProgress(task.taskId, task.progress, FileStatus.upload);
+		this.#uploadManager.subscribe(UploadManager.events.onFileAdd, (event: BaseEvent) => {
+			const {file} = event.getData();
+
+			this.#addFileToModel(file).then(() => {
+				this.emit(FileService.events.sendMessageWithFile, event);
+			});
 		});
+
+		this.#uploadManager.subscribe(UploadManager.events.onFileUploadProgress, (event: BaseEvent) => {
+			const {file} = event.getData();
+			this.#updateFileProgress(file.getId(), file.getProgress(), FileStatus.upload);
+		});
+
 		this.#uploadManager.subscribe(UploadManager.events.onFileUploadComplete, (event: BaseEvent) => {
-			const {task, result} = event.getData();
-			this.#updateFileProgress(task.taskId, task.progress, FileStatus.wait);
+			const {file}: {file: UploaderFile} = event.getData();
+
+			this.#updateFileProgress(file.getId(), file.getProgress(), FileStatus.wait);
 
 			this.commitFile({
-				temporaryFileId: task.taskId,
-				realFileId: result.data.file.id,
+				realFileId: file.getServerFileId(),
+				temporaryFileId: file.getId(),
+				chatId: file.getCustomData('chatId'),
+				tempMessageId: file.getCustomData('tempMessageId'),
 				fromDisk: false,
 			});
 		});
 		this.#uploadManager.subscribe(UploadManager.events.onFileUploadError, (event: BaseEvent) => {
-			const {task} = event.getData();
-			this.#updateFileProgress(task.taskId, 0, FileStatus.error);
+			const {file, error} = event.getData();
+			this.#updateFileProgress(file.getId(), 0, FileStatus.error);
+			console.error('FilesService: upload error', error);
 		});
 		this.#uploadManager.subscribe(UploadManager.events.onFileUploadCancel, (event: BaseEvent) => {
-			const {taskId} = event.getData();
-			this.#cancelUpload(taskId);
+			const {tempMessageId, tempFileId} = event.getData();
+			this.#cancelUpload(tempMessageId, tempFileId);
 		});
 	}
 
@@ -157,11 +174,9 @@ export class FileService extends EventEmitter
 		});
 	}
 
-	commitFile(params: {temporaryFileId: string, realFileId: number, fromDisk: boolean})
+	commitFile(params: {temporaryFileId: string, tempMessageId: string, chatId: number, realFileId: number, fromDisk: boolean})
 	{
-		const {temporaryFileId, realFileId, fromDisk} = params;
-
-		const messageWithFile = this.getMessageWithFile(temporaryFileId);
+		const {temporaryFileId, tempMessageId, chatId, realFileId, fromDisk} = params;
 
 		const fileIdParams = {};
 		if (fromDisk)
@@ -170,18 +185,33 @@ export class FileService extends EventEmitter
 		}
 		else
 		{
-			fileIdParams.upload_id = realFileId;
+			fileIdParams.upload_id = realFileId.toString().slice(1);
 		}
 
 		this.#restClient.callMethod(RestMethod.imDiskFileCommit, {
-			chat_id: messageWithFile.chatId,
+			chat_id: chatId,
 			message: '', // we don't have feature to send files with text right now
-			template_id: messageWithFile.temporaryMessageId,
+			template_id: tempMessageId,
 			file_template_id: temporaryFileId,
 			...fileIdParams
 		}).catch(error => {
 			console.error('fileCommit error', error);
 		});
+	}
+
+	#prepareMessageWithFile(file: File, dialogId: string): MessageWithFile
+	{
+		const tempMessageId = Utils.text.getUuidV4();
+		const tempFileId = Utils.text.getUuidV4();
+		const chatId = this.#getChatId(dialogId);
+
+		return {
+			tempMessageId,
+			tempFileId,
+			file,
+			dialogId,
+			chatId,
+		};
 	}
 
 	#updateFileProgress(id: string, progress: number, status: string)
@@ -195,17 +225,21 @@ export class FileService extends EventEmitter
 		});
 	}
 
-	#cancelUpload(taskId: string)
+	#cancelUpload(tempMessageId: string, tempFileId)
 	{
-		const messageId = this.getMessageWithFile(taskId).temporaryMessageId;
-
-		this.#store.dispatch('messages/delete', {id: messageId});
-		this.#uploadManager.cancel(taskId);
+		this.#store.dispatch('messages/delete', {id: tempMessageId});
+		this.#store.dispatch('files/delete', {id: tempFileId});
 	}
 
-	#addFileToModel(fileToUpload: {taskId: string, file: File, preview: {height: string, width: string, blob: Blob}}): Promise
+	#addFileToModel(file): Promise
 	{
-		const {taskId, file, preview} = fileToUpload;
+		const taskId = file.getId();
+		const fileBinary = file.getBinary();
+		const preview = {
+			blob: file.getPreviewUrl(),
+			width: file.getPreviewWidth(),
+			height: file.getPreviewHeight(),
+		};
 
 		const previewData = {};
 		if (preview.blob)
@@ -215,18 +249,18 @@ export class FileService extends EventEmitter
 				height: preview.height,
 			};
 
-			previewData.urlPreview = URL.createObjectURL(preview.blob);
+			previewData.urlPreview = preview.blob;
 		}
 
 		return this.#store.dispatch('files/add', {
 			id: taskId,
-			chatId: this.getMessageWithFile(taskId).chatId,
+			chatId: file.getCustomData('chatId'),
 			authorId: Core.getUserId(),
-			name: file.name,
-			type: this.#getFileType(file),
-			extension: this.#getFileExtension(file),
-			size: file.size,
-			status: FileStatus.progress,
+			name: fileBinary.name,
+			type: this.#getFileType(fileBinary),
+			extension: this.#getFileExtension(fileBinary),
+			size: fileBinary.size,
+			status: file.isFailed() ? FileStatus.error : FileStatus.progress,
 			progress: 0,
 			authorName: this.#getCurrentUser().name,
 			...previewData
@@ -268,19 +302,6 @@ export class FileService extends EventEmitter
 		const userId = Core.getUserId();
 
 		return this.#store.getters['users/get'](userId);
-	}
-
-	#addFileToUploadRegistry(fileId: string, fileToUpload: MessageWithFile)
-	{
-		this.#uploadRegistry[fileId] = {
-			chatId: this.#getChatId(fileToUpload.dialogId),
-			...fileToUpload
-		};
-	}
-
-	getMessageWithFile(taskId: string): MessageWithFile
-	{
-		return this.#uploadRegistry[taskId];
 	}
 
 	#getChatId(dialogId: string): ?number

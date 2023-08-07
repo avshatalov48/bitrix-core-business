@@ -1,7 +1,8 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,im_v2_lib_logger,ui_reactionsSelect,im_v2_application_core,im_v2_lib_utils,main_core,ui_vue3_vuex,im_v2_const) {
+(function (exports,main_core_events,ui_reactionsSelect,im_v2_lib_logger,im_v2_application_core,im_v2_lib_utils,main_core,ui_vue3_vuex,im_v2_const) {
 	'use strict';
 
 	class SettingsModel extends ui_vue3_vuex.BuilderModel {
@@ -444,6 +445,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      error: false,
 	      retry: false,
 	      componentId: im_v2_const.MessageComponent.base,
+	      componentParams: {},
+	      extensionId: im_v2_const.MessageExtension.text,
+	      extensionParams: {},
 	      isEdited: false,
 	      isDeleted: false,
 	      removeLinks: false
@@ -451,6 +455,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getGetters() {
 	    return {
+	      /** @function messages/get */
 	      get: state => chatId => {
 	        if (!state.chatCollection[chatId]) {
 	          return [];
@@ -461,9 +466,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return a.id - b.id;
 	        });
 	      },
+	      /** @function messages/getById */
 	      getById: state => id => {
 	        return state.collection[id];
 	      },
+	      /** @function messages/getByIdList */
 	      getByIdList: state => idList => {
 	        const result = [];
 	        idList.forEach(id => {
@@ -473,6 +480,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        });
 	        return result;
 	      },
+	      /** @function messages/hasMessage */
 	      hasMessage: state => ({
 	        chatId,
 	        messageId
@@ -482,6 +490,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        return state.chatCollection[chatId].has(messageId);
 	      },
+	      /** @function messages/isInChatCollection */
 	      isInChatCollection: state => payload => {
 	        var _state$chatCollection;
 	        const {
@@ -496,30 +505,35 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        } = message;
 	        return (_state$chatCollection = state.chatCollection[chatId]) == null ? void 0 : _state$chatCollection.has(messageId);
 	      },
+	      /** @function messages/getFirstId */
 	      getFirstId: state => chatId => {
 	        if (!state.chatCollection[chatId]) {
-	          return;
+	          return 0;
 	        }
 	        return babelHelpers.classPrivateFieldLooseBase(this, _findLowestMessageId)[_findLowestMessageId](state, chatId);
 	      },
+	      /** @function messages/getLastId */
 	      getLastId: state => chatId => {
 	        if (!state.chatCollection[chatId]) {
-	          return;
+	          return 0;
 	        }
 	        return babelHelpers.classPrivateFieldLooseBase(this, _findMaxMessageId)[_findMaxMessageId](state, chatId);
 	      },
+	      /** @function messages/getLastOwnMessageId */
 	      getLastOwnMessageId: state => chatId => {
 	        if (!state.chatCollection[chatId]) {
 	          return 0;
 	        }
 	        return babelHelpers.classPrivateFieldLooseBase(this, _findLastOwnMessageId)[_findLastOwnMessageId](state, chatId);
 	      },
+	      /** @function messages/getFirstUnread */
 	      getFirstUnread: state => chatId => {
 	        if (!state.chatCollection[chatId]) {
 	          return 0;
 	        }
 	        return babelHelpers.classPrivateFieldLooseBase(this, _findFirstUnread)[_findFirstUnread](state, chatId);
 	      },
+	      /** @function messages/getChatUnreadMessages */
 	      getChatUnreadMessages: state => chatId => {
 	        if (!state.chatCollection[chatId]) {
 	          return [];
@@ -531,6 +545,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return message.unread === true;
 	        });
 	      },
+	      /** @function messages/getMessageFiles */
 	      getMessageFiles: state => payload => {
 	        const messageId = payload;
 	        if (!state.collection[messageId]) {
@@ -540,23 +555,44 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return this.store.getters['files/get'](fileId, true);
 	        });
 	      },
-	      getMessageType: state => payload => {
-	        const message = state.collection[payload];
+	      /** @function messages/getMessageType */
+	      getMessageType: state => messageId => {
+	        const message = state.collection[messageId];
 	        if (!message) {
-	          return;
+	          return null;
 	        }
 	        const currentUserId = im_v2_application_core.Core.getUserId();
 	        if (message.authorId === 0) {
 	          return im_v2_const.MessageType.system;
-	        } else if (message.authorId === currentUserId) {
+	        }
+	        if (message.authorId === currentUserId) {
 	          return im_v2_const.MessageType.self;
 	        }
 	        return im_v2_const.MessageType.opponent;
+	      },
+	      /** @function messages/getPreviousMessage */
+	      getPreviousMessage: state => payload => {
+	        const {
+	          messageId,
+	          chatId
+	        } = payload;
+	        const message = state.collection[messageId];
+	        if (!message) {
+	          return null;
+	        }
+	        const chatCollection = [...state.chatCollection[chatId]];
+	        const initialMessageIndex = chatCollection.indexOf(messageId);
+	        const desiredMessageId = chatCollection[initialMessageIndex - 1];
+	        if (!desiredMessageId) {
+	          return null;
+	        }
+	        return state.collection[desiredMessageId];
 	      }
 	    };
 	  }
 	  getActions() {
 	    return {
+	      /** @function messages/setChatCollection */
 	      setChatCollection: (store, payload) => {
 	        var _clearCollection, _messages$;
 	        let {
@@ -586,23 +622,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          messages
 	        });
 	      },
+	      /** @function messages/store */
 	      store: (store, payload) => {
-	        if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
-	          payload = [payload];
+	        let preparedMessages = payload;
+	        if (main_core.Type.isPlainObject(payload)) {
+	          preparedMessages = [payload];
 	        }
-	        payload = payload.map(message => {
+	        preparedMessages = preparedMessages.map(message => {
 	          return {
 	            ...this.getElementState(),
 	            ...this.validate(message)
 	          };
 	        });
-	        if (payload.length === 0) {
+	        if (preparedMessages.length === 0) {
 	          return;
 	        }
 	        store.commit('store', {
-	          messages: payload
+	          messages: preparedMessages
 	        });
 	      },
+	      /** @function messages/add */
 	      add: (store, payload) => {
 	        const message = {
 	          ...this.getElementState(),
@@ -616,6 +655,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        });
 	        return message.id;
 	      },
+	      /** @function messages/updateWithId */
 	      updateWithId: (store, payload) => {
 	        const {
 	          id,
@@ -629,6 +669,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          fields: this.validate(fields)
 	        });
 	      },
+	      /** @function messages/update */
 	      update: (store, payload) => {
 	        const {
 	          id,
@@ -646,6 +687,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          }
 	        });
 	      },
+	      /** @function messages/readMessages */
 	      readMessages: (store, payload) => {
 	        const {
 	          chatId,
@@ -676,6 +718,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        });
 	        return messagesToReadCount;
 	      },
+	      /** @function messages/setViewedByOthers */
 	      setViewedByOthers: (store, payload) => {
 	        const {
 	          ids
@@ -684,6 +727,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          ids
 	        });
 	      },
+	      /** @function messages/delete */
 	      delete: (store, payload) => {
 	        const {
 	          id
@@ -695,6 +739,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          id
 	        });
 	      },
+	      /** @function messages/clearChatCollection */
 	      clearChatCollection: (store, payload) => {
 	        const {
 	          chatId
@@ -711,6 +756,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        im_v2_lib_logger.Logger.warn('Messages model: setChatCollection mutation', payload);
 	        payload.messages.forEach(message => {
 	          if (!state.chatCollection[message.chatId]) {
+	            // eslint-disable-next-line no-param-reassign
 	            state.chatCollection[message.chatId] = new Set();
 	          }
 	          state.chatCollection[message.chatId].add(message.id);
@@ -719,6 +765,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      store: (state, payload) => {
 	        im_v2_lib_logger.Logger.warn('Messages model: store mutation', payload);
 	        payload.messages.forEach(message => {
+	          // eslint-disable-next-line no-param-reassign
 	          state.collection[message.id] = message;
 	        });
 	      },
@@ -731,7 +778,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        const currentMessage = {
 	          ...state.collection[id]
 	        };
+
+	        // eslint-disable-next-line no-param-reassign
 	        delete state.collection[id];
+	        // eslint-disable-next-line no-param-reassign
 	        state.collection[fields.id] = {
 	          ...currentMessage,
 	          ...fields,
@@ -748,6 +798,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          id,
 	          fields
 	        } = payload;
+	        // eslint-disable-next-line no-param-reassign
 	        state.collection[id] = {
 	          ...state.collection[id],
 	          ...fields
@@ -762,10 +813,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          chatId
 	        } = state.collection[id];
 	        state.chatCollection[chatId].delete(id);
+	        // eslint-disable-next-line no-param-reassign
 	        delete state.collection[id];
 	      },
 	      clearCollection: (state, payload) => {
 	        im_v2_lib_logger.Logger.warn('Messages model: clear collection mutation', payload.chatId);
+	        // eslint-disable-next-line no-param-reassign
 	        state.chatCollection[payload.chatId] = new Set();
 	      },
 	      readMessages: (state, payload) => {
@@ -891,7 +944,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const result = {};
 	    Object.entries(rawParams).forEach(([key, value]) => {
 	      if (key === 'COMPONENT_ID' && main_core.Type.isStringFilled(value)) {
-	        result.componentId = value;
+	        if (Object.values(im_v2_const.MessageComponent).includes(value)) {
+	          result.componentId = value;
+	        }
+	      } else if (key === 'COMPONENT_PARAMS' && main_core.Type.isPlainObject(value)) {
+	        result.componentParams = value;
+	      } else if (key === 'EXTENSION_ID' && main_core.Type.isStringFilled(value)) {
+	        if (Object.values(im_v2_const.MessageExtension).includes(value)) {
+	          result.extensionId = value;
+	        } else {
+	          result.extensionId = im_v2_const.MessageExtension.unsupported;
+	        }
+	      } else if (key === 'EXTENSION_PARAMS' && main_core.Type.isPlainObject(value)) {
+	        result.extensionParams = value;
 	      } else if (key === 'FILE_ID' && main_core.Type.isArray(value)) {
 	        result.files = value;
 	      } else if (key === 'IS_EDITED' && main_core.Type.isStringFilled(value)) {
@@ -1612,21 +1677,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  prepareLastMessageViews(rawLastMessageViews) {
 	    const {
-	      count_of_viewers: countOfViewers,
-	      first_viewers: rawFirstViewers,
-	      message_id: messageId
+	      countOfViewers,
+	      firstViewers: rawFirstViewers,
+	      messageId
 	    } = rawLastMessageViews;
 	    let firstViewer;
-	    rawFirstViewers.forEach(rawFirstViewer => {
-	      if (rawFirstViewer.user_id === im_v2_application_core.Core.getUserId()) {
-	        return;
+	    for (const rawFirstViewer of rawFirstViewers) {
+	      if (rawFirstViewer.userId === im_v2_application_core.Core.getUserId()) {
+	        continue;
 	      }
 	      firstViewer = {
-	        userId: rawFirstViewer.user_id,
-	        userName: rawFirstViewer.user_name,
+	        userId: rawFirstViewer.userId,
+	        userName: rawFirstViewer.userName,
 	        date: im_v2_lib_utils.Utils.date.cast(rawFirstViewer.date)
 	      };
-	    });
+	      break;
+	    }
 	    if (countOfViewers > 0 && !firstViewer) {
 	      throw new Error('Dialogues model: no first viewer for message');
 	    }
@@ -1676,6 +1742,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      color: im_v2_const.Color.base,
 	      workPosition: '',
 	      gender: 'M',
+	      isAdmin: false,
 	      extranet: false,
 	      network: false,
 	      bot: false,
@@ -1702,6 +1769,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getGetters() {
 	    return {
+	      /** @function users/get */
 	      get: state => (userId, getTemporary = false) => {
 	        userId = Number.parseInt(userId, 10);
 	        if (userId <= 0) {
@@ -1721,9 +1789,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        return user;
 	      },
+	      /** @function users/getBlank */
 	      getBlank: () => params => {
 	        return this.getElementState(params);
 	      },
+	      /** @function users/getList */
 	      getList: state => userList => {
 	        const result = [];
 	        if (!Array.isArray(userList)) {
@@ -1740,6 +1810,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        });
 	        return result;
 	      },
+	      /** @function users/hasBirthday */
 	      hasBirthday: state => userId => {
 	        userId = Number.parseInt(userId, 10);
 	        const user = state.collection[userId];
@@ -1748,6 +1819,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        return user.isBirthday;
 	      },
+	      /** @function users/hasVacation */
 	      hasVacation: state => userId => {
 	        userId = Number.parseInt(userId, 10);
 	        const user = state.collection[userId];
@@ -1756,6 +1828,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        return user.isAbsent;
 	      },
+	      /** @function users/getStatus */
 	      getStatus: state => userId => {
 	        userId = Number.parseInt(userId, 10);
 	        const user = state.collection[userId];
@@ -1775,6 +1848,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return user.status;
 	        }
 	      },
+	      /** @function users/getLastOnline */
 	      getLastOnline: state => userId => {
 	        userId = Number.parseInt(userId, 10);
 	        const user = state.collection[userId];
@@ -1783,6 +1857,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        return im_v2_lib_utils.Utils.user.getLastDateText(user);
 	      },
+	      /** @function users/getPosition */
 	      getPosition: state => userId => {
 	        userId = Number.parseInt(userId, 10);
 	        const user = state.collection[userId];
@@ -1794,6 +1869,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        return main_core.Loc.getMessage('IM_MODEL_USERS_DEFAULT_NAME');
 	      },
+	      /** @function users/getBotType */
 	      getBotType: state => userId => {
 	        userId = Number.parseInt(userId, 10);
 	        const user = state.collection[userId];
@@ -1810,6 +1886,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getActions() {
 	    return {
+	      /** @function users/set */
 	      set: (store, payload) => {
 	        if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
 	          payload = [payload];
@@ -1834,6 +1911,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          }
 	        });
 	      },
+	      /** @function users/add */
 	      add: (store, payload) => {
 	        if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
 	          payload = [payload];
@@ -1853,6 +1931,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          }
 	        });
 	      },
+	      /** @function users/update */
 	      update: (store, payload) => {
 	        payload.id = Number.parseInt(payload.id, 10);
 	        const user = store.state.collection[payload.id];
@@ -1864,12 +1943,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          fields: this.validate(payload.fields)
 	        });
 	      },
+	      /** @function users/delete */
 	      delete: (store, payload) => {
 	        store.commit('delete', payload.id);
 	      },
+	      /** @function users/setBotList */
 	      setBotList: (store, payload) => {
 	        store.commit('setBotList', payload);
 	      },
+	      /** @function users/setStatus */
 	      setStatus: (store, payload) => {
 	        store.commit('update', {
 	          id: im_v2_application_core.Core.getUserId(),
@@ -1881,57 +1963,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getMutations() {
 	    return {
 	      add: (state, payload) => {
+	        // eslint-disable-next-line no-param-reassign
 	        state.collection[payload.id] = payload.fields;
-	        const user = state.collection[payload.id];
-	        if (im_v2_lib_utils.Utils.user.isOnline(user.lastActivityDate)) {
-	          user.isOnline = true;
-	          this.addToOnlineList(user.id);
-	        }
-	        if (im_v2_lib_utils.Utils.user.isMobileOnline(user.lastActivityDate, user.mobileLastDate)) {
-	          user.isMobileOnline = true;
-	          this.addToMobileOnlineList(user.id);
-	        }
-	        if (user.birthday && im_v2_lib_utils.Utils.user.isBirthdayToday(user.birthday)) {
-	          user.isBirthday = true;
-	          setTimeout(() => {
-	            user.isBirthday = false;
-	          }, im_v2_lib_utils.Utils.date.getTimeToNextMidnight());
-	        }
-	        if (user.absent) {
-	          user.isAbsent = true;
-	          this.addToAbsentList(user.id);
-	        }
+	        this.handleUserStatusFlags(state, payload.fields);
 	        this.startOnlineCheckInterval();
 	        this.startAbsentCheckInterval();
 	      },
 	      update: (state, payload) => {
-	        const user = state.collection[payload.id];
-	        if (im_v2_lib_utils.Utils.user.isOnline(payload.fields.lastActivityDate)) {
-	          user.isOnline = true;
-	          this.addToOnlineList(payload.fields.id);
-	        }
-	        if (im_v2_lib_utils.Utils.user.isMobileOnline(payload.fields.lastActivityDate, payload.fields.mobileLastDate)) {
-	          user.isMobileOnline = true;
-	          this.addToMobileOnlineList(payload.fields.id);
-	        }
-	        if (payload.fields.absent === false) {
-	          state.absentList = state.absentList.filter(element => {
-	            return element !== payload.id;
-	          });
-	          state.collection[payload.id].isAbsent = false;
-	        } else if (main_core.Type.isDate(payload.fields.absent)) {
-	          state.collection[payload.id].isAbsent = true;
-	          this.addToAbsentList(payload.id);
-	        }
+	        // eslint-disable-next-line no-param-reassign
 	        state.collection[payload.id] = {
 	          ...state.collection[payload.id],
 	          ...payload.fields
 	        };
+	        this.handleUserStatusFlags(state, payload.fields);
 	      },
 	      delete: (state, payload) => {
+	        // eslint-disable-next-line no-param-reassign
 	        delete state.collection[payload.id];
 	      },
 	      setBotList: (state, payload) => {
+	        // eslint-disable-next-line no-param-reassign
 	        state.botList = payload;
 	      }
 	    };
@@ -1974,6 +2025,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    if (main_core.Type.isStringFilled(fields.birthday)) {
 	      result.birthday = fields.birthday;
+	    }
+	    if (main_core.Type.isBoolean(fields.isAdmin)) {
+	      result.isAdmin = fields.isAdmin;
 	    }
 	    if (main_core.Type.isBoolean(fields.extranet)) {
 	      result.extranet = fields.extranet;
@@ -2069,6 +2123,33 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      result.innerPhone = phones.innerPhone.toString();
 	    }
 	    return result;
+	  }
+	  handleUserStatusFlags(state, fields) {
+	    const user = state.collection[fields.id];
+	    if (im_v2_lib_utils.Utils.user.isOnline(fields.lastActivityDate)) {
+	      user.isOnline = true;
+	      this.addToOnlineList(fields.id);
+	    }
+	    if (im_v2_lib_utils.Utils.user.isMobileOnline(fields.lastActivityDate, fields.mobileLastDate)) {
+	      user.isMobileOnline = true;
+	      this.addToMobileOnlineList(fields.id);
+	    }
+	    if (fields.birthday && im_v2_lib_utils.Utils.user.isBirthdayToday(fields.birthday)) {
+	      user.isBirthday = true;
+	      setTimeout(() => {
+	        user.isBirthday = false;
+	      }, im_v2_lib_utils.Utils.date.getTimeToNextMidnight());
+	    }
+	    if (fields.absent === false) {
+	      user.isAbsent = false;
+	      // eslint-disable-next-line no-param-reassign
+	      state.absentList = state.absentList.filter(element => {
+	        return element !== fields.id;
+	      });
+	    } else if (main_core.Type.isDate(fields.absent)) {
+	      user.isAbsent = true;
+	      this.addToAbsentList(fields.id);
+	    }
 	  }
 	  addToOnlineList(id) {
 	    const state = this.store.state.users;
@@ -2249,6 +2330,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          id,
 	          fields: this.validate(fields)
 	        });
+	      },
+	      delete: (store, payload) => {
+	        const {
+	          id
+	        } = payload;
+	        if (!store.state.collection[id]) {
+	          return;
+	        }
+	        store.commit('delete', {
+	          id
+	        });
 	      }
 	    };
 	  }
@@ -2277,6 +2369,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          ...currentFile,
 	          ...fields
 	        };
+	      },
+	      delete: (state, payload) => {
+	        im_v2_lib_logger.Logger.warn('Files model: delete mutation', payload);
+	        const {
+	          id
+	        } = payload;
+	        delete state.collection[id];
 	      }
 	    };
 	  }
@@ -2684,18 +2783,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        payload.map(element => {
 	          return this.validate(element);
 	        }).forEach(element => {
+	          const preparedElement = {
+	            ...element
+	          };
 	          const existingItem = store.state.collection[element.dialogId];
 	          if (existingItem) {
 	            itemsToUpdate.push({
 	              dialogId: existingItem.dialogId,
-	              fields: {
-	                ...element
-	              }
+	              fields: preparedElement
 	            });
 	          } else {
+	            const {
+	              message: defaultMessage
+	            } = this.getElementState();
+	            preparedElement.message = {
+	              ...defaultMessage,
+	              ...preparedElement.message
+	            };
 	            itemsToAdd.push({
 	              ...this.getElementState(),
-	              ...element
+	              ...preparedElement
 	            });
 	          }
 	        });
@@ -2715,12 +2822,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        const existingItem = store.state.collection[id];
 	        if (!existingItem) {
 	          return false;
-	        }
-	        if (fields.message) {
-	          fields.message = {
-	            ...existingItem.message,
-	            ...fields.message
-	          };
 	        }
 	        store.commit('update', {
 	          dialogId: existingItem.dialogId,
@@ -2956,24 +3057,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  prepareMessage(fields) {
 	    var _fields$message$param, _fields$message$param2, _fields$message$param3, _fields$message$param4, _fields$message$param5;
-	    const {
-	      message
-	    } = this.getElementState();
-	    if (main_core.Type.isNumber(fields.message.id) || im_v2_lib_utils.Utils.text.isUuidV4(fields.message.id) || main_core.Type.isStringFilled(fields.message.id)) {
+	    const message = {};
+	    const params = {};
+	    if (main_core.Type.isNumber(fields.message.id) || main_core.Type.isStringFilled(fields.message.id) || im_v2_lib_utils.Utils.text.isUuidV4(fields.message.id)) {
 	      message.id = fields.message.id;
 	    }
 	    if (main_core.Type.isString(fields.message.text)) {
 	      message.text = fields.message.text;
 	    }
 	    if (main_core.Type.isStringFilled(fields.message.attach) || main_core.Type.isBoolean(fields.message.attach) || main_core.Type.isArray(fields.message.attach)) {
-	      message.params.withAttach = fields.message.attach;
+	      params.withAttach = fields.message.attach;
 	    } else if (main_core.Type.isStringFilled((_fields$message$param = fields.message.params) == null ? void 0 : _fields$message$param.withAttach) || main_core.Type.isBoolean((_fields$message$param2 = fields.message.params) == null ? void 0 : _fields$message$param2.withAttach) || main_core.Type.isArray((_fields$message$param3 = fields.message.params) == null ? void 0 : _fields$message$param3.withAttach)) {
-	      message.params.withAttach = fields.message.params.withAttach;
+	      params.withAttach = fields.message.params.withAttach;
 	    }
 	    if (main_core.Type.isBoolean(fields.message.file) || main_core.Type.isPlainObject(fields.message.file)) {
-	      message.params.withFile = fields.message.file;
+	      params.withFile = fields.message.file;
 	    } else if (main_core.Type.isBoolean((_fields$message$param4 = fields.message.params) == null ? void 0 : _fields$message$param4.withFile) || main_core.Type.isPlainObject((_fields$message$param5 = fields.message.params) == null ? void 0 : _fields$message$param5.withFile)) {
-	      message.params.withFile = fields.message.params.withFile;
+	      params.withFile = fields.message.params.withFile;
 	    }
 	    if (main_core.Type.isDate(fields.message.date) || main_core.Type.isString(fields.message.date)) {
 	      message.date = im_v2_lib_utils.Utils.date.cast(fields.message.date);
@@ -2990,6 +3090,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    if (main_core.Type.isBoolean(fields.message.sending)) {
 	      message.sending = fields.message.sending;
+	    }
+	    if (Object.keys(params).length > 0) {
+	      message.params = params;
 	    }
 	    return message;
 	  }
@@ -4473,5 +4576,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.SidebarModel = SidebarModel;
 	exports.MarketModel = MarketModel;
 
-}((this.BX.Messenger.v2.Model = this.BX.Messenger.v2.Model || {}),BX.Event,BX.Messenger.v2.Lib,BX.Ui,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX,BX.Vue3.Vuex,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Model = this.BX.Messenger.v2.Model || {}),BX.Event,BX.Ui,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX,BX.Vue3.Vuex,BX.Messenger.v2.Const));
 //# sourceMappingURL=registry.bundle.js.map

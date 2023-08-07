@@ -14,11 +14,14 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/bx_root.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
-$rsSite = CSite::GetByID($site_id);
-if ($arSite = $rsSite->Fetch())
-	define("LANGUAGE_ID", $arSite["LANGUAGE_ID"]);
-else
-	define("LANGUAGE_ID", "en");
+if (!defined("LANGUAGE_ID"))
+{
+	$rsSite = CSite::GetByID($site_id);
+	if ($arSite = $rsSite->Fetch())
+		define("LANGUAGE_ID", $arSite["LANGUAGE_ID"]);
+	else
+		define("LANGUAGE_ID", "en");
+}
 
 if (!CModule::IncludeModule("socialnetwork"))
 {

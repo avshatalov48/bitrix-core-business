@@ -68,6 +68,10 @@ export const EventType = Object.freeze({
 		addMessageWithFile: 'IM.Uploader:addMessageWithFile', // todo: delete legacy event?
 		cancel: 'IM.Uploader:cancel'
 	},
+	call:
+	{
+		onFold: 'CallController::onFold',
+	},
 	conference:
 	{
 		setPasswordFocus: 'IM.Conference:setPasswordFocus',
@@ -120,5 +124,19 @@ export const EventType = Object.freeze({
 	mention:
 	{
 		openChatInfo: 'IM.Mention:openChatInfo'
+	},
+	counter:
+	{
+		onNotificationCounterChange: 'onImUpdateCounterNotify',
+		onChatCounterChange: 'onImUpdateCounterMessage'
+	},
+	desktop:
+	{
+		onInit: 'onDesktopInit',
+		onReload: 'onDesktopReload',
+		onUserAway: 'BXUserAway',
+		onWakeUp: 'BXWakeAction',
+		onBxLink: 'BXProtocolUrl',
+		onExit: 'BXExitApplication'
 	}
 });

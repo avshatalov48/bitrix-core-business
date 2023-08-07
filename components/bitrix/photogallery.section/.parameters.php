@@ -14,7 +14,7 @@ while ($arr=$rsIBlockType->Fetch())
 }
 
 $arIBlock=array();
-$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
+$rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => ($arCurrentValues["IBLOCK_TYPE"] ?? null), "ACTIVE"=>"Y"));
 while($arr=$rsIBlock->Fetch())
 {
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
@@ -27,7 +27,7 @@ while($arUGroups = $dbUGroups -> Fetch())
 	$arUGroupsEx[$arUGroups["ID"]] = $arUGroups["NAME"];
 }
 if (empty($arCurrentValues["INDEX_URL"]) && !empty($arCurrentValues["SECTIONS_TOP_URL"]))
-	$arCurrentValues["INDEX_URL"] = $arCurrentValues["SECTIONS_TOP_URL"]; 
+	$arCurrentValues["INDEX_URL"] = $arCurrentValues["SECTIONS_TOP_URL"];
 $arComponentParameters = array(
 	"GROUPS" => array(),
 	"PARAMETERS" => array(
@@ -64,7 +64,7 @@ $arComponentParameters = array(
 			"TYPE" => "STRING",
 			"DEFAULT" => '',
 			"REFRESH" => "Y"),
-		
+
 		"INDEX_URL" => array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("IBLOCK_INDEX_URL"),
@@ -74,31 +74,31 @@ $arComponentParameters = array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("IBLOCK_SECTION_URL"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "section.php?".($arCurrentValues["BEHAVIOUR"] == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
+			"DEFAULT" => "section.php?".(($arCurrentValues["BEHAVIOUR"] ?? null) == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
 		"SECTION_EDIT_URL" => array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("IBLOCK_SECTION_EDIT_URL"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "section_edit.php?".($arCurrentValues["BEHAVIOUR"] == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
+			"DEFAULT" => "section_edit.php?".(($arCurrentValues["BEHAVIOUR"] ?? null) == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
 		"SECTION_EDIT_ICON_URL" => array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("IBLOCK_SECTION_EDIT_ICON_URL"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "section_edit_icon.php?".($arCurrentValues["BEHAVIOUR"] == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
+			"DEFAULT" => "section_edit_icon.php?".(($arCurrentValues["BEHAVIOUR"] ?? null) == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
 		"DETAIL_SLIDE_SHOW_URL" => array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("IBLOCK_DETAIL_SLIDE_SHOW_URL"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "slide_show.php?".($arCurrentValues["BEHAVIOUR"] == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "").
-				"SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#"), 
+			"DEFAULT" => "slide_show.php?".(($arCurrentValues["BEHAVIOUR"] ?? null) == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "").
+				"SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#"),
 		"UPLOAD_URL" => array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("IBLOCK_UPLOAD_URL"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "upload.php?".($arCurrentValues["BEHAVIOUR"] == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
-			
+			"DEFAULT" => "upload.php?".(($arCurrentValues["BEHAVIOUR"] ?? null) == "USER" ? "USER_ALIAS=#USER_ALIAS#" : "")."SECTION_ID=#SECTION_ID#"),
+
 		"DATE_TIME_FORMAT" => CIBlockParameters::GetDateFormat(GetMessage("T_DATE_TIME_FORMAT"), "ADDITIONAL_SETTINGS"),
-		
+
 		"ALBUM_PHOTO_SIZE" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("P_ALBUM_PHOTO_WIDTH"),
@@ -128,7 +128,7 @@ $arComponentParameters = array(
 			// "DEFAULT" => "N"),
 	)
 );
-if ($arCurrentValues["BEHAVIOUR"] == "USER")
+if (($arCurrentValues["BEHAVIOUR"] ?? null) == "USER")
 {
 	$arComponentParameters["PARAMETERS"]["GALLERY_URL"] = array(
 			"PARENT" => "URL_TEMPLATES",

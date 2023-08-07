@@ -8,7 +8,7 @@ trait SerializeObject
 {
 	public function __serialize(): array
 	{
-		return (array)unserialize($this->serialize(), ['allowed_classes'=>false]);
+		return (array)unserialize($this->serialize(), ['allowed_classes' => false]);
 	}
 
 	/**
@@ -30,10 +30,12 @@ trait SerializeObject
 	public function unserialize($serializedData): void
 	{
 		$data = $serializedData;
+
 		if (is_string($data))
 		{
 			$data = unserialize($data, ['allowed_classes' => false]);
 		}
+
 		foreach ($data as $key => $value)
 		{
 			$this->$key = $value;

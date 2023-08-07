@@ -1,18 +1,27 @@
 const getArrayBuffer = (file: File | Blob): Promise<ArrayBuffer> => {
-	return new Promise((resolve, reject) => {
-		const fileReader = new FileReader();
-		fileReader.readAsArrayBuffer(file);
 
-		fileReader.onload = () => {
-			const buffer: ArrayBuffer = fileReader.result;
+	if (file.arrayBuffer)
+	{
+		return file.arrayBuffer();
+	}
+	else
+	{
+		return new Promise((resolve, reject) => {
+			const fileReader = new FileReader();
+			fileReader.readAsArrayBuffer(file);
 
-			resolve(buffer);
-		};
+			fileReader.onload = () => {
+				const buffer: ArrayBuffer = fileReader.result;
 
-		fileReader.onerror = () => {
-			reject(fileReader.error);
-		};
-	});
+				resolve(buffer);
+			};
+
+			fileReader.onerror = () => {
+				reject(fileReader.error);
+			};
+		});
+
+	}
 };
 
 export default getArrayBuffer;

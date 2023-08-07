@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -28,7 +29,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return new Promise(resolve => {
 	      im_v2_application_core.Core.ready().then(controller => {
 	        this.controller = controller;
-	        im_v2_application_core.Core.setApplicationData(im_v2_const.ApplicationName.quickAccess, this.params);
+	        im_v2_application_core.Core.setApplicationData(this.params);
 	        resolve();
 	      });
 	    });

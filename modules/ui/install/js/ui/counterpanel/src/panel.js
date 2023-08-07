@@ -1,17 +1,18 @@
 import { Dom, Tag, Type } from 'main.core';
 import { PopupMenuWindow } from 'main.popup';
 import CounterItem from './item';
-import 'ui.fonts.opensans';
 import './style.css';
+
+type CounterPanelOptions = {
+	target: HTMLElement;
+	items: Array;
+	multiselect: boolean;
+	title: string;
+}
 
 export default class CounterPanel
 {
-	constructor(options: {
-		target: HTMLElement,
-		items: Array,
-		multiselect: Boolean,
-		title: String
-	})
+	constructor(options: CounterPanelOptions)
 	{
 		this.target = Type.isDomNode(options.target) ? options.target : null;
 		this.items = Type.isArray(options.items) ? options.items : [];
@@ -20,7 +21,6 @@ export default class CounterPanel
 		this.container = null;
 		this.keys = [];
 		this.hasParent = [];
-		this.childKeys = [];
 	}
 
 	#adjustData()
@@ -48,6 +48,7 @@ export default class CounterPanel
 			}
 		});
 	}
+
 
 	isMultiselect()
 	{
@@ -136,7 +137,7 @@ export default class CounterPanel
 								items: itemsArr,
 								angle: true,
 								offsetLeft: 6,
-								offsetTop: -7,
+								offsetTop: 5,
 								animation: 'fading-slide',
 								events: {
 									onPopupShow: () => {

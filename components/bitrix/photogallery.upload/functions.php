@@ -50,7 +50,7 @@ class CPhotoUploader
 				$watermark['size'] = 'real';
 			}
 		}
-		elseif ($this->post['photo_watermark_use'] == 'Y')
+		elseif (($this->post['photo_watermark_use'] ?? null) == 'Y')
 		{
 			$watermark = array_merge($watermark, array(
 				'type' => $this->post['photo_watermark_type'],
@@ -263,8 +263,8 @@ class CPhotoUploader
 
 			if (CFile::ResizeImageFile($file['tmp_name'], $file['tmp_name_1'],
 				[
-					'width' => $this->arParams["ALBUM_PHOTO_THUMBS"]["SIZE"],
-					'height' => $this->arParams["ALBUM_PHOTO_THUMBS"]["SIZE"]
+					'width' => $this->arParams["ALBUM_PHOTO_THUMBS"]["SIZE"] ?? null,
+					'height' => $this->arParams["ALBUM_PHOTO_THUMBS"]["SIZE"] ?? null
 				],
 				BX_RESIZE_IMAGE_PROPORTIONAL)
 			)
@@ -301,7 +301,7 @@ class CPhotoUploader
 			);
 
 			// Props
-			$publish = ($this->post["Public"] == "N" ? "N" : "Y");
+			$publish = (($this->post["Public"] ?? null) == "N" ? "N" : "Y");
 			$approve = ($publish === "Y" && ($arParams["ABS_PERMISSION"] >= "U" || $arParams["APPROVE_BY_DEFAULT"] == "Y") ? "Y" : "X");
 			$Prop = [
 				"REAL_PICTURE" => ["n0" => $photo["files"]["default"]],
@@ -325,7 +325,7 @@ class CPhotoUploader
 				"IBLOCK_ID" => $this->iblockId,
 				"NAME" => $photo['name'],
 				"CODE" => $photo['name'],
-				"TAGS" => $photo['tags'],
+				"TAGS" => $photo['tags'] ?? null,
 				"DETAIL_TEXT" => $photo['description'],
 				"DETAIL_TEXT_TYPE" => "text",
 				"PREVIEW_PICTURE" => $photo["files"]["thumbnail"],

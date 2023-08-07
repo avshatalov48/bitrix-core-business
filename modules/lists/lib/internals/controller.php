@@ -294,7 +294,7 @@ abstract class Controller implements IErrorable
 		}
 
 		//if does not exist check_csrf_token we have to check csrf for only POST method.
-		if($description['check_csrf_token'] === true || ($this->request->isPost() && !isset($description['check_csrf_token'])))
+		if(($description['check_csrf_token'] ?? false) === true || ($this->request->isPost() && !isset($description['check_csrf_token'])))
 		{
 			//in BDisk we have token_sid
 			if(!check_bitrix_sessid() && !check_bitrix_sessid('token_sid'))

@@ -1,5 +1,5 @@
 .bx-im-search-input__scope {
-	--im-search-input__font_primary: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-messenger__font_open-sans);
+	--im-search-input__font_primary: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-font-family-system);
 	--im-search-input__font-color_primary: var(--im-color-palette-gray-90);
 	--im-search-input__font_placeholder: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-messenger__font_helvetica);
 	--im-search-input__font-color_placeholder: var(--im-color-palette-gray-40);
@@ -35,6 +35,12 @@
 	font-weight: var(--im-font-weight-normal);
 	color: var(--im-search-input__font-color_primary);
 	border: 1px solid transparent;
+	outline: none;
+}
+
+.bx-im-search-input__element::placeholder {
+	opacity: 1;
+	color: var(--im-search-input__font-color_primary);
 }
 
 .bx-im-search-input__element::placeholder {

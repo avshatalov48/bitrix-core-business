@@ -19,11 +19,11 @@ export const Audio = {
 		messageType: {
 			type: String,
 			required: true
+		},
+		messageId: {
+			type: [String, Number],
+			required: true
 		}
-	},
-	data()
-	{
-		return {};
 	},
 	computed:
 	{

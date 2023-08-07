@@ -45,6 +45,7 @@ namespace PHPSTORM_META
 		'calendar',
 		'cases',
 		'catalog',
+		'catalogmobile',
 		'clouds',
 		'cluster',
 		'controller',

@@ -7,12 +7,10 @@ use Bitrix\Main\NotSupportedException;
 
 class MemcachedConnectionConfigurator
 {
-	/** @var array */
-	protected $config;
-	/** @var array */
-	protected $servers = [];
+	protected array $config;
+	protected array $servers = [];
 
-	public function __construct($config)
+	public function __construct(array $config)
 	{
 		if (!extension_loaded('memcached'))
 		{
@@ -24,7 +22,7 @@ class MemcachedConnectionConfigurator
 		$this->addServers($this->getConfig());
 	}
 
-	protected function addServers($config)
+	protected function addServers(array $config): MemcachedConnectionConfigurator
 	{
 		$servers = $config['servers'] ?? [];
 
@@ -53,12 +51,12 @@ class MemcachedConnectionConfigurator
 		return $this;
 	}
 
-	public function getConfig()
+	public function getConfig(): array
 	{
 		return $this->config;
 	}
 
-	public function createConnection()
+	public function createConnection(): ?\Memcached
 	{
 		if (!$this->servers)
 		{
@@ -69,13 +67,26 @@ class MemcachedConnectionConfigurator
 		$serializer = $this->getConfig()['serializer'] ?? \Memcached::SERIALIZER_PHP;
 
 		$connection = new \Memcached();
-		$connection->setOption(Memcached::OPT_CONNECT_TIMEOUT, $connectionTimeout);
-		$connection->setOption(Memcached::OPT_SERIALIZER, $serializer);
+		$connection->setOption(\Memcached::OPT_CONNECT_TIMEOUT, $connectionTimeout);
+		$connection->setOption(\Memcached::OPT_SERIALIZER, $serializer);
 
-		$result = $connection->addServer($this->servers);
-
-		if (!$result)
+		$result = false;
+		if (!empty($this->servers))
 		{
+			foreach ($this->servers as $server)
+			{
+				$success = $connection->addServer(
+					$server['host'],
+					$server['port'],
+					$server['weight']
+				);
+
+				if ($success)
+				{
+					$result = $success;
+				}
+			}
+
 			$error = error_get_last();
 			if (isset($error['type']) && $error['type'] === E_WARNING)
 			{

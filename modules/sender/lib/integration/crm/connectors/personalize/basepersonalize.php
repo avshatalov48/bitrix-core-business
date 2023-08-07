@@ -69,15 +69,15 @@ abstract class BasePersonalize
 		);
 
 		return [
-			'ASSIGNED_BY_EMAIL'           => [
+			'ASSIGNED_BY.EMAIL'           => [
 				'Name' => GetMessage('CRM_DOCUMENT_FIELD_ASSIGNED_BY_EMAIL'),
 				'Type' => 'string',
 			],
-			'ASSIGNED_BY_WORK_PHONE'      => [
+			'ASSIGNED_BY.WORK_PHONE'      => [
 				'Name' => GetMessage('CRM_DOCUMENT_FIELD_ASSIGNED_BY_WORK_PHONE'),
 				'Type' => 'string',
 			],
-			'ASSIGNED_BY_PERSONAL_MOBILE' => [
+			'ASSIGNED_BY.PERSONAL_MOBILE' => [
 				'Name' => GetMessage('CRM_DOCUMENT_FIELD_ASSIGNED_BY_PERSONAL_MOBILE'),
 				'Type' => 'string',
 			],
@@ -498,9 +498,9 @@ abstract class BasePersonalize
 		);
 
 		$arUser = is_object($dbUsers)? $dbUsers->Fetch() : null;
-		$objDocument['ASSIGNED_BY_EMAIL'] = is_array($arUser)? $arUser['EMAIL'] : '';
-		$objDocument['ASSIGNED_BY_WORK_PHONE'] = is_array($arUser)? $arUser['WORK_PHONE'] : '';
-		$objDocument['ASSIGNED_BY_PERSONAL_MOBILE'] = is_array($arUser)? $arUser['PERSONAL_MOBILE'] : '';
+		$objDocument['ASSIGNED_BY.EMAIL'] = is_array($arUser)? $arUser['EMAIL'] : '';
+		$objDocument['ASSIGNED_BY.WORK_PHONE'] = is_array($arUser)? $arUser['WORK_PHONE'] : '';
+		$objDocument['ASSIGNED_BY.PERSONAL_MOBILE'] = is_array($arUser)? $arUser['PERSONAL_MOBILE'] : '';
 
 		$objDocument['ASSIGNED_BY.LOGIN'] = is_array($arUser)? $arUser['LOGIN'] : '';
 		$objDocument['ASSIGNED_BY.ACTIVE'] = is_array($arUser)? $arUser['ACTIVE'] : '';

@@ -117,7 +117,24 @@ class Configuration
 
 		if (empty($rows))
 		{
-			return self::getDefaultUserPreset();
+			$presetId = self::restoreBindings($userId);
+
+			if ($presetId === self::getDefaultPresetId())
+			{
+				$userPreset =  self::getDefaultUserPreset();
+			}
+			else
+			{
+				$preset = self::getPreset($presetId);
+				$userPreset = [
+					'notify' => $preset,
+					'general' => $preset,
+				];
+			}
+
+			self::setUserPresetInCache($userId, $userPreset);
+
+			return $userPreset;
 		}
 
 		$notifyPreset = [];
@@ -333,6 +350,39 @@ class Configuration
 
 
 		return $groupId;
+	}
+
+	/**
+	 * Restores the missing bindings between the user and his current preset settings
+	 * in the b_im_option_user table
+	 * @param int $userId
+	 *
+	 * @return int
+	 */
+	public static function restoreBindings(int $userId): int
+	{
+		$userPreset = OptionGroupTable::query()
+			->addSelect('ID')
+			->where('USER_ID', $userId)
+			->setLimit(1)
+			->fetch()
+		;
+
+		$presetId = $userPreset ? (int)$userPreset['ID'] : self::getDefaultPresetId();
+
+		$insertFields = [
+			'USER_ID' => $userId,
+			'GENERAL_GROUP_ID' => $presetId,
+			'NOTIFY_GROUP_ID' => $presetId
+		];
+		$updateFields = [
+			'GENERAL_GROUP_ID' => $presetId,
+			'NOTIFY_GROUP_ID' => $presetId,
+		];
+
+		OptionUserTable::merge($insertFields, $updateFields);
+
+		return $presetId;
 	}
 
 	/**

@@ -31,7 +31,13 @@ $adminNotes = array();
 if((int)\Bitrix\Main\Config\Option::get('sale', 'location', 0) <= 0 && \Bitrix\Sale\Delivery\Services\Base::isHandlerCompatible())
 {
 	$settingsUrl = ($publicMode ? "/crm/configs/sale/?type=common" : "/bitrix/admin/settings.php?lang=".LANGUAGE_ID."&mid=sale");
-	$adminNotes[] = Loc::getMessage('SALE_SDL_LOCATION_NOTE');
+	$adminNotes[] = Loc::getMessage(
+		'SALE_SDL_LOCATION_NOTE',
+		[
+			'#A1#' => '<a href="' . $settingsUrl . '" target="_blank">',
+			'#A2#' => '</a>',
+		]
+	);
 }
 
 global $by, $order;

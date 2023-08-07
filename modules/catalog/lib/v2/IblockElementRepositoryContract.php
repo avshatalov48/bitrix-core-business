@@ -15,4 +15,8 @@ interface IblockElementRepositoryContract extends RepositoryContract
 	public function setDetailUrlTemplate(?string $template);
 
 	public function getDetailUrlTemplate(): ?string;
+
+	public function setAutoloadDetailUrl(bool $state);
+
+	public function checkAutoloadDetailUrl(): bool;
 }

@@ -64,16 +64,52 @@ if (($isItReloadingProcess || $isItSavingProcess) && $saleModulePermissions == "
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
-	if(isset($_POST["ID"]))             $fields["ID"] = intval($_POST["ID"]);
-	if(isset($_POST["CODE"]))           $fields["CODE"] = trim($_POST["CODE"]);
-	if(isset($_POST["SORT"]))           $fields["SORT"] = intval($_POST["SORT"]);
-	if(isset($_POST["NAME"]))           $fields["NAME"] = trim($_POST["NAME"]);
-	if(isset($_POST["VAT_ID"]))         $fields["VAT_ID"] = intval($_POST["VAT_ID"]);
-	if(isset($_POST["CONFIG"]))         $fields["CONFIG"] = $_POST["CONFIG"];
-	if(isset($_POST["CURRENCY"]))       $fields["CURRENCY"] = trim($_POST["CURRENCY"]);
-	if(isset($_POST["PARENT_ID"]))      $fields["PARENT_ID"] = intval($_POST["PARENT_ID"]);
-	if(isset($_POST["CLASS_NAME"]))     $fields["CLASS_NAME"] = trim($_POST["CLASS_NAME"]);
-	if(isset($_POST["DESCRIPTION"]))    $fields["DESCRIPTION"] = htmlspecialcharsback(trim($_POST["DESCRIPTION"]));
+	if (isset($_POST['ID']))
+	{
+		$fields['ID'] = (int)$_POST['ID'];
+	}
+	if (isset($_POST['CODE']))
+	{
+		$fields['CODE'] = trim((string)$_POST['CODE']);
+	}
+	if (isset($_POST['SORT']))
+	{
+		$fields['SORT'] = (int)$_POST['SORT'];
+	}
+	if (isset($_POST['NAME']))
+	{
+		$fields['NAME'] = trim((string)$_POST['NAME']);
+	}
+	if (isset($_POST['VAT_ID']))
+	{
+		$fields['VAT_ID'] = (int)$_POST['VAT_ID'];
+	}
+	if (isset($_POST['CONFIG']))
+	{
+		$fields['CONFIG'] = $_POST['CONFIG'];
+	}
+	if (isset($_POST['CURRENCY']))
+	{
+		$fields['CURRENCY'] = trim((string)$_POST['CURRENCY']);
+	}
+	if (isset($_POST['PARENT_ID']))
+	{
+		$value = $_POST['PARENT_ID'];
+		if ($value !== 'new')
+		{
+			$value = (int)$value;
+		}
+		$fields['PARENT_ID'] = $value;
+		unset($value);
+	}
+	if (isset($_POST['CLASS_NAME']))
+	{
+		$fields['CLASS_NAME'] = trim((string)$_POST['CLASS_NAME']);
+	}
+	if (isset($_POST['DESCRIPTION']))
+	{
+		$fields['DESCRIPTION'] = htmlspecialcharsback(trim($_POST['DESCRIPTION']));
+	}
 
 	if(!empty($fields["CLASS_NAME"]))
 	{
@@ -180,12 +216,20 @@ if (($isItReloadingProcess || $isItSavingProcess) && $saleModulePermissions == "
 
 			if($srvStrError == '')
 			{
-				if(isset($fields["PARENT_ID"]) && $fields["PARENT_ID"] == "new" && $_POST["GROUP_NAME"] <> '')
+				if (
+					isset($fields['PARENT_ID'])
+					&& $fields['PARENT_ID'] === 'new'
+					&& isset($_POST['GROUP_NAME'])
+					&& is_string($_POST['GROUP_NAME'])
+					&& trim($_POST['GROUP_NAME']) !== ''
+				)
 				{
-					$fields["PARENT_ID"] = Services\Manager::getGroupId($_POST["GROUP_NAME"]);
+					$fields['PARENT_ID'] = Services\Manager::getGroupId(trim($_POST['GROUP_NAME']));
 
-					if($fields["PARENT_ID"] <=0)
-						$srvStrError .= Loc::getMessage("SALE_DSE_ERROR_GROUP_SAVE").$delimiter;
+					if ($fields['PARENT_ID'] <=0)
+					{
+						$srvStrError .= Loc::getMessage('SALE_DSE_ERROR_GROUP_SAVE') . $delimiter;
+					}
 				}
 
 				unset($fields["ID"]);

@@ -70,10 +70,6 @@ Vue.component(config.templatePanelCompilation,
 	{
 		this.$refs.label.appendChild(this.newLabel.render());
 		this.$refs.message.appendChild(this.message.getLayout());
-		if (!this.compilationOptions.hiddenInfoMessage)
-		{
-			this.showMessage();
-		}
 	},
 	data()
 	{
@@ -261,6 +257,10 @@ Vue.component(config.templatePanelCompilation,
 		{
 			creationStorePopup.close();
 		},
+		onNewLabelClick(event: BaseEvent)
+		{
+			event.preventDefault();
+		},
 		onLabelClick()
 		{
 			if (this.compilationOptions.isLimitedStore)
@@ -300,7 +300,6 @@ Vue.component(config.templatePanelCompilation,
 				Dom.removeClass(this.$refs.hintIcon, 'catalog-pf-product-panel-message-arrow-target');
 			}
 			this.message.hide();
-				this.$root.$app.changeFormOption('hiddenCompilationInfoMessage', 'Y');
 		}
 	},
 	computed:
@@ -338,7 +337,7 @@ Vue.component(config.templatePanelCompilation,
 								<span class="ui-hint-icon"></span>
 							</div>
 						</div>
-						<div ref="label"></div>
+						<div ref="label" @click="onNewLabelClick"></div>
 						<div class="tariff-lock" v-if="compilationOptions.isLimitedStore"></div>
 					</label>
 				</div>
@@ -351,8 +350,8 @@ Vue.component(config.templatePanelCompilation,
 					{{localize.CATALOG_FORM_COMPILATION_QR_LINK}}
 				</div>
 			</div>
-			<div class="catalog-pf-product-panel-compilation-price-info">{{localize.CATALOG_FORM_COMPILATION_PRICE_NOTIFICATION}}</div>
 			<div class="catalog-pf-product-panel-compilation-message" ref="message"></div>
+			<div class="catalog-pf-product-panel-compilation-price-info">{{localize.CATALOG_FORM_COMPILATION_PRICE_NOTIFICATION}}</div>
 		</div>
 	`
 });

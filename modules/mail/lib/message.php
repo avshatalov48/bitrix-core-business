@@ -3,6 +3,9 @@
 namespace Bitrix\Mail;
 
 use Bitrix\Main;
+use Bitrix\Main\Context;
+use Bitrix\Main\Localization\Loc;
+use CTimeZone;
 
 Main\Localization\Loc::loadMessages(__FILE__);
 
@@ -39,6 +42,78 @@ class Message
 			if (isset($message[$property]))
 				$this->$property = $message[$property];
 		}
+	}
+
+	public static function stripQuotes($text): string
+	{
+		return preg_replace('/^("(.*)"|\'(.*)\')$/', '$2$3', $text);
+	}
+
+	private static function convertContactListToString($list): string
+	{
+		$string = '';
+
+		foreach ($list as $contact)
+		{
+			$name = static::stripQuotes($contact['name']);
+			$email = $contact['email'];
+
+			if ($name === $email)
+			{
+				$name = '';
+			}
+
+			$string .= Loc::getMessage('MAIL_QUOTE_MESSAGE_HEADER_CONTACT', ['#NAME#' => $name,'#EMAIL#' => $email]);
+
+			if (next($list))
+			{
+				$string .= ', ';
+			}
+		}
+
+		return $string;
+	}
+
+	final public static function wrapTheMessageWithAQuote($body, $subject, $timeString, $from = [], $to = [], $cc = []): string
+	{
+		$fieldDateInTimeStamp = makeTimestamp($timeString);
+		$titleDateFormat = Context::getCurrent()->getCulture()->getFullDateFormat()."&#013;H:i:s";
+		$formattedDate = FormatDate($titleDateFormat, $fieldDateInTimeStamp, (time() + CTimeZone::getOffset()));
+
+		$wrap = '';
+
+		$fromList = static::convertContactListToString($from);
+		$toList = static::convertContactListToString($to);
+		$ccList = static::convertContactListToString($cc);
+		$body = Helper\Message::sanitizeHtml($body);
+
+		if (empty($ccList))
+		{
+			$wrap .= Loc::getMessage('MAIL_QUOTE_MESSAGE_HEADER_WITHOUT_CC', [
+				'#DATE#' => $formattedDate,
+				'#SUBJECT#' => $subject,
+				'#BODY#' => $body,
+				'#FROM_LIST#' => $fromList,
+				'#TO_LIST#' => $toList,
+				'[blockquote]' => '<blockquote style="margin: 0 0 0 5px; padding: 5px 5px 5px 8px; border-left: 4px solid #e2e3e5; ">',
+				'[/blockquote]' => '</blockquote>'
+			]);
+		}
+		else
+		{
+			$wrap .= Loc::getMessage('MAIL_QUOTE_MESSAGE_HEADER', [
+				'#DATE#' => $formattedDate,
+				'#SUBJECT#' => $subject,
+				'#BODY#' => $body,
+				'#FROM_LIST#' => $fromList,
+				'#TO_LIST#' => $toList,
+				'#CC_LIST#' => $ccList,
+				'[blockquote]' => '<blockquote style="margin: 0 0 0 5px; padding: 5px 5px 5px 8px; border-left: 4px solid #e2e3e5; ">',
+				'[/blockquote]' => '</blockquote>'
+			]);
+		}
+
+		return $wrap;
 	}
 
 	/**

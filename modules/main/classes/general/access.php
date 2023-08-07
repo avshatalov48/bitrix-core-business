@@ -3,10 +3,11 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 use Bitrix\Main;
+use Bitrix\Main\Type\DateTime;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -39,13 +40,13 @@ class CAccess
 		}
 	}
 
-	protected static function NeedToRecalculate($provider, $USER_ID)
+	protected static function NeedToRecalculate($provider, $USER_ID, DateTime $now)
 	{
 		global $DB, $CACHE_MANAGER;
 
 		$USER_ID = intval($USER_ID);
 
-		if(!isset(static::$arChecked[$provider][$USER_ID]))
+		if (!isset(static::$arChecked[$provider][$USER_ID]))
 		{
 			$cacheId = static::GetCheckCacheId($provider, $USER_ID);
 
@@ -56,13 +57,17 @@ class CAccess
 			else
 			{
 				$res = $DB->Query("
-					select 'x'
+					select DATE_CHECK
 					from b_user_access_check
-					where USER_ID = ".$USER_ID."
-						and PROVIDER_ID = '".$DB->ForSql($provider)."'
+					where USER_ID = " . $USER_ID . "
+						and PROVIDER_ID = '" . $DB->ForSql($provider) . "'
 				");
 
-				static::$arChecked[$provider][$USER_ID] = ($res->Fetch()? true : false);
+				static::$arChecked[$provider][$USER_ID] = [];
+				while ($check = $res->Fetch())
+				{
+					static::$arChecked[$provider][$USER_ID][] = $check['DATE_CHECK'];
+				}
 
 				if (CACHED_b_user_access_check !== false)
 				{
@@ -71,7 +76,18 @@ class CAccess
 			}
 		}
 
-		return (static::$arChecked[$provider][$USER_ID]);
+		$helper = Main\Application::getConnection()->getSqlHelper();
+
+		foreach (static::$arChecked[$provider][$USER_ID] as $dateCheck)
+		{
+			$date = $helper->convertFromDbDateTime($dateCheck);
+			if ($date && $date->getTimestamp() <= $now->getTimestamp())
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public function UpdateCodes($arParams=false)
@@ -88,6 +104,7 @@ class CAccess
 		{
 			$connection = \Bitrix\Main\Application::getConnection();
 			$clearCache = false;
+			$now = new DateTime();
 
 			foreach (static::$arAuthProviders as $providerId => $providerDescription)
 			{
@@ -97,7 +114,7 @@ class CAccess
 				if(is_callable([$provider, "UpdateCodes"]))
 				{
 					//do we need to recalculate codes for the user?
-					if(static::NeedToRecalculate($providerId, $USER_ID))
+					if(static::NeedToRecalculate($providerId, $USER_ID, $now))
 					{
 						$name = "access.{$providerId}.{$USER_ID}";
 
@@ -113,7 +130,7 @@ class CAccess
 							$provider->UpdateCodes($USER_ID);
 
 							//update cache for checking
-							static::UpdateStat($providerId, $USER_ID);
+							static::UpdateStat($providerId, $USER_ID, $now);
 
 							$connection->unlock($name);
 						}
@@ -180,21 +197,26 @@ class CAccess
 		$CACHE_MANAGER->Clean(static::GetCodesCacheId($userId), static::CACHE_DIR);
 	}
 
-	public static function RecalculateForUser($userId, $provider)
+	public static function RecalculateForUser($userId, $provider, DateTime $dateCheck = null)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $DB;
 		$userId = intval($userId);
 
+		if ($dateCheck === null)
+		{
+			$dateCheck = new DateTime();
+		}
+
+		$helper = Main\Application::getConnection()->getSqlHelper();
+
 		$DB->Query("
-			INSERT IGNORE INTO b_user_access_check (USER_ID, PROVIDER_ID)
-			SELECT ID, '{$DB->ForSQL($provider)}'
+			INSERT IGNORE INTO b_user_access_check (USER_ID, PROVIDER_ID, DATE_CHECK)
+			SELECT ID, '{$DB->ForSQL($provider)}', {$helper->convertToDbDateTime($dateCheck)}  
 			FROM b_user
 			WHERE ID = {$userId}"
 		);
 
-		$CACHE_MANAGER->Clean(static::GetCheckCacheId($provider, $userId), static::CACHE_DIR);
-
-		static::$arChecked[$provider][$userId] = true;
+		static::ClearCheckCache($provider, $userId);
 	}
 
 	public static function RecalculateForProvider($provider)
@@ -211,19 +233,12 @@ class CAccess
 		");
 
 		$CACHE_MANAGER->CleanDir(static::CACHE_DIR);
-
-		if(is_array(static::$arChecked[$provider]))
-		{
-			foreach(static::$arChecked[$provider] as $userId => $dummy)
-			{
-				static::$arChecked[$provider][$userId] = true;
-			}
-		}
+		unset(static::$arChecked[$provider]);
 	}
 
 	protected static function GetCheckCacheId($provider, $userId)
 	{
-		return "access_check_".$provider."_".$userId;
+		return "access_check_v2_".$provider."_".$userId;
 	}
 
 	protected static function GetCodesCacheId($userId)
@@ -245,19 +260,29 @@ class CAccess
 		");
 	}
 
-	protected static function UpdateStat($provider, $userId)
+	protected static function UpdateStat($provider, $userId, DateTime $now)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $DB;
 		$userId = intval($userId);
+
+		$helper = Main\Application::getConnection()->getSqlHelper();
 
 		$DB->Query("
 			delete from b_user_access_check 
 			where user_id = {$userId} 
 				and provider_id = '{$DB->ForSql($provider)}'
+				and date_check <= {$helper->convertToDbDateTime($now)}
 		");
-		$CACHE_MANAGER->Clean(static::GetCheckCacheId($provider, $userId), static::CACHE_DIR);
 
-		static::$arChecked[$provider][$userId] = false;
+		static::ClearCheckCache($provider, $userId);
+	}
+
+	protected static function ClearCheckCache($provider, $userId)
+	{
+		global $CACHE_MANAGER;
+
+		$CACHE_MANAGER->Clean(static::GetCheckCacheId($provider, $userId), static::CACHE_DIR);
+		unset(static::$arChecked[$provider][$userId]);
 	}
 
 	public static function GetUserCodes($USER_ID, $arFilter=array())
@@ -440,7 +465,7 @@ class CAccess
 
 	public static function OnUserDelete($USER_ID)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $DB;
 		$USER_ID = intval($USER_ID);
 
 		$DB->Query("delete from b_user_access where user_id=".$USER_ID);
@@ -449,8 +474,7 @@ class CAccess
 		//all providers for one user
 		foreach(static::$arChecked as $provider => $dummy)
 		{
-			unset(static::$arChecked[$provider][$USER_ID]);
-			$CACHE_MANAGER->Clean(static::GetCheckCacheId($provider, $USER_ID), static::CACHE_DIR);
+			static::ClearCheckCache($provider, $USER_ID);
 		}
 
 		static::ClearCache($USER_ID);

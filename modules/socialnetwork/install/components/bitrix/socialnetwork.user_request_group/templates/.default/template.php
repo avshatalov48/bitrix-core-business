@@ -17,7 +17,7 @@ UI\Extension::load([
 	'socialnetwork.common',
 ]);
 
-if ($arResult["NEED_AUTH"] == "Y")
+if (($arResult["NEED_AUTH"] ?? null) == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
@@ -49,7 +49,7 @@ else
 			});
 		</script><?
 
-		?><div id="sonet_group_user_request_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(!empty($arResult["ErrorMessage"]) ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
+		?><div id="sonet_group_user_request_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(!empty($arResult["ErrorMessage"] ?? null) ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"] ?? ''?></div><?
 
 		?><form method="post" name="form1" id="sonet_group_user_request_form" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data">
 			<table cellspacing="0">
@@ -62,7 +62,7 @@ else
 				</tr>
 				<tr>
 					<td class="sonet-user-request-group-description-left-col" nowrap><?= GetMessage("SONET_C39_T_MESSAGE") ?>:</td>
-					<td class="sonet-user-request-group-description"><textarea id="sonet_group_user_request_message" name="MESSAGE" class="sonet-user-request-group-message-text" rows="5"><?= htmlspecialcharsex($_POST["MESSAGE"]); ?></textarea></td>
+					<td class="sonet-user-request-group-description"><textarea id="sonet_group_user_request_message" name="MESSAGE" class="sonet-user-request-group-message-text" rows="5"><?= htmlspecialcharsex($_POST["MESSAGE"] ?? ''); ?></textarea></td>
 				</tr>
 			</table><?php
 

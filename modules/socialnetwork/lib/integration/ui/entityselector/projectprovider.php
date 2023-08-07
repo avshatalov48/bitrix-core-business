@@ -204,7 +204,20 @@ class ProjectProvider extends BaseProvider
 	public static function getProjects(array $options = []): EO_Workgroup_Collection
 	{
 		$query = WorkgroupTable::query();
-		$query->setSelect(['ID', 'NAME', 'ACTIVE', 'PROJECT', 'CLOSED', 'VISIBLE', 'OPENED', 'IMAGE_ID', 'AVATAR_TYPE', 'LANDING']);
+		$query->setSelect(
+			[
+				'ID',
+				'NAME',
+				'ACTIVE',
+				'PROJECT',
+				'CLOSED',
+				'VISIBLE',
+				'OPENED',
+				'IMAGE_ID',
+				'AVATAR_TYPE',
+				'LANDING'
+			]
+		);
 
 		if (isset($options['visible']) && is_bool(isset($options['visible'])))
 		{
@@ -253,7 +266,10 @@ class ProjectProvider extends BaseProvider
 
 		$query->registerRuntimeField(
 			new Reference(
-				'PROJECT_SITE', WorkgroupSiteTable::class, Join::on('this.ID', 'ref.GROUP_ID'), ['join_type' => 'INNER']
+				'PROJECT_SITE',
+				WorkgroupSiteTable::class,
+				Join::on('this.ID', 'ref.GROUP_ID'),
+				['join_type' => 'INNER']
 			)
 		);
 
@@ -272,7 +288,9 @@ class ProjectProvider extends BaseProvider
 				new Reference(
 					'MY_PROJECT',
 					UserToGroupTable::class,
-					Join::on('this.ID', 'ref.GROUP_ID')->where('ref.USER_ID', $currentUserId)->where(
+					Join::on('this.ID', 'ref.GROUP_ID')
+						->where('ref.USER_ID', $currentUserId)
+						->where(
 							'ref.ROLE',
 							'<=',
 							UserToGroupTable::ROLE_USER
@@ -295,7 +313,10 @@ class ProjectProvider extends BaseProvider
 		}
 
 		$extranetSiteId = Option::get('extranet', 'extranet_site');
-		$extranetSiteId = ($extranetSiteId && ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false);
+		$extranetSiteId = (
+			$extranetSiteId
+			&& ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false
+		);
 		if ($extranetSiteId)
 		{
 			$query->registerRuntimeField(
@@ -396,23 +417,39 @@ class ProjectProvider extends BaseProvider
 
 		$isUserModuleAdmin = \CSocNetUser::isUserModuleAdmin($currentUserId, $siteId);
 
-		if (isset($options['features']) && is_array($options['features']) && !empty($options['features']))
+		if (
+			isset($options['features'])
+			&& is_array($options['features'])
+			&& !empty($options['features'])
+		)
 		{
-			$alias = $query->getInitAlias();
 			foreach (array_keys($options['features']) as $feature)
 			{
-				$featureQuery = self::getFeatureQuery($alias, $feature);
-				if ($featureQuery === false)
+				if (!self::isAllowedFeatures($feature))
 				{
 					return new EO_Workgroup_Collection();
 				}
 
-				$query->whereNotExists($featureQuery);
+				$featureField = new Reference(
+					"BF_{$feature}",
+					FeatureTable::class,
+					Join::on('this.ID', 'ref.ENTITY_ID')
+						->where('ref.ENTITY_TYPE', FeatureTable::FEATURE_ENTITY_TYPE_GROUP)
+						->where('ref.FEATURE', $feature)
+						->where('ref.ACTIVE', 'N'),
+					['join_type' => 'LEFT']
+				);
+				$query->registerRuntimeField($featureField);
+
+				$query->whereNull("BF_{$feature}.ENTITY_ID");
 			}
 
 			if (!$isUserModuleAdmin)
 			{
-				$featuresPermissionsQuery = self::getFeaturesPermissionsQuery($currentUserId, $options['features']);
+				$featuresPermissionsQuery = self::getFeaturesPermissionsQuery(
+					$currentUserId,
+					$options['features']
+				);
 				if ($featuresPermissionsQuery)
 				{
 					$query->whereIn('ID', $featuresPermissionsQuery);
@@ -432,7 +469,7 @@ class ProjectProvider extends BaseProvider
 		return $query->exec()->fetchCollection();
 	}
 
-	public static function getFeatureQuery($alias, $feature = '')
+	private static function isAllowedFeatures($feature = ''): bool
 	{
 		static $globalFeatures = null;
 
@@ -451,6 +488,19 @@ class ProjectProvider extends BaseProvider
 			return false;
 		}
 
+		return true;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public static function getFeatureQuery($alias, $feature = '')
+	{
+		if (!self::isAllowedFeatures($feature))
+		{
+			return false;
+		}
+
 		$subQuery = FeatureTable::query();
 		$subQuery->where('ENTITY_TYPE', FeatureTable::FEATURE_ENTITY_TYPE_GROUP);
 		$subQuery->where('FEATURE', $feature);
@@ -465,6 +515,9 @@ class ProjectProvider extends BaseProvider
 		return $subQuery;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function getFeaturesPermissionsQuery($currentUserId, $featuresList = [])
 	{
 		$helper = \Bitrix\Main\Application::getConnection()->getSqlHelper();

@@ -31,10 +31,10 @@ export class Metrika
 		this.widgetOpened = false;
 		this.widgetBlockHover = false;
 
-		if (this.isFormsExists())
+		/*if (this.isFormsExists())
 		{
 			this.waitForForms();
-		}
+		}*/
 		this.waitForWidget();
 		this.detectAnchor();
 	}

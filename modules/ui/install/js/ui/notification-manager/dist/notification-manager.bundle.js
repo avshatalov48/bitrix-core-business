@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,pull_client,main_core_events,main_core,ui_notification,ui_buttons) {
@@ -829,7 +830,8 @@ this.BX.UI = this.BX.UI || {};
 	    const providerOptions = {
 	      eventNamespace: Notifier.EVENT_NAMESPACE
 	    };
-	    if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isMac()) {
+	    if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isMac() && DesktopHelper.geApiVersion() >= 73) {
+	      console.log('in', DesktopHelper.geApiVersion() >= 73);
 	      return new MacProvider(providerOptions);
 	    }
 	    if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isWindows()) {

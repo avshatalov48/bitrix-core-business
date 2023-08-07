@@ -89,13 +89,7 @@ $MESS["PERFMON_PANEL_WARN_NOTE_1"] = "1. Caching is not engaged for this menu co
 $MESS["PERFMON_PANEL_WARN_NOTE_2"] = "2. Components must not be fulfilling database queries when autocaching is enabled.  Make sure that caching is enabled in the settings of the component.  If caching is enabled and the problem persists, contact the developer for correction.  ";
 $MESS["PERFMON_PANEL_WARN_NOTE_3"] = "3. Inefficient use of cache--large files created in cache.  The size of files in cache should not exceed 1 MB.  Make sure that the component is using the SetResultCacheKeys method and is not storing unused data.  ";
 $MESS["PERFMON_PANEL_CACHE_STORAGE"] = "Cache storage";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_UNKNOWN"] = "unknown";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_MEMCACHE"] = "memcache";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_APC"] = "APC";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_XCACHE"] = "XCache";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_FILES"] = "Files";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_CLUSTER"] = "cluster memcache";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_REC"] = "Possible storage types:<ul style=\"font-size:100%\"><li>Files</li><li>memcached</li><li>eAccelerator</li><li>APC</li><li>XCache</li></ul>";
+$MESS["PERFMON_PANEL_CACHE_STORAGE_REC"] = "Possible storage types:<ul style=\"font-size:100%\"><li>Files</li><li>memcached</li><li>eAccelerator</li><li>APC</li></ul>";
 $MESS["PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS"] = "Track number of banner impressions";
 $MESS["PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS_ON"] = "Active with banners with tracked impressions";
 $MESS["PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS_OFF"] = "Inactive; no banners with tracked impressions";

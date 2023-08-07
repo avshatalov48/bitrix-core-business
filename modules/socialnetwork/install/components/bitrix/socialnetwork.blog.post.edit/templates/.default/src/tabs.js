@@ -345,9 +345,10 @@ export default class PostFormTabs extends EventEmitter
 							continue;
 						}
 
-						if (messageBody.childNodes[ii].className === 'file-selectdialog')
+						const node = messageBody.childNodes[ii];
+						if (node.className === 'file-selectdialog')
 						{
-							const nodeFile = messageBody.childNodes[ii];
+							const nodeFile = node;
 							const values1 = nodeFile.querySelector('.file-placeholder-tbody');
 							const values2 = nodeFile.querySelector('.feed-add-photo-block');
 							if (values1.rows > 0 || !!values2 && values2.length > 1)
@@ -356,26 +357,42 @@ export default class PostFormTabs extends EventEmitter
 							}
 						}
 						else if (
-							Type.isStringFilled(messageBody.childNodes[ii].className)
-							&& (
-								messageBody.childNodes[ii].className.indexOf('wduf-selectdialog') >= 0
-								|| messageBody.childNodes[ii].className.indexOf('diskuf-selectdialog') >= 0
+							(
+								Type.isStringFilled(node.className)
+								&& (
+									node.className.indexOf('wduf-selectdialog') >= 0
+									|| node.className.indexOf('diskuf-selectdialog') >= 0
+								)
 							)
+							|| (Type.isStringFilled(node.id) && node.id.indexOf('disk-uf-file-container') >= 0)
 						)
 						{
-							const nodeDocs = messageBody.childNodes[ii];
-							const webdavValues = nodeDocs.querySelectorAll('.wd-inline-file');
+							const UserFieldControl = BX.Reflection.getClass('BX.Disk.Uploader.UserFieldControl');
+							if (UserFieldControl === null)
+							{
+								const nodeDocs = node;
+								const webdavValues = nodeDocs.querySelectorAll('.wd-inline-file');
 
-							hasValuesDocs = (!!webdavValues && webdavValues.length > 0);
+								hasValuesDocs = (!!webdavValues && webdavValues.length > 0);
+							}
+							else
+							{
+								const userFieldControl = UserFieldControl.getById('blogPostForm');
+								if (userFieldControl)
+								{
+									const uploader = userFieldControl.getUploader();
+									hasValuesDocs = uploader.getFiles().length > 0;
+								}
+							}
 						}
 						else if(
-							Type.isDomNode(messageBody.childNodes[ii])
-							&& messageBody.childNodes[ii].classList
-							&& !messageBody.childNodes[ii].classList.contains('urlpreview')
-							&& !messageBody.childNodes[ii].classList.contains('feed-add-post-strings-blocks')
+							Type.isDomNode(node)
+							&& node.classList
+							&& !node.classList.contains('urlpreview')
+							&& !node.classList.contains('feed-add-post-strings-blocks')
 						)
 						{
-							Dom.adjust(messageBody.childNodes[ii], {
+							Dom.adjust(node, {
 								style: {
 									display: (type === this.config.id.file ? 'none' : '')
 								}

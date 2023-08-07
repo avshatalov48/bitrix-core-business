@@ -1,8 +1,8 @@
-<?	
+<?
 //	ClearVars();
-	if(!check_bitrix_sessid() || !CModule::IncludeModule("iblock")) 
+	if(!check_bitrix_sessid() || !CModule::IncludeModule("iblock"))
 		return;
-		
+
 	$strWarning = "";
 	$bVarsFromForm = false;
 	$arUGroupsEx = Array();
@@ -12,23 +12,23 @@
 		if ($arUGroups["ANONYMOUS"] == "Y")
 			$arUGroupsEx[$arUGroups["ID"]] = "R";
 	}
-	
 
-	if ($_REQUEST["iblock"] == "Y" && $GLOBALS["APPLICATION"]->GetGroupRight("iblock") >= "W")
+
+	if (($_REQUEST["iblock"] ?? null) == "Y" && $GLOBALS["APPLICATION"]->GetGroupRight("iblock") >= "W")
 	{
-		if ($_REQUEST["create_iblock_type"] == "Y")
+		if (($_REQUEST["create_iblock_type"] ?? null) == "Y")
 		{
 			$arIBTLang = array();
 			$arLang = array();
 			$l = CLanguage::GetList();
 			while($ar = $l->ExtractFields("l_"))
 				$arIBTLang[]=$ar;
-			
+
 			for($i=0; $i<count($arIBTLang); $i++)
-				$arLang[$arIBTLang[$i]["LID"]] = array("NAME" => $_REQUEST["iblock_type_name"]);
-			
+				$arLang[$arIBTLang[$i]["LID"]] = array("NAME" => $_REQUEST["iblock_type_name"] ?? null);
+
 			$arFields = array(
-				"ID" => $_REQUEST["iblock_type_name"],
+				"ID" => $_REQUEST["iblock_type_name"] ?? null,
 				"LANG" => $arLang,
 				"SECTIONS" => "Y");
 
@@ -49,20 +49,20 @@
 				$_REQUEST["iblock_type_id"] = $IBLOCK_TYPE_ID;
 			}
 		}
-		
-		$IBLOCK_TYPE_ID = $_REQUEST["iblock_type_id"];
-		
+
+		$IBLOCK_TYPE_ID = $_REQUEST["iblock_type_id"] ?? null;
+
 		if ($IBLOCK_TYPE_ID)
 		{
 			$DB->StartTransaction();
 
 			$arFields = Array(
 				"ACTIVE"=>"Y",
-				"NAME"=>$_REQUEST["iblock_name"],
+				"NAME"=>$_REQUEST["iblock_name"] ?? null,
 				"IBLOCK_TYPE_ID"=>$IBLOCK_TYPE_ID,
 				"LID"=>array());
 			$ib = new CIBlock;
-			
+
 			$db_sites = CSite::GetList();
 			while ($ar_sites = $db_sites->Fetch())
 			{
@@ -70,7 +70,7 @@
 					$arFields["LID"][] = $ar_sites["LID"];
 				$arSites[] = $ar_sites;
 			}
-			
+
 			if (empty($arFields["LID"]))
 				$arFields["LID"][] = $ar_sites[0]["LID"];
 			if (!empty($arUGroupsEx))
@@ -91,15 +91,15 @@
 			}
 		}
 	}
-	
-	if (!$bVarsFromForm && $_REQUEST["blog"] == "Y" && IsModuleInstalled("blog") && $GLOBALS["APPLICATION"]->GetGroupRight("blog") >= "W")
+
+	if (!$bVarsFromForm && ($_REQUEST["blog"] ?? null) == "Y" && IsModuleInstalled("blog") && $GLOBALS["APPLICATION"]->GetGroupRight("blog") >= "W")
 	{
 		CModule::IncludeModule("blog");
-		
-		if ($_REQUEST["create_blog_group"] == "Y")
+
+		if (($_REQUEST["create_blog_group"] ?? null) == "Y")
 		{
 			$arFields = array(
-				"NAME" => $_REQUEST["blog_group_name"],
+				"NAME" => $_REQUEST["blog_group_name"] ?? null,
 				"SITE_ID" => "");
 
 			$arSites = array();
@@ -112,7 +112,7 @@
 			}
 			if (empty($arFields["SITE_ID"]))
 				$arFields["SITE_ID"] = $arSites[0]["LID"];
-		
+
 			$BLOG_GROUP_ID = CBlogGroup::Add($arFields);
 			if ($BLOG_GROUP_ID <= 0)
 			{
@@ -132,28 +132,28 @@
 				$_REQUEST["blog_group_name"] = "";
 			}
 		}
-		
+
 		if (!$bVarsFromForm)
 		{
 			$arFields = array(
 				"ACTIVE" => "N",
-				"NAME" => $_REQUEST["blog_name"],
-				"DESCRIPTION" => $_REQUEST["blog_description"],
+				"NAME" => $_REQUEST["blog_name"] ?? null,
+				"DESCRIPTION" => $_REQUEST["blog_description"] ?? null,
 				"=DATE_UPDATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
 				"=DATE_CREATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
-				"URL" => $_REQUEST["blog_url"],
+				"URL" => $_REQUEST["blog_url"] ?? null,
 				"OWNER_ID" => $GLOBALS["USER"]->GetId(),
-				"GROUP_ID" => $_REQUEST["blog_group_id"],
-				"ENABLE_COMMENTS" => "Y", 
-				"ENABLE_IMG_VERIF" => "Y", 
-				"EMAIL_NOTIFY" => "N", 
-				"ENABLE_RSS" => "N", 
-				"ALLOW_HTML" => "N", 
+				"GROUP_ID" => $_REQUEST["blog_group_id"] ?? null,
+				"ENABLE_COMMENTS" => "Y",
+				"ENABLE_IMG_VERIF" => "Y",
+				"EMAIL_NOTIFY" => "N",
+				"ENABLE_RSS" => "N",
+				"ALLOW_HTML" => "N",
 				"PERMS_POST" => array("1" => "I", "2" => "I"),
 				"PERMS_COMMENT" => array("1" => "P", "2" => "P"));
-	
+
 			$ID = CBlog::Add($arFields);
-			
+
 			if (intval($ID) <= 0)
 			{
 				$bVarsFromForm = true;
@@ -164,7 +164,7 @@
 			}
 		}
 	}
-	
+
 	if ($bVarsFromForm)
 	{
 		ShowError($strWarning);
@@ -178,5 +178,5 @@ window.location='/bitrix/admin/module_admin.php?step=3&lang=<?=LANGUAGE_ID."&id=
 </script>
 <?
 	}
-	
+
 ?>

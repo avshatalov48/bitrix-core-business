@@ -38,7 +38,6 @@ if ($lAdmin->EditAction() && $socialnetworkModulePermissions >= "W")
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
@@ -52,6 +51,8 @@ if ($lAdmin->EditAction() && $socialnetworkModulePermissions >= "W")
 			$arFields[ltrim($key, "=")] = $value;
 		}
 
+		$DB->StartTransaction();
+
 		if (!CSocNetGroupSubject::Update($ID, $arFields))
 		{
 			if ($ex = $APPLICATION->GetException())
@@ -61,11 +62,13 @@ if ($lAdmin->EditAction() && $socialnetworkModulePermissions >= "W")
 
 			$DB->Rollback();
 		}
+		else
+		{
+			$DB->Commit();
+		}
 
 		//BXClearCache(True, "/".$arFields["SITE_ID"]."/socialnetwork/");
 		//BXClearCache(True, "/".$arBlogSubjectTmp["SITE_ID"]."/socialnetwork/");
-
-		$DB->Commit();
 	}
 }
 
@@ -107,10 +110,12 @@ if (($arID = $lAdmin->GroupAction()) && $socialnetworkModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(GetMessage("SONET_DELETE_ERROR"), $ID);
 				}
+				else
+				{
+					$DB->Commit();
+				}
 
 				//BXClearCache(True, "/".$arBlogSubjectTmp["SITE_ID"]."/socialnetwork/");
-
-				$DB->Commit();
 
 				break;
 		}

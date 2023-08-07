@@ -115,12 +115,12 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 	 */
 	public function getEventId(): int
 	{
-		if (isset($this->event['ID']))
+		if (!empty($this->event['ID']))
 		{
 			return (int)$this->event['ID'];
 		}
 
-		return (int) $this->arParams['EVENT_ID'];
+		return (int)$this->arParams['EVENT_ID'];
 	}
 
 	/**
@@ -147,7 +147,7 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 	 */
 	private function checkEventId(): bool
 	{
-		return isset($this->arParams['EVENT_ID']);
+		return !empty($this->arParams['EVENT_ID']);
 	}
 
 	/**
@@ -197,7 +197,8 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 				->sendNotificationGuestReaction($event, $this->arParams['DECISION']);
 			return true;
 		}
-		elseif ($this->arParams['DECISION'] === SenderEditInvitation::DECISION_CHANGE)
+
+		if ($this->arParams['DECISION'] === SenderEditInvitation::DECISION_CHANGE)
 		{
 			$this->arResult['IS_SHOW_CHOOSE_BUTTON'] = true;
 			return true;
@@ -247,7 +248,7 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 				);
 
 				$meetingInfo = unserialize($event['MEETING'], ['allowed_classes' => false]);
-				if (isset($meetingInfo['HIDE_GUESTS']) && !$meetingInfo['HIDE_GUESTS'])
+				if (empty($meetingInfo['HIDE_GUESTS']))
 				{
 					foreach (Helper::getAttendeesByEventParentId((int)$event['PARENT_ID']) as $attendee)
 					{
@@ -345,7 +346,8 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 			(int) $event['MEETING_HOST'],
 			(int) $event['PARENT_ID']
 		);
-		if (is_array($event['LOCATION'])
+		if (
+			is_array($event['LOCATION'])
 			&& isset($event['LOCATION']['NEW'])
 			&& is_string($event['LOCATION']['NEW'])
 		)
@@ -466,7 +468,7 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 
 			if ($this->arResult['FULL_DAY'])
 			{
-				if (!isset($this->arResult['DATE_TO']))
+				if (empty($this->arResult['DATE_TO']))
 				{
 					$this->arResult['DATE_TO'] = FormatDate($culture->getFullDateFormat(), $dateTo->getTimestamp());
 				}
@@ -517,8 +519,8 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 	 */
 	protected function prepareDecisionParams(): void
 	{
-		$decision = $this->arParams['DECISION'] ?? $this->event['MEETING_STATUS'];
-		if (isset($this->arParams['DECISION']))
+		$decision = !empty($this->arParams['DECISION']) ? $this->arParams['DECISION'] : $this->event['MEETING_STATUS'];
+		if (!empty($this->arParams['DECISION']))
 		{
 			$server = $this->request->getServer();
 			$uri = strstr($server->getRequestUri(), '?', true);

@@ -5,13 +5,17 @@
  * @global CAdminMenu $this
  */
 
+use Bitrix\Main\ModuleManager;
 use \Bitrix\Seo\Adv;
 use \Bitrix\Seo\Engine;
 use \Bitrix\Main\Localization\Loc;
 
 if($APPLICATION->GetGroupRight("seo") > "D")
 {
-	if(\Bitrix\Main\ModuleManager::isModuleInstalled('seo'))
+	if (
+		ModuleManager::isModuleInstalled('seo')
+		&& !ModuleManager::isModuleInstalled('bitrix24')
+	)
 	{
 		IncludeModuleLangFile(__FILE__);
 
@@ -38,7 +42,7 @@ if($APPLICATION->GetGroupRight("seo") > "D")
 		$arEngineList = array();
 		$arAdvList = array();
 		
-//		not show Yandex services on portal
+		// not show Yandex services on portal
 		if ($bShowYandexServices)
 		{
 			$arEngineList[] = array(
@@ -143,34 +147,35 @@ if($APPLICATION->GetGroupRight("seo") > "D")
 			$arAdvList[] = $yandexAdvItem;
 		}
 		
-//		not show Yandex and Google on portal
+		// not show Yandex and Google on portal
 		if($bShowGoogleServices)
-			$arEngineList[] = array(
+			$arEngineList[] = [
 				'url' => 'seo_search_google.php?lang='.LANGUAGE_ID,
 				'text' => Loc::getMessage("SEO_MENU_GOOGLE"),
-			);
+			];
 
 		if(count($arEngineList) > 0)
 		{
-			$aMenu[0]["items"][] = array(
+			$aMenu[0]["items"][] = [
 				"text" => Loc::getMessage("SEO_MENU_SEARCH_ENGINES"),
 				"title" => Loc::getMessage("SEO_MENU_SEARCH_ENGINES_ALT"),
 				"items_id" => "seo_search_engine",
 				"items" => $arEngineList
-			);
+			];
 		}
 
-		$aMenu[0]['items'][] = array(
+		$aMenu[0]['items'][] = [
 			"url" => "seo_robots.php?lang=".LANGUAGE_ID,
 			"text" => Loc::getMessage("SEO_MENU_ROBOTS_ALT"),
 			//"title" => Loc::getMessage("SEO_MENU_ROBOTS_ALT"),
-		);
-		$aMenu[0]['items'][] = array(
+		];
+
+		$aMenu[0]['items'][] = [
 			"url" => "seo_sitemap.php?lang=".LANGUAGE_ID,
-			"more_url" => array("seo_sitemap_edit.php?lang=".LANGUAGE_ID),
+			"more_url" => ["seo_sitemap_edit.php?lang=".LANGUAGE_ID],
 			"text" => Loc::getMessage("SEO_MENU_SITEMAP_ALT"),
 			//"title" => Loc::getMessage("SEO_MENU_SITEMAP_ALT"),
-		);
+		];
 
 		if(count($arAdvList) > 0)
 		{

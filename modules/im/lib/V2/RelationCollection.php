@@ -9,13 +9,12 @@ use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\UserTable;
 
 /**
- * @method Relation next()
- * @method Relation current()
- * @method Relation offsetGet($offset)
+ * @implements \IteratorAggregate<int,Relation>
+ * @method Relation offsetGet($key)
  */
 class RelationCollection extends Collection
 {
-	public const COMMON_FIELDS = ['ID', 'MESSAGE_TYPE', 'CHAT_ID', 'USER_ID', 'START_ID', 'LAST_FILE_ID', 'LAST_ID', 'NOTIFY_BLOCK', 'MANAGER'];
+	public const COMMON_FIELDS = ['ID', 'MESSAGE_TYPE', 'CHAT_ID', 'USER_ID', 'START_ID', 'LAST_FILE_ID', 'LAST_ID', 'UNREAD_ID', 'NOTIFY_BLOCK', 'MANAGER'];
 
 	protected static array $startIdStaticCache = [];
 
@@ -98,6 +97,11 @@ class RelationCollection extends Collection
 		if (isset($filter['CHAT_ID']))
 		{
 			$query->where('CHAT_ID', (int)$filter['CHAT_ID']);
+		}
+
+		if (isset($filter['MANAGER']))
+		{
+			$query->where('MANAGER', (string)$filter['MANAGER']);
 		}
 
 		if (isset($filter['USER_ID']))

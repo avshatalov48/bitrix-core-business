@@ -693,8 +693,8 @@ if (
 	{
 		$inlineJs = '<script bxrunfirst="true">'."\n";
 		$inlineJs .= 'window.__logGetNextPageLinkEntities('.
-			CUtil::PhpToJSObject($component->arResult["ENTITIES_XML_ID"]).', '.
-			CUtil::PhpToJSObject($component->arResult["ENTITIES_CORRESPONDENCE"]).');';
+			CUtil::PhpToJSObject($component->arResult["ENTITIES_XML_ID"] ?? []).', '.
+			CUtil::PhpToJSObject($component->arResult["ENTITIES_CORRESPONDENCE"] ?? []).');';
 		$inlineJs .= '</script>';
 		$inlineJs .= Asset::getInstance()->getJs();
 

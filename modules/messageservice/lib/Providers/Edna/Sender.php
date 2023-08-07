@@ -52,6 +52,9 @@ abstract class Sender extends Providers\Base\Sender
 		$paramsResult = $this->getSendMessageParams($messageFields);
 		if (!$paramsResult->isSuccess())
 		{
+			$cacheManager = new Providers\CacheManager($this->optionManager->getProviderId());
+			$cacheManager->deleteValue(Providers\CacheManager::CHANNEL_CACHE_ENTITY_ID);
+
 			$result = new SendMessage();
 			$result->addErrors($paramsResult->getErrors());
 

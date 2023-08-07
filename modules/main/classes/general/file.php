@@ -488,20 +488,22 @@ class CFile extends CAllFile
 	 * Adds information about a duplicate file.
 	 * @param int $originalId Original file ID.
 	 * @param int|null $duplicateId Duplicate file ID (optional if the original and duplicate files are the same).
+	 * @param bool $checkOriginal Check if the desired original file is already in the table and
+	 * if it's a duplicate of another file, then use the real original file ID from the table.
 	 */
-	public static function AddDuplicate($originalId, $duplicateId = null)
+	public static function AddDuplicate($originalId, $duplicateId = null, bool $checkOriginal = false)
 	{
 		if($duplicateId === null)
 		{
 			$duplicateId = $originalId;
 		}
 
-		if($originalId == $duplicateId)
+		if($checkOriginal || $originalId == $duplicateId)
 		{
 			//possibly there is the original already for the file
 			$original = Internal\FileDuplicateTable::query()
 				->addSelect("ORIGINAL_ID")
-				->where("DUPLICATE_ID", $duplicateId)
+				->where("DUPLICATE_ID", $originalId)
 				->fetch();
 
 			if($original)
@@ -654,7 +656,7 @@ class CFile extends CAllFile
 
 		$cloneId = static::DoInsert($originalFile);
 
-		static::AddDuplicate($fileId, $cloneId);
+		static::AddDuplicate($fileId, $cloneId, true);
 		static::CleanCache($cloneId);
 
 		return $cloneId;

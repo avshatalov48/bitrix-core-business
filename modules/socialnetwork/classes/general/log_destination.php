@@ -2159,7 +2159,7 @@ class CSocNetLogDestination
 			["RAND" => "ASC"],
 			[
 				"GROUP_ID" => $groupId,
-				"=ROLE" => $role,
+				"=ROLE" => $isScrumCustomRole ? [SONET_ROLES_OWNER, SONET_ROLES_MODERATOR] : $role,
 				"USER_ACTIVE" => "Y"
 			],
 			false,

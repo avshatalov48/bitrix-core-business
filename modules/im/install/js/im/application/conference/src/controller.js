@@ -11,6 +11,7 @@
 import 'im.debug';
 import 'im.application.launch';
 import 'im.component.conference.conference-public';
+import {DesktopApi} from 'im.v2.lib.desktop-api';
 import * as Call from 'im.call';
 import { ConferenceModel, CallModel } from "im.model";
 import { Controller } from 'im.controller';
@@ -118,7 +119,6 @@ class ConferenceApplication
 		this.callEventReceived = false;
 		this.callRecordState = Call.View.RecordState.Stopped;
 
-		this.desktop = null;
 		this.floatingScreenShareWindow = null;
 		this.webScreenSharePopup = null;
 
@@ -144,14 +144,12 @@ class ConferenceApplication
 		/* region 01. Initialize methods */
 		initDesktopEvents()
 		{
-			if (!Utils.platform.isBitrixDesktop())
+			if (!DesktopApi.isDesktop())
 			{
 				return new Promise((resolve, reject) => resolve());
 			}
 
-			this.desktop = new Desktop();
 			this.floatingScreenShareWindow = new Call.FloatingScreenShare({
-				desktop: this.desktop,
 				onBackToCallClick: this.onFloatingScreenShareBackToCallClick.bind(this),
 				onStopSharingClick: this.onFloatingScreenShareStopClick.bind(this),
 				onChangeScreenClick: this.onFloatingScreenShareChangeScreenClick.bind(this)
@@ -159,7 +157,7 @@ class ConferenceApplication
 
 			if (this.floatingScreenShareWindow)
 			{
-				this.desktop.addCustomEvent("BXScreenMediaSharing", (id, title, x, y, width, height, app) =>
+				DesktopApi.subscribe("BXScreenMediaSharing", (id, title, x, y, width, height, app) =>
 				{
 					this.floatingScreenShareWindow.setSharingData({
 						title: title,
@@ -184,7 +182,7 @@ class ConferenceApplication
 				});
 			}
 
-			this.desktop.addCustomEvent('bxImUpdateCounterMessage', (counter) =>
+			DesktopApi.subscribe('bxImUpdateCounterMessage', (counter) =>
 			{
 				if (!this.controller)
 				{
@@ -677,9 +675,9 @@ class ConferenceApplication
 				this.initPromise.resolve(this);
 			}
 
-			if (Utils.platform.isBitrixDesktop())
+			if (DesktopApi.isDesktop())
 			{
-				this.desktop.onCustomEvent('bxConferenceLoadComplete', []);
+				DesktopApi.emitToMainWindow('bxConferenceLoadComplete', []);
 			}
 
 			return new Promise((resolve, reject) => resolve());
@@ -2128,12 +2126,12 @@ class ConferenceApplication
 
 		openChat(user)
 		{
-			this.desktop.onCustomEvent('bxConferenceOpenChat', [user.id]);
+			DesktopApi.emitToMainWindow('bxConferenceOpenChat', [user.id]);
 		}
 
 		openProfile(user)
 		{
-			this.desktop.onCustomEvent('bxConferenceOpenProfile', [user.id]);
+			DesktopApi.emitToMainWindow('bxConferenceOpenProfile', [user.id]);
 		}
 
 		setDialogInited()

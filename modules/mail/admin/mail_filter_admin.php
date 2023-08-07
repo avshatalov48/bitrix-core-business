@@ -67,7 +67,10 @@ if ($MOD_RIGHT=="W" && $lAdmin->EditAction()) //если идет сохранение со списка
 			$lAdmin->AddUpdateError(GetMessage("MAIL_SAVE_ERROR")." #".$ID.": ".$e->GetString(), $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -99,7 +102,10 @@ if($MOD_RIGHT=="W" && $arID = $lAdmin->GroupAction())
 					$e = $APPLICATION->GetException();
 					$lAdmin->AddGroupError($e->GetString(), $ID);
 				}
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 			break;
 
 			case "activate":

@@ -7,10 +7,8 @@
  */
 namespace Bitrix\Sale\Internals;
 
-use	Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
+use	Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
 
 /**
  * Class StatusTable
@@ -30,10 +28,8 @@ Loc::loadMessages(__FILE__);
  */
 class StatusTable extends Main\Entity\DataManager
 {
-	public static function getFilePath()
-	{
-		return __FILE__;
-	}
+	public const TYPE_ORDER = 'O';
+	public const TYPE_SHIPMENT = 'D';
 
 	public static function getTableName()
 	{
@@ -57,8 +53,8 @@ class StatusTable extends Main\Entity\DataManager
 			)),
 
 			new Main\Entity\BooleanField('TYPE', array(
-				'default_value' => 'O',
-				'values'        => array('O', 'D'),
+				'default_value' => self::TYPE_ORDER,
+				'values'        => array(self::TYPE_ORDER, self::TYPE_SHIPMENT),
 				'title'         => Loc::getMessage('B_SALE_STATUS_TYPE'),
 			)),
 

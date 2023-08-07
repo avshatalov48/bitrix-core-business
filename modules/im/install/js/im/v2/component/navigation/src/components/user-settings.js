@@ -1,9 +1,9 @@
-import {Core} from 'im.v2.application.core';
-import {UserStatus as UserStatusType} from 'im.v2.const';
-import {Avatar, AvatarSize} from 'im.v2.component.elements';
+import { Core } from 'im.v2.application.core';
+import { UserStatus as UserStatusType } from 'im.v2.const';
+import { Avatar, AvatarSize } from 'im.v2.component.elements';
 
-import {UserSettingsPopup} from './settings/user-settings-popup';
-import {UserStatusPopup} from './status/user-status-popup';
+import { UserSettingsPopup } from './settings/user-settings-popup';
+import { UserStatusPopup } from './status/user-status-popup';
 
 import '../css/user-settings.css';
 import '../css/user-status.css';
@@ -11,31 +11,31 @@ import '../css/user-status.css';
 // @vue/component
 export const UserSettings = {
 	name: 'UserSettings',
-	components: {UserSettingsPopup, UserStatusPopup, Avatar},
-	data()
+	components: { UserSettingsPopup, UserStatusPopup, Avatar },
+	data(): Object
 	{
 		return {
 			showSettingsPopup: false,
-			showStatusPopup: false
+			showStatusPopup: false,
 		};
 	},
 	computed:
 	{
 		AvatarSize: () => AvatarSize,
-		currentUserId()
+		currentUserId(): number
 		{
 			return Core.getUserId();
 		},
-		currentUserStatus(): string
+		userStatus(): string
 		{
-			const status = this.$store.getters['users/getStatus'](this.currentUserId);
-			if (status)
+			const user = this.$store.getters['users/get'](this.currentUserId, true);
+			if (user)
 			{
-				return status;
+				return user.status;
 			}
 
 			return UserStatusType.online;
-		}
+		},
 	},
 	methods:
 	{
@@ -50,9 +50,9 @@ export const UserSettings = {
 	},
 	template: `
 		<div class="bx-im-navigation__user">
-			<div @click="onAvatarClick" :class="{'--active': showSettingsPopup || showStatusPopup}" class="bx-im-navigation__user_avatar" ref="avatar">
+			<div @click="onAvatarClick" class="bx-im-navigation__user_avatar" ref="avatar">
 				<Avatar :dialogId="currentUserId.toString()" :size="AvatarSize.M" />
-				<div @click.stop="onStatusClick" :class="'--' + currentUserStatus" class="bx-im-navigation__user_status" ref="status"></div>
+				<div @click.stop="onStatusClick" :class="'--' + userStatus" class="bx-im-navigation__user_status" ref="status"></div>
 			</div>
 			<UserStatusPopup
 				v-if="showStatusPopup"
@@ -65,5 +65,5 @@ export const UserSettings = {
 				@close="showSettingsPopup = false" 
 			/>
 		</div>
-	`
+	`,
 };

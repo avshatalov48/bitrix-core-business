@@ -25,6 +25,11 @@ $MESS['LANDING_FIELDS_ITEM_FIELD_UNAVAILABLE'] = 'Ошибка! Поле нед�
 
 $MESS['LANDING_FIELDS_ITEM_FORM_VALUE_TYPE'] = 'Тип';
 $MESS['LANDING_FIELDS_ITEM_FORM_ALLOWED_FILE_TYPE'] = 'Разрешить типы файлов';
+$MESS['LANDING_FIELDS_ITEM_FORM_MAX_FILE_SIZE'] = 'Максимальный размер файлов (в мегабайтах)';
+$MESS['LANDING_FIELDS_ITEM_FORM_MAX_FILE_SIZE_HINT'] = 'При пустом значении ограничение не действует';
+$MESS['LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_TITLE'] = 'Для всех форм действует лимит файлов в день: %size% MБ.';
+$MESS['LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_CONFIGURE'] = 'Настроить';
+$MESS['LANDING_FIELDS_ITEM_FORM_DAILY_FILE_LIMIT_CONFIGURE_FULL'] = 'Настроить дневные лимиты';
 
 $MESS['LANDING_FIELDS_ITEM_ENABLE_AUTOCOMPLETE'] = 'Включить автозаполнение';
 $MESS['LANDING_FIELDS_ITEM_AUTOCOMPLETE_ENABLED'] = 'Автозаполнение включено';

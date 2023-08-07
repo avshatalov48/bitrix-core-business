@@ -685,10 +685,16 @@ final class CSaleStatusAdapter implements Compatible\FetchAdapter
 		$tasks = $this->tasks;
 		$taskId = $row['TASK_ID'];
 
+		$operations = $tasks[$taskId] ?? [];
+		if (!is_array($operations))
+		{
+			$operations = [];
+		}
+
 		foreach ($this->select as $perm => $operId)
 		{
 			$row[$perm] = $taskId
-				? (in_array($operId, $tasks[$taskId]) ? 'Y' : 'N')
+				? (in_array($operId, $operations) ? 'Y' : 'N')
 				: '';
 		}
 

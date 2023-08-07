@@ -1,8 +1,10 @@
 import {BaseEvent, EventEmitter} from 'main.core.events';
 import {RestClient} from 'rest.client';
+import {Picker} from 'ai.picker';
+import 'calendar.sliderloader';
 
 import {Core} from 'im.v2.application.core';
-import {RestMethod} from 'im.v2.const';
+import {EventType, RestMethod} from 'im.v2.const';
 
 const REQUEST_METHODS = Object.freeze({
 	task: RestMethod.imChatTaskPrepare,
@@ -23,6 +25,11 @@ export class EntityCreator
 	{
 		this.#restClient = Core.getRestClient();
 		this.#chatId = chatId;
+	}
+
+	createAiTextForChat(startMessage): void
+	{
+		this.#createAiText(startMessage);
 	}
 
 	createTaskForChat(): Promise
@@ -61,6 +68,26 @@ export class EntityCreator
 
 			return this.#openCalendarSlider(params);
 		});
+	}
+
+	#createAiText(startMessage: ''): Promise
+	{
+		const picker = new Picker({
+			startMessage: startMessage,
+			moduleId: 'im',
+			contextId: 'im_menu_plus',
+			history: true,
+			onSelect: (item) => {
+				EventEmitter.emit(EventType.textarea.insertText, {
+					text: item.data,
+					replace: true,
+				});
+			},
+		});
+		picker
+			.setLangSpace(Picker.LangSpace.text)
+			.text()
+		;
 	}
 
 	#createTask(messageId?: number): Promise

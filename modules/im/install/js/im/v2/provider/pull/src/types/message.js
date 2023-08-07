@@ -41,6 +41,29 @@ export type MessageDeleteParams = {
 	type: string
 };
 
+export type MessageDeleteCompleteParams = {
+	chatId: number,
+	dialogId: string,
+	counter: number,
+	unread: boolean,
+	muted: boolean,
+	id: number,
+	lastMessageViews?: {
+		countOfViewers: number,
+		firstViewers: Array<{
+			id: number,
+			name: string,
+			avatar: string
+		}>,
+		messageId: number
+	},
+	newLastMessage?: RawMessage,
+	params: Object<string, any>,
+	senderId: number,
+	text: string,
+	type: string
+};
+
 export type ReadMessageParams = {
 	chatId: number,
 	counter: number,
@@ -65,7 +88,7 @@ export type ReadMessageOpponentParams = {
 
 export type PinAddParams = {
 	files: {[fileId: string]: RawFile} | [],
-	link: {
+	pin: {
 		authorId: number,
 		chatId: number,
 		dateCreate: string,
@@ -85,16 +108,17 @@ export type PinDeleteParams = {
 
 export type AddReactionParams = {
 	actualReactions: {
-		reactions: RawReactions,
+		reaction: RawReaction,
 		usersShort: ReactionUser[]
 	},
 	reaction: ReactionType,
-	userId: number
+	userId: number,
+	dialogId: string
 };
 
 export type DeleteReactionParams = {
 	actualReactions: {
-		reactions: RawReactions,
+		reaction: RawReaction,
 		usersShort: ReactionUser[]
 	},
 	reaction: ReactionType,
@@ -103,7 +127,7 @@ export type DeleteReactionParams = {
 
 type ReactionType = $Values<typeof Reaction>;
 
-type RawReactions = {
+type RawReaction = {
 	messageId: number,
 	reactionCounters: {[reactionType: string]: number},
 	reactionUsers: {[reactionType: string]: number[]},

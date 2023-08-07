@@ -1,19 +1,19 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_const,im_v2_lib_logger,main_core) {
+(function (exports,main_core_events,im_v2_lib_logger,im_v2_const,main_core) {
 	'use strict';
 
 	const DesktopApi = {
-	  getApiVersion() {
-	    if (!this.isApiAvailable()) {
-	      return null;
-	    }
-	    const [,,, version] = window.BXDesktopSystem.GetProperty('versionParts');
-	    return version;
-	  },
 	  isApiAvailable() {
 	    return main_core.Type.isObject(window.BXDesktopSystem);
+	  },
+	  getApiVersion() {
+	    if (!this.isApiAvailable()) {
+	      return 0;
+	    }
+	    const [majorVersion, minorVersion, buildVersion, apiVersion] = window.BXDesktopSystem.GetProperty('versionParts');
+	    return apiVersion;
 	  },
 	  isFeatureEnabled(code) {
 	    var _window$BXDesktopSyst;
@@ -21,45 +21,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	};
 
-	let locationChangedToBx = false;
+	const IMAGE_CHECK_URL = 'http://127.0.0.1:20141';
+	const IMAGE_CHECK_TIMEOUT = 500;
+	const IMAGE_CLASS = 'bx-im-messenger__out-of-view';
 	const checkTimeoutList = {};
-	const CHECK_IMAGE_URL = 'http://127.0.0.1:20141';
-	const DESKTOP_PROTOCOL_VERSION = 2;
-	const DesktopUtils = {
-	  checkRunStatus(successCallback, failureCallback) {
-	    if (!main_core.Type.isFunction(failureCallback)) {
-	      failureCallback = () => {};
-	    }
-
-	    // this.settings.openDesktopFromPanel -> false
-
-	    if (!main_core.Type.isFunction(successCallback)) {
-	      failureCallback();
-	      return false;
-	    }
+	const Checker = {
+	  testImageUpload(successCallback, failureCallback) {
 	    const dateCheck = Date.now();
-	    const Desktop = DesktopManager.getInstance();
-	    if (!Desktop.isDesktopActive()) {
-	      failureCallback(false, dateCheck);
-	      return true;
-	    }
-	    if (DesktopApi.isApiAvailable()) {
-	      failureCallback(false, dateCheck);
-	      return false;
-	    }
-	    let alreadyExecuteFailureCallback = false;
+	    let failureCallbackCalled = false;
 	    const imageForCheck = main_core.Dom.create({
 	      tag: 'img',
 	      attrs: {
-	        src: `${CHECK_IMAGE_URL}/icon.png?${dateCheck}`,
+	        src: `${IMAGE_CHECK_URL}/icon.png?${dateCheck}`,
 	        'data-id': dateCheck
 	      },
 	      props: {
-	        className: 'bx-im-messenger__out-of-view'
+	        className: IMAGE_CLASS
 	      },
 	      events: {
 	        error: function () {
-	          if (alreadyExecuteFailureCallback) {
+	          if (failureCallbackCalled) {
 	            return;
 	          }
 	          const checkId = this.dataset.id;
@@ -77,79 +58,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    document.body.append(imageForCheck);
 	    checkTimeoutList[dateCheck] = setTimeout(() => {
-	      alreadyExecuteFailureCallback = true;
+	      failureCallbackCalled = true;
 	      failureCallback(false, dateCheck);
 	      main_core.Dom.remove(imageForCheck);
-	    }, 500);
-	    return true;
-	  },
-	  goToBx(url) {
-	    if (!/^bx:\/\/v(\d)\//.test(url)) {
-	      url = url.replace('bx://', `bx://v${DESKTOP_PROTOCOL_VERSION}/${location.hostname}/`);
-	    }
-	    locationChangedToBx = true;
-	    setTimeout(() => {
-	      // eslint-disable-next-line bitrix-rules/no-bx
-	      BX.onCustomEvent('BXLinkOpened', []);
-	      locationChangedToBx = false;
-	    }, 1000);
-	    location.href = url;
-	  },
-	  isLocationChangedToBx() {
-	    return locationChangedToBx;
-	  },
-	  encodeParams(params) {
-	    if (!main_core.Type.isPlainObject(params)) {
-	      return '';
-	    }
-	    let stringParams = '';
-	    let first = true;
-	    for (const i in params) {
-	      stringParams = stringParams + (first ? '' : '!!') + i + '!!' + params[i];
-	      first = false;
-	    }
-	    return stringParams;
-	  },
-	  decodeParams(encodedParams) {
-	    const result = {};
-	    if (!main_core.Type.isStringFilled(encodedParams)) {
-	      return result;
-	    }
-	    const chunks = encodedParams.split('!!');
-	    for (let i = 0; i < chunks.length; i += 2) {
-	      result[chunks[i]] = chunks[i + 1];
-	    }
-	    return result;
-	  },
-	  encodeParamsJson(params) {
-	    if (!main_core.Type.isPlainObject(params)) {
-	      return '{}';
-	    }
-	    let result;
-	    try {
-	      result = encodeURIComponent(JSON.stringify(params));
-	    } catch (error) {
-	      console.error('DesktopUtils: could not encode params.', error);
-	      result = '{}';
-	    }
-	    return result;
-	  },
-	  decodeParamsJson(encodedParams) {
-	    let result = {};
-	    if (!main_core.Type.isStringFilled(encodedParams)) {
-	      return result;
-	    }
-	    try {
-	      result = JSON.parse(decodeURIComponent(encodedParams));
-	    } catch (error) {
-	      console.error('DesktopUtils: could not decode encoded params.', error);
-	    }
-	    return result;
+	    }, IMAGE_CHECK_TIMEOUT);
 	  }
 	};
 
+	const DESKTOP_PROTOCOL_VERSION = 2;
+	const LOCATION_RESET_TIMEOUT = 1000;
 	var _desktopIsActive = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("desktopIsActive");
-	var _desktopVersion = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("desktopVersion");
+	var _locationChangedToBx = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("locationChangedToBx");
+	var _goToBx = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("goToBx");
+	var _prepareBxUrl = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareBxUrl");
 	var _initDesktopStatus = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initDesktopStatus");
 	class DesktopManager {
 	  static getInstance() {
@@ -168,16 +89,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _initDesktopStatus, {
 	      value: _initDesktopStatus2
 	    });
+	    Object.defineProperty(this, _prepareBxUrl, {
+	      value: _prepareBxUrl2
+	    });
+	    Object.defineProperty(this, _goToBx, {
+	      value: _goToBx2
+	    });
 	    Object.defineProperty(this, _desktopIsActive, {
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _desktopVersion, {
+	    Object.defineProperty(this, _locationChangedToBx, {
 	      writable: true,
-	      value: 0
+	      value: false
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _initDesktopStatus)[_initDesktopStatus]();
+	    // init real desktop
 	  }
+
 	  isDesktopActive() {
 	    if (DesktopApi.isApiAvailable()) {
 	      return true;
@@ -188,44 +117,63 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _desktopIsActive)[_desktopIsActive] = flag;
 	  }
 	  getDesktopVersion() {
-	    if (DesktopApi.isApiAvailable()) {
-	      return DesktopApi.getApiVersion();
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _desktopVersion)[_desktopVersion];
+	    return DesktopApi.getApiVersion();
 	  }
-	  setDesktopVersion(version) {
-	    if (DesktopApi.isApiAvailable()) {
-	      return DesktopApi.getApiVersion();
-	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _desktopVersion)[_desktopVersion] = version;
-	  }
-	  isDesktopFeatureEnabled(code) {
-	    if (!DesktopApi.isApiAvailable()) {
-	      return false;
-	    }
+	  isFeatureEnabled(code) {
 	    return DesktopApi.isFeatureEnabled(code);
 	  }
+	  isLocationChangedToBx() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _locationChangedToBx)[_locationChangedToBx];
+	  }
 	  startVideoCall(dialogId = '', withVideo = true) {
-	    im_v2_lib_logger.Logger.warn('Desktop: onStartVideoCall', dialogId, withVideo);
+	    im_v2_lib_logger.Logger.warn('Desktop: startVideoCall', dialogId, withVideo);
 	    const callType = withVideo ? 'video' : 'audio';
-	    DesktopUtils.goToBx(`bx://callto/${callType}/${dialogId}`);
+	    // TODO: enum for commands
+	    babelHelpers.classPrivateFieldLooseBase(this, _goToBx)[_goToBx](`bx://callto/${callType}/${dialogId}`);
+	    return Promise.resolve();
+	  }
+	  checkStatusInDifferentContext() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _desktopIsActive)[_desktopIsActive]) {
+	      return Promise.resolve(false);
+	    }
+
+	    // TODO: check two-windowed mode
+	    if (DesktopApi.isApiAvailable()) {
+	      return Promise.resolve(false);
+	    }
 	    return new Promise(resolve => {
-	      resolve();
+	      Checker.testImageUpload(() => {
+	        resolve(true);
+	      }, () => {
+	        resolve(false);
+	      });
 	    });
 	  }
-	  checkRunStatus() {
-	    return new Promise((resolve, failure) => {
-	      DesktopUtils.checkRunStatus(resolve, failure);
+	}
+	function _goToBx2(url) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _prepareBxUrl)[_prepareBxUrl](url);
+	  babelHelpers.classPrivateFieldLooseBase(this, _locationChangedToBx)[_locationChangedToBx] = true;
+	  setTimeout(() => {
+	    const event = new main_core_events.BaseEvent({
+	      compatData: []
 	    });
+	    main_core_events.EventEmitter.emit(window, 'BXLinkOpened', event);
+	    babelHelpers.classPrivateFieldLooseBase(this, _locationChangedToBx)[_locationChangedToBx] = false;
+	  }, LOCATION_RESET_TIMEOUT);
+	  location.href = url;
+	}
+	function _prepareBxUrl2(url) {
+	  if (/^bx:\/\/v(\d)\//.test(url)) {
+	    return url;
 	  }
+	  return url.replace('bx://', `bx://v${DESKTOP_PROTOCOL_VERSION}/${location.hostname}/`);
 	}
 	function _initDesktopStatus2() {
 	  const settings = main_core.Extension.getSettings('im.v2.lib.desktop');
 	  this.setDesktopActive(settings.get('desktopIsActive'));
-	  this.setDesktopVersion(settings.get('desktopVersion'));
 	}
 
 	exports.DesktopManager = DesktopManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX));
 //# sourceMappingURL=desktop.bundle.js.map

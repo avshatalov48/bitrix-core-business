@@ -112,7 +112,7 @@ class OpenLineChat extends EntityChat
 
 		$entityData = $this->getEntityData(true);
 		return Config::canJoin(
-			$this->getChatId(),
+			$entityData['lineId'] ?? 0,
 			$entityData['crmEntityType'] ?? null,
 			$entityData['crmEntityId'] ?? null
 		);

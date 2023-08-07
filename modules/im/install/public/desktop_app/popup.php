@@ -33,6 +33,7 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/im/install/publ
 $GLOBALS["APPLICATION"]->SetPageProperty("BodyClass", "im-desktop");
 
 \Bitrix\Main\UI\Extension::load([
+	'im.v2.const',
 	'im_desktop',
 	'ui.buttons',
 	'ui.buttons.icons'

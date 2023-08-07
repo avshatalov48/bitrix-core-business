@@ -9,17 +9,21 @@ class Initiator extends Providers\Base\Initiator
 	protected Providers\OptionManager $optionManager;
 	protected Providers\SupportChecker $supportChecker;
 	protected EdnaRu $utils;
+	protected Providers\CacheManager $cacheManager;
+
 	protected string $channelType = '';
 
 	public function __construct(
 		Providers\OptionManager $optionManager,
 		Providers\SupportChecker $supportChecker,
-		EdnaRu $utils
+		EdnaRu $utils,
+		string $providerId
 	)
 	{
 		$this->optionManager = $optionManager;
 		$this->supportChecker = $supportChecker;
 		$this->utils = $utils;
+		$this->cacheManager = new Providers\CacheManager($providerId);
 	}
 
 	public function getFromList(): array
@@ -27,6 +31,12 @@ class Initiator extends Providers\Base\Initiator
 		if (!$this->supportChecker->canUse())
 		{
 			return [];
+		}
+
+		$cachedChannels = $this->cacheManager->getValue(Providers\CacheManager::CHANNEL_CACHE_ENTITY_ID);
+		if (!empty($cachedChannels))
+		{
+			return $cachedChannels;
 		}
 
 		$activeChannelListResult = $this->utils->getActiveChannelList($this->channelType);
@@ -47,6 +57,7 @@ class Initiator extends Providers\Base\Initiator
 				];
 			}
 		}
+		$this->cacheManager->setValue(Providers\CacheManager::CHANNEL_CACHE_ENTITY_ID, $fromList);
 
 		return $fromList;
 	}

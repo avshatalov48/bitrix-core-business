@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -71,41 +72,44 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return {};
 	  },
 	  computed: {
+	    recentItem() {
+	      return this.item;
+	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.item.dialogId, true);
+	      return this.$store.getters['dialogues/get'](this.recentItem.dialogId, true);
 	    },
 	    user() {
-	      return this.$store.getters['users/get'](this.item.dialogId, true);
+	      return this.$store.getters['users/get'](this.recentItem.dialogId, true);
 	    },
 	    needsBirthdayPlaceholder() {
 	      if (!this.isUser) {
 	        return false;
 	      }
-	      return this.$store.getters['recent/needsBirthdayPlaceholder'](this.item.dialogId);
+	      return this.$store.getters['recent/needsBirthdayPlaceholder'](this.recentItem.dialogId);
 	    },
 	    needsVacationPlaceholder() {
 	      if (!this.isUser) {
 	        return false;
 	      }
-	      return this.$store.getters['recent/needsVacationPlaceholder'](this.item.dialogId);
+	      return this.$store.getters['recent/needsVacationPlaceholder'](this.recentItem.dialogId);
 	    },
 	    showLastMessage() {
 	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.recent.showLastMessage);
 	    },
 	    hiddenMessageText() {
 	      if (this.isUser) {
-	        return this.$store.getters['users/getPosition'](this.item.dialogId);
+	        return this.$store.getters['users/getPosition'](this.recentItem.dialogId);
 	      }
 	      return this.$Bitrix.Loc.getMessage('IM_LIST_RECENT_CHAT_TYPE_GROUP_V2');
 	    },
 	    isLastMessageAuthor() {
-	      if (!this.item.message) {
+	      if (!this.recentItem.message) {
 	        return false;
 	      }
-	      return this.item.message.senderId === im_v2_application_core.Core.getUserId();
+	      return this.recentItem.message.senderId === im_v2_application_core.Core.getUserId();
 	    },
 	    lastMessageAuthorAvatar() {
-	      const authorDialog = this.$store.getters['dialogues/get'](this.item.message.senderId);
+	      const authorDialog = this.$store.getters['dialogues/get'](this.recentItem.message.senderId);
 	      if (!authorDialog) {
 	        return '';
 	      }
@@ -117,9 +121,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      };
 	    },
 	    messageText() {
-	      const formattedText = im_v2_lib_parser.Parser.purifyRecent(this.item);
+	      const formattedText = im_v2_lib_parser.Parser.purifyRecent(this.recentItem);
 	      if (!formattedText) {
-	        return this.isUser ? this.$store.getters['users/getPosition'](this.item.dialogId) : this.hiddenMessageText;
+	        return this.isUser ? this.$store.getters['users/getPosition'](this.recentItem.dialogId) : this.hiddenMessageText;
 	      }
 	      return formattedText;
 	    },
@@ -127,9 +131,18 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      const SPLIT_INDEX = 27;
 	      return im_v2_lib_utils.Utils.text.insertUnseenWhitespace(this.messageText, SPLIT_INDEX);
 	    },
+	    preparedDraftContent() {
+	      const phrase = this.loc('IM_LIST_RECENT_MESSAGE_DRAFT_2');
+	      const PLACEHOLDER_LENGTH = '#TEXT#'.length;
+	      const prefix = phrase.slice(0, -PLACEHOLDER_LENGTH);
+	      return `
+				<span class="bx-im-list-recent-item__message_draft-prefix">${prefix}</span>
+				<span class="bx-im-list-recent-item__message_text_content">${this.formattedDraftText}</span>
+			`;
+	    },
 	    formattedDraftText() {
 	      return im_v2_lib_parser.Parser.purify({
-	        text: this.item.draft.text,
+	        text: this.recentItem.draft.text,
 	        showIconIfEmptyText: false
 	      });
 	    },
@@ -151,11 +164,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  template: `
 		<div class="bx-im-list-recent-item__message_container">
 			<span class="bx-im-list-recent-item__message_text">
-				<template v-if="item.draft.text && dialog.counter === 0">
-					<span class="bx-im-list-recent-item__message_draft-prefix">{{ loc('IM_LIST_RECENT_MESSAGE_DRAFT') }}</span>
-					<span class="bx-im-list-recent-item__message_text_content">{{ formattedDraftText }}</span>
-				</template>
-				<div v-else-if="item.invitation.isActive" class="bx-im-list-recent-item__balloon_container --invitation">
+				<span v-if="recentItem.draft.text && dialog.counter === 0" v-html="preparedDraftContent"></span>
+				<div v-else-if="recentItem.invitation.isActive" class="bx-im-list-recent-item__balloon_container --invitation">
 					<div class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_INVITATION_NOT_ACCEPTED') }}</div>
 				</div>
 				<div v-else-if="needsBirthdayPlaceholder" class="bx-im-list-recent-item__balloon_container --birthday">
@@ -171,7 +181,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				</template>
 				<template v-else>
 					<span v-if="isLastMessageAuthor" class="bx-im-list-recent-item__message_author-icon --self"></span>
-					<template v-else-if="isChat && item.message.senderId">
+					<template v-else-if="isChat && recentItem.message.senderId">
 						<span v-if="lastMessageAuthorAvatar" :style="lastMessageAuthorAvatarStyle" class="bx-im-list-recent-item__message_author-icon --user"></span>
 						<span v-else class="bx-im-list-recent-item__message_author-icon --user --default"></span>
 					</template>
@@ -548,6 +558,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        textColor: '#525c69',
 	        hoverColor: 'transparent'
 	      };
+	    },
+	    isTabWithActiveCall() {
+	      return !!this.getCallManager().hasCurrentCall();
+	    },
+	    hasJoined() {
+	      return this.activeCall.state === im_v2_const.RecentCallStatus.joined;
 	    }
 	  },
 	  methods: {
@@ -558,11 +574,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.getCallManager().leaveCurrentCall();
 	    },
 	    onClick(event) {
-	      if (!this.isTabWithActiveCall()) {
-	        return;
-	      }
-	      if (this.activeCall.state === im_v2_const.RecentCallStatus.joined) {
-	        this.getCallManager().unfoldCurrentCall();
+	      if (!this.isTabWithActiveCall) {
 	        return;
 	      }
 	      const recentItem = this.$store.getters['recent/get'](this.activeCall.dialogId);
@@ -574,8 +586,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        $event: event
 	      });
 	    },
-	    isTabWithActiveCall() {
-	      return !!this.getCallManager().hasCurrentCall();
+	    returnToCall() {
+	      if (this.activeCall.state !== im_v2_const.RecentCallStatus.joined) {
+	        return;
+	      }
+	      this.getCallManager().unfoldCurrentCall();
 	    },
 	    getCallManager() {
 	      return im_v2_lib_call.CallManager.getInstance();
@@ -595,22 +610,22 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 						<ChatTitle :text="preparedName" />
 						<div class="bx-im-list-recent-active-call__title_icon"></div>
 					</div>
-					<div v-if="!isTabWithActiveCall()" class="bx-im-list-recent-active-call__actions_container">
-						<div class="bx-im-list-recent-active-call__actions_item --another-device">
-							<Button :size="ButtonSize.M" :customColorScheme="anotherDeviceColorScheme" :isRounded="true" :text="loc('IM_LIST_RECENT_ACTIVE_CALL_ANOTHER_DEVICE')" />
-						</div>
-					</div>
-					<div v-else-if="activeCall.state === RecentCallStatus.waiting" class="bx-im-list-recent-active-call__actions_container">
+					<div v-if="!hasJoined" class="bx-im-list-recent-active-call__actions_container">
 						<div class="bx-im-list-recent-active-call__actions_item --join">
 							<Button @click.stop="onJoinClick" :size="ButtonSize.M" :color="ButtonColor.Success" :isRounded="true" :text="loc('IM_LIST_RECENT_ACTIVE_CALL_JOIN')" />
 						</div>
 					</div>
-					<div v-else-if="activeCall.state === RecentCallStatus.joined" class="bx-im-list-recent-active-call__actions_container">
+					<div v-else-if="hasJoined && isTabWithActiveCall" class="bx-im-list-recent-active-call__actions_container">
 						<div class="bx-im-list-recent-active-call__actions_item --return">
-							<Button @click="onClick" :size="ButtonSize.M" :color="ButtonColor.Success" :isRounded="true" :text="loc('IM_LIST_RECENT_ACTIVE_CALL_RETURN')" />
+							<Button @click.stop="returnToCall" :size="ButtonSize.M" :color="ButtonColor.Success" :isRounded="true" :text="loc('IM_LIST_RECENT_ACTIVE_CALL_RETURN')" />
 						</div>
 						<div class="bx-im-list-recent-active-call__actions_item --end-call">
-							<Button @click="onLeaveCallClick" :size="ButtonSize.M" :color="ButtonColor.Danger" :isRounded="true" :icon="ButtonIcon.EndCall" />
+							<Button @click.stop="onLeaveCallClick" :size="ButtonSize.M" :color="ButtonColor.Danger" :isRounded="true" :icon="ButtonIcon.EndCall" />
+						</div>
+					</div>
+					<div v-else-if="hasJoined && !isTabWithActiveCall" class="bx-im-list-recent-active-call__actions_container">
+						<div class="bx-im-list-recent-active-call__actions_item --another-device">
+							<Button :size="ButtonSize.M" :customColorScheme="anotherDeviceColorScheme" :isRounded="true" :text="loc('IM_LIST_RECENT_ACTIVE_CALL_ANOTHER_DEVICE')" />
 						</div>
 					</div>
 				</div>
@@ -688,7 +703,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    } = event.getData();
 	    const recentItem = this.store.getters['recent/get'](dialogId);
 	    if (!recentItem || !recentItem.liked) {
-	      return false;
+	      return;
 	    }
 	    this.store.dispatch('recent/like', {
 	      id: dialogId,
@@ -898,7 +913,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    managePreloadedList() {
 	      const {
 	        preloadedList
-	      } = im_v2_application_core.Core.getApplicationData(im_v2_const.ApplicationName.quickAccess);
+	      } = im_v2_application_core.Core.getApplicationData();
 	      if (!preloadedList || !this.compactMode) {
 	        return false;
 	      }

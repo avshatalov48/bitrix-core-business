@@ -55,7 +55,7 @@ if(typeof BX.Sale.component.location.selector.search == 'undefined' && typeof BX
 							itemData.PATH = path;
 						}else
 							itemData.PATH = '';
-	
+
 						var query = '';
 
 						if(this.vars && this.vars.lastQuery && this.vars.lastQuery.QUERY)
@@ -71,6 +71,8 @@ if(typeof BX.Sale.component.location.selector.search == 'undefined' && typeof BX
 							itemData['=display_wrapped'] = BX.util.wrapSubstring(itemData.DISPLAY+itemData.PATH, chunks, this.opts.wrapTagName, true);
 						}else
 							itemData['=display_wrapped'] = BX.util.htmlspecialchars(itemData.DISPLAY);
+
+						itemData['=id'] = BX.util.htmlspecialchars(itemData.VALUE);
 					}
 				}
 			},
@@ -84,7 +86,7 @@ if(typeof BX.Sale.component.location.selector.search == 'undefined' && typeof BX
 				code: 'sls'
 			}
 		});
-		
+
 		this.handleInitStack(nf, BX.Sale.component.location.selector.search, opts);
 	}
 	BX.extend(BX.Sale.component.location.selector.search, BX.ui.autoComplete);
@@ -109,7 +111,7 @@ if(typeof BX.Sale.component.location.selector.search == 'undefined' && typeof BX
 				sv = this.vars,
 				ctx = this,
 				code = this.sys.code;
-			
+
 			// full route node
 			sc.fullRoute = BX.create('input', {
 				props: {
@@ -213,7 +215,7 @@ if(typeof BX.Sale.component.location.selector.search == 'undefined' && typeof BX
 
 				// lazyload it...
 				this.resetNavVariables();
-				
+
 				ctx.downloadBundle({CODE: code}, function(data){
 
 					ctx.fillCache(data, false); // storing item in the cache
@@ -288,7 +290,7 @@ if(typeof BX.Sale.component.location.selector.search == 'undefined' && typeof BX
 				if(typeof item.TYPE_ID != 'undefined' && typeof this.opts.types != 'undefined')
 					item.TYPE = this.opts.types[item.TYPE_ID].CODE;
 
-				var path = item.PATH; 
+				var path = item.PATH;
 				delete(item.PATH);
 				result.push(item);
 

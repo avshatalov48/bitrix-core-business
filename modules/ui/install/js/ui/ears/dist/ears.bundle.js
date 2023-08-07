@@ -173,6 +173,8 @@ this.BX = this.BX || {};
 
 	          activeItem ? _this2.scrollToActiveItem(activeItem) : null;
 	        }
+
+	        _this2.toggleEars();
 	      }, 600);
 	      return this;
 	    }
@@ -362,9 +364,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "scrollTop",
 	    value: function scrollTop() {
-	      console.log('scrollTop');
 	      this.stopScroll('bottom');
-	      var previous = this.container.scrollTop;
 	      this.container.scrollTop -= 10;
 	      this.emit('onEarsAreMoved');
 
@@ -379,7 +379,6 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "scrollBottom",
 	    value: function scrollBottom() {
-	      console.log('scrollBottom');
 	      this.stopScroll('top');
 	      var previous = this.container.scrollTop;
 	      this.container.scrollTop += 10;

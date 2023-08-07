@@ -1,6 +1,6 @@
-import {Type, Extension, Reflection} from 'main.core';
+import { Type, Extension, Reflection } from 'main.core';
 
-import {legacyMessenger} from './legacy';
+import { legacyMessenger, legacyDesktop } from './legacy';
 
 class Messenger
 {
@@ -12,17 +12,24 @@ class Messenger
 		this.v2enabled = settings.get('v2enabled', false);
 	}
 
-	openChat(dialogId: string = '', text: string = ''): Promise
+	async openChat(dialogId: string = '', text: string = ''): Promise
 	{
 		if (!this.v2enabled)
 		{
-			return new Promise((resolve, reject) => {
-				window.BXIM.openMessenger(dialogId);
-				resolve();
-			});
+			window.BXIM.openMessenger(dialogId);
+
+			return Promise.resolve();
+		}
+
+		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+		const desktopIsActive = await DesktopManager?.getInstance().checkStatusInDifferentContext();
+		if (desktopIsActive)
+		{
+			return DesktopManager?.getInstance().openChat(dialogId);
 		}
 
 		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
+
 		return MessengerSlider?.getInstance().openChat(dialogId, text);
 	}
 
@@ -30,105 +37,109 @@ class Messenger
 	{
 		if (!this.v2enabled)
 		{
-			return new Promise((resolve, reject) => {
-				window.BXIM.openMessenger(0, 'im-ol');
-				resolve();
-			});
+			window.BXIM.openMessenger(0, 'im-ol');
+
+			return Promise.resolve();
 		}
 
 		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
+
 		return MessengerSlider?.getInstance().openLines();
 	}
 
-	openNotifications(): Promise
+	async openNotifications(): Promise
 	{
 		if (!this.v2enabled)
 		{
-			return new Promise((resolve, reject) => {
-				window.BXIM.openNotify();
-				resolve();
-			});
-		}
+			window.BXIM.openNotify();
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-		return MessengerSlider?.getInstance().openNotifications();
-	}
-
-	openRecentSearch(): Promise
-	{
-		if (!this.v2enabled)
-		{
-			return new Promise((resolve, reject) => {
-				window.BXIM.openMessenger();
-				resolve();
-			});
-		}
-
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-		return MessengerSlider?.getInstance().openRecentSearch();
-	}
-
-	openSettings(options: ?object = {}): Promise<Array>
-	{
-		if (!this.v2enabled)
-		{
-			return new Promise((resolve, reject) => {
-
-				const params = {};
-
-				if (Type.isPlainObject(options))
-				{
-					if (Type.isStringFilled(options.selected))
-					{
-						params.active = options.selected;
-					}
-					if (Type.isStringFilled(options.section))
-					{
-						params.onlyPanel = options.section;
-					}
-				}
-
-				window.BXIM.openSettings(params);
-				resolve();
-			});
-		}
-
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-		return MessengerSlider?.getInstance().openSettings();
-	}
-
-	startVideoCall(dialogId: string = '', withVideo: boolean = true): Promise<Array>
-	{
-		if (!this.v2enabled)
-		{
-			return new Promise((resolve) => {
-				window.BXIM.callTo(dialogId, withVideo);
-				resolve();
-			});
+			return Promise.resolve();
 		}
 
 		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+		const desktopIsActive = await DesktopManager?.getInstance().checkStatusInDifferentContext();
+		if (desktopIsActive)
+		{
+			return DesktopManager?.getInstance().openNotifications();
+		}
 
-		return new Promise((resolve, reject) => {
-			DesktopManager?.getInstance().checkRunStatus()
-				.then(() => {
-					DesktopManager?.getInstance().startVideoCall(dialogId, withVideo);
-					resolve();
-				})
-				.catch(() => {
-					const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-					MessengerSlider?.getInstance().startVideoCall(dialogId, withVideo)
-						.then(resolve)
-						.catch(reject)
-					;
-				})
-			;
-		});
+		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
+
+		return MessengerSlider?.getInstance().openNotifications();
+	}
+
+	async openRecentSearch(): Promise
+	{
+		if (!this.v2enabled)
+		{
+			window.BXIM.openMessenger();
+
+			return Promise.resolve();
+		}
+
+		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+		const desktopIsActive = await DesktopManager?.getInstance().checkStatusInDifferentContext();
+		if (desktopIsActive)
+		{
+			return DesktopManager?.getInstance().openRecentSearch();
+		}
+
+		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
+
+		return MessengerSlider?.getInstance().openRecentSearch();
+	}
+
+	openSettings(options: ?Object = {}): Promise<Array>
+	{
+		if (!this.v2enabled)
+		{
+			const params = {};
+			if (Type.isPlainObject(options))
+			{
+				if (Type.isStringFilled(options.selected))
+				{
+					params.active = options.selected;
+				}
+
+				if (Type.isStringFilled(options.section))
+				{
+					params.onlyPanel = options.section;
+				}
+			}
+			window.BXIM.openSettings(params);
+
+			return Promise.resolve();
+		}
+
+		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
+
+		return MessengerSlider?.getInstance().openSettings();
+	}
+
+	async startVideoCall(dialogId: string = '', withVideo: boolean = true): Promise
+	{
+		if (!this.v2enabled)
+		{
+			window.BXIM.callTo(dialogId, withVideo);
+
+			return Promise.resolve();
+		}
+
+		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+		const desktopIsActive = await DesktopManager?.getInstance().checkStatusInDifferentContext();
+		if (desktopIsActive)
+		{
+			return DesktopManager?.getInstance().startVideoCall(dialogId, withVideo);
+		}
+
+		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
+
+		return MessengerSlider?.getInstance().startVideoCall(dialogId, withVideo);
 	}
 }
 
 const messenger = new Messenger();
-export {messenger as Messenger};
+export { messenger as Messenger };
 
 // pretty export
 const namespace = Reflection.getClass('BX.Messenger');
@@ -145,4 +156,14 @@ if (
 )
 {
 	window.BXIM = legacyMessenger;
+}
+
+if (
+	messenger.v2enabled
+	&& Type.isUndefined(window.BX.desktop)
+	&& Type.isObject(window.BXDesktopSystem)
+	&& window.parent === window
+)
+{
+	window.BX.desktop = legacyDesktop;
 }

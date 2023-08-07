@@ -58,3 +58,6 @@
 	text-overflow: ellipsis;
 }
 
+.sender-ui-tile-icon-service-yandex-master {
+	--ui-icon-service-bg-image: url("/bitrix/components/bitrix/sender.start/templates/.default/images/yandex-direct-icon.svg");
+}

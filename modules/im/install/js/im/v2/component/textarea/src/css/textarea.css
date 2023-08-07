@@ -151,6 +151,14 @@
 	background-image: url(./images/create-active.svg);
 }
 
+.bx-im-textarea__icon.--create.--with-ai {
+	background-image: url(./images/create-with-ai.svg);
+}
+
+.bx-im-textarea__icon.--create.--with-ai.--active {
+	background-image: url(./images/create-with-ai-active.svg);
+}
+
 .bx-im-textarea__icon.--smile {
 	background-image: url(./images/smile.svg);
 }

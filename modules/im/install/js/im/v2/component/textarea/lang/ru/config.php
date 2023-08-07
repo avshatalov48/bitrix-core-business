@@ -25,6 +25,10 @@ $MESS["IM_TEXTAREA_CREATE_DOCUMENT"] = "Документ";
 $MESS["IM_TEXTAREA_CREATE_PRESENTATION"] = "Презентация";
 $MESS["IM_TEXTAREA_CREATE_SPREADSHEET"] = "Таблица";
 
+$MESS["IM_TEXTAREA_CREATE_AI_TEXT_TITLE"] = "Создать текст";
+$MESS["IM_TEXTAREA_CREATE_AI_TEXT_SUBTITLE"] = "AI придумает за вас или улучшит текст в нужном стиле";
+$MESS["IM_TEXTAREA_CREATE_AI_IMAGE_TITLE"] = "Создать картинку";
+$MESS["IM_TEXTAREA_CREATE_AI_IMAGE_SUBTITLE"] = "AI создаст любую картинку по вашему описанию";
 $MESS["IM_TEXTAREA_CREATE_TASK_TITLE"] = "Создать задачу";
 $MESS["IM_TEXTAREA_CREATE_TASK_SUBTITLE"] = "В чате появится уведомление о создании задачи и ссылка на неё";
 $MESS["IM_TEXTAREA_CREATE_MEETING_TITLE"] = "Создать встречу";
@@ -37,3 +41,15 @@ $MESS["IM_TEXTAREA_MARKET_APPS_SHOW_MORE_BUTTON"] = "Ещё +#NUMBER#";
 $MESS["IM_TEXTAREA_MARKET_OTHER_APPS"] = "Остальные приложения";
 $MESS["IM_TEXTAREA_MARKET_APPS_EMPTY_STATE"] = "Вы пока не добавили приложение, установите его в Маркете";
 $MESS["IM_TEXTAREA_SMILE_SELECTOR_SMILES_TAB"] = "Смайлы";
+
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE"] = "Загрузка изображений";
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_SEND"] = "Отправить";
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_CANCEL"] = "Отменить";
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER"] = "Добавить комментарий";
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_SEND_AS_FILE"] = "Отправить как файл";
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_UPLOAD_ERROR"] = "Не удалось загрузить изображение";
+
+$MESS["IM_TEXTAREA_GIPHY_EMPTY_STATE"] = "По вашему запросу ничего не найдено";
+$MESS["IM_TEXTAREA_GIPHY_UNAVAILABLE_STATE"] = "Интеграция с Giphy недоступна";
+$MESS["IM_TEXTAREA_GIPHY_MORE"] = "Подробнее";
+$MESS["IM_TEXTAREA_GIPHY_INPUT_PLACEHOLDER"] = "Поиск по Giphy.com";

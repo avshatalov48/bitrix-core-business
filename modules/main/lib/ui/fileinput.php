@@ -316,7 +316,7 @@ HTML
 			}
 			if ($res = $this->getFile($fileId, $inputName, $getDataFromRequest))
 			{
-				$t = ($res["fileId"] > 0 ? $this->templates["uploaded"] : (is_array($fileId) ? $this->templates["unsavedArray"] : $this->templates["unsaved"]));
+				$t = (isset($res["fileId"]) && $res["fileId"] > 0 ? $this->templates["uploaded"] : (is_array($fileId) ? $this->templates["unsavedArray"] : $this->templates["unsaved"]));
 				if (!is_array($res))
 				{
 					$res = $this->formFile($fileId, $inputName);

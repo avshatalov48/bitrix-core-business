@@ -143,12 +143,15 @@ export class ExpiredLicense extends BaseContent
 		});
 	}
 
-	failureHandler(): void
+	failureHandler(response): void
 	{
 		this.#state = ExpiredLicense.stateTypes.UPDATE_SERVER_IS_UNAVAILABLE;
+
+		let errors = Type.isArray(response.errors) ? response.errors : [];
+		// let errors = [];
 		EventEmitter.emit(EventEmitter.GLOBAL_TARGET, 'MainCouponActivation:changeContent', {
 			source: this,
-			target: new Activate(this.#parameters.SUPPORT_LINK, this.#parameters.DOC_LINK)
+			target: new Activate(this.#parameters.SUPPORT_LINK, this.#parameters.DOC_LINK, errors)
 		});
 	}
 }

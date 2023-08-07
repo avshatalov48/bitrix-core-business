@@ -9,7 +9,11 @@ if (($strPositionInfo = $arParams['~MAP_DATA'])
 	&& CheckSerializedData($strPositionInfo)
 	&& ($arResult['POSITION'] = unserialize($strPositionInfo, ['allowed_classes' => false])))
 {
-	if (is_array($arResult['POSITION']) && is_array($arResult['POSITION']['PLACEMARKS']) && ($cnt = count($arResult['POSITION']['PLACEMARKS'])))
+	if (
+		is_array($arResult['POSITION'] ?? null)
+		&& is_array($arResult['POSITION']['PLACEMARKS'] ?? null)
+		&& ($cnt = count($arResult['POSITION']['PLACEMARKS']))
+	)
 	{
 		for ($i = 0; $i < $cnt; $i++)
 		{
@@ -17,7 +21,11 @@ if (($strPositionInfo = $arParams['~MAP_DATA'])
 		}
 	}
 
-	if (is_array($arResult['POSITION']) && is_array($arResult['POSITION']['POLYLINES']) && ($cnt = count($arResult['POSITION']['POLYLINES'])))
+	if (
+		is_array($arResult['POSITION'] ?? null)
+		&& is_array($arResult['POSITION']['POLYLINES'] ?? null)
+		&& ($cnt = count($arResult['POSITION']['POLYLINES']))
+	)
 	{
 		for ($i = 0; $i < $cnt; $i++)
 		{

@@ -312,7 +312,7 @@ abstract class DataManager extends Entity\DataManager
 			$entity->cleanCache();
 
 			// event after update
-			static::callOnAfterUpdateEvent($object, $fields);
+			static::callOnAfterUpdateEvent($object, $data);
 		}
 		catch (\Exception $e)
 		{

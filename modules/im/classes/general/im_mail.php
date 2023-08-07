@@ -323,7 +323,8 @@ class CIMMail
 				"EMAIL_TO" => $arToInfo["EMAIL_TO"],
 				"TITLE" => $arToInfo["TITLE"] ?? null,
 				"MESSAGES" => $message,
-				"MESSAGES_FROM_USERS" => serialize($messagesFromUsers)
+				"MESSAGES_FROM_USERS" => serialize($messagesFromUsers),
+				"DATE_CREATE" => null,
 			);
 			$arFields['FROM_USER_ID'] = implode(', ', $arFromId);
 			if (count($arNames) > 1)

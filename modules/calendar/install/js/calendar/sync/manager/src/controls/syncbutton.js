@@ -1,8 +1,9 @@
 // @flow
 'use strict';
 
-import {Loc, Dom} from "main.core";
-import SyncStatusPopup from "./syncstatuspopup";
+import { Dom, Loc, Tag } from 'main.core';
+import { Popup } from 'main.popup';
+import SyncStatusPopup from './syncstatuspopup';
 
 export default class SyncButton
 {
@@ -15,6 +16,7 @@ export default class SyncButton
 		this.wrapper = options.wrapper;
 		this.userId = options.userId;
 		this.status = options.status;
+		this.isGoogleApplicationRefused = options.isGoogleApplicationRefused;
 
 		this.buttonEnterTimeout = null;
 		this.buttonLeaveTimeout = null;
@@ -46,6 +48,37 @@ export default class SyncButton
 		this.button.renderTo(this.wrapper);
 	}
 
+	showGoogleApplicationRefusedPopup()
+	{
+		const popup = new Popup({
+			bindElement: this.button.getContainer(),
+			borderRadius: '3px',
+			className: 'calendar-popup-ui-tour-animate',
+			content: Tag.render`
+				<div class="calendar-sync-popup-status-refused">
+					<div class="calendar-sync-popup-status-refused-title">
+						${Loc.getMessage('CAL_SYNC_INFO_STATUS_REFUSED_POPUP_TITLE')}
+					</div>
+					<div class="calendar-sync-popup-status-refused-text">
+						${Loc.getMessage('CAL_SYNC_INFO_STATUS_REFUSED_POPUP_TEXT')}
+					</div>
+				</div>
+			`,
+			width: 400,
+			angle: {
+				offset: this.button.getContainer().offsetWidth / 2,
+				position: 'top',
+			},
+			closeIcon: true,
+			autoHide: true,
+		});
+
+		setTimeout(() => {
+			popup.show();
+			BX.ajax.runAction('calendar.api.syncajax.disableShowGoogleApplicationRefused');
+		}, 1000);
+	}
+
 	showPopup(button)
 	{
 		if(this.status !== 'not_connected')
@@ -73,6 +106,7 @@ export default class SyncButton
 				withUpdateButton: true,
 				node: button.getContainer(),
 				id: 'calendar-sync-button-status',
+				isGoogleApplicationRefused: this.isGoogleApplicationRefused,
 			});
 			this.popup.show();
 
@@ -101,7 +135,7 @@ export default class SyncButton
 		const buttonData = this.getButtonData();
 		this.button.setColor(buttonData.color);
 		this.button.setText(buttonData.text);
-		this.button.removeClass('ui-btn-icon-fail ui-btn-icon-success ui-btn-clock');
+		this.button.removeClass('ui-btn-icon-fail ui-btn-icon-success ui-btn-clock calendar-sync-btn-icon-refused');
 		this.button.addClass(buttonData.iconClass);
 	}
 
@@ -159,6 +193,15 @@ export default class SyncButton
 
 	getButtonData()
 	{
+		if (this.status === 'refused')
+		{
+			return {
+				text: Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
+				color: BX.UI.Button.Color.LIGHT_BORDER,
+				iconClass: 'calendar-sync-btn-icon-refused',
+			};
+		}
+
 		if (this.status === 'success')
 		{
 			return {

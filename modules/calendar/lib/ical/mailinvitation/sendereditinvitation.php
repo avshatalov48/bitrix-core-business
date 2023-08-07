@@ -3,6 +3,7 @@
 
 namespace Bitrix\Calendar\ICal\MailInvitation;
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ObjectException;
 use Bitrix\Main\Text\Encoding;
@@ -141,6 +142,11 @@ class SenderEditInvitation extends SenderInvitation
 	 */
 	protected function getSubjectTitle(): string
 	{
+		if (Loader::includeModule('bitrix24') && \CBitrix24::isFreeLicense())
+		{
+			return Loc::getMessage("EC_CALENDAR_ICAL_MAIL_METHOD_EDIT");
+		}
+
 		return Loc::getMessage("EC_CALENDAR_ICAL_MAIL_METHOD_EDIT") . ": {$this->event['NAME']}";
 	}
 

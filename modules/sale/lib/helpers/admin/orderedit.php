@@ -426,7 +426,7 @@ class OrderEdit
 	 * @throws ArgumentNullException
 	 * @throws SystemException
 	 */
-	public static function createOrderFromForm(array $formData, $creatorUserId, $createUserIfNeed = true, array $files = array(), Result &$opResult)
+	public static function createOrderFromForm(array $formData, $creatorUserId, $createUserIfNeed, array $files, Result &$opResult)
 	{
 		if(!isset($formData["SITE_ID"]) || $formData["SITE_ID"] == '')
 			throw new ArgumentNullException('formData["SITE_ID"]');
@@ -739,7 +739,7 @@ class OrderEdit
 	 * @throws SystemException
 	 * @throws \Bitrix\Main\ObjectNotFoundException
 	 */
-	public static function editOrderByFormData(array $formData, Order $order, $userId, $createUserIfNeed = true, array $files = array(), \Bitrix\Sale\Result &$result)
+	public static function editOrderByFormData(array $formData, Order $order, $userId, $createUserIfNeed, array $files, Result &$result)
 	{
 		/** @var \Bitrix\Sale\Result $res */
 		$res = self::fillSimpleFields($order, $formData, $userId);

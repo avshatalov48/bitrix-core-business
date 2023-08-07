@@ -3,13 +3,19 @@
 namespace Bitrix\Catalog\UserField;
 
 use Bitrix\Catalog\Controller\Controller;
+use Bitrix\Catalog\StoreTable;
 use Bitrix\Main\Loader;
 
 class UserFieldAccess extends \Bitrix\Main\UserField\UserFieldAccess
 {
 	protected function getAvailableEntityIds(): array
 	{
-		return array_map(fn($item): string => 'IBLOCK_'.$item.'_SECTION', static::getIBlockList());
+		$result = [];
+
+		$result = array_map(fn($item): string => 'IBLOCK_'.$item.'_SECTION', static::getIBlockList());
+		$result[] = StoreTable::getUfId();
+
+		return $result;
 	}
 
 	protected static function getIBlockList(): array

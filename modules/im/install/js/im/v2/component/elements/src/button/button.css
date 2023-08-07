@@ -1,7 +1,7 @@
 .bx-im-button__scope {
 	--im-button__size_s: 18px;
 	--im-button__size_m: 26px;
-	--im-button__size_l: 33px;
+	--im-button__size_l: 31px;
 	--im-button__size_xl: 39px;
 	--im-button__size_xxl: 47px;
 
@@ -78,7 +78,7 @@
 	border-color: var(--im-button__border-color);
 
 	font-size: var(--im-button__font-size);
-	font-family: var(--im-font-family-open-sans), var(--im-font-family-helvetica);
+	font-family: var(--im-font-family-system);
 	font-weight: var(--im-font-weight-bold, 700);
 	user-select: none;
 

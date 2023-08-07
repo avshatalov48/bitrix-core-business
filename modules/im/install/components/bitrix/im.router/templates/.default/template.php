@@ -18,9 +18,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 
 	<? if (isset($arResult['MESSENGER_V2']) && $arResult['MESSENGER_V2'] === 'Y'): ?>
 		<?if (isset($_GET['IM_NOTIFY'])):?>
-			BX.Messenger.Public.openNotifications();
+			BX.Messenger.v2.Lib.MessengerSlider.getInstance().openNotifications();
 		<?else:?>
-			BX.Messenger.Public.openChat('<?=(isset($_GET['IM_DIALOG'])? CUtil::JSEscape($_GET['IM_DIALOG']): '')?>');
+			BX.Messenger.v2.Lib.MessengerSlider.getInstance().openChat('<?=(isset($_GET['IM_DIALOG'])? CUtil::JSEscape($_GET['IM_DIALOG']): '')?>');
 		<?endif;?>
 	<? endif; ?>
 </script>

@@ -15,6 +15,7 @@ export class ConnectionProvider extends EventEmitter
 	STATUS_SYNCHRONIZING = 'synchronizing';
 	STATUS_SUCCESS = 'success';
 	STATUS_FAILED = 'failed';
+	STATUS_REFUSED = 'refused';
 	STATUS_PENDING = 'pending';
 	STATUS_NOT_CONNECTED = 'not_connected';
 	ERROR_CODE = 'error';
@@ -23,6 +24,7 @@ export class ConnectionProvider extends EventEmitter
 		this.STATUS_SYNCHRONIZING,
 		this.STATUS_SUCCESS,
 		this.STATUS_FAILED,
+		this.STATUS_REFUSED,
 		this.STATUS_PENDING,
 		this.STATUS_NOT_CONNECTED
 	];
@@ -204,9 +206,14 @@ export class ConnectionProvider extends EventEmitter
 
 		if (this.connected)
 		{
-			return this.status
-				? "success"
-				: "failed";
+			const status = this.status ? 'success' : 'failed';
+
+			if (status === 'failed' && this.isGoogleApplicationRefused)
+			{
+				return 'refused';
+			}
+
+			return status;
 		}
 		else if (this.pendingStatus)
 		{

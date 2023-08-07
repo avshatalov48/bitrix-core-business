@@ -92,8 +92,6 @@ if ($this->StartResultCache())
 					if (SITE_CHARSET != "windows-1251")
 						$strQueryText = $APPLICATION->ConvertCharset($strQueryText, "windows-1251", SITE_CHARSET);
 
-					require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/xml.php");
-
 					$strQueryText = preg_replace("#<!DOCTYPE[^>]+?>#i", "", $strQueryText);
 					$strQueryText = preg_replace("#<"."\\?XML[^>]+?\\?".">#i", "", $strQueryText);
 

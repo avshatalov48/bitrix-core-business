@@ -1,9 +1,10 @@
 import { FileIcon } from 'ui.icons.generator';
 
+import type { BitrixVueComponentProps } from 'ui.vue3';
 /**
  * @memberof BX.UI.Uploader
  */
-export const FileIconComponent = {
+export const FileIconComponent: BitrixVueComponentProps = {
 	props: {
 		name: {
 			type: String,
@@ -19,7 +20,7 @@ export const FileIconComponent = {
 			default: 36,
 		},
 	},
-	mounted()
+	mounted(): void
 	{
 		const icon = new FileIcon({
 			name: this.name,

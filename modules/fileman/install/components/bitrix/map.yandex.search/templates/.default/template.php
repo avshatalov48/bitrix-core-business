@@ -1,7 +1,7 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 $this->setFrameMode(true);
-if ($arParams['BX_EDITOR_RENDER_MODE'] == 'Y'):
+if (($arParams['BX_EDITOR_RENDER_MODE'] ?? null) == 'Y'):
 ?>
 <img src="/bitrix/components/bitrix/map.yandex.search/templates/.default/images/screenshot.png" border="0" />
 <?
@@ -22,10 +22,10 @@ else:
 	$APPLICATION->IncludeComponent('bitrix:map.yandex.system', '.default', $arParams, null, array('HIDE_ICONS' => 'Y'));
 ?>
 	</div>
-	
+
 </div>
 <script type="text/javascript">
-function BXWaitForMap_search<?echo $arParams['MAP_ID']?>() 
+function BXWaitForMap_search<?echo $arParams['MAP_ID']?>()
 {
 	window.jsYandexSearch_<?echo $arParams['MAP_ID']?> = new JCBXYandexSearch('<?echo $arParams['MAP_ID']?>', document.getElementById('results_<?echo $arParams['MAP_ID']?>'), {
 		mess_error: '<?echo GetMessage('MYMS_TPL_JS_ERROR')?>',

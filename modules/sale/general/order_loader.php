@@ -3022,10 +3022,11 @@ class CSaleOrderLoader
 							}
 
 							if ($value["#"][GetMessage("CC_BSC1_TAXES")][0]["#"][GetMessage("CC_BSC1_TAX")][0]["#"][GetMessage("CC_BSC1_NAME")][0]["#"] <> '') {
-								$taxValueTmp = $val[GetMessage("CC_BSC1_TAXES")][0]["#"][GetMessage("CC_BSC1_TAX")][0]["#"][GetMessage("CC_BSC1_TAX_VALUE")][0]["#"];
+								$taxValueTmp = (int)$val[GetMessage("CC_BSC1_TAXES")][0]["#"][GetMessage("CC_BSC1_TAX")][0]["#"][GetMessage("CC_BSC1_TAX_VALUE")][0]["#"];
 								$basketItems["VAT_RATE"] = $taxValueTmp / 100;
 
-								if (intval($taxValueTmp) > intval($taxValue)) {
+								if ($taxValueTmp > $taxValue)
+								{
 									$taxName = $val[GetMessage("CC_BSC1_TAXES")][0]["#"][GetMessage("CC_BSC1_TAX")][0]["#"][GetMessage("CC_BSC1_NAME")][0]["#"];
 									$taxValue = $taxValueTmp;
 								}

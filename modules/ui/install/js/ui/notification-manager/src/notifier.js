@@ -35,8 +35,9 @@ class Notifier
 			eventNamespace: Notifier.EVENT_NAMESPACE,
 		};
 
-		if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isMac())
+		if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isMac() && DesktopHelper.geApiVersion() >= 73)
 		{
+			console.log('in', DesktopHelper.geApiVersion() >= 73)
 			return new MacProvider(providerOptions);
 		}
 

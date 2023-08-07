@@ -15,7 +15,7 @@ export default class ClientLoadController extends AbstractLoadController
 	{
 		if (Type.isFile(file.getBinary()))
 		{
-			this.emit('onProgress', { file, progress: 100 });
+			this.emit('onProgress', { progress: 100 });
 			this.emit('onLoad', { fileInfo: file });
 		}
 		else

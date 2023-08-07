@@ -52,12 +52,12 @@ if ($arParams['DEV_MODE'] == 'Y'):
 <?
 endif;
 
-if ($arParams['ONMAPREADY']):
+if ($arParams['ONMAPREADY'] ?? null):
 ?>
 	if (window.<?echo $arParams['ONMAPREADY']?>)
 	{
 <?
-	if ($arParams['ONMAPREADY_PROPERTY']):
+	if ($arParams['ONMAPREADY_PROPERTY'] ?? null):
 ?>
 		<?echo $arParams['ONMAPREADY_PROPERTY']?> = map;
 		window.<?echo $arParams['ONMAPREADY']?>();
@@ -74,7 +74,7 @@ endif;
 ?>
 }
 <?
-if ($arParams['DEV_MODE'] == 'Y'):
+if (($arParams['DEV_MODE'] ?? null) == 'Y'):
 ?>
 function BXMapLoader_<?echo $arParams['MAP_ID']?>()
 {
@@ -95,11 +95,11 @@ function BXMapLoader_<?echo $arParams['MAP_ID']?>()
 	}
 }
 <?
-	if ($arParams['WAIT_FOR_EVENT']):
+	if ($arParams['WAIT_FOR_EVENT'] ?? null):
 ?>
 	<?=CUtil::JSEscape($arParams['WAIT_FOR_EVENT'])?> = BXMapLoader_<?=$arParams['MAP_ID']?>;
 <?
-	elseif ($arParams['WAIT_FOR_CUSTOM_EVENT']):
+	elseif ($arParams['WAIT_FOR_CUSTOM_EVENT'] ?? null):
 ?>
 	BX.addCustomEvent('<?=CUtil::JSEscape($arParams['WAIT_FOR_EVENT'])?>', BXMapLoader_<?=$arParams['MAP_ID']?>);
 <?
@@ -133,4 +133,4 @@ function BXMapYandexAfterShow(mapId)
 }
 
 </script>
-<div id="BX_YMAP_<?echo $arParams['MAP_ID']?>" class="bx-yandex-map" style="height: <?echo $arParams['MAP_HEIGHT'];?>; width: <?echo $arParams['MAP_WIDTH']?>;max-width: 100%;"><?echo GetMessage('MYS_LOADING'.($arParams['WAIT_FOR_EVENT'] ? '_WAIT' : ''));?></div>
+<div id="BX_YMAP_<?echo $arParams['MAP_ID']?>" class="bx-yandex-map" style="height: <?echo $arParams['MAP_HEIGHT'];?>; width: <?echo $arParams['MAP_WIDTH']?>;max-width: 100%;"><?echo GetMessage('MYS_LOADING'.(($arParams['WAIT_FOR_EVENT'] ?? null) ? '_WAIT' : ''));?></div>

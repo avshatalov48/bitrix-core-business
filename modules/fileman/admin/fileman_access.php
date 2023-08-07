@@ -13,11 +13,12 @@ ClearVars("g_");
 $site = CFileMan::__CheckSite($site);
 $DOC_ROOT = CSite::GetSiteDocRoot($site);
 
+$logical = $logical ?? null;
 $addUrl = 'lang='.LANGUAGE_ID.($logical == "Y"?'&logical=Y':'');
 
 $io = CBXVirtualIo::GetInstance();
 
-$path = urldecode($path);
+$path = urldecode($path ?? '');
 $path = $io->CombinePath("/", $path);
 $arPath = Array($site, $path);
 $strNotice = "";
@@ -48,6 +49,7 @@ $arPermTypes['NOT_REF'] = Array(
 
 $strWarning = "";
 $arFiles = Array();
+$files ??= [];
 if (count($files) > 0)
 {
 	CUtil::decodeURIComponent($files);
@@ -84,8 +86,11 @@ function GetAccessArrTmp($path)
 	$io = CBXVirtualIo::GetInstance();
 	if($io->DirectoryExists($DOC_ROOT.$path))
 	{
-		@include($io->GetPhysicalName($DOC_ROOT.$path."/.access.php"));
-		return $PERM;
+		if ($io->FileExists($io->GetPhysicalName($DOC_ROOT.$path."/.access.php")))
+		{
+			@include($io->GetPhysicalName($DOC_ROOT.$path."/.access.php"));
+		}
+		return $PERM ?? null;
 	}
 	return Array();
 }
@@ -162,14 +167,14 @@ if($REQUEST_METHOD=="POST" && is_array($files) && count($files)>0 && $saveperm <
 	{
 		$arPermissionsTmp = $arPermissions;
 		for($j=0; $j<count($arNotSetPerm); $j++)
-			$arPermissionsTmp[$arNotSetPerm[$j]] = $CUR_PERM[$arFiles[$i]][$arNotSetPerm[$j]];
+			$arPermissionsTmp[$arNotSetPerm[$j]] = $CUR_PERM[$arFiles[$i]][$arNotSetPerm[$j]] ?? null;
 
 		$APPLICATION->SetFileAccessPermission(Array($site, $path."/".$arFiles[$i]), $arPermissionsTmp);
 	}
 
 	if ($e = $APPLICATION->GetException())
 		$strNotice = $e->msg;
-	elseif($strWarning == '' && $apply == '')
+	elseif($strWarning == '' && ($apply ?? null) == '')
 		LocalRedirect("/bitrix/admin/fileman_admin.php?".$addUrl."&site=".$site."&path=".UrlEncode($path));
 }
 
@@ -265,6 +270,7 @@ $tabControl->Begin();
 	</td>
 </tr>
 	<?
+	$bDiff = $bDiff ?? null;
 	//возьмем массив прав доступа для всей папки
 	$CUR_PERM = GetAccessArrTmp($path);
 
@@ -274,11 +280,11 @@ $tabControl->Begin();
 		if($path=='' && $arFiles[$i]=='')
 			$perm = $CUR_PERM['/']['*'];
 		else
-			$perm = $CUR_PERM[$arFiles[$i]]['*'];
+			$perm = $CUR_PERM[$arFiles[$i]]['*'] ?? null;
 
-		if (mb_substr($perm, 0, 2) == 'T_')
+		if (mb_substr($perm ?? '', 0, 2) == 'T_')
 			$taskIdGroupInh = intval(mb_substr($perm, 2));
-		elseif(mb_strlen($perm) == 1)
+		elseif(mb_strlen($perm ?? '') == 1)
 			$taskIdGroupInh = CTask::GetIdByLetter($perm,'main','file');
 		else
 			$taskIdGroupInh = 'NOT_REF';
@@ -340,9 +346,9 @@ $tabControl->Begin();
 
 			//echo "!".$perm."!";
 
-			if (mb_substr($perm, 0, 2) == 'T_')
+			if (mb_substr($perm ?? '', 0, 2) == 'T_')
 				$taskId = intval(mb_substr($perm, 2));
-			elseif(mb_strlen($perm) == 1)
+			elseif(mb_strlen($perm ?? '') == 1)
 				$taskId = CTask::GetIdByLetter($perm, 'main','file');
 			else
 				$taskId = 'NOT_REF';

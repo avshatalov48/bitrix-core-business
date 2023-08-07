@@ -160,18 +160,7 @@ class FileUploader extends Controller
 		$uploadResult = $uploader->upload($chunk, $token);
 		if ($uploadResult->isSuccess())
 		{
-			$tempFile = $uploadResult->getTempFile();
-			$file = null;
-			if ($uploadResult->isDone() && $tempFile->getUploaded())
-			{
-				$file = $uploader->getFileInfo($uploadResult->getToken());
-			}
-
-			return [
-				'token' => $uploadResult->getToken(),
-				'done' => $uploadResult->isDone(),
-				'file' => $file,
-			];
+			return $uploadResult->jsonSerialize();
 		}
 		else
 		{

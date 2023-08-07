@@ -403,6 +403,11 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 		CUserOptions::DeleteOption('calendar', 'last_sync_mac', false, $userId);
 	}
 
+	public function disableShowGoogleApplicationRefusedAction()
+	{
+		CUserOptions::SetOption('calendar', 'showGoogleApplicationRefused', 'N');
+	}
+
 	public function getOutlookLinkAction(int $id)
 	{
 		$result = '';

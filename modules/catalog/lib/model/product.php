@@ -233,6 +233,14 @@ class Product extends Entity
 		}
 		$fields['QUANTITY_RESERVED'] = (float)$fields['QUANTITY_RESERVED'];
 
+		if ($fields['QUANTITY_RESERVED'] < 0)
+		{
+			$result->addError(new ORM\EntityError(
+				Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_QUANTITY_RESERVE_LESS_ZERO'),
+				'BX_CATALOG_MODEL_PRODUCT_ERR_QUANTITY_RESERVE_LESS_ZERO'
+			));
+		}
+
 		foreach ($tripleFields as $fieldName)
 		{
 			if (
@@ -531,7 +539,17 @@ class Product extends Entity
 			}
 		}
 		if (isset($fields['TMP_ID']))
+		{
 			$fields['TMP_ID'] = mb_substr($fields['TMP_ID'], 0, 40);
+		}
+
+		if (array_key_exists('QUANTITY_RESERVED', $fields) && (float)$fields['QUANTITY_RESERVED'] < 0)
+		{
+			$result->addError(new ORM\EntityError(
+				Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_QUANTITY_RESERVE_LESS_ZERO'),
+				'BX_CATALOG_MODEL_PRODUCT_ERR_QUANTITY_RESERVE_LESS_ZERO'
+			));
+		}
 
 		/* purchasing price */
 		$existPurchasingPrice = array_key_exists('PURCHASING_PRICE', $fields);

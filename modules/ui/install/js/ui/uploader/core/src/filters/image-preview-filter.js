@@ -8,6 +8,7 @@ import createVideoPreview from '../helpers/create-video-preview';
 
 import type UploaderFile from '../uploader-file';
 import type Uploader from '../uploader';
+import type { UploaderOptions } from '../types/uploader-options';
 import type {
 	ResizeImageOptions,
 	ResizeImageMimeTypeMode,
@@ -24,34 +25,47 @@ export default class ImagePreviewFilter extends Filter
 	#imagePreviewMimeTypeMode: ResizeImageMimeTypeMode = 'auto';
 	#imagePreviewUpscale: boolean = false;
 	#imagePreviewResizeMode: ResizeImageMode = 'contain';
+	#imagePreviewFilter: Function = null;
 
-	constructor(uploader: Uploader, filterOptions: { [key: string]: any } = {})
+	constructor(uploader: Uploader, filterOptions: UploaderOptions = {})
 	{
 		super(uploader);
 
-		const options = Type.isPlainObject(filterOptions) ? filterOptions : {};
+		const options: UploaderOptions = Type.isPlainObject(filterOptions) ? filterOptions : {};
 
-		this.setImagePreviewWidth(options['imagePreviewWidth']);
-		this.setImagePreviewHeight(options['imagePreviewHeight']);
-		this.setImagePreviewQuality(options['imagePreviewQuality']);
-		this.setImagePreviewUpscale(options['imagePreviewUpscale']);
-		this.setImagePreviewResizeMode(options['imagePreviewResizeMode']);
-		this.setImagePreviewMimeType(options['imagePreviewMimeType'])
-		this.setImagePreviewMimeTypeMode(options['imagePreviewMimeTypeMode']);
+		this.setImagePreviewWidth(options.imagePreviewWidth);
+		this.setImagePreviewHeight(options.imagePreviewHeight);
+		this.setImagePreviewQuality(options.imagePreviewQuality);
+		this.setImagePreviewUpscale(options.imagePreviewUpscale);
+		this.setImagePreviewResizeMode(options.imagePreviewResizeMode);
+		this.setImagePreviewMimeType(options.imagePreviewMimeType);
+		this.setImagePreviewMimeTypeMode(options.imagePreviewMimeTypeMode);
+		this.setImagePreviewFilter(options.imagePreviewFilter);
 	}
 
 	apply(file: UploaderFile): Promise
 	{
-		return new Promise((resolve, reject) => {
-
-			if (isResizableImage(file.getBinary()))
+		return new Promise((resolve): void => {
+			if (!file.shouldTreatImageAsFile() && isResizableImage(file.getBinary()))
 			{
-				resizeImage(file.getBinary(), this.#getResizeImageOptions())
-					.then(({ preview, width, height }) => {
+				const result: boolean | ResizeImageOptions = this.invokeFilter(file);
+				if (result === false)
+				{
+					resolve();
+
+					return;
+				}
+
+				const resizeOptions = Type.isPlainObject(result) ? result : {};
+
+				// const start = performance.now();
+				resizeImage(file.getBinary(), this.#getResizeImageOptions(resizeOptions))
+					.then(({ preview, width, height }): void => {
+						// console.log(`resizeImage took ${performance.now() - start} milliseconds.`);
 						file.setClientPreview(preview, width, height);
 						resolve();
 					})
-					.catch((error) => {
+					.catch((error): void => {
 						if (error)
 						{
 							console.log('Uploader: image resize error', error);
@@ -64,11 +78,11 @@ export default class ImagePreviewFilter extends Filter
 			else if (isVideo(file.getBinary()) && !Browser.isSafari())
 			{
 				createVideoPreview(file.getBinary(), this.#getResizeImageOptions())
-					.then(({ preview, width, height }) => {
+					.then(({ preview, width, height }): void => {
 						file.setClientPreview(preview, width, height);
 						resolve();
 					})
-					.catch((error) => {
+					.catch((error): void => {
 						if (error)
 						{
 							console.log('Uploader: video preview error', error);
@@ -90,7 +104,7 @@ export default class ImagePreviewFilter extends Filter
 		return this.#imagePreviewWidth;
 	}
 
-	setImagePreviewWidth(value: number)
+	setImagePreviewWidth(value: number): void
 	{
 		if (Type.isNumber(value) && value > 0)
 		{
@@ -103,7 +117,7 @@ export default class ImagePreviewFilter extends Filter
 		return this.#imagePreviewHeight;
 	}
 
-	setImagePreviewHeight(value: number)
+	setImagePreviewHeight(value: number): void
 	{
 		if (Type.isNumber(value) && value > 0)
 		{
@@ -116,7 +130,7 @@ export default class ImagePreviewFilter extends Filter
 		return this.#imagePreviewQuality;
 	}
 
-	setImagePreviewQuality(value: number)
+	setImagePreviewQuality(value: number): void
 	{
 		if (Type.isNumber(value) && value > 0.1 && value <= 1)
 		{
@@ -129,7 +143,7 @@ export default class ImagePreviewFilter extends Filter
 		return this.#imagePreviewUpscale;
 	}
 
-	setImagePreviewUpscale(value: boolean)
+	setImagePreviewUpscale(value: boolean): void
 	{
 		if (Type.isBoolean(value))
 		{
@@ -142,7 +156,7 @@ export default class ImagePreviewFilter extends Filter
 		return this.#imagePreviewResizeMode;
 	}
 
-	setImagePreviewResizeMode(value: ResizeImageMode)
+	setImagePreviewResizeMode(value: ResizeImageMode): void
 	{
 		if (['contain', 'force', 'cover'].includes(value))
 		{
@@ -155,7 +169,7 @@ export default class ImagePreviewFilter extends Filter
 		return this.#imagePreviewMimeType;
 	}
 
-	setImagePreviewMimeType(value: ResizeImageMimeType)
+	setImagePreviewMimeType(value: ResizeImageMimeType): void
 	{
 		if (['image/jpeg', 'image/png', 'image/webp'].includes(value))
 		{
@@ -168,7 +182,7 @@ export default class ImagePreviewFilter extends Filter
 		return this.#imagePreviewMimeTypeMode;
 	}
 
-	setImagePreviewMimeTypeMode(value: ResizeImageMimeTypeMode)
+	setImagePreviewMimeTypeMode(value: ResizeImageMimeTypeMode): void
 	{
 		if (['auto', 'force'].includes(value))
 		{
@@ -176,16 +190,42 @@ export default class ImagePreviewFilter extends Filter
 		}
 	}
 
-	#getResizeImageOptions(): ResizeImageOptions
+	setImagePreviewFilter(fn: Function): void
+	{
+		if (Type.isFunction(fn))
+		{
+			this.#imagePreviewFilter = fn;
+		}
+	}
+
+	invokeFilter(file: UploaderFile): boolean | ResizeImageOptions
+	{
+		if (this.#imagePreviewFilter !== null)
+		{
+			const result = this.#imagePreviewFilter(file);
+			if (Type.isBoolean(result) || Type.isPlainObject(result))
+			{
+				return result;
+			}
+		}
+
+		return true;
+	}
+
+	#getResizeImageOptions(overrides: ResizeImageOptions = {}): ResizeImageOptions
 	{
 		return {
-			width: this.getImagePreviewWidth(),
-			height: this.getImagePreviewHeight(),
-			mode: this.getImagePreviewResizeMode(),
-			upscale: this.getImagePreviewUpscale(),
-			quality: this.getImagePreviewQuality(),
-			mimeType: this.getImagePreviewMimeType(),
-			mimeTypeMode: this.getImagePreviewMimeTypeMode(),
+			width: Type.isNumber(overrides.width) ? overrides.width : this.getImagePreviewWidth(),
+			height: Type.isNumber(overrides.height) ? overrides.height : this.getImagePreviewHeight(),
+			mode: Type.isStringFilled(overrides.mode) ? overrides.mode : this.getImagePreviewResizeMode(),
+			upscale: Type.isBoolean(overrides.upscale) ? overrides.upscale : this.getImagePreviewUpscale(),
+			quality: Type.isNumber(overrides.quality) ? overrides.quality : this.getImagePreviewQuality(),
+			mimeType: Type.isStringFilled(overrides.mimeType) ? overrides.mimeType : this.getImagePreviewMimeType(),
+			mimeTypeMode:
+				Type.isStringFilled(overrides.mimeTypeMode)
+					? overrides.mimeTypeMode
+					: this.getImagePreviewMimeTypeMode()
+			,
 		};
 	}
 }

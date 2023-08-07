@@ -353,7 +353,6 @@ class VendorDataExchangeManager
 	 */
 	public function handleDeleteInstance(Sync\Entities\SyncEvent $syncEvent): void
 	{
-		// $event = $syncEvent->getEvent();
 		$masterSyncEvent = $this->getMasterSyncEvent($syncEvent);
 		if (!$masterSyncEvent)
 		{
@@ -367,8 +366,6 @@ class VendorDataExchangeManager
 
 		if ($masterSyncEvent->getId() === null)
 		{
-			//todo look log and check scenario
-			AddMessage2Log('Master event has not id. instance id = ' . $syncEvent->getVendorEventId());
 			return;
 		}
 
@@ -554,7 +551,6 @@ class VendorDataExchangeManager
 	 */
 	private function exchangeEvents(): void
 	{
-		// $syncSectionForImport = $this->isFullSync ? $this->syncSectionMap : $this->importedSyncSectionMap;
 		$eventImporter = (new ImportEventManager($this->factory, $this->syncSectionMap))->import();
 		$this->handleImportedEvents($eventImporter->getEvents());
 
@@ -566,7 +562,6 @@ class VendorDataExchangeManager
 			$this->updateExportedEvents($savedSyncEventMap);
 		}
 
-		// update tokens for sections
 		$this->handleSectionsToLocalStorage($this->syncSectionMap);
 	}
 
@@ -1112,22 +1107,19 @@ class VendorDataExchangeManager
 			/** @var Sync\Entities\SyncEvent $existsExternalSyncEvent */
 			$existsExternalSyncEvent = $this->syncEventMap->getItem($key);
 
-			// TODO: implement logic of saving attendees events
 			if (!$this->validateSyncEventChange($syncEvent, $existsExternalSyncEvent))
 			{
 				continue;
 			}
 
-			$masterSyncEvent = null;
+			$masterSyncEvent = $this->getMasterSyncEvent($syncEvent);
 			if (
-				($syncEvent->isInstance() || $syncEvent->getVendorRecurrenceId())
-				&& $masterSyncEvent = $this->getMasterSyncEvent($syncEvent)
+				$masterSyncEvent
+				&& ($syncEvent->isInstance() || $syncEvent->getVendorRecurrenceId())
+				&& $masterSyncEvent->getId() !== $masterSyncEvent->getParentId()
 			)
 			{
-				if ($masterSyncEvent->getId() !== $masterSyncEvent->getParentId())
-				{
-					continue;
-				}
+				continue;
 			}
 
 			$this->handleSyncEvent($syncEvent, $syncEvent->getVendorEventId(), $masterSyncEvent);

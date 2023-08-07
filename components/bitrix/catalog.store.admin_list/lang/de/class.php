@@ -24,4 +24,5 @@ $MESS["STORE_LIST_ADD_STORE_BUTTON"] = "Hinzufügen";
 $MESS["STORE_LIST_ADD_STORE_BUTTON_DENIED_HINT"] = "Sie haben nicht genügend Rechte, um das Produkt zu erstellen.";
 $MESS["STORE_LIST_NO_VIEW_RIGHTS_ERROR"] = "Sie haben nicht genügend Rechte, um die Lagerliste anzuzeigen.";
 $MESS["STORE_LIST_NO_WRITE_RIGHTS_ERROR"] = "Sie haben nicht genügend Rechte, um die Lager zu bearbeiten.";
+$MESS["STORE_LIST_SETTINGS_BUTTON_UF_FIELDS"] = "Einstellungen der benutzerdefinierten Felder";
 $MESS["STORE_LIST_SITE_NAME_TEMPLATE"] = "#SITE_NAME# (#SITE_ID#)";

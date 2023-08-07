@@ -113,7 +113,12 @@ class NotifyChat extends Chat
 		");
 		if ($row = $res->fetch())
 		{
-			$result->setResult($row);
+			$result->setResult([
+				'ID' => (int)$row['ID'],
+				'TYPE' => $row['TYPE'],
+				'ENTITY_TYPE' => $row['ENTITY_TYPE'],
+				'ENTITY_ID' => $row['ENTITY_ID'],
+			]);
 		}
 
 		return $result;
@@ -180,7 +185,11 @@ class NotifyChat extends Chat
 			return $result->addError(new ChatError(ChatError::WRONG_TARGET_CHAT));
 		}
 
-		if (!$message instanceof Message)
+		if (is_string($message))
+		{
+			$message = (new Message)->setMessage($message);
+		}
+		elseif (!$message instanceof Message)
 		{
 			$message = new Message($message);
 		}

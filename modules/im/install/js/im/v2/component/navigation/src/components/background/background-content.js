@@ -1,7 +1,7 @@
-import {Settings} from 'im.v2.const';
-import {ThemeColorScheme, ThemeManager} from 'im.v2.lib.theme';
+import { Settings } from 'im.v2.const';
+import { ThemeColorScheme, ThemeManager } from 'im.v2.lib.theme';
 
-import {BackgroundService} from '../../classes/background-service';
+import { BackgroundService } from '../../classes/background-service';
 
 import '../../css/background.css';
 
@@ -18,7 +18,7 @@ export const BackgroundContent = {
 		backgroundIdList(): string[]
 		{
 			return Object.keys(ThemeColorScheme);
-		}
+		},
 	},
 	methods:
 	{

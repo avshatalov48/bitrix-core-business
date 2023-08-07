@@ -325,12 +325,26 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 
 	public function setDetailUrlTemplate(?string $template): BaseIblockElementRepository
 	{
-		if ($this->productRepository->getDetailUrlTemplate() === null)
+		if (isset($this->productRepository))
 		{
-			$this->productRepository->setDetailUrlTemplate($template);
+			if ($this->productRepository->getDetailUrlTemplate() === null)
+			{
+				$this->productRepository->setDetailUrlTemplate($template);
+				$this->productRepository->setAutoloadDetailUrl($template !== null);
+			}
 		}
 
 		return parent::setDetailUrlTemplate($template);
+	}
+
+	public function setAutoloadDetailUrl(bool $state): BaseIblockElementRepository
+	{
+		if (isset($this->productRepository))
+		{
+			$this->productRepository->setAutoloadDetailUrl($state);
+		}
+
+		return parent::setAutoloadDetailUrl($state);
 	}
 
 	public function getCountByProductId(int $productId): int

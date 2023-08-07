@@ -120,6 +120,7 @@ export class MoreButton
 								},
 							});
 						});
+						moreButton.hasClickListener = true;
 					}
 				}
 			}

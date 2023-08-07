@@ -11,10 +11,6 @@ const VIDEO_SIZE_TO_AUTOPLAY = 5000000;
 export const Video = BitrixVue.cloneComponent(Image, {
 	name: 'VideoComponent',
 	components: {SocialVideo},
-	data()
-	{
-		return {};
-	},
 	computed:
 	{
 		autoplay()

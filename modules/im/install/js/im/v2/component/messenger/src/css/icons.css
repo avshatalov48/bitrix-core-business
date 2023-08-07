@@ -31,3 +31,16 @@
 	height: 13px;
 	background: url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%20fill%3D%22white%22%2F%3E%0A%3Ccircle%20cx%3D%2212%22%20cy%3D%2212.0003%22%20r%3D%226.22829%22%20fill%3D%22%239DCF00%22%2F%3E%0A%3C%2Fsvg%3E%0A') no-repeat center;
 }
+
+
+.bx-im-messenger__search-icon {
+	border: none;
+	width: 14px;
+	height: 14px;
+	background: url('./images/search.svg') no-repeat center;
+	background-size: cover;
+}
+.bx-im-messenger__search-icon.--size-large {
+	width: 43px;
+	height: 43px;
+}

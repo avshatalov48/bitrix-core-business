@@ -1,8 +1,8 @@
 import {Extension, Type} from 'main.core';
 
-const isDesktop = Type.isObject(window.BXDesktopSystem);
+// const isDesktop = Type.isObject(window.BXDesktopSystem);
 const settings = Extension.getSettings('im.v2.lib.parser');
-const v2 = settings.get('v2') && !isDesktop;
+const v2 = settings.get('v2');
 
 const getCore = () => {
 	return v2 ? BX.Messenger.v2.Application.Core : BX.Messenger.Embedding.Application.Core;

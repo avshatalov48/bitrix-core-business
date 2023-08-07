@@ -1,6 +1,7 @@
 .bx-im-messenger__scope {
-	--im-messenger__navigation_width: 76px;
+	--im-messenger__navigation_width: 82px;
 	--im-messenger__list_width: 400px;
+	--im-messenger__list_border-color: #E6E7E9;
 	--im-messenger__header_height: 64px;
 	--im-messenger__textarea_height: 64px;
 	--im-messenger__sidebar_width: 320px;

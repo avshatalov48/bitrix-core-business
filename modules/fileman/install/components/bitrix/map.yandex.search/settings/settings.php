@@ -63,7 +63,7 @@ $APPLICATION->IncludeComponent('bitrix:map.yandex.system', '', array(
 	'CONTROLS' => array('TOOLBAR', 'TYPECONTROL', 'ZOOM'),
 	'OPTIONS' => array('ENABLE_SCROLL_ZOOM', 'ENABLE_DBLCLICK_ZOOM', 'ENABLE_DRAGGING'),
 	'MAP_ID' => 'system_search_edit',
-	'API_KEY' => $arParams['API_KEY'],
+	'API_KEY' => $arParams['API_KEY'] ?? null,
 	'DEV_MODE' => 'Y',
 	'ONMAPREADY' => 'jsYandexCE_search.init',
 	'ONMAPREADY_PROPERTY' => 'jsYandexCE_search.map',

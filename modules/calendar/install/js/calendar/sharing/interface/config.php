@@ -8,6 +8,8 @@ return [
 	'css' => 'dist/interface.bundle.css',
 	'js' => 'dist/interface.bundle.js',
 	'rel' => [
+		'ui.buttons',
+		'ui.dialogs.messagebox',
 		'main.core.events',
 		'main.core',
 		'main.popup',

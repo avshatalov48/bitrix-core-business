@@ -25,9 +25,8 @@ use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Im\V2\Message\Params;
 
 /**
- * @method Message next()
- * @method Message current()
- * @method Message offsetGet($offset)
+ * @implements \IteratorAggregate<int,Message>
+ * @method Message offsetGet($key)
  */
 class MessageCollection extends Collection implements RestConvertible, PopupDataAggregatable
 {
@@ -79,6 +78,11 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 
 		static::processFilters($query, $filter, $messageOrder);
 		$messageIds = $query->fetchCollection()->getIdList();
+
+		if (empty($messageIds))
+		{
+			return new static();
+		}
 
 		if (empty($select))
 		{
@@ -507,7 +511,7 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 			new ReminderPopupItem($this->getReminders()),
 			new AdditionalMessagePopupItem($this->getReplayedMessageIds()),
 			new ReactionPopupItem($this->getReactions())
-		], $excludedList))->mergeFromEntity($this->getReactions(), $excludedList);
+		], $excludedList));
 	}
 
 	public function filterByChatId(int $chatId): self

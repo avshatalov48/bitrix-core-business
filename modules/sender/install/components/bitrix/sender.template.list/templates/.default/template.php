@@ -39,6 +39,14 @@ foreach ($arResult['ROWS'] as $index => $data)
 	if ($arParams['CAN_EDIT'])
 	{
 		$actions[] = array(
+			'TITLE' => Loc::getMessage('SENDER_TEMPLATE_LIST_BTN_COPY_TITLE'),
+			'TEXT' => Loc::getMessage('SENDER_TEMPLATE_LIST_BTN_COPY'),
+			'ONCLICK' => "BX.Sender.TemplateList.copy({$data['ID']});"
+		);
+	}
+	if ($arParams['CAN_EDIT'])
+	{
+		$actions[] = array(
 			'TITLE' => Loc::getMessage('SENDER_TEMPLATE_LIST_BTN_REMOVE_TITLE'),
 			'TEXT' => Loc::getMessage('SENDER_TEMPLATE_LIST_BTN_REMOVE'),
 			'ONCLICK' => "BX.Sender.TemplateList.remove({$data['ID']});"

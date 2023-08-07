@@ -26,7 +26,7 @@ class ProductForm extends Engine\Controller
 	public function setConfigAction($configName, $value): void
 	{
 		$formConfigs = [
-			'showTaxBlock', 'showDiscountBlock', 'hiddenCompilationInfoMessage'
+			'showTaxBlock', 'showDiscountBlock'
 		];
 		if (in_array($configName, $formConfigs, true))
 		{

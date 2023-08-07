@@ -437,12 +437,15 @@ class User
 			$filter['!=UF_DEPARTMENT'] = false;
 		}
 
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$result = [];
 		$users = UserTable::getList([
 			'filter' => $filter,
 			'select' => ['ID'],
 			'runtime' => [
-				new ExpressionField('BIRTHDAY_DATE', "DATE_FORMAT(%s, '%%m-%%d')", 'PERSONAL_BIRTHDAY')
+				new ExpressionField('BIRTHDAY_DATE', str_replace('PERSONAL_BIRTHDAY', '%s', str_replace('%', '%%', $helper->formatDate('MM-DD', 'PERSONAL_BIRTHDAY'))), 'PERSONAL_BIRTHDAY')
 			],
 			'limit' => 100,
 		])->fetchAll();

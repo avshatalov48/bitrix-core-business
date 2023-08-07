@@ -188,7 +188,7 @@ class CMenu
 			return false;
 		}
 
-		$arMenuCache = false;
+		$arMenuCache = [];
 		$bCached = false;
 		$bCacheIsAllowed = CACHED_menu!==false && !$USER->IsAuthorized() && $this->MenuExtDir == '';
 		if($bCacheIsAllowed)

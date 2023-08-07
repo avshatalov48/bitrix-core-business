@@ -14,6 +14,7 @@ import {InitManager} from 'im.v2.lib.init';
 import {EventType, Layout} from 'im.v2.const';
 import {CallManager} from 'im.v2.lib.call';
 import {ThemeManager} from 'im.v2.lib.theme';
+import {DesktopManager} from 'im.v2.lib.desktop';
 
 import 'ui.fonts.opensans';
 import './css/messenger.css';
@@ -62,7 +63,8 @@ export const Messenger = {
 		{
 			return {
 				'--dark-theme': ThemeManager.isDarkTheme(),
-				'--light-theme': ThemeManager.isLightTheme()
+				'--light-theme': ThemeManager.isLightTheme(),
+				'--desktop': DesktopManager.isDesktop()
 			};
 		},
 		callContainerClass(): string[]

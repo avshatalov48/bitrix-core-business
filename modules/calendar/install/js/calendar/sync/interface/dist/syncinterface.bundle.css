@@ -185,6 +185,27 @@
 	flex-shrink: 0;
 }
 
+.calendar-sync-popup-status-refused {
+	padding: 0 20px 10px 13px;
+}
+
+.calendar-sync-popup-status-refused-title {
+	font-size: 22px;
+	font-weight: 300;
+	margin-bottom: 15px;
+	line-height: 28px;
+}
+
+.calendar-sync-popup-status-refused-text {
+	font-size: 15px;
+	font-weight: 400;
+	line-height: 20px;
+}
+
+.calendar-sync-popup-item-status-refused {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='18' height='15' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.013 14.72c.402.28.955.18 1.235-.223l8.927-12.842a.887.887 0 00-.223-1.236l-.374-.26a.888.888 0 00-1.236.222L3.416 13.224a.887.887 0 00.222 1.235l.375.26zM4.549 9.196l-1.2 1.725a6.58 6.58 0 01-1.117-3.68H0L3.303 3.93l2.89 2.9-.285.412H4.127c0 .698.15 1.36.422 1.955zM13.595 7.24l-1.855.001-.315.453 2.865 2.903 3.367-3.355h-2.168a6.616 6.616 0 00-1.151-3.738L13.144 5.22c.29.614.45 1.299.45 2.02zM7.273 13.667l1.196-1.72a4.713 4.713 0 003.354-1.025l1.345 1.346a6.603 6.603 0 01-4.307 1.59 6.665 6.665 0 01-1.588-.19zM9.199 2.507L10.398.78A6.623 6.623 0 008.86.601a6.606 6.606 0 00-4.411 1.68l1.343 1.342A4.714 4.714 0 019.2 2.507z' fill='%23fff'/%3E%3C/svg%3E");
+}
+
 .calendar-sync-popup-item-status-success {
 	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2217%22%20height%3D%2217%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.9%22%3E%3Cpath%20fill%3D%22%239DCF00%22%20d%3D%22M8.5%200a8.5%208.5%200%20110%2017%208.5%208.5%200%20010-17z%22/%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M7.369%209.879l4.778-4.808%201.322%201.33-6.08%206.117-.02-.021-.021.021L3.54%208.689%204.863%207.36z%22/%3E%3C/g%3E%3C/svg%3E);
 }
@@ -1212,6 +1233,28 @@ span.calendar-sync-slider-info-text {
 	pointer-events: none;
 }
 
+.calendar-sync__calendar-item.--refused {
+	border: 2px solid #FFC34D;
+}
+
+.calendar-sync__calendar-item.--refused .calendar-sync__calendar-item--logo-image {
+	background-color: #fff6e4;
+	border-color: #FFC34D;
+}
+
+.calendar-sync__calendar-item.--refused [data-role=sync_info_text] {
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 16px;
+	margin-right: 20px;
+}
+
+.calendar-sync__calendar-item.--off [data-role=sync_info_text] {
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 16px;
+}
+
 .calendar-sync__calendar-item.--complete {
 	border: 2px solid #9DCF00 !important;
 	box-shadow: 0 4px 13px var(--graphite_alpha_04);
@@ -1258,6 +1301,7 @@ span.calendar-sync-slider-info-text {
 	background-color: rgba(255, 81, 74, .15);
 }
 
+.calendar-sync__calendar-item.--refused:before,
 .calendar-sync__calendar-item.--complete:before,
 .calendar-sync__calendar-item.--error:before,
 .calendar-sync__calendar-item.--active:before {
@@ -1384,6 +1428,7 @@ span.calendar-sync-slider-info-text {
 	transition: .3s;
 }
 
+.calendar-sync__calendar-item.--refused .calendar-sync__calendar-item--more,
 .calendar-sync__calendar-item.--error .calendar-sync__calendar-item--more,
 .calendar-sync__calendar-item.--complete .calendar-sync__calendar-item--more {
 	display: block;
@@ -1986,6 +2031,14 @@ span.calendar-sync-slider-info-text {
 
 .calendar-sync__auth-popup--icon-adjust-password.--hide {
 	background-image: url(../image/calendar-sync__icon-password-hide.svg);
+}
+
+.calendar-sync-btn-icon-refused {
+	padding-left: 26px;
+}
+
+.calendar-sync-btn-icon-refused:after {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='18' height='16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.356 15.194c.402.28.955.18 1.235-.222L14.518 2.13a.888.888 0 00-.222-1.235l-.375-.26a.887.887 0 00-1.235.222L3.759 13.699a.888.888 0 00.222 1.235l.375.26zM4.892 9.67l-1.2 1.726a6.58 6.58 0 01-1.116-3.68H.343l3.303-3.312 2.891 2.9-.286.411H4.47c0 .698.151 1.36.422 1.956zM13.938 7.715l-1.855.001-.314.452 2.864 2.904L18 7.717h-2.168a6.615 6.615 0 00-1.151-3.738l-1.193 1.716a4.73 4.73 0 01.45 2.02zM7.617 14.142l1.195-1.72a4.713 4.713 0 003.354-1.025l1.345 1.346a6.603 6.603 0 01-4.307 1.59 6.665 6.665 0 01-1.587-.191zM9.542 2.981l1.2-1.725a6.622 6.622 0 00-1.538-.18 6.606 6.606 0 00-4.41 1.68l1.342 1.342a4.714 4.714 0 013.406-1.117z' fill='%23FFE1A6'/%3E%3C/svg%3E");
 }
 
 .calendar-ical-popup-wrapper {

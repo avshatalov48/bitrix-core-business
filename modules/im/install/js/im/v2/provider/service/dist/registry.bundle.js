@@ -1,8 +1,9 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
-(function (exports,im_v2_lib_uuid,im_public,rest_client,ui_notification,ui_vue3_vuex,im_v2_lib_rest,im_v2_provider_service,im_v2_lib_utils,main_core_events,im_v2_lib_uploader,main_core,im_v2_application_core,im_v2_lib_logger,im_v2_const,im_v2_lib_user) {
+(function (exports,im_v2_provider_service,im_v2_lib_uuid,im_public,ui_notification,ui_vue3_vuex,main_core,im_v2_lib_user,rest_client,im_v2_lib_rest,im_v2_application_core,im_v2_lib_utils,im_v2_lib_logger,main_core_events,ui_uploader_core,im_v2_const) {
 	'use strict';
 
 	class RecentService {
@@ -237,198 +238,95 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	}
 	RecentService.instance = null;
 
+	var _restResult = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restResult");
 	class ChatDataExtractor {
-	  constructor(response) {
-	    this.response = {};
-	    this.chatId = 0;
-	    this.dialogId = '';
-	    this.rawUsers = [];
-	    this.users = {};
-	    this.dialogues = {};
-	    this.files = {};
-	    this.messages = {};
-	    this.reactions = [];
-	    this.additionalUsers = [];
-	    this.messagesToStore = {};
-	    this.pinnedMessageIds = [];
-	    this.response = response;
-	  }
-	  extractData() {
-	    this.extractChatResult();
-	    this.extractUserResult();
-	    this.extractMessageListResult();
-	    this.extractContextResult();
-	    this.extractPinnedMessagesResult();
-	    this.fillChatsForUsers();
-	  }
-	  isOpenlinesChat() {
-	    const chat = this.dialogues[this.dialogId];
-	    if (!chat) {
-	      return false;
-	    }
-	    return chat.type === im_v2_const.DialogType.lines;
+	  constructor(restResult) {
+	    Object.defineProperty(this, _restResult, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult] = restResult;
 	  }
 	  getChatId() {
-	    return this.chatId;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].chat.id;
 	  }
-	  getUsers() {
-	    return this.rawUsers;
+	  isOpenlinesChat() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].chat.type === im_v2_const.DialogType.lines;
 	  }
-	  getDialogues() {
-	    return Object.values(this.dialogues);
-	  }
-	  getMessages() {
-	    return Object.values(this.messages);
-	  }
-	  getMessagesToStore() {
-	    return Object.values(this.messagesToStore);
-	  }
-	  getFiles() {
-	    return Object.values(this.files);
-	  }
-	  getPinnedMessages() {
-	    return this.pinnedMessageIds;
-	  }
-	  getReactions() {
-	    return this.reactions;
-	  }
-	  getAdditionalUsers() {
-	    return this.additionalUsers;
-	  }
-	  extractChatResult() {
-	    const chat = this.response[im_v2_const.RestMethod.imChatGet];
-	    this.chatId = chat.id;
-	    this.dialogId = chat.dialog_id;
-	    if (!this.dialogues[chat.dialog_id]) {
-	      this.dialogues[chat.dialog_id] = chat;
-	    }
-	  }
-	  extractUserResult() {
-	    // solo user for group chats
-	    const soloUser = this.response[im_v2_const.RestMethod.imUserGet];
-	    if (soloUser) {
-	      this.rawUsers = [soloUser];
-	      return;
-	    }
-
-	    // two users for 1v1
-	    const userList = this.response[im_v2_const.RestMethod.imUserListGet];
-	    if (userList) {
-	      this.rawUsers = Object.values(userList);
-	    }
-	  }
-	  extractMessageListResult() {
-	    const messageList = this.response[im_v2_const.RestMethod.imV2ChatMessageList];
-	    if (!messageList) {
-	      return;
-	    }
-	    this.extractPaginationFlags(messageList);
-	    this.extractMessages(messageList);
-	    this.extractReactions(messageList);
-	    this.extractAdditionalUsers(messageList);
-	  }
-	  extractPaginationFlags(data) {
-	    const {
-	      hasPrevPage,
-	      hasNextPage
-	    } = data;
-	    this.dialogues[this.dialogId] = {
-	      ...this.dialogues[this.dialogId],
-	      hasPrevPage,
-	      hasNextPage
+	  getChats() {
+	    const mainChat = {
+	      ...babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].chat,
+	      hasPrevPage: babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].hasPrevPage,
+	      hasNextPage: babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].hasNextPage
 	    };
-	  }
-	  extractContextResult() {
-	    const contextMessageList = this.response[im_v2_const.RestMethod.imV2ChatMessageGetContext];
-	    if (!contextMessageList) {
-	      return;
-	    }
-	    this.extractPaginationFlags(contextMessageList);
-	    this.extractMessages(contextMessageList);
-	    this.extractReactions(contextMessageList);
-	    this.extractAdditionalUsers(contextMessageList);
-	  }
-	  extractReactions(data) {
-	    const {
-	      reactions
-	    } = data;
-	    this.reactions = reactions;
-	  }
-	  extractAdditionalUsers(data) {
-	    const {
-	      usersShort
-	    } = data;
-	    this.additionalUsers = usersShort;
-	  }
-	  extractPinnedMessagesResult() {
-	    const pinMessageList = this.response[im_v2_const.RestMethod.imV2ChatPinTail];
-	    if (!pinMessageList) {
-	      return;
-	    }
-	    const {
-	      list = [],
-	      users: pinnedUsers = [],
-	      files: pinnedFiles = []
-	    } = pinMessageList;
-	    this.rawUsers = [...this.rawUsers, ...pinnedUsers];
-	    pinnedFiles.forEach(file => {
-	      this.files[file.id] = file;
-	    });
-	    list.forEach(pinnedItem => {
-	      this.pinnedMessageIds.push(pinnedItem.messageId);
-	      this.messagesToStore[pinnedItem.message.id] = pinnedItem.message;
-	    });
-	  }
-	  extractMessages(data) {
-	    const {
-	      messages,
-	      users,
-	      files
-	    } = data;
-	    files.forEach(file => {
-	      this.files[file.id] = file;
-	    });
-	    messages.forEach(message => {
-	      this.messages[message.id] = message;
-	    });
-	    this.rawUsers = [...this.rawUsers, ...users];
-	  }
-	  fillChatsForUsers() {
-	    this.rawUsers.forEach(user => {
-	      if (!this.dialogues[user.id]) {
-	        this.dialogues[user.id] = im_v2_lib_user.UserManager.getDialogForUser(user);
-	      } else {
-	        this.dialogues[user.id] = {
-	          ...this.dialogues[user.id],
+	    const chats = {
+	      [babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].chat.dialogId]: mainChat
+	    };
+	    babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].users.forEach(user => {
+	      if (chats[user.id]) {
+	        chats[user.id] = {
+	          ...chats[user.id],
 	          ...im_v2_lib_user.UserManager.getDialogForUser(user)
 	        };
+	      } else {
+	        chats[user.id] = im_v2_lib_user.UserManager.getDialogForUser(user);
 	      }
 	    });
+	    return Object.values(chats);
+	  }
+	  getFiles() {
+	    var _babelHelpers$classPr;
+	    return (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].files) != null ? _babelHelpers$classPr : [];
+	  }
+	  getUsers() {
+	    var _babelHelpers$classPr2;
+	    return (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].users) != null ? _babelHelpers$classPr2 : [];
+	  }
+	  getAdditionalUsers() {
+	    var _babelHelpers$classPr3;
+	    return (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].usersShort) != null ? _babelHelpers$classPr3 : [];
+	  }
+	  getMessages() {
+	    var _babelHelpers$classPr4;
+	    return (_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].messages) != null ? _babelHelpers$classPr4 : [];
+	  }
+	  getMessagesToStore() {
+	    var _babelHelpers$classPr5;
+	    return (_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].additionalMessages) != null ? _babelHelpers$classPr5 : [];
+	  }
+	  getPinnedMessageIds() {
+	    var _babelHelpers$classPr6;
+	    const pinnedMessageIds = [];
+	    const pins = (_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].pins) != null ? _babelHelpers$classPr6 : [];
+	    pins.forEach(pin => {
+	      pinnedMessageIds.push(pin.messageId);
+	    });
+	    return pinnedMessageIds;
+	  }
+	  getReactions() {
+	    var _babelHelpers$classPr7;
+	    return (_babelHelpers$classPr7 = babelHelpers.classPrivateFieldLooseBase(this, _restResult)[_restResult].reactions) != null ? _babelHelpers$classPr7 : [];
 	  }
 	}
 
 	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
-	var _loadChatRequest = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadChatRequest");
+	var _requestChat = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestChat");
+	var _markDialogAsLoading = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("markDialogAsLoading");
+	var _markDialogAsLoaded = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("markDialogAsLoaded");
 	var _updateModels = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateModels");
-	var _prepareLoadChatQuery = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareLoadChatQuery");
-	var _prepareLoadChatWithMessagesQuery = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareLoadChatWithMessagesQuery");
-	var _prepareLoadChatWithContextQuery = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareLoadChatWithContextQuery");
 	class LoadService {
 	  constructor() {
-	    Object.defineProperty(this, _prepareLoadChatWithContextQuery, {
-	      value: _prepareLoadChatWithContextQuery2
-	    });
-	    Object.defineProperty(this, _prepareLoadChatWithMessagesQuery, {
-	      value: _prepareLoadChatWithMessagesQuery2
-	    });
-	    Object.defineProperty(this, _prepareLoadChatQuery, {
-	      value: _prepareLoadChatQuery2
-	    });
 	    Object.defineProperty(this, _updateModels, {
 	      value: _updateModels2
 	    });
-	    Object.defineProperty(this, _loadChatRequest, {
-	      value: _loadChatRequest2
+	    Object.defineProperty(this, _markDialogAsLoaded, {
+	      value: _markDialogAsLoaded2
+	    });
+	    Object.defineProperty(this, _markDialogAsLoading, {
+	      value: _markDialogAsLoading2
+	    });
+	    Object.defineProperty(this, _requestChat, {
+	      value: _requestChat2
 	    });
 	    Object.defineProperty(this, _store, {
 	      writable: true,
@@ -437,106 +335,91 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
 	  }
 	  loadChat(dialogId) {
-	    if (!main_core.Type.isStringFilled(dialogId)) {
-	      return Promise.reject(new Error('ChatService: loadChat: dialogId is not provided'));
-	    }
-	    const query = babelHelpers.classPrivateFieldLooseBase(this, _prepareLoadChatQuery)[_prepareLoadChatQuery](dialogId);
-	    return babelHelpers.classPrivateFieldLooseBase(this, _loadChatRequest)[_loadChatRequest](dialogId, query);
+	    const params = {
+	      dialogId
+	    };
+	    return babelHelpers.classPrivateFieldLooseBase(this, _requestChat)[_requestChat](im_v2_const.RestMethod.imV2ChatShallowLoad, params);
 	  }
 	  loadChatWithMessages(dialogId) {
-	    if (!main_core.Type.isStringFilled(dialogId)) {
-	      return Promise.reject(new Error('ChatService: loadChatWithMessages: dialogId is not provided'));
-	    }
-	    const query = babelHelpers.classPrivateFieldLooseBase(this, _prepareLoadChatWithMessagesQuery)[_prepareLoadChatWithMessagesQuery](dialogId);
-	    return babelHelpers.classPrivateFieldLooseBase(this, _loadChatRequest)[_loadChatRequest](dialogId, query);
+	    const params = {
+	      dialogId,
+	      messageLimit: im_v2_provider_service.MessageService.getMessageRequestLimit()
+	    };
+	    return babelHelpers.classPrivateFieldLooseBase(this, _requestChat)[_requestChat](im_v2_const.RestMethod.imV2ChatLoad, params);
 	  }
 	  loadChatWithContext(dialogId, messageId) {
-	    if (!main_core.Type.isStringFilled(dialogId)) {
-	      return Promise.reject(new Error('ChatService: loadChatWithContext: dialogId is not provided'));
+	    const params = {
+	      dialogId,
+	      messageId,
+	      messageLimit: im_v2_provider_service.MessageService.getMessageRequestLimit()
+	    };
+	    return babelHelpers.classPrivateFieldLooseBase(this, _requestChat)[_requestChat](im_v2_const.RestMethod.imV2ChatLoadInContext, params);
+	  }
+	  prepareDialogId(dialogId) {
+	    if (!im_v2_lib_utils.Utils.dialog.isExternalId(dialogId)) {
+	      return Promise.resolve(dialogId);
 	    }
-	    if (!messageId || !main_core.Type.isNumber(messageId)) {
-	      return Promise.reject(new Error('ChatService: loadChatWithContext: messageId is not provided'));
-	    }
-	    const query = babelHelpers.classPrivateFieldLooseBase(this, _prepareLoadChatWithContextQuery)[_prepareLoadChatWithContextQuery](dialogId, messageId);
-	    return babelHelpers.classPrivateFieldLooseBase(this, _loadChatRequest)[_loadChatRequest](dialogId, query);
+	    return im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2ChatGetDialogId, {
+	      data: {
+	        externalId: dialogId
+	      }
+	    }).then(result => {
+	      return result.dialogId;
+	    }).catch(error => {
+	      console.error('ChatService: Load: error preparing external id', error);
+	    });
 	  }
 	}
-	function _loadChatRequest2(dialogId, query) {
+	function _requestChat2(actionName, params) {
+	  const {
+	    dialogId
+	  } = params;
+	  babelHelpers.classPrivateFieldLooseBase(this, _markDialogAsLoading)[_markDialogAsLoading](dialogId);
+	  return im_v2_lib_rest.runAction(actionName, {
+	    data: params
+	  }).then(result => {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _updateModels)[_updateModels](result);
+	  }).then(() => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _markDialogAsLoaded)[_markDialogAsLoaded](dialogId);
+	  }).catch(error => {
+	    console.error('ChatService: Load: error loading chat', error);
+	    throw error;
+	  });
+	}
+	function _markDialogAsLoading2(dialogId) {
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('dialogues/update', {
-	    dialogId: dialogId,
+	    dialogId,
 	    fields: {
 	      loading: true
 	    }
 	  });
-	  return im_v2_lib_rest.callBatch(query).then(data => {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _updateModels)[_updateModels](data);
-	  }).then(() => {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('dialogues/update', {
-	      dialogId: dialogId,
-	      fields: {
-	        inited: true,
-	        loading: false
-	      }
-	    });
+	}
+	function _markDialogAsLoaded2(dialogId) {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('dialogues/update', {
+	    dialogId,
+	    fields: {
+	      inited: true,
+	      loading: false
+	    }
 	  });
 	}
-	function _updateModels2(response) {
-	  const extractor = new ChatDataExtractor(response);
-	  extractor.extractData();
+	function _updateModels2(restResult) {
+	  const extractor = new ChatDataExtractor(restResult);
 	  if (extractor.isOpenlinesChat()) {
-	    return Promise.reject('OL chats are not supported');
+	    return Promise.reject(new Error('OL chats are not supported'));
 	  }
-	  const dialoguesPromise = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('dialogues/set', extractor.getDialogues());
+	  const dialoguesPromise = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('dialogues/set', extractor.getChats());
 	  const filesPromise = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('files/set', extractor.getFiles());
 	  const userManager = new im_v2_lib_user.UserManager();
-	  const usersPromise = [babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('users/set', extractor.getUsers()), userManager.addUsersToModel(extractor.getAdditionalUsers())];
-	  const messagesPromise = [babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/setChatCollection', {
+	  const usersPromise = Promise.all([babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('users/set', extractor.getUsers()), userManager.addUsersToModel(extractor.getAdditionalUsers())]);
+	  const messagesPromise = Promise.all([babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/setChatCollection', {
 	    messages: extractor.getMessages(),
 	    clearCollection: true
 	  }), babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/store', extractor.getMessagesToStore()), babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/pin/setPinned', {
 	    chatId: extractor.getChatId(),
-	    pinnedMessages: extractor.getPinnedMessages()
-	  }), babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/reactions/set', extractor.getReactions())];
-	  return Promise.all([dialoguesPromise, filesPromise, Promise.all(usersPromise), Promise.all(messagesPromise)]);
-	}
-	function _prepareLoadChatQuery2(dialogId) {
-	  const query = {
-	    [im_v2_const.RestMethod.imChatGet]: {
-	      dialog_id: dialogId
-	    }
-	  };
-	  const isChat = dialogId.toString().startsWith('chat');
-	  if (isChat) {
-	    query[im_v2_const.RestMethod.imUserGet] = {};
-	  } else {
-	    query[im_v2_const.RestMethod.imUserListGet] = {
-	      id: [im_v2_application_core.Core.getUserId(), dialogId]
-	    };
-	  }
-	  return query;
-	}
-	function _prepareLoadChatWithMessagesQuery2(dialogId) {
-	  const query = babelHelpers.classPrivateFieldLooseBase(this, _prepareLoadChatQuery)[_prepareLoadChatQuery](dialogId);
-	  query[im_v2_const.RestMethod.imV2ChatMessageList] = {
-	    dialogId,
-	    limit: im_v2_provider_service.MessageService.getMessageRequestLimit()
-	  };
-	  query[im_v2_const.RestMethod.imV2ChatPinTail] = {
-	    chatId: `$result[${im_v2_const.RestMethod.imChatGet}][id]`
-	  };
-	  return query;
-	}
-	function _prepareLoadChatWithContextQuery2(dialogId, messageId) {
-	  const query = babelHelpers.classPrivateFieldLooseBase(this, _prepareLoadChatQuery)[_prepareLoadChatQuery](dialogId);
-	  query[im_v2_const.RestMethod.imV2ChatMessageGetContext] = {
-	    id: messageId,
-	    range: im_v2_provider_service.MessageService.getMessageRequestLimit()
-	  };
-	  query[im_v2_const.RestMethod.imV2ChatMessageRead] = {
-	    dialogId,
-	    ids: [messageId]
-	  };
-	  return query;
+	    pinnedMessages: extractor.getPinnedMessageIds()
+	  }), babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/reactions/set', extractor.getReactions())]);
+	  return Promise.all([dialoguesPromise, filesPromise, usersPromise, messagesPromise]);
 	}
 
 	const PRIVATE_CHAT = 'CHAT';
@@ -875,6 +758,11 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	  clearDialogMark(dialogId) {
 	    im_v2_lib_logger.Logger.warn('ReadService: clear dialog mark', dialogId);
+	    const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$5)[_store$5].getters['dialogues/get'](dialogId);
+	    const recentItem = babelHelpers.classPrivateFieldLooseBase(this, _store$5)[_store$5].getters['recent/get'](dialogId);
+	    if (dialog.markedId === 0 && recentItem && !recentItem.unread) {
+	      return;
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _store$5)[_store$5].dispatch('recent/unread', {
 	      id: dialogId,
 	      action: false
@@ -1052,6 +940,9 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  loadChatWithContext(dialogId, messageId) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _loadService)[_loadService].loadChatWithContext(dialogId, messageId);
 	  }
+	  prepareDialogId(dialogId) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _loadService)[_loadService].prepareDialogId(dialogId);
+	  }
 	  // endregion 'load'
 
 	  // region 'create'
@@ -1201,7 +1092,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      },
 	      order: {
 	        id: 'ASC'
-	      }
+	      },
+	      limit: LoadService$1.MESSAGE_REQUEST_LIMIT
 	    };
 	    return im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2ChatMessageTail, {
 	      data: query
@@ -1235,7 +1127,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      },
 	      order: {
 	        id: 'DESC'
-	      }
+	      },
+	      limit: LoadService$1.MESSAGE_REQUEST_LIMIT
 	    };
 	    return im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2ChatMessageTail, {
 	      data: query
@@ -1487,24 +1380,31 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      });
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$8)[_restClient$8].callMethod(im_v2_const.RestMethod.imMessageUpdate, {
-	      'ID': messageId,
-	      'MESSAGE': text
+	      ID: messageId,
+	      MESSAGE: text
 	    }).catch(error => {
-	      console.error('MessageService: editMessageText error:', error);
+	      im_v2_lib_logger.Logger.error('MessageService: editMessageText error:', error);
 	    });
 	  }
 	}
 
 	var _store$a = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
-	var _restClient$9 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
 	var _chatId$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("chatId");
+	var _shallowMessageDelete = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("shallowMessageDelete");
+	var _completeMessageDelete = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("completeMessageDelete");
+	var _deleteMessageOnServer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("deleteMessageOnServer");
 	class DeleteService {
 	  constructor(chatId) {
-	    Object.defineProperty(this, _store$a, {
-	      writable: true,
-	      value: void 0
+	    Object.defineProperty(this, _deleteMessageOnServer, {
+	      value: _deleteMessageOnServer2
 	    });
-	    Object.defineProperty(this, _restClient$9, {
+	    Object.defineProperty(this, _completeMessageDelete, {
+	      value: _completeMessageDelete2
+	    });
+	    Object.defineProperty(this, _shallowMessageDelete, {
+	      value: _shallowMessageDelete2
+	    });
+	    Object.defineProperty(this, _store$a, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -1514,42 +1414,90 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _chatId$2)[_chatId$2] = chatId;
 	    babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a] = im_v2_application_core.Core.getStore();
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$9)[_restClient$9] = im_v2_application_core.Core.getRestClient();
 	  }
 	  deleteMessage(messageId) {
 	    im_v2_lib_logger.Logger.warn('MessageService: deleteMessage', messageId);
-	    babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].dispatch('messages/update', {
-	      id: messageId,
+	    const message = babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].getters['messages/getById'](messageId);
+	    if (message.viewedByOthers) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _shallowMessageDelete)[_shallowMessageDelete](message);
+	    } else {
+	      babelHelpers.classPrivateFieldLooseBase(this, _completeMessageDelete)[_completeMessageDelete](message);
+	    }
+	  }
+	}
+	function _shallowMessageDelete2(message) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].dispatch('messages/update', {
+	    id: message.id,
+	    fields: {
+	      text: '',
+	      params: {
+	        IS_DELETED: 'Y',
+	        FILE_ID: []
+	      }
+	    }
+	  });
+	  const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].getters['dialogues/getByChatId'](babelHelpers.classPrivateFieldLooseBase(this, _chatId$2)[_chatId$2]);
+	  if (message.id === dialog.lastMessageId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].dispatch('recent/update', {
+	      id: dialog.dialogId,
 	      fields: {
-	        text: '',
-	        params: {
-	          'IS_DELETED': 'Y',
-	          'FILE_ID': []
+	        message: {
+	          text: ''
 	        }
 	      }
 	    });
-	    const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].getters['dialogues/getByChatId'](babelHelpers.classPrivateFieldLooseBase(this, _chatId$2)[_chatId$2]);
-	    if (messageId === dialog.lastMessageId) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].dispatch('recent/update', {
-	        id: dialog.dialogId,
-	        fields: {
-	          message: {
-	            text: ''
-	          }
-	        }
-	      });
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _deleteMessageOnServer)[_deleteMessageOnServer](message.id);
+	}
+	function _completeMessageDelete2(message) {
+	  const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].getters['dialogues/getByChatId'](babelHelpers.classPrivateFieldLooseBase(this, _chatId$2)[_chatId$2]);
+	  const previousMessage = babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].getters['messages/getPreviousMessage']({
+	    messageId: message.id,
+	    chatId: dialog.chatId
+	  });
+	  if (message.id === dialog.lastMessageId) {
+	    let updatedMessage = {
+	      text: ''
+	    };
+	    if (previousMessage) {
+	      updatedMessage = previousMessage;
 	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$9)[_restClient$9].callMethod(im_v2_const.RestMethod.imMessageDelete, {
-	      'ID': messageId
-	    }).catch(error => {
-	      console.error('MessageService: deleteMessage error:', error);
+	    babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].dispatch('recent/update', {
+	      id: dialog.dialogId,
+	      fields: {
+	        message: updatedMessage
+	      }
+	    });
+	    const newLastId = previousMessage ? previousMessage.id : 0;
+	    babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].dispatch('dialogues/update', {
+	      dialogId: dialog.dialogId,
+	      fields: {
+	        lastMessageId: newLastId,
+	        lastId: newLastId
+	      }
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].dispatch('dialogues/clearLastMessageViews', {
+	      dialogId: dialog.dialogId
 	    });
 	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$a)[_store$a].dispatch('messages/delete', {
+	    id: message.id
+	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _deleteMessageOnServer)[_deleteMessageOnServer](message.id);
+	}
+	function _deleteMessageOnServer2(messageId) {
+	  im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2ChatMessageDelete, {
+	    data: {
+	      id: messageId
+	    }
+	  }).catch(error => {
+	    console.error('MessageService: deleteMessage error:', error);
+	  });
 	}
 
 	var _chatId$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("chatId");
 	var _store$b = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
-	var _restClient$a = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
+	var _restClient$9 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
 	class MarkService {
 	  constructor(chatId) {
 	    Object.defineProperty(this, _chatId$3, {
@@ -1560,13 +1508,13 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _restClient$a, {
+	    Object.defineProperty(this, _restClient$9, {
 	      writable: true,
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _chatId$3)[_chatId$3] = chatId;
 	    babelHelpers.classPrivateFieldLooseBase(this, _store$b)[_store$b] = im_v2_application_core.Core.getStore();
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$a)[_restClient$a] = im_v2_application_core.Core.getRestClient();
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$9)[_restClient$9] = im_v2_application_core.Core.getRestClient();
 	  }
 	  markMessage(messageId) {
 	    im_v2_lib_logger.Logger.warn('MessageService: markMessage', messageId);
@@ -1583,7 +1531,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	        markedId: messageId
 	      }
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$a)[_restClient$a].callMethod(im_v2_const.RestMethod.imV2ChatMessageMark, {
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$9)[_restClient$9].callMethod(im_v2_const.RestMethod.imV2ChatMessageMark, {
 	      dialogId,
 	      id: messageId
 	    }).catch(error => {
@@ -1594,7 +1542,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 
 	var _chatId$4 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("chatId");
 	var _store$c = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
-	var _restClient$b = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
+	var _restClient$a = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
 	class FavoriteService {
 	  constructor(chatId) {
 	    Object.defineProperty(this, _chatId$4, {
@@ -1605,23 +1553,23 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _restClient$b, {
+	    Object.defineProperty(this, _restClient$a, {
 	      writable: true,
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _chatId$4)[_chatId$4] = chatId;
 	    babelHelpers.classPrivateFieldLooseBase(this, _store$c)[_store$c] = im_v2_application_core.Core.getStore();
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$b)[_restClient$b] = im_v2_application_core.Core.getRestClient();
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$a)[_restClient$a] = im_v2_application_core.Core.getRestClient();
 	  }
 	  addMessageToFavorite(messageId) {
 	    im_v2_lib_logger.Logger.warn('MessageService: addMessageToFavorite', messageId);
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$b)[_restClient$b].callMethod(im_v2_const.RestMethod.imChatFavoriteAdd, {
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$a)[_restClient$a].callMethod(im_v2_const.RestMethod.imChatFavoriteAdd, {
 	      MESSAGE_ID: messageId
 	    }).catch(error => {
 	      console.error('MessageService: error adding message to favorite', error);
 	    });
 	    BX.UI.Notification.Center.notify({
-	      content: main_core.Loc.getMessage('IM_MESSAGE_SERVICE_SAVE_MESSAGE_SUCCESS')
+	      content: main_core.Loc.getMessage('IM_MESSAGE_SERVICE_ADD_MESSAGE_TO_FAVORITE_SUCCESS')
 	    });
 	  }
 	  removeMessageFromFavorite(messageId) {
@@ -1630,7 +1578,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      chatId: babelHelpers.classPrivateFieldLooseBase(this, _chatId$4)[_chatId$4],
 	      messageId: messageId
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$b)[_restClient$b].callMethod(im_v2_const.RestMethod.imChatFavoriteDelete, {
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$a)[_restClient$a].callMethod(im_v2_const.RestMethod.imChatFavoriteDelete, {
 	      MESSAGE_ID: messageId
 	    }).catch(error => {
 	      console.error('MessageService: error removing message from favorite', error);
@@ -1766,440 +1714,19 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _favoriteService)[_favoriteService] = new FavoriteService(chatId);
 	}
 
-	var _uploader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploader");
 	var _store$d = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
-	var _restClient$c = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
-	var _getFilePreview = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFilePreview");
-	var _onStartUpload = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onStartUpload");
-	var _onProgress = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onProgress");
-	var _onComplete = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onComplete");
-	var _onUploadError = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onUploadError");
-	var _onUploadCancel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onUploadCancel");
-	class UploadManager extends main_core_events.EventEmitter {
-	  constructor() {
-	    super();
-	    Object.defineProperty(this, _onUploadCancel, {
-	      value: _onUploadCancel2
-	    });
-	    Object.defineProperty(this, _onUploadError, {
-	      value: _onUploadError2
-	    });
-	    Object.defineProperty(this, _onComplete, {
-	      value: _onComplete2
-	    });
-	    Object.defineProperty(this, _onProgress, {
-	      value: _onProgress2
-	    });
-	    Object.defineProperty(this, _onStartUpload, {
-	      value: _onStartUpload2
-	    });
-	    Object.defineProperty(this, _getFilePreview, {
-	      value: _getFilePreview2
-	    });
-	    Object.defineProperty(this, _uploader, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _store$d, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _restClient$c, {
-	      writable: true,
-	      value: void 0
-	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _store$d)[_store$d] = im_v2_application_core.Core.getStore();
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$c)[_restClient$c] = im_v2_application_core.Core.getRestClient();
-	    this.setEventNamespace(UploadManager.eventNamespace);
-	    this.onUploadCancelHandler = babelHelpers.classPrivateFieldLooseBase(this, _onUploadCancel)[_onUploadCancel].bind(this);
-	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.uploader.cancel, this.onUploadCancelHandler);
-	    this.initUploader();
-	  }
-	  initUploader() {
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader] = new im_v2_lib_uploader.Uploader();
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribe(im_v2_lib_uploader.Uploader.EVENTS.startUpload, babelHelpers.classPrivateFieldLooseBase(this, _onStartUpload)[_onStartUpload].bind(this));
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribe(im_v2_lib_uploader.Uploader.EVENTS.progressUpdate, babelHelpers.classPrivateFieldLooseBase(this, _onProgress)[_onProgress].bind(this));
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribe(im_v2_lib_uploader.Uploader.EVENTS.complete, babelHelpers.classPrivateFieldLooseBase(this, _onComplete)[_onComplete].bind(this));
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribe(im_v2_lib_uploader.Uploader.EVENTS.fileMaxSizeExceeded, babelHelpers.classPrivateFieldLooseBase(this, _onUploadError)[_onUploadError].bind(this));
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribe(im_v2_lib_uploader.Uploader.EVENTS.uploadFileError, babelHelpers.classPrivateFieldLooseBase(this, _onUploadError)[_onUploadError].bind(this));
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribe(im_v2_lib_uploader.Uploader.EVENTS.createFileError, babelHelpers.classPrivateFieldLooseBase(this, _onUploadError)[_onUploadError].bind(this));
-	  }
-	  addUploadTask(temporaryFileId, file, diskFolderId) {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _getFilePreview)[_getFilePreview](file).then(({
-	      preview
-	    }) => {
-	      const previewBlob = preview ? {
-	        previewBlob: preview.blob
-	      } : {};
-	      babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].addTask({
-	        taskId: temporaryFileId,
-	        fileData: file,
-	        fileName: file.name,
-	        diskFolderId: diskFolderId,
-	        generateUniqueName: true,
-	        ...previewBlob
-	      });
-	      return {
-	        taskId: temporaryFileId,
-	        file: file,
-	        preview: preview
-	      };
-	    });
-	  }
-	  cancel(taskId) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].deleteTask(taskId);
-	  }
-	  destroy() {
-	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.uploader.cancel, this.onUploadCancelHandler);
-	  }
-	}
-	function _getFilePreview2(file) {
-	  return im_v2_lib_uploader.PreviewManager.get(file).then(preview => {
-	    return {
-	      preview
-	    };
-	  }).catch(error => {
-	    console.warn(`Couldn't get preview for file ${file.name}. Error: ${error}`);
-	    return {};
-	  });
-	}
-	function _onStartUpload2(event) {
-	  this.emit(UploadManager.events.onFileUploadProgress, event);
-	}
-	function _onProgress2(event) {
-	  this.emit(UploadManager.events.onFileUploadProgress, event);
-	}
-	function _onComplete2(event) {
-	  this.emit(UploadManager.events.onFileUploadComplete, event);
-	}
-	function _onUploadError2(event) {
-	  this.emit(UploadManager.events.onFileUploadError, event);
-	}
-	function _onUploadCancel2(event) {
-	  this.emit(UploadManager.events.onFileUploadCancel, event);
-	}
-	UploadManager.eventNamespace = 'BX.Messenger.v2.Textarea.UploadManager';
-	UploadManager.events = {
-	  onFileUploadProgress: 'onFileUploadProgress',
-	  onFileUploadComplete: 'onFileUploadComplete',
-	  onFileUploadError: 'onFileUploadError',
-	  onFileUploadCancel: 'onFileUploadCancel'
-	};
-
-	var _store$e = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
-	var _restClient$d = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
-	var _isRequestingDiskFolderId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isRequestingDiskFolderId");
-	var _diskFolderIdRequestPromise = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("diskFolderIdRequestPromise");
-	var _uploadManager = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploadManager");
-	var _uploadRegistry = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploadRegistry");
-	var _addFileFromDiskToModel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addFileFromDiskToModel");
-	var _initUploadManager = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initUploadManager");
-	var _requestDiskFolderId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestDiskFolderId");
-	var _updateFileProgress = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateFileProgress");
-	var _cancelUpload = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("cancelUpload");
-	var _addFileToModel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addFileToModel");
-	var _getDiskFolderId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDiskFolderId");
-	var _getFileType = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFileType");
-	var _getFileExtension = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFileExtension");
-	var _getDialog$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDialog");
-	var _getCurrentUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getCurrentUser");
-	var _addFileToUploadRegistry = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addFileToUploadRegistry");
-	var _getChatId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getChatId");
-	class FileService extends main_core_events.EventEmitter {
-	  constructor() {
-	    super();
-	    Object.defineProperty(this, _getChatId, {
-	      value: _getChatId2
-	    });
-	    Object.defineProperty(this, _addFileToUploadRegistry, {
-	      value: _addFileToUploadRegistry2
-	    });
-	    Object.defineProperty(this, _getCurrentUser, {
-	      value: _getCurrentUser2
-	    });
-	    Object.defineProperty(this, _getDialog$1, {
-	      value: _getDialog2$1
-	    });
-	    Object.defineProperty(this, _getFileExtension, {
-	      value: _getFileExtension2
-	    });
-	    Object.defineProperty(this, _getFileType, {
-	      value: _getFileType2
-	    });
-	    Object.defineProperty(this, _getDiskFolderId, {
-	      value: _getDiskFolderId2
-	    });
-	    Object.defineProperty(this, _addFileToModel, {
-	      value: _addFileToModel2
-	    });
-	    Object.defineProperty(this, _cancelUpload, {
-	      value: _cancelUpload2
-	    });
-	    Object.defineProperty(this, _updateFileProgress, {
-	      value: _updateFileProgress2
-	    });
-	    Object.defineProperty(this, _requestDiskFolderId, {
-	      value: _requestDiskFolderId2
-	    });
-	    Object.defineProperty(this, _initUploadManager, {
-	      value: _initUploadManager2
-	    });
-	    Object.defineProperty(this, _addFileFromDiskToModel, {
-	      value: _addFileFromDiskToModel2
-	    });
-	    Object.defineProperty(this, _store$e, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _restClient$d, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _isRequestingDiskFolderId, {
-	      writable: true,
-	      value: false
-	    });
-	    Object.defineProperty(this, _diskFolderIdRequestPromise, {
-	      writable: true,
-	      value: {}
-	    });
-	    Object.defineProperty(this, _uploadManager, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _uploadRegistry, {
-	      writable: true,
-	      value: {}
-	    });
-	    this.setEventNamespace(FileService.eventNamespace);
-	    babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e] = im_v2_application_core.Core.getStore();
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$d)[_restClient$d] = im_v2_application_core.Core.getRestClient();
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploadManager)[_uploadManager] = new UploadManager();
-	    babelHelpers.classPrivateFieldLooseBase(this, _initUploadManager)[_initUploadManager]();
-	  }
-	  uploadFile(messageWithFile) {
-	    const {
-	      temporaryFileId,
-	      rawFile,
-	      diskFolderId
-	    } = messageWithFile;
-	    babelHelpers.classPrivateFieldLooseBase(this, _addFileToUploadRegistry)[_addFileToUploadRegistry](temporaryFileId, messageWithFile);
-	    return babelHelpers.classPrivateFieldLooseBase(this, _uploadManager)[_uploadManager].addUploadTask(temporaryFileId, rawFile, diskFolderId).then(uploadTask => {
-	      return babelHelpers.classPrivateFieldLooseBase(this, _addFileToModel)[_addFileToModel](uploadTask);
-	    });
-	  }
-	  uploadFileFromDisk(messageWithFile) {
-	    const {
-	      temporaryFileId,
-	      rawFile
-	    } = messageWithFile;
-	    babelHelpers.classPrivateFieldLooseBase(this, _addFileToUploadRegistry)[_addFileToUploadRegistry](temporaryFileId, messageWithFile);
-	    return babelHelpers.classPrivateFieldLooseBase(this, _addFileFromDiskToModel)[_addFileFromDiskToModel](temporaryFileId, rawFile);
-	  }
-	  checkDiskFolderId(dialogId) {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _getDiskFolderId)[_getDiskFolderId](dialogId) > 0) {
-	      return Promise.resolve(babelHelpers.classPrivateFieldLooseBase(this, _getDiskFolderId)[_getDiskFolderId](dialogId));
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isRequestingDiskFolderId)[_isRequestingDiskFolderId]) {
-	      return babelHelpers.classPrivateFieldLooseBase(this, _diskFolderIdRequestPromise)[_diskFolderIdRequestPromise][dialogId];
-	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _diskFolderIdRequestPromise)[_diskFolderIdRequestPromise][dialogId] = babelHelpers.classPrivateFieldLooseBase(this, _requestDiskFolderId)[_requestDiskFolderId](dialogId);
-	    return babelHelpers.classPrivateFieldLooseBase(this, _diskFolderIdRequestPromise)[_diskFolderIdRequestPromise][dialogId];
-	  }
-	  commitFile(params) {
-	    const {
-	      temporaryFileId,
-	      realFileId,
-	      fromDisk
-	    } = params;
-	    const messageWithFile = this.getMessageWithFile(temporaryFileId);
-	    const fileIdParams = {};
-	    if (fromDisk) {
-	      fileIdParams.disk_id = realFileId;
-	    } else {
-	      fileIdParams.upload_id = realFileId;
-	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$d)[_restClient$d].callMethod(im_v2_const.RestMethod.imDiskFileCommit, {
-	      chat_id: messageWithFile.chatId,
-	      message: '',
-	      // we don't have feature to send files with text right now
-	      template_id: messageWithFile.temporaryMessageId,
-	      file_template_id: temporaryFileId,
-	      ...fileIdParams
-	    }).catch(error => {
-	      console.error('fileCommit error', error);
-	    });
-	  }
-	  getMessageWithFile(taskId) {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _uploadRegistry)[_uploadRegistry][taskId];
-	  }
-	  destroy() {
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploadManager)[_uploadManager].destroy();
-	  }
-	}
-	function _addFileFromDiskToModel2(id, file) {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('files/add', {
-	    id: id,
-	    chatId: this.getMessageWithFile(id).chatId,
-	    authorId: im_v2_application_core.Core.getUserId(),
-	    name: file.name,
-	    type: im_v2_lib_utils.Utils.file.getFileTypeByExtension(file.ext),
-	    extension: file.ext,
-	    size: file.sizeInt,
-	    status: im_v2_const.FileStatus.wait,
-	    progress: 0,
-	    authorName: babelHelpers.classPrivateFieldLooseBase(this, _getCurrentUser)[_getCurrentUser]().name
-	  });
-	}
-	function _initUploadManager2() {
-	  babelHelpers.classPrivateFieldLooseBase(this, _uploadManager)[_uploadManager] = new UploadManager();
-	  babelHelpers.classPrivateFieldLooseBase(this, _uploadManager)[_uploadManager].subscribe(UploadManager.events.onFileUploadProgress, event => {
-	    const {
-	      task
-	    } = event.getData();
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateFileProgress)[_updateFileProgress](task.taskId, task.progress, im_v2_const.FileStatus.upload);
-	  });
-	  babelHelpers.classPrivateFieldLooseBase(this, _uploadManager)[_uploadManager].subscribe(UploadManager.events.onFileUploadComplete, event => {
-	    const {
-	      task,
-	      result
-	    } = event.getData();
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateFileProgress)[_updateFileProgress](task.taskId, task.progress, im_v2_const.FileStatus.wait);
-	    this.commitFile({
-	      temporaryFileId: task.taskId,
-	      realFileId: result.data.file.id,
-	      fromDisk: false
-	    });
-	  });
-	  babelHelpers.classPrivateFieldLooseBase(this, _uploadManager)[_uploadManager].subscribe(UploadManager.events.onFileUploadError, event => {
-	    const {
-	      task
-	    } = event.getData();
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateFileProgress)[_updateFileProgress](task.taskId, 0, im_v2_const.FileStatus.error);
-	  });
-	  babelHelpers.classPrivateFieldLooseBase(this, _uploadManager)[_uploadManager].subscribe(UploadManager.events.onFileUploadCancel, event => {
-	    const {
-	      taskId
-	    } = event.getData();
-	    babelHelpers.classPrivateFieldLooseBase(this, _cancelUpload)[_cancelUpload](taskId);
-	  });
-	}
-	function _requestDiskFolderId2(dialogId) {
-	  return new Promise((resolve, reject) => {
-	    babelHelpers.classPrivateFieldLooseBase(this, _isRequestingDiskFolderId)[_isRequestingDiskFolderId] = true;
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$d)[_restClient$d].callMethod(im_v2_const.RestMethod.imDiskFolderGet, {
-	      chat_id: babelHelpers.classPrivateFieldLooseBase(this, _getChatId)[_getChatId](dialogId)
-	    }).then(response => {
-	      const {
-	        ID: diskFolderId
-	      } = response.data();
-	      babelHelpers.classPrivateFieldLooseBase(this, _isRequestingDiskFolderId)[_isRequestingDiskFolderId] = false;
-	      babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].commit('dialogues/update', {
-	        dialogId: dialogId,
-	        fields: {
-	          diskFolderId: diskFolderId
-	        }
-	      });
-	      resolve(diskFolderId);
-	    }).catch(error => {
-	      babelHelpers.classPrivateFieldLooseBase(this, _isRequestingDiskFolderId)[_isRequestingDiskFolderId] = false;
-	      reject(error);
-	    });
-	  });
-	}
-	function _updateFileProgress2(id, progress, status) {
-	  babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('files/update', {
-	    id: id,
-	    fields: {
-	      progress: progress === 100 ? 99 : progress,
-	      status: status
-	    }
-	  });
-	}
-	function _cancelUpload2(taskId) {
-	  const messageId = this.getMessageWithFile(taskId).temporaryMessageId;
-	  babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('messages/delete', {
-	    id: messageId
-	  });
-	  babelHelpers.classPrivateFieldLooseBase(this, _uploadManager)[_uploadManager].cancel(taskId);
-	}
-	function _addFileToModel2(fileToUpload) {
-	  const {
-	    taskId,
-	    file,
-	    preview
-	  } = fileToUpload;
-	  const previewData = {};
-	  if (preview.blob) {
-	    previewData.image = {
-	      width: preview.width,
-	      height: preview.height
-	    };
-	    previewData.urlPreview = URL.createObjectURL(preview.blob);
-	  }
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('files/add', {
-	    id: taskId,
-	    chatId: this.getMessageWithFile(taskId).chatId,
-	    authorId: im_v2_application_core.Core.getUserId(),
-	    name: file.name,
-	    type: babelHelpers.classPrivateFieldLooseBase(this, _getFileType)[_getFileType](file),
-	    extension: babelHelpers.classPrivateFieldLooseBase(this, _getFileExtension)[_getFileExtension](file),
-	    size: file.size,
-	    status: im_v2_const.FileStatus.progress,
-	    progress: 0,
-	    authorName: babelHelpers.classPrivateFieldLooseBase(this, _getCurrentUser)[_getCurrentUser]().name,
-	    ...previewData
-	  });
-	}
-	function _getDiskFolderId2(dialogId) {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _getDialog$1)[_getDialog$1](dialogId).diskFolderId;
-	}
-	function _getFileType2(file) {
-	  let fileType = im_v2_const.FileType.file;
-	  if (file.type.startsWith('image')) {
-	    fileType = im_v2_const.FileType.image;
-	  } else if (file.type.startsWith('video')) {
-	    fileType = im_v2_const.FileType.video;
-	  }
-	  return fileType;
-	}
-	function _getFileExtension2(file) {
-	  return file.name.split('.').splice(-1)[0];
-	}
-	function _getDialog2$1(dialogId) {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].getters['dialogues/get'](dialogId);
-	}
-	function _getCurrentUser2() {
-	  const userId = im_v2_application_core.Core.getUserId();
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].getters['users/get'](userId);
-	}
-	function _addFileToUploadRegistry2(fileId, fileToUpload) {
-	  babelHelpers.classPrivateFieldLooseBase(this, _uploadRegistry)[_uploadRegistry][fileId] = {
-	    chatId: babelHelpers.classPrivateFieldLooseBase(this, _getChatId)[_getChatId](fileToUpload.dialogId),
-	    ...fileToUpload
-	  };
-	}
-	function _getChatId2(dialogId) {
-	  var _babelHelpers$classPr;
-	  return (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _getDialog$1)[_getDialog$1](dialogId)) == null ? void 0 : _babelHelpers$classPr.chatId;
-	}
-	FileService.eventNamespace = 'BX.Messenger.v2.Textarea.UploadingService';
-	FileService.events = {
-	  sendMessageWithFile: 'sendMessageWithFile'
-	};
-
-	var _store$f = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
-	var _fileService = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("fileService");
+	var _uploadingService = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploadingService");
+	var _prepareFileFromDisk = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareFileFromDisk");
 	var _prepareMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareMessage");
 	var _handlePagination = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handlePagination");
 	var _addMessageToModels = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addMessageToModels");
 	var _addMessageToRecent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addMessageToRecent");
 	var _sendMessageToServer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendMessageToServer");
-	var _updateMessageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateMessageId");
+	var _updateModels$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateModels");
 	var _updateMessageError = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateMessageError");
 	var _sendScrollEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendScrollEvent");
-	var _getDialog$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDialog");
-	class SendingService {
+	var _getDialog$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDialog");
+	class SendingService$$1 {
 	  static getInstance() {
 	    if (!this.instance) {
 	      this.instance = new this();
@@ -2207,8 +1734,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    return this.instance;
 	  }
 	  constructor() {
-	    Object.defineProperty(this, _getDialog$2, {
-	      value: _getDialog2$2
+	    Object.defineProperty(this, _getDialog$1, {
+	      value: _getDialog2$1
 	    });
 	    Object.defineProperty(this, _sendScrollEvent, {
 	      value: _sendScrollEvent2
@@ -2216,8 +1743,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    Object.defineProperty(this, _updateMessageError, {
 	      value: _updateMessageError2
 	    });
-	    Object.defineProperty(this, _updateMessageId, {
-	      value: _updateMessageId2
+	    Object.defineProperty(this, _updateModels$2, {
+	      value: _updateModels2$2
 	    });
 	    Object.defineProperty(this, _sendMessageToServer, {
 	      value: _sendMessageToServer2
@@ -2234,32 +1761,35 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    Object.defineProperty(this, _prepareMessage, {
 	      value: _prepareMessage2
 	    });
-	    Object.defineProperty(this, _store$f, {
+	    Object.defineProperty(this, _prepareFileFromDisk, {
+	      value: _prepareFileFromDisk2
+	    });
+	    Object.defineProperty(this, _store$d, {
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _fileService, {
+	    Object.defineProperty(this, _uploadingService, {
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f] = im_v2_application_core.Core.getStore();
-	    babelHelpers.classPrivateFieldLooseBase(this, _fileService)[_fileService] = new FileService();
+	    babelHelpers.classPrivateFieldLooseBase(this, _store$d)[_store$d] = im_v2_application_core.Core.getStore();
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploadingService)[_uploadingService] = UploadingService.getInstance();
 	  }
 	  sendMessage(params) {
 	    const {
 	      text = '',
 	      fileId = '',
-	      temporaryMessageId,
+	      tempMessageId,
 	      dialogId
 	    } = params;
 	    if (!main_core.Type.isStringFilled(text) && !main_core.Type.isStringFilled(fileId)) {
-	      return;
+	      return Promise.resolve();
 	    }
-	    im_v2_lib_logger.Logger.warn(`SendingService: sendMessage`, params);
+	    im_v2_lib_logger.Logger.warn('SendingService: sendMessage', params);
 	    const message = babelHelpers.classPrivateFieldLooseBase(this, _prepareMessage)[_prepareMessage]({
 	      text,
 	      fileId,
-	      temporaryMessageId,
+	      tempMessageId,
 	      dialogId
 	    });
 	    return babelHelpers.classPrivateFieldLooseBase(this, _handlePagination)[_handlePagination](dialogId).then(() => {
@@ -2269,96 +1799,169 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	        force: true,
 	        dialogId
 	      });
-	      babelHelpers.classPrivateFieldLooseBase(this, _sendMessageToServer)[_sendMessageToServer](message);
+	      return babelHelpers.classPrivateFieldLooseBase(this, _sendMessageToServer)[_sendMessageToServer](message);
+	    }).then(result => {
+	      if (message.withFile) {
+	        return;
+	      }
+	      im_v2_lib_logger.Logger.warn('SendingService: sendMessage result -', result.data());
+	      babelHelpers.classPrivateFieldLooseBase(this, _updateModels$2)[_updateModels$2]({
+	        oldId: message.temporaryId,
+	        newId: result.data(),
+	        dialogId: message.dialogId
+	      });
+	    }).catch(error => {
+	      babelHelpers.classPrivateFieldLooseBase(this, _updateMessageError)[_updateMessageError](message.temporaryId);
+	      console.error('SendingService: sendMessage error -', error);
 	    });
 	  }
 	  sendFilesFromInput(files, dialogId) {
 	    if (files.length === 0) {
 	      return;
 	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _fileService)[_fileService].checkDiskFolderId(dialogId).then(diskFolderId => {
-	      files.forEach(rawFile => {
-	        const temporaryMessageId = im_v2_lib_utils.Utils.text.getUuidV4();
-	        const temporaryFileId = im_v2_lib_utils.Utils.text.getUuidV4();
-	        const fileToUpload = {
-	          temporaryMessageId,
-	          temporaryFileId,
-	          rawFile,
-	          diskFolderId,
-	          dialogId
-	        };
-	        babelHelpers.classPrivateFieldLooseBase(this, _fileService)[_fileService].uploadFile(fileToUpload).then(() => {
-	          this.sendMessage({
-	            temporaryMessageId: temporaryMessageId,
-	            fileId: temporaryFileId,
-	            dialogId: dialogId
-	          });
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploadingService)[_uploadingService].uploadFiles({
+	      files,
+	      dialogId,
+	      autoUpload: true
+	    }).then(({
+	      files: uploaderFiles
+	    }) => {
+	      uploaderFiles.forEach(file => {
+	        this.sendMessage({
+	          fileId: file.getId(),
+	          tempMessageId: file.getCustomData('tempMessageId'),
+	          dialogId: file.getCustomData('dialogId')
 	        });
 	      });
+	    }).catch(error => {
+	      im_v2_lib_logger.Logger.error('SendingService: sendFilesFromInput error', error);
+	    });
+	  }
+	  sendFilesFromClipboard(files, dialogId) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _uploadingService)[_uploadingService].uploadFiles({
+	      files,
+	      dialogId,
+	      autoUpload: false
 	    });
 	  }
 	  sendFilesFromDisk(files, dialogId) {
 	    Object.values(files).forEach(file => {
-	      const temporaryMessageId = im_v2_lib_utils.Utils.text.getUuidV4();
-	      const realFileId = file.id.slice(1); //'n123' => '123'
-	      const temporaryFileId = `${temporaryMessageId}|${realFileId}`;
-	      babelHelpers.classPrivateFieldLooseBase(this, _fileService)[_fileService].uploadFileFromDisk({
-	        temporaryMessageId,
-	        temporaryFileId,
-	        dialogId,
-	        rawFile: file
-	      }).then(() => {
+	      const messageWithFile = babelHelpers.classPrivateFieldLooseBase(this, _prepareFileFromDisk)[_prepareFileFromDisk](file, dialogId);
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploadingService)[_uploadingService].uploadFileFromDisk(messageWithFile).then(() => {
 	        return this.sendMessage({
-	          temporaryMessageId,
-	          fileId: temporaryFileId,
-	          dialogId
+	          tempMessageId: messageWithFile.tempMessageId,
+	          fileId: messageWithFile.tempFileId,
+	          dialogId: messageWithFile.dialogId
 	        });
 	      }).then(() => {
-	        babelHelpers.classPrivateFieldLooseBase(this, _fileService)[_fileService].commitFile({
-	          temporaryFileId: temporaryFileId,
-	          realFileId: realFileId,
+	        babelHelpers.classPrivateFieldLooseBase(this, _uploadingService)[_uploadingService].commitFile({
+	          chatId: messageWithFile.chatId,
+	          temporaryFileId: messageWithFile.tempFileId,
+	          tempMessageId: messageWithFile.tempMessageId,
+	          realFileId: messageWithFile.file.id.slice(1),
 	          fromDisk: true
 	        });
+	      }).catch(error => {
+	        console.error('SendingService: sendFilesFromDisk error:', error);
 	      });
 	    });
 	  }
-	  destroy() {
-	    babelHelpers.classPrivateFieldLooseBase(this, _fileService)[_fileService].destroy();
+	  sendMessagesWithFiles(params) {
+	    const {
+	      groupFiles,
+	      text,
+	      uploaderId,
+	      dialogId,
+	      sendAsFile
+	    } = params;
+	    if (groupFiles) {
+	      return;
+	    }
+	    const messagesToSend = [];
+	    const files = babelHelpers.classPrivateFieldLooseBase(this, _uploadingService)[_uploadingService].getFiles(uploaderId);
+	    const hasText = text.length > 0;
+
+	    // if we have more than one file and text, we need to send text message first
+	    if (files.length > 1 && hasText) {
+	      messagesToSend.push({
+	        dialogId,
+	        text
+	      });
+	    }
+	    files.forEach(file => {
+	      var _file$getCustomData;
+	      if (file.getError()) {
+	        return;
+	      }
+	      const messageId = im_v2_lib_utils.Utils.text.getUuidV4();
+	      file.setCustomData('messageId', messageId);
+	      if (files.length === 1 && hasText) {
+	        file.setCustomData('messageText', text);
+	      }
+	      if (sendAsFile) {
+	        file.setCustomData('sendAsFile', true);
+	      }
+	      messagesToSend.push({
+	        fileId: file.getId(),
+	        tempMessageId: file.getCustomData('tempMessageId'),
+	        dialogId: file.getCustomData('dialogId'),
+	        text: (_file$getCustomData = file.getCustomData('messageText')) != null ? _file$getCustomData : ''
+	      });
+	    });
+	    messagesToSend.forEach(message => {
+	      this.sendMessage(message);
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploadingService)[_uploadingService].start(uploaderId);
 	  }
+	  destroy() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploadingService)[_uploadingService].destroy();
+	  }
+	}
+	function _prepareFileFromDisk2(file, dialogId) {
+	  const tempMessageId = im_v2_lib_utils.Utils.text.getUuidV4();
+	  const realFileId = file.id.slice(1); // 'n123' => '123'
+	  const tempFileId = `${tempMessageId}|${realFileId}`;
+	  return {
+	    tempMessageId,
+	    tempFileId,
+	    dialogId,
+	    file,
+	    chatId: babelHelpers.classPrivateFieldLooseBase(this, _getDialog$1)[_getDialog$1](dialogId).chatId
+	  };
 	}
 	function _prepareMessage2(params) {
 	  const {
 	    text,
 	    fileId,
-	    temporaryMessageId,
+	    tempMessageId,
 	    dialogId
 	  } = params;
 	  const messageParams = {};
 	  if (fileId) {
 	    messageParams.FILE_ID = [fileId];
 	  }
-	  const temporaryId = temporaryMessageId || im_v2_lib_utils.Utils.text.getUuidV4();
+	  const temporaryId = tempMessageId || im_v2_lib_utils.Utils.text.getUuidV4();
 	  return {
 	    temporaryId,
-	    chatId: babelHelpers.classPrivateFieldLooseBase(this, _getDialog$2)[_getDialog$2](dialogId).chatId,
-	    dialogId: dialogId,
+	    chatId: babelHelpers.classPrivateFieldLooseBase(this, _getDialog$1)[_getDialog$1](dialogId).chatId,
+	    dialogId,
 	    authorId: im_v2_application_core.Core.getUserId(),
 	    text,
 	    params: messageParams,
-	    withFile: !!fileId,
+	    withFile: Boolean(fileId),
 	    unread: false,
 	    sending: true
 	  };
 	}
 	function _handlePagination2(dialogId) {
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _getDialog$2)[_getDialog$2](dialogId).hasNextPage) {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _getDialog$1)[_getDialog$1](dialogId).hasNextPage) {
 	    return Promise.resolve();
 	  }
 	  im_v2_lib_logger.Logger.warn('SendingService: sendMessage: there are unread pages, move to chat end');
-	  const messageService = new im_v2_provider_service.MessageService({
-	    chatId: babelHelpers.classPrivateFieldLooseBase(this, _getDialog$2)[_getDialog$2](dialogId).chatId
+	  const messageService = new MessageService({
+	    chatId: babelHelpers.classPrivateFieldLooseBase(this, _getDialog$1)[_getDialog$1](dialogId).chatId
 	  });
-	  return messageService.loadContext(babelHelpers.classPrivateFieldLooseBase(this, _getDialog$2)[_getDialog$2](dialogId).lastMessageId).then(() => {
+	  return messageService.loadContext(babelHelpers.classPrivateFieldLooseBase(this, _getDialog$1)[_getDialog$1](dialogId).lastMessageId).then(() => {
 	    babelHelpers.classPrivateFieldLooseBase(this, _sendScrollEvent)[_sendScrollEvent]({
 	      dialogId
 	    });
@@ -2368,17 +1971,17 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	}
 	function _addMessageToModels2(message) {
 	  babelHelpers.classPrivateFieldLooseBase(this, _addMessageToRecent)[_addMessageToRecent](message);
-	  babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('dialogues/clearLastMessageViews', {
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$d)[_store$d].dispatch('dialogues/clearLastMessageViews', {
 	    dialogId: message.dialogId
 	  });
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('messages/add', message);
+	  return babelHelpers.classPrivateFieldLooseBase(this, _store$d)[_store$d].dispatch('messages/add', message);
 	}
 	function _addMessageToRecent2(message) {
-	  const recentItem = babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].getters['recent/get'](message.dialogId);
+	  const recentItem = babelHelpers.classPrivateFieldLooseBase(this, _store$d)[_store$d].getters['recent/get'](message.dialogId);
 	  if (!recentItem || message.text === '') {
-	    return false;
+	    return;
 	  }
-	  babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('recent/update', {
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$d)[_store$d].dispatch('recent/update', {
 	    id: message.dialogId,
 	    fields: {
 	      message: {
@@ -2397,55 +2000,47 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	}
 	function _sendMessageToServer2(element) {
 	  if (element.withFile) {
-	    return;
+	    return Promise.resolve();
 	  }
 	  const query = {
-	    [im_v2_const.RestMethod.imMessageAdd]: {
-	      template_id: element.temporaryId,
-	      dialog_id: element.dialogId
-	    },
-	    [im_v2_const.RestMethod.imV2ChatRead]: {
-	      dialogId: element.dialogId,
-	      onlyRecent: true
-	    }
+	    template_id: element.temporaryId,
+	    dialog_id: element.dialogId
 	  };
 	  if (element.text) {
-	    query[im_v2_const.RestMethod.imMessageAdd].message = element.text;
+	    query.message = element.text;
 	  }
-	  im_v2_lib_rest.callBatch(query).then(result => {
-	    im_v2_lib_logger.Logger.warn('SendingService: sendMessage result -', result[im_v2_const.RestMethod.imMessageAdd]);
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateMessageId)[_updateMessageId]({
-	      oldId: element.temporaryId,
-	      newId: result[im_v2_const.RestMethod.imMessageAdd],
-	      dialogId: element.dialogId
-	    });
-	  }).catch(error => {
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateMessageError)[_updateMessageError](element.temporaryId);
-	    console.error('SendingService: sendMessage error -', error);
-	  });
+	  return im_v2_application_core.Core.getRestClient().callMethod(im_v2_const.RestMethod.imMessageAdd, query);
 	}
-	function _updateMessageId2(params) {
+	function _updateModels2$2(params) {
 	  const {
 	    oldId,
 	    newId,
 	    dialogId
 	  } = params;
-	  babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('messages/updateWithId', {
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$d)[_store$d].dispatch('messages/updateWithId', {
 	    id: oldId,
 	    fields: {
 	      id: newId
 	    }
 	  });
-	  babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('dialogues/update', {
-	    dialogId: dialogId,
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$d)[_store$d].dispatch('dialogues/update', {
+	    dialogId,
 	    fields: {
 	      lastId: newId,
 	      lastMessageId: newId
 	    }
 	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$d)[_store$d].dispatch('recent/update', {
+	    id: dialogId,
+	    fields: {
+	      message: {
+	        sending: false
+	      }
+	    }
+	  });
 	}
 	function _updateMessageError2(messageId) {
-	  babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('messages/update', {
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$d)[_store$d].dispatch('messages/update', {
 	    id: messageId,
 	    fields: {
 	      error: true
@@ -2458,14 +2053,14 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    dialogId
 	  } = params;
 	  main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.scrollToBottom, {
-	    chatId: babelHelpers.classPrivateFieldLooseBase(this, _getDialog$2)[_getDialog$2](dialogId).chatId,
+	    chatId: babelHelpers.classPrivateFieldLooseBase(this, _getDialog$1)[_getDialog$1](dialogId).chatId,
 	    threshold: force ? im_v2_const.DialogScrollThreshold.none : im_v2_const.DialogScrollThreshold.halfScreenUp
 	  });
 	}
-	function _getDialog2$2(dialogId) {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].getters['dialogues/get'](dialogId);
+	function _getDialog2$1(dialogId) {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _store$d)[_store$d].getters['dialogues/get'](dialogId, true);
 	}
-	SendingService.instance = null;
+	SendingService$$1.instance = null;
 
 	class NotificationService {
 	  constructor() {
@@ -2612,6 +2207,37 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	}
 
+	var _restClient$b = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
+	class DiskService {
+	  constructor() {
+	    Object.defineProperty(this, _restClient$b, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$b)[_restClient$b] = im_v2_application_core.Core.getRestClient();
+	  }
+	  delete({
+	    chatId,
+	    fileId
+	  }) {
+	    const queryParams = {
+	      chat_id: chatId,
+	      file_id: fileId
+	    };
+	    return babelHelpers.classPrivateFieldLooseBase(this, _restClient$b)[_restClient$b].callMethod(im_v2_const.RestMethod.imDiskFileDelete, queryParams).catch(error => {
+	      console.error('DiskService: error deleting file', error);
+	    });
+	  }
+	  save(fileId) {
+	    const queryParams = {
+	      file_id: fileId
+	    };
+	    return babelHelpers.classPrivateFieldLooseBase(this, _restClient$b)[_restClient$b].callMethod(im_v2_const.RestMethod.imDiskFileSave, queryParams).catch(error => {
+	      console.error('DiskService: error saving file on disk', error);
+	    });
+	  }
+	}
+
 	class UnreadRecentService extends RecentService {
 	  static getInstance() {
 	    if (!this.instance) {
@@ -2662,12 +2288,567 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	}
 	UnreadRecentService.instance = null;
 
+	var _uploaderRegistry = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploaderRegistry");
+	var _onUploadCancelHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onUploadCancelHandler");
+	var _addFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addFile");
+	var _onUploadCancel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onUploadCancel");
+	var _removeFileFromUploader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("removeFileFromUploader");
+	class UploaderWrapper extends main_core_events.EventEmitter {
+	  constructor() {
+	    super();
+	    Object.defineProperty(this, _removeFileFromUploader, {
+	      value: _removeFileFromUploader2
+	    });
+	    Object.defineProperty(this, _onUploadCancel, {
+	      value: _onUploadCancel2
+	    });
+	    Object.defineProperty(this, _addFile, {
+	      value: _addFile2
+	    });
+	    Object.defineProperty(this, _uploaderRegistry, {
+	      writable: true,
+	      value: {}
+	    });
+	    Object.defineProperty(this, _onUploadCancelHandler, {
+	      writable: true,
+	      value: void 0
+	    });
+	    this.setEventNamespace(UploaderWrapper.eventNamespace);
+	    babelHelpers.classPrivateFieldLooseBase(this, _onUploadCancelHandler)[_onUploadCancelHandler] = babelHelpers.classPrivateFieldLooseBase(this, _onUploadCancel)[_onUploadCancel].bind(this);
+	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.uploader.cancel, babelHelpers.classPrivateFieldLooseBase(this, _onUploadCancelHandler)[_onUploadCancelHandler]);
+	  }
+	  createUploader(options) {
+	    const {
+	      diskFolderId,
+	      uploaderId,
+	      autoUpload
+	    } = options;
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderRegistry)[_uploaderRegistry][uploaderId] = new ui_uploader_core.Uploader({
+	      autoUpload,
+	      controller: 'disk.uf.integration.diskUploaderController',
+	      multiple: true,
+	      controllerOptions: {
+	        folderId: diskFolderId
+	      },
+	      imageResizeWidth: 1280,
+	      imageResizeHeight: 1280,
+	      imageResizeMode: 'contain',
+	      imageResizeFilter: file => !file.getCustomData('sendAsFile'),
+	      imageResizeMimeType: 'image/jpeg',
+	      imageResizeMimeTypeMode: 'force',
+	      imagePreviewHeight: 400,
+	      imagePreviewWidth: 400,
+	      events: {
+	        [ui_uploader_core.UploaderEvent.FILE_ADD_START]: event => {
+	          this.emit(UploaderWrapper.events.onFileAddStart, event);
+	        },
+	        [ui_uploader_core.UploaderEvent.FILE_UPLOAD_START]: event => {
+	          this.emit(UploaderWrapper.events.onFileUploadStart, event);
+	        },
+	        [ui_uploader_core.UploaderEvent.FILE_ADD]: event => {
+	          this.emit(UploaderWrapper.events.onFileAdd, event);
+	        },
+	        [ui_uploader_core.UploaderEvent.FILE_UPLOAD_PROGRESS]: event => {
+	          this.emit(UploaderWrapper.events.onFileUploadProgress, event);
+	        },
+	        [ui_uploader_core.UploaderEvent.FILE_UPLOAD_COMPLETE]: event => {
+	          this.emit(UploaderWrapper.events.onFileUploadComplete, event);
+	        },
+	        [ui_uploader_core.UploaderEvent.ERROR]: event => {
+	          this.emit(UploaderWrapper.events.onFileUploadError, event);
+	        },
+	        [ui_uploader_core.UploaderEvent.FILE_ERROR]: event => {
+	          this.emit(UploaderWrapper.events.onFileUploadError, event);
+	        },
+	        [ui_uploader_core.UploaderEvent.MAX_FILE_COUNT_EXCEEDED]: event => {
+	          this.emit(UploaderWrapper.events.onMaxFileCountExceeded, event);
+	        },
+	        [ui_uploader_core.UploaderEvent.UPLOAD_COMPLETE]: () => {
+	          babelHelpers.classPrivateFieldLooseBase(this, _uploaderRegistry)[_uploaderRegistry][uploaderId].destroy({
+	            removeFilesFromServer: false
+	          });
+	        }
+	      }
+	    });
+	  }
+	  start(uploaderId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderRegistry)[_uploaderRegistry][uploaderId].setAutoUpload(true);
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderRegistry)[_uploaderRegistry][uploaderId].start();
+	  }
+	  addFiles(tasks) {
+	    const addedFiles = [];
+	    tasks.forEach(task => {
+	      const file = babelHelpers.classPrivateFieldLooseBase(this, _addFile)[_addFile](task);
+	      if (file) {
+	        addedFiles.push(file);
+	      }
+	    });
+	    return addedFiles;
+	  }
+	  getFiles(uploaderId) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _uploaderRegistry)[_uploaderRegistry][uploaderId].getFiles();
+	  }
+	  destroy() {
+	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.uploader.cancel, babelHelpers.classPrivateFieldLooseBase(this, _onUploadCancelHandler)[_onUploadCancelHandler]);
+	  }
+	}
+	function _addFile2(task) {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _uploaderRegistry)[_uploaderRegistry][task.uploaderId].addFile(task.file, {
+	    id: task.tempFileId,
+	    customData: {
+	      dialogId: task.dialogId,
+	      chatId: task.chatId,
+	      tempMessageId: task.tempMessageId
+	    }
+	  });
+	}
+	function _onUploadCancel2(event) {
+	  const {
+	    tempFileId,
+	    tempMessageId
+	  } = event.getData();
+	  if (!tempFileId || !tempMessageId) {
+	    return;
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _removeFileFromUploader)[_removeFileFromUploader](tempFileId);
+	  this.emit(UploaderWrapper.events.onFileUploadCancel, {
+	    tempMessageId,
+	    tempFileId
+	  });
+	}
+	function _removeFileFromUploader2(tempFileId) {
+	  const uploaderList = Object.values(babelHelpers.classPrivateFieldLooseBase(this, _uploaderRegistry)[_uploaderRegistry]);
+	  for (const uploader of uploaderList) {
+	    if (!uploader.getFile) {
+	      continue;
+	    }
+	    const file = uploader.getFile(tempFileId);
+	    if (file) {
+	      file.remove();
+	      break;
+	    }
+	  }
+	}
+	UploaderWrapper.eventNamespace = 'BX.Messenger.v2.Service.Uploading.UploaderWrapper';
+	UploaderWrapper.events = {
+	  onFileAddStart: 'onFileAddStart',
+	  onFileAdd: 'onFileAdd',
+	  onFileUploadStart: 'onFileUploadStart',
+	  onFileUploadProgress: 'onFileUploadProgress',
+	  onFileUploadComplete: 'onFileUploadComplete',
+	  onFileUploadError: 'onFileUploadError',
+	  onFileUploadCancel: 'onFileUploadCancel',
+	  onMaxFileCountExceeded: 'onMaxFileCountExceeded'
+	};
+
+	var _store$e = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
+	var _restClient$c = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
+	var _isRequestingDiskFolderId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isRequestingDiskFolderId");
+	var _diskFolderIdRequestPromise = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("diskFolderIdRequestPromise");
+	var _uploaderWrapper = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploaderWrapper");
+	var _addFileFromDiskToModel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addFileFromDiskToModel");
+	var _initUploader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initUploader");
+	var _requestDiskFolderId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestDiskFolderId");
+	var _uploadPreview = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploadPreview");
+	var _prepareMessageWithFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareMessageWithFile");
+	var _updateFileProgress = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateFileProgress");
+	var _cancelUpload = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("cancelUpload");
+	var _addFileToStore = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addFileToStore");
+	var _updateFilePreviewInStore = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateFilePreviewInStore");
+	var _updateFileSizeInStore = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateFileSizeInStore");
+	var _preparePreview = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("preparePreview");
+	var _getDiskFolderId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDiskFolderId");
+	var _getFileType = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFileType");
+	var _getFileExtension = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFileExtension");
+	var _getDialog$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDialog");
+	var _getCurrentUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getCurrentUser");
+	var _getChatId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getChatId");
+	class UploadingService {
+	  static getInstance() {
+	    if (!this.instance) {
+	      this.instance = new this();
+	    }
+	    return this.instance;
+	  }
+	  constructor() {
+	    Object.defineProperty(this, _getChatId, {
+	      value: _getChatId2
+	    });
+	    Object.defineProperty(this, _getCurrentUser, {
+	      value: _getCurrentUser2
+	    });
+	    Object.defineProperty(this, _getDialog$2, {
+	      value: _getDialog2$2
+	    });
+	    Object.defineProperty(this, _getFileExtension, {
+	      value: _getFileExtension2
+	    });
+	    Object.defineProperty(this, _getFileType, {
+	      value: _getFileType2
+	    });
+	    Object.defineProperty(this, _getDiskFolderId, {
+	      value: _getDiskFolderId2
+	    });
+	    Object.defineProperty(this, _preparePreview, {
+	      value: _preparePreview2
+	    });
+	    Object.defineProperty(this, _updateFileSizeInStore, {
+	      value: _updateFileSizeInStore2
+	    });
+	    Object.defineProperty(this, _updateFilePreviewInStore, {
+	      value: _updateFilePreviewInStore2
+	    });
+	    Object.defineProperty(this, _addFileToStore, {
+	      value: _addFileToStore2
+	    });
+	    Object.defineProperty(this, _cancelUpload, {
+	      value: _cancelUpload2
+	    });
+	    Object.defineProperty(this, _updateFileProgress, {
+	      value: _updateFileProgress2
+	    });
+	    Object.defineProperty(this, _prepareMessageWithFile, {
+	      value: _prepareMessageWithFile2
+	    });
+	    Object.defineProperty(this, _uploadPreview, {
+	      value: _uploadPreview2
+	    });
+	    Object.defineProperty(this, _requestDiskFolderId, {
+	      value: _requestDiskFolderId2
+	    });
+	    Object.defineProperty(this, _initUploader, {
+	      value: _initUploader2
+	    });
+	    Object.defineProperty(this, _addFileFromDiskToModel, {
+	      value: _addFileFromDiskToModel2
+	    });
+	    Object.defineProperty(this, _store$e, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _restClient$c, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _isRequestingDiskFolderId, {
+	      writable: true,
+	      value: false
+	    });
+	    Object.defineProperty(this, _diskFolderIdRequestPromise, {
+	      writable: true,
+	      value: {}
+	    });
+	    Object.defineProperty(this, _uploaderWrapper, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e] = im_v2_application_core.Core.getStore();
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$c)[_restClient$c] = im_v2_application_core.Core.getRestClient();
+	    babelHelpers.classPrivateFieldLooseBase(this, _initUploader)[_initUploader]();
+	  }
+	  uploadFiles(params) {
+	    const {
+	      files,
+	      dialogId,
+	      autoUpload
+	    } = params;
+	    const uploaderId = im_v2_lib_utils.Utils.text.getUuidV4();
+	    return this.checkDiskFolderId(dialogId).then(diskFolderId => {
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].createUploader({
+	        diskFolderId,
+	        uploaderId,
+	        autoUpload
+	      });
+	      const filesForUploader = [];
+	      files.forEach(file => {
+	        const messageWithFile = babelHelpers.classPrivateFieldLooseBase(this, _prepareMessageWithFile)[_prepareMessageWithFile](file, dialogId, uploaderId);
+	        filesForUploader.push(messageWithFile);
+	      });
+	      const addedFiles = babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].addFiles(filesForUploader);
+	      return {
+	        files: addedFiles,
+	        uploaderId
+	      };
+	    });
+	  }
+	  getFiles(uploaderId) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].getFiles(uploaderId);
+	  }
+	  start(uploaderId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].start(uploaderId);
+	  }
+	  uploadFileFromDisk(messageWithFile) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _addFileFromDiskToModel)[_addFileFromDiskToModel](messageWithFile);
+	  }
+	  checkDiskFolderId(dialogId) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _getDiskFolderId)[_getDiskFolderId](dialogId) > 0) {
+	      return Promise.resolve(babelHelpers.classPrivateFieldLooseBase(this, _getDiskFolderId)[_getDiskFolderId](dialogId));
+	    }
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isRequestingDiskFolderId)[_isRequestingDiskFolderId]) {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _diskFolderIdRequestPromise)[_diskFolderIdRequestPromise][dialogId];
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _diskFolderIdRequestPromise)[_diskFolderIdRequestPromise][dialogId] = babelHelpers.classPrivateFieldLooseBase(this, _requestDiskFolderId)[_requestDiskFolderId](dialogId);
+	    return babelHelpers.classPrivateFieldLooseBase(this, _diskFolderIdRequestPromise)[_diskFolderIdRequestPromise][dialogId];
+	  }
+	  commitFile(params) {
+	    const {
+	      temporaryFileId,
+	      tempMessageId,
+	      chatId,
+	      realFileId,
+	      fromDisk,
+	      messageText = '',
+	      sendAsFile = false
+	    } = params;
+	    const fileIdParams = {};
+	    if (fromDisk) {
+	      fileIdParams.disk_id = realFileId;
+	    } else {
+	      fileIdParams.upload_id = realFileId.toString().slice(1);
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$c)[_restClient$c].callMethod(im_v2_const.RestMethod.imDiskFileCommit, {
+	      chat_id: chatId,
+	      message: messageText,
+	      template_id: tempMessageId,
+	      file_template_id: temporaryFileId,
+	      as_file: sendAsFile ? 'Y' : 'N',
+	      ...fileIdParams
+	    }).catch(error => {
+	      im_v2_lib_logger.Logger.error('commitFile error', error);
+	    });
+	  }
+	  destroy() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].destroy();
+	  }
+	}
+	function _addFileFromDiskToModel2(messageWithFile) {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('files/add', {
+	    id: messageWithFile.tempFileId,
+	    chatId: messageWithFile.chatId,
+	    authorId: im_v2_application_core.Core.getUserId(),
+	    name: messageWithFile.file.name,
+	    type: im_v2_lib_utils.Utils.file.getFileTypeByExtension(messageWithFile.file.ext),
+	    extension: messageWithFile.file.ext,
+	    size: messageWithFile.file.sizeInt,
+	    status: im_v2_const.FileStatus.wait,
+	    progress: 0,
+	    authorName: babelHelpers.classPrivateFieldLooseBase(this, _getCurrentUser)[_getCurrentUser]().name
+	  });
+	}
+	function _initUploader2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper] = new UploaderWrapper();
+	  babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].subscribe(UploaderWrapper.events.onFileAddStart, event => {
+	    const {
+	      file
+	    } = event.getData();
+	    babelHelpers.classPrivateFieldLooseBase(this, _addFileToStore)[_addFileToStore](file);
+	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].subscribe(UploaderWrapper.events.onFileAdd, event => {
+	    const {
+	      file
+	    } = event.getData();
+	    babelHelpers.classPrivateFieldLooseBase(this, _updateFilePreviewInStore)[_updateFilePreviewInStore](file);
+	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].subscribe(UploaderWrapper.events.onFileUploadStart, event => {
+	    const {
+	      file
+	    } = event.getData();
+	    babelHelpers.classPrivateFieldLooseBase(this, _updateFileSizeInStore)[_updateFileSizeInStore](file);
+	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].subscribe(UploaderWrapper.events.onFileUploadProgress, event => {
+	    const {
+	      file
+	    } = event.getData();
+	    babelHelpers.classPrivateFieldLooseBase(this, _updateFileProgress)[_updateFileProgress](file.getId(), file.getProgress(), im_v2_const.FileStatus.upload);
+	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].subscribe(UploaderWrapper.events.onFileUploadComplete, event => {
+	    var _file$getCustomData;
+	    const {
+	      file
+	    } = event.getData();
+	    babelHelpers.classPrivateFieldLooseBase(this, _updateFileProgress)[_updateFileProgress](file.getId(), file.getProgress(), im_v2_const.FileStatus.wait);
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploadPreview)[_uploadPreview](file);
+	    this.commitFile({
+	      realFileId: file.getServerFileId(),
+	      temporaryFileId: file.getId(),
+	      chatId: file.getCustomData('chatId'),
+	      tempMessageId: file.getCustomData('tempMessageId'),
+	      messageText: (_file$getCustomData = file.getCustomData('messageText')) != null ? _file$getCustomData : '',
+	      sendAsFile: file.getCustomData('sendAsFile'),
+	      fromDisk: false
+	    });
+	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].subscribe(UploaderWrapper.events.onFileUploadError, event => {
+	    const {
+	      file,
+	      error
+	    } = event.getData();
+	    babelHelpers.classPrivateFieldLooseBase(this, _updateFileProgress)[_updateFileProgress](file.getId(), 0, im_v2_const.FileStatus.error);
+	    im_v2_lib_logger.Logger.error('FilesService: upload error', error);
+	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].subscribe(UploaderWrapper.events.onFileUploadCancel, event => {
+	    const {
+	      tempMessageId,
+	      tempFileId
+	    } = event.getData();
+	    babelHelpers.classPrivateFieldLooseBase(this, _cancelUpload)[_cancelUpload](tempMessageId, tempFileId);
+	  });
+	}
+	function _requestDiskFolderId2(dialogId) {
+	  return new Promise((resolve, reject) => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _isRequestingDiskFolderId)[_isRequestingDiskFolderId] = true;
+	    const chatId = babelHelpers.classPrivateFieldLooseBase(this, _getChatId)[_getChatId](dialogId);
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$c)[_restClient$c].callMethod(im_v2_const.RestMethod.imDiskFolderGet, {
+	      chat_id: chatId
+	    }).then(response => {
+	      const {
+	        ID: diskFolderId
+	      } = response.data();
+	      babelHelpers.classPrivateFieldLooseBase(this, _isRequestingDiskFolderId)[_isRequestingDiskFolderId] = false;
+	      babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].commit('dialogues/update', {
+	        dialogId,
+	        fields: {
+	          diskFolderId
+	        }
+	      });
+	      resolve(diskFolderId);
+	    }).catch(error => {
+	      babelHelpers.classPrivateFieldLooseBase(this, _isRequestingDiskFolderId)[_isRequestingDiskFolderId] = false;
+	      reject(error);
+	    });
+	  });
+	}
+	function _uploadPreview2(file) {
+	  const id = file.getServerFileId().toString().slice(1);
+	  const previewFile = file.getClientPreview();
+	  if (!previewFile) {
+	    return;
+	  }
+	  const formData = new FormData();
+	  formData.append('id', id);
+	  formData.append('previewFile', previewFile, `preview_${file.getName()}.jpg`);
+	  im_v2_lib_rest.runAction(im_v2_const.RestMethod.imDiskFilePreviewUpload, {
+	    data: formData
+	  }).catch(error => {
+	    im_v2_lib_logger.Logger.error('imDiskFilePreviewUpload request error', error);
+	  });
+	}
+	function _prepareMessageWithFile2(file, dialogId, uploaderId) {
+	  const tempMessageId = im_v2_lib_utils.Utils.text.getUuidV4();
+	  const tempFileId = im_v2_lib_utils.Utils.text.getUuidV4();
+	  const chatId = babelHelpers.classPrivateFieldLooseBase(this, _getChatId)[_getChatId](dialogId);
+	  return {
+	    tempMessageId,
+	    tempFileId,
+	    file,
+	    dialogId,
+	    chatId,
+	    uploaderId
+	  };
+	}
+	function _updateFileProgress2(id, progress, status) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('files/update', {
+	    id,
+	    fields: {
+	      progress: progress === 100 ? 99 : progress,
+	      status
+	    }
+	  });
+	}
+	function _cancelUpload2(tempMessageId, tempFileId) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('messages/delete', {
+	    id: tempMessageId
+	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('files/delete', {
+	    id: tempFileId
+	  });
+	}
+	function _addFileToStore2(file) {
+	  const taskId = file.getId();
+	  const fileBinary = file.getBinary();
+	  const previewData = babelHelpers.classPrivateFieldLooseBase(this, _preparePreview)[_preparePreview](file);
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('files/add', {
+	    id: taskId,
+	    chatId: file.getCustomData('chatId'),
+	    authorId: im_v2_application_core.Core.getUserId(),
+	    name: fileBinary.name,
+	    type: babelHelpers.classPrivateFieldLooseBase(this, _getFileType)[_getFileType](fileBinary),
+	    extension: babelHelpers.classPrivateFieldLooseBase(this, _getFileExtension)[_getFileExtension](fileBinary),
+	    status: file.isFailed() ? im_v2_const.FileStatus.error : im_v2_const.FileStatus.progress,
+	    progress: 0,
+	    authorName: babelHelpers.classPrivateFieldLooseBase(this, _getCurrentUser)[_getCurrentUser]().name,
+	    ...previewData
+	  });
+	}
+	function _updateFilePreviewInStore2(file) {
+	  const previewData = babelHelpers.classPrivateFieldLooseBase(this, _preparePreview)[_preparePreview](file);
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('files/update', {
+	    id: file.getId(),
+	    fields: {
+	      ...previewData
+	    }
+	  });
+	}
+	function _updateFileSizeInStore2(file) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('files/update', {
+	    id: file.getId(),
+	    fields: {
+	      size: file.getSize()
+	    }
+	  });
+	}
+	function _preparePreview2(file) {
+	  const preview = {
+	    blob: file.getPreviewUrl(),
+	    width: file.getPreviewWidth(),
+	    height: file.getPreviewHeight()
+	  };
+	  const previewData = {};
+	  if (preview.blob) {
+	    previewData.image = {
+	      width: preview.width,
+	      height: preview.height
+	    };
+	    previewData.urlPreview = preview.blob;
+	  }
+	  return previewData;
+	}
+	function _getDiskFolderId2(dialogId) {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _getDialog$2)[_getDialog$2](dialogId).diskFolderId;
+	}
+	function _getFileType2(file) {
+	  let fileType = im_v2_const.FileType.file;
+	  if (file.type.startsWith('image')) {
+	    fileType = im_v2_const.FileType.image;
+	  } else if (file.type.startsWith('video')) {
+	    fileType = im_v2_const.FileType.video;
+	  }
+	  return fileType;
+	}
+	function _getFileExtension2(file) {
+	  return file.name.split('.').splice(-1)[0];
+	}
+	function _getDialog2$2(dialogId) {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].getters['dialogues/get'](dialogId);
+	}
+	function _getCurrentUser2() {
+	  const userId = im_v2_application_core.Core.getUserId();
+	  return babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].getters['users/get'](userId);
+	}
+	function _getChatId2(dialogId) {
+	  var _babelHelpers$classPr;
+	  return (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _getDialog$2)[_getDialog$2](dialogId)) == null ? void 0 : _babelHelpers$classPr.chatId;
+	}
+	UploadingService.instance = null;
+
 	exports.RecentService = RecentService;
 	exports.ChatService = ChatService;
 	exports.MessageService = MessageService;
-	exports.SendingService = SendingService;
+	exports.SendingService = SendingService$$1;
 	exports.NotificationService = NotificationService;
+	exports.DiskService = DiskService;
 	exports.UnreadRecentService = UnreadRecentService;
+	exports.UploadingService = UploadingService;
 
-}((this.BX.Messenger.v2.Provider.Service = this.BX.Messenger.v2.Provider.Service || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Vue3.Vuex,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Provider.Service = this.BX.Messenger.v2.Provider.Service || {}),BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Vue3.Vuex,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Event,BX.UI.Uploader,BX.Messenger.v2.Const));
 //# sourceMappingURL=registry.bundle.js.map

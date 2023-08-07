@@ -25,11 +25,12 @@ if ($lAdmin->EditAction() && $forumModulePermissions >= "W")
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
+
+		$DB->StartTransaction();
 
 		if (!CForumPoints2Post::Update($ID, $arFields))
 		{
@@ -40,8 +41,10 @@ if ($lAdmin->EditAction() && $forumModulePermissions >= "W")
 
 			$DB->Rollback();
 		}
-
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -81,8 +84,10 @@ if (($arID = $lAdmin->GroupAction()) && $forumModulePermissions >= "W")
 					else
 						$lAdmin->AddGroupError(GetMessage("FORUM_PP_ERROR_DELETE"), $ID);
 				}
-
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 
 				break;
 		}

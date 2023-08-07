@@ -17,7 +17,7 @@ UI\Extension::load([
 	"socialnetwork.common",
 ]);
 
-if ($arResult["NEED_AUTH"] == "Y")
+if (($arResult["NEED_AUTH"] ?? null) == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
@@ -43,7 +43,7 @@ else
 			});
 		</script><?
 
-		?><div id="sonet_group_user_leave_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(!empty($arResult["ErrorMessage"]) ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
+		?><div id="sonet_group_user_leave_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(!empty($arResult["ErrorMessage"]) ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"] ?? ''?></div><?
 		?><div class="socialnetwork-group-leave-content"><?
 			?><div class="socialnetwork-group-leave-text"><?=Loc::getMessage($arResult["Group"]["PROJECT"] == "Y" ? "SONET_C37_T_PROMT_PROJECT" : "SONET_C37_T_PROMT")?></div><?
 			?><form method="post" id="sonet_group_user_leave_form" name="form1" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data"><?php

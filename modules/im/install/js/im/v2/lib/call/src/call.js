@@ -1,13 +1,15 @@
-import {EventEmitter, BaseEvent} from 'main.core.events';
-import {Store} from 'ui.vue3.vuex';
+import { EventEmitter, BaseEvent } from 'main.core.events';
+import { Store } from 'ui.vue3.vuex';
 
-import {Controller} from 'im.call';
-import {Messenger} from 'im.public';
-import {Core} from 'im.v2.application.core';
-import {MessengerSlider} from 'im.v2.lib.slider';
-import {ChatOption, DialogType, RecentCallStatus, Layout, EventType, SoundType} from 'im.v2.const';
-import {Logger} from 'im.v2.lib.logger';
-import {SoundNotificationManager} from 'im.v2.lib.sound-notification';
+import { Controller } from 'im.call';
+import { Messenger } from 'im.public';
+import { Core } from 'im.v2.application.core';
+import { MessengerSlider } from 'im.v2.lib.slider';
+import { ChatOption, DialogType, RecentCallStatus, Layout, EventType } from 'im.v2.const';
+import { Logger } from 'im.v2.lib.logger';
+import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
+
+import { BetaCallService } from './classes/beta-call-service';
 
 import 'im_call_compatible';
 
@@ -42,6 +44,11 @@ export class CallManager
 		this.#subscribeToEvents();
 	}
 
+	createBetaCallRoom(chatId: number)
+	{
+		BetaCallService.createRoom(chatId);
+	}
+
 	startCall(dialogId: string, withVideo: boolean = true)
 	{
 		Logger.warn('CallManager: startCall', dialogId, withVideo);
@@ -62,7 +69,7 @@ export class CallManager
 
 	foldCurrentCall()
 	{
-		if (!this.#controller.hasActiveCall())
+		if (!this.#controller.hasActiveCall() || !this.#controller.hasVisibleCall())
 		{
 			return;
 		}

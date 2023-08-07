@@ -1,5 +1,5 @@
-import {Text, Loc} from 'main.core';
-import {FileType} from 'im.v2.const';
+import { Text, Loc, Dom } from 'main.core';
+import { FileType } from 'im.v2.const';
 
 export const FileUtil = {
 	getFileExtension(fileName: string): string
@@ -18,7 +18,7 @@ export const FileUtil = {
 	{
 		let icon = 'empty';
 
-		switch(extension.toString())
+		switch (extension.toString())
 		{
 			case 'png':
 			case 'jpe':
@@ -94,6 +94,8 @@ export const FileUtil = {
 			case 'plist':
 				icon = 'set';
 				break;
+			default:
+				icon = 'empty';
 		}
 
 		return icon;
@@ -102,8 +104,9 @@ export const FileUtil = {
 	getFileTypeByExtension(extension: string): string
 	{
 		let type = FileType.file;
+		const normalizedExtension = extension.toLowerCase();
 
-		switch (extension)
+		switch (normalizedExtension)
 		{
 			case 'png':
 			case 'jpe':
@@ -134,6 +137,8 @@ export const FileUtil = {
 			case 'mp3':
 				type = FileType.audio;
 				break;
+			default:
+				type = FileType.file;
 		}
 
 		return type;
@@ -141,23 +146,25 @@ export const FileUtil = {
 
 	formatFileSize(fileSize: number): string
 	{
-		if (!fileSize || fileSize <= 0)
+		let resultFileSize = fileSize;
+
+		if (!resultFileSize || resultFileSize <= 0)
 		{
-			fileSize = 0;
+			resultFileSize = 0;
 		}
 
 		const sizes = ['BYTE', 'KB', 'MB', 'GB', 'TB'];
 		const KILOBYTE_SIZE = 1024;
 
 		let position = 0;
-		while (fileSize >= KILOBYTE_SIZE && position < sizes.length - 1)
+		while (resultFileSize >= KILOBYTE_SIZE && position < sizes.length - 1)
 		{
-			fileSize /= KILOBYTE_SIZE;
+			resultFileSize /= KILOBYTE_SIZE;
 			position++;
 		}
 
 		const phrase = Loc.getMessage(`IM_UTILS_FILE_SIZE_${sizes[position]}`);
-		const roundedSize = Math.round(fileSize);
+		const roundedSize = Math.round(resultFileSize);
 
 		return `${roundedSize} ${phrase}`;
 	},
@@ -198,11 +205,25 @@ export const FileUtil = {
 		return dataAttributes;
 	},
 
+	createDownloadLink(text: string, urlDownload: string, fileName: string): HTMLAnchorElement
+	{
+		const anchorTag = Dom.create('a', { text });
+
+		Dom.style(anchorTag, 'display', 'block');
+		Dom.style(anchorTag, 'color', 'inherit');
+		Dom.style(anchorTag, 'text-decoration', 'inherit');
+
+		anchorTag.setAttribute('href', urlDownload);
+		anchorTag.setAttribute('download', fileName);
+
+		return anchorTag;
+	},
+
 	isImage(fileName: string): boolean
 	{
 		const extension = FileUtil.getFileExtension(fileName);
 		const fileType = FileUtil.getFileTypeByExtension(extension);
 
 		return fileType === FileType.image;
-	}
+	},
 };

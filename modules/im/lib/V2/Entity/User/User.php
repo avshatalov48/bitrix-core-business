@@ -7,6 +7,7 @@ use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\Model\StatusTable;
 use Bitrix\Im\V2\Chat\FavoriteChat;
 use Bitrix\Im\V2\Chat\PrivateChat;
+use Bitrix\Im\V2\Entity\Department\Departments;
 use Bitrix\Im\V2\Rest\RestEntity;
 use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Main\Loader;
@@ -283,7 +284,7 @@ class User implements RestEntity
 			'mobileLastDate' => $this->getMobileLastDate() ? $this->getMobileLastDate()->format('c') : false,
 			'desktopLastDate' => $this->getDesktopLastDate() ? $this->getDesktopLastDate()->format('c') : false,
 			'absent' => $this->getAbsent() !== null ? $this->getAbsent()->format('c') : false,
-			'departments' => $this->getDepartments(),
+			'departments' => $this->getDepartmentIds(),
 			'phones' => empty($this->getPhones()) ? false : $this->getPhones(),
 		];
 	}
@@ -424,13 +425,18 @@ class User implements RestEntity
 		return $this->userData['IS_CONNECTOR'] ?? false;
 	}
 
-	public function getDepartments(): array
+	public function getDepartmentIds(): array
 	{
 		return
 			(isset($this->userData['UF_DEPARTMENT']) && is_array($this->userData['UF_DEPARTMENT']))
 				? $this->userData['UF_DEPARTMENT']
 				: []
 			;
+	}
+
+	public function getDepartments(): Departments
+	{
+		return new Departments(...$this->getDepartmentIds());
 	}
 
 	public function isOnlineDataFilled(): bool
@@ -523,6 +529,17 @@ class User implements RestEntity
 		$this->isAdmin = $result;
 
 		return $this->isAdmin;
+	}
+
+	public function isSuperAdmin(): bool
+	{
+		global $USER;
+		if (!Loader::includeModule('socialnetwork') || (int)$USER->getId() !== $this->getId())
+		{
+			return false;
+		}
+
+		return $this->isAdmin() && \CSocNetUser::IsEnabledModuleAdmin();
 	}
 
 	//endregion

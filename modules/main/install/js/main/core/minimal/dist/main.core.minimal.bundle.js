@@ -1,3 +1,4 @@
+/* eslint-disable */
 ;(function() {
 
 	if (typeof window.BX === 'function')
@@ -9698,7 +9699,9 @@ window._main_polyfill_core = true;
 	function renderNode(options) {
 	  var node = options.node,
 	    parentElement = options.parentElement,
-	    substitutions = options.substitutions;
+	    substitutions = options.substitutions,
+	    _options$refs = options.refs,
+	    refs = _options$refs === void 0 ? [] : _options$refs;
 	  if (node.type === 'tag') {
 	    var element = function () {
 	      if (node.svg) {
@@ -9706,6 +9709,10 @@ window._main_polyfill_core = true;
 	      }
 	      return document.createElement(node.name);
 	    }();
+	    if (Object.hasOwn(node.attrs, 'ref')) {
+	      refs.push([node.attrs.ref, element]);
+	      delete node.attrs.ref;
+	    }
 	    Object.entries(node.attrs).forEach(function (_ref) {
 	      var _ref2 = babelHelpers.slicedToArray(_ref, 2),
 	        key = _ref2[0],
@@ -9737,7 +9744,8 @@ window._main_polyfill_core = true;
 	      var result = renderNode({
 	        node: childNode,
 	        parentElement: element,
-	        substitutions: substitutions
+	        substitutions: substitutions,
+	        refs: refs
 	      });
 	      if (Type.isArray(result)) {
 	        result.forEach(function (subChildElement) {
@@ -9784,18 +9792,30 @@ window._main_polyfill_core = true;
 	  }, sections[0]).replace(/^[\r\n\t\s]+/gm, '').replace(/>[\n]+/g, '>').replace(/[}][\n]+/g, '}');
 	  var ast = parse(html);
 	  if (ast.length === 1) {
-	    return renderNode({
+	    var refs = [];
+	    var renderedNode = renderNode({
 	      node: ast[0],
-	      substitutions: substitutions
+	      substitutions: substitutions,
+	      refs: refs
 	    });
+	    if (Type.isArrayFilled(refs)) {
+	      return Object.fromEntries([['root', renderedNode]].concat(refs));
+	    }
+	    return renderedNode;
 	  }
 	  if (ast.length > 1) {
-	    return ast.map(function (node) {
+	    var _refs = [];
+	    var renderedNodes = ast.map(function (node) {
 	      return renderNode({
 	        node: node,
-	        substitutions: substitutions
+	        substitutions: substitutions,
+	        refs: _refs
 	      });
 	    });
+	    if (Type.isArrayFilled(_refs)) {
+	      return Object.fromEntries([['root', renderedNodes]].concat(_refs));
+	    }
+	    return renderedNodes;
 	  }
 	  return false;
 	}

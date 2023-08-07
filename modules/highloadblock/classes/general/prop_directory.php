@@ -932,13 +932,15 @@ HIBSELECT;
 		return self::$arFullCache[$hlTableName];
 	}
 
-	public static function GetUIEntityEditorProperty($settings, $value): ?array
+	public static function GetUIEntityEditorProperty($settings, $value): array
 	{
 		$hlTableName = (string)($settings['USER_TYPE_SETTINGS']['TABLE_NAME'] ?? '');
 
 		if ($hlTableName === '')
 		{
-			return null;
+			return [
+				'type' => 'custom',
+			];
 		}
 
 		$gridMode = ($settings['GRID_MODE'] ?? false) === true;
@@ -1095,7 +1097,7 @@ HIBSELECT;
 		onclick="selectDropDownItem(event, this, '$popupId')">
 		$imageHtml <span class="catalog-productcard-popup-select-text">$name</span>
 	</label>
-</li>		
+</li>
 LABEL;
 			$labelHtml .= $html;
 		}
@@ -1131,8 +1133,8 @@ LABEL;
 				popup.close();
 				return;
 			}
-			
-			var contentNode = BX.clone(element.querySelector('[data-role="dropdownContent"]'));	
+
+			var contentNode = BX.clone(element.querySelector('[data-role="dropdownContent"]'));
 			var items = contentNode.querySelectorAll('label');
 			for (var i in items)
 			{
@@ -1141,15 +1143,15 @@ LABEL;
 					var input = document.getElementById(items[i].getAttribute('for'));
 					if (BX.type.isDomNode(input) && input.checked)
 					{
-						BX.addClass(items[i].parentNode, 'selected');							
+						BX.addClass(items[i].parentNode, 'selected');
 					}
 					else
 					{
-						BX.removeClass(items[i].parentNode, 'selected');								
+						BX.removeClass(items[i].parentNode, 'selected');
 					}
 				}
 			}
-			
+
 			popup = BX.Main.PopupManager.create(
 				"prop_directory_" + popupId,
 				element,
@@ -1169,7 +1171,7 @@ LABEL;
 			popup.show();
 		};
 	}
-	
+
 	if (!window.selectDropDownItem)
 	{
 		window.selectDropDownItem = function(event, element, popupId)

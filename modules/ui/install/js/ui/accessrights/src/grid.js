@@ -421,7 +421,7 @@ export default class Grid {
 
 		userGroup.accessRights.push({
 			id: accessId,
-			value: data.switcher.checked ? '1' : '0'
+			value: data.switcher.isChecked() ? '1' : '0'
 		});
 	}
 

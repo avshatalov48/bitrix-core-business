@@ -15,7 +15,6 @@ class Onchange
 {
 	protected $actions;
 
-
 	/**
 	 * Onchange constructor.
 	 * @param array $actions

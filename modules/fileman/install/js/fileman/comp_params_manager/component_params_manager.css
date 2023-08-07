@@ -394,15 +394,14 @@
 	min-width: 85%;
 	margin-bottom: 3px;
 }
+
 .bxcompprop-content input[type="text"],
 .bxcompprop-content input[type="password"],
 .bxcompprop-content input[type="email"] {font-size:13px; height:25px; padding:0 5px; margin: 0;}
 .bxcompprop-content input[type="text"]::-ms-clear,
 .bxcompprop-content input[type="password"]::-ms-clear,
 .bxcompprop-content input[type="email"]::-ms-clear { display: none; }
-.bx-ie8 .bxcompprop-content input[type="text"],
-.bx-ie8 .bxcompprop-content input[type="email"] { line-height: 25px; }
-.bx-ie8 .bxcompprop-content input[type="password"] { line-height: normal; }
+
 .bxcompprop-content select {
 	background: #fff;
 	border-radius:4px;

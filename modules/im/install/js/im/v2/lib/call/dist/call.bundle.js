@@ -1,8 +1,19 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,ui_vue3_vuex,im_call,im_public,im_v2_application_core,im_v2_lib_slider,im_v2_const,im_v2_lib_logger,im_v2_lib_soundNotification) {
+(function (exports,main_core_events,ui_vue3_vuex,im_call,im_public,im_v2_application_core,im_v2_lib_slider,im_v2_lib_logger,im_v2_lib_soundNotification,im_v2_lib_rest,im_v2_const) {
 	'use strict';
+
+	class BetaCallService {
+	  static createRoom(chatId) {
+	    im_v2_lib_rest.runAction(im_v2_const.RestMethod.imCallBetaCreateRoom, {
+	      data: {
+	        chatId
+	      }
+	    });
+	  }
+	}
 
 	var _controller = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("controller");
 	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
@@ -77,6 +88,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller] = babelHelpers.classPrivateFieldLooseBase(this, _getController)[_getController]();
 	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeToEvents)[_subscribeToEvents]();
 	  }
+	  createBetaCallRoom(chatId) {
+	    BetaCallService.createRoom(chatId);
+	  }
 	  startCall(dialogId, withVideo = true) {
 	    im_v2_lib_logger.Logger.warn('CallManager: startCall', dialogId, withVideo);
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].startCall(dialogId, withVideo);
@@ -90,7 +104,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].leaveCurrentCall();
 	  }
 	  foldCurrentCall() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasVisibleCall()) {
 	      return;
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].fold();
@@ -258,5 +272,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.CallManager = CallManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Vue3.Vuex,BX.Call,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Vue3.Vuex,BX.Call,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=call.bundle.js.map

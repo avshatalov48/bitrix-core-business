@@ -587,6 +587,14 @@ form.comments-form .feed-add-post-buttons {
 	display: inline;
 }
 
+.feed-add-post-editor-btn-ai-text {
+	background: url(images/ai-text.svg) no-repeat center;
+}
+
+.feed-add-post-editor-btn-ai-image {
+	background: url(images/ai-image.svg) no-repeat center;
+}
+
 @-webkit-keyframes rotate {
 	100% {
 		-webkit-transform: rotate(360deg);

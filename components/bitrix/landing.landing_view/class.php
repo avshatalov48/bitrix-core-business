@@ -1228,6 +1228,8 @@ class LandingViewComponent extends LandingBaseComponent
 
 			if ($landing->exist())
 			{
+				\Bitrix\Landing\Site\Version::update($landing->getSiteId(), $landing->getMeta()['SITE_VERSION']);
+
 				$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSiteByLanding($landing);
 
 				// tmp fix for checking crm rights

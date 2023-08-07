@@ -421,6 +421,15 @@ class Feed
 
 	clearMoreButtons()
 	{
+		for (const buttonData of this.moreButtonDataList)
+		{
+			const moreButton = document.getElementById(buttonData.outerBlockID)?.querySelector(`.${MoreButton.cssClass.more}`);
+			if (!moreButton?.hasClickListener)
+			{
+				return;
+			}
+		}
+
 		this.moreButtonDataList.clear();
 	}
 

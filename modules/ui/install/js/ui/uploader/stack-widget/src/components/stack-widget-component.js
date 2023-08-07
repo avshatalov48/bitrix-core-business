@@ -2,7 +2,8 @@ import { Text, Loc } from 'main.core';
 import { Popup, PopupOptions } from 'main.popup';
 import { CloseButton } from 'ui.buttons';
 
-import { FileStatus, FileOrigin, UploaderStatus, VueUploaderComponent } from 'ui.uploader.core';
+import { FileStatus, FileOrigin, UploaderStatus } from 'ui.uploader.core';
+import { VueUploaderComponent } from 'ui.uploader.vue';
 import { TileList, ErrorPopup, DragOverMixin } from 'ui.uploader.tile-widget';
 
 import { StackUpload } from './stack-upload';

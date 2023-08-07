@@ -3,6 +3,7 @@ import {BaseEvent, EventEmitter} from 'main.core.events';
 
 import {Scrum} from './scrum';
 import {Avatar} from './avatar';
+import {DateCorrector} from './date.corrector';
 import {ThemePicker} from './themepicker';
 import {Tags} from './tags';
 import {Util} from './util';
@@ -32,14 +33,15 @@ class WorkgroupForm extends EventEmitter
 			selectedConfidentialityType: string,
 			groupId: number,
 			isScrumProject: boolean,
-			config: object,
+			config: Object,
 			avatarUploaderId: string,
-			themePickerData: object,
-			projectOptions: object,
-			projectTypes: object,
-			confidentialityTypes: object,
+			themePickerData: Object,
+			projectOptions: Object,
+			projectTypes: Object,
+			confidentialityTypes: Object,
 			stepsCount: number,
 			focus: string,
+			culture: Object
 		}
 	)
 	{
@@ -66,6 +68,7 @@ class WorkgroupForm extends EventEmitter
 		this.selectedProjectType = params.selectedProjectType;
 		this.selectedConfidentialityType = params.selectedConfidentialityType;
 		this.initialFocus = (Type.isStringFilled(params.focus) ? params.focus : '');
+		this.culture = params.culture ? params.culture : {};
 
 		this.scrumManager = new Scrum({
 			isScrumProject: this.isScrumProject,
@@ -111,6 +114,10 @@ class WorkgroupForm extends EventEmitter
 				theme: params.themePickerData,
 			});
 		}
+
+		new DateCorrector({
+			culture: this.culture
+		});
 
 		if (document.getElementById('group-tags-bind-node'))
 		{
@@ -211,7 +218,10 @@ class WorkgroupForm extends EventEmitter
 			});
 		}
 
-		EventEmitter.subscribe('BX.Socialnetwork.WorkgroupFormTeamManager::onEventsBinded', this.recalcFormDependencies.bind(this));
+		EventEmitter.subscribe(
+			'BX.Socialnetwork.WorkgroupFormTeamManager::onEventsBinded',
+			this.recalcFormDependencies.bind(this)
+		);
 	}
 
 	recalcForm(params)

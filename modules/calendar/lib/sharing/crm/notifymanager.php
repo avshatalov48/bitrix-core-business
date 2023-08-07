@@ -11,7 +11,13 @@ final class NotifyManager
 {
 	public const NOTIFY_TYPE_NOT_VIEWED = 'notViewed';
 	public const NOTIFY_TYPE_VIEWED = 'viewed';
-	public const NOTIFY_EVENT_CONFIRMED = 'eventConfirmed';
+	public const NOTIFY_TYPE_EVENT_CONFIRMED = 'eventConfirmed';
+
+	public const NOTIFY_TYPES = [
+		self::NOTIFY_TYPE_NOT_VIEWED,
+		self::NOTIFY_TYPE_VIEWED,
+		self::NOTIFY_TYPE_EVENT_CONFIRMED,
+	];
 
 	private const SHARING_CRM_ACTIONS_EVENT = 'onSharedCrmActions';
 

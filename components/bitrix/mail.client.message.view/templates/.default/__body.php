@@ -1,12 +1,19 @@
 <?php
 
+use Bitrix\Mail\Message;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Viewer;
 use Bitrix\Main\Web\Uri;
+use Bitrix\Disk\ZipNginx;
 
 \Bitrix\Main\UI\Extension::load("ui.icons.b24");
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+
+if (IsModuleInstalled('disk'))
+{
+	\Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/js/disk/css/legacy_uf_common.css');
+}
 
 /** @var array $arParams */
 /** @var array $arResult */
@@ -332,12 +339,13 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 					</div>
 				<? endforeach ?>
 			</div>
-			<? if (\Bitrix\Main\Loader::includeModule('disk') && count($diskFiles) > 1): ?>
+			<? if (\Bitrix\Main\Loader::includeModule('disk') && count($diskFiles) > 1 && ZipNginx\Configuration::isEnabled()): ?>
 				<div class="mail-msg-view-file-archive-block">
 					<? $href = \Bitrix\Disk\Driver::getInstance()->getUrlManager()->getUrlDownloadController('downloadArchive', array(
 						'fileId' => 0,
 						'objectIds' => array_column($diskFiles, 'objectId'),
 						'signature' => \Bitrix\Disk\Security\ParameterSigner::getArchiveSignature(array_column($diskFiles, 'objectId')),
+						'mail_uf_message_token' => (string)($_REQUEST['mail_uf_message_token'] ?? ''),
 					)) ?>
 					<a class="mail-msg-view-file-archive-link" href="<?=htmlspecialcharsbx($href) ?>"><?=Loc::getMessage('MAIL_DISK_FILE_DOWNLOAD_ARCHIVE') ?></a>
 					<div class="mail-msg-view-file-link-info">&nbsp;(<?=\CFile::formatSize(array_sum(array_column($diskFiles, 'bytes'))) ?>)</div>
@@ -383,8 +391,9 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 		$messageHtml
 	);
 	$quote = $messageHtml;
+	$messageQuote = Message::wrapTheMessageWithAQuote($quote, $message['SUBJECT'], $message['FIELD_DATE'], $message['__from'], $message['__to'], $message['__cc']);
 
-	$attachedFiles = array_intersect(array_column($diskFiles, 'id'), $inlineFiles);
+    $attachedFiles = array_intersect(array_column($diskFiles, 'id'), $inlineFiles);
 
 	$selectorParams = array(
 		//'pathToAjax' => '/bitrix/components/bitrix/crm.activity.editor/ajax.php?soc_net_log_dest=search_email_comms';
@@ -472,16 +481,7 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 				array(
 					'name'   => 'data[message]',
 					'type'   => 'editor',
-					'value'  => sprintf(
-						'<br><br>%s, %s:<br><blockquote style="margin: 0 0 0 5px; padding: 5px 5px 5px 8px; border-left: 4px solid #e2e3e5; ">%s</blockquote>',
-						formatDate(
-							preg_replace('/[\/.,\s:][s]/', '', $GLOBALS['DB']->dateFormatToPhp(FORMAT_DATETIME)),
-							$message['FIELD_DATE']->getTimestamp()+\CTimeZone::getOffset(),
-							time()+\CTimeZone::getOffset()
-						),
-						htmlspecialcharsbx($__from['formated']),
-						$quote
-					),
+					'value'  => $messageQuote,
 					'height' => 100,
 				),
 				array(

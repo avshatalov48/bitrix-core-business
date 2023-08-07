@@ -95,7 +95,7 @@
 						component_params_manager: reqId,
 						sessid: BX.bitrix_sessid(),
 						site_template: params.siteTemplate || '',
-						site: params.siteId || BX.message('SITE_ID'),
+						site: params.siteId || (BX.Loc.hasMessage('SITE_ID') ? BX.message('SITE_ID') : ''),
 						component_name: params.name,
 						component_template: params.template,
 						current_values: curValues

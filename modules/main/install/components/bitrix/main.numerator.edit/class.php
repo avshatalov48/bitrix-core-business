@@ -27,6 +27,7 @@ class MainNumeratorEdit extends CBitrixComponent implements \Bitrix\Main\Engine\
 		$this->arResult['numeratorSettingsFields'] = $numeratorSettingsFields['settingsFields'];
 		$this->arResult['numeratorTemplateWords'] = $numeratorSettingsFields['settingsWords'];
 
+		$this->arResult['IS_SLIDER'] = false;
 		if ($this->request->get('IFRAME'))
 		{
 			$this->arResult['IS_SLIDER'] = true;
@@ -43,7 +44,7 @@ class MainNumeratorEdit extends CBitrixComponent implements \Bitrix\Main\Engine\
 			$this->arResult['IS_EDIT'] = true;
 		}
 		$this->arResult['IS_SHOW_CHANGE_NUMBER'] = true;
-		if (!is_null($this->arParams['IS_SHOW_CHANGE_NUMBER']))
+		if (isset($this->arParams['IS_SHOW_CHANGE_NUMBER']))
 		{
 			$this->arResult['IS_SHOW_CHANGE_NUMBER'] = (bool)$this->arParams["IS_SHOW_CHANGE_NUMBER"];
 		}
@@ -58,6 +59,7 @@ class MainNumeratorEdit extends CBitrixComponent implements \Bitrix\Main\Engine\
 		$this->arResult['IS_HIDE_NUMERATOR_NAME'] = false;
 		$this->arResult['IS_HIDE_PAGE_TITLE'] = false;
 		$this->arResult['IS_HIDE_IS_DIRECT_NUMERATION'] = false;
+		$this->arResult['WITHOUT_FORM'] = false;
 		if (isset($this->arParams["IS_HIDE_NUMERATOR_NAME"]) && $this->arParams["IS_HIDE_NUMERATOR_NAME"])
 		{
 			$this->arResult['IS_HIDE_NUMERATOR_NAME'] = true;
@@ -110,6 +112,7 @@ class MainNumeratorEdit extends CBitrixComponent implements \Bitrix\Main\Engine\
 				}
 			}
 		}
+		$this->arResult['isMultipleSequences'] = false;
 		if ($numeratorId)
 		{
 			$this->addSequenceSettings($numerator, $numeratorId);
@@ -245,9 +248,8 @@ class MainNumeratorEdit extends CBitrixComponent implements \Bitrix\Main\Engine\
 					->fetchAll();
 				if ($sequences)
 				{
-					if (count($sequences) == 1)
+					if (count($sequences) === 1)
 					{
-						$this->arResult['isMultipleSequences'] = false;
 						$this->arResult['numeratorSettingsFields'][SequentNumberGenerator::getType()]['currentNumberForSequence'] = [
 							'type'        => 'plain',
 							'settingName' => 'currentNumberForSequence',

@@ -168,7 +168,15 @@ class Filter
 	public function getValue(?array $rawValue = null): array
 	{
 		$gridId = $this->getEntityDataProvider()->getSettings()->getID();
-		$rawValue = $rawValue ?? (new \Bitrix\Main\UI\Filter\Options($gridId))->getFilter();
+
+		if (!isset($rawValue))
+		{
+			$options = new \Bitrix\Main\UI\Filter\Options($gridId);
+			$rawValue =
+				$options->getFilter()
+				+ $options->getFilterLogic($this->getFieldArrays())
+			;
+		}
 
 		$result = $rawValue;
 		$this->removeNotUiFilterFields($result);

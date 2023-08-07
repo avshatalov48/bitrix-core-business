@@ -150,7 +150,7 @@ class Image
 				$this->flipHorizontal();
 			}
 
-			$this->setOrientation(0);
+			$this->setOrientation(1);
 
 			return true;
 		}

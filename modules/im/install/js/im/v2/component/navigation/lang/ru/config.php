@@ -4,6 +4,7 @@ $MESS["IM_NAVIGATION_NOTIFICATIONS"] = "Уведомления";
 $MESS["IM_NAVIGATION_OPENLINES"] = "Контакт-центр";
 $MESS["IM_NAVIGATION_CALLS"] = "Звонки";
 $MESS["IM_NAVIGATION_SETTINGS"] = "Настройки";
+$MESS["IM_NAVIGATION_TIMEMANAGER"] = "Время";
 $MESS["IM_NAVIGATION_MARKET"] = "Приложения";
 $MESS["IM_NAVIGATION_MARKET_TITLE"] = "Маркет";
 $MESS["IM_NAVIGATION_ACTIVE_CALL_CONFIRM"] = "Вы уверены, что хотите закрыть страницу? В этом случае вы отключитесь от звонка";

@@ -419,7 +419,10 @@ class Audio
 		$sampleRate = $sampleRates[$version][$sampleRateIndex] ?: 0;
 		$padding = ($rateData & 0x02) >> 1;
 
-		$duration = $samples[$bitrateVersion][$layer] / $sampleRate;
+		if ($sampleRate <> 0)
+		{
+			$duration = $samples[$bitrateVersion][$layer] / $sampleRate;
+		}
 
 		if ($layer == 1)
 		{
@@ -430,7 +433,7 @@ class Audio
 			$frameLength = intval(((144 * $bitrate * 1000) / $sampleRate) + $padding);
 		}
 
-		return [$frameLength, $duration];
+		return [$frameLength, $duration ?? 0];
 	}
 
 	/**

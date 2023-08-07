@@ -1,19 +1,19 @@
-import {ImModelSidebarTaskItem} from 'im.v2.model';
-import {Avatar, AvatarSize} from 'im.v2.component.elements';
-import {Type} from 'main.core';
-import {LabelColor} from 'ui.label';
+import { ImModelSidebarTaskItem } from 'im.v2.model';
+import { Avatar, AvatarSize } from 'im.v2.component.elements';
+import { Type } from 'main.core';
+import { LabelColor } from 'ui.label';
 import '../../css/task/task-item.css';
-import {Utils} from 'im.v2.lib.utils';
+import { Utils } from 'im.v2.lib.utils';
 
 // @vue/component
 export const TaskItem = {
 	name: 'TaskItem',
-	components: {Avatar, AvatarSize},
+	components: { Avatar, AvatarSize },
 	props: {
 		task: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['contextMenuClick'],
 	data() {
@@ -66,13 +66,13 @@ export const TaskItem = {
 			}
 
 			return `ui-label-${this.taskItem.task.color.toLowerCase()}`;
-		}
+		},
 	},
 	methods:
 	{
 		onTaskClick()
 		{
-			BX.SidePanel.Instance.open(this.taskItem.task.source, {cacheable: false});
+			BX.SidePanel.Instance.open(this.taskItem.task.source, { cacheable: false });
 		},
 		onContextMenuClick(event)
 		{
@@ -81,7 +81,7 @@ export const TaskItem = {
 				source: this.taskItem.task.source,
 				messageId: this.taskItem.messageId,
 			}, event.currentTarget);
-		}
+		},
 	},
 	template: `
 		<div 
@@ -91,7 +91,7 @@ export const TaskItem = {
 			@mouseleave="showContextButton = false"
 		>
 			<div class="bx-im-sidebar-task-item__content" @click="onTaskClick">
-				<div class="bx-im-sidebar-task-item__header-text">
+				<div class="bx-im-sidebar-task-item__header-text" :title="taskTitle">
 					{{ taskTitle }}
 				</div>
 				<div class="bx-im-sidebar-task-item__detail-container">
@@ -109,5 +109,5 @@ export const TaskItem = {
 				@click="onContextMenuClick"
 			></button>
 		</div>
-	`
+	`,
 };

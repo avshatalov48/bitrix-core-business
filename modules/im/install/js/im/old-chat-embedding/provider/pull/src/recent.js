@@ -134,6 +134,20 @@ export class RecentPullHandler
 		this.handleMessageUpdate(params, extra, command);
 	}
 
+	handleMessageDeleteComplete(params, extra)
+	{
+		const lastMessageWasDeleted = Boolean(params.newLastMessage);
+		if (lastMessageWasDeleted)
+		{
+			this.store.dispatch('recent/update', {
+				id: params.dialogId,
+				fields: {
+					message: params.newLastMessage,
+				},
+			});
+		}
+	}
+
 	handleReadMessageOpponent(params)
 	{
 		Logger.warn('RecentPullHandler: handleReadMessageOpponent', params);

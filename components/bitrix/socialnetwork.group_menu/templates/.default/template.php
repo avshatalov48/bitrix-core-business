@@ -6,6 +6,11 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 CUtil::InitJSCore(array("ajax", "popup"));
+
+\Bitrix\Main\UI\Extension::load([
+	'socialnetwork.common',
+]);
+
 ?>
 <div style="margin-bottom: 1em;"><?
 	?><div style="float: left;"><?

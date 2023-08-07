@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Disk\Uf\Integration\DiskUploaderController;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\Json;
@@ -389,6 +390,7 @@ HTML;
 			"AUTHOR" => $this->buildUser(isset($res["AUTHOR_ID"]) && $res["AUTHOR_ID"] ? $res["AUTHOR_ID"] : $res["AUTHOR"]),
 			"RATING" => array_key_exists("RATING", $res) ? $res["RATING"] : false,
 			"CLASSNAME" => '',
+			"SHOW_MOBILE_HINTS" => $res['SHOW_MOBILE_HINTS'] ?? 'N',
 			"WEB" => array(), // html
 			"MOBILE" => array() // html
 		);
@@ -931,7 +933,10 @@ HTML;
 			"#RATING_NONEMPTY_CLASS#" =>
 				(!empty($res['RATING']) && !empty($res['RATING']['TOTAL_VOTES']) && $res['RATING']['TOTAL_VOTES'] > 0 ? 'comment-block-rating-nonempty' : ''),
 			"background:url('') no-repeat center;" =>
-				""
+				"",
+			"#MOBILE_HINTS#" => (isset($res['SHOW_MOBILE_HINTS']) && $res['SHOW_MOBILE_HINTS'] === 'Y')
+				? '<span class="feed__mobile_btn"></span>'
+				: '',
 		);
 
 		return str_replace(array_merge(array_keys($replacement), array("\001")), array_merge(array_values($replacement), array("#")), $template);
@@ -1319,6 +1324,24 @@ HTML;
 						}
 					}
 				}
+
+
+				if ($res['UF'] && is_array($res['UF']))
+				{
+					foreach ($res['UF'] as $fieldName => $userField)
+					{
+						if (
+							$userField['USER_TYPE_ID'] === 'disk_file'
+							&& isset($userField['VALUE'])
+							&& is_array($userField['VALUE'])
+							&& Loader::includeModule('disk')
+						)
+						{
+							$res['UF'][$fieldName]['FILES'] = DiskUploaderController::getFileInfo($userField['VALUE']);
+						}
+					}
+				}
+
 				$records[$recordId] = [
 					'message' => $SHParser->getInnerHTML('<!--LOAD_SCRIPT-->', '<!--END_LOAD_SCRIPT-->').$message,
 					'messageBBCode' => $arParams["~RECORDS"][$recordId]["~POST_MESSAGE_TEXT"],

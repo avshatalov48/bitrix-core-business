@@ -109,14 +109,6 @@ export const InfoPreview = {
 		{
 			return this.dialog.chatId;
 		},
-		dialogInited()
-		{
-			return this.dialog.inited;
-		},
-		isLoadingState(): boolean
-		{
-			return !this.dialogInited || this.isLoading;
-		}
 	},
 	methods:
 	{
@@ -146,7 +138,7 @@ export const InfoPreview = {
 	},
 	template: `
 		<div class="bx-im-sidebar-info-preview__scope">
-			<div v-if="isLoadingState" class="bx-im-sidebar-info-preview__skeleton"></div>
+			<div v-if="isLoading" class="bx-im-sidebar-info-preview__skeleton"></div>
 			<div v-else class="bx-im-sidebar-info-preview__container" :class="[expanded ? '--expanded' : '']">
 				<div class="bx-im-sidebar-info-preview__description-container">
 					<div class="bx-im-sidebar-info-preview__description-text-container" :class="[expanded ? '--expanded' : '']">

@@ -1,7 +1,9 @@
 <?php
 namespace Bitrix\Landing\Controller;
 
+use Bitrix\Landing\Block;
 use Bitrix\Landing\Connector;
+use Bitrix\Landing\Site\Type;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Engine\Response\BFile;
 use Bitrix\Main\Error;
@@ -45,19 +47,36 @@ class DiskFile extends Controller
 	 */
 	private function blockContainsFile(string $scope, int $blockId, int $fileId): bool
 	{
-		if (\Bitrix\Landing\Site\Type::isPublicScope($scope))
+		if (Type::isPublicScope($scope))
 		{
 			return false;
 		}
 
-		\Bitrix\Landing\Site\Type::setScope($scope);
+		Type::setScope($scope);
 		$needed = Connector\Disk::FILE_PREFIX_HREF . $fileId;
-		$needed2 = Connector\Disk::FILE_NEW_PREFIX_HREF . $fileId;
 
-		return (
-			\Bitrix\Landing\Block::isContains($blockId, $needed)
-			|| \Bitrix\Landing\Block::isContains($blockId, $needed2)
-		);
+		return Block::isContains($blockId, $needed);
+	}
+
+	/**
+	 * Checks that current user has permissions for specified file.
+	 *
+	 * @param string $scope Scope code (site type).
+	 * @param int $landingId Landing id.
+	 * @param int $fileId File id.
+	 * @return bool
+	 */
+	private function landingContainsFile(string $scope, int $landingId, int $fileId): bool
+	{
+		if (Type::isPublicScope($scope))
+		{
+			return false;
+		}
+
+		Type::setScope($scope);
+		$needed = Connector\Disk::FILE_PREFIX_HREF . $fileId;
+
+		return Block::isContains($landingId, $needed, true);
 	}
 
 	/**
@@ -115,8 +134,13 @@ class DiskFile extends Controller
 	 * @param int $fileId File id.
 	 * @return array|null
 	 */
-	public function infoAction(int $fileId): ?array
+	public function infoAction(int $fileId, string $scope, int $landingId): ?array
 	{
-		return \Bitrix\Landing\Connector\Disk::getFileInfo($fileId);
+		if ($this->landingContainsFile($scope, $landingId, $fileId))
+		{
+			return \Bitrix\Landing\Connector\Disk::getFileInfo($fileId, false);
+		}
+
+		return null;
 	}
 }

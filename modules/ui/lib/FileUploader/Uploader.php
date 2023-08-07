@@ -2,12 +2,11 @@
 
 namespace Bitrix\UI\FileUploader;
 
-use Bitrix\Main\Engine\UrlManager;
-use Bitrix\Main\File\Image;
-use Bitrix\Main\File\Image\Rectangle;
 use Bitrix\Main\ORM\Objectify\State;
 use Bitrix\Main\Security\Sign\Signer;
-use Bitrix\Main\Web\Json;
+use Bitrix\UI\FileUploader\Contracts\CustomFingerprint;
+use Bitrix\UI\FileUploader\Contracts\CustomLoad;
+use Bitrix\UI\FileUploader\Contracts\CustomRemove;
 
 class Uploader
 {
@@ -63,7 +62,18 @@ class Uploader
 			$chunk->setWidth((int)$width);
 			$chunk->setHeight((int)$height);
 
-			if (!$controller->canUpload())
+			$uploadRequest = new UploadRequest($chunk->getName(), $chunk->getType(), $chunk->getSize());
+			$uploadRequest->setWidth($chunk->getWidth());
+			$uploadRequest->setHeight($chunk->getHeight());
+
+			// Temporary call for compatibility
+			// $canUploadResult = $controller->canUpload($uploadRequest);
+			$canUploadResult = call_user_func([$controller, 'canUpload'], $uploadRequest);
+			if (($canUploadResult instanceof CanUploadResult) && !$canUploadResult->isSuccess())
+			{
+				return $this->handleUploadError($uploadResult->addErrors($canUploadResult->getErrors()), $controller);
+			}
+			else if (!is_bool($canUploadResult) || $canUploadResult === false)
 			{
 				return $this->handleUploadError(
 					$uploadResult->addError(new UploaderError(UploaderError::FILE_UPLOAD_ACCESS_DENIED)),
@@ -79,14 +89,13 @@ class Uploader
 
 			/** @var TempFile $tempFile */
 			$tempFile = $createResult->getData()['tempFile'];
-
 			$uploadResult->setTempFile($tempFile);
 			$uploadResult->setToken($this->generateToken($tempFile));
 
-			$result = $controller->onUploadStart($tempFile);
-			if ($result !== null && !$result->isSuccess())
+			$controller->onUploadStart($uploadResult);
+			if (!$uploadResult->isSuccess())
 			{
-				return $this->handleUploadError($uploadResult->addErrors($result->getErrors()), $controller);
+				return $this->handleUploadError($uploadResult, $controller);
 			}
 		}
 		else
@@ -141,12 +150,14 @@ class Uploader
 				return $this->handleUploadError($uploadResult->addErrors($commitResult->getErrors()), $controller);
 			}
 
+			$fileInfo = $this->createFileInfo($uploadResult->getToken());
+			$uploadResult->setFileInfo($fileInfo);
 			$uploadResult->setDone(true);
 
-			$result = $controller->onUploadComplete($uploadResult->getTempFile());
-			if ($result !== null && !$result->isSuccess())
+			$controller->onUploadComplete($uploadResult);
+			if (!$uploadResult->isSuccess())
 			{
-				return $this->handleUploadError($uploadResult->addErrors($result->getErrors()), $controller);
+				return $this->handleUploadError($uploadResult, $controller);
 			}
 		}
 
@@ -180,7 +191,13 @@ class Uploader
 
 	private function getGuidFromToken(string $token): ?string
 	{
-		[$guid, $signature] = explode('.', $token);
+		$parts = explode('.', $token, 2);
+		if (count($parts) !== 2)
+		{
+			return null;
+		}
+
+		[$guid, $signature] = $parts;
 		if (empty($guid) || empty($signature))
 		{
 			return null;
@@ -203,13 +220,19 @@ class Uploader
 		$options = $controller->getOptions();
 		ksort($options);
 
+		$fingerprint =
+			$controller instanceof CustomFingerprint
+				? $controller->getFingerprint()
+				: (string)\bitrix_sessid()
+		;
+
 		return md5(serialize(
 			array_merge(
 				$params,
 				[
 					$controller->getName(),
 					$options,
-					$controller->getFingerprint(),
+					$fingerprint,
 				]
 			)
 		));
@@ -217,6 +240,12 @@ class Uploader
 
 	public function load(array $ids): LoadResultCollection
 	{
+		$controller = $this->getController();
+		if ($controller instanceof CustomLoad)
+		{
+			return $controller->load($ids);
+		}
+
 		$results = new LoadResultCollection();
 		[$bfileIds, $tempFileIds] = $this->splitIds($ids);
 		$fileOwnerships = new FileOwnershipCollection($bfileIds);
@@ -249,8 +278,6 @@ class Uploader
 		// Temp Files
 		if (count($tempFileIds) > 0)
 		{
-			// TODO
-			// $canUpload = $this->getController()->canUpload();
 			foreach ($tempFileIds as $tempFileId)
 			{
 				$loadResult = $this->loadTempFile($tempFileId);
@@ -263,10 +290,15 @@ class Uploader
 
 	public function remove(array $ids): RemoveResultCollection
 	{
+		$controller = $this->getController();
+		if ($controller instanceof CustomRemove)
+		{
+			return $controller->remove($ids);
+		}
+
 		$results = new RemoveResultCollection();
 		[$bfileIds, $tempFileIds] = $this->splitIds($ids);
 
-		$controller = $this->getController();
 		// Files from b_file
 		if (count($bfileIds) > 0)
 		{
@@ -295,17 +327,10 @@ class Uploader
 		// Temp Files
 		if (count($tempFileIds) > 0)
 		{
-			$canUpload = $controller->canUpload();
 			foreach ($tempFileIds as $tempFileId)
 			{
 				$removeResult = new RemoveResult($tempFileId);
 				$results->add($removeResult);
-
-				if (!$canUpload)
-				{
-					$removeResult->addError(new UploaderError(UploaderError::FILE_REMOVE_ACCESS_DENIED));
-					continue;
-				}
 
 				$guid = $this->getGuidFromToken($tempFileId);
 				if (!$guid)
@@ -379,7 +404,7 @@ class Uploader
 			return $result->addError(new UploaderError(UploaderError::FILE_LOAD_FAILED));
 		}
 
-		$fileInfo = $this->getFileInfo($fileId);
+		$fileInfo = $this->createFileInfo($fileId);
 		if ($fileInfo)
 		{
 			$result->setFile($fileInfo);
@@ -413,7 +438,7 @@ class Uploader
 			return $result->addError(new UploaderError(UploaderError::UNKNOWN_TOKEN));
 		}
 
-		$fileInfo = $this->getFileInfo($tempFileId);
+		$fileInfo = $this->createFileInfo($tempFileId);
 		if ($fileInfo)
 		{
 			$result->setFile($fileInfo);
@@ -426,52 +451,32 @@ class Uploader
 		return $result;
 	}
 
-	public function getFileInfo($fileId): ?FileInfo
+	private function createFileInfo($fileId): ?FileInfo
 	{
-		$fileInfo = is_int($fileId) ? FileInfo::getFileInfo($fileId) : FileInfo::getTempFileInfo($fileId);
-
+		$fileInfo = is_int($fileId) ? FileInfo::createFromBFile($fileId) : FileInfo::createFromTempFile($fileId);
 		if ($fileInfo)
 		{
-			$fileInfo->setDownloadUrl($this->getFileActionUrl($fileInfo, 'download'));
-			$fileInfo->setRemoveUrl($this->getFileActionUrl($fileInfo, 'remove'));
-
-			if ($fileInfo->getWidth() && $fileInfo->getHeight())
+			$downloadUrl = (string)UrlManager::getDownloadUrl($this->getController(), $fileInfo);
+			$fileInfo->setDownloadUrl($downloadUrl);
+			if ($fileInfo->isImage())
 			{
-				$fileInfo->setPreviewUrl($this->getFileActionUrl($fileInfo, 'preview'));
-
-				// Sync with \Bitrix\UI\Controller\FileUploader::previewAction
-				$sourceRectangle = new Rectangle($fileInfo->getWidth(), $fileInfo->getHeight());
-				$destinationRectangle = new Rectangle(300, 300);
-				$needResize = $sourceRectangle->resize($destinationRectangle, Image::RESIZE_PROPORTIONAL);
-				if ($needResize)
+				$config = $this->getController()->getConfiguration();
+				if ($config->shouldTreatOversizeImageAsFile())
 				{
-					$fileInfo->setPreviewWidth($destinationRectangle->getWidth());
-					$fileInfo->setPreviewHeight($destinationRectangle->getHeight());
-				}
-				else
-				{
-					$fileInfo->setPreviewWidth($sourceRectangle->getWidth());
-					$fileInfo->setPreviewHeight($sourceRectangle->getHeight());
+					$treatImageAsFile = $config->shouldTreatImageAsFile($fileInfo);
+					$fileInfo->setTreatImageAsFile($treatImageAsFile);
 				}
 
+				if (!$fileInfo->shouldTreatImageAsFile())
+				{
+					$rectangle = PreviewImage::getSize($fileInfo);
+					$previewUrl = (string)UrlManager::getPreviewUrl($this->getController(), $fileInfo);
+					$fileInfo->setPreviewUrl($previewUrl, $rectangle->getWidth(), $rectangle->getHeight());
+				}
 			}
 		}
 
 		return $fileInfo;
-	}
-
-	private function getFileActionUrl(FileInfo $fileInfo, string $actionName): string
-	{
-		$controller = $this->getController();
-
-		return (string)UrlManager::getInstance()->create(
-			"ui.fileuploader.{$actionName}",
-			[
-				'controller' => $controller->getName(),
-				'controllerOptions' => Json::encode($controller->getOptions()),
-				'fileId' => $fileInfo->getId(),
-			]
-		);
 	}
 
 	private function splitIds(array $ids): array

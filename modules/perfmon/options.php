@@ -1,11 +1,19 @@
-<?
+<?php
 use Bitrix\Main;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
 
-$module_id = "perfmon";
+/** @global CMain $APPLICATION */
+
+$request = Main\Context::getCurrent()->getRequest();
+
+$backUrl = trim((string)$request->get('back_url_settings'));
+
+$module_id = 'perfmon';
 $RIGHT = $APPLICATION->GetGroupRight($module_id);
-if ($RIGHT >= "R") :
+if ($RIGHT >= 'R') :
 
-	IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/options.php");
+	IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/main/options.php");
 	IncludeModuleLangFile(__FILE__);
 
 	$arAllOptions = array(
@@ -20,13 +28,44 @@ if ($RIGHT >= "R") :
 		array("slow_sql_time", GetMessage("PERFMON_OPTIONS_SLOW_SQL_TIME"), array("text", 6)),
 	);
 
-	$ormOptions = array(
-		array("enable_tablet_generator", GetMessage("PERFMON_OPTIONS_ENABLE_TABLET_GENERATOR"), array("checkbox")),
-		GetMessage("PERFMON_OPTIONS_SECTION_GENERATOR_SETTINGS"),
-		array("tablet_short_aliases", GetMessage("PERFMON_OPTIONS_TABLET_SHORT_ALIASES"), array("checkbox")),
-		array("tablet_object_settings", GetMessage("PERFMON_OPTIONS_TABLET_OBJECT_SETTINGS"), array("checkbox")),
-		array("tablet_use_map_index", GetMessage("PERFMON_OPTIONS_TABLET_USE_MAP_INDEX"), array("checkbox"))
-	);
+	$ormOptions = [
+		[
+			'enable_tablet_generator',
+			GetMessage('PERFMON_OPTIONS_ENABLE_TABLET_GENERATOR'),
+			[
+				'checkbox',
+			],
+		],
+		GetMessage('PERFMON_OPTIONS_SECTION_GENERATOR_SETTINGS'),
+		[
+			'tablet_short_aliases',
+			GetMessage('PERFMON_OPTIONS_TABLET_SHORT_ALIASES'),
+			[
+				'checkbox',
+			],
+		],
+		[
+			'tablet_object_settings',
+			GetMessage('PERFMON_OPTIONS_TABLET_OBJECT_SETTINGS'),
+			[
+				'checkbox',
+			],
+		],
+		[
+			'tablet_use_map_index',
+			GetMessage('PERFMON_OPTIONS_TABLET_USE_MAP_INDEX'),
+			[
+				'checkbox',
+			],
+		],
+		[
+			'tablet_validation_closure',
+			GetMessage('PERFMON_OPTIONS_TABLET_VALIDATION_CLOSURE'),
+			[
+				'checkbox',
+			],
+		],
+	];
 
 	$aTabs = array(
 		array("DIV" => "edit1", "TAB" => GetMessage("MAIN_TAB_SET"), "ICON" => "perfmon_settings", "TITLE" => GetMessage("MAIN_TAB_TITLE_SET")),
@@ -35,13 +74,29 @@ if ($RIGHT >= "R") :
 	);
 	$tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-	CModule::IncludeModule($module_id);
+	Loader::includeModule($module_id);
 
-	if ($_SERVER['REQUEST_METHOD'] == "POST" && $Update.$Apply.$RestoreDefaults <> '' && $RIGHT >= "W" && check_bitrix_sessid())
+	$action = null;
+	if ($request->getPost('RestoreDefaults') !== null)
 	{
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
+		$action = 'clear';
+	}
+	elseif ($request->getPost('Update') !== null)
+	{
+		$action = 'save';
+	}
+	elseif ($request->getPost('Apply'))
+	{
+		$action = 'apply';
+	}
+	$actionClear = ($action === 'clear');
+	$actionSave = ($action === 'save');
+	$actionApply = ($action === 'apply');
+	if ($request->isPost() && $action !== null && $RIGHT >= 'W' && check_bitrix_sessid())
+	{
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/prolog.php');
 
-		if ($_REQUEST["clear_data"] === "y")
+		if ($request->getPost('clear_data') === 'y')
 		{
 			CPerfomanceComponent::Clear();
 			CPerfomanceSQL::Clear();
@@ -50,81 +105,102 @@ if ($RIGHT >= "R") :
 			CPerfomanceCache::Clear();
 		}
 
-		if (array_key_exists("ACTIVE", $_REQUEST))
+		$active = $request->getPost('ACTIVE');
+		if ($active !== null)
 		{
-			$ACTIVE = intval($_REQUEST["ACTIVE"]);
-			CPerfomanceKeeper::SetActive($ACTIVE > 0, time() + $ACTIVE);
+			$active = (int)$active;
+			CPerfomanceKeeper::SetActive($active > 0, time() + $active);
 		}
 
-		if ($RestoreDefaults <> '')
+		if ($actionClear)
 		{
-			COption::RemoveOption("perfmon");
+			Option::delete('perfmon', []);
 		}
 		else
 		{
 			foreach ($arAllOptions as $arOption)
 			{
 				$name = $arOption[0];
-				$val = $_REQUEST[$name];
-				if ($arOption[2][0] == "checkbox" && $val != "Y")
-					$val = "N";
-				COption::SetOptionString("perfmon", $name, $val, $arOption[1]);
+				$val = $request->getPost($name);
+				if ($arOption[2][0] == 'checkbox' && $val !== 'Y')
+				{
+					$val = 'N';
+				}
+				Option::set("perfmon", $name, $val, '');
 			}
 
 			foreach ($ormOptions as $option)
 			{
 				$name = $option[0];
-				if (!isset($_REQUEST[$name]))
+				$value = $request->getPost($name);
+				if ($value === null)
+				{
 					continue;
-				$value = $_REQUEST[$name];
+				}
 				if ($option[2][0] == "checkbox")
 				{
 					if ($value !== 'N' && $value !== 'Y')
+					{
 						continue;
+					}
 				}
-				Main\Config\Option::set("perfmon", $name, $value, '');
+				Option::set("perfmon", $name, $value, '');
 			}
 			unset($option);
 		}
 
 		ob_start();
-		$Update = $Update.$Apply;
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights.php");
+		$Update = $actionSave . $actionApply;
+		require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/admin/group_rights.php");
 		ob_end_clean();
 
-		if ($_REQUEST["back_url_settings"] <> '')
+		if ($backUrl !== '')
 		{
-			if (($Apply <> '') || ($RestoreDefaults <> ''))
-				LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($module_id)."&lang=".urlencode(LANGUAGE_ID)."&back_url_settings=".urlencode($_REQUEST["back_url_settings"])."&".$tabControl->ActiveTabParam());
+			if ($actionApply || $actionClear)
+			{
+				LocalRedirect($APPLICATION->GetCurPage()
+					. '?mid=' . urlencode($module_id)
+					. '&lang=' . urlencode(LANGUAGE_ID)
+					. '&back_url_settings=' . urlencode($backUrl)
+					. '&' . $tabControl->ActiveTabParam()
+				);
+			}
 			else
-				LocalRedirect($_REQUEST["back_url_settings"]);
+			{
+				LocalRedirect($_REQUEST['back_url_settings']);
+			}
 		}
 		else
 		{
-			LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($module_id)."&lang=".urlencode(LANGUAGE_ID)."&".$tabControl->ActiveTabParam());
+			LocalRedirect(
+				$APPLICATION->GetCurPage()
+				. "?mid=" . urlencode($module_id)
+				. "&lang=" . urlencode(LANGUAGE_ID)
+				. "&" . $tabControl->ActiveTabParam()
+			);
 		}
 	}
 
 	?>
-	<form method="post" action="<? echo $APPLICATION->GetCurPage() ?>?mid=<?=urlencode($module_id)?>&amp;lang=<?=LANGUAGE_ID?>">
-		<?
+	<form method="post" action="<?= $APPLICATION->GetCurPage() ?>?mid=<?= urlencode($module_id)?>&amp;lang=<?= LANGUAGE_ID?>">
+		<?php
 		$tabControl->Begin();
 		$tabControl->BeginNextTab();
 		$arNotes = array();
 		foreach ($arAllOptions as $arOption):
-			$val = COption::GetOptionString("perfmon", $arOption[0]);
+			$val = Option::get('perfmon', $arOption[0]);
 			$type = $arOption[2];
 			if (isset($arOption[3]))
+			{
 				$arNotes[] = $arOption[3];
+			}
 			?>
 			<tr>
-				<td width="40%" nowrap <? if ($type[0] == "textarea")
-					echo 'class="adm-detail-valign-top"' ?>>
+				<td width="40%" nowrap <?= ($type[0] === "textarea" ? 'class="adm-detail-valign-top"' : ''); ?>>
 					<? if (isset($arOption[3])): ?>
-						<span class="required"><sup><? echo count($arNotes) ?></sup></span>
+						<span class="required"><sup><?= count($arNotes); ?></sup></span>
 					<? endif; ?>
-					<label for="<? echo htmlspecialcharsbx($arOption[0]) ?>"><? echo $arOption[1] ?>
-						:</label>
+					<label for="<? echo htmlspecialcharsbx($arOption[0]) ?>"><?= $arOption[1] ?>:</label>
 				</td>
 				<td width="60%">
 					<? if ($type[0] == "checkbox"): ?>
@@ -349,4 +425,5 @@ if ($RIGHT >= "R") :
 		echo EndNote();
 	}
 	?>
-<? endif;
+<?php
+endif;

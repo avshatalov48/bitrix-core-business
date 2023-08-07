@@ -14,13 +14,13 @@ if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 				Input params
 ********************************************************************/
 //***************** BASE *******************************************/
-	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
+	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"] ?? '');
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
 	$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
-	$arParams["SECTION_CODE"] = trim($arParams["SECTION_CODE"]);
-	$arParams["USER_ALIAS"] = trim($arParams["USER_ALIAS"]);
+	$arParams["SECTION_CODE"] = trim($arParams["SECTION_CODE"] ?? '');
+	$arParams["USER_ALIAS"] = trim($arParams["USER_ALIAS"] ?? '');
 	$arParams["BEHAVIOUR"] = ($arParams["BEHAVIOUR"] == "USER" ? "USER" : "SIMPLE");
-	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
+	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"] ?? '');
 //***************** URL ********************************************/
 	$URL_NAME_DEFAULT = array(
 		"index" => "",

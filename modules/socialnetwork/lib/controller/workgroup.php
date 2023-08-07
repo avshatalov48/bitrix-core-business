@@ -1032,4 +1032,34 @@ class Workgroup extends Base
 		return true;
 	}
 
+	public function getChatIdAction(int $groupId): ?string
+	{
+		$chatId = '';
+
+		if (!Loader::includeModule('im'))
+		{
+			return $chatId;
+		}
+
+		$chatData = \Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup::getChatData(
+			[
+				'group_id' => $groupId,
+				'skipAvailabilityCheck' => true,
+			]
+		);
+		if (!empty($chatData[$groupId]) && intval($chatData[$groupId]) > 0)
+		{
+			$chatId = $chatData[$groupId];
+		}
+		else
+		{
+			$chatId = \Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup::createChat(
+				[
+					'group_id' => $groupId,
+				]
+			);
+		}
+
+		return $chatId;
+	}
 }

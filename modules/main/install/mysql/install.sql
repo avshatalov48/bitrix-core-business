@@ -338,7 +338,7 @@ CREATE TABLE b_module_to_module
 
 CREATE TABLE b_agent
 (
-	ID INT not null auto_increment,
+	ID bigint not null auto_increment,
 	MODULE_ID varchar(50),
 	SORT INT not null default '100',
 	NAME text null,
@@ -352,10 +352,11 @@ CREATE TABLE b_agent
 	RUNNING char(1) not null default 'N',
 	RETRY_COUNT int,
 	PRIMARY KEY (ID),
-	INDEX ix_act_next_exec(ACTIVE, NEXT_EXEC),
 	INDEX ix_agent_user_id(USER_ID),
 	INDEX ix_agent_name(NAME(100)),
-	INDEX ix_agent_act_period_next_exec(ACTIVE, IS_PERIOD, NEXT_EXEC)
+	INDEX ix_agent_act_period_next_exec(ACTIVE, IS_PERIOD, NEXT_EXEC),
+	INDEX ix_agent_next_exec(NEXT_EXEC),
+	INDEX ix_agent_module_act(MODULE_ID, ACTIVE)
 );
 
 CREATE TABLE b_file
@@ -384,7 +385,7 @@ CREATE TABLE b_file_duplicate
 	COUNTER int not null default 1,
 	ORIGINAL_DELETED char(1) not null default 'N',
 	primary key (DUPLICATE_ID, ORIGINAL_ID),
-	index ix_file_duplicate_duplicate(ORIGINAL_ID)
+	index ix_file_duplicate_original_del(ORIGINAL_ID, ORIGINAL_DELETED)
 );
 
 CREATE TABLE b_file_hash
@@ -972,7 +973,8 @@ CREATE TABLE b_user_access_check
 (
 	USER_ID int,
 	PROVIDER_ID varchar(50),
-	UNIQUE ux_uac_user_provider (USER_ID, PROVIDER_ID)
+	DATE_CHECK datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	UNIQUE ux_uac_user_provider_date (USER_ID, PROVIDER_ID, DATE_CHECK)
 );
 
 CREATE TABLE b_user_counter
@@ -1554,7 +1556,8 @@ CREATE TABLE b_user_device
 	USER_AGENT varchar(1000),
 	COOKABLE char(1) not null default 'N',
 	PRIMARY KEY(ID),
-	INDEX ix_user_device_user(USER_ID, DEVICE_UID)
+	INDEX ix_user_device_user(USER_ID, DEVICE_UID),
+	INDEX ix_user_device_user_cookable(USER_ID, COOKABLE)
 );
 
 CREATE TABLE b_user_device_login

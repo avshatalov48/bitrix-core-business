@@ -127,21 +127,34 @@ class Field
 
 	public static function prepareFieldDataForEditForm(array $field)
 	{
-		$result = array();
+		$result = ['customHtml' => ''];
 
 		self::$renderForForm = true;
 
 		$field['SHOW'] = 'Y';
-		if($field['ELEMENT_ID'] > 0 && !empty($field['SETTINGS']['SHOW_EDIT_FORM']))
+		if (!empty($field['ELEMENT_ID']) && !empty($field['SETTINGS']['SHOW_EDIT_FORM']))
+		{
 			$field['SHOW'] = $field['SETTINGS']['SHOW_EDIT_FORM'];
-		if(!$field['ELEMENT_ID'] && !empty($field['SETTINGS']['SHOW_ADD_FORM']))
+		}
+		if (empty($field['ELEMENT_ID']) && !empty($field['SETTINGS']['SHOW_ADD_FORM']))
+		{
 			$field['SHOW'] = $field['SETTINGS']['SHOW_ADD_FORM'];
+		}
 
 		$field['READ'] = 'N';
-		if($field['ELEMENT_ID'] > 0 && !empty($field['SETTINGS']['EDIT_READ_ONLY_FIELD']))
+		if (!empty($field['ELEMENT_ID']) && !empty($field['SETTINGS']['EDIT_READ_ONLY_FIELD']))
+		{
 			$field['READ'] = $field['SETTINGS']['EDIT_READ_ONLY_FIELD'];
-		if(!$field['ELEMENT_ID'] && !empty($field['SETTINGS']['ADD_READ_ONLY_FIELD']))
+		}
+		if (empty($field['ELEMENT_ID']) && !empty($field['SETTINGS']['ADD_READ_ONLY_FIELD']))
+		{
 			$field['READ'] = $field['SETTINGS']['ADD_READ_ONLY_FIELD'];
+		}
+
+		if ($field['TYPE'] === 'S:employee')
+		{
+			$field['SETTINGS']['USE_ENTITY_SELECTOR'] = 'Y';
+		}
 
 		if(isset($field['PROPERTY_USER_TYPE']['USER_TYPE']) && method_exists(
 			__CLASS__, 'prepareEditFieldByUserType'.$field['PROPERTY_USER_TYPE']['USER_TYPE']))
@@ -179,9 +192,19 @@ class Field
 			}
 			if($field['READ'] == 'N')
 			{
-				$html .= call_user_func_array($field['PROPERTY_USER_TYPE']['GetPublicEditHTMLMulty'], array(
-					$field, $field['VALUE'], array('VALUE' => $field['FIELD_ID'], 'DESCRIPTION' => '',
-						'FORM_NAME' => 'form_'.$field['FORM_ID'], 'MODE' => 'FORM_FILL')));
+				$html .= call_user_func_array(
+					$field['PROPERTY_USER_TYPE']['GetPublicEditHTMLMulty'],
+					[
+						$field,
+						$field['VALUE'],
+						[
+							'VALUE' => $field['FIELD_ID'],
+							'DESCRIPTION' => '',
+							'FORM_NAME' => 'form_' . ($field['FORM_ID'] ?? ''),
+							'MODE' => 'FORM_FILL',
+						],
+					]
+				);
 			}
 			else
 			{
@@ -198,8 +221,10 @@ class Field
 		elseif(isset($field['PROPERTY_USER_TYPE']['GetPublicEditHTML']))
 		{
 			$listTypeNotMultiple = array('S:DiskFile', 'S:ECrm');
-			if(!is_array($field['VALUE']))
-				$field['VALUE'] = array($field['VALUE']);
+			if (!isset($field['VALUE']) || !is_array($field['VALUE']))
+			{
+				$field['VALUE'] = [$field['VALUE'] ?? null];
+			}
 
 			if($field['MULTIPLE'] == 'Y' && !in_array($field['TYPE'], $listTypeNotMultiple))
 			{
@@ -231,7 +256,7 @@ class Field
 								array(
 									'VALUE' => $field['FIELD_ID']."[".$key."][VALUE]",
 									'DESCRIPTION' => '',
-									'FORM_NAME' => 'form_'.$field['FORM_ID'],
+									'FORM_NAME' => 'form_' . ($field['FORM_ID'] ?? ''),
 									'MODE' => "FORM_FILL",
 									'COPY' => $field['COPY_ID'] > 0,
 								)
@@ -290,7 +315,7 @@ class Field
 								array(
 									'VALUE' => $field['FIELD_ID']."[".$key."][VALUE]",
 									'DESCRIPTION' => '',
-									'FORM_NAME' => 'form_'.$field['FORM_ID'],
+									'FORM_NAME' => 'form_' . ($field['FORM_ID'] ?? ''),
 									'MODE' => 'FORM_FILL',
 									'COPY' => $field['COPY_ID'] > 0,
 								),
@@ -632,7 +657,11 @@ class Field
 			self::$cache[$field['ID']] = $items;
 		}
 
-		if (is_array($field['VALUE']))
+		if (is_array($field['VALUE']) && empty($field['VALUE']))
+		{
+			$result = $items[0] ?? null;
+		}
+		elseif (is_array($field['VALUE']))
 		{
 			foreach ($items as $itemKey => $itemValue)
 			{
@@ -645,10 +674,10 @@ class Field
 		}
 		else
 		{
-			$result = $items[$field['VALUE']];
+			$result = $items[$field['VALUE']] ?? null;
 		}
 
-		return ($result ? $result : $field['DEFAULT_VALUE']);
+		return ($result ?: $field['DEFAULT_VALUE']);
 	}
 
 	protected static function renderFieldByTypeF(array $field)
@@ -1216,16 +1245,19 @@ class Field
 
 	protected static function prepareEditFieldByUserTypeHTML(array $field)
 	{
-		$result = array(
-			'id' => $field['FIELD_ID'].'[]',
+		$result = [
+			'id' => $field['FIELD_ID'] . '[]',
 			'name' => $field['NAME'],
 			'required' => $field['IS_REQUIRED'] == 'Y' ? true : false,
 			'type' => 'custom',
-			'show' => $field['SHOW']
-		);
+			'show' => $field['SHOW'],
+			'customHtml' => '',
+		];
 		$html = '';
-		if(!is_array($field['VALUE']))
-			$field['VALUE'] = array($field['VALUE']);
+		if (!isset($field['VALUE']) || !is_array($field['VALUE']))
+		{
+			$field['VALUE'] = [$field['VALUE'] ?? null];
+		}
 
 		$isEmptyValue = true;
 		foreach($field['VALUE'] as $value)
@@ -1307,9 +1339,9 @@ class Field
 							array(
 								'VALUE' => $field['FIELD_ID']."[".$key."][VALUE]",
 								'DESCRIPTION' => '',
-								'FORM_NAME' => 'form_'.$field['FORM_ID'],
+								'FORM_NAME' => 'form_' . ($field['FORM_ID'] ?? ''),
 								'MODE' => 'FORM_FILL',
-								'COPY' => $field['COPY_ID'] > 0,
+								'COPY' => isset($field['COPY_ID']) && $field['COPY_ID'] > 0,
 							),
 						));
 					if(is_array($value['VALUE']))
@@ -1330,7 +1362,7 @@ class Field
 							array(
 								'VALUE' => $field['FIELD_ID']."[".$key."][VALUE]",
 								'DESCRIPTION' => '',
-								'FORM_NAME' => 'form_'.$field['FORM_ID'],
+								'FORM_NAME' => 'form_' . ($field['FORM_ID'] ?? ''),
 								'MODE' => 'FORM_FILL',
 								'COPY' => $field['COPY_ID'] > 0,
 							),
@@ -1445,8 +1477,8 @@ class Field
 				'name' => $field['NAME'],
 				'required' => $field['IS_REQUIRED'] == 'Y' ? true : false,
 				'type' => 'custom',
-				'value' => '<textarea disabled>'.HtmlFilter::encode($field['VALUE']).'</textarea>
-					<input type="hidden" name="'.$field['FIELD_ID'].'" value="'.HtmlFilter::encode($field['VALUE']).'">',
+				'value' => '<textarea disabled>'.HtmlFilter::encode($field['VALUE'] ?? '').'</textarea>
+					<input type="hidden" name="'.$field['FIELD_ID'].'" value="'.HtmlFilter::encode($field['VALUE'] ?? '').'">',
 				'show' => $field['SHOW']
 			);
 		}
@@ -1686,7 +1718,7 @@ class Field
 		if($field['READ'] == 'Y')
 		{
 			$result['type'] = 'custom';
-			if($field['ELEMENT_ID'] > 0 && empty($field['VALUE']))
+			if(($field['ELEMENT_ID'] ?? 0) > 0 && empty($field['VALUE']))
 			{
 				$result['value'] = Loc::getMessage('LISTS_FIELD_NOT_DATA');
 			}

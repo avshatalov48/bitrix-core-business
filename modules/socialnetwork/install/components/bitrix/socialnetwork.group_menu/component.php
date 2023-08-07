@@ -272,7 +272,7 @@ if (
 
 			if($arResult["CanView"]["chat"])
 			{
-				$arResult["Urls"]["chat"] = "javascript:if (BXIM) { top.BXIM.openMessenger('sg".$arResult["Group"]["ID"]."'); }";
+				$arResult["Urls"]["chat"] = "javascript:BX.Socialnetwork.UI.Common.openMessenger('".$arResult["Group"]["ID"]."');";
 			}
 
 			$a = array_keys($arResult["Urls"]);

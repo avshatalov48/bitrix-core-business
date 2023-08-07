@@ -3,10 +3,10 @@
 
 	BX.namespace("BX.Landing");
 
-	var escapeText = BX.Landing.Utils.escapeText;
-	var headerTagMatcher = BX.Landing.Utils.Matchers.headerTag;
-	var changeTagName = BX.Landing.Utils.changeTagName;
-	var textToPlaceholders = BX.Landing.Utils.textToPlaceholders;
+	const escapeText = BX.Landing.Utils.escapeText;
+	const headerTagMatcher = BX.Landing.Utils.Matchers.headerTag;
+	const changeTagName = BX.Landing.Utils.changeTagName;
+	const textToPlaceholders = BX.Landing.Utils.textToPlaceholders;
 
 
 	/**
@@ -100,7 +100,7 @@
 		{
 			clearTimeout(this.inputTimeout);
 
-			var key = event.keyCode || event.which;
+			const key = event.keyCode || event.which;
 
 			if (!(key === 90 && (top.window.navigator.userAgent.match(/win/i) ? event.ctrlKey : event.metaKey)))
 			{
@@ -115,16 +115,18 @@
 
 			if (this.isTable(event))
 			{
-				var tableFontSize = parseInt(window.getComputedStyle(event.srcElement).getPropertyValue('font-size'));
-				if (event.srcElement.textContent === ''
-					&& event.srcElement.classList.contains('landing-table-td')
-					&& tableFontSize < this.tableBaseFontSize)
+				const tableFontSize = parseInt(window.getComputedStyle(event.srcElement).getPropertyValue('font-size'));
+				if (
+					event.srcElement.textContent === ''
+					&& BX.Dom.hasClass(event.srcElement, 'landing-table-td')
+					&& tableFontSize < this.tableBaseFontSize
+				)
 				{
-					event.srcElement.classList.add('landing-table-td-height');
+					BX.Dom.addClass(event.srcElement, 'landing-table-td-height');
 				}
 				else
 				{
-					event.srcElement.classList.remove('landing-table-td-height');
+					BX.Dom.removeClass(event.srcElement, 'landing-table-td-height');
 				}
 			}
 		},
@@ -173,19 +175,19 @@
 
 			if (event.clipboardData && event.clipboardData.getData)
 			{
-				var sourceText = event.clipboardData.getData("text/plain");
-				var encodedText = BX.Text.encode(sourceText);
+				const sourceText = event.clipboardData.getData("text/plain");
+				let encodedText = BX.Text.encode(sourceText);
 				if (this.isLinkPasted(sourceText))
 				{
 					encodedText = this.prepareToLink(encodedText);
 				}
-				var formattedHtml = encodedText.replace(new RegExp('\n', 'g'), "<br>");
+				const formattedHtml = encodedText.replace(new RegExp('\n', 'g'), "<br>");
 				document.execCommand("insertHTML", false, formattedHtml);
 			}
 			else
 			{
 				// ie11
-				var text = window.clipboardData.getData("text");
+				const text = window.clipboardData.getData("text");
 				document.execCommand("paste", true, BX.Text.encode(text));
 			}
 
@@ -229,16 +231,18 @@
 									BX.Landing.Block.Node.Text.prototype.prepareNewTable(table);
 								}
 							})
-						var tableFontSize = parseInt(window.getComputedStyle(event.srcElement).getPropertyValue('font-size'));
-						if (event.srcElement.textContent === ''
-							&& event.srcElement.classList.contains('landing-table-td')
-							&& tableFontSize < this.tableBaseFontSize)
+						const tableFontSize = parseInt(window.getComputedStyle(event.srcElement).getPropertyValue('font-size'));
+						if (
+							event.srcElement.textContent === ''
+							&& BX.Dom.hasClass(event.srcElement, 'landing-table-td')
+							&& tableFontSize < this.tableBaseFontSize
+						)
 						{
-							event.srcElement.classList.add('landing-table-td-height');
+							BX.Dom.addClass(event.srcElement, 'landing-table-td-height')
 						}
 						else
 						{
-							event.srcElement.classList.remove('landing-table-td-height');
+							BX.Dom.removeClass(event.srcElement, 'landing-table-td-height')
 						}
 					}
 					else
@@ -251,7 +255,7 @@
 						{
 							BX.Landing.Block.Node.Text.nodeTableContainerList.forEach(function(tableContainer) {
 								tableContainer.tableEditor.unselect(tableContainer.tableEditor);
-							})
+							});
 						}
 					}
 
@@ -262,7 +266,7 @@
 					if (event.target.nodeName === "A" ||
 						event.target.parentElement.nodeName === "A")
 					{
-						var range = document.createRange();
+						const range = document.createRange();
 						range.selectNode(event.target);
 						window.getSelection().removeAllRanges();
 						window.getSelection().addRange(range);
@@ -297,7 +301,7 @@
 			if (event.target.nodeName === "A" ||
 				event.target.parentElement.nodeName === "A")
 			{
-				var range = document.createRange();
+				const range = document.createRange();
 				range.selectNode(event.target);
 				window.getSelection().removeAllRanges();
 				window.getSelection().addRange(range);
@@ -320,11 +324,11 @@
 		 */
 		enableEdit: function()
 		{
-			var currentNode = BX.Landing.Block.Node.Text.currentNode;
+			const currentNode = BX.Landing.Block.Node.Text.currentNode;
 			if (currentNode)
 			{
-				var node = BX.Landing.Block.Node.Text.currentNode.node;
-				var nodeTableContainerList = node.querySelectorAll('.landing-table-container');
+				const node = BX.Landing.Block.Node.Text.currentNode.node;
+				const nodeTableContainerList = node.querySelectorAll('.landing-table-container');
 				if (nodeTableContainerList.length > 0)
 				{
 					nodeTableContainerList.forEach(function(nodeTableContainer) {
@@ -404,17 +408,17 @@
 					onClick: function() {
 						BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 
-						let repository = BX.Landing.Main.getInstance()["options"]["blocks"];
-						let sections = this.manifest.sections;
+						const repository = BX.Landing.Main.getInstance()["options"]["blocks"];
+						const sections = this.manifest.sections;
 						let startMessage = '';
-						let engineParameters = {
+						const engineParameters = {
 						//	assistant_text: "friendly business tone"
 						};
 
 						// retrieve startMessage from settings' meta
 						for (let i = 0, c = sections.length; i < c; i++)
 						{
-							let section = sections[i];
+							const section = sections[i];
 							if (repository[section] && repository[section]["meta"])
 							{
 								if (repository[section]["meta"]["ai_text_placeholder"])
@@ -434,8 +438,8 @@
 
 						if (!this.aiTextPicker)
 						{
-							let siteId = BX.Landing.Main.getInstance()["options"]["site_id"];
-							let picker = top.BX.AI ? top.BX.AI.Picker : BX.AI.Picker;
+							const siteId = BX.Landing.Main.getInstance()["options"]["site_id"];
+							const picker = top.BX.AI ? top.BX.AI.Picker : BX.AI.Picker;
 
 							this.aiTextPicker = new picker({
 								/*startMessage: (startMessage.length > 0)
@@ -568,7 +572,7 @@
 		 */
 		isTable: function(event)
 		{
-			var nodeIsTable = false;
+			let nodeIsTable = false;
 			if (BX.Landing.Block.Node.Text.currentNode && event)
 			{
 				BX.Landing.Block.Node.Text.currentNode.node.querySelectorAll('.landing-table-container')
@@ -596,32 +600,34 @@
 
 		addTableButtons: function(event)
 		{
-			var buttons = [];
-			var neededButtons = [];
-			var setTd = [];
-			var tableButtons = this.getTableButtons();
-			var tableAlignButtons = [tableButtons[0], tableButtons[1], tableButtons[2], tableButtons[3]];
-			var node = BX.Landing.Block.Node.Text.currentNode.node;
-			var table = null;
-			var isCell = false;
-			var isButtonAddRow = false;
-			var isButtonAddCol = false;
-			var isNeedTablePanel = true;
-			if (event.srcElement.classList.contains('landing-table')
-				|| event.srcElement.classList.contains('landing-table-col-dnd'))
+			const buttons = [];
+			let neededButtons = [];
+			let setTd = [];
+			const tableButtons = this.getTableButtons();
+			const tableAlignButtons = [tableButtons[0], tableButtons[1], tableButtons[2], tableButtons[3]];
+			const node = BX.Landing.Block.Node.Text.currentNode.node;
+			let table = null;
+			let isCell = false;
+			let isButtonAddRow = false;
+			let isButtonAddCol = false;
+			let isNeedTablePanel = true;
+			if (
+				BX.Dom.hasClass(event.srcElement, 'landing-table')
+				|| BX.Dom.hasClass(event.srcElement, 'landing-table-col-dnd')
+			)
 			{
 				isNeedTablePanel = false;
 			}
-			if (event.srcElement.classList.contains('landing-table-row-add'))
+			if (BX.Dom.hasClass(event.srcElement, 'landing-table-row-add'))
 			{
 				isButtonAddRow = true;
 			}
-			if (event.srcElement.classList.contains('landing-table-col-add'))
+			if (BX.Dom.hasClass(event.srcElement, 'landing-table-col-add'))
 			{
 				isButtonAddCol = true;
 			}
-			var hideButtons = [];
-			var nodeTableList = node.querySelectorAll('.landing-table');
+			let hideButtons = [];
+			const nodeTableList = node.querySelectorAll('.landing-table');
 			if (nodeTableList.length > 0)
 			{
 				nodeTableList.forEach(function(nodeTable) {
@@ -630,16 +636,17 @@
 						table = nodeTable;
 						return true;
 					}
-				})
+				});
 			}
+			let isSelectedAll;
 
-			tableButtons.forEach(function(tableButton){
+			tableButtons.forEach(function(tableButton) {
 				tableButton['options']['srcElement'] = event.srcElement;
 				tableButton['options']['node'] = node;
 				tableButton['options']['table'] = table;
-			})
+			});
 
-			if (event.srcElement.classList.contains('landing-table-row-dnd'))
+			if (BX.Dom.hasClass(event.srcElement, 'landing-table-row-dnd'))
 			{
 				setTd = event.srcElement.parentNode.children;
 				setTd = Array.from(setTd);
@@ -655,38 +662,38 @@
 					tableButtons[neededButton]['options']['target'] = 'row';
 					tableButtons[neededButton]['options']['setTd'] = setTd;
 					buttons.push(tableButtons[neededButton]);
-				})
+				});
 			}
 
-			if (event.srcElement.parentNode.classList.contains('landing-table-col-dnd'))
+			if (BX.Dom.hasClass(event.srcElement.parentNode, 'landing-table-col-dnd'))
 			{
-				var childNodes = event.srcElement.parentElement.parentElement.childNodes;
-				var childNodesArray = Array.from(childNodes);
-				var childNodesArrayPrepare = [];
+				const childNodes = event.srcElement.parentElement.parentElement.childNodes;
+				const childNodesArray = Array.from(childNodes);
+				const childNodesArrayPrepare = [];
 				childNodesArray.forEach(function(childNode) {
 					if (childNode.nodeType === 1)
 					{
 						childNodesArrayPrepare.push(childNode);
 					}
-				})
-				var neededPosition = childNodesArrayPrepare.indexOf(event.srcElement.parentElement);
-				var rows = event.srcElement.parentElement.parentElement.parentElement.childNodes;
+				});
+				const neededPosition = childNodesArrayPrepare.indexOf(event.srcElement.parentElement);
+				const rows = event.srcElement.parentElement.parentElement.parentElement.childNodes;
 				rows.forEach(function(row) {
 					if (row.nodeType === 1)
 					{
-						var rowChildPrepare = [];
+						const rowChildPrepare = [];
 						row.childNodes.forEach(function(rowChildNode) {
 							if (rowChildNode.nodeType === 1)
 							{
 								rowChildPrepare.push(rowChildNode);
 							}
-						})
+						});
 						if (rowChildPrepare[neededPosition])
 						{
 							setTd.push(rowChildPrepare[neededPosition]);
 						}
 					}
-				})
+				});
 				if (this.getAmountTableCols(table) > 1)
 				{
 					neededButtons = [0, 1, 2, 3, 4, 5, 7];
@@ -699,13 +706,12 @@
 					tableButtons[neededButton]['options']['target'] = 'col';
 					tableButtons[neededButton]['options']['setTd'] = setTd;
 					buttons.push(tableButtons[neededButton]);
-				})
+				});
 			}
 
-			if (event.srcElement.classList.contains('landing-table-th-select-all'))
+			if (BX.Dom.hasClass(event.srcElement, 'landing-table-th-select-all'))
 			{
-				var isSelectedAll;
-				if (event.srcElement.classList.contains('landing-table-th-select-all-selected'))
+				if (BX.Dom.hasClass(event.srcElement, 'landing-table-th-select-all-selected'))
 				{
 					isSelectedAll = true;
 					const rows = event.srcElement.parentElement.parentElement.childNodes;
@@ -730,7 +736,7 @@
 
 			if (
 				BX.Dom.hasClass(event.srcElement, 'landing-table-td')
-				|| this.hasParentWithClass(event.srcElement, 'landing-table-td')
+				|| event.srcElement.closest('.landing-table-td') !== null
 			)
 			{
 				setTd.push(event.srcElement);
@@ -745,34 +751,35 @@
 				hideButtons = ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull', 'createTable', 'pasteTable'];
 			}
 
-			var activeAlignButtonId;
-			let setActiveAlignButtonId = [];
+			let activeAlignButtonId;
+			const setActiveAlignButtonId = [];
 			setTd.forEach(function(th) {
 				if (th.nodeType === 1)
 				{
 					activeAlignButtonId = undefined;
-					if (th.classList.contains('text-left'))
+					if (BX.Dom.hasClass(th, 'text-left'))
 					{
 						activeAlignButtonId = 'alignLeft';
 					}
-					if (th.classList.contains('text-center'))
+					if (BX.Dom.hasClass(th, 'text-center'))
 					{
 						activeAlignButtonId = 'alignCenter';
 					}
-					if (th.classList.contains('text-right'))
+					if (BX.Dom.hasClass(th, 'text-right'))
 					{
 						activeAlignButtonId = 'alignRight';
 					}
-					if (th.classList.contains('text-justify'))
+					if (BX.Dom.hasClass(th, 'text-justify'))
 					{
 						activeAlignButtonId = 'alignJustify';
 					}
 					setActiveAlignButtonId.push(activeAlignButtonId);
 				}
-			})
-			var count = 0;
-			var isIdentical = true;
-			while (count < setActiveAlignButtonId.length && isIdentical) {
+			});
+			let count = 0;
+			let isIdentical = true;
+			while (count < setActiveAlignButtonId.length && isIdentical)
+			{
 				if (count > 0)
 				{
 					if (setActiveAlignButtonId[count] !== setActiveAlignButtonId[count - 1])
@@ -795,9 +802,9 @@
 				tableAlignButtons.forEach(function(tableAlignButton) {
 					if (tableAlignButton.id === activeAlignButtonId)
 					{
-						tableAlignButton.layout.classList.add('landing-ui-active');
+						BX.Dom.addClass(tableAlignButton.layout, 'landing-ui-active');
 					}
-				})
+				});
 			}
 
 			if (buttons[0] && buttons[1] && buttons[2] && buttons[3])
@@ -836,26 +843,6 @@
 					BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 				}
 			}
-		},
-
-		/**
-		 * Checking whether an element is a descendant of a parent of any level with the desired class
-		 * @return {boolean}
-		 */
-		hasParentWithClass: function(element, className)
-		{
-			let parent = element.parentNode;
-
-			while (parent !== null)
-			{
-				if (parent.classList && BX.Dom.hasClass(parent, className))
-				{
-					return true;
-				}
-				parent = parent.parentNode;
-			}
-
-			return false;
 		},
 
 		/**
@@ -956,7 +943,7 @@
 				this.enableEdit();
 			}
 
-			var data = {};
+			const data = {};
 			data[this.selector] = value;
 
 			if (!preventHistory)
@@ -980,7 +967,7 @@
 
 		prepareTable: function(node)
 		{
-			var setClassesForRemove = [
+			const setClassesForRemove = [
 				'table-selected-all',
 				'landing-table-th-select-all-selected',
 				'landing-table-cell-selected',
@@ -998,18 +985,18 @@
 			];
 			setClassesForRemove.forEach(function(className) {
 				node.querySelectorAll('.' + className).forEach(function(element){
-					element.classList.remove(className);
+					BX.Dom.removeClass(element, className);
 				})
 			})
 			return node;
 		},
 
 		onBackspaceDown: function(event) {
-			var selection = window.getSelection();
-			var position = selection.getRangeAt(0).startOffset;
+			const selection = window.getSelection();
+			const position = selection.getRangeAt(0).startOffset;
 			if (position === 0)
 			{
-				var focusNode = selection.focusNode;
+				let focusNode = selection.focusNode;
 				if (!BX.Type.isNil(focusNode) && focusNode.nodeType !== 3)
 				{
 					if (focusNode.firstChild.nodeType === 3 && focusNode.firstChild.firstChild.nodeType === 3)
@@ -1027,15 +1014,15 @@
 				}
 				if (focusNode)
 				{
-					var focusNodeParent = focusNode.parentNode;
-					var allowedNodeName = ['BLOCKQUOTE', 'UL'];
+					const focusNodeParent = focusNode.parentNode;
+					const allowedNodeName = ['BLOCKQUOTE', 'UL'];
 					if (focusNodeParent && allowedNodeName.includes(focusNodeParent.nodeName))
 					{
-						var focusNodeContainer = document.createElement('div');
+						const focusNodeContainer = document.createElement('div');
 						focusNodeContainer.append(focusNode);
 						focusNodeParent.append(focusNodeContainer);
 					}
-					var contentNode = focusNode.parentNode.parentNode;
+					let contentNode = focusNode.parentNode.parentNode;
 					while (contentNode && !allowedNodeName.includes(contentNode.nodeName))
 					{
 						contentNode = contentNode.parentNode;
@@ -1052,7 +1039,7 @@
 		},
 
 		isLinkPasted: function(text) {
-			var reg = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
+			const reg = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
 			return !!text.match(reg);
 		},
 

@@ -47,6 +47,9 @@ class Params extends Registry
 		CODE = 'CODE',
 		TYPE = 'TYPE',
 		COMPONENT_ID = 'COMPONENT_ID',
+		COMPONENT_PARAMS = 'COMPONENT_PARAMS',
+		EXTENSION_ID = 'EXTENSION_ID',
+		EXTENSION_PARAMS = 'EXTENSION_PARAMS',
 		STYLE_CLASS = 'CLASS',
 		CALL_ID = 'CALL_ID',
 		CHAT_ID = 'CHAT_ID',
@@ -172,6 +175,18 @@ class Params extends Registry
 		self::COMPONENT_ID => [
 			'type' => Param::TYPE_STRING,
 			'default' => '',
+		],
+		self::COMPONENT_PARAMS => [
+			'className' => Message\Param\ComponentParams::class,
+			'type' => Param::TYPE_JSON,
+		],
+		self::EXTENSION_ID => [
+			'type' => Param::TYPE_STRING,
+			'default' => '',
+		],
+		self::EXTENSION_PARAMS => [
+			'className' => Message\Param\ComponentParams::class,
+			'type' => Param::TYPE_JSON,
 		],
 		self::STYLE_CLASS => [
 			'type' => Param::TYPE_STRING,
@@ -493,7 +508,7 @@ class Params extends Registry
 	{
 		foreach ($items as $entityId => $entity)
 		{
-			if (isset($entity['PARAM_NAME']))
+			if (is_array($entity) && isset($entity['PARAM_NAME']))
 			{
 				$paramName = $entity['PARAM_NAME'];
 				if (!parent::offsetExists($paramName))

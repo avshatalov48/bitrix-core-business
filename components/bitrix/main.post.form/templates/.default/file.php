@@ -74,6 +74,8 @@ foreach ($arParams["UPLOADS"] as $v)
 			'DISABLE_CREATING_FILE_BY_CLOUD' => $arParams['DISABLE_CREATING_FILE_BY_CLOUD'] ?? ($v['DISABLE_CREATING_FILE_BY_CLOUD'] ?? null),
 			'DISABLE_LOCAL_EDIT' => $arParams['DISABLE_LOCAL_EDIT'] ?? $v['DISABLE_LOCAL_EDIT'] ?? '',
 			'HIDE_CHECKBOX_ALLOW_EDIT' => $arParams['HIDE_CHECKBOX_ALLOW_EDIT'] ?? $v['HIDE_CHECKBOX_ALLOW_EDIT'] ?? '',
+			'MAIN_POST_FORM' => true,
+			'MAIN_POST_FORM_ID' => $arParams['FORM_ID'] ?? '',
 		];
 		if ($v['USER_TYPE_ID'] === 'disk_file'
 			&& isset($v['USER_TYPE'])

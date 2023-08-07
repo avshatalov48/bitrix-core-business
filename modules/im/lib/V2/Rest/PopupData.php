@@ -8,6 +8,7 @@ class PopupData
 	 * @var PopupDataItem[]
 	 */
 	protected array $popupItems = [];
+	protected array $excludedList = [];
 
 	/**
 	 * @param PopupDataItem[] $popupDataItems
@@ -15,7 +16,11 @@ class PopupData
 	 */
 	public function __construct(array $popupDataItems, array $excludedList = [])
 	{
-		$this->popupItems = $popupDataItems;
+		foreach ($popupDataItems as $popupDataItem)
+		{
+			$this->add($popupDataItem);
+		}
+		$this->excludedList = $excludedList;
 		$this->filterItems($excludedList);
 	}
 
@@ -49,6 +54,14 @@ class PopupData
 	public function toRestFormat(): array
 	{
 		$result = [];
+
+		foreach ($this->popupItems as $item)
+		{
+			if ($item instanceof PopupDataAggregatable)
+			{
+				$this->merge($item->getPopupData($this->excludedList));
+			}
+		}
 
 		foreach ($this->popupItems as $item)
 		{

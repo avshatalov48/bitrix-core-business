@@ -1,10 +1,10 @@
-import {Core} from 'im.v2.application.core';
-import {DialogType} from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
+import { DialogType } from 'im.v2.const';
 
-import {LayoutManager} from '../layout-manager';
-import {SearchUtils} from '../search-utils';
+import { LayoutManager } from '../layout-manager';
+import { SearchUtils } from '../search-utils';
 
-import type {ImModelUser, ImModelDialog} from 'im.v2.model';
+import type { ImModelUser, ImModelDialog } from 'im.v2.model';
 
 type RecentItem = {
 	dialogId: string,
@@ -12,7 +12,7 @@ type RecentItem = {
 	dialog: ImModelDialog
 }
 
-const collator = new Intl.Collator(undefined, {sensitivity: 'base'});
+const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
 
 export class RecentStateSearchService
 {
@@ -27,14 +27,14 @@ export class RecentStateSearchService
 	load(): RecentItem[]
 	{
 		const recentUsers = [];
-		this.#store.getters['recent/getSortedCollection'].forEach(recentItem => {
+		this.#store.getters['recent/getSortedCollection'].forEach((recentItem) => {
 			const dialog = this.#store.getters['dialogues/get'](recentItem.dialogId, true);
 			const user = this.#store.getters['users/get'](recentItem.dialogId, true);
 
-			recentUsers.push({dialogId: recentItem.dialogId, dialog, user});
+			recentUsers.push({ dialogId: recentItem.dialogId, dialog, user });
 		});
 
-		return recentUsers.filter(item => {
+		return recentUsers.filter((item) => {
 			return item.dialog.type === 'user' && !item.user.bot && item.user.id !== Core.getUserId();
 		});
 	}
@@ -50,7 +50,7 @@ export class RecentStateSearchService
 
 		const correctLayoutSearchPromise = this.getItemsFromRecentListByQuery(originalLayoutQuery);
 
-		return Promise.all([correctLayoutSearchPromise, wrongLayoutSearchPromise]).then(result => {
+		return Promise.all([correctLayoutSearchPromise, wrongLayoutSearchPromise]).then((result) => {
 			return new Map([...result[0], ...result[1]]);
 		});
 	}
@@ -67,7 +67,7 @@ export class RecentStateSearchService
 		const recentListItems = this.getRecentListItems();
 		const foundItems = [];
 
-		recentListItems.forEach(recentListItem => {
+		recentListItems.forEach((recentListItem) => {
 			if (this.searchByQueryWords(recentListItem, queryWords))
 			{
 				foundItems.push(recentListItem);
@@ -76,17 +76,16 @@ export class RecentStateSearchService
 
 		return foundItems;
 	}
-	//endregion
 
 	getRecentListItems(): Array
 	{
-		return this.#store.getters['recent/getSortedCollection'].map(item => {
+		return this.#store.getters['recent/getSortedCollection'].map((item) => {
 			const dialog = this.#store.getters['dialogues/get'](item.dialogId, true);
 			const isUser = dialog.type === DialogType.user;
 
 			const recentListItem = {
 				dialogId: item.dialogId,
-				dialog: dialog,
+				dialog,
 			};
 
 			if (isUser)
@@ -149,9 +148,9 @@ export class RecentStateSearchService
 	doesItemMatchQuery(fieldsForSearch: Array<string>, queryWords: Array<string>): boolean
 	{
 		let found = 0;
-		queryWords.forEach(queryWord => {
+		queryWords.forEach((queryWord) => {
 			let queryWordsMatchCount = 0;
-			fieldsForSearch.forEach(field => {
+			fieldsForSearch.forEach((field) => {
 				const word = field.slice(0, queryWord.length);
 				if (collator.compare(queryWord, word) === 0)
 				{

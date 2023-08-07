@@ -13,6 +13,20 @@ class AvatarManager
 		$this->currentUserId = $currentUserId;
 	}
 
+	public static function getAvatarKeyByString($string): ?string
+	{
+		$parts = explode(",", $string);
+		$firstContact = trim($parts[0]);
+
+		$address = new Main\Mail\Address($firstContact);
+		if ($address->validate())
+		{
+			return $address->getEmail();
+		}
+
+		return null;
+	}
+
 	public function getAvatarParamsFromEmails($filedFromList)
 	{
 		$fileds = [];
@@ -120,9 +134,10 @@ class AvatarManager
 		{
 			foreach (\Bitrix\Mail\Helper\Message::parseAddressList($parsedListOfEmails) as $mailCopy)
 			{
-				if (trim($mailCopy))
+				$avatarKey = static::getAvatarKeyByString($mailCopy);
+				if ($avatarKey)
 				{
-					$address = new Main\Mail\Address($mailCopy);
+					$address = new Main\Mail\Address($avatarKey);
 					if ($address->validate())
 					{
 						$emailNames[] = [

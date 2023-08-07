@@ -1,6 +1,8 @@
-<?
-if (file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/geshi/geshi.php"))
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/geshi/geshi.php");
+<?php
+if (file_exists($_SERVER['DOCUMENT_ROOT'] . BX_PERSONAL_ROOT . '/php_interface/geshi/geshi.php'))
+{
+	require_once($_SERVER['DOCUMENT_ROOT'] . BX_PERSONAL_ROOT . '/php_interface/geshi/geshi.php');
+}
 
 IncludeModuleLangFile(__FILE__);
 /**
@@ -362,5 +364,3 @@ class CAdminListPage
 		$this->list->DisplayList();
 	}
 }
-
-?>

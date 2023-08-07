@@ -243,7 +243,7 @@ HTML;
 			{
 				if (is_string($val))
 				{
-					$arguments[$key] = "'".str_replace("'", "", $val)."'";
+					$arguments[$key] = "'".EscapePHPString($val, "'")."'";
 				}
 				else
 				{

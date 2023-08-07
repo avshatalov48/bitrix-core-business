@@ -511,6 +511,7 @@ class CIMShare
 		$quoteMessage['MESSAGE'] = preg_replace("/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/i", "$2", $quoteMessage['MESSAGE']);
 		$quoteMessage['MESSAGE'] = preg_replace("/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/i", "$2", $quoteMessage['MESSAGE']);
 		//$quoteMessage['MESSAGE'] = preg_replace_callback('#<a(.*?)>(http[s]{0,1}:\/\/.*?)<\/a>#', array($this, "PrepareImages"), $quoteMessage['MESSAGE']);
+		$quoteMessage['MESSAGE'] = preg_replace("/(?:-{54}\n)(.[^\[\n]+)(?:.[^\n]*)?(.+?)(?:-{54})/s", '[QUOTE][B]$1[/B]$2[/QUOTE]', $quoteMessage['MESSAGE']);
 
 		$result = '[QUOTE]';
 		if ($quoteMessage['MESSAGE_TYPE'] != IM_MESSAGE_PRIVATE)

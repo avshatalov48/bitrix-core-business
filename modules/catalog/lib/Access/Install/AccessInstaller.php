@@ -280,7 +280,10 @@ class AccessInstaller
 			$result[$groupId] = $roleId;
 		}
 
-		RoleUtil::insertPermissions($query);
+		if (!empty($query))
+		{
+			RoleUtil::insertPermissions($query);
+		}
 
 		return $result;
 	}

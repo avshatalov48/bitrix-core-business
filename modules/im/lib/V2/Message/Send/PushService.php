@@ -428,7 +428,7 @@ class PushService
 	 * @param int $maxUserInGroup
 	 * @return array
 	 */
-	private function getEventByCounterGroup(array $events, int $maxUserInGroup = 100): array
+	public function getEventByCounterGroup(array $events, int $maxUserInGroup = 100): array
 	{
 		$groups = [];
 		foreach ($events as $userId => $event)

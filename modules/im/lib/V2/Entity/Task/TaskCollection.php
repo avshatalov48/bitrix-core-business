@@ -5,9 +5,8 @@ namespace Bitrix\Im\V2\Entity\Task;
 use Bitrix\Im\V2\Entity\EntityCollection;
 
 /**
- * @method TaskItem next()
- * @method TaskItem current()
- * @method TaskItem offsetGet($offset)
+ * @implements \IteratorAggregate<int,TaskItem>
+ * @method TaskItem offsetGet($key)
  */
 class TaskCollection extends EntityCollection
 {

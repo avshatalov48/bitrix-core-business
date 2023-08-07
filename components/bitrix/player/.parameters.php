@@ -1,8 +1,8 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-$type = $arCurrentValues["PLAYER_TYPE"] ? $arCurrentValues["PLAYER_TYPE"] : 'auto';
-$adv_mode = ($arCurrentValues["ADVANCED_MODE_SETTINGS"] == 'Y');
+$type = ($arCurrentValues["PLAYER_TYPE"] ?? null) ? $arCurrentValues["PLAYER_TYPE"] : 'auto';
+$adv_mode = (($arCurrentValues["ADVANCED_MODE_SETTINGS"] ?? null) == 'Y');
 $hidden = ($adv_mode) ? "N" : "Y";
 
 $defaultVideoJsSkinPath = '/bitrix/js/fileman/player/videojs/skins';
@@ -82,7 +82,7 @@ if (!function_exists('getSkinsEx'))
 	}
 }
 
-$fp = $arCurrentValues["PATH"];
+$fp = $arCurrentValues["PATH"] ?? null;
 if ($type == 'auto' && $fp <> '' && mb_strpos($fp, '.') !== false)
 {
 	$ext = mb_strtolower(GetFileExtension($fp));
@@ -138,7 +138,7 @@ if ($adv_mode)
 }
 
 
-if ($arCurrentValues["USE_PLAYLIST"] == 'Y')
+if (($arCurrentValues["USE_PLAYLIST"] ?? null) == 'Y')
 	$ext = 'xml';
 elseif($type == 'flv')
 	$ext = 'flv,mp3,mp4,aac,jpg,jpeg,gif,png';
@@ -180,7 +180,7 @@ else
 
 $arParams["PATH"] = Array(
 	"PARENT" => "BASE_SETTINGS",
-	"NAME" => $arCurrentValues['USE_PLAYLIST'] != 'Y' ? GetMessage("PC_PAR_FILE_PATH") : GetMessage("PC_PAR_PLAYLIST_PATH"),
+	"NAME" => ($arCurrentValues['USE_PLAYLIST'] ?? null) != 'Y' ? GetMessage("PC_PAR_FILE_PATH") : GetMessage("PC_PAR_PLAYLIST_PATH"),
 	"TYPE" => "FILE",
 	"FD_TARGET" => "F",
 	"FD_EXT" => $ext,
@@ -191,9 +191,9 @@ $arParams["PATH"] = Array(
 	"REFRESH" => "Y"
 );
 
-if ($arCurrentValues["USE_PLAYLIST"] == 'Y')
+if (($arCurrentValues["USE_PLAYLIST"] ?? null) == 'Y')
 {
-	$bPlaylistExists = $arCurrentValues['PATH'] <> '' && file_exists($_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arCurrentValues['PATH']));
+	$bPlaylistExists = ($arCurrentValues['PATH'] ?? '') <> '' && file_exists($_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arCurrentValues['PATH']));
 	$butTitle = $bPlaylistExists ? GetMessage("PC_PAR_EDIT") : GetMessage("PC_PAR_CREATE");
 
 	$arParams["PLAYLIST_DIALOG"] = Array(
@@ -218,7 +218,7 @@ if ($arCurrentValues["USE_PLAYLIST"] == 'Y')
 
 if ($type == 'flv')
 {
-	if($arCurrentValues["USE_PLAYLIST"]!='Y')
+	if(($arCurrentValues["USE_PLAYLIST"] ?? null)!='Y')
 	{
 		$arParams["PROVIDER"] = Array(
 			"PARENT" => "BASE_SETTINGS",
@@ -260,11 +260,11 @@ if ($type == 'videojs' || $type == 'auto')
 		"DEFAULT" => "absolute",
 		"REFRESH" => "Y",
 	);
-	if ($arCurrentValues["USE_PLAYLIST"] == "Y")
+	if (($arCurrentValues["USE_PLAYLIST"] ?? null) == "Y")
 	{
 		unset ($arParams["SIZE_TYPE"]["VALUES"]["auto"]);
 	}
-	if ($arCurrentValues["SIZE_TYPE"] == "absolute" || $arCurrentValues["SIZE_TYPE"] == "")
+	if (($arCurrentValues["SIZE_TYPE"] ?? null) == "absolute" || ($arCurrentValues["SIZE_TYPE"] ?? null) == "")
 	{
 		$arParams["WIDTH"] = Array(
 			"PARENT" => "BASE_SETTINGS",
@@ -391,8 +391,10 @@ if ($type == 'flv')
 		"HIDDEN" => $hidden,
 	);
 
-	if ($arCurrentValues['SKIN_PATH'] == $defaultVideoJsSkinPath)
+	if (($arCurrentValues['SKIN_PATH'] ?? null) == $defaultVideoJsSkinPath)
+	{
 		$arCurrentValues['SKIN_PATH'] = "/bitrix/components/bitrix/player/mediaplayer/skins";
+	}
 	$arSkins = getSkinsEx($arCurrentValues['SKIN_PATH'] ? $arCurrentValues['SKIN_PATH'] : "/bitrix/components/bitrix/player/mediaplayer/skins");
 
 	$arParams["SKIN"] = Array(
@@ -433,7 +435,7 @@ if ($type == 'flv')
 		"DEFAULT" => "opaque",
 		"HIDDEN" => $hidden,
 	);
-	if ($arCurrentValues['USE_PLAYLIST'] == 'Y')
+	if (($arCurrentValues['USE_PLAYLIST'] ?? null) == 'Y')
 	{
 		$arParams["PLAYLIST"] = Array(
 			"PARENT" => "APPEARANCE",
@@ -631,7 +633,7 @@ if ($type == 'wmv')
 		"REFRESH" => "Y",
 		"HIDDEN" => $hidden,
 	);
-	if ($arCurrentValues['USE_PLAYLIST'] == 'Y')
+	if (($arCurrentValues['USE_PLAYLIST'] ?? null) == 'Y')
 	{
 		$arParams["PLAYLIST"] = Array(
 			"PARENT" => "APPEARANCE",
@@ -680,7 +682,7 @@ if ($type == 'wmv')
 		);
 	}
 
-	if ($arCurrentValues['SHOW_CONTROLS'] != 'N')
+	if (($arCurrentValues['SHOW_CONTROLS'] ?? null) != 'N')
 	{
 		$arParams["SHOW_DIGITS"] = Array(
 			"PARENT" => "APPEARANCE",
@@ -736,7 +738,7 @@ if ($type == 'videojs' || $type == 'auto')
 		"DEFAULT" => "Y",
 		"REFRESH" => "Y",
 	);
-	if ($arCurrentValues['USE_PLAYLIST'] == 'Y')
+	if (($arCurrentValues['USE_PLAYLIST'] ?? null) == 'Y')
 	{
 		$arParams['PLAYLIST_HIDE'] = Array (
 			"PARENT" => "APPEARANCE",
@@ -750,14 +752,14 @@ if ($type == 'videojs' || $type == 'auto')
 			"NAME" => GetMessage("PC_PAR_PLAYLIST_SIZE"),
 			"COLS" => 10,
 			"DEFAULT" => "190",
-			"HIDDEN" => $arCurrentValues['PLAYLIST_HIDE'] == "Y" ? "Y" : "N",
+			"HIDDEN" => ($arCurrentValues['PLAYLIST_HIDE'] ?? null) == "Y" ? "Y" : "N",
 		);
 		$arParams["PLAYLIST_NUMBER"] = Array (
 			"PARENT" => "APPEARANCE",
 			"NAME" => GetMessage("PC_PAR_PLAYLIST_NUM"),
 			"TYPE" => "STRING",
 			"DEFAULT" => 3,
-			"HIDDEN" => $arCurrentValues['PLAYLIST_HIDE'] == "Y" ? "Y" : "N",
+			"HIDDEN" => ($arCurrentValues['PLAYLIST_HIDE'] ?? null) == "Y" ? "Y" : "N",
 		);
 	}
 
@@ -772,10 +774,12 @@ if ($type == 'videojs' || $type == 'auto')
 		"HIDDEN" => $hidden,
 	);
 
-	if ($arCurrentValues['SKIN_PATH'] == "/bitrix/components/bitrix/player/mediaplayer/skins")
+	if (($arCurrentValues['SKIN_PATH'] ?? null) == "/bitrix/components/bitrix/player/mediaplayer/skins")
+	{
 		$arCurrentValues['SKIN_PATH'] = $defaultVideoJsSkinPath;
+	}
 
-	$arSkins = getSkinsEx($arCurrentValues['SKIN_PATH'] ? $arCurrentValues['SKIN_PATH'] : $defaultVideoJsSkinPath);
+	$arSkins = getSkinsEx(($arCurrentValues['SKIN_PATH'] ?? null) ?: $defaultVideoJsSkinPath);
 
 	$arParams["SKIN"] = Array(
 		"PARENT" => "APPEARANCE",
@@ -802,7 +806,7 @@ $arParams["AUTOSTART"] = Array(
 	"DEFAULT" => "N"
 );
 
-if ($arCurrentValues['AUTOSTART'] != 'Y')
+if (($arCurrentValues['AUTOSTART'] ?? null) != 'Y')
 {
 	$arParams["AUTOSTART_ON_SCROLL"] = Array(
 		"PARENT" => $playback_parent,
@@ -829,7 +833,7 @@ if ($type == 'flv')
 }
 if ($type == 'videojs' || $type == 'auto')
 {
-	if ($arCurrentValues['USE_PLAYLIST'] == "Y")
+	if (($arCurrentValues['USE_PLAYLIST'] ?? null) == "Y")
 	{
 		unset ($arParams["REPEAT"]);
 	}
@@ -850,7 +854,7 @@ if ($type == 'videojs' || $type == 'auto')
 		"DEFAULT" => "N",
 		"HIDDEN" => $hidden,
 	);
-	if ($arCurrentValues['USE_PLAYLIST'] != 'Y')
+	if (($arCurrentValues['USE_PLAYLIST'] ?? null) != 'Y')
 	{
 		$arParams["START_TIME"] = Array(
 			"PARENT" => $playback_parent,
@@ -895,7 +899,7 @@ if ($type == 'flv')
 		"HIDDEN" => $hidden,
 	);
 
-	if ($arCurrentValues['USE_PLAYLIST'] == 'Y')
+	if (($arCurrentValues['USE_PLAYLIST'] ?? null) == 'Y')
 	{
 		$arParams["SHUFFLE"] = Array(
 			"PARENT" => $playback_parent,

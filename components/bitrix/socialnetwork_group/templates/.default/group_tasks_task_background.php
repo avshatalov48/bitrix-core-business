@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
+use Bitrix\Main\UI\Extension;
 use Bitrix\Tasks\Slider\Exception\SliderException;
 use Bitrix\Tasks\Slider\Factory\SliderFactory;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
@@ -10,6 +11,16 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
+Extension::load('loader');
+?>
+	<script>
+		const target = document.querySelector('.workarea-content');
+		const loader = new BX.Loader({
+			target: target,
+		});
+		loader.show();
+	</script>
+<?php
 
 /** @global CMain $APPLICATION */
 /** @var bool $backgroundForTask */
@@ -21,6 +32,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 $APPLICATION->SetPageProperty('BodyClass', 'no-all-paddings no-background');
 $APPLICATION->SetTitle('');
+
 Toolbar::deleteFavoriteStar();
 
 if (!Loader::includeModule('tasks'))

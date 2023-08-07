@@ -419,9 +419,14 @@ $actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 <?endif;?>
 <?
 $tabControl->EndTab();
-if(!$classifierMode && !$bReadOnly)
+if (!$classifierMode)
 {
-	$tabControl->Buttons(array("back_url" => $listUrl));
+	$tabControl->Buttons([
+		'btnSave' => !$bReadOnly,
+		'btnApply' => !$bReadOnly,
+		'disabled' => false,
+		'back_url' => $listUrl,
+	]);
 }
 $tabControl->End();
 ?>

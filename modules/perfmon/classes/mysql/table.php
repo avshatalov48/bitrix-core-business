@@ -24,6 +24,7 @@ class CPerfomanceTableList extends CDBResult
 					"ENGINE_TYPE" => "",
 					"NUM_ROWS" => "",
 					"BYTES" => "",
+					"BYTES_INDEX" => "",
 				);
 			else
 				$ar = array(
@@ -31,6 +32,7 @@ class CPerfomanceTableList extends CDBResult
 					"ENGINE_TYPE" => $ar["Comment"] === "VIEW"? "VIEW": $ar["Engine"],
 					"NUM_ROWS" => $ar["Rows"],
 					"BYTES" => $ar["Data_length"],
+					"BYTES_INDEX" => $ar["Index_length"],
 				);
 		}
 		return $ar;

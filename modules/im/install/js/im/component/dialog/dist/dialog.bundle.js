@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_fonts_opensans,ui_designTokens,im_view_message,im_lib_utils,im_lib_animation,im_lib_logger,main_polyfill_intersectionobserver,ui_vue,im_const,main_core,main_core_events,ui_vue_vuex) {
 	'use strict';

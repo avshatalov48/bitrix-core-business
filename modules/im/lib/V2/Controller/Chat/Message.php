@@ -5,10 +5,14 @@ namespace Bitrix\Im\V2\Controller\Chat;
 use Bitrix\Im\Recent;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Controller\BaseController;
+use Bitrix\Im\V2\Controller\Filter\CheckMessageDisappearingDuration;
 use Bitrix\Im\V2\Entity\View\ViewCollection;
+use Bitrix\Im\V2\Message\Delete\DisappearService;
 use Bitrix\Im\V2\Message\Forward\ForwardService;
 use Bitrix\Im\V2\Message\MessageError;
 use Bitrix\Im\V2\Message\Reply\ReplyService;
+use Bitrix\Im\V2\Message\Update\UpdateService;
+use Bitrix\Im\V2\Message\Delete\DeleteService;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Message\MessageService;
 use Bitrix\Im\V2\Message\ReadService;
@@ -51,6 +55,17 @@ class Message extends BaseController
 				}
 			),
 		], parent::getAutoWiredParameters());
+	}
+
+	public function configureActions()
+	{
+		return [
+			'disappear' => [
+				'+prefilters' => [
+					new CheckMessageDisappearingDuration(),
+				]
+			],
+		];
 	}
 
 	/**
@@ -107,12 +122,12 @@ class Message extends BaseController
 	/**
 	 * @restMethod im.v2.Chat.Message.list
 	 */
-	public function listAction(Chat $chat, CurrentUser $user, int $limit = self::MESSAGE_ON_PAGE_COUNT): ?array
+	public function listAction(Chat $chat, int $limit = self::MESSAGE_ON_PAGE_COUNT): ?array
 	{
-		$startMessage = $this->getStartChatMessage($chat, $user);
-		$messages = (new MessageService())->getMessageContext($startMessage, $limit, \Bitrix\Im\V2\Message::REST_FIELDS)->getResult();
+		$messageService = new MessageService($chat->getLoadContextMessage());
+		$messages = $messageService->getMessageContext($limit, \Bitrix\Im\V2\Message::REST_FIELDS)->getResult();
 
-		return $this->fillContextPaginationData($this->toRestFormat($messages), $messages, $startMessage, $limit);
+		return $messageService->fillContextPaginationData($this->toRestFormat($messages), $messages, $limit);
 	}
 
 	/**
@@ -120,9 +135,10 @@ class Message extends BaseController
 	 */
 	public function getContextAction(\Bitrix\Im\V2\Message $message, int $range = self::MESSAGE_ON_PAGE_COUNT): ?array
 	{
-		$messages = (new MessageService())->getMessageContext($message, $range, \Bitrix\Im\V2\Message::REST_FIELDS)->getResult();
+		$messageService = new MessageService($message);
+		$messages = $messageService->getMessageContext($range, \Bitrix\Im\V2\Message::REST_FIELDS)->getResult();
 
-		return $this->fillContextPaginationData($this->toRestFormat($messages), $messages, $message, $range);
+		return $messageService->fillContextPaginationData($this->toRestFormat($messages), $messages, $range);
 	}
 
 	/**
@@ -214,67 +230,69 @@ class Message extends BaseController
 	}
 
 	/**
-	 * @restMethod im.v2.Chat.Message.reply
+	 * @restMethod im.v2.Chat.Message.delete
 	 */
-	public function replyAction(\Bitrix\Im\V2\Message $message, string $comment): ?array
+	public function deleteAction(\Bitrix\Im\V2\Message $message): ?bool
 	{
-		$service = new ReplyService();
-		$result = $service->createMessage($message, $comment);
+		$service = new DeleteService($message);
+		$service->setMode(DeleteService::MODE_AUTO);
+		$result = $service->delete();
 
-		if (!$result->hasResult())
+		if (!$result->isSuccess())
 		{
 			$this->addErrors($result->getErrors());
 
 			return null;
 		}
 
-		return $this->toRestFormat($result->getResult());
+		return true;
 	}
 
-	private function getStartChatMessage(Chat $chat, CurrentUser $user): \Bitrix\Im\V2\Message
+	/**
+	 * @restMethod im.v2.Chat.Message.disappear
+	 */
+	public function disappearAction(\Bitrix\Im\V2\Message $message, int $hours): ?bool
 	{
-		$readService = new ReadService();
-		$startMessageId =
-			Recent::getMarkedId((int)$user->getId(), $chat->getType(), $chat->getDialogId())
-				?: $readService->getLastIdByChatId($chat->getChatId())
-		;
-
-		return (new \Bitrix\Im\V2\Message($startMessageId))->setChatId($chat->getChatId());
-	}
-
-	private function getCountHigherMessages(MessageCollection $messages, int $id): int
-	{
-		$count = 0;
-
-		foreach ($messages as $message)
+		$deleteService = new DeleteService($message);
+		if ($deleteService->canDelete() < DeleteService::DELETE_HARD)
 		{
-			if ($message->getId() < $id)
-			{
-				++$count;
-			}
+			$this->addError(new MessageError(MessageError::MESSAGE_ACCESS_ERROR));
+
+			return null;
 		}
 
-		return $count;
+		$result = DisappearService::disappearMessage($message, $hours);
+
+		if (!$result->isSuccess())
+		{
+			$this->addErrors($result->getErrors());
+
+			return null;
+		}
+
+		return true;
 	}
 
-	private function getLastSelectedId(MessageCollection $messages): int
+	/**
+	 * @restMethod im.v2.Chat.Message.update
+	 */
+	public function updateAction(
+		\Bitrix\Im\V2\Message $message,
+		string $text,
+		bool $urlPreview = true
+	): ?bool
 	{
-		return max($messages->getIds() ?: [0]);
-	}
+		$result = (new UpdateService($message))
+			->setUrlPreview($urlPreview)
+			->update($text);
 
-	//todo: refactor. Change to popup data.
-	private function fillContextPaginationData(
-		array $rest,
-		MessageCollection $messages,
-		\Bitrix\Im\V2\Message $targetMessage,
-		int $range
-	): array
-	{
-		$rest['hasPrevPage'] = $this->getCountHigherMessages($messages, $targetMessage->getId() ?? 0) >= $range;
-		$lastSelectedId = $this->getLastSelectedId($messages);
-		$lastMessageIdInChat = (new ReadService())->getLastMessageIdInChat($targetMessage->getChatId());
-		$rest['hasNextPage'] = $lastSelectedId > 0 && $lastMessageIdInChat > 0 && $lastSelectedId < $lastMessageIdInChat;
+		if (!$result->isSuccess())
+		{
+			$this->addErrors($result->getErrors());
 
-		return $rest;
+			return null;
+		}
+
+		return true;
 	}
 }

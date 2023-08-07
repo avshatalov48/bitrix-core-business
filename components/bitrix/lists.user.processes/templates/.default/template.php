@@ -33,7 +33,7 @@ $jsClass = 'ListsProcessesClass_'.$randString;
 <input type="hidden" id="bx-lists-select-site" value="<?= SITE_DIR ?>" />
 <input type="hidden" id="bx-lists-select-site-id" value="<?= SITE_ID ?>" />
 <?
-if (is_array($arResult["RECORDS"]))
+if (is_array($arResult["RECORDS"] ?? null))
 {
 	foreach ($arResult["RECORDS"] as &$record)
 	{
@@ -48,7 +48,7 @@ if (is_array($arResult["RECORDS"]))
 				.(!empty($arResult["COMMENTS_COUNT"]['WF_'.$record['data']["WORKFLOW_ID"]]) ? (int) $arResult["COMMENTS_COUNT"]['WF_'.$record['data']["WORKFLOW_ID"]] : '0')
 				.'</a></div>';
 
-			$record['data']["NAME"] .= '<span class="bp-status"><span class="bp-status-inner"><span>'.htmlspecialcharsbx($record['data']["WORKFLOW_STATE"]).'</span></span></span>';
+			$record['data']["NAME"] = ($record['data']["NAME"] ?? '') . '<span class="bp-status"><span class="bp-status-inner"><span>'.htmlspecialcharsbx($record['data']["WORKFLOW_STATE"]).'</span></span></span>';
 			ob_start();
 			$APPLICATION->IncludeComponent(
 				"bitrix:bizproc.workflow.faces",
@@ -83,8 +83,8 @@ if(!IsModuleInstalled("intranet"))
 ]);
 
 $addButton = new Bitrix\UI\Buttons\AddButton([
-	'color' => \Bitrix\UI\Buttons\Color::PRIMARY,
-	'text' => Loc::getMessage("CT_BLL_BUTTON_NEW_PROCESSES"),
+	'color' => \Bitrix\UI\Buttons\Color::SUCCESS,
+	'text' => Loc::getMessage("CT_BLL_BUTTON_NEW_PROCESSES_1"),
 ]);
 
 $addButton->addAttribute('id', 'lists-title-action-add');
@@ -100,14 +100,14 @@ $APPLICATION->IncludeComponent(
 	array(
 		"GRID_ID" => $arResult["GRID_ID"],
 		"COLUMNS" => $arResult["HEADERS"],
-		"ROWS" => $arResult["RECORDS"],
+		"ROWS" => $arResult["RECORDS"] ?? [],
 		"NAV_STRING" => $arResult["NAV_STRING"],
 		"TOTAL_ROWS_COUNT" => $arResult["NAV_OBJECT"]->NavRecordCount,
 		"PAGE_SIZES" => $arResult["GRID_PAGE_SIZES"],
 		"AJAX_MODE" => "Y",
 		"AJAX_ID" => CAjax::getComponentID('bitrix:main.ui.grid', '.default', ''),
 		"ENABLE_NEXT_PAGE" => $arResult["GRID_ENABLE_NEXT_PAGE"],
-		"ACTION_PANEL" => $arResult["GRID_ACTION_PANEL"],
+		"ACTION_PANEL" => $arResult["GRID_ACTION_PANEL"] ?? null,
 		"SHOW_CHECK_ALL_CHECKBOXES" => true,
 		"SHOW_ROW_CHECKBOXES" => false,
 		"SHOW_ROW_ACTIONS_MENU" => true,

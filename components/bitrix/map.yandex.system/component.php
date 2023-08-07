@@ -4,12 +4,14 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 if (!isset($arParams['YANDEX_VERSION']))
 	$arParams['YANDEX_VERSION'] = '2.0';
 
-$arParams['DEV_MODE'] = $arParams['DEV_MODE'] == 'Y' ? 'Y' : 'N';
+$arParams['DEV_MODE'] = ($arParams['DEV_MODE'] ?? null) == 'Y' ? 'Y' : 'N';
 
-if($arParams['API_KEY'] == '')
+if(($arParams['API_KEY'] ?? null) == '')
+{
 	$arParams['API_KEY'] =  \Bitrix\Main\Config\Option::get('fileman', 'yandex_map_api_key', '');
+}
 
-if (!$arParams['LOCALE'])
+if (!($arParams['LOCALE'] ?? null))
 {
 	switch (LANGUAGE_ID)
 	{
@@ -104,8 +106,10 @@ else
 {
 	foreach ($arParams['CONTROLS'] as $key => $control)
 	{
-		if (!$arResult['ALL_MAP_CONTROLS'][$control])
+		if (!($arResult['ALL_MAP_CONTROLS'][$control] ?? null))
+		{
 			unset($arParams['CONTROLS'][$key]);
+		}
 	}
 
 	$arParams['CONTROLS'] = array_values($arParams['CONTROLS']);

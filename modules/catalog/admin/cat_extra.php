@@ -218,7 +218,7 @@ while ($arExtra = $dbResultList->NavNext(false))
 	$arActions = array();
 	$arActions[] = array(
 		"ICON" => "edit",
-		"TEXT" => GetMessage("CEN_UPDATE_ALT"),
+		"TEXT" => $bReadOnly ? GetMessage('CEN_VIEW_ALT') : GetMessage('CEN_UPDATE_ALT'),
 		"LINK" => $editUrl,
 		"DEFAULT" => true
 	);

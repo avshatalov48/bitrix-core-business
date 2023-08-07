@@ -35,14 +35,14 @@
 }
 
 .bx-im-edit-message__title {
-	font: 13/16 var(--im-font-family-system);
+	font: 13px/16px var(--im-font-family-system);
 	font-weight: var(--im-font-weight-semi-bold);
 	color: var(--im-textarea__font-color_edit-title);
 	margin-bottom: 2px;
 }
 
 .bx-im-edit-message__text {
-	font: 13/18 var(--im-font-family-system);
+	font: 13px/18px var(--im-font-family-system);
 	color: var(--im-textarea__font-color_edit-text);
 	text-overflow: ellipsis;
 	overflow: hidden;

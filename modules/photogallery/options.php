@@ -14,10 +14,10 @@ if ($RIGHTS > "D"):
 	while($res = $db_res->Fetch())
 		$arLangs[$res["LID"]] = $res;
 	//*****************************************************************************************************************
-	if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="") && ($RIGHTS>="W") && check_bitrix_sessid())
+	if($REQUEST_METHOD == "POST" && (($save ?? null) != "" || ($apply ?? null) !="") && ($RIGHTS>="W") && check_bitrix_sessid())
 	{
 		$arSights = array();
-		if (is_array($_REQUEST["CODE"]))
+		if (is_array($_REQUEST["CODE"] ?? null))
 		{
 			foreach ($_REQUEST["CODE"] as $key => $val)
 			{
@@ -25,12 +25,12 @@ if ($RIGHTS > "D"):
 				if (preg_match("/[0-9]/", mb_substr($val, 0, 1), $matches))
 					continue;
 
-				if (!empty($val) && intval($_REQUEST["SIZE"][$key]) > 0 && ($_REQUEST["DROP"][$key] != "Y"))
+				if (!empty($val) && intval($_REQUEST["SIZE"][$key] ?? null) > 0 && (($_REQUEST["DROP"][$key] ?? null) != "Y"))
 				{
 					$_REQUEST["SIGHTS"][$key] = (empty($_REQUEST["SIGHTS"][$key]) ? $val : $_REQUEST["SIGHTS"][$key]);
 					$arSights[] = array(
 						"size" => intval($_REQUEST["SIZE"][$key]),
-						"quality" => (intval($_REQUEST["QUALITY"][$key]) <= 0 ? 95 : intval($_REQUEST["QUALITY"][$key])),
+						"quality" => (intval($_REQUEST["QUALITY"][$key] ?? null) <= 0 ? 95 : intval($_REQUEST["QUALITY"][$key])),
 						"title" => $_REQUEST["SIGHTS"][$key],
 						"code" =>  $val);
 				}
@@ -47,7 +47,7 @@ if ($RIGHTS > "D"):
 	}
 	//*****************************************************************************************************************
 ?><form method="POST" action="<?=$APPLICATION->GetCurPage()?>?mid=photogallery&lang=<?=LANGUAGE_ID?>" id="FORMACTION">
-<input type="hidden" name="back_url" value="<?=htmlspecialcharsbx($back_url)?>" />
+<input type="hidden" name="back_url" value="<?=htmlspecialcharsbx($back_url ?? null)?>" />
 <?=bitrix_sessid_post()?><?
 
 $aTabs = array(array("DIV" => "edit1", "TAB" => GetMessage("MAIN_TAB_SET"), "TITLE" => GetMessage("MAIN_TAB_TITLE_SET")));

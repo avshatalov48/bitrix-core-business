@@ -29,10 +29,10 @@ if (!CModule::IncludeModule("socialnetwork"))
 }
 
 $arParams["MESSAGE_COUNT"] = intval($arParams["MESSAGE_COUNT"])>0 ? intval($arParams["MESSAGE_COUNT"]): 20;
-$arParams["SORT_BY1"] = ($arParams["SORT_BY1"] <> '' ? $arParams["SORT_BY1"] : "DATE_PUBLISH");
-$arParams["SORT_ORDER1"] = ($arParams["SORT_ORDER1"] <> '' ? $arParams["SORT_ORDER1"] : "DESC");
-$arParams["SORT_BY2"] = ($arParams["SORT_BY2"] <> '' ? $arParams["SORT_BY2"] : "ID");
-$arParams["SORT_ORDER2"] = ($arParams["SORT_ORDER2"] <> '' ? $arParams["SORT_ORDER2"] : "DESC");
+$arParams["SORT_BY1"] = (($arParams["SORT_BY1"] ?? '') <> '' ? $arParams["SORT_BY1"] : "DATE_PUBLISH");
+$arParams["SORT_ORDER1"] = (($arParams["SORT_ORDER1"] ?? '') <> '' ? $arParams["SORT_ORDER1"] : "DESC");
+$arParams["SORT_BY2"] = (($arParams["SORT_BY2"] ?? '') <> '' ? $arParams["SORT_BY2"] : "ID");
+$arParams["SORT_ORDER2"] = (($arParams["SORT_ORDER2"] ?? '') <> '' ? $arParams["SORT_ORDER2"] : "DESC");
 
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
@@ -41,7 +41,7 @@ foreach($arParams["GROUP_ID"] as $k=>$v)
 		unset($arParams["GROUP_ID"][$k]);
 
 $arParams["USER_ID"] = intval($arParams["USER_ID"]);
-$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
+$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"] ?? null);
 
 $arParams["POST_PROPERTY"] = array(/*"UF_BLOG_POST_FILE", */"UF_BLOG_POST_DOC");
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
@@ -52,6 +52,11 @@ CRatingsComponentsMain::GetShowRating($arParams);
 $arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
 
 CpageOption::SetOptionString("main", "nav_page_in_session", "N");
+
+$arParams["BLOG_VAR"] = $arParams["BLOG_VAR"] ?? '';
+$arParams["PAGE_VAR"] = $arParams["PAGE_VAR"] ?? '';
+$arParams["USER_VAR"] = $arParams["USER_VAR"] ?? '';
+$arParams["POST_VAR"] = $arParams["POST_VAR"] ?? '';
 
 if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";

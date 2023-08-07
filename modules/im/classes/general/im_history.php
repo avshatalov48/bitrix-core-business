@@ -744,7 +744,19 @@ class CIMHistory
 		}
 
 		if (!$bTimeZone)
+		{
 			CTimeZone::Disable();
+		}
+
+		$lineId = 0;
+		if (
+			$chatData['TYPE'] == IM_MESSAGE_OPEN_LINE
+			&& \Bitrix\Main\Loader::includeModule('imopenlines')
+		)
+		{
+			$lineId = \Bitrix\ImOpenLines\Chat::parseLinesChatEntityId($chatData['ENTITY_ID'])['lineId'];
+		}
+
 		if ($chatData['TYPE'] == IM_MESSAGE_OPEN)
 		{
 			$strCountSql ="
@@ -771,7 +783,11 @@ class CIMHistory
 				ORDER BY M.DATE_CREATE DESC, M.ID DESC
 			";
 		}
-		else if ($chatData['TYPE'] == IM_MESSAGE_OPEN_LINE && \Bitrix\Main\Loader::includeModule('imopenlines') && \Bitrix\ImOpenLines\Config::canJoin($chatId))
+		elseif (
+			$chatData['TYPE'] == IM_MESSAGE_OPEN_LINE
+			&& \Bitrix\Main\Loader::includeModule('imopenlines')
+			&& \Bitrix\ImOpenLines\Config::canJoin($lineId)
+		)
 		{
 			$strCountSql ="
 				SELECT COUNT(M.ID) as CNT
@@ -1068,6 +1084,7 @@ class CIMHistory
 				'ID','DATE_CREATE', 'CHAT_ID', 'AUTHOR_ID',
 				'CHAT_TYPE' => 'CHAT.TYPE',
 				'CHAT_ENTITY_TYPE' => 'CHAT.ENTITY_TYPE',
+				'CHAT_ENTITY_ID' => 'CHAT.ENTITY_ID',
 				'CHAT_ENTITY_DATA_1' => 'CHAT.ENTITY_DATA_1',
 			),
 			'filter' => Array(
@@ -1091,7 +1108,9 @@ class CIMHistory
 				$crmEntityType = ($explodeData[0] == 'Y') ? $explodeData[1] : null;
 				$crmEntityId = ($explodeData[0] == 'Y') ? intval($explodeData[2]) : null;
 
-				if (!\Bitrix\ImOpenLines\Config::canJoin($message['CHAT_ID'], $crmEntityType, $crmEntityId))
+				$lineId = \Bitrix\ImOpenLines\Chat::parseLinesChatEntityId($message['CHAT_ENTITY_ID'])['lineId'];
+
+				if (!\Bitrix\ImOpenLines\Config::canJoin($lineId, $crmEntityType, $crmEntityId))
 				{
 					return false;
 				}

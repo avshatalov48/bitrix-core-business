@@ -4739,7 +4739,8 @@ function __run()
 			}
 			else
 			{
-				var text = BX.util.trim(this.editor.selection.GetText());
+				this.savedRange = this.editor.selection.TrimRange();
+				const text = this.editor.selection.GetText();
 				if (text && text != this.editor.INVISIBLE_SPACE)
 				{
 					values.text = text;
@@ -5189,7 +5190,7 @@ function __run()
 			title = this.pTitle.value,
 			width = parseInt(this.pWidth.value) || 100,
 			height = parseInt(this.pHeight.value) || 100,
-			mimeType = this.data.mimeType || '';
+			mimeType = this.data?.mimeType || '';
 
 		if (this.pSize.value !== '')
 		{

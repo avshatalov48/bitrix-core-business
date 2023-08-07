@@ -346,7 +346,7 @@ class Icon
 							$classPrefix = $iconVendorsConfig[$vendorName]['class_prefix'];
 						}
 						$found = preg_match_all(
-							'/.(' . $classPrefix . '-[^:]+):{1,2}before\s*{\s*content:\s*"([^"]+)";\s*}/',
+							'/\.(' . $classPrefix . '-[^:]+):{1,2}before\s*{\s*content:\s*["\']((?:\\\\.|[^\\\\])*?)["\'];\s*}/',
 							$cssContent,
 							$matches
 						);

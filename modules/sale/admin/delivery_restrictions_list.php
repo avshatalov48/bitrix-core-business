@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Bitrix\Sale\Delivery\AdminPage\DeliveryRestrictions
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/delivery/inputs.php");
@@ -18,22 +18,23 @@ namespace Bitrix\Sale\Delivery\AdminPage\DeliveryRestrictions
 		$APPLICATION->AuthForm(Loc::getMessage("SALE_ESDL_ACCESS_DENIED"));
 
 	/**
-	 * @var CDatabase $DB
-	 * @var CMain  $APPLICATION
+	 * @var \CDatabase $DB
+	 * @var \CMain  $APPLICATION
 	 */
 
 	use Bitrix\Main\Localization\Loc;
 	use Bitrix\Sale\Delivery\Restrictions;
-	use Bitrix\Sale\Delivery\Services;
 	use Bitrix\Sale\Internals\Input;
 
 	Loc::loadMessages(__FILE__);
+
+	$urlPublicMode = (($adminPage->publicMode || $adminSidePanelHelper->isPublicSidePanel()) ? 'Y' : 'N');
 
 	$ID = intval($_GET['ID']);
 	$tableId = 'table_delivery_restrictions';
 	$oSort = new \CAdminSorting($tableId);
 	$lAdmin = new \CAdminList($tableId, $oSort);
- 	$restrictionClassNames = Restrictions\Manager::getClassesList();
+	$restrictionClassNames = Restrictions\Manager::getClassesList();
 
 	$res = \Bitrix\Sale\Internals\ServiceRestrictionTable::getList(array(
 		'filter' => array(
@@ -108,7 +109,7 @@ namespace Bitrix\Sale\Delivery\AdminPage\DeliveryRestrictions
 		foreach($paramsStructure as $name => $params)
 		{
 			$paramsField .= (isset($params["LABEL"]) && $params["LABEL"] <> '' ? $params["LABEL"].": " : "").
-				Input\Manager::getViewHtml($params, (isset($record["PARAMS"][$name]) ? $record["PARAMS"][$name] : null)).
+				Input\Manager::getViewHtml($params, ($record["PARAMS"][$name] ?? null)).
 				"<br>";
 		}
 
@@ -123,11 +124,12 @@ namespace Bitrix\Sale\Delivery\AdminPage\DeliveryRestrictions
 				"ACTION" => $editAction,
 				"DEFAULT" => true
 			);
+
 			$arActions[] = array("SEPARATOR" => true);
 			$arActions[] = array(
 				"ICON" => "delete",
 				"TEXT" => Loc::getMessage("SALE_RDL_DELETE"),
-				"ACTION" => "javascript:if(confirm('".Loc::getMessage("SALE_RDL_CONFIRM_DEL_MESSAGE")."')) BX.Sale.Delivery.deleteRestriction(".$record["ID"].",".$ID.");"
+				"ACTION" => "javascript:if(confirm('".Loc::getMessage("SALE_RDL_CONFIRM_DEL_MESSAGE")."')) BX.Sale.Delivery.deleteRestriction(".$record["ID"].",".$ID.", '" . $urlPublicMode . "');"
 			);
 
 			$row->AddActions($arActions);
@@ -153,7 +155,7 @@ namespace Bitrix\Sale\Delivery\AdminPage\DeliveryRestrictions
 				"ACTION" => "BX.Sale.Delivery.getRestrictionParamsHtml({".
 					"class: '".\CUtil::JSEscape($class).
 					"',deliveryId: ".$ID.
-					",publicMode: '".(($adminPage->publicMode || $adminSidePanelHelper->isPublicSidePanel()) ? 'Y' : 'N') . "'".
+					",publicMode: '" . $urlPublicMode . "'".
 					",title: '".$classTitle.
 					"',lang: '".LANGUAGE_ID."'".
 				"});"

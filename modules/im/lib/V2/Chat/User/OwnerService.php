@@ -3,6 +3,7 @@ namespace Bitrix\Im\V2\Chat\User;
 
 use Bitrix\Im\Model\ChatTable;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Main\UserAccessTable;
 use Bitrix\Main\UserTable;
 
 class OwnerService
@@ -46,10 +47,10 @@ class OwnerService
 				],
 				'LIMIT' => 1
 			]);
-			if ($ownerRelation->current())
+			if ($ownerRelation->getIterator()->current())
 			{
-				$ownerRelation->current()->setManager(false);
-				$ownerRelation->current()->save();
+				$ownerRelation->getIterator()->current()->setManager(false);
+				$ownerRelation->getIterator()->current()->save();
 			}
 
 			$relations = $chat->getRelations([
@@ -108,6 +109,83 @@ class OwnerService
 				ConvertTimeStamp(time() + \CTimeZone::GetOffset() + self::DELAY_AFTER_USER_FIRED * $key, "FULL")
 			);
 		}
+
+		return '';
+	}
+
+	public static function migrateOwnershipOfGeneralChatAgent(): string
+	{
+		$generalChatId = \COption::GetOptionInt('im', 'general_chat_id');
+		if (!$generalChatId)
+		{
+			return '';
+		}
+
+		$oldChat = Chat\ChatFactory::getInstance()->getChatById($generalChatId);
+		if ($oldChat instanceof Chat\NullChat)
+		{
+			return '';
+		}
+
+		$oldChat
+			->setType(Chat::IM_TYPE_OPEN)
+			->setEntityType(Chat::ENTITY_TYPE_GENERAL)
+			->save();
+
+		$generalChat = Chat\ChatFactory::getInstance()->getGeneralChat();
+		if (!$generalChat || $generalChat instanceof Chat\NullChat)
+		{
+			return '';
+		}
+
+		$canPostAll = (\COption::GetOptionString('im', 'allow_send_to_general_chat_all', 'Y') === 'Y');
+		if ($canPostAll)
+		{
+			$generalChat
+				->setCanPost(Chat::MANAGE_RIGHTS_ALL)
+				->save();
+
+			return '';
+		}
+
+		$chatRights = \COption::GetOptionString('im', 'allow_send_to_general_chat_rights');
+		if (!$chatRights)
+		{
+			return '';
+		}
+
+		$users = UserAccessTable::getList([
+			'select' => [
+				'USER_ID'
+			],
+			'filter' => [
+				'=ACCESS_CODE' => explode(',', $chatRights)
+			],
+			'group' => [
+				'USER_ID'
+			]
+		])->fetchAll();
+
+		if (!$users)
+		{
+			return '';
+		}
+
+		$userIds = array_column($users, 'USER_ID');
+
+		$relations = $generalChat->getRelations();
+		foreach ($relations as $relation)
+		{
+			if (in_array($relation->getUserId(), $userIds))
+			{
+				$relation->setManager(true);
+				$relation->save();
+			}
+		}
+
+		$generalChat
+			->setCanPost(Chat::MANAGE_RIGHTS_MANAGERS)
+			->save();
 
 		return '';
 	}

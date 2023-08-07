@@ -39,6 +39,8 @@ class SegmentDataBuilder
 	 */
 	private $filterId;
 
+	private ?int $groupStateId;
+
 	private $endpoint;
 
 	private $dataFilter = [];
@@ -63,11 +65,45 @@ class SegmentDataBuilder
 	 * @param string $filterId
 	 * @param array $endpoint
 	 */
-	public function __construct(int $groupId, string $filterId, array $endpoint = [])
+	public function __construct(
+		int $groupId,
+		string $filterId,
+		array $endpoint = [],
+		?int $groupStateId = null
+	)
 	{
 		$this->groupId = $groupId;
 		$this->filterId = $filterId;
 		$this->endpoint = $endpoint;
+		$this->groupStateId = $groupStateId;
+	}
+
+	private static function checkBlockers()
+	{
+		$query = "
+SELECT b.ID, b.GROUP_ID
+FROM b_sender_group_state b
+INNER JOIN (
+    SELECT GROUP_ID, FILTER_ID
+    FROM b_sender_group_state
+    GROUP BY GROUP_ID, FILTER_ID
+    HAVING COUNT(*) > 1
+) d ON b.GROUP_ID = d.GROUP_ID AND b.FILTER_ID = d.FILTER_ID;
+";
+
+		$dbResult = \Bitrix\Main\Application::getConnection()->query($query);
+		$groups = [];
+		while ($row = $dbResult->fetch()) {
+			$groupId = $row['GROUP_ID'];
+			if (in_array($groupId, $groups))
+			{
+				continue;
+			}
+			$id = $row['ID'];
+			GroupStateTable::delete($id);
+			$groups[] = $groupId;
+			Runtime\SegmentDataClearJob::addEventAgent($groupId);
+		}
 	}
 
 	/**
@@ -80,15 +116,19 @@ class SegmentDataBuilder
 	{
 		$groupState = GroupStateTable::getList(
 			[
-				'filter' => [
-					'=FILTER_ID' => $this->filterId,
-					'=GROUP_ID'  => $this->groupId,
-				]
+				'filter' => $this->groupStateId
+					? [
+						'=ID' => $this->groupStateId
+					]
+					: [
+						'=FILTER_ID' => $this->filterId,
+						'=GROUP_ID'  => $this->groupId,
+					]
 			]
 		)->fetch();
 
 
-		return $groupState ? $groupState : $this->createGroupState();
+		return $groupState ?: $this->createGroupState();
 	}
 	/**
 	 * @return array|bool|false
@@ -358,7 +398,7 @@ class SegmentDataBuilder
 			];
 
 			GroupStateTable::deleteList($filter);
-			SegmentDataTable::deleteList($filter);
+			Runtime\SegmentDataClearJob::addEventAgent($groupId);
 		}
 	}
 
@@ -445,6 +485,11 @@ class SegmentDataBuilder
 		$groupState = $this->getCurrentGroupState();
 
 		if (!$groupState)
+		{
+			return true;
+		}
+
+		if ($this->isBuildingCompleted())
 		{
 			return true;
 		}
@@ -770,7 +815,8 @@ class SegmentDataBuilder
 		$segmentBuilder = new SegmentDataBuilder(
 			(int)$groupState['GROUP_ID'],
 			$groupState['FILTER_ID'],
-			json_decode($groupState['ENDPOINT'], true)
+			json_decode($groupState['ENDPOINT'], true),
+			$groupState['ID']
 		);
 
 		if (!$segmentBuilder->buildData($perPage))
@@ -1029,6 +1075,7 @@ class SegmentDataBuilder
 
 	public static function checkNotCompleted(): string
 	{
+		self::checkBlockers();
 		$groupStateList = GroupStateTable::getList([
 			'select' => [
 				'GROUP_ID',

@@ -41,7 +41,7 @@ abstract class Mailbox
 	 * @return \Bitrix\Mail\Helper\Mailbox|false
 	 * @throws \Exception
 	 */
-	public static function createInstance($id, $throw = true)
+	public static function createInstance($id, $throw = true): Mailbox|bool
 	{
 		return static::rawInstance(array('=ID' => (int) $id, '=ACTIVE' => 'Y'), $throw);
 	}
@@ -294,6 +294,30 @@ abstract class Mailbox
 		return $this->mailbox;
 	}
 
+	public function getMailboxId(): int
+	{
+		$mailbox = self::getMailbox();
+
+		if (isset($mailbox['ID']))
+		{
+			return (int) $mailbox['ID'];
+		}
+
+		return 0;
+	}
+
+	public function getMailboxOwnerId(): int
+	{
+		$mailbox = self::getMailbox();
+
+		if (isset($mailbox['USER_ID']))
+		{
+			return (int) $mailbox['USER_ID'];
+		}
+
+		return 0;
+	}
+
 	/*
 	Additional check that the quota has not been exceeded
 	since the actual creation of the mailbox instance in php
@@ -415,7 +439,7 @@ abstract class Mailbox
 			Setting a new time for an attempt to synchronize the mailbox
 			through the agent for users with a free tariff
 		*/
-		if (!LicenseManager::isSyncAvailable())
+		if (!LicenseManager::isSyncAvailable() || !LicenseManager::checkTheMailboxForSyncAvailability($this->mailbox['ID']))
 		{
 			$this->mailbox['OPTIONS']['next_sync'] = time() + 3600 * 24;
 
@@ -1837,5 +1861,41 @@ abstract class Mailbox
 	final public static function getTimeout()
 	{
 		return min(max(0, ini_get('max_execution_time')) ?: static::SYNC_TIMEOUT, static::SYNC_TIMEOUT);
+	}
+
+	final public static function getForUserByEmail($email)
+	{
+		$mailbox = Mail\MailboxTable::getUserMailboxWithEmail($email);
+		if (isset($mailbox['EMAIL']))
+		{
+			return static::createInstance($mailbox['ID'], false);
+		}
+
+		return null;
+	}
+
+	final public static function findBy($id, $email): ?Mailbox
+	{
+		$instance = null;
+
+		if ($id > 0)
+		{
+			if ($mailbox = Mail\MailboxTable::getUserMailbox($id))
+			{
+				$instance = static::createInstance($mailbox['ID'], false);
+			}
+		}
+
+		if (!empty($email) && empty($instance))
+		{
+			$instance = static::getForUserByEmail($email);
+		}
+
+		if (!empty($instance))
+		{
+			return $instance;
+		}
+
+		return null;
 	}
 }

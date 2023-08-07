@@ -25,7 +25,6 @@ Loc::loadMessages(__FILE__);
 final class UseStore
 {
 	protected const CATEGORY_NAME = "use_store";
-	protected const OPTION_NAME = "catalog.warehouse.master.clear";
 
 	protected const STORE_WILDBERRIES = "WILDBERRIES";
 	protected const STORE_SBERMEGAMARKET = "SBERMEGAMARKET";
@@ -134,7 +133,6 @@ final class UseStore
 		self::registerEventsHandlers();
 
 		self::showEntityProductGridColumns();
-		self::setNeedShowSlider(false);
 
 		return true;
 	}
@@ -169,7 +167,6 @@ final class UseStore
 		self::installRealizationDocumentTradingPlatform();
 
 		self::showEntityProductGridColumns();
-		self::setNeedShowSlider(false);
 
 		return true;
 	}
@@ -262,7 +259,6 @@ final class UseStore
 			self::disableQuantityTraceSets();
 		}
 
-		self::clearNeedShowSlider();
 		self::deactivateRealizationDocumentTradingPlatform();
 
 		self::unRegisterEventsHandlers();
@@ -847,45 +843,9 @@ final class UseStore
 		}
 	}
 
-	public static function setNeedShowSlider($need)
-	{
-		$disabled = !(bool)$need;
-
-		$currentUser = CurrentUser::get();
-		\CUserOptions::SetOption(
-			self::CATEGORY_NAME,
-			self::OPTION_NAME,
-			$disabled,
-			false,
-			(int)$currentUser->getId()
-		);
-	}
-
 	public static function needShowSlider(): bool
 	{
-		$currentUser = CurrentUser::get();
-		if (self::isUsed())
-		{
-			return false;
-		}
-
-		return \CUserOptions::GetOption(
-			self::CATEGORY_NAME,
-			self::OPTION_NAME,
-			false,
-			(int)$currentUser->getId()
-		) === false;
-	}
-
-	public static function clearNeedShowSlider()
-	{
-		$currentUser = CurrentUser::get();
-		\CUserOptions::DeleteOption(
-			self::CATEGORY_NAME,
-			self::OPTION_NAME,
-			false,
-			(int)$currentUser->getId()
-		);
+		return !self::isUsed();
 	}
 
 	public static function isPortal(): bool

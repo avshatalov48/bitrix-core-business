@@ -20,6 +20,7 @@ export type OnDialogInitedEvent = {
 export type InsertTextEvent = {
 	text: string,
 	withNewLine?: boolean
+	replace?: boolean
 };
 
 export type InsertMentionEvent = {

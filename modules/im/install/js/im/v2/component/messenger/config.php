@@ -23,6 +23,7 @@ return [
 		'im.v2.const',
 		'im.v2.lib.call',
 		'im.v2.lib.theme',
+		'im.v2.lib.desktop',
 		'ui.fonts.opensans',
 	],
 	'skip_core' => true,

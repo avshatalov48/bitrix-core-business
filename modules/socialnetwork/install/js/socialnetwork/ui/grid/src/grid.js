@@ -100,7 +100,6 @@ export class Grid
 
 			this.removeItem(lastRowId);
 			Dom.remove(this.getRowNodeById(lastRowId));
-			this.showMoreButton();
 		}
 
 		this.hideStub();
@@ -309,15 +308,4 @@ export class Grid
 	{
 		this.getGrid().hideEmptyStub();
 	}
-
-	showMoreButton()
-	{
-		this.getGrid().getMoreButton().getNode().style.display = 'inline-block';
-	}
-
-	hideMoreButton()
-	{
-		this.getGrid().getMoreButton().getNode().style.display = 'none';
-	}
-
 }

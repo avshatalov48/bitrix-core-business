@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 (function (exports,im_lib_logger,main_core_events,im_lib_utils,ui_vue,ui_vue_vuex,main_core,im_const) {

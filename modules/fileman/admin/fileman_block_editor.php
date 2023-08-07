@@ -10,7 +10,7 @@ if(!Loader::includeModule("fileman"))
 	ShowError(Loc::getMessage("MAIN_MODULE_NOT_INSTALLED"));
 }
 
-/** @var CAllMain $APPLICATION Application. */
+/** @var CMain $APPLICATION Application. */
 $modulePermission = $APPLICATION->GetGroupRight("fileman");
 if($modulePermission == "D")
 {

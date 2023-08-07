@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Sale;
+
 IncludeModuleLangFile(__FILE__);
 
 /***********************************************************************/
@@ -426,21 +428,7 @@ class CAllSaleRecurring
 				$DB->StartTransaction();
 
 				// Saving
-				$arSaleUser = CSaleUser::GetList(Array(), Array("USER_ID" => $arOrder["USER_ID"]));
-				if(!empty($arSaleUser))
-				{
-					$currentFUser = $arSaleUser["ID"];
-				}
-				else
-				{
-					$currentFUser = CSaleUser::_Add(
-							array(
-									"=DATE_INSERT" => $DB->GetNowFunction(),
-									"=DATE_UPDATE" => $DB->GetNowFunction(),
-									"USER_ID" => $arOrder["USER_ID"]
-								)
-						);
-				}
+				$currentFUser = Sale\Fuser::getIdByUserId((int)$arOrder['USER_ID']);
 
 				$arFields = array(
 						"FUSER_ID" => $currentFUser,

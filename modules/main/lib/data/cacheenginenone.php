@@ -1,7 +1,7 @@
 <?php
 namespace Bitrix\Main\Data;
 
-class CacheEngineNone implements ICacheEngine, ICacheEngineStat
+class CacheEngineNone implements CacheEngineInterface, CacheEngineStatInterface
 {
 	public function getReadBytes()
 	{

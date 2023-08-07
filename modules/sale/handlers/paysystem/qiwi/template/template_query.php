@@ -4,16 +4,25 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Application,
 	Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
 
 Loc::loadMessages(__FILE__);
+Loc::loadMessages(__DIR__ . '/template.php');
+
 $messages = Loc::loadLanguageFile(__FILE__);
 ?>
 
 <div class="mb-4" id="paysystem-qiwi">
 	<?php if ($params['BUYER_PERSON_PHONE']):?>
 		<div class="alert alert-danger mb-3"><?=Loc::getMessage("SALE_HPS_QIWI_INCORRECT_PHONE_NUMBER")?></div>
-		<div class="mb-1"><?=htmlspecialcharsbx(Loc::getMessage("SALE_HPS_QIWI_INPUT_PHONE"))?></div>
 	<?php endif;?>
+	<?=Loc::getMessage("SALE_HPS_QIWI_SUMM_TO_PAY")?>:
+	<?php if (Loader::includeModule("currency")):?>
+		<strong class="mb-3 strong-value"><?=CCurrencyLang::CurrencyFormat($params['PAYMENT_SHOULD_PAY'], $params['PAYMENT_CURRENCY'], true);?></strong>
+	<?php else:?>
+		<strong><?=htmlspecialcharsbx($params['SHOULD_PAY']);?> <?=htmlspecialcharsbx($params['CURRENCY'])?></strong>
+	<?php endif;?>
+	<div class="mb-3"><?=htmlspecialcharsbx(Loc::getMessage("SALE_HPS_QIWI_INPUT_PHONE"))?></div>
 	<form id="paysystem-qiwi-form">
 		<fieldset class="form-group">
 			<input type="text" name="NEW_PHONE" style="max-width: 300px;" value="+7" placeholder="+7" class="form-control js-paysystem-qiwi-input-phone"/>

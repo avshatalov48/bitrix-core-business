@@ -114,7 +114,7 @@ class Dialog
 				return false;
 			}
 		}
-		else if (preg_match('/^crm[0-9]{1,}$/i', $dialogId))
+		else if (preg_match('/^crm\|\w+?\|\d+?$/i', $dialogId))
 		{
 			$chatId = \CIMChat::GetCrmChatId(mb_substr($dialogId, 4));
 		}

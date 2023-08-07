@@ -95,13 +95,7 @@ $MESS["PERFMON_PANEL_WARN_NOTE_1"] = "1. Отсутствие кеширован
 $MESS["PERFMON_PANEL_WARN_NOTE_2"] = "2. При включенном автокешировании компоненты не должны выполнять запросы к базе данных. Убедитесь, что в настройках указанного компонента включено кеширование или обратитесь к разработчику компонента для исправления.";
 $MESS["PERFMON_PANEL_WARN_NOTE_3"] = "3. Неэффективное создание больших файлов кеша компонентов. Размер файла кеша не должен превышать одного мегабайта. Убедитесь, что в компоненте используется вызов метода SetResultCacheKeys и не выбираются неиспользуемые данные.";
 $MESS["PERFMON_PANEL_CACHE_STORAGE"] = "Хранение кеша";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_UNKNOWN"] = "не известно";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_MEMCACHE"] = "memcache";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_APC"] = "APC";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_XCACHE"] = "XCache";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_FILES"] = "Файлы";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_CLUSTER"] = "memcache в кластере";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_REC"] = "Возможные типы хранения:<ul style=\"font-size:100%\"><li>Файлы</li><li>memcached</li><li>eAccelerator</li><li>APC</li><li>XCache</li></ul><a href=\"http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=43&amp;LESSON_ID=2795#cache\">Инструкция по настройке.</a>";
+$MESS["PERFMON_PANEL_CACHE_STORAGE_REC"] = "Возможные типы хранения:<ul style=\"font-size:100%\"><li>Файлы</li><li>memcached</li><li>redis</li><li>APCu</li></ul><a href=\"http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=43&amp;LESSON_ID=2795#cache\">Инструкция по настройке.</a>";
 $MESS["PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS"] = "Фиксация числа показов баннеров";
 $MESS["PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS_ON"] = "Включена и есть баннеры с фиксацией";
 $MESS["PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS_OFF"] = "Выключена или нет баннеров с фиксацией";

@@ -1100,7 +1100,7 @@ else
 								"bitrix:system.field.view",
 								$arPostField["USER_TYPE"]["USER_TYPE_ID"],
 								[
-									"LAZYLOAD" => $arParams["LAZYLOAD"],
+									"LAZYLOAD" => $arParams["LAZYLOAD"] ?? null,
 									"DISABLE_LOCAL_EDIT" => $arResult["bPublicPage"],
 									"VIEW_MODE" => ($arResult["bFromList"] ? "BRIEF" : "EXTENDED"),
 									"arUserField" => $arPostField,

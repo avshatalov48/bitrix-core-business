@@ -213,7 +213,7 @@ class CArchiver implements IBXArchive
 		//files and directory scan
 		while ($j++ < count($arFileList) && ($this->tempres === "started"))
 		{
-			$strFilename = $arFileList[$j];
+			$strFilename = $arFileList[$j] ?? '';
 
 			if ($this->_normalizePath($strFilename) == $this->_normalizePath($this->_strArchiveName))
 				continue;

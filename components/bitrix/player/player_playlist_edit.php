@@ -25,7 +25,6 @@ $arTracks = Array();
 /* * * * * * * * * * * * * * POST * * * * * * * * * * * * * */
 if($REQUEST_METHOD=="POST" && $_REQUEST['save'] == 'Y')
 {
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/xml.php");
 	$objXML = new CDataXML();
 
 	$xmlsrc = '<?xml version="1.0" encoding="UTF-8"?>
@@ -89,7 +88,6 @@ if($REQUEST_METHOD=="POST" && $_REQUEST['save'] == 'Y')
 
 if (!$bCreate && !isset($_REQUEST['save']))
 {
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/xml.php");
 	$bIncorrectFormat = false;
 	$handle = fopen($abs_path, "r");
 	$size = filesize($abs_path);

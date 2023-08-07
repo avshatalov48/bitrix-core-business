@@ -3,7 +3,7 @@ if (!CModule::IncludeModule("photogallery"))
 	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
 elseif (!IsModuleInstalled("iblock"))
 	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
-elseif ($arParams["BEHAVIOUR"] == "USER" && empty($arParams["USER_ALIAS"]))
+elseif (($arParams["BEHAVIOUR"] ?? null) == "USER" && empty($arParams["USER_ALIAS"]))
 	return ShowError(GetMessage("P_GALLERY_EMPTY"));
 
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
@@ -12,25 +12,25 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 ********************************************************************/
 
 //***************** BASE *******************************************/
-	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
-	$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
-	$arParams["BEHAVIOUR"] = ($arParams["BEHAVIOUR"] == "USER" ? "USER" : "SIMPLE");
-	$arParams["USER_ALIAS"] = preg_replace("/[^a-z0-9\_]+/is" , "", $arParams["USER_ALIAS"]);
-	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
+	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"] ?? '');
+	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"] ?? 0);
+	$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"] ?? 0);
+	$arParams["BEHAVIOUR"] = (($arParams["BEHAVIOUR"] ?? null) == "USER" ? "USER" : "SIMPLE");
+	$arParams["USER_ALIAS"] = preg_replace("/[^a-z0-9\_]+/is" , "", $arParams["USER_ALIAS"] ?? '');
+	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"] ?? '');
 
-	$arParams["SORT_BY"] = trim($arParams["SORT_BY"]);
+	$arParams["SORT_BY"] = trim($arParams["SORT_BY"] ?? '');
 	$arParams["SORT_BY"] = (!empty($arParams["SORT_BY"]) ? $arParams["SORT_BY"] : "ID");
-	$arParams["SORT_ORD"] = ($arParams["SORT_ORD"] != "ASC" ? "DESC" : "ASC");
+	$arParams["SORT_ORD"] = (($arParams["SORT_ORD"] ?? null) != "ASC" ? "DESC" : "ASC");
 
-	$arParams["PHOTO_LIST_MODE"] = $arParams["PHOTO_LIST_MODE"] == "N" ? "N" : "Y";
+	$arParams["PHOTO_LIST_MODE"] = ($arParams["PHOTO_LIST_MODE"] ?? null) == "N" ? "N" : "Y";
 	if ($arParams["PHOTO_LIST_MODE"] == "Y")
 	{
-		$arParams["SHOWN_ITEMS_COUNT"] = intval($arParams["SHOWN_ITEMS_COUNT"]) > 0 ? intval($arParams["SHOWN_ITEMS_COUNT"]) : 6;
+		$arParams["SHOWN_ITEMS_COUNT"] = intval($arParams["SHOWN_ITEMS_COUNT"] ?? null) > 0 ? intval($arParams["SHOWN_ITEMS_COUNT"]) : 6;
 		$arParams["ELEMENT_SORT_FIELD"] = (empty($arParams["ELEMENT_SORT_FIELD"])? "SORT" : mb_strtoupper($arParams["ELEMENT_SORT_FIELD"]));
-		$arParams["ELEMENT_SORT_ORDER"] = (mb_strtoupper($arParams["ELEMENT_SORT_ORDER"]) != "DESC" ? "ASC" : "DESC");
+		$arParams["ELEMENT_SORT_ORDER"] = (mb_strtoupper($arParams["ELEMENT_SORT_ORDER"] ?? '') != "DESC" ? "ASC" : "DESC");
 		$arParams["ELEMENT_SORT_FIELD1"] = (empty($arParams["ELEMENT_SORT_FIELD1"])? "ID" : mb_strtoupper($arParams["ELEMENT_SORT_FIELD1"]));
-		$arParams["ELEMENT_SORT_ORDER1"] = (mb_strtoupper($arParams["ELEMENT_SORT_ORDER1"]) != "DESC" ? "ASC" : "DESC");
+		$arParams["ELEMENT_SORT_ORDER1"] = (mb_strtoupper($arParams["ELEMENT_SORT_ORDER1"] ?? '') != "DESC" ? "ASC" : "DESC");
 	}
 
 	//***************** URL ********************************************/
@@ -50,7 +50,7 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"] ?? '');
 		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
 			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
@@ -59,17 +59,17 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 //***************** ADDITIONAL **************************************/
 	$arParams["PASSWORD_CHECKED"] = true;
 
-	$arParams["ALBUM_PHOTO_SIZE"] = (intval($arParams["ALBUM_PHOTO_SIZE"]) > 0 ? intval($arParams["ALBUM_PHOTO_SIZE"]) : 150);
-	$arParams["ALBUM_PHOTO_THUMBS_SIZE"] = (intval($arParams["ALBUM_PHOTO_THUMBS_SIZE"]) > 0 ? intval($arParams["ALBUM_PHOTO_THUMBS_SIZE"]) : 70);
-	$arParams["SECTION_LIST_THUMBNAIL_SIZE"] = (intval($arParams["SECTION_LIST_THUMBNAIL_SIZE"]) > 0 ? intval($arParams["SECTION_LIST_THUMBNAIL_SIZE"]) : 70);
+	$arParams["ALBUM_PHOTO_SIZE"] = (intval($arParams["ALBUM_PHOTO_SIZE"] ?? 0) > 0 ? intval($arParams["ALBUM_PHOTO_SIZE"]) : 150);
+	$arParams["ALBUM_PHOTO_THUMBS_SIZE"] = (intval($arParams["ALBUM_PHOTO_THUMBS_SIZE"] ?? 0) > 0 ? intval($arParams["ALBUM_PHOTO_THUMBS_SIZE"]) : 70);
+	$arParams["SECTION_LIST_THUMBNAIL_SIZE"] = (intval($arParams["SECTION_LIST_THUMBNAIL_SIZE"] ?? null) > 0 ? intval($arParams["SECTION_LIST_THUMBNAIL_SIZE"]) : 70);
 
-	$arParams["PAGE_ELEMENTS"] = intval($arParams["PAGE_ELEMENTS"]);
-	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 5);
+	$arParams["PAGE_ELEMENTS"] = intval($arParams["PAGE_ELEMENTS"] ?? 0);
+	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"] ?? '');
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"] ?? null) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 5);
 
 	$arParams["DATE_TIME_FORMAT"] = trim(!empty($arParams["DATE_TIME_FORMAT"]) ? $arParams["DATE_TIME_FORMAT"] :
 		$GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("SHORT")));
-	$arParams["SET_STATUS_404"] = ($arParams["SET_STATUS_404"] == "Y" ? "Y" : "N");
+	$arParams["SET_STATUS_404"] = (($arParams["SET_STATUS_404"] ?? null) == "Y" ? "Y" : "N");
 //***************** STANDART ****************************************/
 	if(!isset($arParams["CACHE_TIME"]))
 		$arParams["CACHE_TIME"] = 3600;
@@ -78,8 +78,8 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 	else
 		$arParams["CACHE_TIME"] = 0;
 
-	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on by default
-	$arParams["DISPLAY_PANEL"] = ($arParams["DISPLAY_PANEL"] == "Y" ? "Y" : "N"); //Turn off by default
+	$arParams["SET_TITLE"] = (($arParams["SET_TITLE"] ?? null) == "N" ? "N" : "Y"); //Turn on by default
+	$arParams["DISPLAY_PANEL"] = (($arParams["DISPLAY_PANEL"] ?? null) == "Y" ? "Y" : "N"); //Turn off by default
 /********************************************************************
 				/Input params
 ********************************************************************/
@@ -154,7 +154,7 @@ $cache_id = "sections".serialize(array(
 	"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 	"SECTION_ID" => $arParams["SECTION_ID"],
 	"BEHAVIOUR" => $arParams["BEHAVIOUR"],
-	"GALLERY" => $arResult["GALLERY"]["ID"],
+	"GALLERY" => $arResult["GALLERY"]["ID"] ?? null,
 	"PERMISSION" => ($arParams["PERMISSION"] >= "U" ? "Y" : "N"),
 	"NAV1" => $arNavParams,
 	"NAV2" => $arNavigation
@@ -192,7 +192,12 @@ else
 
 	if ($arParams["SORT_BY"] == 'ELEMENTS_CNT')
 		$arParams["SORT_BY"] = 'ELEMENT_CNT';
-	$db_res = CIBlockSection::GetList(array($arParams["SORT_BY"] => $arParams["SORT_ORD"], "ID" => "DESC"), $arFilter, ($arParams["SORT_BY"] === 'ELEMENT_CNT'), array("UF_DATE", "UF_PASSWORD"));
+	$db_res = CIBlockSection::GetList(
+		array($arParams["SORT_BY"] => $arParams["SORT_ORD"], "ID" => "DESC"),
+		$arFilter,
+		($arParams["SORT_BY"] === 'ELEMENT_CNT'),
+		array("UF_DATE", "UF_PASSWORD")
+	);
 
 	if ($db_res)
 	{
@@ -257,7 +262,13 @@ else
 		if ($arParams["CACHE_TIME"] > 0)
 		{
 			$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
-			$cache->EndDataCache(array("SECTIONS" => $arResult["SECTIONS"], "NAV_STRING" => $arResult["NAV_STRING"], "NAV_RESULT" => $arResult["NAV_RESULT"]));
+			$cache->EndDataCache(
+				[
+					"SECTIONS" => $arResult["SECTIONS"],
+					"NAV_STRING" => $arResult["NAV_STRING"] ?? '',
+					"NAV_RESULT" => $arResult["NAV_RESULT"] ?? null,
+				]
+			);
 		}
 	}
 }
@@ -267,13 +278,22 @@ $arResult["SECTIONS"] = (!is_array($arResult["SECTIONS"]) ? array() : $arResult[
 /************** URL ************************************************/
 if ($arParams["PERMISSION"] >= "U")
 {
-	$arResult["SECTION"]["~UPLOAD_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~UPLOAD_URL"],
-		array("USER_ALIAS" => $arParams["USER_ALIAS"],
-			"SECTION_ID" => ($arParams["SECTION_ID"] == $arResult["GALLERY"]["ID"] ? 0 : $arParams["SECTION_ID"])));
+	$arResult["SECTION"]["~UPLOAD_LINK"] = CComponentEngine::MakePathFromTemplate(
+		$arParams["~UPLOAD_URL"],
+		array(
+			"USER_ALIAS" => $arParams["USER_ALIAS"],
+			"SECTION_ID" => ($arParams["SECTION_ID"] == $arResult["GALLERY"]["ID"] ? 0 : $arParams["SECTION_ID"])
+		)
+	);
 	$arResult["SECTION"]["UPLOAD_LINK"] = htmlspecialcharsbx($arResult["SECTION"]["~UPLOAD_LINK"]);
-	$arResult["SECTION"]["~NEW_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_URL"],
-		array("USER_ALIAS" => $arParams["USER_ALIAS"],
-			"SECTION_ID" => ($arParams["SECTION_ID"] == $arResult["GALLERY"]["ID"] ? 0 : $arParams["SECTION_ID"]), "ACTION" => "new"));
+	$arResult["SECTION"]["~NEW_LINK"] = CComponentEngine::MakePathFromTemplate(
+		$arParams["~SECTION_EDIT_URL"],
+		array(
+			"USER_ALIAS" => $arParams["USER_ALIAS"],
+			"SECTION_ID" => ($arParams["SECTION_ID"] == $arResult["GALLERY"]["ID"] ? 0 : $arParams["SECTION_ID"]),
+			"ACTION" => "new"
+		)
+	);
 	$arResult["SECTION"]["NEW_LINK"] = htmlspecialcharsbx($arResult["SECTION"]["~NEW_LINK"]);
 
 }
@@ -329,7 +349,7 @@ $this->IncludeComponentTemplate();
 ********************************************************************/
 /************** Title **********************************************/
 if ($arParams["SET_TITLE"] == "Y"):
-	$title = (!empty($arResult["SECTION"]["NAME"]) ? $arResult["SECTION"]["NAME"] : $arResult["GALLERY"]["NAME"]);
+	$title = (!empty($arResult["SECTION"]["NAME"]) ? $arResult["SECTION"]["NAME"] : $arResult["GALLERY"]["NAME"] ?? '');
 	$title = (!empty($title) ? $title : GetMessage("P_ALBUMS"));
 	$APPLICATION->SetTitle($title);
 endif;

@@ -2295,7 +2295,10 @@
 		"#AUTHOR_EXTRANET_STYLE#" =>
 			($res["AUTHOR"]["IS_EXTRANET"] == "Y" ? " feed-com-name-extranet" : ""),
 		"background:url("") no-repeat center;" =>
-			""
+			"",
+	 	"#MOBILE_HINTS#" => (isset($res['SHOW_MOBILE_HINTS']) && $res['SHOW_MOBILE_HINTS'] === 'Y')
+				? '<span class="feed__mobile_btn"></span>'
+				: '',
 	 *     )
 	 * )
 	 * @param data
@@ -2366,7 +2369,8 @@
 				"AUTHOR_TOOLTIP_PARAMS" : "",
 				"background:url('') no-repeat center;" : "",
 				"LIKE_REACT" : "",
-				"RATING_NONEMPTY_CLASS" : ""
+				"RATING_NONEMPTY_CLASS" : "",
+				"MOBILE_HINTS" : ""
 			};
 		if (!!res && !!data["messageFields"])
 		{
@@ -2503,7 +2507,8 @@
 				"LIKE_REACT" : (!!res["LIKE_REACT"] ? res["LIKE_REACT"] : ""),
 				"RATING_NONEMPTY_CLASS" : (res["RATING"] && res["RATING"]["TOTAL_VOTES"] ? "comment-block-rating-nonempty" : ""),
 				"POST_ENTITY_TYPE" : (!!params["POST_CONTENT_TYPE_ID"] ? params["POST_CONTENT_TYPE_ID"] : ""),
-				"COMMENT_ENTITY_TYPE" : (!!params["COMMENT_CONTENT_TYPE_ID"] ? params["COMMENT_CONTENT_TYPE_ID"] : "")
+				"COMMENT_ENTITY_TYPE" : (!!params["COMMENT_CONTENT_TYPE_ID"] ? params["COMMENT_CONTENT_TYPE_ID"] : ""),
+				"MOBILE_HINTS" : ""
 			};
 		}
 		else
@@ -3052,4 +3057,68 @@
 		});
 	});
 	BX.onCustomEvent("main.post.list/default", []);
+
+	class MobileButton
+	{
+		constructor(options)
+		{
+			const { containerId } = options;
+			const container = document.getElementById(`${containerId}`);
+			if (!container)
+			{
+				return;
+			}
+
+			const mobileButtons = Array.from(container.querySelectorAll('.feed__mobile_btn'));
+			this.onButtonClickHandler = this.handleButtonClick.bind(this);
+			mobileButtons.forEach(mobileButton => {
+				mobileButton.addEventListener('click', this.onButtonClickHandler);
+			});
+		}
+
+		handleButtonClick(event)
+		{
+			const popup = new BX.PopupWindow({
+				bindElement: event,
+				content: BX.Tag.render`
+					<div class="feed__mobile__popup_content">
+						<div class="feed__mobile__popup_content__text">${BX.message('MPL_MOBILE_HINTS')}</div>
+						<span onclick="${this.handleLinkClick.bind(this)}" class="feed__mobile__popup_content__link">${
+					BX.message('MPL_MOBILE_HINTS_DETAILS')
+				}</span>
+					</div>`,
+				bindOptions: {
+					position: 'top',
+				},
+				darkMode: true,
+				autoHide: true,
+				closeByEsc: true,
+				animation: 'fading',
+			});
+			popup.show();
+		}
+
+		handleLinkClick(event)
+		{
+			BX.Runtime.loadExtension('ui.qrauthorization').then(exports => {
+				const { QrAuthorization } = exports;
+				const qrAuthPopup = new QrAuthorization({
+					title: {
+						text: BX.message('MPL_MOBILE_POPUP_TITLE'),
+						size: 'sm'
+					},
+					bottomText: {
+						text: BX.message('MPL_MOBILE_POPUP_BOTTOM_TEXT'),
+						size: 'sm'
+					},
+					popupParam: {
+						overlay: true
+					}
+				});
+				qrAuthPopup.show();
+			});
+		}
+	}
+	BX.namespace('BX.Main.PostList');
+	BX.Main.PostList.MobileButton = MobileButton;
 })();

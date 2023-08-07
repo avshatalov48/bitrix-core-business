@@ -192,7 +192,7 @@ if (Loader::requireModule('bizproc'))
 			{
 				unset($options['VISIBLE']);
 
-				return count(array_filter($options, static fn($mark) => $mark === 'Y')) === 1;
+				return count(array_filter($options, static fn($mark) => $mark === 'Y')) !== 1;
 			}
 
 			return null;

@@ -115,6 +115,10 @@ Class vote extends CModule
 		UnRegisterModuleDependences("main", "OnUserLogin", "vote", "Bitrix\\Vote\\User", "onUserLogin");
 		UnRegisterModuleDependences("main", "OnUserTypeBuildList", "vote", "Bitrix\\Vote\\Uf\\VoteUserType", "getUserTypeDescription");
 		UnRegisterModuleDependences("main", "OnBeforeProlog", "main", "", "", "/modules/vote/keepvoting.php");
+		//very old events that used to be there
+		UnRegisterModuleDependences("main", "OnUserLogin", "vote", "CVoteUser", "OnUserLogin");
+		UnRegisterModuleDependences("main", "OnUserTypeBuildList", "vote", "CUserTypeVote", "GetUserTypeDescription");
+
 		UnRegisterModule("vote");
 
 		if($this->errors !== false)

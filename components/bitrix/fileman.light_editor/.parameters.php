@@ -14,7 +14,7 @@ $arParams = array(); // $arComponentParameters["PARAMETERS"]
 $arParams["CONTENT"] = Array(
 	"PARENT" => "BASE_SETTINGS",
 	"NAME" => GetMessage("LHE_PAR_CONTENT"),
-	"DEFAULT" => $content
+	"DEFAULT" => $content ?? null,
 );
 $arParams["INPUT_NAME"] = Array(
 	"PARENT" => "BASE_SETTINGS",
@@ -46,7 +46,7 @@ $arParams["RESIZABLE"] = Array(
 	"DEFAULT" => "N"
 );
 
-if($arCurrentValues["RESIZABLE"] == 'Y')
+if(($arCurrentValues["RESIZABLE"] ?? null) == 'Y')
 {
 	$arParams["AUTO_RESIZE"] = Array(
 		"PARENT" => "BASE_SETTINGS",
@@ -65,7 +65,7 @@ $arParams["VIDEO_ALLOW_VIDEO"] = Array(
 	"REFRESH" => "Y",
 );
 
-if($arCurrentValues["VIDEO_ALLOW_VIDEO"] != 'N')
+if(($arCurrentValues["VIDEO_ALLOW_VIDEO"] ?? null) != 'N')
 {
 	$arParams["VIDEO_MAX_WIDTH"] = Array(
 		"PARENT" => "VIDEO_SETTINGS",

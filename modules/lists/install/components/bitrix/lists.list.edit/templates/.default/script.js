@@ -24,7 +24,6 @@ BX.Lists.ListsEditClass = (function ()
 	{
 		BX.UI.Dialogs.MessageBox.confirm(
 			BX.Loc.getMessage("CT_BLLE_COPY_POPUP_CONTENT"),
-			BX.Loc.getMessage('CT_BLLE_COPY_POPUP_TITLE'),
 			() =>
 			{
 				const actionPromise = BX.ajax.runAction("lists.controller.iblock.copy", {
@@ -61,7 +60,7 @@ BX.Lists.ListsEditClass = (function ()
 
 				return actionPromise;
 			},
-			BX.Loc.getMessage("CT_BLLE_COPY_POPUP_ACCEPT_BUTTON"),
+			BX.Loc.getMessage("CT_BLLE_COPY_CONFIRM_BUTTON"),
 		);
 	};
 
@@ -73,14 +72,13 @@ BX.Lists.ListsEditClass = (function ()
 		{
 			BX.UI.Dialogs.MessageBox.confirm(
 				message,
-				BX.Loc.getMessage('CT_BLLE_DELETE_POPUP_TITLE'),
 				() =>
 				{
 					_flag.value = 'delete';
 					_form.submit();
 					return true;
 				},
-				BX.Loc.getMessage("CT_BLLE_DELETE_POPUP_ACCEPT_BUTTON"),
+				BX.Loc.getMessage("CT_BLLE_DELETE_CONFIRM_BUTTON"),
 			);
 		}
 	};

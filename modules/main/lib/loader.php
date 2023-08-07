@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main;
 
 use Bitrix\Main\DI\ServiceLocator;
@@ -58,7 +59,7 @@ class Loader
 	/** @deprecated   */
 	const ALPHA_UPPER = "QWERTYUIOPLKJHGFDSAZXCVBNM";
 
-     /**
+	/**
 	 * Includes a module by its name.
 	 *
 	 * @param string $moduleName Name of the included module
@@ -117,7 +118,7 @@ class Loader
 		}
 
 		//register a PSR-4 base folder for the module
-		if(strpos($moduleName, ".") !== false)
+		if (strpos($moduleName, ".") !== false)
 		{
 			//partner's module
 			$baseName = str_replace(".", "\\", ucwords($moduleName, "."));
@@ -132,10 +133,15 @@ class Loader
 		self::$modulesHolders[$moduleName] = $moduleHolder;
 
 		$res = true;
-		if(file_exists($pathToInclude."/include.php"))
+		if (file_exists($pathToInclude."/include.php"))
 		{
 			//recursion control
 			self::$semiloadedModules[$moduleName] = true;
+
+			if (class_exists('\Dev\Main\Migrator\ModuleUpdater'))
+			{
+				\Dev\Main\Migrator\ModuleUpdater::checkUpdates($moduleName, $pathToInclude);
+			}
 
 			$res = self::includeModuleInternal($pathToInclude."/include.php");
 
@@ -144,7 +150,7 @@ class Loader
 
 		self::$loadedModules[$moduleName] = ($res !== false);
 
-		if(self::$loadedModules[$moduleName] == false)
+		if (!self::$loadedModules[$moduleName])
 		{
 			//unregister the namespace if "include" fails
 			self::unregisterNamespace($baseName);
@@ -160,7 +166,7 @@ class Loader
 	/**
 	 * Includes module by its name, throws an exception in case of failure
 	 *
-	 * @param $moduleName
+	 * @param string $moduleName
 	 *
 	 * @return bool
 	 * @throws LoaderException
@@ -188,7 +194,7 @@ class Loader
 	 * Includes shareware module by its name.
 	 * Module must initialize constant <module name>_DEMO = Y in include.php to define demo mode.
 	 * include.php must return false to define trial period expiration.
-	 * Constants is used because it is easy to obfuscate them.
+	 * Constants are used because it is easy to obfuscate them.
 	 *
 	 * @param string $moduleName Name of the included module
 	 * @return int One of the following constant: Loader::MODULE_NOT_FOUND, Loader::MODULE_INSTALLED, Loader::MODULE_DEMO, Loader::MODULE_DEMO_EXPIRED
@@ -231,7 +237,7 @@ class Loader
 			throw new LoaderException("Empty module name");
 		}
 
-		if($moduleName !== "main")
+		if ($moduleName !== "main")
 		{
 			unset(self::$loadedModules[$moduleName]);
 			unset(self::$modulesHolders[$moduleName]);
@@ -256,8 +262,8 @@ class Loader
 	}
 
 	/**
-	 * Registers classes for auto loading.
-	 * All the frequently used classes should be registered for auto loading (performance).
+	 * Registers classes for auto-loading.
+	 * All the frequently used classes should be registered for auto-loading (performance).
 	 * It is not necessary to register rarely used classes. They can be found and loaded dynamically.
 	 *
 	 * @param string $moduleName Name of the module. Can be null if classes are not part of any module
@@ -333,7 +339,7 @@ class Loader
 	 * PSR-4 compatible autoloader.
 	 * https://www.php-fig.org/psr/psr-4/
 	 *
-	 * @param $className
+	 * @param string $className
 	 */
 	public static function autoLoad($className)
 	{
@@ -398,12 +404,12 @@ class Loader
 			//remove class name
 			array_pop($classParts);
 
-			while(!empty($classParts))
+			while (!empty($classParts))
 			{
 				//go from the end
 				$namespace = implode("\\", $classParts)."\\";
 
-				if(isset(self::$namespaces[$namespace]))
+				if (isset(self::$namespaces[$namespace]))
 				{
 					//found
 					foreach (self::$namespaces[$namespace] as $namespaceLocation)
@@ -449,7 +455,7 @@ class Loader
 	}
 
 	/**
-	 * @param $className
+	 * @param string $className
 	 *
 	 * @throws LoaderException
 	 */

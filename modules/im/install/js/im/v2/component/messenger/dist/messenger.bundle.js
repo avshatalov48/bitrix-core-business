@@ -1,7 +1,8 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,im_v2_component_navigation,im_v2_component_list_container_recent,im_v2_component_list_container_openline,im_v2_component_content_chat,im_v2_component_content_createChat,im_v2_component_content_openline,im_v2_component_content_notification,im_v2_component_content_market,im_v2_lib_logger,im_v2_lib_init,im_v2_const,im_v2_lib_call,im_v2_lib_theme) {
+(function (exports,main_core_events,im_v2_component_navigation,im_v2_component_list_container_recent,im_v2_component_list_container_openline,im_v2_component_content_chat,im_v2_component_content_createChat,im_v2_component_content_openline,im_v2_component_content_notification,im_v2_component_content_market,im_v2_lib_logger,im_v2_lib_init,im_v2_const,im_v2_lib_call,im_v2_lib_theme,im_v2_lib_desktop) {
 	'use strict';
 
 	// @vue/component
@@ -44,7 +45,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    containerClasses() {
 	      return {
 	        '--dark-theme': im_v2_lib_theme.ThemeManager.isDarkTheme(),
-	        '--light-theme': im_v2_lib_theme.ThemeManager.isLightTheme()
+	        '--light-theme': im_v2_lib_theme.ThemeManager.isLightTheme(),
+	        '--desktop': im_v2_lib_desktop.DesktopManager.isDesktop()
 	      };
 	    },
 	    callContainerClass() {
@@ -131,5 +133,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.Messenger = Messenger;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Event,BX.Messenger.v2.Component,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Event,BX.Messenger.v2.Component,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=messenger.bundle.js.map

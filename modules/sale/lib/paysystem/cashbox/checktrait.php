@@ -36,16 +36,14 @@ trait CheckTrait
 				{
 					/** @var Sale\Cashbox\CashboxPaySystem $cashboxClass */
 					$cashboxClass = $service->getCashboxClass();
-
-					$params = $service->getParamsBusValue($payment);
-					$paySystemCodeForKkm = $cashboxClass::getPaySystemCodeForKkm();
+					$kkm = $cashboxClass::getKkmValue($service);
 
 					$cashboxData = Sale\Cashbox\Manager::getList([
 						'select' => ['ID'],
 						'filter' => [
 							'=ACTIVE' => 'Y',
 							'=HANDLER' => $cashboxClass,
-							'=KKM_ID' => $params[$paySystemCodeForKkm],
+							'=KKM_ID' => $kkm,
 						],
 					])->fetch();
 

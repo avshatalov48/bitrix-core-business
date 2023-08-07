@@ -682,7 +682,12 @@ class Helper
 
 	protected static function getIdFilter($value, &$filter)
 	{
-		$filter['@CRM_ENTITY_ID'] = array_map('trim', explode(",", $value[0]));
+		if (is_array($value))
+		{
+			$value = $value[0];
+		}
+
+		$filter['@CRM_ENTITY_ID'] = array_map('trim', explode(",", $value));
 	}
 
 	protected static function getNoPurchasesFilter($value, &$filter, $extraCallbackParams = [])

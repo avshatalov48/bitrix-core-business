@@ -222,7 +222,7 @@ class CHTMLEditor
 		$arParams["bodyClass"] = COption::GetOptionString("fileman", "editor_body_class", "");
 		$arParams["bodyId"] = COption::GetOptionString("fileman", "editor_body_id", "");
 
-		$this->content = $arParams['content'];
+		$this->content = ($arParams['content'] ?? '');
 		$this->content = preg_replace("/\r\n/is", "\n", $this->content);
 
 		$this->inputName = isset($arParams['inputName']) ? $arParams['inputName'] : $this->name;
@@ -362,6 +362,7 @@ class CHTMLEditor
 		$arParams["showSnippets"] = isset($arParams["showSnippets"]) ? $arParams["showSnippets"] : true;
 		$arParams["showSnippets"] = $arParams["showSnippets"] && $userSettings['show_snippets'] != 'N';
 
+		$arParams["showTaskbars"] = $arParams["showTaskbars"] ?? null;
 		if(!isset($arParams["initConponentParams"]))
 			$arParams["initConponentParams"] = $arParams["showTaskbars"] !== false && $arParams["showComponents"] && ($arParams['limitPhpAccess'] || $arParams['bAllowPhp']);
 		if (empty($arParams["actionUrl"]))
@@ -382,7 +383,7 @@ class CHTMLEditor
 			'templates' => $arTemplates,
 			'templateId' => $templateId,
 			'templateParams' => $templateParams,
-			'componentFilter' => $arParams['componentFilter'],
+			'componentFilter' => $arParams['componentFilter'] ?? null,
 			'snippets' => $arSnippets,
 			'placeholder' => isset($arParams['placeholder']) ? $arParams['placeholder'] : 'Text here...',
 			'actionUrl' => $arParams["actionUrl"],
@@ -395,7 +396,7 @@ class CHTMLEditor
 			'usePspell' => $arParams["usePspell"],
 			'useCustomSpell' => $arParams["useCustomSpell"],
 			'bbCode' => $arParams["bbCode"],
-			'askBeforeUnloadPage' => $arParams["askBeforeUnloadPage"] !== false,
+			'askBeforeUnloadPage' => ($arParams["askBeforeUnloadPage"] ?? null) !== false,
 			'settingsKey' => $settingsKey,
 			'showComponents' => $arParams["showComponents"],
 			'showSnippets' => $arParams["showSnippets"],
@@ -418,7 +419,7 @@ class CHTMLEditor
 
 		if (($this->bAllowPhp || $arParams['limitPhpAccess']) && $arParams["showTaskbars"] !== false)
 		{
-			$this->jsConfig['components'] = self::GetComponents($templateId, false, $arParams['componentFilter']);
+			$this->jsConfig['components'] = self::GetComponents($templateId, false, $arParams['componentFilter'] ?? null);
 		}
 
 		if (isset($arParams["initAutosave"]))
@@ -501,7 +502,7 @@ class CHTMLEditor
 		$this->InitLangMess();
 		$arParams = $this->Init($arParams);
 
-		if ($arParams["uploadImagesFromClipboard"] !== false)
+		if (($arParams["uploadImagesFromClipboard"] ?? null) !== false)
 			CJSCore::Init(array("uploader"));
 
 		$event = new Event(
@@ -573,7 +574,7 @@ class CHTMLEditor
 		$templates = $this->jsConfig['templates'];
 		$templateParams = $this->jsConfig['templateParams'];
 		$snippets = $this->jsConfig['snippets'];
-		$components = $this->jsConfig['components'];
+		$components = $this->jsConfig['components'] ?? null;
 
 		unset($this->jsConfig['content'], $this->jsConfig['templates'], $this->jsConfig['templateParams'], $this->jsConfig['snippets'], $this->jsConfig['components']);
 		?>
@@ -712,6 +713,7 @@ class CHTMLEditor
 	{
 		foreach ($arEls as $elName => $arEl)
 		{
+			$arEl['*'] = $arEl['*'] ?? null;
 			if (mb_strpos($path, ",") !== false)
 			{
 				if (isset($arEl['*']))
@@ -1204,6 +1206,7 @@ class CHTMLEditor
 
 		$params["STYLES"] = preg_replace("/(url\(\"?)images\//is", "\\1".$params['SITE_TEMPLATE_PATH'].'/images/', $params["STYLES"]);
 
+		$params['EDITOR_STYLES'] = $params['EDITOR_STYLES'] ?? null;
 		if (is_array($params['EDITOR_STYLES']))
 		{
 			for ($i = 0, $l = count($params['EDITOR_STYLES']); $i < $l; $i++)
@@ -1230,9 +1233,9 @@ class CHTMLEditor
 			$output['data'] = array(
 				'html' => $metaData['EMBED'],
 				'title' => $metaData['TITLE'],
-				'provider' => $metaData['EXTRA']['PROVIDER_NAME'],
-				'width' => intval($metaData['EXTRA']['VIDEO_WIDTH']),
-				'height' => intval($metaData['EXTRA']['VIDEO_HEIGHT']),
+				'provider' => $metaData['EXTRA']['PROVIDER_NAME'] ?? null,
+				'width' => intval($metaData['EXTRA']['VIDEO_WIDTH'] ?? null),
+				'height' => intval($metaData['EXTRA']['VIDEO_HEIGHT'] ?? null),
 			);
 		}
 		else
@@ -1333,6 +1336,7 @@ class CHTMLEditor
 	{
 		if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 			$server_name = SITE_SERVER_NAME;
+		$server_name = $server_name ?? null;
 		if (!$server_name)
 			$server_name = COption::GetOptionString("main", "server_name", "");
 		if (!$server_name)

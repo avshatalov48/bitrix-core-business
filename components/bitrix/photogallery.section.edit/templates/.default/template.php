@@ -29,7 +29,7 @@ if ($arParams["AJAX_CALL"] == "Y")
 ?>
 <script>window.oPhotoEditAlbumDialogError = false;</script>
 
-<?if ($arResult["ERROR_MESSAGE"] != ""):?>
+<?if (($arResult["ERROR_MESSAGE"] ?? '') !== ''):?>
 <script>
 window.oPhotoEditAlbumDialogError = "<?= CUtil::JSEscape($arResult["ERROR_MESSAGE"]); ?>";
 </script>
@@ -82,7 +82,7 @@ BX.ready(function(){
 	<input type="hidden" name="save_edit" value="Y" />
 	<input type="hidden" name="edit" value="Y" />
 	<input type="hidden" name="sessid" value="<?=bitrix_sessid()?>" />
-	<input type="hidden" name="IBLOCK_SECTION_ID" value="<?=$arResult["FORM"]["IBLOCK_SECTION_ID"]?>" />
+	<input type="hidden" name="IBLOCK_SECTION_ID" value="<?=$arResult["FORM"]["IBLOCK_SECTION_ID"] ?? null?>" />
 	<input type="hidden" name="multiple_action" value="N" />
 
 	<table class="photo-dialog-table" <? if ($arParams["AJAX_CALL"] != "Y") echo 'style="width: 600px;"'?>>

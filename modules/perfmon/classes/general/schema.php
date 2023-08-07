@@ -2,43 +2,109 @@
 
 class CPerfomanceSchema
 {
-	var $data_relations = null;
+	public $data_relations = null;
+	public $data_actions = null;
+	public $data_attributes = null;
 
-	function Init()
+	function addModuleSchema(array $arModuleSchema)
 	{
-		if (!isset($this->data_relations))
+		foreach ($arModuleSchema as $module_id => $arModuleTables)
 		{
-			$this->data_relations = array();
-			foreach (GetModuleEvents("perfmon", "OnGetTableSchema", true) as $arEvent)
+			if (!array_key_exists($module_id, $this->data_relations))
 			{
-				$arModuleSchema = ExecuteModuleEventEx($arEvent);
-				if (is_array($arModuleSchema))
+				$this->data_relations[$module_id] = array();
+			}
+
+			foreach ($arModuleTables as $parent_table_name => $arParentColumns)
+			{
+				if (!array_key_exists($parent_table_name, $this->data_relations[$module_id]))
 				{
-					foreach ($arModuleSchema as $module_id => $arModuleTables)
+					$this->data_relations[$module_id][$parent_table_name] = array();
+				}
+
+				foreach ($arParentColumns as $parent_column => $arChildren)
+				{
+					if ($parent_column === '~actions')
 					{
-						if (!array_key_exists($module_id, $this->data_relations))
-							$this->data_relations[$module_id] = array();
-
-						foreach ($arModuleTables as $parent_table_name => $arParentColumns)
+						if (!array_key_exists($module_id, $this->data_actions))
 						{
-							if (!array_key_exists($parent_table_name, $this->data_relations[$module_id]))
-								$this->data_relations[$module_id][$parent_table_name] = array();
+							$this->data_actions[$module_id] = array();
+						}
+						if (!array_key_exists($parent_table_name, $this->data_actions[$module_id]))
+						{
+							$this->data_actions[$module_id][$parent_table_name] = array();
+						}
+						$this->data_actions[$module_id][$parent_table_name] = array_merge(
+							$this->data_actions[$module_id][$parent_table_name],
+							$arChildren
+						);
+					}
+					else
+					{
+						if (!array_key_exists($parent_column, $this->data_relations[$module_id][$parent_table_name]))
+						{
+							$this->data_relations[$module_id][$parent_table_name][$parent_column] = array();
+						}
 
-							foreach ($arParentColumns as $parent_column => $arChildren)
+						foreach ($arChildren as $child_table_name => $child_column)
+						{
+							if (preg_match("#^~(.+)$#", $child_table_name, $m))
 							{
-								if (!array_key_exists($parent_column, $this->data_relations[$module_id][$parent_table_name]))
-									$this->data_relations[$module_id][$parent_table_name][$parent_column] = array();
-
-								foreach ($arChildren as $child_table_name => $child_column)
-								{
-									$this->data_relations[$module_id][$parent_table_name][$parent_column][$child_table_name] = $child_column;
-								}
+								$this->data_attributes[$module_id][$parent_table_name][$parent_column][$m[1]] = $child_column;
+							}
+							else
+							{
+								$this->data_relations[$module_id][$parent_table_name][$parent_column][$child_table_name] = $child_column;
 							}
 						}
 					}
 				}
 			}
 		}
+	}
+
+	function Init()
+	{
+		if (!isset($this->data_relations))
+		{
+			$this->data_relations = array();
+			$this->data_actions = array();
+			$this->data_attributes = array();
+			foreach (GetModuleEvents("perfmon", "OnGetTableSchema", true) as $arEvent)
+			{
+				$arModuleSchema = ExecuteModuleEventEx($arEvent);
+				if (is_array($arModuleSchema))
+				{
+						$this->addModuleSchema($arModuleSchema);
+				}
+			}
+		}
+	}
+
+	function GetAttributes($table_name)
+	{
+		$this->Init();
+		foreach ($this->data_attributes as $module_id => $arModuleTables)
+		{
+			if (isset($arModuleTables[$table_name]))
+			{
+				return $arModuleTables[$table_name];
+			}
+		}
+		return array();
+	}
+
+	function GetRowActions($table_name)
+	{
+		$this->Init();
+		foreach ($this->data_actions as $module_id => $arModuleTables)
+		{
+			if (isset($arModuleTables[$table_name]))
+			{
+				return $arModuleTables[$table_name];
+			}
+		}
+		return array();
 	}
 
 	function GetChildren($table_name)

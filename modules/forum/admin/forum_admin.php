@@ -78,7 +78,6 @@ if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
 	{
 		foreach ($FIELDS as $ID => $arFields)
 		{
-			$DB->StartTransaction();
 			$ID = intval($ID);
 	
 			if (!$lAdmin->IsUpdated($ID))
@@ -89,7 +88,9 @@ if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
 				$lAdmin->AddUpdateError(GetMessage("FA_NO_PERMS2UPDATE")." ".$ID."", $ID);
 				continue;
 			}
-	
+
+			$DB->StartTransaction();
+
 			if (!CForumNew::Update($ID, $arFields))
 			{
 				if ($ex = $APPLICATION->GetException())
@@ -99,8 +100,10 @@ if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
 	
 				$DB->Rollback();
 			}
-	
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 		}
 	}
 	
@@ -144,8 +147,10 @@ if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
 							else
 								$lAdmin->AddGroupError(GetMessage("FA_DELETE_ERROR"), $ID);
 						}
-
-						$DB->Commit();
+						else
+						{
+							$DB->Commit();
+						}
 					}
 					break;
 				case "activate":
@@ -176,7 +181,10 @@ if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
 						$DB->Rollback();
 						$lAdmin->AddGroupError(GetMessage("FA_ERROR_UPDATE")." ".$ID."", $ID);
 					}
-					$DB->Commit();
+					else
+					{
+						$DB->Commit();
+					}
 					break;
 			}
 		}

@@ -70,7 +70,6 @@ if ($server->getRequestMethod() == "POST"
 	$cashbox = array(
 		'NAME' => $request->get('NAME'),
 		'HANDLER' => $request->getPost('HANDLER'),
-		'OFD' => $request->getPost('OFD'),
 		'EMAIL' => $request->getPost('EMAIL'),
 		'NUMBER_KKM' => $request->getPost('NUMBER_KKM') ?: '',
 		'KKM_ID' => $request->get('KKM_ID') ?: '',
@@ -79,6 +78,11 @@ if ($server->getRequestMethod() == "POST"
 		'SORT' => $request->getPost('SORT') ?: 100,
 		'OFD_SETTINGS' => $request->getPost('OFD_SETTINGS') ?: array(),
 	);
+
+	if ($request->getPost('OFD'))
+	{
+		$cashbox['OFD'] = $request->getPost('OFD');
+	}
 
 	/** @var Cashbox\Cashbox $handler */
 	$handler = $cashbox['HANDLER'];

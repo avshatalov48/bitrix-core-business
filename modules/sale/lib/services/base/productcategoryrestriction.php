@@ -165,21 +165,17 @@ abstract class ProductCategoryRestriction extends Restriction
 	 */
 	protected static function getCategoriesPath($categoryId) : array
 	{
-		if (!\Bitrix\Main\Loader::includeModule('catalog'))
+		if (!\Bitrix\Main\Loader::includeModule('iblock'))
 		{
 			return [];
 		}
 
-		$result = [$categoryId];
+		$result = [];
 
-		$nav = \CIBlockSection::GetNavChain(false, $categoryId);
-
-		while ($arSectionPath = $nav->GetNext())
+		$nav = \CIBlockSection::GetNavChain(false, $categoryId, ['ID'], true);
+		foreach ($nav as $arSectionPath)
 		{
-			if (!in_array($arSectionPath['ID'], $result))
-			{
-				$result[] = $arSectionPath['ID'];
-			}
+			$result[] = $arSectionPath['ID'];
 		}
 
 		return $result;

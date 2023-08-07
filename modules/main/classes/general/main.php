@@ -85,7 +85,7 @@ abstract class CAllMain
 		global $QUERY_STRING;
 		$this->sDocPath2 = GetPagePath(false, true);
 		$this->sDirPath = GetDirPath($this->sDocPath2);
-		$this->sUriParam = ($_SERVER["QUERY_STRING"] <> '') ? $_SERVER["QUERY_STRING"] : $QUERY_STRING;
+		$this->sUriParam = !empty($_SERVER["QUERY_STRING"]) ? $_SERVER["QUERY_STRING"] : $QUERY_STRING;
 
 		$this->oAsset = Asset::getInstance();
 	}

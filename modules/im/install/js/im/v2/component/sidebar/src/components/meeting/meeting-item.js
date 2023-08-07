@@ -1,10 +1,10 @@
-import {DateTimeFormat} from 'main.date';
+import { DateTimeFormat } from 'main.date';
 
-import {DateFormatter, DateTemplate} from 'im.v2.lib.date-formatter';
+import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 
 import '../../css/meeting/meeting-item.css';
 
-import type {ImModelSidebarMeetingItem} from 'im.v2.model';
+import type { ImModelSidebarMeetingItem } from 'im.v2.model';
 
 // @vue/component
 export const MeetingItem = {
@@ -12,8 +12,8 @@ export const MeetingItem = {
 	props: {
 		meeting: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['contextMenuClick'],
 	data() {
@@ -48,7 +48,7 @@ export const MeetingItem = {
 		isActive(): boolean
 		{
 			return this.meetingItem.meeting.dateFrom.getTime() > Date.now();
-		}
+		},
 	},
 	methods:
 	{
@@ -64,7 +64,7 @@ export const MeetingItem = {
 				source: this.meetingItem.meeting.source,
 				messageId: this.meetingItem.messageId,
 			}, event.currentTarget);
-		}
+		},
 	},
 	template: `
 		<div 
@@ -81,7 +81,7 @@ export const MeetingItem = {
 			</div>
 			<div class="bx-im-sidebar-meeting-item__content-container" @click="onMeetingClick">
 				<div class="bx-im-sidebar-meeting-item__content">
-					<div class="bx-im-sidebar-meeting-item__title">{{ title }}</div>
+					<div class="bx-im-sidebar-meeting-item__title" :title="title">{{ title }}</div>
 					<div class="bx-im-sidebar-meeting-item__date">{{ date }}</div>
 				</div>
 			</div>
@@ -91,5 +91,5 @@ export const MeetingItem = {
 				@click="onContextMenuClick"
 			></button>
 		</div>
-	`
+	`,
 };

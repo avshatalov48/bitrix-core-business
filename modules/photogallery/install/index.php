@@ -68,7 +68,7 @@ Class photogallery extends CModule
 
 	function InstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
+		if(($_ENV["COMPUTERNAME"] ?? null) != 'BX')
 		{
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/photogallery/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
 		}
@@ -87,7 +87,7 @@ Class photogallery extends CModule
 		global $APPLICATION;
 		if (IsModuleInstalled("iblock"))
 		{
-			$step = intval($_REQUEST["step"]);
+			$step = intval($_REQUEST["step"] ?? null);
 
 			if ($step < 2)
 				$APPLICATION->IncludeAdminFile(GetMessage("PHOTO_INSTALL"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/photogallery/install/step1.php");

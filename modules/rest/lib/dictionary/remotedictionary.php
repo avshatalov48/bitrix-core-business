@@ -27,7 +27,7 @@ class RemoteDictionary extends Dictionary
 
 	protected $baseUrl = array(
 		'ru' => 'https://www.bitrix24.ru/util/',
-		'ua' => 'https://www.bitrix24.ua/util/',
+		'ua' => 'https://www.bitrix24.eu/util/',
 		'by' => 'https://www.bitrix24.by/util/',
 		'in' => 'https://www.bitrix24.in/util/',
 		'en' => 'https://www.bitrix24.com/util/',

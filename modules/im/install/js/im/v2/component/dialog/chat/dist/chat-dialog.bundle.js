@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
@@ -283,23 +284,23 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  }
 	};
 
-	var _getDelimiter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDelimiter");
 	var _isOwnMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isOwnMessage");
 	var _isDeletedMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDeletedMessage");
+	var _getMessageFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMessageFile");
 	class MessageMenu extends im_v2_lib_menu.BaseMenu {
 	  constructor() {
 	    super();
+	    Object.defineProperty(this, _getMessageFile, {
+	      value: _getMessageFile2
+	    });
 	    Object.defineProperty(this, _isDeletedMessage, {
 	      value: _isDeletedMessage2
 	    });
 	    Object.defineProperty(this, _isOwnMessage, {
 	      value: _isOwnMessage2
 	    });
-	    Object.defineProperty(this, _getDelimiter, {
-	      value: _getDelimiter2
-	    });
 	    this.id = 'bx-im-message-context-menu';
-	    this.chatService = new im_v2_provider_service.ChatService();
+	    this.diskService = new im_v2_provider_service.DiskService();
 	    this.marketManager = im_v2_lib_market.MarketManager.getInstance();
 	  }
 	  getMenuOptions() {
@@ -311,7 +312,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    };
 	  }
 	  getMenuItems() {
-	    return [this.getQuoteItem(), this.getCopyItem(), this.getQuoteBlockDelimiter(), this.getPinItem(), this.getFavoriteItem(), this.getMarkItem(), this.getPinBlockDelimiter(), this.getCreateItem(), this.getCreateBlockDelimiter(), this.getEditItem(), this.getEditBlockDelimiter(), this.getDeleteItem()];
+	    return [this.getQuoteItem(), this.getCopyItem(), this.getDelimiter(), this.getDownloadFileItem(), this.getSaveToDisk(), this.getPinItem(), this.getFavoriteItem(), this.getMarkItem(), this.getDelimiter(), this.getCreateItem(), this.getDelimiter(), this.getEditItem(), this.getDelimiter(), this.getDeleteItem()];
 	  }
 	  getQuoteItem() {
 	    return {
@@ -340,10 +341,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	    };
 	  }
-	  getQuoteBlockDelimiter() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _getDelimiter)[_getDelimiter]();
-	  }
 	  getPinItem() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]()) {
+	      return null;
+	    }
 	    const isPinned = this.store.getters['messages/pin/isPinned']({
 	      chatId: this.context.chatId,
 	      messageId: this.context.id
@@ -364,9 +365,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    };
 	  }
 	  getFavoriteItem() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]()) {
+	      return null;
+	    }
 	    const isInFavorite = this.store.getters['sidebar/favorites/isFavoriteMessage'](this.context.chatId, this.context.id);
+	    const menuItemText = isInFavorite ? main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_REMOVE_FROM_SAVED') : main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE');
 	    return {
-	      text: isInFavorite ? main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_REMOVE_FROM_SAVED') : main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE'),
+	      text: menuItemText,
 	      onclick: () => {
 	        const messageService = new im_v2_provider_service.MessageService({
 	          chatId: this.context.chatId
@@ -398,10 +403,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	    };
 	  }
-	  getPinBlockDelimiter() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _getDelimiter)[_getDelimiter]();
-	  }
 	  getCreateItem() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]()) {
+	      return null;
+	    }
 	    return {
 	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_CREATE'),
 	      items: [this.getCreateTaskItem(), this.getCreateMeetingItem(), ...this.getMarketItems()]
@@ -412,7 +417,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_CREATE_TASK'),
 	      onclick: () => {
 	        const entityCreator = new im_v2_lib_entityCreator.EntityCreator(this.context.chatId);
-	        entityCreator.createTaskForMessage(this.context.id);
+	        void entityCreator.createTaskForMessage(this.context.id);
 	        this.menuInstance.close();
 	      }
 	    };
@@ -422,16 +427,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_CREATE_MEETING'),
 	      onclick: () => {
 	        const entityCreator = new im_v2_lib_entityCreator.EntityCreator(this.context.chatId);
-	        entityCreator.createMeetingForMessage(this.context.id);
+	        void entityCreator.createMeetingForMessage(this.context.id);
 	        this.menuInstance.close();
 	      }
 	    };
-	  }
-	  getCreateBlockDelimiter() {
-	    if (!this.getEditItem() && !this.getDeleteItem()) {
-	      return null;
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _getDelimiter)[_getDelimiter]();
 	  }
 	  getEditItem() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() || babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]()) {
@@ -446,12 +445,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        this.menuInstance.close();
 	      }
 	    };
-	  }
-	  getEditBlockDelimiter() {
-	    if (!this.getEditItem()) {
-	      return null;
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _getDelimiter)[_getDelimiter]();
 	  }
 	  getDeleteItem() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() || babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]()) {
@@ -476,11 +469,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    const placements = this.marketManager.getAvailablePlacementsByType(im_v2_const.PlacementType.contextMenu, dialogId);
 	    const marketMenuItem = [];
 	    if (placements.length > 0) {
-	      marketMenuItem.push(babelHelpers.classPrivateFieldLooseBase(this, _getDelimiter)[_getDelimiter]());
+	      marketMenuItem.push(this.getDelimiter());
 	    }
 	    const context = {
 	      messageId: id,
-	      dialogId: dialogId
+	      dialogId
 	    };
 	    placements.forEach(placement => {
 	      marketMenuItem.push({
@@ -496,17 +489,54 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    const itemLimit = 11;
 	    return marketMenuItem.slice(0, itemLimit);
 	  }
-	}
-	function _getDelimiter2() {
-	  return {
-	    delimiter: true
-	  };
+	  getDownloadFileItem() {
+	    const file = babelHelpers.classPrivateFieldLooseBase(this, _getMessageFile)[_getMessageFile]();
+	    if (!file) {
+	      return null;
+	    }
+	    return {
+	      html: im_v2_lib_utils.Utils.file.createDownloadLink(main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_DOWNLOAD_FILE'), file.urlDownload, file.name),
+	      onclick: function () {
+	        this.menuInstance.close();
+	      }.bind(this)
+	    };
+	  }
+	  getSaveToDisk() {
+	    const file = babelHelpers.classPrivateFieldLooseBase(this, _getMessageFile)[_getMessageFile]();
+	    if (!file) {
+	      return null;
+	    }
+	    return {
+	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK'),
+	      onclick: function () {
+	        void this.diskService.save(file.id).then(() => {
+	          BX.UI.Notification.Center.notify({
+	            content: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_SUCCESS')
+	          });
+	        });
+	        this.menuInstance.close();
+	      }.bind(this)
+	    };
+	  }
+	  getDelimiter() {
+	    return {
+	      delimiter: true
+	    };
+	  }
 	}
 	function _isOwnMessage2() {
 	  return this.context.authorId === im_v2_application_core.Core.getUserId();
 	}
 	function _isDeletedMessage2() {
 	  return this.context.isDeleted;
+	}
+	function _getMessageFile2() {
+	  if (this.context.files.length === 0) {
+	    return null;
+	  }
+
+	  // for now, we have only one file in one message. In the future we need to change this logic.
+	  return this.store.getters['files/get'](this.context.files[0]);
 	}
 
 	class AvatarMenu extends im_v2_lib_menu.BaseMenu {
@@ -1179,7 +1209,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.dialog.counter > 99) {
 	        return '99+';
 	      }
-	      return `${this.dialog.counter}`;
+	      return String(this.dialog.counter);
 	    },
 	    showDialogStatus() {
 	      return this.messageCollection.some(message => {
@@ -1190,7 +1220,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  watch: {
 	    dialogInited(newValue, oldValue) {
 	      if (!newValue || oldValue) {
-	        return false;
+	        return;
 	      }
 	      // first opening
 	      this.onChatInited();
@@ -1199,7 +1229,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.isScrolledUp || !this.dialogInited) {
 	        return;
 	      }
-	      this.$nextTick(() => {
+	      void this.$nextTick(() => {
 	        this.getScrollManager().scrollToBottom();
 	      });
 	    }
@@ -1243,17 +1273,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      });
 	    },
 	    scrollOnStart() {
-	      this.$nextTick(() => {
+	      void this.$nextTick(() => {
 	        // we loaded chat with context
 	        if (this.contextMode.active && this.contextMode.messageIsLoaded) {
 	          this.getScrollManager().scrollToMessage(this.layout.contextId, -FLOATING_DATE_OFFSET);
-	          this.$nextTick(() => {
+	          void this.$nextTick(() => {
 	            this.highlightMessage(this.layout.contextId);
 	          });
 	        }
 	        // chat was loaded before
 	        else if (this.contextMode.active && !this.contextMode.messageIsLoaded) {
-	          this.goToMessageContext(this.layout.contextId);
+	          void this.goToMessageContext(this.layout.contextId);
 	        }
 	        // marked message
 	        else if (this.dialog.markedId) {
@@ -1279,7 +1309,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    goToMessageContext(messageId) {
 	      const hasMessage = this.$store.getters['messages/hasMessage']({
 	        chatId: this.dialog.chatId,
-	        messageId: messageId
+	        messageId
 	      });
 	      if (hasMessage) {
 	        im_v2_lib_logger.Logger.warn('Dialog: we have this message, scrolling to it', messageId);
@@ -1297,7 +1327,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        this.highlightMessage(messageId);
 	        return true;
 	      }).catch(error => {
-	        console.error('goToMessageContext error', error);
+	        im_v2_lib_logger.Logger.error('goToMessageContext error', error);
 	      });
 	    },
 	    highlightMessage(messageId) {
@@ -1326,7 +1356,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    loadMessagesOnExit() {
 	      setTimeout(() => {
-	        this.getMessageService().reloadMessageList();
+	        void this.getMessageService().reloadMessageList();
 	      }, LOAD_MESSAGE_ON_EXIT_DELAY);
 	    },
 	    /* region Init methods */
@@ -1391,17 +1421,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    onChatInited() {
 	      if (!this.dialog.loading) {
 	        this.scrollOnStart();
-	        this.debouncedReadHandler();
+	        this.readVisibleMessages();
 	        this.getObserverManager().setDialogInited(true);
 	      }
-	      this.$nextTick(() => {
+	      void this.$nextTick(() => {
 	        this.getChatService().clearDialogMark(this.dialogId);
 	      });
 	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.onDialogInited, {
 	        dialogId: this.dialogId
 	      });
 	    },
-	    onScrollTriggerUp() {
+	    async onScrollTriggerUp() {
 	      if (!this.dialogInited || !this.getContainer()) {
 	        return;
 	      }
@@ -1411,52 +1441,49 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	      // Insert messages if there are some
 	      if (this.getMessageService().hasPreparedHistoryMessages()) {
-	        return this.getMessageService().drawPreparedHistoryMessages().then(() => {
-	          this.getScrollManager().adjustScrollOnHistoryAddition(oldHeight);
-	        });
+	        await this.getMessageService().drawPreparedHistoryMessages();
+	        this.getScrollManager().adjustScrollOnHistoryAddition(oldHeight);
+	        return;
 	      }
 
 	      // check if already loading or no more history
 	      if (this.getMessageService().isLoading() || !this.dialog.hasPrevPage) {
-	        return false;
+	        return;
 	      }
 
 	      // Load messages and save them
-	      this.getMessageService().loadHistory().then(() => {
-	        // Messages loaded and we are at the top
-	        if (this.getScrollManager().isAtTheTop()) {
-	          im_v2_lib_logger.Logger.warn('Dialog: we are at the top after history request, inserting messages');
-	          this.getMessageService().drawPreparedHistoryMessages().then(() => {
-	            this.getScrollManager().adjustScrollOnHistoryAddition(oldHeight);
-	          });
-	        }
-	      });
+	      await this.getMessageService().loadHistory();
+	      // Messages loaded and we are at the top
+	      if (this.getScrollManager().isAtTheTop()) {
+	        im_v2_lib_logger.Logger.warn('Dialog: we are at the top after history request, inserting messages');
+	        await this.getMessageService().drawPreparedHistoryMessages();
+	        this.getScrollManager().adjustScrollOnHistoryAddition(oldHeight);
+	      }
 	    },
-	    onScrollTriggerDown() {
+	    async onScrollTriggerDown() {
 	      if (!this.dialogInited || !this.getContainer()) {
 	        return;
 	      }
 	      im_v2_lib_logger.Logger.warn('Dialog: scroll triggered DOWN');
 	      // Insert messages if there are some
 	      if (this.getMessageService().hasPreparedUnreadMessages()) {
-	        return this.getMessageService().drawPreparedUnreadMessages();
+	        await this.getMessageService().drawPreparedUnreadMessages();
+	        return;
 	      }
 
 	      // check if already loading or no more history
 	      if (this.getMessageService().isLoading() || !this.dialog.hasNextPage) {
-	        return false;
+	        return;
 	      }
 
 	      // Load messages and save them
-	      this.getMessageService().loadUnread().then(() => {
-	        // Messages loaded and we are at the bottom
-	        if (this.getScrollManager().isAroundBottom()) {
-	          im_v2_lib_logger.Logger.warn('Dialog: we are at the bottom after unread request, inserting messages');
-	          this.getMessageService().drawPreparedUnreadMessages().then(() => {
-	            this.getScrollManager().checkIfChatIsScrolledUp();
-	          });
-	        }
-	      });
+	      await this.getMessageService().loadUnread();
+	      // Messages loaded and we are at the bottom
+	      if (this.getScrollManager().isAroundBottom()) {
+	        im_v2_lib_logger.Logger.warn('Dialog: we are at the bottom after unread request, inserting messages');
+	        await this.getMessageService().drawPreparedUnreadMessages();
+	        this.getScrollManager().checkIfChatIsScrolledUp();
+	      }
 	    },
 	    onScrollToBottom(event) {
 	      const {
@@ -1468,10 +1495,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      if (!this.windowFocused || this.hasVisibleCall()) {
 	        const firstUnreadId = this.$store.getters['messages/getFirstUnread'](this.dialog.chatId);
-	        this.$nextTick(() => {
-	          this.getScrollManager().scrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
-	        });
-	        return;
+	        if (firstUnreadId) {
+	          void this.$nextTick(() => {
+	            this.getScrollManager().scrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
+	          });
+	          return;
+	        }
 	      }
 	      im_v2_lib_logger.Logger.warn('Dialog: scroll to bottom', chatId, threshold);
 	      if (threshold === im_v2_const.DialogScrollThreshold.halfScreenUp && this.isScrolledUp) {
@@ -1480,7 +1509,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (threshold === im_v2_const.DialogScrollThreshold.nearTheBottom && !this.getScrollManager().isAroundBottom()) {
 	        return;
 	      }
-	      this.$nextTick(() => {
+	      void this.$nextTick(() => {
 	        this.getScrollManager().animatedScrollToBottom();
 	      });
 	    },
@@ -1492,7 +1521,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.dialog.dialogId !== dialogId) {
 	        return;
 	      }
-	      this.goToMessageContext(messageId);
+	      void this.goToMessageContext(messageId);
 	    },
 	    onOpenChatInfo(event) {
 	      const {
@@ -1504,7 +1533,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.chatInfoPopup.show = true;
 	    },
 	    onPinnedMessageClick(messageId) {
-	      this.goToMessageContext(messageId);
+	      void this.goToMessageContext(messageId);
 	    },
 	    onPinnedMessageUnpin(messageId) {
 	      this.getMessageService().unpinMessage(this.dialog.chatId, messageId);
@@ -1527,25 +1556,23 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.closeDialogPopups();
 	      this.debouncedScrollHandler(event);
 	    },
-	    onScrollButtonClick() {
+	    async onScrollButtonClick() {
 	      if (this.getScrollManager().scrollButtonClicked) {
 	        this.handleSecondScrollButtonClick();
 	        return;
 	      }
 	      this.getScrollManager().scrollButtonClicked = true;
 	      if (this.dialog.counter === 0) {
-	        this.getMessageService().loadInitialMessages().then(() => {
-	          this.getScrollManager().scrollToBottom();
-	        });
+	        await this.getMessageService().loadInitialMessages();
+	        this.getScrollManager().scrollToBottom();
 	        return;
 	      }
 	      const firstUnreadId = this.$store.getters['messages/getFirstUnread'](this.dialog.chatId);
 	      if (!firstUnreadId) {
-	        this.getMessageService().loadInitialMessages().then(() => {
-	          this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
-	        });
+	        await this.getMessageService().loadInitialMessages();
+	        await this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
 	      }
-	      this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
+	      await this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
 	    },
 	    onWindowFocus() {
 	      this.windowFocused = true;
@@ -1572,6 +1599,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        dialog: this.dialog
 	      }, event.currentTarget);
 	    },
+	    onCallFold() {
+	      const callDialogId = im_v2_lib_call.CallManager.getInstance().getCurrentCallDialogId();
+	      if (callDialogId !== this.dialogId) {
+	        return;
+	      }
+	      this.readVisibleMessages();
+	    },
 	    handleSecondScrollButtonClick() {
 	      this.getScrollManager().scrollButtonClicked = false;
 	      if (this.dialog.hasNextPage) {
@@ -1580,11 +1614,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	            chatId: this.dialog.chatId
 	          });
 	        }).catch(error => {
-	          console.error('ChatDialog: scroll to chat end loadContext error', error);
+	          im_v2_lib_logger.Logger.error('ChatDialog: scroll to chat end loadContext error', error);
 	        });
 	        return;
 	      }
-	      this.getScrollManager().animatedScrollToMessage(this.dialog.lastMessageId);
+	      void this.getScrollManager().animatedScrollToMessage(this.dialog.lastMessageId);
 	    },
 	    /* endregion Event handlers */
 	    hasVisibleCall() {
@@ -1606,6 +1640,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.scrollToBottom, this.onScrollToBottom);
 	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.goToMessageContext, this.onGoToMessageContext);
 	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.mention.openChatInfo, this.onOpenChatInfo);
+	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.call.onFold, this.onCallFold);
 	      main_core.Event.bind(window, 'focus', this.onWindowFocus);
 	      main_core.Event.bind(window, 'blur', this.onWindowBlur);
 	    },
@@ -1613,11 +1648,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.scrollToBottom, this.onScrollToBottom);
 	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.goToMessageContext, this.onGoToMessageContext);
 	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.mention.openChatInfo, this.onOpenChatInfo);
+	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.call.onFold, this.onCallFold);
 	      main_core.Event.unbind(window, 'focus', this.onWindowFocus);
 	      main_core.Event.unbind(window, 'blur', this.onWindowBlur);
 	    },
 	    getContainer() {
-	      return this.$refs['container'];
+	      return this.$refs.container;
 	    }
 	  },
 	  template: `
@@ -1682,7 +1718,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				</div>
 			</Transition>
 			<ChatInfoPopup
-				v-if="chatInfoPopup.show" 
+				v-if="chatInfoPopup.show"
 				:dialogId="chatInfoPopup.dialogId"
 				:bindElement="chatInfoPopup.element"
 				:showPopup="chatInfoPopup.show"

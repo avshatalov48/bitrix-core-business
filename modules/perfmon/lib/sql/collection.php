@@ -24,6 +24,19 @@ class Collection
 	}
 
 	/**
+	 * Replaces object in the collection.
+	 *
+	 * @param int $index Collection index for replacement.
+	 * @param BaseObject $object Object to add.
+	 *
+	 * @return void
+	 */
+	public function set($index, BaseObject $object)
+	{
+		$this->list[$index] = $object;
+	}
+
+	/**
 	 * Searches collection for an object by it's name.
 	 *
 	 * @param string $name Object name to look up.
@@ -37,6 +50,24 @@ class Collection
 		{
 			if ($object->compareName($name) == 0)
 				return $object;
+		}
+		return null;
+	}
+
+	/**
+	 * Searches collection for an object by it's name.
+	 *
+	 * @param string $name Object name to look up.
+	 *
+	 * @return int|null
+	 */
+	public function searchIndex($name)
+	{
+		/** @var BaseObject $object */
+		foreach ($this->list as $i => $object)
+		{
+			if ($object->compareName($name) == 0)
+				return $i;
 		}
 		return null;
 	}

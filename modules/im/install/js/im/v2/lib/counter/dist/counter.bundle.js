@@ -1,11 +1,10 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,main_core_events,ui_vue3_vuex,im_v2_application_core,im_v2_lib_desktop) {
+(function (exports,main_core,main_core_events,ui_vue3_vuex,im_v2_application_core,im_v2_lib_desktop,im_v2_const) {
 	'use strict';
 
-	const NOTIFICATION_COUNTER_UPDATE_EVENT = 'onImUpdateCounterNotify';
-	const CHAT_COUNTER_UPDATE_EVENT = 'onImUpdateCounterMessage';
 	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _prepareChatCounters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareChatCounters");
 	var _subscribeToCountersChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeToCountersChange");
@@ -90,13 +89,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  const event = new main_core_events.BaseEvent({
 	    compatData: [notificationsCounter]
 	  });
-	  main_core_events.EventEmitter.emit(window, NOTIFICATION_COUNTER_UPDATE_EVENT, event);
+	  main_core_events.EventEmitter.emit(window, im_v2_const.EventType.counter.onNotificationCounterChange, event);
 	}
 	function _sendChatCounterChangeEvent2(chatCounter) {
 	  const event = new main_core_events.BaseEvent({
 	    compatData: [chatCounter]
 	  });
-	  main_core_events.EventEmitter.emit(window, CHAT_COUNTER_UPDATE_EVENT, event);
+	  main_core_events.EventEmitter.emit(window, im_v2_const.EventType.counter.onChatCounterChange, event);
 	}
 	function _onTotalCounterChange2() {
 	  const notificationCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['notifications/getCounter'];
@@ -129,5 +128,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.CounterManager = CounterManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Vue3.Vuex,BX.Messenger.v2.Application,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Vue3.Vuex,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=counter.bundle.js.map

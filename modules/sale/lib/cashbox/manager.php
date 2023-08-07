@@ -32,6 +32,8 @@ final class Manager
 	const TTL = 31536000;
 	const CHECK_STATUS_AGENT = '\Bitrix\Sale\Cashbox\Manager::updateChecksStatus();';
 
+	private const EVENT_ON_BEFORE_CASHBOX_ADD = 'onBeforeCashboxAdd';
+
 	/**
 	 * @param CollectableEntity $entity
 	 * @return array
@@ -62,14 +64,13 @@ final class Manager
 		{
 			/** @var CashboxPaySystem $cashboxClass */
 			$cashboxClass = $service->getCashboxClass();
-			$paySystemParams = $service->getParamsBusValue($payment);
-			$paySystemCodeForKkm = $cashboxClass::getPaySystemCodeForKkm();
+			$kkm = $cashboxClass::getKkmValue($service);
 
 			return self::getList([
 				'filter' => [
 					'=ACTIVE' => 'Y',
 					'=HANDLER' => $cashboxClass,
-					'=KKM_ID' => $paySystemParams[$paySystemCodeForKkm],
+					'=KKM_ID' => $kkm,
 				],
 			])->fetch();
 		}
@@ -331,6 +332,13 @@ final class Manager
 	 */
 	public static function add(array $data)
 	{
+		$event = new Main\Event('sale', self::EVENT_ON_BEFORE_CASHBOX_ADD, $data);
+		$event->send();
+		$eventResults = $event->getResults();
+		foreach ($eventResults as $eventResult)
+		{
+			$data = array_merge($data, $eventResult->getParameters());
+		}
 		$addResult = CashboxTable::add($data);
 
 		$cacheManager = Main\Application::getInstance()->getManagedCache();
@@ -593,6 +601,33 @@ final class Manager
 		{
 			Logger::addError($error->getMessage(), $cashboxId);
 		}
+	}
+
+	/**
+	 * @param $cashboxId
+	 * @return bool
+	 */
+	public static function isCashboxChecksExist($cashboxId): bool
+	{
+		$params = [
+			'filter' => [
+				'STATUS' => 'Y',
+				'CASHBOX_ID' => $cashboxId,
+			],
+			'limit' => 1,
+		];
+		$result = CheckManager::getList($params);
+
+		return (bool)$result->fetch();
+	}
+
+	/**
+	 * @param $cashboxId
+	 * @return Main\ORM\Data\UpdateResult
+	 */
+	public static function deactivateCashbox($cashboxId): Main\ORM\Data\UpdateResult
+	{
+		return self::update($cashboxId, ['ACTIVE' => 'N']);
 	}
 
 	/**

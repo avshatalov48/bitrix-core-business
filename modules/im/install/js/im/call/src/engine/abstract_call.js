@@ -1,4 +1,5 @@
 import {Type} from 'main.core'
+import {DesktopApi} from 'im.v2.lib.desktop-api';
 import {Logger} from './logger'
 import {CallType, CallEvent, CallState, CallEngine, Provider} from './engine'
 import Util from '../util'
@@ -208,9 +209,9 @@ export class AbstractCall
 	{
 		let text = Util.getLogMessage.apply(null, arguments);
 
-		if (BX.desktop && BX.desktop.ready())
+		if (DesktopApi.isDesktop())
 		{
-			BX.desktop.log(BX.message('USER_ID') + '.video.log', text.substr(3));
+			DesktopApi.log(BX.message('USER_ID') + '.video.log', text.substr(3));
 		}
 		if (CallEngine.debugFlag && console)
 		{

@@ -18,8 +18,10 @@ class CListsLiveFeed
 		);
 		$element = $elementObject->fetch();
 
-		if(!CLists::getLiveFeed($element["IBLOCK_ID"]))
+		if (!CLists::getLiveFeed($element["IBLOCK_ID"] ?? null))
+		{
 			return false;
+		}
 
 		$listSystemIblockCode = array(
 			'bitrix_holiday',
@@ -722,23 +724,29 @@ class CListsLiveFeed
 			),
 			false,
 			false,
-			array("SOURCE_ID", "URL", "TITLE", "USER_ID", "PARAMS")
+			array("ID", "SOURCE_ID", "URL", "TITLE", "USER_ID", "PARAMS")
 		);
 
 		if (($log = $logQuery->fetch()) && (intval($log["SOURCE_ID"]) > 0))
 		{
 			$params = unserialize($log["PARAMS"], ['allowed_classes' => false]);
 			$title = $log["TITLE"]." - ".$params["ELEMENT_NAME"];
-			CListsLiveFeed::notifyComment(
-				array(
-					"LOG_ID" => $comment["LOG_ID"],
-					"MESSAGE_ID" => $comment["SOURCE_ID"],
-					"TO_USER_ID" => $log["USER_ID"],
-					"FROM_USER_ID" => $comment["USER_ID"],
-					"URL" => $log["URL"],
-					"TITLE" => $title
-				)
-			);
+
+			$userIdsToNotify = self::getUserIdsFromRights($log['ID']);
+
+			foreach ($userIdsToNotify as $userId)
+			{
+				CListsLiveFeed::notifyComment(
+					[
+						"LOG_ID" => $comment["LOG_ID"],
+						"MESSAGE_ID" => $comment["SOURCE_ID"],
+						"TO_USER_ID" => $userId,
+						"FROM_USER_ID" => $comment["USER_ID"],
+						"URL" => $log["URL"],
+						"TITLE" => $title
+					]
+				);
+			}
 		}
 	}
 
@@ -768,16 +776,22 @@ class CListsLiveFeed
 		{
 			$params = unserialize($log["PARAMS"], ['allowed_classes' => false]);
 			$title = $log["TITLE"]." - ".$params["ELEMENT_NAME"];
-			CListsLiveFeed::notifyComment(
-				array(
-					"LOG_ID" => $log["ID"],
-					"MESSAGE_ID" => $comment["MESSAGE_ID"],
-					"TO_USER_ID" => $log["USER_ID"],
-					"FROM_USER_ID" => $comment["USER_ID"],
-					"URL" => $log["URL"],
-					"TITLE" => $title
-				)
-			);
+
+			$userIdsToNotify = self::getUserIdsFromRights($log['ID']);
+
+			foreach ($userIdsToNotify as $userId)
+			{
+				CListsLiveFeed::notifyComment(
+					[
+						"LOG_ID" => $log["ID"],
+						"MESSAGE_ID" => $comment["MESSAGE_ID"],
+						"TO_USER_ID" => $userId,
+						"FROM_USER_ID" => $comment["USER_ID"],
+						"URL" => $log["URL"],
+						"TITLE" => $title
+					]
+				);
+			}
 		}
 	}
 
@@ -904,5 +918,20 @@ class CListsLiveFeed
 		}
 
 		return true;
+	}
+
+	private static function getUserIdsFromRights(int $logId): array
+	{
+		$userIdsToNotify = [];
+		$rightsResult = \CSocNetLogRights::getList([], ['LOG_ID' => $logId]);
+		while ($right = $rightsResult->fetch())
+		{
+			if (preg_match('/^U(\d+)$/', $right["GROUP_CODE"], $matches))
+			{
+				$userIdsToNotify[] = $matches[1];
+			}
+		}
+
+		return $userIdsToNotify;
 	}
 }

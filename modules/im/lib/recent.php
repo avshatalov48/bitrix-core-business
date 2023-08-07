@@ -1132,6 +1132,27 @@ class Recent
 		return ($element['UNREAD'] ?? 'N') === 'Y';
 	}
 
+	public static function getUnread(string $itemType, string $dialogId): array
+	{
+		$id = mb_strpos($dialogId, 'chat') === 0 ? mb_substr($dialogId, 4) : $dialogId;
+		$queryResult = \Bitrix\Im\Model\RecentTable::getList([
+			'select' => ['USER_ID', 'UNREAD',],
+			'filter' => [
+				'=ITEM_TYPE' => $itemType,
+				'=ITEM_ID' => $id
+			]
+		])->fetchAll();
+
+		$result = [];
+
+		foreach ($queryResult as $row)
+		{
+			$result[(int)$row['USER_ID']] = ($row['UNREAD'] ?? 'N') === 'Y';
+		}
+
+		return $result;
+	}
+
 	public static function getMarkedId(int $userId, string $itemType, string $dialogId): int
 	{
 		$id = mb_strpos($dialogId, 'chat') === 0 ? mb_substr($dialogId, 4) : $dialogId;
@@ -1352,6 +1373,16 @@ class Recent
 
 	protected static function fillFiles(array $rows): array
 	{
+		if (!Settings::isBetaActivated())
+		{
+			foreach ($rows as $key => $row)
+			{
+				$rows[$key]['MESSAGE_FILE'] = (bool)($row['MESSAGE_FILE'] ?? false);
+			}
+
+			return $rows;
+		}
+
 		$fileIds = [];
 
 		foreach ($rows as $row)

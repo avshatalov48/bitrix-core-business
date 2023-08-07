@@ -115,7 +115,7 @@ class Sanitizer
 			'sup' => array('style','id','class'),
 			'table' => array('border','width','style','id','class','cellspacing','cellpadding'),
 			'tbody'	=> array('align','valign','style','id','class'),
-			'td' => array('width','height','style','id','class','align','valign','colspan','rowspan'),
+			'td' => array('width','height','style','id','class','align','valign','colspan','rowspan','bgcolor'),
 			'tfoot' => array('align','valign','style','id','class','align','valign'),
 			'th' => array('width','height','style','id','class','colspan','rowspan'),
 			'thead'	=> array('align','valign','style','id','class'),

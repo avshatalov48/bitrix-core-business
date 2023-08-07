@@ -1,4 +1,9 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 if (!IsModuleInstalled("photogallery"))
 	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
 elseif (!IsModuleInstalled("iblock"))
@@ -8,15 +13,15 @@ elseif (!IsModuleInstalled("iblock"))
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
-	$arParams["USER_ALIAS"] = preg_replace("/[^a-z0-9\_]+/is" , "", $arParams["USER_ALIAS"]);
-	$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
-	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
-	$arParams["ANALIZE_SOCNET_PERMISSION"] = ($arParams["ANALIZE_SOCNET_PERMISSION"] == "Y" ? "Y" : "N");
+	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"] ?? '');
+	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"] ?? 0);
+	$arParams["USER_ALIAS"] = preg_replace("/[^a-z0-9\_]+/is" , "", ($arParams["USER_ALIAS"] ?? ''));
+	$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"] ?? 0);
+	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"] ?? '');
+	$arParams["ANALIZE_SOCNET_PERMISSION"] = (($arParams["ANALIZE_SOCNET_PERMISSION"] ?? null) == "Y" ? "Y" : "N");
 
 	$arParams["SORT_BY"] = (!empty($arParams["SORT_BY"]) ? $arParams["SORT_BY"] : "ID");
-	$arParams["SORT_ORD"] = ($arParams["SORT_ORD"] != "ASC" ? "DESC" : "ASC");
+	$arParams["SORT_ORD"] = (($arParams["SORT_ORD"] ?? null) != "ASC" ? "DESC" : "ASC");
 /***************** URL *********************************************/
 $URL_NAME_DEFAULT = array(
 		"index" => "",
@@ -28,19 +33,19 @@ $URL_NAME_DEFAULT = array(
 
 foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 {
-	$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+	$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"] ?? '');
 	if (empty($arParams[mb_strtoupper($URL)."_URL"]))
 		$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 	$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
 	$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 }
 /***************** ADDITIONAL **************************************/
-	$arParams["ONLY_ONE_GALLERY"] = ($arParams["ONLY_ONE_GALLERY"] == "N" ? "N" : "Y");
-	$arParams["GALLERY_GROUPS"] = (is_array($arParams["GALLERY_GROUPS"]) ? $arParams["GALLERY_GROUPS"] : array());
-	$arParams["GALLERY_SIZE"] = intval($arParams["GALLERY_SIZE"])*1024*1024;
-	$arParams["RETURN_ARRAY"] = ($arParams["RETURN_ARRAY"] == "Y" ? "Y" : "N");// hidden params for custom components
-	$arParams["SHOW_PHOTO_USER"] = ($arParams["SHOW_PHOTO_USER"] == "Y" ? "Y" : "N");// hidden params for custom components
-	$arParams["GALLERY_AVATAR_SIZE"] = intval(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
+	$arParams["ONLY_ONE_GALLERY"] = (($arParams["ONLY_ONE_GALLERY"] ?? null) == "N" ? "N" : "Y");
+	$arParams["GALLERY_GROUPS"] = (is_array($arParams["GALLERY_GROUPS"] ?? null) ? $arParams["GALLERY_GROUPS"] : array());
+	$arParams["GALLERY_SIZE"] = intval($arParams["GALLERY_SIZE"] ?? 0)*1024*1024;
+	$arParams["RETURN_ARRAY"] = (($arParams["RETURN_ARRAY"] ?? null) == "Y" ? "Y" : "N");// hidden params for custom components
+	$arParams["SHOW_PHOTO_USER"] = (($arParams["SHOW_PHOTO_USER"] ?? null) == "Y" ? "Y" : "N");// hidden params for custom components
+	$arParams["GALLERY_AVATAR_SIZE"] = intval(intVal($arParams["GALLERY_AVATAR_SIZE"] ?? 0) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
 /***************** STANDART ****************************************/
 	if(!isset($arParams["CACHE_TIME"]))
 		$arParams["CACHE_TIME"] = 3600;
@@ -48,9 +53,9 @@ foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 	else
 		$arParams["CACHE_TIME"] = 0;
-	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on by default
-	$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y"); //Turn on by default
-	$arParams["DISPLAY_PANEL"] = ($arParams["DISPLAY_PANEL"]=="Y"); //Turn off by default
+	$arParams["SET_TITLE"] = (($arParams["SET_TITLE"] ?? null) == "N" ? "N" : "Y"); //Turn on by default
+	$arParams["SET_NAV_CHAIN"] = (($arParams["SET_NAV_CHAIN"] ?? null) == "N" ? "N" : "Y"); //Turn on by default
+	$arParams["DISPLAY_PANEL"] = (($arParams["DISPLAY_PANEL"] ?? null)=="Y"); //Turn off by default
 /********************************************************************
 				/Input params
 ********************************************************************/
@@ -376,21 +381,41 @@ else:
 		$arResult["I"]["ACTIONS"]["CREATE_GALLERY"] = "N";
 	endif;
 
-	if ($arResult["GALLERY"]["CREATED_BY"] == $GLOBALS["USER"]->GetId()):
+	if (($arResult["GALLERY"]["CREATED_BY"] ?? null) == $GLOBALS["USER"]->GetId())
+	{
 		$arParams["PERMISSION"] = "W";
 		$arResult["I"]["ACTIONS"]["EDIT_GALLERY"] = "Y";
 		$arResult["I"]["ACTIONS"]["UPLOAD"] = "Y";
-	endif;
+	}
+
 endif;
 /************** URL ************************************************/
 $USER_ID = $GLOBALS["USER"]->GetID();
-$res = array(
-	"INDEX" => CComponentEngine::MakePathFromTemplate($arParams["~INDEX_URL"], array(
-				"USER_ID" => $USER_ID, "GROUP_ID" => $arResult["MY_GALLERY"]["SOCNET_GROUP_ID"])),
-	"NEW" => CComponentEngine::MakePathFromTemplate($arParams["~GALLERY_EDIT_URL"], array("USER_ALIAS" => "NEW_ALIAS", "ACTION" => "CREATE",
-				"USER_ID" => $USER_ID, "GROUP_ID" => $arResult["MY_GALLERY"]["SOCNET_GROUP_ID"])),
-	"GALLERIES" =>  CComponentEngine::MakePathFromTemplate($arParams["~GALLERIES_URL"], array(
-				"USER_ID" => $USER_ID, "GROUP_ID" => $arResult["MY_GALLERY"]["SOCNET_GROUP_ID"])));
+$res = [
+	"INDEX" => CComponentEngine::MakePathFromTemplate(
+		$arParams["~INDEX_URL"],
+		[
+			"USER_ID" => $USER_ID,
+			"GROUP_ID" => $arResult["MY_GALLERY"]["SOCNET_GROUP_ID"] ?? null
+		]
+	),
+	"NEW" => CComponentEngine::MakePathFromTemplate(
+		$arParams["~GALLERY_EDIT_URL"],
+		[
+			"USER_ALIAS" => "NEW_ALIAS",
+			"ACTION" => "CREATE",
+			"USER_ID" => $USER_ID,
+			"GROUP_ID" => $arResult["MY_GALLERY"]["SOCNET_GROUP_ID"] ?? null
+		]
+	),
+	"GALLERIES" => CComponentEngine::MakePathFromTemplate(
+		$arParams["~GALLERIES_URL"],
+		[
+			"USER_ID" => $USER_ID,
+			"GROUP_ID" => $arResult["MY_GALLERY"]["SOCNET_GROUP_ID"] ?? null
+		]
+	)
+];
 $arResult["LINK"] = array();
 foreach ($res as $key => $val)
 {
@@ -421,11 +446,11 @@ if ($arParams["SET_NAV_CHAIN"] == "Y" && !empty($arResult["GALLERY"]))
 }
 /************** Returns ********************************************/
 if ($arParams["RETURN_ARRAY"] == "N") // For custom component
-	return $arResult["GALLERY"]["CODE"];
+	return $arResult["GALLERY"]["CODE"] ?? null;
 else
 	return array(
 		"USER_ALIAS" => (!empty($arResult["GALLERY"]) ? $arResult["GALLERY"]["CODE"] : $arParams["USER_ALIAS"]),
-		"ACTIVE" => $arResult["GALLERY"]["ACTIVE"],
+		"ACTIVE" => $arResult["GALLERY"]["ACTIVE"] ?? null,
 		"SECTION_ID" => $arParams["SECTION_ID"],
 		"PERMISSION" => $arParams["PERMISSION"],
 		"ALL" => $arResult);

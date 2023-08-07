@@ -1,28 +1,31 @@
-import {Extension, Type} from 'main.core';
-import {BaseEvent, EventEmitter} from 'main.core.events';
+import { Extension, Type } from 'main.core';
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import { getFilesFromDataTransfer, isFilePasted } from 'ui.uploader.core';
 
-import {EventType, LocalStorageKey, SoundType} from 'im.v2.const';
-import {Logger} from 'im.v2.lib.logger';
-import {DraftManager} from 'im.v2.lib.draft';
-import {Utils} from 'im.v2.lib.utils';
-import {Parser} from 'im.v2.lib.parser';
-import {LocalStorageManager} from 'im.v2.lib.local-storage';
-import {MessageService, SendingService} from 'im.v2.provider.service';
-import {SoundNotificationManager} from 'im.v2.lib.sound-notification';
+import { EventType, LocalStorageKey, SoundType } from 'im.v2.const';
+import { Logger } from 'im.v2.lib.logger';
+import { DraftManager } from 'im.v2.lib.draft';
+import { Utils } from 'im.v2.lib.utils';
+import { Parser } from 'im.v2.lib.parser';
+import { LocalStorageManager } from 'im.v2.lib.local-storage';
+import { MessageService, SendingService } from 'im.v2.provider.service';
+import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
 
-import {ResizeManager} from './classes/resize-manager';
-import {TypingService} from './classes/typing-service';
-import {SmileSelector} from './components/smile-selector/smile-selector';
-import {EditPanel} from './components/edit-panel';
-import {UploadMenu} from './components/upload-menu/upload-menu';
-import {CreateEntityMenu} from './components/create-entity-menu/create-entity-menu';
-import {SendButton} from './components/send-button';
-import {MarketAppsPanel} from './components/market-apps-panel/market-apps-panel';
+import { ResizeManager } from './classes/resize-manager';
+import { TypingService } from './classes/typing-service';
+import { Text } from './classes/text';
+import { SmileSelector } from './components/smile-selector/smile-selector';
+import { EditPanel } from './components/edit-panel';
+import { UploadMenu } from './components/upload-menu/upload-menu';
+import { CreateEntityMenu } from './components/create-entity-menu/create-entity-menu';
+import { SendButton } from './components/send-button';
+import { MarketAppsPanel } from './components/market-apps-panel/market-apps-panel';
+import { UploadPreviewPopup } from './components/upload-preview/upload-preview-popup';
 
 import './css/textarea.css';
 
-import type {ImModelDialog, ImModelMessage} from 'im.v2.model';
-import type {InsertTextEvent, InsertMentionEvent, EditMessageEvent} from 'im.v2.const';
+import type { ImModelDialog, ImModelMessage } from 'im.v2.model';
+import type { InsertTextEvent, InsertMentionEvent, EditMessageEvent } from 'im.v2.const';
 
 // @vue/component
 export const ChatTextarea = {
@@ -32,15 +35,16 @@ export const ChatTextarea = {
 		CreateEntityMenu,
 		SmileSelector,
 		SendButton,
-		MarketAppsPanel
+		UploadPreviewPopup,
+		MarketAppsPanel,
 	},
 	props: {
 		dialogId: {
 			type: String,
-			default: ''
-		}
+			default: '',
+		},
 	},
-	data()
+	data(): { [key: string]: any}
 	{
 		return {
 			text: '',
@@ -48,6 +52,9 @@ export const ChatTextarea = {
 			textareaHeight: ResizeManager.minHeight,
 			editMessageId: 0,
 			showMarketApps: false,
+
+			showUploadPreviewPopup: false,
+			previewPopupUploaderId: '',
 		};
 	},
 	computed:
@@ -62,7 +69,11 @@ export const ChatTextarea = {
 		},
 		editMode(): boolean
 		{
-			return !!this.editMessageId;
+			return Boolean(this.editMessageId);
+		},
+		isDisabled(): boolean
+		{
+			return this.text.trim() === '' && !this.editMode;
 		},
 		textareaStyle(): Object
 		{
@@ -71,30 +82,25 @@ export const ChatTextarea = {
 			{
 				height = 'auto';
 			}
+
 			return {
 				height,
-				maxHeight: height
+				maxHeight: height,
 			};
 		},
-		textareaMaxLength()
+		textareaMaxLength(): number
 		{
 			const settings = Extension.getSettings('im.v2.component.textarea');
+
 			return settings.get('maxLength');
 		},
 		hasMentions(): boolean
 		{
 			return Object.keys(this.mentions).length > 0;
-		}
+		},
 	},
 	watch:
 	{
-		dialogInited(newValue, oldValue)
-		{
-			if (!newValue || oldValue)
-			{
-				return false;
-			}
-		},
 		text(newValue)
 		{
 			this.adjustTextareaHeight();
@@ -107,12 +113,13 @@ export const ChatTextarea = {
 			{
 				this.getTypingService().startTyping();
 			}
-		}
+		},
 	},
 	created()
 	{
 		this.initResizeManager();
 		this.restoreTextareaHeight();
+		this.restoreMarketPanelOpenState();
 		this.restoreDraftText();
 
 		EventEmitter.subscribe(EventType.textarea.insertMention, this.onInsertMention);
@@ -121,7 +128,7 @@ export const ChatTextarea = {
 	},
 	mounted()
 	{
-		this.$refs['textarea'].focus();
+		this.$refs.textarea.focus();
 	},
 	beforeUnmount()
 	{
@@ -135,14 +142,21 @@ export const ChatTextarea = {
 		sendMessage()
 		{
 			this.text = this.text.trim();
-			if (!this.text || !this.dialogInited)
+			if (this.isDisabled || !this.dialogInited)
 			{
 				return;
 			}
 
 			if (this.editMode)
 			{
-				this.getMessageService().editMessageText(this.editMessageId, this.text);
+				if (this.text === '')
+				{
+					this.getMessageService().deleteMessage(this.editMessageId);
+				}
+				else
+				{
+					this.getMessageService().editMessageText(this.editMessageId, this.text);
+				}
 				this.closeEditPanel();
 				this.clear();
 
@@ -151,7 +165,7 @@ export const ChatTextarea = {
 
 			const text = this.hasMentions ? this.replaceMentions(this.text) : this.text;
 
-			this.getSendingService().sendMessage({text: text, dialogId: this.dialogId});
+			this.getSendingService().sendMessage({ text, dialogId: this.dialogId });
 			this.getTypingService().stopTyping();
 			this.clear();
 			DraftManager.getInstance().clearDraftInRecentList(this.dialogId);
@@ -161,11 +175,11 @@ export const ChatTextarea = {
 		{
 			if (!this.hasMentions)
 			{
-				return;
+				return '';
 			}
 
 			let textWithMentions = text;
-			Object.entries(this.mentions).forEach(mention => {
+			Object.entries(this.mentions).forEach((mention) => {
 				const [mentionText, mentionReplacement] = mention;
 				textWithMentions = textWithMentions.replace(mentionText, mentionReplacement);
 			});
@@ -182,24 +196,31 @@ export const ChatTextarea = {
 			this.showMarketApps = false;
 			const message: ImModelMessage = this.$store.getters['messages/getById'](messageId);
 
+			if (message.isDeleted)
+			{
+				return;
+			}
+
 			this.editMessageId = messageId;
 			this.text = Parser.prepareEdit(message);
 
-			this.$refs['textarea'].focus();
+			this.$refs.textarea.focus();
 		},
 		closeEditPanel()
 		{
 			this.editMessageId = 0;
+			this.restoreMarketPanelOpenState();
 		},
 		async adjustTextareaHeight()
 		{
 			this.textareaHeight = 'auto';
 
 			await this.$nextTick();
-			const newMaxPoint = Math.min(ResizeManager.maxHeight, this.$refs['textarea'].scrollHeight);
+			const newMaxPoint = Math.min(ResizeManager.maxHeight, this.$refs.textarea.scrollHeight);
 			if (this.resizedTextareaHeight)
 			{
 				this.textareaHeight = Math.max(newMaxPoint, this.resizedTextareaHeight);
+
 				return;
 			}
 
@@ -223,7 +244,7 @@ export const ChatTextarea = {
 			}
 
 			this.resizedTextareaHeight = savedHeight;
-			this.textareaHeight = savedHeight;
+			this.adjustTextareaHeight();
 		},
 		restoreDraftText()
 		{
@@ -232,24 +253,48 @@ export const ChatTextarea = {
 		onKeyDown(event: KeyboardEvent)
 		{
 			const exitEditCombination = Utils.key.isCombination(event, 'Escape');
-			const sendMessageCombination = Utils.key.isCombination(event, ['Enter', 'NumpadEnter']);
-			const newLineCombination = Utils.key.isCombination(event, 'Shift+Enter');
-			const tabCombination = Utils.key.isCombination(event, 'Tab');
 			if (this.editMode && exitEditCombination)
 			{
 				this.onEditPanelClose();
+
+				return;
 			}
-			else if (sendMessageCombination && !newLineCombination)
+
+			const sendMessageCombination = Utils.key.isCombination(event, ['Enter', 'NumpadEnter']);
+			const newLineCombination = Utils.key.isCombination(event, 'Shift+Enter');
+			if (sendMessageCombination && !newLineCombination)
 			{
 				event.preventDefault();
 				this.sendMessage();
 			}
-			else if (tabCombination)
+
+			const tabCombination = Utils.key.isCombination(event, 'Tab');
+			if (tabCombination)
 			{
 				event.preventDefault();
-				this.text += '\t';
+				const { textarea } = this.$refs;
+				if (event.shiftKey)
+				{
+					this.text = Text.removeTab(textarea);
+
+					return;
+				}
+				this.text = Text.addTab(textarea);
+
+				return;
 			}
-			else if (this.text === '' && Utils.key.isCombination(event, 'ArrowUp'))
+
+			const decorationCombination = Utils.key.isCombination(event, ['Ctrl+b', 'Ctrl+i', 'Ctrl+u', 'Ctrl+s']);
+			if (decorationCombination)
+			{
+				event.preventDefault();
+				const { textarea } = this.$refs;
+				this.text = Text.handleDecorationTag(textarea, event.code);
+
+				return;
+			}
+
+			if (this.text === '' && Utils.key.isCombination(event, 'ArrowUp'))
 			{
 				event.preventDefault();
 				const lastOwnMessageId = this.$store.getters['messages/getLastOwnMessageId'](this.dialog.chatId);
@@ -263,25 +308,37 @@ export const ChatTextarea = {
 		{
 			this.resizeManager.onResizeStart(event, this.textareaHeight);
 		},
-		onFileSelect(fileEvent: Event)
+		onFileSelect(fileEvent: InputEvent)
 		{
 			const files = Object.values(fileEvent.target.files);
+
 			this.getSendingService().sendFilesFromInput(files, this.dialogId);
 		},
-		onDiskFileSelect({files})
+		onDiskFileSelect({ files })
 		{
 			this.getSendingService().sendFilesFromDisk(files, this.dialogId);
 		},
 		onInsertMention(event: BaseEvent<InsertMentionEvent>)
 		{
-			const {mentionText, mentionReplacement} = event.getData();
+			const { mentionText, mentionReplacement } = event.getData();
 			this.mentions[mentionText] = mentionReplacement;
 			this.text += `${mentionText} `;
 			this.$refs.textarea.focus();
 		},
 		onInsertText(event: BaseEvent<InsertTextEvent>)
 		{
-			const {text, withNewLine} = event.getData();
+			// TODO sync with im/install/js/im/component/textarea/src/textarea.js:164
+			const textarea = this.$refs.textarea;
+			const { text, withNewLine, replace } = event.getData();
+
+			if (replace)
+			{
+				this.text = '';
+				textarea.value = '';
+				textarea.selectionStart = 0;
+				textarea.selectionEnd = 0;
+			}
+
 			if (this.text.length === 0)
 			{
 				this.text = text;
@@ -290,11 +347,12 @@ export const ChatTextarea = {
 			{
 				this.text = withNewLine ? `${this.text}\n${text}` : `${this.text} ${text}`;
 			}
-			this.$refs.textarea.focus();
+
+			textarea.focus();
 		},
 		onEditMessage(event: BaseEvent<EditMessageEvent>)
 		{
-			const {messageId} = event.getData();
+			const { messageId } = event.getData();
 			this.openEditPanel(messageId);
 		},
 		onEditPanelClose()
@@ -302,10 +360,49 @@ export const ChatTextarea = {
 			this.closeEditPanel();
 			this.clear();
 		},
+		onPaste(clipboardEvent: ClipboardEvent)
+		{
+			const { clipboardData } = clipboardEvent;
+			if (!clipboardData || !isFilePasted(clipboardData))
+			{
+				return;
+			}
+
+			clipboardEvent.preventDefault();
+
+			getFilesFromDataTransfer(clipboardData).then((files: File[]) => {
+				const imagesOnly = files.filter((file) => Utils.file.isImage(file.name));
+				if (imagesOnly.length === 0)
+				{
+					return [];
+				}
+
+				return this.getSendingService().sendFilesFromClipboard(imagesOnly, this.dialogId);
+			}).then(({ files, uploaderId }) => {
+				if (files.length === 0)
+				{
+					return;
+				}
+
+				this.showUploadPreviewPopup = true;
+				this.previewPopupUploaderId = uploaderId;
+			}).catch((error) => {
+				Logger.error('Textarea: onPaste error', error);
+			});
+		},
+		onMarketIconClick()
+		{
+			this.showMarketApps = !this.showMarketApps;
+			this.saveMarketPanelOpenState(this.showMarketApps);
+			if (this.showMarketApps && this.editMode)
+			{
+				this.onEditPanelClose();
+			}
+		},
 		initResizeManager()
 		{
 			this.resizeManager = new ResizeManager();
-			this.resizeManager.subscribe(ResizeManager.events.onHeightChange, ({data: {newHeight}}) => {
+			this.resizeManager.subscribe(ResizeManager.events.onHeightChange, ({ data: { newHeight } }) => {
 				Logger.warn('Textarea: Resize height change', newHeight);
 				this.textareaHeight = newHeight;
 			});
@@ -337,7 +434,7 @@ export const ChatTextarea = {
 		{
 			if (!this.messageService)
 			{
-				this.messageService = new MessageService({chatId: this.dialog.chatId});
+				this.messageService = new MessageService({ chatId: this.dialog.chatId });
 			}
 
 			return this.messageService;
@@ -346,27 +443,31 @@ export const ChatTextarea = {
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
 		},
-		onPaste(event: ClipboardEvent)
+		restoreMarketPanelOpenState()
 		{
-			const files = Object.values(event.clipboardData.files);
-			const imagesOnly = files.filter((file: File) => Utils.file.isImage(file.name));
-
-			if (imagesOnly.length === 0)
-			{
-				return;
-			}
-			event.preventDefault();
-
-			this.getSendingService().sendFilesFromInput(imagesOnly, this.dialogId);
+			const showMarketApps = LocalStorageManager.getInstance().get(LocalStorageKey.textareaMarketOpened);
+			this.showMarketApps = Boolean(showMarketApps);
 		},
-		onMarketIconClick()
+		saveMarketPanelOpenState(showMarketApps: boolean)
 		{
-			this.showMarketApps = !this.showMarketApps;
-			if (this.showMarketApps && this.editMode)
-			{
-				this.onEditPanelClose();
-			}
-		}
+			const WRITE_TO_STORAGE_TIMEOUT = 200;
+			clearTimeout(this.saveMarketOpenedStateTimeout);
+			this.saveMarketOpenedStateTimeout = setTimeout(() => {
+				LocalStorageManager.getInstance().set(LocalStorageKey.textareaMarketOpened, showMarketApps);
+			}, WRITE_TO_STORAGE_TIMEOUT);
+		},
+		onSendFilesFromPreviewPopup(event)
+		{
+			this.text = '';
+			const { groupFiles, text, uploaderId, sendAsFile } = event;
+			this.getSendingService().sendMessagesWithFiles({
+				groupFiles,
+				text,
+				uploaderId,
+				dialogId: this.dialogId,
+				sendAsFile,
+			});
+		},
 	},
 	template: `
 		<div class="bx-im-send-panel__scope bx-im-send-panel__container">
@@ -393,19 +494,27 @@ export const ChatTextarea = {
 					</div>
 					<div class="bx-im-textarea__right">
 						<div class="bx-im-textarea__action-panel">
+							<CreateEntityMenu :dialogId="dialogId" :textareaValue="text" />
 							<div 
 								:title="loc('IM_TEXTAREA_ICON_APPLICATION')"
 								@click="onMarketIconClick"
 								class="bx-im-textarea__icon --market"
 								:class="{'--active': showMarketApps}"
 							></div>
-							<CreateEntityMenu :dialogId="dialogId" />
 							<SmileSelector :dialogId="dialogId" />
 						</div>
 					</div>
 				</div>
 			</div>
-			<SendButton :editMode="editMode" :isDisabled="text === ''" @click="sendMessage" />
+			<SendButton :editMode="editMode" :isDisabled="isDisabled" @click="sendMessage" />
+			<UploadPreviewPopup
+				v-if="showUploadPreviewPopup"
+				:dialogId="dialogId"
+				:uploaderId="previewPopupUploaderId"
+				:textareaValue="text"
+				@close="showUploadPreviewPopup = false"
+				@sendFiles="onSendFilesFromPreviewPopup"
+			/>
 		</div>
-	`
+	`,
 };

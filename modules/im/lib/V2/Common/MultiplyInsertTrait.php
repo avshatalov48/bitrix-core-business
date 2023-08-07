@@ -6,7 +6,9 @@ use Bitrix\Main\Application;
 
 trait MultiplyInsertTrait
 {
-	public static function multiplyInsertWithoutDuplicate(array $insertFields): void
+	use DeadlockResolver;
+
+	public static function multiplyInsertWithoutDuplicate(array $insertFields, array $params = []): void
 	{
 		if (empty($insertFields))
 		{
@@ -30,7 +32,14 @@ trait MultiplyInsertTrait
 			VALUES {$insertStatement};
 		";
 
-		Application::getConnection()->queryExecute($sql);
+		if (isset($params['DEADLOCK_SAFE']) && $params['DEADLOCK_SAFE'])
+		{
+			self::executeDeadlockSafeQuery($sql, $params['MAX_RETRY_COUNT'] ?? null);
+		}
+		else
+		{
+			Application::getConnection()->queryExecute($sql);
+		}
 	}
 
 	public static function multiplyMerge(array $insertFields, array $updateFields): void

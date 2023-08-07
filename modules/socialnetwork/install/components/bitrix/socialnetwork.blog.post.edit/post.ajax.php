@@ -43,7 +43,7 @@ if (check_bitrix_sessid())
 			));
 		}
 		elseif (
-			$_POST['LD_DEPARTMENT_RELATION'] == 'Y'
+			($_POST['LD_DEPARTMENT_RELATION'] ?? null) == 'Y'
 			&& IsModuleInstalled("intranet")
 		)
 			echo CUtil::PhpToJsObject(Array(

@@ -36,10 +36,6 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_1_BIG_WITH_TEXT_2_1_STYLE_LANDINGBLOCKTITLE'),
 				'type' => ['typo', 'animation', 'heading'],
 			),
-			'.landing-block-background' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_1_BIG_WITH_TEXT_2_1_BACKGROUND'),
-				'type' => array('background-overlay'),
-			),
 		),
 	),
 );

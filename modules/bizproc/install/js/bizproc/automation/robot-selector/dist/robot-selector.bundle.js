@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Bizproc = this.BX.Bizproc || {};
 (function (exports,main_core_events,main_popup,bizproc_automation,bizproc_localSettings,main_core,ui_entityCatalog,ui_vue3_pinia) {

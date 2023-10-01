@@ -56,6 +56,7 @@ $MESS["UI_ENTITY_EDITOR_SAVE"] = "Save";
 $MESS["UI_ENTITY_EDITOR_SAVE_ERROR_CONTENT"] = "Cannot save because an error occurred.";
 $MESS["UI_ENTITY_EDITOR_SAVE_ERROR_TITLE"] = "Cannot save because an error occurred.";
 $MESS["UI_ENTITY_EDITOR_SECTION_OPEN_DETAILS"] = "open";
+$MESS["UI_ENTITY_EDITOR_SECTION_WITH_HIDDEN_FIELDS"] = "Hidden fields";
 $MESS["UI_ENTITY_EDITOR_SELECT"] = "Select";
 $MESS["UI_ENTITY_EDITOR_SELECT_FIELD"] = "Select field";
 $MESS["UI_ENTITY_EDITOR_SELECT_FIELD_FROM_OTHER_SECTION"] = "Select from another section";

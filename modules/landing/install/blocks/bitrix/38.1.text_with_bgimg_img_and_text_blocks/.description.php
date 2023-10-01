@@ -143,11 +143,6 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_38.1.TEXT_WITH_BGIMG_IMG_AND_TEXT_BLOCKS_NODES_LANDINGBLOCKNODECARDICON'),
 				'type' => 'color',
 			),
-			'.landing-block-node-bgimg' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_38.1.TEXT_WITH_BGIMG_IMG_AND_TEXT_BLOCKS_NODES_LANDINGBLOCKNODEBGIMG'),
-				'type' => 'background-attachment',
-			),
 		),
-	
 	),
 );

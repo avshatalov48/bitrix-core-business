@@ -7,6 +7,8 @@ $MESS["CT_BLLE_COPY_POPUP_CONTENT"] = "Are you sure you want to copy information
 $MESS["CT_BLLE_COPY_POPUP_CONTENT_1"] = "Are you sure you want to copy workflow?";
 $MESS["CT_BLLE_COPY_POPUP_COPIED_SUCCESS"] = "List has been cloned. <a href=\"#URL#\">Edit the new list's parameters</a>";
 $MESS["CT_BLLE_COPY_POPUP_COPIED_SUCCESS_PROCESS"] = "Workflow has been cloned. <a href=\"#URL#\">Edit the new workflow's parameters</a>";
+$MESS["CT_BLLE_COPY_POPUP_TEXT"] = "Are you sure you want to copy this list?";
+$MESS["CT_BLLE_COPY_POPUP_TEXT_PROCESS"] = "Are you sure you want to copy this workflow?";
 $MESS["CT_BLLE_COPY_POPUP_TITLE"] = "Confirm Copy";
 $MESS["CT_BLLE_COPY_POPUP_TITLE_1"] = "Copy workflow";
 $MESS["CT_BLLE_DELETE_CONFIRM_BUTTON"] = "Yes, delete";
@@ -45,7 +47,7 @@ $MESS["CT_BLLE_TAB_MESSAGES"] = "Titles";
 $MESS["CT_BLLE_TAB_MESSAGES_TITLE"] = "Titles for list sections and elements";
 $MESS["CT_BLLE_TAB_MESSAGES_TITLE_PROCESS"] = "Captions for workflow items and sections";
 $MESS["CT_BLLE_TOOLBAR_ACTION"] = "Actions";
-$MESS["CT_BLLE_TOOLBAR_DELETE"] = "Delete List";
+$MESS["CT_BLLE_TOOLBAR_DELETE"] = "Delete list";
 $MESS["CT_BLLE_TOOLBAR_DELETE_PROCESS"] = "Delete workflow";
 $MESS["CT_BLLE_TOOLBAR_DELETE_TITLE"] = "Delete the list and all the associated information";
 $MESS["CT_BLLE_TOOLBAR_DELETE_TITLE_PROCESS"] = "Deletes the workflow and all related information";

@@ -190,8 +190,8 @@ class Comment extends BaseObject
 			"USE_SMILES" => $params["USE_SMILES"],
 
 			"AUTHOR_ID" => $this->getUser()->getId(),
-			"AUTHOR_NAME" => trim($params["AUTHOR_NAME"]),
-			"AUTHOR_EMAIL" => trim($params["AUTHOR_EMAIL"]),
+			"AUTHOR_NAME" => trim($params["AUTHOR_NAME"] ?? ''),
+			"AUTHOR_EMAIL" => trim($params["AUTHOR_EMAIL"] ?? ''),
 
 			"AUTHOR_IP" => $params["AUTHOR_IP"] ?? "<no address>",
 			"AUTHOR_REAL_IP" => $params["AUTHOR_REAL_IP"] ?? "<no address>",

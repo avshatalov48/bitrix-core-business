@@ -4,7 +4,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 use Bitrix\Main\UI\Extension;
 
 /** @var $this \CBitrixComponentTemplate */
-/** @var \CAllMain $APPLICATION */
+/** @var CMain $APPLICATION */
 /** @var array $arResult*/
 /** @var array $arParams*/
 

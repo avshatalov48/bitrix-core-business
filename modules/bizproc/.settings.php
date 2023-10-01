@@ -1,4 +1,9 @@
 <?php
+
+use Bitrix\Bizproc\Integration\UI\EntitySelector\TemplateProvider;
+use Bitrix\Bizproc\Integration\UI\EntitySelector\ScriptTemplateProvider;
+use Bitrix\Bizproc\Integration\UI\EntitySelector\AutomationTemplateProvider;
+
 return [
 	'controllers' => [
 		'value' => [
@@ -45,5 +50,34 @@ return [
 				'className' => '\\Bitrix\\Bizproc\\Debugger\\Services\\AnalyticsService',
 			],
 		]
+	],
+	'ui.entity-selector' => [
+		'value' => [
+			'entities' => [
+				[
+					'entityId' => 'bizproc-template',
+					'provider' => [
+						'moduleId' => 'bizproc',
+						'className' => TemplateProvider::class,
+					],
+				],
+				[
+					'entityId' => 'bizproc-script-template',
+					'provider' => [
+						'moduleId' => 'bizproc',
+						'className' => ScriptTemplateProvider::class,
+					],
+				],
+				[
+					'entityId' => 'bizproc-automation-template',
+					'provider' => [
+						'moduleId' => 'bizproc',
+						'className' => AutomationTemplateProvider::class,
+					],
+				],
+			],
+			'extensions' => ['bizproc.entity-selector'],
+		],
+		'readonly' => true,
 	],
 ];

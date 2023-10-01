@@ -55,10 +55,10 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_0.MENU_1_STYLE_LANDINGBLOCKNODEMENULIST'),
 				'type' => ['navbar'],
 			),
-			'.landing-block-node-menu-contact-link' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_0.MENU_1_STYLE_LANDINGBLOCKNODEMENULIST'),
-				'type' => ['typo'],
-			),
+			'.landing-block-node-hamburger' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_0_MENU_1_STYLE_HAMB'),
+				'type' => ['hamburger-size', 'hamburger-animation'],
+			],
 		),
 	),
 	'groups' => array(

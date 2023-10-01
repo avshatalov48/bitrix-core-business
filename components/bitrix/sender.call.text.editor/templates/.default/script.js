@@ -21,6 +21,9 @@
 		this.speechRates = params.speechRates;
 		this.speechRateInterval = params.speechRateInterval;
 		this.mess = params.mess;
+		this.AITextContextId = params.AITextContextId;
+		this.isAITextAvailable = params.isAITextAvailable === 'Y';
+
 
 		this.input = Helper.getNode('input', this.context);
 		this.counter = Helper.getNode('counter', this.context);
@@ -38,8 +41,34 @@
 			BX.bind(this.speed, 'bxchange', this.onChange.bind(this));
 		}
 
+		this.initPanelToolsButtons();
+
 		this.refresh();
 	};
+	TextEditor.prototype.initPanelToolsButtons = function() {
+
+		if (this.isAITextAvailable)
+		{
+			const aiTextButton = this.context.querySelector('[data-bx-call-panel-tools-button="ai-text"]');
+			aiTextButton.addEventListener('click', () => {
+				const aiTextPicker = new BX.AI.Picker({
+					moduleId: 'sender',
+					contextId: this.AITextContextId,
+					analyticLabel: 'sender_call_ai_text',
+					history: true,
+					onSelect: (info) => {
+						const text = info.data;
+						this.input.value = this.input.value + text;
+					},
+					onTariffRestriction: () => {
+						// BX.UI.InfoHelper.show(`limit_sender_ai_image`);
+					},
+				});
+				aiTextPicker.setLangSpace(BX.AI.Picker.LangSpace.text);
+				aiTextPicker.text();
+			});
+		}
+	}
 	TextEditor.prototype.onChange = function ()
 	{
 		this.refresh();

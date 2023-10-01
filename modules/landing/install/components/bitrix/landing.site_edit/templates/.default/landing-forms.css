@@ -9,7 +9,7 @@
 	box-sizing: border-box;
 	border: none;
 	border-radius: var(--ui-field-border-radius, 2px);
-	box-shadow: inset 0 0 0 1px #c6cdd3;
+	/*box-shadow: inset 0 0 0 1px #c6cdd3;*/
 	color: #5e6675;
 	font-size: 14px;
 	height: 39px;
@@ -63,10 +63,17 @@
 }
 
 .landing-editable-field {
-	display: inline-block;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: flex-start;
 	height: 42px;
 	position: relative;
-	padding-right: 24px;
+}
+
+.landing-editable-field.--one-row {
+	align-items: center;
+	max-width: 100%;
 }
 
 .landing-editable-field-textar-wrap {
@@ -76,24 +83,41 @@
 .landing-editable-field-input,
 .landing-editable-field-textarea {
 	display: none;
+	width: 100%;
 	font-size: 19px;
 	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-regular, 400);
 	height: 42px;
-	padding: 0 0 0 11px;
+	outline: none;
 	animation: uiShowTitleInput 0.2s linear;
+	animation-fill-mode: forwards;
+	border-radius: var(--ui-border-radius-3xs);
 }
 
 .landing-editable-field-textarea {
 	height: auto;
 }
 
+.landing-editable-field-buttons {
+	margin-left: 6px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.landing-editable-field-buttons.--hidden {
+	opacity: 0;
+	pointer-events: none;
+}
+
 @keyframes uiShowTitleInput {
-	0% { box-shadow: inset 0 0 0 1px rgba(198,205,211,.0);}
-	100% { box-shadow: inset 0 0 0 1px rgba(198,205,211, 1);}
+	0% { box-shadow: 0 0 0 1px rgba(198,205,211,.0);}
+	100% { box-shadow: 0 0 0 1px rgba(198,205,211, 0.7);}
 }
 
 .landing-editable-field-label {
+	box-sizing: border-box;
 	color: #7c7c7c;
 	display: inline-block;
 	font-size: 19px;
@@ -101,8 +125,14 @@
 	font-weight: var(--ui-font-weight-regular, 400);
 	height: 42px;
 	line-height: 42px;
-	padding-left: 11px;
 	margin: 0;
+}
+
+.landing-editable-field.--one-row .landing-editable-field-label {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .landing-editable-field-textar-wrap .landing-editable-field-label {
@@ -110,30 +140,34 @@
 }
 
 .ui-title-input-btn {
+	margin-right: 6px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content:  center;
 	cursor: pointer;
 	height: 20px;
-	position: absolute;
-	right: 0;
-	top: 13px;
 	width: 20px;
+	min-width: 20px;
+	background-color: var(--ui-color-base-05);
+	border-radius: var(--ui-border-radius-circle);
+}
+
+.ui-title-input-btn:last-child {
+	margin-right: 0;
+}
+
+.ui-title-input-btn .ui-icon-set {
+	--ui-icon-set__icon-color: var(--ui-color-base-60);
+	--ui-icon-set__icon-size: var(--ui-size-md);
+}
+
+.ui-title-input-btn:hover .ui-icon-set {
+	--ui-icon-set__icon-color: var(--ui-color-base-80);
 }
 
 .landing-editable-field-textar .ui-title-input-btn {
 	top: 1px;
-}
-
-.ui-title-input-btn:before {
-	background-size: 11px;
-	background-position: center 4px;
-	content: '';
-	display: block;
-	height: 100%;
-	opacity: .5;
-	width: 100%;
-}
-
-.ui-title-input-btn:hover:before {
-	opacity: 0.8;
 }
 
 .landing-form-collapse {
@@ -515,6 +549,11 @@
 
 /*!* ============== data URI icons ============*!*/
 .ui-editing-pen:before {
+	background-image: url(data:image/svg+xml,%0A%3Csvg%20width%3D%2211px%22%20height%3D%2211px%22%20viewBox%3D%220%200%2011%2011%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%0A%3Cpath%20d%3D%22M0.799894744%2C8.15707577%20L0%2C11%20L2.9326141%2C10.1580224%20C2.74963818%2C9.70003465%202.48267331%2C9.28104581%202.14071831%2C8.9250553%20C1.7607683%2C8.56906479%201.30082883%2C8.30707177%200.800894612%2C8.15707577%20L0.799894744%2C8.15707577%20Z%20M7.28904085%2C1.59725061%20L1.55279567%2C7.33209776%20C2.02873304%2C7.56009168%202.46967502%2C7.8520839%202.86462305%2C8.20207457%20C3.18958029%2C8.5800645%203.46054464%2C9.0000533%203.67051701%2C9.45204126%20C4.02447043%2C9.09605075%207.65399283%2C5.46714746%209.40176285%2C3.71919405%20C9.17979205%2C3.22720716%208.87683192%2C2.77621918%208.5068806%2C2.38522961%20C8.15192731%2C2.04923856%207.73698191%2C1.78324565%207.28704112%2C1.59925055%20L7.28904085%2C1.59625063%20L7.28904085%2C1.59725061%20Z%20M10.5666096%2C0.434281603%20C10.2766477%2C0.148289226%209.88369943%2C-0.00770661647%209.47675298%2C0.000293170312%20C9.06880666%2C0.0102929038%208.68285744%2C0.180288373%208.40489402%2C0.480280377%20L8.06093928%2C0.823271236%20C8.51887902%2C1.01826604%208.93882376%2C1.29325871%209.30077613%2C1.63624957%20C9.66372837%2C2.01923936%209.9606893%2C2.46122758%2010.1766609%2C2.94321473%20L10.5226154%2C2.59722396%20C10.8195763%2C2.31723142%2010.9925535%2C1.93224168%2010.9995526%2C1.52425255%20C11.0095513%2C1.1172634%2010.8515721%2C0.724273874%2010.5646098%2C0.434281603%20L10.5676094%2C0.434281603%20L10.5666096%2C0.434281603%20Z%22%20fill%3D%22%23525C68%22%20fill-rule%3D%22nonzero%22%3E%3C/path%3E%0A%3C/svg%3E);
+	background-repeat: no-repeat;
+}
+
+.ui-title-input-btn-ai:before {
 	background-image: url(data:image/svg+xml,%0A%3Csvg%20width%3D%2211px%22%20height%3D%2211px%22%20viewBox%3D%220%200%2011%2011%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%0A%3Cpath%20d%3D%22M0.799894744%2C8.15707577%20L0%2C11%20L2.9326141%2C10.1580224%20C2.74963818%2C9.70003465%202.48267331%2C9.28104581%202.14071831%2C8.9250553%20C1.7607683%2C8.56906479%201.30082883%2C8.30707177%200.800894612%2C8.15707577%20L0.799894744%2C8.15707577%20Z%20M7.28904085%2C1.59725061%20L1.55279567%2C7.33209776%20C2.02873304%2C7.56009168%202.46967502%2C7.8520839%202.86462305%2C8.20207457%20C3.18958029%2C8.5800645%203.46054464%2C9.0000533%203.67051701%2C9.45204126%20C4.02447043%2C9.09605075%207.65399283%2C5.46714746%209.40176285%2C3.71919405%20C9.17979205%2C3.22720716%208.87683192%2C2.77621918%208.5068806%2C2.38522961%20C8.15192731%2C2.04923856%207.73698191%2C1.78324565%207.28704112%2C1.59925055%20L7.28904085%2C1.59625063%20L7.28904085%2C1.59725061%20Z%20M10.5666096%2C0.434281603%20C10.2766477%2C0.148289226%209.88369943%2C-0.00770661647%209.47675298%2C0.000293170312%20C9.06880666%2C0.0102929038%208.68285744%2C0.180288373%208.40489402%2C0.480280377%20L8.06093928%2C0.823271236%20C8.51887902%2C1.01826604%208.93882376%2C1.29325871%209.30077613%2C1.63624957%20C9.66372837%2C2.01923936%209.9606893%2C2.46122758%2010.1766609%2C2.94321473%20L10.5226154%2C2.59722396%20C10.8195763%2C2.31723142%2010.9925535%2C1.93224168%2010.9995526%2C1.52425255%20C11.0095513%2C1.1172634%2010.8515721%2C0.724273874%2010.5646098%2C0.434281603%20L10.5676094%2C0.434281603%20L10.5666096%2C0.434281603%20Z%22%20fill%3D%22%23525C68%22%20fill-rule%3D%22nonzero%22%3E%3C/path%3E%0A%3C/svg%3E);
 	background-repeat: no-repeat;
 }

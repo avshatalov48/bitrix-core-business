@@ -37,7 +37,10 @@ $favoriteStar = Toolbar::hasFavoriteStar()? '<span class="ui-toolbar-star" id="u
 ?><div class="pagetitle-wrap <?= $APPLICATION->getProperty('TitleClass') ?>">
 	<div class="pagetitle-inner-container">
 		<div class="pagetitle-menu pagetitle-container pagetitle-last-item-in-a-row" id="pagetitle-menu"><?php
-			echo $GLOBALS["INTRANET_TOOLBAR"]->__display();
+			if (isset($GLOBALS["INTRANET_TOOLBAR"]) && $GLOBALS["INTRANET_TOOLBAR"] instanceof \CIntranetToolbar)
+			{
+				echo $GLOBALS["INTRANET_TOOLBAR"]->__display();
+			}
 			echo $APPLICATION->getViewContent("pagetitle");
 		?></div>
 		<div class="pagetitle">

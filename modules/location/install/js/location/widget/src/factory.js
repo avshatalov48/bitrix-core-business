@@ -1,18 +1,17 @@
-import {BaseSource, LocationRepository, SourceCreationError, Format, Location} from 'location.core';
-
-import {OSMFactory} from 'location.osm';
-
-import {Google} from 'location.google';
-import {OSM} from 'location.osm';
-
+import {
+	LocationRepository,
+	SourceCreationError,
+	Format,
+	Location,
+} from 'location.core';
+import { Google } from 'location.google';
 import Address from './address/address';
 import Autocomplete from './autocomplete/autocomplete';
-
+import { Factory as SourceFactory } from 'location.source';
 import MapPopup from './mappopup/mappopup';
 import Gallery from './mappopup/gallery';
 import Popup from './mappopup/popup';
 import Fields from './fields/fields';
-
 import MapFeature from './address/features/mapfeature';
 import AutocompleteFeature from './address/features/autocompletefeature';
 import FieldsFeature from './address/features/fieldsfeature';
@@ -107,7 +106,7 @@ export default class Factory
 		{
 			try
 			{
-				source = this.createSource(sourceCode, sourceParams, languageId, sourceLanguageId);
+				source = SourceFactory.create(sourceCode, languageId, sourceLanguageId, sourceParams)
 			}
 			catch (e)
 			{
@@ -269,29 +268,5 @@ export default class Factory
 		}
 
 		return result;
-	}
-
-	// todo: add custom sources
-	createSource(code: string, params: {}, languageId: string, sourceLanguageId: string): BaseSource
-	{
-		let source = null;
-
-		params.languageId = languageId;
-		params.sourceLanguageId = sourceLanguageId;
-
-		if(code === Google.code)
-		{
-			source = new Google(params);
-		}
-		else if(code === OSM.code)
-		{
-			source = OSMFactory.createOSMSource(params);
-		}
-		else
-		{
-			throw new RangeError('Wrong source code');
-		}
-
-		return source;
 	}
 }

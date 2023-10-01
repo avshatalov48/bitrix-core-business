@@ -97,6 +97,7 @@ Extension::load([
 	'ui.dialogs.messagebox',
 	'ui.forms',
 	'ui.hint',
+	'ui.icon-set.actions'
 ]);
 
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css');
@@ -187,7 +188,7 @@ if ($arParams['SUCCESS_SAVE'])
 
 		<!--Title-->
 		<div class="landing-form-title-block">
-			<span class="landing-editable-field" id="<?= $template->getFieldId('EDITABLE_TITLE') ?>">
+			<div class="landing-editable-field --one-row" id="<?= $template->getFieldId('EDITABLE_TITLE') ?>">
 				<label class="landing-editable-field-label landing-editable-field-label-js">
 					<?=$row['TITLE']['CURRENT']?>
 				</label>
@@ -195,9 +196,14 @@ if ($arParams['SUCCESS_SAVE'])
 					name="fields[TITLE]"
 					class="ui-input landing-editable-field-input landing-editable-field-input-js"
 					value="<?=$row['TITLE']['CURRENT']?>"
-					placeholder="<?=$row['TITLE']['TITLE']?>"/>
-				<span class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen"></span>
-			</span>
+					placeholder="<?=$row['TITLE']['TITLE']?>"
+				/>
+				<div class="landing-editable-field-buttons">
+					<div class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen">
+						<div class="ui-icon-set --pencil-60"></div>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<div class="ui-form ui-form-section">
@@ -230,7 +236,12 @@ if ($arParams['SUCCESS_SAVE'])
 								<?php $puny = new CBXPunycode; ?>
 								<span class="landing-domain-name">
 									<span class="landing-domain-name-value"><?= $puny->decode($domain['DOMAIN']) ?></span>
-									<a href="<?= str_replace('__tab__', '', $uriDomain->getUri()) ?>" class="ui-title-input-btn ui-editing-pen landing-frame-btn"></a>
+									<a
+										href="<?= str_replace('__tab__', '', $uriDomain->getUri()) ?>"
+										class="ui-title-input-btn ui-editing-pen landing-frame-btn"
+									>
+										<i class="ui-icon-set --pencil-60"></i>
+									</a>
 								</span>
 								<?php if (!Domain::getBitrix24Subdomain($domain['DOMAIN'])):?>
 									<?php if (Register::isDomainActive($domain['DOMAIN'])):?>
@@ -1319,7 +1330,12 @@ if ($arParams['SUCCESS_SAVE'])
 
 <script type="text/javascript">
 	BX.ready(function(){
-		new BX.Landing.EditTitleForm(BX('<?= $template->getFieldId('EDITABLE_TITLE') ?>'), 600, true);
+		new BX.Landing.EditTitleForm(
+			{
+				node: BX('<?= $template->getFieldId('EDITABLE_TITLE') ?>') ,
+				additionalWidth: 600,
+				isEventTargetNode: true,
+			});
 		new BX.Landing.Favicon();
 		new BX.Landing.Custom404And503(
 			BX('<?= $template->getFieldId('404-SELECT') ?>'),

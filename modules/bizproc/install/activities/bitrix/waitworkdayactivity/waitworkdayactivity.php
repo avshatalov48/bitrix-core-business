@@ -58,9 +58,9 @@ class CBPWaitWorkDayActivity extends CBPActivity implements
 			return false;
 		}
 
-		$dayState = (new CTimeManUser($userId))->state();
+		$schedule = $this->workflow->getRuntime()->getUserService()->getUserSchedule($userId);
 
-		if ($dayState === 'OPENED')
+		if ($schedule->getWorkDayStatus() === 'OPENED')
 		{
 			$this->writeToTrackingService(GetMessage('BPWWD_SUBSCRIBE_SKIPPED'));
 

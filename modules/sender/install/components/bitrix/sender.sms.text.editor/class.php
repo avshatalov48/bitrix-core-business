@@ -2,6 +2,8 @@
 
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sender\Security;
+use Bitrix\Sender\Integration;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -39,6 +41,13 @@ class SenderSmsTextEditorComponent extends CBitrixComponent
 		$this->arResult['VALUE'] = htmlspecialcharsback($this->arParams['VALUE']);
 		$this->arResult['COUNT'] = mb_strlen($this->arParams['VALUE']);
 		$this->arResult['TEMPLATE_OPTIONS_SELECTOR'] = \Bitrix\Sender\Message\Helper::getTemplateOptionSelector();
+		$userId = Security\User::current()->getId();
+		$this->arResult['AITextContextId'] = 'sender_marketing_sms_message_text_' . $userId;
+
+		$this->arResult['isAITextAvailable'] = Integration\AI\Controller::isAvailable(
+			Integration\AI\Controller::TEXT_CATEGORY,
+			$this->arResult['AITextContextId']
+		);
 
 		return true;
 	}

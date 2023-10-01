@@ -1,10 +1,11 @@
-import {Type} from "main.core";
-import {BaseSource, SourceCreationError} from "location.core";
-import Loader from "./loader";
-import AutocompleteService from "./autocompleteservice";
-import Map from "./map";
-import PhotoService from "./photoservice";
-import GeocodingService from "./geocodingservice";
+import {Type} from 'main.core';
+import {BaseSource, SourceCreationError} from 'location.core';
+import Loader from './loader';
+import AutocompleteService from './autocompleteservice';
+import Map from './map';
+import MapMobile from './mapmobile';
+import PhotoService from './photoservice';
+import GeocodingService from './geocodingservice';
 
 export class Google extends BaseSource
 {
@@ -13,6 +14,7 @@ export class Google extends BaseSource
 	#sourceLanguageId = '';
 	#loaderPromise = null;
 	#map;
+	#mapMobile;
 	#photoService;
 	#geocodingService;
 	#autocompleteService;
@@ -21,21 +23,21 @@ export class Google extends BaseSource
 	{
 		super(props);
 
-		if(!Type.isString(props.languageId) || props.languageId.trim() === '')
+		if (!Type.isString(props.languageId) || props.languageId.trim() === '')
 		{
 			throw new SourceCreationError('props.languageId must be a string');
 		}
 
 		this.#languageId = props.languageId;
 
-		if(!Type.isString(props.sourceLanguageId) || props.sourceLanguageId.trim() === '')
+		if (!Type.isString(props.sourceLanguageId) || props.sourceLanguageId.trim() === '')
 		{
 			throw new SourceCreationError('props.sourceLanguageId must be a string');
 		}
 
 		this.#sourceLanguageId = props.sourceLanguageId;
 
-		if(!Type.isString(props.apiKey) || props.apiKey.trim() === '')
+		if (!Type.isString(props.apiKey) || props.apiKey.trim() === '')
 		{
 			throw new SourceCreationError('props.apiKey must be a string');
 		}
@@ -43,6 +45,11 @@ export class Google extends BaseSource
 		this.#loaderPromise = Loader.load(props.apiKey, props.sourceLanguageId);
 
 		this.#map = new Map({
+			googleSource: this,
+			languageId: this.#languageId,
+		});
+
+		this.#mapMobile = new MapMobile({
 			googleSource: this,
 			languageId: this.#languageId,
 		});
@@ -76,6 +83,11 @@ export class Google extends BaseSource
 	get map()
 	{
 		return this.#map;
+	}
+
+	get mapMobile()
+	{
+		return this.#mapMobile;
 	}
 
 	get autocompleteService()

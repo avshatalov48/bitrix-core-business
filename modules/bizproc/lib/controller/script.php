@@ -4,10 +4,8 @@ namespace Bitrix\Bizproc\Controller;
 
 use Bitrix\Bizproc\FieldType;
 use Bitrix\Bizproc\Script\Entity\ScriptTable;
-use Bitrix\Bizproc\Script\Entity\ScriptQueueDocumentTable;
-use Bitrix\Bizproc\Script\Entity\ScriptQueueTable;
 use Bitrix\Bizproc\Script\Queue;
-use Bitrix\Main;
+use Bitrix\Bizproc\Script\StartScriptResult;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc\Script\Manager;
 
@@ -20,23 +18,19 @@ class Script extends Base
 	public const START_STATUS_INVALID_PARAMETERS = 'INVALID_PARAMETERS';
 	public const START_STATUS_QUEUED = 'QUEUED';
 
-	//TODO: use dynamic rules such as b24 limitation api
-	private const LIMIT_DOCUMENT_ID = 1000;
-	private const LIMIT_QUEUES = 1;
-
 	public function startAction($scriptId, array $documentIds, array $parameters = [])
 	{
 		$userId = $this->getCurrentUser()->getId();
 		$documentIds = array_unique($documentIds);
 
-		if (count($documentIds) > $this->getDocumentIdLimit())
+		if (!Manager::checkDocumentIdsLimit($documentIds))
 		{
 			return [
 				'status' => static::START_STATUS_NOT_PERMITTED,
 				'error' => Loc::getMessage(
 					'BIZPROC_CONTROLLER_SCRIPT_ERROR_DOCUMENT_ID_LIMIT',
 					[
-						'#LIMIT#' => $this->getDocumentIdLimit(),
+						'#LIMIT#' => Manager::getDocumentIdLimit(),
 						'#SELECTED#' => count($documentIds),
 					]
 				)
@@ -44,7 +38,6 @@ class Script extends Base
 		}
 
 		$script = Manager::getById($scriptId);
-
 		if (!$script)
 		{
 			return [
@@ -52,7 +45,6 @@ class Script extends Base
 				'error' => Loc::getMessage('BIZPROC_CONTROLLER_SCRIPT_NOT_EXISTS')
 			];
 		}
-
 		if (!$script->getActive())
 		{
 			return [
@@ -61,26 +53,22 @@ class Script extends Base
 			];
 		}
 
-		$queuesCnt = ScriptTable::getActiveQueueCount($scriptId);
-
-		if ($queuesCnt >= $this->getQueuesLimit())
+		if (!Manager::checkQueuesCount($scriptId))
 		{
 			return [
 				'status' => static::START_STATUS_NOT_PERMITTED,
 				'error' => Loc::getMessage(
 					'BIZPROC_CONTROLLER_SCRIPT_ERROR_QUEUES_LIMIT',
 					[
-						'#LIMIT#' => $this->getQueuesLimit(),
-						'#CNT#' => $queuesCnt,
+						'#LIMIT#' => Manager::getQueuesLimit(),
+						'#CNT#' => Manager::getActiveQueueCountByScriptId($scriptId),
 					]
 				)
 			];
 		}
 
 		$script->fill('WORKFLOW_TEMPLATE');
-		/** @var \Bitrix\Bizproc\Workflow\Template\Tpl $tpl */
 		$tpl = $script->getWorkflowTemplate();
-
 		if (!$tpl)
 		{
 			return [
@@ -90,7 +78,6 @@ class Script extends Base
 		}
 
 		$templateParameters = $tpl->getParameters();
-
 		if ($templateParameters)
 		{
 			$parameters = $this->grabParameters($templateParameters, $parameters);
@@ -104,57 +91,35 @@ class Script extends Base
 					'scriptName' => $script->getName(),
 				];
 			}
+		}
 
-			$errors = [];
-			$parameters = \CBPWorkflowTemplateLoader::CheckWorkflowParameters(
-				$templateParameters,
-				$parameters,
-				$tpl->getDocumentComplexType(),
-				$errors
-			);
-
-			if (!empty($errors))
+		$result = Manager::startScript($scriptId, $userId, $documentIds, $parameters);
+		if (!$result->isSuccess())
+		{
+			$error = $result->getErrors()[0];
+			if ($error->getCode() === StartScriptResult::CODE_NOT_ENOUGH_RIGHTS)
+			{
+				return [
+					'status' => static::START_STATUS_NOT_PERMITTED,
+					'error' => $error->getMessage(),
+				];
+			}
+			if ($error->getCode() === StartScriptResult::CODE_INVALID_PARAMETERS)
 			{
 				return [
 					'status' => static::START_STATUS_INVALID_PARAMETERS,
-					'error' => reset($errors)['message']
+					'error' => $error->getMessage(),
 				];
 			}
+
+			return [
+				'error' => $error->getMessage(),
+			];
 		}
-
-		//TODO: move logic to Manager
-		$addResult = ScriptQueueTable::add([
-			'SCRIPT_ID' => $scriptId,
-			'STARTED_DATE' => new Main\Type\DateTime(),
-			'STARTED_BY' => $userId,
-			'STATUS' => Queue\Status::QUEUED,
-			'MODIFIED_DATE' => new Main\Type\DateTime(),
-			'WORKFLOW_PARAMETERS' => $parameters,
-		]);
-
-		$queueId = null;
-		if ($addResult->isSuccess())
-		{
-			$queueId = $addResult->getId();
-			$documentRows = array_map(
-				function ($id) use ($queueId)
-				{
-					return [
-						'QUEUE_ID' => $queueId,
-						'DOCUMENT_ID' => $id,
-						'STATUS' => Queue\Status::QUEUED,
-					];
-				},
-				$documentIds
-			);
-			ScriptQueueDocumentTable::addMulti($documentRows, true);
-		}
-
-		Queue\Stepper::bind(1, [$queueId, $scriptId]);
 
 		return [
 			'status' => static::START_STATUS_QUEUED,
-			'queueId' => $queueId,
+			'queueId' => $result->getData()['queueId'],
 		];
 	}
 
@@ -308,16 +273,6 @@ class Script extends Base
 		return ['status' => 'success'];
 	}
 
-	private function getDocumentIdLimit(): int
-	{
-		return self::LIMIT_DOCUMENT_ID;
-	}
-
-	private function getQueuesLimit(): int
-	{
-		return self::LIMIT_QUEUES;
-	}
-
 	private static function convertTemplateParameters(array $parameters, array $documentType): array
 	{
 		$result = [];
@@ -378,7 +333,7 @@ class Script extends Base
 
 		foreach (array_keys($templateParameters) as $paramId)
 		{
-			if (!array_key_exists($paramId, $parameters) && $this->request->getPost($paramId))
+			if (!array_key_exists($paramId, $parameters) && $this->request->getPost($paramId) !== null)
 			{
 				$parameters[$paramId] = $this->request->getPost($paramId);
 			}

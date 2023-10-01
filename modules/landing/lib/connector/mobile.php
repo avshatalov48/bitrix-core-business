@@ -74,19 +74,62 @@ JS
 	 */
 	private static function getLandingMenu(): array
 	{
+		$version = time();
+		$title = Loc::getMessage('LANDING_CONNECTOR_MB_LANDINGS_MENU_TITLE');
+		$titleTabPage = Loc::getMessage('LANDING_CONNECTOR_MB_LANDINGS_TAB_PAGE');
+		$titleTabStore = Loc::getMessage('LANDING_CONNECTOR_MB_LANDINGS_TAB_STORE');
+
 		return [
-			'sort' => 100,
-			'title' => Loc::getMessage('LANDING_CONNECTOR_MB_LANDINGS_MENU_TITLE'),
+			'sort' => 200,
+			'title' => $title,
 			'imageUrl' => '/bitrix/images/landing/mobile/knowledge.png',
 			'color' => '#e597ba',
 			'params' => [
 				'onclick' => <<<JS
-					PageManager.openComponent("JSLandingsComponent", {
-					    scriptPath:"/mobileapp/jn/landing.list/",    
-					    rootWidget:{
-					       name:"layout",
-					       settings:{objectName:"layoutWidget", title:"Hello World", modal: true}
-					    }});
+					PageManager.openComponent('JSStackComponent', {
+						rootWidget: {
+							name: 'tabs',
+							settings: {
+								objectName: 'layoutWidget',
+								title: '{$title}',
+								tabs: {
+									items: [
+										{
+											title: '{$titleTabPage}',
+											component: {
+												name: 'JSStackComponent',
+												scriptPath: '/mobileapp/jn/landing.list/?type=page&version={$version}',
+													params: { type: 'page' },
+													rootWidget: {
+														name: 'layout',
+														settings: {
+															objectName: 'layoutWidget',
+															title: '{$title}',
+														},
+													},
+											}
+										},
+										{
+											title: '{$titleTabStore}',
+											component: {
+												name: 'JSStackComponent',
+												scriptPath: '/mobileapp/jn/landing.list/?type=store&version={$version}',
+												params: { type: 'store' },
+												rootWidget: {
+													name: 'layout',
+													settings: {
+														objectName: 'layoutWidget',
+														title: '{$title}',
+													},
+												},
+											}
+										},
+									]
+								}
+							},
+						},
+					},
+				);
 JS
 			]
 		];

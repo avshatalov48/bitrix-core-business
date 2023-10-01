@@ -1,4 +1,5 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) { die(); }
+
 if (empty($arParams["~MESSAGE"]))
 	return false;
 /************************ Default Params ***************************/
@@ -398,7 +399,7 @@ foreach(array("MODERATE", "EDIT", "DELETE") as $k)
 					<span class="forum-action-edit"><noindex><a rel="nofollow" href="<?=$res["URL"]["EDIT"]?>"><?=GetMessage("F_EDIT")?></a></noindex></span>&nbsp;&nbsp;
 <?
 		endif;
-		if ($res["PANELS"]["GOTO"] == "Y"):
+		if (($res["PANELS"]["GOTO"] ?? 'N') === "Y"):
 	?>
 					<span class="forum-action-edit"><noindex><a rel="nofollow" href="<?=$res["URL"]["MESSAGE"]?>#message<?=$res["ID"]?>"><?=GetMessage("F_GOTO")?></a></noindex></span>&nbsp;&nbsp;
 <?

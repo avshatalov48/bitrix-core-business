@@ -8,7 +8,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Localization\Loc;
 
 $arActivityDescription = [
-	'NAME' => Loc::getMessage('BPSGVA_DESCR_NAME'),
+	'NAME' => Loc::getMessage('BPSGVA_DESCR_NAME_MGVER_1'),
 	'DESCRIPTION' => Loc::getMessage('BPSGVA_DESCR_DESCR_1'),
 	'TYPE' => ['activity', 'robot_activity'],
 	'CLASS' => 'SetGlobalVariableActivity',

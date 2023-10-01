@@ -77,10 +77,14 @@ class CLists
 				$CACHE_MANAGER->Set("b_lists_permission", $arResult);
 		}
 
-		if($iblock_type_id === false)
+		if ($iblock_type_id === false)
+		{
 			return $arResult;
+		}
 		else
-			return $arResult[$iblock_type_id];
+		{
+			return $arResult[$iblock_type_id] ?? false;
+		}
 	}
 
 	public static function GetDefaultSocnetPermission()
@@ -190,7 +194,7 @@ class CLists
 			{
 				//Check if iblock is list
 				$arListsPerm = CLists::GetPermission($arIBlock["IBLOCK_TYPE_ID"]);
-				if(count($arListsPerm))
+				if (is_array($arListsPerm) && count($arListsPerm) > 0)
 				{
 					//User groups
 					if($user_id == $USER->GetID())
@@ -501,7 +505,7 @@ class CLists
 	{
 		if (!Loader::includeModule('bizproc'))
 		{
-			return Loc::getMessage('LISTS_MODULE_BIZPROC_NOT_INSTALLED');
+			return Loc::getMessage('LISTS_MODULE_BIZPROC_NOT_INSTALLED_MSGVER_1');
 		}
 
 		global $USER;

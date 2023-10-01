@@ -17,14 +17,17 @@ class Activity extends Base
 				->validateString('activity')
 				->getPureValues()['activity'];
 
-			$params = (new Bizproc\Validator($params))
-				->validateRequire('lists_document_type')
-				->validateString('lists_document_type')
+			$dirtyParams = $params;
+			$pureParams = (new Bizproc\Validator($params))
+				//->validateRequire('lists_document_type')
+				//->validateString('lists_document_type')
 				->validateRequire('form_name')
 				->validateString('form_name')
 				->validateEnum('public_mode', ['Y', ''])
 				->setDefault('public_mode', '')
 				->getPureValues();
+
+			$params = array_merge($dirtyParams, $pureParams);
 		}
 		catch (\Throwable $e)
 		{
@@ -48,8 +51,8 @@ class Activity extends Base
 		$runtime = \CBPRuntime::GetRuntime();
 		$runtime->StartRuntime();
 
-		$arActivityDescription = $runtime->GetActivityDescription($activity);
-		if ($arActivityDescription == null)
+		$activityDescription = $runtime->GetActivityDescription($activity);
+		if (!$activityDescription)
 		{
 			$this->addError(new Error("Bad activity type!" . htmlspecialcharsbx($activity)));
 			return null;

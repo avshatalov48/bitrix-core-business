@@ -12,6 +12,7 @@ declare module 'ui.notification'
 					autoHideDelay?: number,
 					zIndex?: number,
 					closeButton?: boolean,
+					showOnTopWindow: boolean;
 					category?: string,
 					id?: string,
 					actions?: Array<any>,

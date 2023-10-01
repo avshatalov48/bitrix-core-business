@@ -2,12 +2,14 @@ import {Type} from 'main.core';
 import {BaseSource, SourceCreationError} from 'location.core';
 import AutocompleteService from './autocompleteservice';
 import MapService from './mapservice';
+import MapMobileService from './mapmobileservice';
 import GeocodingService from './geocodingservice';
 
 export type OSMConstructorProps = {
 	languageId: string,
 	sourceLanguageId: string,
 	mapService: MapService,
+	mapMobileService: MapMobileService,
 	autocompleteService: AutocompleteService,
 	geocodingService: GeocodingService
 }
@@ -24,6 +26,7 @@ export default class OSM extends BaseSource
 	// todo: do we need this here?
 	#sourceLanguageId = '';
 	#mapService;
+	#mapMobileService;
 	#geocodingService;
 	#autocompleteService;
 
@@ -49,8 +52,13 @@ export default class OSM extends BaseSource
 		{
 			throw new SourceCreationError('props.mapService must be instanceof MapService');
 		}
-
 		this.#mapService = props.mapService;
+
+		if(!(props.mapMobileService instanceof MapMobileService))
+		{
+			throw new SourceCreationError('props.mapMobileService must be instanceof MapMobileService');
+		}
+		this.#mapMobileService = props.mapMobileService;
 
 		if(!(props.autocompleteService instanceof AutocompleteService))
 		{
@@ -72,7 +80,6 @@ export default class OSM extends BaseSource
 		return OSM.code;
 	}
 
-	// todo: move
 	get map()
 	{
 		return this.mapService;
@@ -81,6 +88,11 @@ export default class OSM extends BaseSource
 	get mapService()
 	{
 		return this.#mapService;
+	}
+
+	get mapMobile()
+	{
+		return this.#mapMobileService;
 	}
 
 	get autocompleteService()

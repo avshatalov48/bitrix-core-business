@@ -1,81 +1,88 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
 
-$arActivityDescription = array(
-	"NAME" => GetMessage("BPAA_DESCR_NAME"),
-	"DESCRIPTION" => GetMessage("BPAA_DESCR_DESCR"),
-	"TYPE" => "activity",
-	"CLASS" => "ApproveActivity",
-	"JSCLASS" => "ApproveActivity",
-	"CATEGORY" => array(
-		"ID" => "document",
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
+
+$arActivityDescription = [
+	'NAME' => Loc::getMessage('BPAA_DESCR_NAME'),
+	'DESCRIPTION' => Loc::getMessage('BPAA_DESCR_DESCR'),
+	'TYPE' => 'activity',
+	'CLASS' => 'ApproveActivity',
+	'JSCLASS' => 'ApproveActivity',
+	'CATEGORY' => [
+		'ID' => 'document',
 		'OWN_ID' => 'task',
-		'OWN_NAME' => GetMessage('BPAA_DESCR_TASKS')
-	),
-	"RETURN" => array(
+		'OWN_NAME' => Loc::getMessage('BPAA_DESCR_TASKS'),
+	],
+	'RETURN' => [
 		'TaskId' => [
 			'NAME' => 'ID',
-			'TYPE' => 'int'
+			'TYPE' => 'int',
 		],
-		"Comments" => array(
-			"NAME" => GetMessage("BPAA_DESCR_CM"),
-			"TYPE" => "string",
-		),
-		"VotedCount" => array(
-			"NAME" => GetMessage("BPAA_DESCR_VC"),
-			"TYPE" => "int",
-		),
-		"TotalCount" => array(
-			"NAME" => GetMessage("BPAA_DESCR_TC"),
-			"TYPE" => "int",
-		),
-		"VotedPercent" => array(
-			"NAME" => GetMessage("BPAA_DESCR_VP"),
-			"TYPE" => "int",
-		),
-		"ApprovedPercent" => array(
-			"NAME" => GetMessage("BPAA_DESCR_AP"),
-			"TYPE" => "int",
-		),
-		"NotApprovedPercent" => array(
-			"NAME" => GetMessage("BPAA_DESCR_NAP"),
-			"TYPE" => "int",
-		),
-		"ApprovedCount" => array(
-			"NAME" => GetMessage("BPAA_DESCR_AC"),
-			"TYPE" => "int",
-		),
-		"NotApprovedCount" => array(
-			"NAME" => GetMessage("BPAA_DESCR_NAC"),
-			"TYPE" => "int",
-		),
-		"LastApprover" => array(
-			"NAME" => GetMessage("BPAA_DESCR_LA"),
-			"TYPE" => "user",
-		),
-		"LastApproverComment" => array(
-			"NAME" => GetMessage("BPAA_DESCR_LA_COMMENT"),
-			"TYPE" => "string",
-		),
-		"UserApprovers" => array(
-			"NAME" => GetMessage("BPAA_DESCR_APPROVERS"),
-			"TYPE" => "user",
-		),
-		"Approvers" => array(
-			"NAME" => GetMessage("BPAA_DESCR_APPROVERS_STRING"),
-			"TYPE" => "string",
-		),
-		"UserRejecters" => array(
-			"NAME" => GetMessage("BPAA_DESCR_REJECTERS"),
-			"TYPE" => "user",
-		),
-		"Rejecters" => array(
-			"NAME" => GetMessage("BPAA_DESCR_REJECTERS_STRING"),
-			"TYPE" => "string",
-		),
-		"IsTimeout" => array(
-			"NAME" => GetMessage("BPAA_DESCR_TA1"),
-			"TYPE" => "int",
-		),
-	),
-);
+		'Comments' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_CM'),
+			'TYPE' => 'string',
+		],
+		'VotedCount' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_VC'),
+			'TYPE' => 'int',
+		],
+		'TotalCount' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_TC'),
+			'TYPE' => 'int',
+		],
+		'VotedPercent' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_VP'),
+			'TYPE' => 'int',
+		],
+		'ApprovedPercent' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_AP'),
+			'TYPE' => 'int',
+		],
+		'NotApprovedPercent' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_NAP'),
+			'TYPE' => 'int',
+		],
+		'ApprovedCount' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_AC'),
+			'TYPE' => 'int',
+		],
+		'NotApprovedCount' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_NAC'),
+			'TYPE' => 'int',
+		],
+		'LastApprover' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_LA'),
+			'TYPE' => 'user',
+		],
+		'LastApproverComment' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_LA_COMMENT'),
+			'TYPE' => 'string',
+		],
+		'UserApprovers' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_APPROVERS'),
+			'TYPE' => 'user',
+		],
+		'Approvers' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_APPROVERS_STRING'),
+			'TYPE' => 'string',
+		],
+		'UserRejecters' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_REJECTERS'),
+			'TYPE' => 'user',
+		],
+		'Rejecters' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_REJECTERS_STRING'),
+			'TYPE' => 'string',
+		],
+		'IsTimeout' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_TA1'),
+			'TYPE' => 'int',
+		],
+	],
+	'SORT' => 100,
+];

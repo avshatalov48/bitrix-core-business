@@ -57,10 +57,6 @@ return [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_6_TEXT'),
 				'type' => ['typo'],
 			],
-			'.landing-block-header' => [
-				'name' => Loc::getMessage('LANDING_BLOCK_8_6_TITLE'),
-				'type' => ['border-color', 'margin-bottom'],
-			],
 			'.landing-block-bottom' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_6_BLOCK_BOTTOM'),
 				'type' => ['typo'],

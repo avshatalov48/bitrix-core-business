@@ -203,7 +203,7 @@ class CAllAgent
 		{
 			$val = $arFilter[$filter_keys[$i]];
 			$key = strtoupper($filter_keys[$i]);
-			if ((string)$val == '' && $key !== "USER_ID")
+			if ((string)$val == '')
 			{
 				continue;
 			}

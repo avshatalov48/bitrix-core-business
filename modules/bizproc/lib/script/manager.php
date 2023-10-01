@@ -14,6 +14,8 @@ use Bitrix\Main\Localization\Loc;
 class Manager
 {
 	private const CACHE_TTL = 3600;
+	private const LIMIT_DOCUMENT_ID = 1000;
+	private const LIMIT_QUEUES = 1;
 
 	public static function getListByDocument(array $documentType, $showInactive = false)
 	{
@@ -310,6 +312,9 @@ class Manager
 
 		$script->setActive('Y');
 		$script->save();
+
+		\CBPWorkflowTemplateLoader::update($script->getWorkflowTemplateId(), ['ACTIVE' => 'Y'], true);
+
 		self::clearMenuCache();
 
 		return $result;
@@ -327,11 +332,108 @@ class Manager
 			return $result;
 		}
 
+		\CBPWorkflowTemplateLoader::update($script->getWorkflowTemplateId(), ['ACTIVE' => 'N'], true);
+
 		$script->setActive('N');
 		$script->save();
 		self::clearMenuCache();
 
 		return $result;
+	}
+
+	public static function startScript(
+		int $scriptId,
+		int $userId,
+		array $documentIds,
+		array $parameters = []
+	): StartScriptResult
+	{
+		$result = new StartScriptResult();
+
+		$script = self::getById($scriptId);
+		if (!$script)
+		{
+			return $result->addScriptNotExistError();
+		}
+		if (!$script->getActive())
+		{
+			return $result->addInactiveScriptError();
+		}
+
+		$script->fill('WORKFLOW_TEMPLATE');
+		$template = $script->getWorkflowTemplate();
+		if (!$template)
+		{
+			return $result->addTemplateNotExistError();
+		}
+
+		$templateParameters = $template->getParameters();
+		if ($templateParameters)
+		{
+			if (empty($parameters))
+			{
+				return $result->addEmptyTemplateParameterError();
+			}
+
+			$errors = [];
+			$parameters = \CBPWorkflowTemplateLoader::checkWorkflowParameters(
+				$templateParameters,
+				$parameters,
+				$template->getDocumentComplexType(),
+				$errors
+			);
+			if ($errors)
+			{
+				return $result->addInvalidParameterErrors($errors);
+			}
+		}
+
+		$documentIds = array_unique($documentIds);
+
+		$addResult = ScriptQueueTable::add([
+			'SCRIPT_ID' => $scriptId,
+			'STARTED_DATE' => new Main\Type\DateTime(),
+			'STARTED_BY' => $userId,
+			'STATUS' => Queue\Status::QUEUED,
+			'MODIFIED_DATE' => new Main\Type\DateTime(),
+			'WORKFLOW_PARAMETERS' => $parameters,
+		]);
+
+		$queueId = null;
+		if ($addResult->isSuccess())
+		{
+			$queueId = $addResult->getId();
+			$documentRows = array_map(
+				function ($id) use ($queueId)
+				{
+					return [
+						'QUEUE_ID' => $queueId,
+						'DOCUMENT_ID' => $id,
+						'STATUS' => Queue\Status::QUEUED,
+					];
+				},
+				$documentIds
+			);
+			ScriptQueueDocumentTable::addMulti($documentRows, true);
+		}
+
+		Queue\Stepper::bind(1, [$queueId, $scriptId]);
+
+		$result->setData([
+			'queueId' => $queueId,
+		]);
+
+		return $result;
+	}
+
+	public static function getActiveQueueCountByScriptId(int $scriptId): int
+	{
+		if ($scriptId > 0)
+		{
+			return \Bitrix\Bizproc\Script\Entity\ScriptTable::getActiveQueueCount($scriptId);
+		}
+
+		return 0;
 	}
 
 	public static function terminateQueue(int $queueId, int $userId)
@@ -506,5 +608,27 @@ class Manager
 			$cache = Main\Application::getInstance()->getTaggedCache();
 			$cache->clearByTag('intranet_menu_binding');
 		}
+	}
+
+	public static function checkDocumentIdsLimit(array $documentIds): bool
+	{
+		return count($documentIds) <= self::getDocumentIdLimit();
+	}
+
+	public static function getDocumentIdLimit(): int
+	{
+		return self::LIMIT_DOCUMENT_ID;
+	}
+
+	public static function checkQueuesCount(int $scriptId): bool
+	{
+		$queuesCount = self::getActiveQueueCountByScriptId($scriptId);
+
+		return $queuesCount < self::getQueuesLimit();
+	}
+
+	public static function getQueuesLimit(): int
+	{
+		return self::LIMIT_QUEUES;
 	}
 }

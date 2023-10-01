@@ -1,10 +1,14 @@
 .location-osm-map-container {
-	height: 450px;
+	height: 100%;
 }
 
 .location-source-OSM .location-map-address-changed {
 	right: 9px;
 }
+.location-osm-map-mobile-container {
+	height: 100%;
+}
+
 /* required styles */
 
 .leaflet-pane,
@@ -279,7 +283,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
 /* general typography */
 .leaflet-container {
-	font: 12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px/1.5 var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	}
 
 

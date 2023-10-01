@@ -14,7 +14,11 @@ BX.UI.InfoHelper =
 		if (!this.inited && !params['availableDomainList'])
 		{
 			this.inited = true;
-			BX.ajax.runAction('ui.infoHelper.getInitParams').then(
+			BX.ajax.runAction('ui.infoHelper.getInitParams', {
+				data: {
+					currentUrl: window.location.href,
+				}
+			}).then(
 				function (response)
 				{
 					this.init(response.data)
@@ -218,7 +222,11 @@ BX.UI.InfoHelper =
 			{
 				contentCallback: function(slider) {
 					return new Promise(function(resolve, reject) {
-						BX.ajax.runAction("ui.infoHelper.getInitParams").then(function(response)
+						BX.ajax.runAction("ui.infoHelper.getInitParams", {
+							data: {
+								currentUrl: window.location.href,
+							}
+						}).then(function(response)
 						{
 							frame.src = this.frameUrlTemplate.replace(/code/, code);
 
@@ -274,7 +282,11 @@ BX.UI.InfoHelper =
 		BX.SidePanel.Instance.open(this.getSliderId(), {
 			contentCallback: function(slider) {
 				return new Promise(function(resolve, reject) {
-					BX.ajax.runAction("ui.infoHelper.getInitParams").then(function(response)
+					BX.ajax.runAction("ui.infoHelper.getInitParams", {
+						data: {
+							currentUrl: window.location.href,
+						}
+					}).then(function(response)
 					{
 						this.init(response.data);
 

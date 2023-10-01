@@ -32,11 +32,110 @@
 		this.input = BX(params.inputId);
 		this.placeHolders = params.placeHolders;
 		this.mess = params.mess;
+		this.AIImageContextId = params.AIImageContextId;
+		this.AITextContextId = params.AITextContextId;
+		this.isAIImageAvailable = params.isAIImageAvailable === 'Y';
+		this.isAITextAvailable = params.isAITextAvailable === 'Y';
 
 		this.context = BX(params.containerId);
 		this.blockNode = this.context.querySelector('[data-bx-editor-block]');
 		this.plainNode = this.context.querySelector('[data-bx-editor-plain]');
 		this.inputNode = this.plainNode.querySelector('[data-bx-input]');
+
+		BX.Event.EventEmitter.subscribe('OnEditorInitedBefore', (event) => {
+			const [currentEditor] = event.getData();
+
+			if (this.isAITextAvailable)
+			{
+				currentEditor.AddButton({
+					id: 'ai-text-generator',
+					name: 'Create text',
+					iconClassName: 'marketing-letter-editor-btn-ai-text',
+					toolbarSort: 16,
+					disabledForTextarea: false,
+					compact: true,
+					handler: () => {
+						const aiTextPicker = new BX.AI.Picker({
+							moduleId: 'sender',
+							contextId: this.AITextContextId,
+							analyticLabel: 'sender_ai_text_marketing_letter',
+							history: true,
+							onSelect: (info) => {
+								let data = info.data;
+								if (data && data.replace)
+								{
+									data = BX.util.htmlspecialchars(data);
+									const text = (data + '').replace(/(\r\n|\n\r|\r|\n)/g, '<br/>$1');
+
+									if (currentEditor.bbCode && currentEditor.synchro.IsFocusedOnTextarea())
+									{
+										currentEditor.textareaView.WrapWith(false, false, text);
+										currentEditor.textareaView.Focus();
+									}
+									else
+									{
+										currentEditor.action.actions.insertHTML.exec('insertHTML', text);
+										currentEditor.Focus();
+									}
+								}
+							},
+							onTariffRestriction: () => {
+								// BX.UI.InfoHelper.show(`limit_sender_ai_text`);
+							},
+						});
+						aiTextPicker.setLangSpace(BX.AI.Picker.LangSpace.text);
+						aiTextPicker.text();
+					},
+				})
+			}
+
+			// if (this.isAIImageAvailable)
+			// {
+			// 	currentEditor.AddButton({
+			// 		id: 'ai-image-generator',
+			// 		name: 'Create Image',
+			// 		iconClassName: 'marketing-letter-editor-btn-ai-image',
+			// 		toolbarSort: 17,
+			// 		disabledForTextarea: false,
+			// 		compact: true,
+			// 		handler: () => {
+			// 			const aiImagePicker = new BX.AI.Picker({
+			// 				moduleId: 'sender',
+			// 				contextId: this.AIImageContextId,
+			// 				analyticLabel: 'sender_ai_image_merketing_letter',
+			// 				history: true,
+			// 				onSelect: (imageUrl) => {
+			// 					debugger;
+			// 					// eslint-disable-next-line promise/catch-or-return
+			// 					// ajax.runAction('socialnetwork.api.livefeed.blogpost.uploadAIImage', {
+			// 					// 	data: {
+			// 					// 		imageUrl: imageUrl,
+			// 					// 	},
+			// 					// }).then((response) => {
+			// 					// 	const userFieldControl = BX.Disk.Uploader.UserFieldControl.getById(this.formId);
+			// 					// 	const uploader: Uploader = userFieldControl.getUploader();
+			// 					// 	uploader.addFile(response.data.fileId, {
+			// 					// 		events: {
+			// 					// 			[FileEvent.LOAD_COMPLETE]: (event) => {
+			// 					// 				const file = event.getTarget();
+			// 					// 				const item = userFieldControl.getItem(file.getId());
+			// 					// 				userFieldControl.getMainPostForm().getParser().insertFile(item);
+			// 					// 				userFieldControl.showUploaderPanel();
+			// 					// 			},
+			// 					// 		},
+			// 					// 	});
+			// 					// });
+			// 				},
+			// 				onTariffRestriction: () => {
+			// 					// BX.UI.InfoHelper.show(`limit_sonet_ai_image`);
+			// 				},
+			// 			});
+			// 			aiImagePicker.setLangSpace(BX.AI.Picker.LangSpace.image);
+			// 			aiImagePicker.image();
+			// 		},
+			// 	});
+			// }
+		});
 
 
 		BX.addCustomEvent('OnEditorInitedBefore', this.onEditorInitedBefore.bind(this));

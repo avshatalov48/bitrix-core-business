@@ -1,90 +1,125 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPCodeActivity
-	extends CBPActivity
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
+
+class CBPCodeActivity extends CBPActivity
 {
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array("Title" => "", "ExecuteCode" => "");
+		$this->arProperties = [
+			'Title' => '',
+			'ExecuteCode' => ''
+		];
 	}
 
-	public function Execute()
+	public function execute()
 	{
 		if ($this->ExecuteCode <> '')
+		{
 			@eval($this->ExecuteCode);
+		}
 
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
+	public static function validateProperties($arTestProperties = [], CBPWorkflowTemplateUser $user = null)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
 		if ($user == null || !$user->isAdmin())
 		{
-			$arErrors[] = array(
-				"code" => "perm",
-				"message" => GetMessage("BPCA_NO_PERMS"),
-			);
+			$arErrors[] = [
+				'code' => 'perm',
+				'message' => Loc::getMessage('BPCA_NO_PERMS'),
+			];
 		}
 
-		if (empty($arTestProperties["ExecuteCode"]))
+		if (empty($arTestProperties['ExecuteCode']))
 		{
-			$arErrors[] = array(
-				"code" => "emptyCode",
-				"message" => GetMessage("BPCA_EMPTY_CODE"),
-			);
+			$arErrors[] = [
+				'code' => 'emptyCode',
+				'message' => Loc::getMessage('BPCA_EMPTY_CODE'),
+			];
 		}
 
-		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
+		return array_merge($arErrors, parent::validateProperties($arTestProperties, $user));
 	}
 
-	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "")
+	public static function GetPropertiesDialog(
+		$documentType,
+		$activityName,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$arCurrentValues = null,
+		$formName = ''
+	)
 	{
-		$runtime = CBPRuntime::GetRuntime();
+		$runtime = CBPRuntime::getRuntime();
 
 		if (!is_array($arWorkflowParameters))
-			$arWorkflowParameters = array();
+		{
+			$arWorkflowParameters = [];
+		}
 		if (!is_array($arWorkflowVariables))
-			$arWorkflowVariables = array();
+		{
+			$arWorkflowVariables = [];
+		}
 
 		if (!is_array($arCurrentValues))
 		{
-			$arCurrentValues = array("execute_code" => ""); 
+			$arCurrentValues = ['execute_code' => ''];
 
 			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-			if (is_array($arCurrentActivity["Properties"]))
+			if (is_array($arCurrentActivity['Properties']))
 			{
-				$arCurrentValues["execute_code"] = $arCurrentActivity["Properties"]["ExecuteCode"] ?? '';
+				$arCurrentValues['execute_code'] = $arCurrentActivity['Properties']['ExecuteCode'] ?? '';
 			}
 		}
 
-		return $runtime->ExecuteResourceFile(
+		return $runtime->executeResourceFile(
 			__FILE__,
-			"properties_dialog.php",
-			array(
-				"arCurrentValues" => $arCurrentValues,
-				"formName" => $formName,
-			)
+			'properties_dialog.php',
+			[
+				'arCurrentValues' => $arCurrentValues,
+				'formName' => $formName,
+			]
 		);
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialogValues(
+		$documentType,
+		$activityName,
+		&$arWorkflowTemplate,
+		&$arWorkflowParameters,
+		&$arWorkflowVariables,
+		$arCurrentValues,
+		&$arErrors
+	)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
-		$runtime = CBPRuntime::GetRuntime();
+		$runtime = CBPRuntime::getRuntime();
 
-		$arProperties = array("ExecuteCode" => $arCurrentValues["execute_code"]);
+		$arProperties = ['ExecuteCode' => $arCurrentValues['execute_code']];
 
-		$arErrors = self::ValidateProperties($arProperties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
+		$arErrors = self::validateProperties(
+			$arProperties,
+			new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser)
+		);
 		if (count($arErrors) > 0)
+		{
 			return false;
+		}
 
 		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$arCurrentActivity["Properties"] = $arProperties;
+		$arCurrentActivity['Properties'] = $arProperties;
 
 		return true;
 	}

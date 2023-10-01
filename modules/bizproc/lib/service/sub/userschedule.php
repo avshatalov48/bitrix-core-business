@@ -38,6 +38,12 @@ class UserSchedule
 		{
 			$tmUser = new \CTimeManUser($this->userId);
 
+			//speed up!
+			if (method_exists($tmUser, 'getCurrentRecordStatus'))
+			{
+				return $tmUser->getCurrentRecordStatus();
+			}
+
 			return $tmUser->state();
 		}
 

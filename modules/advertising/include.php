@@ -1,7 +1,7 @@
-<?
-global $DB, $MESS, $DBType;
+<?php
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/filter_tools.php");
+global $DB, $MESS;
+
 IncludeModuleLangFile(__FILE__);
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/errors.php");
 
@@ -13,22 +13,9 @@ $GLOBALS["CACHE_ADVERTISING"] = Array(
 	"CONTRACTS_CNT" => Array(),
 );
 
-/*
-CModule::AddAutoloadClasses(
-	"advertising",
-	array(
-		"CAdvBanner" => "classes/".$DBType."/advertising.php",
-		"CAdvType" => "classes/".$DBType."/advertising.php",
-		"CAdvContract" => "classes/".$DBType."/advertising.php",
-		"CAdvertising" => "classes/".$DBType."/advertising.php",
-	)
-);
-*/
-
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/classes/".mb_strtolower($DB->type)."/advertising.php");
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/classes/mysql/advertising.php");
 
 \CJSCore::RegisterExt("adv_templates", Array(
 	"js" =>    "/bitrix/js/advertising/template.js",
 	"rel" =>   array()
 ));
-?>

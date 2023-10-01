@@ -173,17 +173,21 @@ class forum extends CModule
 	
 	function InstallDB()
 	{
+		global $APPLICATION, $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
-		$arInstall = array(
-			"INSTALL_FILTER" => ($_REQUEST["install_forum"] == "Y" && $_REQUEST["INSTALL_FILTER"] != "Y" ? "N" : "Y"));
+
+		$arInstall = [
+			"INSTALL_FILTER" => ($_REQUEST["install_forum"] == "Y" && $_REQUEST["INSTALL_FILTER"] != "Y" ? "N" : "Y")
+		];
 		
-		if (!$GLOBALS["DB"]->Query("SELECT 'x' FROM b_forum", true))
+		if (!$DB->TableExists('b_forum'))
 		{
-			$this->errors = $GLOBALS["DB"]->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/mysql/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/forum/install/' . $connection->getType() . '/install.sql');
 			
-			if($this->errors !== false)
+			if ($this->errors !== false)
 			{
-				$GLOBALS["APPLICATION"]->ThrowException(implode("", $this->errors));
+				$APPLICATION->ThrowException(implode("", $this->errors));
 				return false;
 			}
 		}
@@ -233,18 +237,17 @@ class forum extends CModule
 		$eventManager->registerEventHandler('socialnetwork', 'onLogCommentIndexGetContent', 'forum', '\Bitrix\Forum\Integration\Socialnetwork\LogComment', 'onIndexGetContent');
 		$eventManager->registerEventHandler('socialnetwork', 'onContentViewed', 'forum', '\Bitrix\Forum\Integration\Socialnetwork\ContentViewHandler', 'onContentViewed');
 
-		if ($GLOBALS["DB"]->TableExists("b_forum_pm_folder") || $GLOBALS["DB"]->TableExists("B_FORUM_PM_FOLDER"))
+		if ($DB->TableExists("b_forum_pm_folder"))
 		{
-			$db_res = $GLOBALS["DB"]->Query("SELECT ID FROM b_forum_pm_folder WHERE USER_ID IS NULL OR USER_ID <= 0");
+			$db_res = $DB->Query("SELECT ID FROM b_forum_pm_folder WHERE USER_ID IS NULL OR USER_ID <= 0");
 			if (!($db_res && $res = $db_res->Fetch()))
 			{
-				$this->errors = $GLOBALS["DB"]->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/mysql/install2.sql");
+				$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/".$connection->getType()."/install2.sql");
 			}
 		}
 		if ($arInstall["INSTALL_FILTER"] == "Y")
 		{
-			if (($GLOBALS["DB"]->TableExists("b_forum_dictionary") || $GLOBALS["DB"]->TableExists("B_FORUM_DICTIONARY")) && 
-				($GLOBALS["DB"]->TableExists("b_forum_filter") || $GLOBALS["DB"]->TableExists("B_FORUM_FILTER")))
+			if ($DB->TableExists("b_forum_dictionary") && $DB->TableExists("b_forum_filter"))
 			{
 				$sites = CLanguage::GetList('lid', 'desc');
 				while($site = $sites->Fetch())
@@ -252,7 +255,7 @@ class forum extends CModule
 					if (!in_array($site["LID"], array("ru", "en", "de")))
 						continue;
 
-					$tmp_res_q = $GLOBALS["DB"]->Query(
+					$tmp_res_q = $DB->Query(
 					"SELECT 
 						FD.ID, COUNT(FF.ID) AS COUNT_WORDS
 						FROM b_forum_dictionary FD
@@ -261,8 +264,11 @@ class forum extends CModule
 					GROUP BY FD.ID", True);
 					if (!($tmp_res_q && ($res = $tmp_res_q->Fetch())))
 					{
-						if(file_exists(	$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/mysql/".$site["LID"]."/".$site["LID"].".sql"))
-							$this->errors = $GLOBALS["DB"]->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/mysql/".$site["LID"]."/".$site["LID"].".sql");
+						$sqlFile = $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/forum/install/' . $connection->getType() . '/' . $site['LID'] . '/' . $site['LID'] . '.sql';
+						if (file_exists($sqlFile))
+						{
+							$this->errors = $DB->RunSQLBatch($sqlFile);
+						}
 					}
 					if ($site["LID"] == "ru")
 					{
@@ -295,6 +301,7 @@ class forum extends CModule
 	{
 		/** @var CDataBase $DB */
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		$arSQLErrors = array();
@@ -314,7 +321,7 @@ class forum extends CModule
 				$DB->Query("DROP TABLE b_forum_smile");
 				$DB->Query("DROP TABLE b_forum_smile_lang");
 			}
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/".$connection->getType()."/uninstall.sql");
 		}
 		if(!empty($this->errors))
 		{

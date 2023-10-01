@@ -82,7 +82,7 @@ class SenderBlacklistComponent extends Bitrix\Sender\Internals\CommonSenderCompo
 				$componentPage = 'import';
 			}
 
-			/**	@var \CAllMain $APPLICATION */
+			/**	@var CMain $APPLICATION */
 			global $APPLICATION;
 			foreach ($arDefaultUrlTemplates404 as $url => $value)
 			{

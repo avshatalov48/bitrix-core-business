@@ -25,27 +25,27 @@ class UserFieldBase extends BaseType\Base
 	{
 		global $APPLICATION, $USER_FIELD_MANAGER;
 
-		$sType = static::getUserType($fieldType);
+		$userType = static::getUserType($fieldType);
 
-		if ($sType === 'crm')
+		if ($userType === 'crm')
 		{
 			return self::formatCrmValuePrintable($fieldType, $value);
 		}
 
-		$arUserFieldType = $USER_FIELD_MANAGER->GetUserType($sType);
+		$userFieldType = $USER_FIELD_MANAGER->GetUserType($userType);
 		$userField = [
 			'ENTITY_ID' => sprintf('%s_%s',
 				mb_strtoupper($fieldType->getDocumentType()[0]),
 				mb_strtoupper($fieldType->getDocumentType()[2])
 			),
 			'FIELD_NAME' => 'UF_XXXXXXX',
-			'USER_TYPE_ID' => $sType,
+			'USER_TYPE_ID' => $userType,
 			'SORT' => 100,
 			'MULTIPLE' => $fieldType->isMultiple() ? 'Y' : 'N',
 			'MANDATORY' => $fieldType->isRequired() ? 'Y' : 'N',
-			'EDIT_FORM_LABEL' => $arUserFieldType['DESCRIPTION'],
+			'EDIT_FORM_LABEL' => $userFieldType['DESCRIPTION'],
 			'VALUE' => $value,
-			'USER_TYPE' => $arUserFieldType
+			'USER_TYPE' => $userFieldType
 		];
 
 		if ($settings = $fieldType->getSettings())
@@ -53,7 +53,7 @@ class UserFieldBase extends BaseType\Base
 			$userField['SETTINGS'] = $settings;
 		}
 
-		if ($sType == 'boolean' && ($value === 'Y' || $value === 'N'))
+		if ($userType === 'boolean' && ($value === 'Y' || $value === 'N'))
 		{
 			//Convert bizproc boolean values (Y/N) in to UF boolean values (1/0)
 			$userField['VALUE'] = $value = ($value === 'Y') ? 1 : 0;
@@ -62,7 +62,7 @@ class UserFieldBase extends BaseType\Base
 		ob_start();
 		$APPLICATION->IncludeComponent(
 			'bitrix:system.field.view',
-			$sType,
+			$userType,
 			[
 				'arUserField' => $userField,
 				'bVarsFromForm' => false,
@@ -76,7 +76,7 @@ class UserFieldBase extends BaseType\Base
 			['HIDE_ICONS' => 'Y']
 		);
 
-		return HTMLToTxt(ob_get_clean());
+		return HTMLToTxt(ob_get_clean(), maxlen: 0);
 	}
 
 	/**
@@ -118,7 +118,7 @@ class UserFieldBase extends BaseType\Base
 
 		$selectorValue = null;
 		$typeValue = [];
-		if (!is_array($value) || is_array($value) && \CBPHelper::isAssociativeArray($value))
+		if (!is_array($value) || \CBPHelper::isAssociativeArray($value))
 		{
 			$value = [$value];
 		}
@@ -140,7 +140,7 @@ class UserFieldBase extends BaseType\Base
 
 		$arUserFieldType = $USER_FIELD_MANAGER->GetUserType($sType);
 
-		$arUserField = [
+		$userField = [
 			'ENTITY_ID' => sprintf('%s_%s',
 				mb_strtoupper($fieldType->getDocumentType()[0]),
 				mb_strtoupper($fieldType->getDocumentType()[2])
@@ -158,21 +158,25 @@ class UserFieldBase extends BaseType\Base
 			'ENTITY_VALUE_ID' => 1,
 		];
 
-		if ($sType == 'boolean' && ($arUserField['VALUE'] == "Y" || $arUserField['VALUE'] == "N"))
+		if ($sType == 'boolean' && ($userField['VALUE'] == "Y" || $userField['VALUE'] == "N"))
 		{
-			$arUserField['VALUE'] = ($arUserField['VALUE'] == "Y") ? 1 : 0;
+			$userField['VALUE'] = ($userField['VALUE'] == "Y") ? 1 : 0;
 		}
 
-		$arUserField['SETTINGS'] = $fieldType->getSettings();
+		$userField['SETTINGS'] = $fieldType->getSettings();
 
 		if (in_array($sType, ['iblock_element', 'iblock_section', 'boolean']) && ($renderMode & FieldType::RENDER_MODE_DESIGNER))
 		{
 			//TODO: fix checkboxes values
-			$arUserField['SETTINGS']['DISPLAY'] = 'LIST';
+			$userField['SETTINGS']['DISPLAY'] = 'LIST';
 		}
-		elseif ($sType == 'crm' && empty($arUserField['SETTINGS']))
+		elseif ($sType == 'crm' && empty($userField['SETTINGS']))
 		{
-			$arUserField['SETTINGS'] = ['LEAD' => 'Y', 'CONTACT' => 'Y', 'COMPANY' => 'Y', 'DEAL' => 'Y'];
+			$userField['SETTINGS'] = ['LEAD' => 'Y', 'CONTACT' => 'Y', 'COMPANY' => 'Y', 'DEAL' => 'Y'];
+		}
+		elseif ($sType === 'iblock_element' && $renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			$userField['SETTINGS']['DISPLAY'] = 'UI';
 		}
 
 		ob_start();
@@ -180,7 +184,7 @@ class UserFieldBase extends BaseType\Base
 			'bitrix:system.field.edit',
 			$sType,
 			[
-				'arUserField' => $arUserField,
+				'arUserField' => $userField,
 				'bVarsFromForm' => false,
 				'form_name' => $field['Form'],
 				'FILE_MAX_HEIGHT' => 400,

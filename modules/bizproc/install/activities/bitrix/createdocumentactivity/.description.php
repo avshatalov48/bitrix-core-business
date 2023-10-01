@@ -1,22 +1,24 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+use Bitrix\Main\Localization\Loc;
+
 $arActivityDescription = [
-	"NAME" => GetMessage("BPCDA_DESCR_NAME"),
-	"DESCRIPTION" => GetMessage("BPCDA_DESCR_DESCR"),
-	"TYPE" => "activity",
-	"CLASS" => "CreateDocumentActivity",
-	"JSCLASS" => "BizProcActivity",
-	"CATEGORY" => [
-		"ID" => "document",
+	'NAME' => Loc::getMessage('BPCDA_DESCR_NAME'),
+	'DESCRIPTION' => Loc::getMessage('BPCDA_DESCR_DESCR'),
+	'TYPE' => 'activity',
+	'CLASS' => 'CreateDocumentActivity',
+	'JSCLASS' => 'BizProcActivity',
+	'CATEGORY' => [
+		'ID' => 'document',
 	],
 	'RETURN' => [
 		'ErrorMessage' => [
-			'NAME' => GetMessage('BPCDA_DESCR_ERROR_MESSAGE'),
+			'NAME' => Loc::getMessage('BPCDA_DESCR_ERROR_MESSAGE'),
 			'TYPE' => 'string',
 		],
 	],

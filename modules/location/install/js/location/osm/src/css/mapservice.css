@@ -1,5 +1,5 @@
 .location-osm-map-container {
-	height: 450px;
+	height: 100%;
 }
 
 .location-source-OSM .location-map-address-changed {

@@ -55,7 +55,9 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 		parent::__construct($component);
 
 		$this->accessController = AccessController::getCurrent();
-		$this->contractorsProvider = Contractor\Provider\Manager::getActiveProvider();
+		$this->contractorsProvider = Contractor\Provider\Manager::getActiveProvider(
+			Contractor\Provider\Manager::PROVIDER_STORE_DOCUMENT
+		);
 	}
 
 	public function onPrepareComponentParams($arParams)
@@ -138,7 +140,7 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 		}
 		$this->initializeDocumentFields();
 
-		$this->arResult['INCLUDE_CRM_ENTITY_EDITOR'] = Contractor\Provider\Manager::isActiveProviderByModule('crm');
+		$this->arResult['INCLUDE_CRM_ENTITY_EDITOR'] = Contractor\Provider\Manager::isActiveProviderByModule(Contractor\Provider\Manager::PROVIDER_STORE_DOCUMENT, 'crm');
 		$this->arResult['GUID'] = $this->arResult['FORM']['GUID'];
 		$this->arResult['TOOLBAR_ID'] = "toolbar_store_document_{$this->documentId}";
 		$this->arResult['IS_MAIN_CARD_READ_ONLY'] = $this->arResult['FORM']['READ_ONLY'];
@@ -1559,5 +1561,24 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 				UI\EntityEditor\Action::DEFAULT_ACTION_BUTTON_ID, 'SAVE_AND_CONDUCT', 'CANCEL',
 			],
 		];
+	}
+
+	public static function getTypeByDocumentId(int $documentId): ?string
+	{
+		if ($documentId <= 0)
+		{
+			return null;
+		}
+		$row = StoreDocumentTable::getRow([
+			'select' => [
+				'ID',
+				'DOC_TYPE',
+			],
+			'filter' => [
+				'=ID' => $documentId,
+			],
+		]);
+
+		return $row['DOC_TYPE'] ?? null;
 	}
 }

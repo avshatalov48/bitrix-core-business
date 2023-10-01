@@ -142,7 +142,7 @@ if (!$accessController->check(ActionDictionary::ACTION_STORE_VIEW))
 	$APPLICATION->AuthForm(Loc::getMessage('ACCESS_DENIED'));
 }
 
-if (Manager::getActiveProvider())
+if (Manager::isActiveProviderExists())
 {
 	LocalRedirect($listUrl);
 }

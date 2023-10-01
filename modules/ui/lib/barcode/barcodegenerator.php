@@ -955,7 +955,7 @@ class BarcodeGenerator {
 		while (($o = strrpos($data, '*')) !== false) {
 			$checksum = 0;
 			for ($i = 0; $i < 13; $i++) {
-				$digit = substr($data, $i, 1);
+				$digit = (int)$data[$i];
 				$checksum += (($i % 2) ? 3 : 1) * $digit;
 			}
 			$checksum *= (($o % 2) ? 3 : 9);

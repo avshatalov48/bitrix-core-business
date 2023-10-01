@@ -1,85 +1,106 @@
-/////////////////////////////////////////////////////////////////////////////////////
-// IfElseBranchActivity
-/////////////////////////////////////////////////////////////////////////////////////
+(function (exports,main_core) {
+	'use strict';
 
-IfElseBranchActivity = function()
-{
-	var ob = new SequenceActivity();
-	ob.Type = 'IfElseBranchActivity';
-	ob.iHead = 1;
+	let _ = t => t,
+	  _t,
+	  _t2,
+	  _t3;
+	const SequenceActivity = window.SequenceActivity;
+	var _draw = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("draw");
+	var _renderTitle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderTitle");
+	class IfElseBranchActivity extends SequenceActivity {
+	  constructor() {
+	    super();
+	    Object.defineProperty(this, _renderTitle, {
+	      value: _renderTitle2
+	    });
+	    Object.defineProperty(this, _draw, {
+	      value: _draw2
+	    });
+	    this.Type = 'IfElseBranchActivity';
 
-	ob.Draw = function (container)
-	{
-		ob.container = container;
-
-		ob.childsContainer = container.appendChild(_crt(1 +  ob.iHead + ob.childActivities.length*2, 1));
-		ob.childsContainer.className = 'seqactivitycontainer';
-		ob.childsContainer.id = ob.Name;
-		ob.childsContainer.style.height = '100%';
-
-
-		var d = ob.childsContainer.rows[0].cells[0].appendChild(document.createElement('DIV'));
-		d.className = 'activity';
-		d.style.margin = '0px auto';
-		d.style.textAlign = 'center';
-		d.style.width = '190px';
-		d.style.height = '20px';
-		d.style.marginTop = '7px';
-		d.style.margin = '5px';
-		d.innerHTML = '<div style="background: url(/bitrix/images/bizproc/cond_bg.gif);"><div style="background: url(/bitrix/images/bizproc/cond_r.gif) right top no-repeat;"><div style="background: url(/bitrix/images/bizproc/cond_l.gif) left top no-repeat; height: 23px; overflow-y: hidden;"><div style="padding-top: 5px; font-size: 12px; height: 23px; overflow-y: hidden; padding-right: 5px;"></div></div></div></div>';
-
-		d.ondblclick = ob.OnSettingsClick;
-	/*
-		var d = ob.childsContainer.rows[0].cells[0].appendChild(document.createElement('DIV'));
-		d.style.width = '100px';
-		d.style.height = '14px';
-		d.style.border = '1px #CCCCCC solid';
-		d.style.backgroundColor = '#ededed';
-		*/
-
-		var t = d.childNodes[0].childNodes[0].childNodes[0].childNodes[0].appendChild(_crt(1, 2))
-		t.rows[0].cells[0].title = ob.Properties['Title'];
-		t.rows[0].cells[0].width = '100%';
-		t.rows[0].cells[0].style.fontSize = '11px';
-
-		var textCell = t.rows[0].cells[0].appendChild(document.createElement('DIV'));
-		textCell.innerHTML = BX.util.htmlspecialchars(ob.Properties['Title']);
-		textCell.style.overflow = 'hidden';
-		textCell.style.width = '165px';
-		textCell.style.whiteSpace = 'nowrap';
-		textCell.style.textOverflow = 'ellipsis';
-
-		var setimg = t.rows[0].cells[1].appendChild(document.createElement('IMG'));
-		t.rows[0].cells[1].width = '1%';
-		t.rows[0].cells[1].vAlign = 'top';
-		setimg.width = '12';
-		setimg.height = '12';
-		setimg.src = '/bitrix/images/bizproc/act_button_sett_gray.gif';
-		setimg.onclick = ob.Settings;
-		setimg.style.cursor = 'pointer';
-
-
-		ob.CreateLine(0);
-
-		for(var i in ob.childActivities)
-		{
-			if (!ob.childActivities.hasOwnProperty(i))
-				continue;
-			ob.childActivities[i].Draw(ob.childsContainer.rows[ob.iHead + i*2 + 1].cells[0]);
-			ob.CreateLine(parseInt(i) + 1);
-		}
-
-		ob.drawEditorComment(d);
+	    // compatibility
+	    this.Draw = babelHelpers.classPrivateFieldLooseBase(this, _draw)[_draw].bind(this);
+	    this.iHead = 1;
+	  }
+	  static changeConditionTypeHandler(selectElement) {
+	    [...selectElement.options].forEach(option => {
+	      const container = document.getElementById(main_core.Dom.attr(option, 'data-id'));
+	      main_core.Dom.style(container, 'display', option.selected ? '' : 'none');
+	    });
+	  }
+	}
+	function _draw2(wrapper) {
+	  const rows = Array.from({
+	    length: this.iHead + this.childActivities.length * 2
+	  }, () => main_core.Tag.render(_t || (_t = _`
+				<tr><td align="center" valign="center"></td></tr>
+			`)));
+	  const titleNode = babelHelpers.classPrivateFieldLooseBase(this, _renderTitle)[_renderTitle]();
+	  this.childsContainer = main_core.Tag.render(_t2 || (_t2 = _`
+			<table 
+				class="seqactivitycontainer"
+				id="${0}"
+				style="height: 100%; width: 100%;"
+				border="0"
+				cellpadding="0"
+				cellspacing="0"
+			>
+				<tbody>
+					<tr>
+						<td align="center" valign="center">
+							<div class="activity" style="margin: 5px; text-align: center; width: 190px; height: 20px;">
+								${0}
+							</div>
+						</td>
+					</tr>
+					${0}
+				</tbody>
+			</table>
+		`), main_core.Text.encode(this.Name), titleNode, rows);
+	  main_core.Dom.append(this.childsContainer, wrapper);
+	  this.CreateLine(0);
+	  this.childActivities.forEach((child, index) => {
+	    child.Draw(this.childsContainer.rows[this.iHead + index * 2 + 1].cells[0]);
+	    this.CreateLine(main_core.Text.toInteger(index) + 1);
+	  });
+	  this.drawEditorComment(titleNode);
+	}
+	function _renderTitle2() {
+	  const activatedClass = !this.canBeActivated || this.Activated === 'N' ? ' --deactivated' : '';
+	  const {
+	    root,
+	    setting
+	  } = main_core.Tag.render(_t3 || (_t3 = _`
+			<div class="bizproc-designer-if-else-branch-activity-title-wrapper${0}">
+				<table style="width: 100%; height: 100%" cellspacing="0" cellpadding="0" border="0">
+					<tbody>
+						<tr>
+							<td 
+								align="center"
+								title="${0}"
+								style="width: 100%; font-size: 11px;"
+							>
+								<div class="bizproc-designer-if-else-branch-activity-title">
+									${0}
+								</div>
+							</td>
+							<td ref="setting" style="cursor: pointer;">
+								<div 
+									class="ui-icon-set --settings-2 bizproc-designer-if-else-branch-activity-setting-icon"
+								></div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		`), activatedClass, main_core.Text.encode(this.Properties.Title), main_core.Text.encode(this.Properties.Title));
+	  main_core.Event.bind(root, 'dblclick', this.OnSettingsClick.bind(this));
+	  main_core.Event.bind(setting, 'click', this.Settings.bind(this));
+	  return root;
 	}
 
-	return ob;
-}
+	exports.IfElseBranchActivity = IfElseBranchActivity;
 
-IfElseBranchActivity.changeConditionTypeHandler = function(selectElement)
-{
-	Array.from(selectElement.options).forEach(function(option) {
-
-		var container = document.getElementById(option.getAttribute('data-id'));
-		container.style.display = option.selected ? '' : 'none';
-	});
-}
+}((this.window = this.window || {}),BX));
+//# sourceMappingURL=ifelsebranchactivity.js.map

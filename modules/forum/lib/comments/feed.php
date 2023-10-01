@@ -21,6 +21,46 @@ class Feed extends BaseObject
 		return ($this->topic !== null);
 	}
 
+	public function moveEventCommentsToNewXmlId(string $newEntityXmlId): bool
+	{
+		if (is_null($this->topic))
+		{
+			return true;
+		}
+
+		$forumId = $this->getForum()['ID'];
+
+		$rows = \Bitrix\Forum\MessageTable::query()
+			->setSelect(['ID'])
+			->where('FORUM_ID', $forumId)
+			->where('TOPIC_ID', $this->topic['ID']);
+
+		$comments = $rows->fetchAll();
+		if (empty($comments))
+		{
+			return true;
+		}
+
+		$newFeed = new \Bitrix\Forum\Comments\Feed($forumId, [
+			'type' => 'EV',
+			'id' => $this->getEntity()->getId(),
+			'xml_id' => $newEntityXmlId,
+		]);
+
+		if (!$newFeed->checkTopic())
+		{
+			return false;
+		}
+
+		$newTopicId = $newFeed->getTopic()['ID'];
+		$commentsIds = array_map('intval', array_column($comments, 'ID'));
+		\Bitrix\Forum\MessageTable::updateMulti($commentsIds, [
+			'TOPIC_ID' => $newTopicId,
+		]);
+
+		return true;
+	}
+
 	/**
 	 * Returns true if entity allows adding
 	 * @return bool

@@ -21,7 +21,6 @@ class Util
 		'it' => 'https://helpdesk.bitrix24.it',
 		'pl' => 'https://helpdesk.bitrix24.pl',
 		'ru' => 'https://helpdesk.bitrix24.ru',
-		'ua' => 'https://helpdesk.bitrix24.ua',
 	];
 
 	public static function getHelpdeskUrl($byLang = false)
@@ -46,10 +45,6 @@ class Util
 
 			case "de":
 				$helpdeskUrl = static::HELPDESK_DOMAIN['de'];
-				break;
-
-			case "ua":
-				$helpdeskUrl = static::HELPDESK_DOMAIN['ua'];
 				break;
 
 			case "br":

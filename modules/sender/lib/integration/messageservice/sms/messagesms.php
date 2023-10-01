@@ -102,7 +102,6 @@ class MessageSms implements Message\iBase, Message\iMailable
 			->setCode($this->getCode())
 			->loadConfiguration($id, $this->configuration);
 
-		/** @var \CAllMain {$GLOBALS['APPLICATION']} */
 		$senderOption = $this->configuration->getOption('SENDER');
 		if ($senderOption)
 		{

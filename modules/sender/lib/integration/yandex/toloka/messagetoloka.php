@@ -63,7 +63,6 @@ class MessageToloka implements iBase, iToloka
 				function() use ($self)
 				{
 					ob_start();
-					/** @var \CAllMain $GLOBALS ['APPLICATION'] Application. */
 					$GLOBALS['APPLICATION']->includeComponent(
 						"bitrix:main.ui.filter",
 						"",

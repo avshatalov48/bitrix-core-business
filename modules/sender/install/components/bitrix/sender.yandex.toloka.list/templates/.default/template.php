@@ -6,7 +6,7 @@ use Bitrix\Main\Web\Json;
 
 \Bitrix\Main\UI\Extension::load(['ui.hint', 'sender.error_handler', 'ui.info-helper']);
 
-/** @var CAllMain $APPLICATION */
+/** @var CMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 

@@ -3,7 +3,6 @@
 
 	BX.namespace("BX.Landing");
 
-	var slice = BX.Landing.Utils.slice;
 	var proxy = BX.Landing.Utils.proxy;
 	var bind = BX.Landing.Utils.bind;
 	var addClass = BX.Landing.Utils.addClass;
@@ -26,7 +25,6 @@
 		this.description = document.querySelector(".landing-template-preview-input-description");
 		this.themesPalette = document.querySelector(".landing-template-preview-themes");
 		this.themesSiteColorNode = document.querySelector(".landing-template-preview-site-color");
-		this.themesSiteCustomColorNode = document.querySelector(".landing-demo-preview-custom-color");
 		this.imageContainer = document.querySelector(".preview-desktop-body-image");
 		this.loaderContainer = document.querySelector(".preview-desktop-body-loader-container");
 		this.previewFrame = document.querySelector(".preview-desktop-body-preview-frame");
@@ -66,10 +64,7 @@
 
 		this.onCreateButtonClick = proxy(this.onCreateButtonClick, this);
 		this.onCancelButtonClick = proxy(this.onCancelButtonClick, this);
-		this.onColorPickerThemeSelect = proxy(this.onColorPickerThemeSelect, this);
 		this.onFrameLoad = proxy(this.onFrameLoad, this);
-
-		BX.addCustomEvent('BX.Landing.ColorPickerTheme:onSelectColor', this.onColorPickerThemeSelect);
 
 		this.init();
 
@@ -94,25 +89,6 @@
 		 */
 		init: function()
 		{
-			// themes
-			var colorItems = slice(this.themesPalette.children);
-			if(this.themesSiteColorNode)
-			{
-				colorItems = colorItems.concat(slice(this.themesSiteColorNode.children));
-			}
-			if(this.themesSiteCustomColorNode)
-			{
-				colorItems = colorItems.concat(slice(this.themesSiteCustomColorNode.children));
-			}
-			colorItems.forEach(this.initSelectableItem, this);
-
-			// site group
-			if(this.siteGroupPalette )
-			{
-				var siteGroupItems = slice(this.siteGroupPalette.children);
-				siteGroupItems.forEach(this.initSelectableItem, this);
-			}
-
 			bind(this.previewFrame, "load", this.onFrameLoad);
 			bind(this.closeButton, "click", this.onCancelButtonClick);
 
@@ -196,10 +172,6 @@
 			if (!active && this.themesSiteColorNode)
 			{
 				active = this.themesSiteColorNode.querySelector(".active");
-			}
-			if (!active && this.themesSiteCustomColorNode)
-			{
-				active = this.themesSiteCustomColorNode.querySelector(".active");
 			}
 
 			return active;
@@ -421,15 +393,12 @@
 				{
 					result[this.themesSiteColorNode.dataset.name] = this.getActiveColorNode().dataset.value;
 				}
+
 				if (this.siteGroupPalette)
 				{
 					result[this.siteGroupPalette.dataset.name] = this.getActiveSiteGroupItem().dataset.value;
 				}
 				result[this.themesPalette.dataset.name] = this.getActiveColorNode().dataset.value;
-				if (this.themesSiteCustomColorNode)
-				{
-					result[this.themesPalette.dataset.name] = this.getActiveColorNode().dataset.value;
-				}
 			}
 			result[this.title.dataset.name] = this.title.value.replaceAll('&', '').replaceAll('?', '');
 			result[this.description.dataset.name] = this.description.value;
@@ -732,91 +701,9 @@
 			}
 		},
 
-		/**
-		 * Initializes selectable items
-		 * @param {HTMLElement} item
-		 */
-		initSelectableItem: function(item)
-		{
-			bind(item, "click", proxy(this.onSelectableItemClick, this));
-		},
-
-		/**
-		 * Handles click on selectable item
-		 * @param event
-		 */
-		onSelectableItemClick: function(event)
-		{
-			event.preventDefault();
-
-			// themes
-			if (
-				event.currentTarget.parentElement === this.themesPalette ||
-				(this.themesSiteColorNode && event.currentTarget.parentElement === this.themesSiteColorNode)
-			)
-			{
-				if (this.getActiveColorNode())
-				{
-					this.getActiveColorNode().classList.remove("active");
-				}
-				addClass(event.currentTarget, "active");
-
-				this.setColor(data(event.currentTarget, 'data-value'));
-				this.showPreview();
-			}
-
-			// site group
-			if (event.currentTarget.parentElement === this.siteGroupPalette)
-			{
-				removeClass(this.getActiveSiteGroupItem(), "active");
-				addClass(event.currentTarget, "active");
-				this.setBaseUrl(data(event.currentTarget, 'data-base-url'));
-				this.showPreview();
-			}
-		},
-
 		isStore: function()
 		{
 			return this.createStore;
-		},
-
-		onColorPickerThemeSelect: function(params)
-		{
-			[
-				this.themesPalette,
-				this.themesSiteCustomColorNode,
-				this.themesSiteColorNode
-			].forEach(function(control) {
-				if (control)
-				{
-					BX.removeClass(control.querySelector('.active'), 'active');
-				}
-			});
-			params.data.node.classList.add("active");
-
-
-			var loader = new BX.Loader({});
-			var loaderContainer = document.querySelector(".preview-desktop-body-loader-container");
-			loader.show(loaderContainer);
-			var imageContainer = document.querySelector(".preview-desktop-body-image");
-			addClass(imageContainer, "landing-template-preview-overlay");
-
-			var frame = document.querySelector('.preview-desktop-body-preview-frame');
-			if (frame)
-			{
-				var url = new URL(frame.getAttribute('src'));
-				var search = new URLSearchParams(url.search);
-				search.set('color', params.data.color.substr(1));
-				url.search = search.toString();
-
-				frame.setAttribute('src', url.toString());
-				setTimeout(hideFrameLoader, 1600);
-			}
-
-			function hideFrameLoader() {
-				loader.hide();
-				removeClass(imageContainer, "landing-template-preview-overlay");
-			}
 		},
 
 		createParamsStrFromUrl(url)

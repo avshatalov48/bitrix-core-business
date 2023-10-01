@@ -292,10 +292,6 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 		$siteId = ''
 	)
 	{
-		$runtime = CBPRuntime::GetRuntime();
-		/** @var CBPDocumentService $documentService */
-		$documentService = $runtime->GetService("DocumentService");
-
 		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, [
 			'documentType' => $documentType,
 			'activityName' => $activityName,
@@ -307,33 +303,36 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 			'siteId' => $siteId,
 		]);
 
-		$entities = static::getEntities($documentService);
-		$types = $templates = [];
-		$currentEntity = $currentType = $currentTemplateId = $templateParametersRender = '';
+		$currentTemplateId = '';
+		$templateParametersRender = '';
 
 		if (!is_array($currentValues))
 		{
 			$currentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-			if (isset($currentActivity["Properties"]['DocumentId']))
+			if (isset($currentActivity['Properties']['DocumentId']))
 			{
-				$currentValues['document_id'] = $currentActivity["Properties"]['DocumentId'];
+				$currentValues['document_id'] = $currentActivity['Properties']['DocumentId'];
 			}
-			if (isset($currentActivity["Properties"]['TemplateId']))
+			if (isset($currentActivity['Properties']['TemplateId']))
 			{
-				$currentValues['template_id'] = $currentActivity["Properties"]['TemplateId'];
+				$currentValues['template_id'] = $currentActivity['Properties']['TemplateId'];
 			}
-			if (isset($currentActivity["Properties"]['TemplateParameters']))
+			if (isset($currentActivity['Properties']['TemplateParameters']))
 			{
-				$currentValues['template'] = $currentActivity["Properties"]['TemplateParameters'];
+				$currentValues['template'] = $currentActivity['Properties']['TemplateParameters'];
 			}
-			if (isset($currentActivity["Properties"]['UseSubscription']))
+			if (isset($currentActivity['Properties']['UseSubscription']))
 			{
-				$currentValues['use_subscription'] = $currentActivity["Properties"]['UseSubscription'];
+				$currentValues['use_subscription'] = $currentActivity['Properties']['UseSubscription'];
 			}
 		}
 		else
 		{
-			$currentValues['template'] = self::extractTemplateParameterValues($documentType, $currentValues['template_id'], $currentValues);
+			$currentValues['template'] = self::extractTemplateParameterValues(
+				$documentType,
+				$currentValues['template_id'],
+				$currentValues
+			);
 		}
 
 		if (!empty($currentValues['template_id']))
@@ -341,8 +340,6 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 			$template = self::getTemplate($currentValues['template_id']);
 			if ($template)
 			{
-				$currentEntity = implode('@', [$template['MODULE_ID'], $template['ENTITY']]);
-				$currentType = implode('@', $template['DOCUMENT_TYPE']);
 				$currentTemplateId = $template['ID'];
 
 				if (!is_array($currentValues['template']))
@@ -352,14 +349,8 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 			}
 		}
 
-		if ($currentEntity)
-		{
-			$types = self::getTypesList($currentEntity);
-		}
-
 		if ($currentTemplateId)
 		{
-			$templates = self::getTemplatesList($currentType);
 			if ($formName === 'bizproc_automation_robot_dialog')
 			{
 				$templateParametersRender = self::renderRobotTemplateParametersForm(
@@ -381,7 +372,7 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 
 		$dialog->setMap([
 			'DOCUMENT_ID' => [
-				'Name' => GetMessage('BPSWFA_PD_DOCUMENT_ID'),
+				'Name' => Bitrix\Main\Localization\Loc::getMessage('BPSWFA_PD_DOCUMENT_ID'),
 				'FieldName' => 'document_id',
 				'Type' => FieldType::STRING,
 				'Required' => true,
@@ -392,18 +383,18 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 			'isAdmin' => static::checkAdminPermissions(),
 			'documentType' => $documentType,
 
-			'entities' => $entities,
-			'types' => $types,
-			'templates' => $templates,
+			'entities' => [],
+			'types' => [],
+			'templates' => [],
 
 			'documentId' => !empty($currentValues['document_id']) ? $currentValues['document_id'] : null,
 			'useSubscription' => $currentValues['use_subscription'] ?? 'N',
-			'currentEntity' => $currentEntity,
-			'currentType' => $currentType,
+			'currentEntity' => '',
+			'currentType' => '',
 			'currentTemplateId' => $currentTemplateId,
 			'templateParametersRender' => $templateParametersRender,
 
-			"formName" => $formName,
+			'formName' => $formName,
 		]);
 
 		return $dialog;

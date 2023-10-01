@@ -1,6 +1,16 @@
-import {Event, Tag} from 'main.core';
-import {Location, MapBase, ControlMode, Point, ErrorPublisher, LocationType} from 'location.core';
-import {Leaflet} from '../leaflet/src/leaflet';
+import {
+	Event,
+	Tag,
+	Text
+} from 'main.core';
+import {
+	Location,
+	MapBase,
+	ControlMode,
+	Point,
+	ErrorPublisher,
+} from 'location.core';
+import { Leaflet } from '../leaflet/src/leaflet';
 import OSM from './osm';
 import './css/mapservice.css';
 
@@ -10,6 +20,9 @@ import './css/mapservice.css';
 export default class MapService extends MapBase
 {
 	static #onChangedEvent = 'onChanged';
+	static #onStartChanging = 'onStartChanging';
+	static #onEndChanging = 'onEndChanging';
+	static #onMapViewChanged = 'onMapViewChanged';
 
 	/** {number} */
 	#zoom;
@@ -65,7 +78,7 @@ export default class MapService extends MapBase
 		}
 	}
 
-	get map()
+	get map(): ?Object
 	{
 		return this.#map;
 	}
@@ -75,12 +88,12 @@ export default class MapService extends MapBase
 		this.#map = map;
 	}
 
-	get mode()
+	get mode(): string
 	{
 		return this.#mode;
 	}
 
-	get marker()
+	get marker(): ?Object
 	{
 		return this.#marker;
 	}
@@ -143,41 +156,11 @@ export default class MapService extends MapBase
 			return;
 		}
 
-		const zoom = MapService.#chooseZoomByLocation(this.#location);
-
+		const zoom = MapService.getZoomByLocation(this.#location);
 		if (zoom !== null && zoom !== this.#zoom)
 		{
 			this.zoom = zoom;
 		}
-	}
-
-	// todo: Location types
-	static #chooseZoomByLocation(location: ?Location): number
-	{
-		let result = 18;
-
-		if (location)
-		{
-			let locationType = location.type;
-
-			if (locationType > LocationType.UNKNOWN)
-			{
-				if (locationType < LocationType.COUNTRY)
-					result = 1;
-				else if (locationType === LocationType.COUNTRY)
-					result = 4;
-				else if (locationType <= LocationType.ADM_LEVEL_1)
-					result = 6;
-				else if (locationType <= LocationType.LOCALITY)
-					result = 11;
-				else if (locationType <= LocationType.STREET)
-					result = 16;
-				else if (locationType > LocationType.STREET)
-					result = 18;
-			}
-		}
-
-		return result;
 	}
 
 	get location(): Location
@@ -188,6 +171,21 @@ export default class MapService extends MapBase
 	onLocationChangedEventSubscribe(listener: function): void
 	{
 		this.subscribe(MapService.#onChangedEvent, listener);
+	}
+
+	onStartChangingSubscribe(listener: function): void
+	{
+		this.subscribe(MapService.#onStartChanging, listener);
+	}
+
+	onEndChangingSubscribe(listener: function): void
+	{
+		this.subscribe(MapService.#onEndChanging, listener);
+	}
+
+	onMapViewChangedSubscribe(listener: function): void
+	{
+		this.subscribe(MapService.#onMapViewChanged, listener);
 	}
 
 	#onMapClick(lat: string, lng: string): void
@@ -212,65 +210,69 @@ export default class MapService extends MapBase
 		}
 
 		this.#timerId = setTimeout(() => {
-				this.#timerId = null;
-				this.#map.panTo([lat, lng]);
-				const point = new Point(lat, lng);
+			const requestId = Text.getRandom();
+			this.emit(MapService.#onStartChanging, { requestId });
+			this.#timerId = null;
+			this.#map.panTo([lat, lng]);
+			const point = new Point(lat, lng);
 
-				this.#geocodingService.reverse(point, this.#getReverseZoom())
-					.then(
-						(location) => {
-							let result;
+			this.#geocodingService.reverse(point, this.#getReverseZoom())
+				.then(
+					(location) => {
+						let result;
 
-							if (location)
-							{
-								result = this.#locationRepository.findByExternalId(
-									location.externalId,
-									OSM.code,
-									this.#languageId
-								).then((foundLocation) => {
-									/**
-									 * Use marker coordinates
-									 */
-									if (foundLocation)
+						if (location)
+						{
+							result = this.#locationRepository.findByExternalId(
+								location.externalId,
+								OSM.code,
+								this.#languageId
+							).then((foundLocation) => {
+								/**
+								 * Use marker coordinates
+								 */
+								if (foundLocation)
+								{
+									foundLocation.longitude = point.longitude;
+									if (foundLocation.address)
 									{
-										foundLocation.longitude = point.longitude;
-										if (foundLocation.address)
-										{
-											foundLocation.address.longitude = point.longitude;
-										}
-
-										foundLocation.latitude = point.latitude;
-										if (foundLocation.address)
-										{
-											foundLocation.address.latitude = point.latitude;
-										}
+										foundLocation.address.longitude = point.longitude;
 									}
 
-									return foundLocation;
-								});
-							}
-							else
-							{
-								result = new Promise((resolve) => {
-									resolve(null);
-								});
-							}
+									foundLocation.latitude = point.latitude;
+									if (foundLocation.address)
+									{
+										foundLocation.address.latitude = point.latitude;
+									}
+								}
 
-							return result;
+								return foundLocation;
+							});
 						}
-					)
-					.then(
-						this.#emitOnLocationChangedEvent.bind(this)
-					)
-					.catch((response) => {
-						ErrorPublisher.getInstance().notify(response.errors);
-					});
+						else
+						{
+							result = new Promise((resolve) => {
+								resolve(null);
+							});
+						}
+
+						return result;
+					}
+				)
+				.then((location) => {
+					this.emit(MapService.#onEndChanging, { requestId });
+					this.#emitOnLocationChangedEvent(location);
+				})
+				.catch((response) => {
+					this.emit(MapService.#onEndChanging, { requestId });
+					ErrorPublisher.getInstance().notify(response.errors);
+				});
 			},
 			this.#changeDelay
 		);
 	}
 
-	#getReverseZoom()
+	#getReverseZoom(): number
 	{
 		return this.#zoom >= 15 ? 18 : this.#zoom;
 	}
@@ -291,7 +293,7 @@ export default class MapService extends MapBase
 		}
 	}
 
-	render(props): Promise
+	render(props: Object): Promise
 	{
 		this.#mode = props.mode;
 		this.#location = props.location || null;
@@ -301,7 +303,8 @@ export default class MapService extends MapBase
 		return new Promise((resolve) =>
 		{
 			this.#map = this.#mapFactoryMethod(container, {
-				attributionControl: false
+				attributionControl: false,
+				zoomControl: BX.prop.getBoolean(props, 'zoomControl', true),
 			});
 
 			this.#map.on('load', () =>
@@ -336,12 +339,22 @@ export default class MapService extends MapBase
 
 			this.#map.setView(
 				[this.#location.latitude, this.#location.longitude],
-				MapService.#chooseZoomByLocation(this.#location)
+				MapService.getZoomByLocation(this.#location)
 			);
 
 			const tile = this.#tileLayerFactoryMethod.call();
 
 			tile.initialize(this.#tileUrlTemplate, {
+				/**
+				 * In order to avoid blurry tiles on retina screens, we need to apply the below options:
+				 * detectRetina: true,
+				 * maxNativeZoom: 22,
+				 * maxZoom: 18,
+				 *
+				 * but we can't do it right now because of the following bug in the leaflet library:
+				 * https://github.com/Leaflet/Leaflet/issues/8850
+				 * which causes fetching non-existent tiles (19, 20, etc. zoom levels)
+				 */
 				maxZoom: 18,
 			});
 

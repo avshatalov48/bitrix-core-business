@@ -58,6 +58,8 @@ class ConfigurationOption
 	/** @var null|string|array $hint Hint. */
 	protected $hint;
 
+	protected string|array|null $placeholder = null;
+
 	/** @var boolean $required Required. */
 	protected $required = false;
 
@@ -134,6 +136,10 @@ class ConfigurationOption
 		{
 			$this->setHint($data['hint']);
 		}
+		if (isset($data['placeholder']))
+		{
+			$this->setPlaceholder($data['placeholder']);
+		}
 		if (isset($data['readonly_view']))
 		{
 			$this->setReadonlyView($data['readonly_view']);
@@ -186,6 +192,7 @@ class ConfigurationOption
 			'required' => $this->isRequired(),
 			'templated' => $this->isTemplated(),
 			'hint' => $this->getHint(),
+			'placeholder' => $this->getPlaceholder(),
 			'max_length' => $this->getMaxLength(),
 			'min_value' => $this->getMinValue(),
 			'max_value' => $this->getMaxValue(),
@@ -589,5 +596,14 @@ class ConfigurationOption
 		return $this;
 	}
 
+	private function getPlaceholder(): array|string|null
+	{
+		return $this->placeholder;
+	}
+
+	private function setPlaceholder(mixed $placeholder): void
+	{
+		$this->placeholder = $placeholder;
+	}
 
 }

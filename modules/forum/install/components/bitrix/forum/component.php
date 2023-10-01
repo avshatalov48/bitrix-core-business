@@ -1,4 +1,5 @@
-<?php if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) { die(); }
+
 if (!IsModuleInstalled("forum")):
 	ShowError(GetMessage("F_NO_MODULE"));
 	return 0;

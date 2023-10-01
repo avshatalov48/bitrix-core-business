@@ -23,7 +23,7 @@ class DocumentContractor extends Controller
 
 		if (
 			empty($this->getErrors())
-			&& !Manager::isActiveProviderByModule('crm')
+			&& !Manager::isActiveProviderByModule(Manager::PROVIDER_STORE_DOCUMENT, 'crm')
 		)
 		{
 			$this->addError(new Error('Contractors should be provided by CRM'));

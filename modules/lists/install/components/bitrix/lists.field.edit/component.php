@@ -206,7 +206,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 		if(preg_match("/^(G|G:|E|E:)/", $arField["TYPE"]))
 		{
 			$arField["LINK_IBLOCK_ID"] = intval($_POST["LINK_IBLOCK_ID"]);
-			$arIBLOCKS = CLists::GetIBlocks($arParams["~IBLOCK_TYPE_ID"], !$arParams["CAN_EDIT"], $arParams["~SOCNET_GROUP_ID"]);
+			$arIBLOCKS = CLists::GetIBlocks($arParams["~IBLOCK_TYPE_ID"], !$arParams["CAN_EDIT"], $arParams["~SOCNET_GROUP_ID"] ?? false);
 
 			if(mb_substr($arField["TYPE"], 0, 1) == "G")
 				unset($arIBLOCKS[$arResult["IBLOCK_ID"]]);

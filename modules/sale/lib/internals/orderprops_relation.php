@@ -16,9 +16,9 @@ use	Bitrix\Main;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_OrderPropsRelation_Query query()
- * @method static EO_OrderPropsRelation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_OrderPropsRelation_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_OrderPropsRelation_Result getById($id)
- * @method static EO_OrderPropsRelation_Result getList(array $parameters = array())
+ * @method static EO_OrderPropsRelation_Result getList(array $parameters = [])
  * @method static EO_OrderPropsRelation_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_OrderPropsRelation createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_OrderPropsRelation_Collection createCollection()

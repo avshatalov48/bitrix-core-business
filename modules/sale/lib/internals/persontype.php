@@ -30,9 +30,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_PersonType_Query query()
- * @method static EO_PersonType_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PersonType_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_PersonType_Result getById($id)
- * @method static EO_PersonType_Result getList(array $parameters = array())
+ * @method static EO_PersonType_Result getList(array $parameters = [])
  * @method static EO_PersonType_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_PersonType createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_PersonType_Collection createCollection()

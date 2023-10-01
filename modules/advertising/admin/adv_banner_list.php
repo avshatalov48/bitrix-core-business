@@ -117,20 +117,27 @@ if($lAdmin->EditAction())
 			$ifCONTRACT_ID = $ifarBanner["CONTRACT_ID"];
 		if(is_array($arrPERM[$ifCONTRACT_ID]) && in_array("ADD", $arrPERM[$ifCONTRACT_ID]))
 		{
+			if (!$lAdmin->IsUpdated($ID))
+			{
+				continue;
+			}
+
 			$DB->StartTransaction();
 
-			if(!$lAdmin->IsUpdated($ID))
-				continue;
-
-			if(!CAdvBanner::Set($arFields, $ID))
+			if (CAdvBanner::Set($arFields, $ID))
+			{
+				$DB->Commit();
+			}
+			else
 			{
 				$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$ob->LAST_ERROR, $ID);
 				$DB->Rollback();
 			}
-			$DB->Commit();
 		}
 		else
+		{
 			$lAdmin->AddUpdateError(GetMessage("ADV_NO_RIGHTS_EDIT"), $ID);
+		}
 	}
 }
 
@@ -161,12 +168,15 @@ if(($arID = $lAdmin->GroupAction()))
 			case "delete":
 				@set_time_limit(0);
 				$DB->StartTransaction();
-				if(!CAdvBanner::Delete($ID))
+				if(CAdvBanner::Delete($ID))
+				{
+					$DB->Commit();
+				}
+				else
 				{
 					$DB->Rollback();
 					$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
 				}
-				$DB->Commit();
 				break;
 			case "activate":
 			case "deactivate":

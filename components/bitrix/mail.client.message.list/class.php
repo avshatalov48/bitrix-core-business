@@ -543,10 +543,6 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 		$this->saveDateOpening($this->mailbox['ID']);
 
-		$this->arParams['SHOW_TOP_ALERT'] = ($this->mailbox['SERVER'] === 'imap.gmail.com')
-			&& !\CUserOptions::GetOption('mail', 'temp_alert_google')
-		;
-
 		$this->includeComponentTemplate();
 	}
 

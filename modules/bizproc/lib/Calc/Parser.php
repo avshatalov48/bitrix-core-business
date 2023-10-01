@@ -385,13 +385,13 @@ class Parser
 							array_unshift($stack, $arg1 . $arg2);
 							break;
 						case '+':
-							$arg2 = (float)array_shift($stack);
-							$arg1 = (float)array_shift($stack);
+							$arg2 = (float)($this->toSingleValue(array_shift($stack)));
+							$arg1 = (float)($this->toSingleValue(array_shift($stack)));
 							array_unshift($stack, $arg1 + $arg2);
 							break;
 						case '-':
-							$arg2 = (float)array_shift($stack);
-							$arg1 = (float)array_shift($stack);
+							$arg2 = (float)($this->toSingleValue(array_shift($stack)));
+							$arg1 = (float)($this->toSingleValue(array_shift($stack)));
 							array_unshift($stack, $arg1 - $arg2);
 							break;
 						case '+m':
@@ -403,13 +403,13 @@ class Parser
 							array_unshift($stack, (-$arg));
 							break;
 						case '*':
-							$arg2 = (float)array_shift($stack);
-							$arg1 = (float)array_shift($stack);
+							$arg2 = (float)($this->toSingleValue(array_shift($stack)));
+							$arg1 = (float)($this->toSingleValue(array_shift($stack)));
 							array_unshift($stack, $arg1 * $arg2);
 							break;
 						case '/':
-							$arg2 = (float)array_shift($stack);
-							$arg1 = (float)array_shift($stack);
+							$arg2 = (float)($this->toSingleValue(array_shift($stack)));
+							$arg1 = (float)($this->toSingleValue(array_shift($stack)));
 							if (0 == $arg2)
 							{
 								$this->setError(6);
@@ -457,5 +457,16 @@ class Parser
 		}
 
 		return array_shift($stack);
+	}
+
+	private function toSingleValue($argument)
+	{
+		if (is_array($argument))
+		{
+			reset($argument);
+			return current($argument);
+		}
+
+		return $argument;
 	}
 }

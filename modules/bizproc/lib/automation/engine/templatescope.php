@@ -69,6 +69,11 @@ class TemplateScope
 		return $this->getComplexDocumentType()[0];
 	}
 
+	public function getEntity(): string
+	{
+		return $this->getComplexDocumentType()[1];
+	}
+
 	public function getDocumentType(): string
 	{
 		return $this->getComplexDocumentType()[2];

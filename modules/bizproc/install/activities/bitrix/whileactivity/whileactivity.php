@@ -38,7 +38,7 @@ class CBPWhileActivity extends CBPCompositeActivity implements IBPActivityEventL
 		return $ar;
 	}
 
-	public function InitializeFromArray($arParams)
+	public function initializeFromArray($arParams)
 	{
 		if (is_array($arParams))
 		{
@@ -50,7 +50,8 @@ class CBPWhileActivity extends CBPCompositeActivity implements IBPActivityEventL
 					break;
 				}
 			}
-			if ($this->arProperties["Condition"] == null)
+
+			if ($this->arProperties['Condition'] == null)
 			{
 				throw new Exception(GetMessage("BPWA_NO_CONDITION"));
 			}

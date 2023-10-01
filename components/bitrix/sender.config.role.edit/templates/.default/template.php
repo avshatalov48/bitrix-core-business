@@ -5,7 +5,7 @@ use Bitrix\Main\Localization\Loc as Loc;
 /**
  * @var array $arResult
  * @var array $arParams
- * @var CAllMain $APPLICATION
+ * @var CMain $APPLICATION
  */
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {

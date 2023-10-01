@@ -14,3 +14,7 @@ $MESS["BP_ACT_SET_COMMENT_SHOWHIDE_1"]="Показать/скрыть комме
 $MESS["BP_ACT_SET_COMMENT_ROW"]="Комментарий:";
 $MESS['BP_ACT_SET_BROKEN_LINK_MESSAGE_ERROR'] = 'В роботе используются отсутствующие или недоступные поля/переменные/константы.';
 $MESS['BP_ACT_SET_BROKEN_LINK_MESSAGE_ERROR_SHOW_LINKS'] = 'Показать полностью';
+$MESS['BP_ACT_SETTINGS_ACTIONS_DEACTIVATED_BUTTON_TEXT'] = 'Выключить';
+$MESS['BP_ACT_SETTINGS_ACTIONS_ACTIVATED_BUTTON_TEXT'] = 'Включить';
+$MESS['BP_ACT_SETTINGS_ACTIONS_DEACTIVATED_BUTTON_NOTIFY_TEXT'] = 'Действие выключено';
+$MESS['BP_ACT_SETTINGS_ACTIONS_ACTIVATED_BUTTON_NOTIFY_TEXT'] = 'Действие включено';

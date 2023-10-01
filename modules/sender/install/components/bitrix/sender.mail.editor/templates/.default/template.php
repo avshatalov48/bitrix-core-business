@@ -7,7 +7,7 @@ use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
 
-/** @var CAllMain $APPLICATION */
+/** @var CMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 
@@ -18,8 +18,10 @@ $fieldValue = htmlspecialcharsbx($arParams['~VALUE']);
 $isBlock = $arResult['DISPLAY_BLOCK_EDITOR'];
 $containerId = 'bx-sender-message-editor-mail-' . $fieldName;
 
+\Bitrix\Main\Loader::includeModule('ai');
 Extension::load([
-	'sender.personalization_selector'
+	'sender.personalization_selector',
+	'ai.picker',
 ]);
 
 ?>
@@ -33,7 +35,11 @@ Extension::load([
 			'mess' => array(
 				'placeHolderTitle' => Loc::getMessage('SENDER_COMP_EDITOR_MAIL_PERS_LIST'),
 				'changeTemplate' => Loc::getMessage('SENDER_COMP_EDITOR_MAIL_CHANGE_TEMPLATE'),
-			)
+			),
+			'isAITextAvailable' => $arResult['isAITextAvailable'] ? 'Y' : 'N',
+			'isAIImageAvailable' => $arResult['isAIImageAvailable'] ? 'Y' : 'N',
+			'AITextContextId' => $arResult['AITextContextId'],
+			'AIImageContextId' => $arResult['AIImageContextId'],
 		))?>);
 	});
 </script>

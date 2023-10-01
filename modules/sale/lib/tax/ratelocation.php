@@ -16,9 +16,9 @@ use Bitrix\Sale;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_RateLocation_Query query()
- * @method static EO_RateLocation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_RateLocation_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_RateLocation_Result getById($id)
- * @method static EO_RateLocation_Result getList(array $parameters = array())
+ * @method static EO_RateLocation_Result getList(array $parameters = [])
  * @method static EO_RateLocation_Entity getEntity()
  * @method static \Bitrix\Sale\Tax\EO_RateLocation createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Tax\EO_RateLocation_Collection createCollection()

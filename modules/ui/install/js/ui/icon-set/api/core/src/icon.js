@@ -98,6 +98,7 @@ export const Actions = Object.freeze({
 	PENCIL_50: 'pencil-50',
 	PENCIL_40: 'pencil-40',
 	BRUSH: 'brush',
+	PEN: 'pen',
 	KEYBOARD: 'keyboard',
 	KEYBOARD_2: 'keyboard-2',
 	CONNECTION: 'connection',
@@ -199,6 +200,7 @@ export const Main = Object.freeze({
 	MESSAGE_CHAT_WITH_ARROW: 'message-chat-with-arrow',
 	CHAT_BUTTON: 'chat-button',
 	FEEDBACK: 'feedback',
+	ADD_CHAT: 'add-chat',
 	BOOKMARK_1: 'bookmark-1',
 	FOLDER_CURVED_ARROW: 'folder-curved-arrow',
 	FOLDER_24: 'folder-24',
@@ -232,6 +234,8 @@ export const Main = Object.freeze({
 	STOPWATCH: 'stopwatch',
 	ALARM: 'alarm',
 	BLACK_CLOCK: 'black-clock',
+	SPEED_METER: 'speed-meter',
+	WATCH: 'watch',
 	SMART_PROCESS: 'smart-process',
 	SEARCH_1: 'search-1',
 	SEARCH_2: 'search-2',
@@ -477,6 +481,12 @@ export const Main = Object.freeze({
 	DOCUMENT: 'document',
 	CHECK_RECEIPT: 'check-receipt',
 	CALCULATOR: 'calculator',
+	SWITCH: 'switch',
+	SEQUENTIAL_QUEUE: 'sequential-queue',
+	PARALLEL_QUEUE: 'parallel-queue',
+	CONDITION: 'condition',
+	COMPLETE: 'complete',
+	TRANSLATION: 'translation',
 })
 
 export const ContactCenter = Object.freeze({
@@ -624,6 +634,8 @@ export const Editor = Object.freeze({
 	SPEED_1_5: 'speed-1-5',
 	SPEED_1_7: 'speed-1-7',
 	SPEED_2_0: 'speed-2-0',
+	MAKE_LONGER: 'make-longer',
+	MAKE_SHORTER: 'make-shorter',
 })
 
 export const Special = Object.freeze({

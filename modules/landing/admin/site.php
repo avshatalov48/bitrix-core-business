@@ -281,8 +281,6 @@ if ($isAjax)
 
 echo '<div id="workarea-content" class="landing-content-admin">';
 
-\Bitrix\Landing\Update\Stepper::show();
-
 $component = null;
 
 if ($cmp == 'landing_edit')

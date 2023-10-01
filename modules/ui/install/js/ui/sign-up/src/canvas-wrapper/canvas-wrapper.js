@@ -80,7 +80,7 @@ export class CanvasWrapper
 		context.clearRect(0, 0, (canvas.width * 2), (canvas.height * 2));
 	}
 
-	renderText(text: string)
+	renderText(text: string, textColor: null | string = null)
 	{
 		const preparedText = String(text).trim();
 
@@ -100,6 +100,11 @@ export class CanvasWrapper
 		}
 
 		const textWidth = context.measureText(preparedText).width * ratio;
+		if (textColor !== null && textColor !== '')
+		{
+			context.fillStyle = textColor;
+		}
+
 		context.fillText(preparedText, (canvas.width - textWidth) / (2 * ratio), 34);
 	}
 

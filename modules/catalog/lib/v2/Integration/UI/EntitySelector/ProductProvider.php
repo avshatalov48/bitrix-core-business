@@ -91,7 +91,7 @@ class ProductProvider extends BaseProvider
 			}
 		}
 
-		$recentItems = $dialog->getRecentItems()->getEntityItems(self::ENTITY_ID);
+		$recentItems = $dialog->getRecentItems()->getEntityItems(static::ENTITY_ID);
 		$recentItemsCount = count($recentItems);
 		if (
 			$this->options['restrictedProductTypes']

@@ -1,0 +1,91 @@
+.agent-contract-grid-avatar.ui-icon.ui-icon-common-user,
+.agent-contract-grid-avatar.ui-icon.ui-icon-common-user-group {
+	width: 22px;
+	min-width: 22px;
+	height: 22px;
+}
+
+.agent-contract-grid-username-inner {
+	display: inline-block;
+	vertical-align: middle;
+	max-width: 155px;
+	height: 20px;
+	line-height: 20px;
+	color: #525C69;
+	padding-left: 11px;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.agent-contract-grid-username {
+	display: inline-block;
+	overflow: hidden;
+	vertical-align: middle;
+	color: #525c69;
+	text-decoration: none;
+	white-space: nowrap;
+	padding: 5px 0;
+	margin: -5px 0;
+}
+
+.agent-contract-grid-username:hover {
+	background: #C0EDFD;
+	text-decoration: none !important;
+}
+
+.agent-contract-grid-username:hover {
+	color: #525c69;
+	text-decoration: none;
+}
+
+.agent-contract-grid-avatar-empty {
+	border-radius: 0;
+}
+
+.agent-contract-grid-user {
+	display: block;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.agent-contract-grid-username {
+	max-width: 100%;
+	display: inline-flex;
+	align-items: center;
+	overflow: hidden;
+	vertical-align: middle;
+	color: #525c69;
+	text-decoration: none;
+	white-space: nowrap;
+	padding: 3.5px 13px 3.5px 4px;
+	margin: -4px 0;
+	transition: 250ms linear all;
+	box-sizing: border-box;
+	height: 29px;
+	background: transparent;
+	border-radius: 14.5px;
+}
+
+.agent-contract-list-stub-description {
+	margin: 0 auto;
+}
+
+.agent-contract-grid-link {
+	margin: 20px auto 0 auto;
+	width: fit-content;
+}
+
+a.agent-contract-grid-link {
+	text-decoration: none;
+}
+
+/* full height grid in slider */
+.ui-page-slider-wrapper,
+.ui-slider-page
+{
+	height: 100% !important;
+}
+.ui-page-slider-wrapper.grid-mode .main-grid-empty-stub table.main-grid-table
+{
+	height: calc(100vh - 80px) !important;
+}

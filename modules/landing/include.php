@@ -11,13 +11,6 @@ $pathTemplate24 = getLocalPath($pathTemplate24);
 $pathCSS = '/bitrix/js/landing/css';
 $pathLang = BX_ROOT . '/modules/landing/lang/' . LANGUAGE_ID;
 
-if (\Bitrix\Main\Config\Option::get('landing', 'update_block_domainua_ran', 'N') !== 'Y')
-{
-	\Bitrix\Main\Config\Option::set('landing', 'update_block_domainua_ran', 'Y');
-	\Bitrix\Main\Update\Stepper::bindClass('Bitrix\Landing\Update\Block\DomainUa', 'landing', 5);
-	\Bitrix\Main\Config\Option::set('landing', 'update_block_domainua', 0);
-}
-
 $jsConfig = [
 	'landing_master' => [
 		'rel' => [

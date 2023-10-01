@@ -1,7 +1,8 @@
 .landing-ui-panel-style {
 	background: #EEF2F4;
 	width: 320px;
-	position: absolute;
+	position: fixed;
+	top: 66px;
 	height: calc(100vh - 66px);
 	-webkit-transform: translateX(0) translateZ(0);
 	transform: translateX(0) translateZ(0);

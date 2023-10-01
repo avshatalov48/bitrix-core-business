@@ -6,7 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 $mergeMultipleFields = $dialog->getMap()['MergeMultipleFields'];
 
 $extendedType = $dialog->getDocumentType();
-if ($dialog->getContext()['DOCUMENT_CATEGORY_ID'])
+if ($dialog->getContext()['DOCUMENT_CATEGORY_ID'] ?? null)
 {
 	$extendedType[] = $dialog->getContext()['DOCUMENT_CATEGORY_ID'];
 }

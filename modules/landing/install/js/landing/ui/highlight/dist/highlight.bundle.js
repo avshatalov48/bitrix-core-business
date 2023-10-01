@@ -8,7 +8,6 @@ this.BX.Landing = this.BX.Landing || {};
 	 * Implements singleton pattern
 	 * @memberOf BX.Landing.UI
 	 */
-
 	var Highlight = /*#__PURE__*/function () {
 	  function Highlight() {
 	    babelHelpers.classCallCheck(this, Highlight);
@@ -16,7 +15,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    main_core.Dom.addClass(this.layout, 'landing-highlight-border');
 	    main_core.Dom.style(this.layout, {
 	      position: 'absolute',
-	      border: '2px #fe541e dashed',
+	      border: '2px #2fc6f6 dashed',
 	      top: 0,
 	      left: 0,
 	      right: 0,
@@ -24,13 +23,12 @@ this.BX.Landing = this.BX.Landing || {};
 	      'z-index': 9999,
 	      opacity: '.4',
 	      'pointer-events': 'none',
-	      transform: 'translateZ(0)'
+	      transform: 'translateZ(0)',
+	      'background-color': 'rgba(47, 198, 246, .15)'
 	    });
 	  }
-
 	  babelHelpers.createClass(Highlight, [{
 	    key: "show",
-
 	    /**
 	     * Shows highlight for node
 	     * @param {HTMLElement|HTMLElement[]} node
@@ -38,9 +36,7 @@ this.BX.Landing = this.BX.Landing || {};
 	     */
 	    value: function show(node, rect) {
 	      var _this = this;
-
 	      this.hide();
-
 	      if (main_core.Type.isArray(node)) {
 	        node.forEach(function (element) {
 	          _this.highlightNode(element);
@@ -54,7 +50,6 @@ this.BX.Landing = this.BX.Landing || {};
 	     * @param force - if true - remove highlight immediately, without requestAnimationFrame
 	     */
 	    // eslint-disable-next-line class-methods-use-this
-
 	  }, {
 	    key: "hide",
 	    value: function hide() {
@@ -81,12 +76,10 @@ this.BX.Landing = this.BX.Landing || {};
 	     * @param node
 	     * @param {object} rect
 	     */
-
 	  }, {
 	    key: "highlightNode",
 	    value: function highlightNode(node, rect) {
 	      var highlight = main_core.Runtime.clone(this.layout);
-
 	      if (rect) {
 	        BX.DOM.write(function () {
 	          main_core.Dom.style(highlight, {
@@ -109,7 +102,6 @@ this.BX.Landing = this.BX.Landing || {};
 	          main_core.Dom.append(highlight, node);
 	        });
 	      }
-
 	      BX.DOM.write(function () {
 	        main_core.Dom.style(node, {
 	          position: 'relative',
@@ -128,7 +120,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (!Highlight.instance) {
 	        Highlight.instance = new Highlight();
 	      }
-
 	      return Highlight.instance;
 	    }
 	  }, {
@@ -137,7 +128,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (!Highlight.highlightsStore) {
 	        Highlight.highlightsStore = new BX.Landing.Collection.BaseCollection();
 	      }
-
 	      return Highlight.highlightsStore;
 	    }
 	  }]);

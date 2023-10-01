@@ -1,0 +1,2 @@
+jn.define('bbcode/ast-processor', (require, exports, module) => {
+	const {Type} = jn.require('type');

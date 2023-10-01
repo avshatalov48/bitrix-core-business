@@ -101,6 +101,7 @@ export class SignUp extends EventEmitter
 				events: {
 					onChange: this.onChangeDebounced,
 				},
+				color: this.getOptions().signColor,
 			});
 		});
 	}
@@ -113,6 +114,7 @@ export class SignUp extends EventEmitter
 				events: {
 					onChange: this.onChangeDebounced,
 				},
+				color: this.getOptions().signColor,
 			});
 		});
 	}

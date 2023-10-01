@@ -18,7 +18,7 @@
 					<a class="g-color-primary" href="#!">#rutrum</a>
 					velit diam, quis pellentesque libero hendrerit a.
 				</blockquote>
-				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, 2022</div>
+				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, 2023</div>
 			</div>
 		</div>
 
@@ -38,7 +38,7 @@
 					<a class="g-color-primary" href="#!">#rutrum</a>
 					velit diam, quis pellentesque libero hendrerit a.
 				</blockquote>
-				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, 2022</div>
+				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, 2023</div>
 			</div>
 		</div>
 	</div>

@@ -63,7 +63,7 @@ class LandingViewComponent extends LandingBaseComponent
 				Manager::forceB24disable(true);
 			}
 
-			$url = $landing->getPublicUrl(false, true, true);
+			$url = $landing->getPublicUrl(false, true, $this->arParams['DRAFT_MODE'] !== 'Y');
 		}
 
 		\Bitrix\Landing\Landing::setPreviewMode(false);

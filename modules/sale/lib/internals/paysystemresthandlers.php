@@ -9,9 +9,9 @@ namespace Bitrix\Sale\Internals;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_PaySystemRestHandlers_Query query()
- * @method static EO_PaySystemRestHandlers_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PaySystemRestHandlers_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_PaySystemRestHandlers_Result getById($id)
- * @method static EO_PaySystemRestHandlers_Result getList(array $parameters = array())
+ * @method static EO_PaySystemRestHandlers_Result getList(array $parameters = [])
  * @method static EO_PaySystemRestHandlers_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_PaySystemRestHandlers createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_PaySystemRestHandlers_Collection createCollection()

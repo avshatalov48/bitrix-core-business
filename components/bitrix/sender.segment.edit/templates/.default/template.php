@@ -10,7 +10,7 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Internals\PrettyDate;
 use Bitrix\Sender\Posting\SegmentDataBuilder;
 
-/** @var CAllMain $APPLICATION */
+/** @var CMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 

@@ -86,7 +86,6 @@ class MessageCall implements Message\iBase, Message\iMailable
 				'items' => \CVoxImplantConfig::GetPortalNumbers(false),
 				'view' => function ()
 				{
-					/** @var \CAllMain {$GLOBALS['APPLICATION']} */
 					ob_start();
 					$GLOBALS['APPLICATION']->includeComponent(
 						"bitrix:sender.call.number", "",
@@ -177,7 +176,6 @@ class MessageCall implements Message\iBase, Message\iMailable
 			$textOption->setView(
 				function () use ($speedOption)
 				{
-					/** @var \CAllMain {$GLOBALS['APPLICATION']} */
 					ob_start();
 					$GLOBALS['APPLICATION']->includeComponent(
 						"bitrix:sender.call.text.editor",

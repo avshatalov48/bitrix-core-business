@@ -22,7 +22,7 @@ class AdvertisingBannerView extends \CBitrixComponent
 					$params['FILES'][$name] = CFile::GetFileArray($id);
 			}
 		}
-		else if ($params['CASUAL_PROPERTIES']['IMG'] !== 'null')
+		elseif (isset($params['CASUAL_PROPERTIES']['IMG']))
 		{
 				$params['FILES']['CASUAL_IMG'] = CFile::GetFileArray(intval($params['CASUAL_PROPERTIES']['IMG']));
 		}

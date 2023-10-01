@@ -53,6 +53,7 @@ return [
 		$pathJS . '/ui/button/change_tag.js',
 		$pathJS . '/ui/button/text_background_color.js',
 		$pathJS . '/ui/button/create_page.js',
+		$pathJS . '/ui/button/table_color_button.js',
 		$pathJS . '/ui/panel/base_button_panel.js',
 		$pathJS . '/ui/panel/editor_panel.js',
 		$pathJS . '/ui/panel/small_editor_panel.js',

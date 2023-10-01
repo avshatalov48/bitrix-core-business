@@ -4,6 +4,7 @@ namespace Bitrix\Bizproc\Automation\Target;
 use Bitrix\Bizproc\Automation\Engine\ConditionGroup;
 use Bitrix\Bizproc\Automation\Engine\Runtime;
 use Bitrix\Bizproc\Automation\Engine\TemplatesScheme;
+use Bitrix\Bizproc\Automation\Trigger\Entity\EO_Trigger;
 use Bitrix\Bizproc\Automation\Trigger\Entity\TriggerTable;
 
 abstract class BaseTarget
@@ -91,6 +92,26 @@ abstract class BaseTarget
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param string[] $statuses
+	 * @return EO_Trigger[]
+	 */
+	public function getTriggerObjects(array $statuses): array
+	{
+		$documentType = $this->getDocumentType();
+
+		$iterator = TriggerTable::getList([
+			'filter' => [
+				'=MODULE_ID' => $documentType[0],
+				'=ENTITY' => $documentType[1],
+				'=DOCUMENT_TYPE' => $documentType[2],
+				'@DOCUMENT_STATUS' => $statuses,
+			],
+		]);
+
+		return $iterator->fetchCollection()->getAll();
 	}
 
 	public function prepareTriggersToSave(array &$triggers)

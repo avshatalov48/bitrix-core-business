@@ -11,9 +11,9 @@ use Bitrix\Main\Type\DateTime;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_CashboxZReport_Query query()
- * @method static EO_CashboxZReport_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CashboxZReport_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_CashboxZReport_Result getById($id)
- * @method static EO_CashboxZReport_Result getList(array $parameters = array())
+ * @method static EO_CashboxZReport_Result getList(array $parameters = [])
  * @method static EO_CashboxZReport_Entity getEntity()
  * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxZReport createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxZReport_Collection createCollection()

@@ -17,7 +17,7 @@ Loc::loadMessages(__FILE__);
  * @var string $templateFolder
  */
 
-Extension::load('sale.checkout.application');
+Extension::load(['sale.checkout.application', 'documentpreview']);
 CJSCore::Init('phone_number');
 
 $model = $arResult['JSON_DATA']['MODEL'];

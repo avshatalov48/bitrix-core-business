@@ -13,7 +13,7 @@ class CCloudSecurityService_AmazonS3
 		return $this->status;
 	}
 
-	function GetObject()
+	public static function GetObject()
 	{
 		return new CCloudSecurityService_AmazonS3();
 	}

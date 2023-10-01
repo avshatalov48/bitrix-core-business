@@ -35,7 +35,7 @@
                         <img class="landing-block-node-img-left img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img3.jpg" alt="">
 
                         <div class="g-pa-30">
-                            <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Present 2022</h3>
+                            <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Present 2023</h3>
 							<div class="landing-block-node-carousel-element-text landing-semantic-text-medium js-animation fadeIn g-color-gray-light-v2 ">
                             	<p class="landing-semantic-text-medium">Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque pulvinar at.</p>
                             	<p class="landing-semantic-text-medium">Aenean odio ante, varius vel tempor sed Ut condimentum ex ac enim ullamcorper volutpat. Integer arcu nisl, finibus vitae sodales vitae, malesuada ultricies sapien.</p>
@@ -92,7 +92,7 @@
                         <img class="landing-block-node-img-right img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img1.jpg" alt="">
 
                         <div class="g-pa-30">
-                            <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Present 2022</h3>
+                            <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Present 2023</h3>
 							<div class="landing-block-node-carousel-element-text landing-semantic-text-medium js-animation fadeIn g-color-gray-light-v2 ">
                             	<p class="landing-semantic-text-medium">Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque pulvinar at.</p>
                             	<p class="landing-semantic-text-medium">Aenean odio ante, varius vel tempor sed Ut condimentum ex ac enim ullamcorper volutpat. Integer arcu nisl, finibus vitae sodales vitae, malesuada ultricies sapien.</p>

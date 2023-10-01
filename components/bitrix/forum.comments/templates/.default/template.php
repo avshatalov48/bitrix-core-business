@@ -1,9 +1,4 @@
-<?php
-
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
-{
-	die();
-}
+<?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) { die(); }
 
 /**
  * @var CMain $APPLICATION
@@ -32,7 +27,8 @@ if (isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"])
 else
 {
 	$editRight = (
-		$arResult["PANELS"]["EDIT"] == "N"
+		isset($arResult["PANELS"]["EDIT"])
+		&& $arResult["PANELS"]["EDIT"] == "N"
 			? (
 				$arParams["ALLOW_EDIT_OWN_MESSAGE"] === "ALL"
 					? "OWN"
@@ -42,7 +38,7 @@ else
 	);
 }
 
-$canCreateTask = ($arResult['POST_CONTENT_TYPE_ID'] && !$arParams['PUBLIC_MODE']);
+$canCreateTask = ($arResult['POST_CONTENT_TYPE_ID'] && !(isset($arParams['PUBLIC_MODE']) && $arParams['PUBLIC_MODE']));
 
 $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 	"bitrix:main.post.list",
@@ -53,49 +49,49 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"ENTITY_XML_ID" => $arParams["ENTITY_XML_ID"],
 		"RECORDS" => $arResult["MESSAGES"],
 
-		"NAV_STRING" => $arResult["NAV_STRING"],
-		"NAV_RESULT" => $arResult["NAV_RESULT"],
+		"NAV_STRING" => $arResult["NAV_STRING"] ?? null,
+		"NAV_RESULT" => $arResult["NAV_RESULT"] ?? null,
 		"PREORDER" => $arParams["PREORDER"],
 		"RIGHTS" => array(
-			"MODERATE" =>  $arResult["PANELS"]["MODERATE"],
+			"MODERATE" =>  $arResult["PANELS"]["MODERATE"] ?? null,
 			"EDIT" => $editRight,
 			"DELETE" => $editRight,
-			'CREATETASK' => ($arResult['POST_CONTENT_TYPE_ID'] && !$arParams['PUBLIC_MODE'] ? 'Y' : 'N'),
+			'CREATETASK' => ($arResult['POST_CONTENT_TYPE_ID'] && !(isset($arParams['PUBLIC_MODE']) && $arParams['PUBLIC_MODE']) ? 'Y' : 'N'),
 			'CREATESUBTASK' => ($canCreateTask && $arParams['ENTITY_TYPE'] === 'TK' ? 'Y' : 'N')
 		),
 		'POST_CONTENT_TYPE_ID' => $arResult['POST_CONTENT_TYPE_ID'],
 		'COMMENT_CONTENT_TYPE_ID' => 'FORUM_POST',
 
-		"VISIBLE_RECORDS_COUNT" => $arResult["VISIBLE_RECORDS_COUNT"],
+		"VISIBLE_RECORDS_COUNT" => $arResult["VISIBLE_RECORDS_COUNT"] ?? 0,
 
-		"ERROR_MESSAGE" => $arResult["ERROR_MESSAGE"],
-		"OK_MESSAGE" => $arResult["OK_MESSAGE"],
-		"RESULT" => ($arResult["RESULT"] ?: $request->getQuery("MID")),
-		"PUSH&PULL" => $arResult["PUSH&PULL"],
-		"MODE" => $arResult["MODE"],
+		"ERROR_MESSAGE" => $arResult["ERROR_MESSAGE"] ?? '',
+		"OK_MESSAGE" => $arResult["OK_MESSAGE"] ?? '',
+		"RESULT" => ($arResult["RESULT"] ?? $request->getQuery("MID")),
+		"PUSH&PULL" => $arResult["PUSH&PULL"] ?? null,
+		"MODE" => $arResult["MODE"] ?? null,
 		"VIEW_URL" => ($arParams["SHOW_LINK_TO_MESSAGE"] == "Y" && !(isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"]) ? $link : ""),
 		"EDIT_URL" => ForumAddPageParams($link, array("ACTION" => "GET"), false, false),
 		"MODERATE_URL" => ForumAddPageParams($link, array("ACTION" => "#ACTION#"), false, false),
 		"DELETE_URL" => ForumAddPageParams($link, array("ACTION" => "DEL"), false, false),
 		"AUTHOR_URL" => $arParams["URL_TEMPLATES_PROFILE_VIEW"],
 
-		"AVATAR_SIZE" => $arParams["AVATAR_SIZE_COMMENT"],
+		"AVATAR_SIZE" => $arParams["AVATAR_SIZE_COMMENT"] ?? null,
 		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 		"SHOW_LOGIN" => $arParams['SHOW_LOGIN'],
 
 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
-		"LAZYLOAD" => $arParams["LAZYLOAD"],
+		"LAZYLOAD" => $arParams["LAZYLOAD"] ?? null,
 
-		"NOTIFY_TAG" => ($arParams["bFromList"] ? "BLOG|COMMENT" : ""),
-		"NOTIFY_TEXT" => ($arParams["bFromList"] ? TruncateText(str_replace(Array("\r\n", "\n"), " ", $arParams["POST_DATA"]["~TITLE"]), 100) : ""),
+		"NOTIFY_TAG" => (isset($arParams["bFromList"]) && $arParams["bFromList"] ? "BLOG|COMMENT" : ""),
+		"NOTIFY_TEXT" => (isset($arParams["bFromList"]) && $arParams["bFromList"] ? TruncateText(str_replace(Array("\r\n", "\n"), " ", $arParams["POST_DATA"]["~TITLE"]), 100) : ""),
 		"SHOW_MINIMIZED" => $arParams["SHOW_MINIMIZED"],
 
 		"FORM_ID" => $arParams["FORM_ID"], // instead of SHOW_POST_FORM
 		"SHOW_POST_FORM" => $arResult["SHOW_POST_FORM"], // for old main.post.list
 
-		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"],
-		"BIND_VIEWER" => $arParams["BIND_VIEWER"],
-		"mfi" => $arParams["mfi"],
+		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"] ?? null,
+		"BIND_VIEWER" => $arParams["BIND_VIEWER"] ?? null,
+		"mfi" => $arParams["mfi"] ?? null,
 		"bPublicPage" => (isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"])
 	),
 	$this->__component

@@ -41,15 +41,15 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_32_13-TXT'),
 			'type' => 'typo',
 		),
-		'.landing-block-node-img-container-left-top' => array(
+		'.landing-block-node-img-container-left' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_32_13-IMG'),
 			'type' => ['animation', 'border-radius'],
 		),
-		'.landing-block-node-img-container-left-bottom' => array(
+		'.landing-block-node-img-container-right-top' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_32_13-IMG'),
 			'type' => ['animation', 'border-radius'],
 		),
-		'.landing-block-node-img-container-right' => array(
+		'.landing-block-node-img-container-right-bottom' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_32_13-IMG'),
 			'type' => ['animation', 'border-radius'],
 		),

@@ -37,13 +37,8 @@ class Type
 
 	public static function isValueExist(int $value): bool
 	{
-		static $values = null;
-
-		if($values === null)
-		{
-			$reflection = new \ReflectionClass(static::class);
-			$values = array_values($reflection->getConstants());
-		}
+		$reflection = new \ReflectionClass(static::class);
+		$values = array_values($reflection->getConstants());
 
 		return in_array($value, $values, true);
 	}

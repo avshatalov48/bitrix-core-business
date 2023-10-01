@@ -2,16 +2,26 @@ import {Cache} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 import {CanvasWrapper} from '../canvas-wrapper/canvas-wrapper';
 
+type ContentOption = {
+	color?: string,
+	events?: {[p: string]: Function}
+};
+
 export class Content extends EventEmitter
 {
 	cache = new Cache.MemoryCache();
 
-	constructor(options = {})
+	constructor(options: ContentOption = {})
 	{
 		super();
 		this.setEventNamespace('BX.UI.SignUp.Content');
 		this.subscribeFromOptions(options.events);
 		this.setOptions(options);
+	}
+
+	getColor(): string | null
+	{
+		return this.getOptions().color ?? null;
 	}
 
 	setOptions(options)

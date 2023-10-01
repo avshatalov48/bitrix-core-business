@@ -556,7 +556,7 @@ class FacebookConversion
 			return null;
 		}
 
-		$params = unserialize($facebookConversionParamsData['PARAMS'], ['allow_classes' => false]);
+		$params = unserialize($facebookConversionParamsData['PARAMS'], ['allowed_classes' => false]);
 		if (!$params)
 		{
 			return null;

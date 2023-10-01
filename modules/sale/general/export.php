@@ -1396,7 +1396,7 @@ class CSaleExport
 						return false;
 					while($data = zip_entry_read($entry, 102400))
 					{
-						$data_len = function_exists('mb_strlen')? mb_strlen($data, 'latin1') : mb_strlen($data);
+						$data_len = strlen($data);
 						$result = fwrite($fout, $data);
 						if($result !== $data_len)
 							return false;

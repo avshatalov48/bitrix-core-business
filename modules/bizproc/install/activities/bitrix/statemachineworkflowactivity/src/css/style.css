@@ -1,0 +1,22 @@
+.bizproc-designer-state-machine-workflow-activity-arrow-wrapper {
+	max-height: 9px;
+	position: absolute;
+	display: flex;
+	align-items: center;
+}
+
+.bizproc-designer-state-machine-workflow-activity-arrow {
+	--ui-icon-set__icon-size: 18px;
+	--ui-icon-set__icon-color: #C0C1C3;
+}
+
+.bizproc-designer-state-machine-workflow-activity-horizontal-line {
+	position: absolute;
+	background-color: #C0C1C3;
+	height: 2px;
+}
+.bizproc-designer-state-machine-workflow-activity-vertical-line {
+	position: absolute;
+	background-color: #C0C1C3;
+	width: 2px;
+}

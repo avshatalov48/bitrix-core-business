@@ -746,6 +746,11 @@ $tabControl->BeginNextTab();
 		if (class_exists($className))
 			$handlerModeList = $className::getHandlerModeList();
 
+		if ($id > 0 && !isset($handlerModeList[$psMode]))
+		{
+			$handlerModeList[$psMode] = $psMode;
+		}
+
 		$isOrderDocument = mb_strpos($handlerName, 'orderdocument') === 0;
 		if ($handlerModeList || $isOrderDocument):?>
 			<tr>

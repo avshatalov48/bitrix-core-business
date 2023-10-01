@@ -48,6 +48,10 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_MENU_22-NAVBAR'),
 				'type' => ['navbar-color', 'navbar-color-hover', 'typo-simple'],
 			),
+			'.landing-block-node-hamburger' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_MENU_22_HAMB'),
+				'type' => ['hamburger-size', 'hamburger-animation'],
+			],
 		),
 	),
 	'assets' => array(

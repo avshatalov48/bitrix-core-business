@@ -200,7 +200,7 @@ class Template
 			]
 		);
 
-		if ($result)
+		if ($result || (isset($robot['Activated']) && $robot['Activated'] === 'N'))
 		{
 			$templateActivity = \CBPWorkflowTemplateLoader::findActivityByName($raw, $robot['Name'] ?? null);
 
@@ -208,7 +208,7 @@ class Template
 			$robot['Properties'] = $templateActivity['Properties'];
 			$robot['Properties']['Title'] = $robotTitle;
 
-			$saveResult->setData(array('robot' => $robot));
+			$saveResult->setData(['robot' => $robot]);
 		}
 		else
 		{
@@ -463,10 +463,13 @@ class Template
 
 			if ($indexOfFoundRobot < 0 || !$this->areRobotsEqual($robot, $originalRobots[$indexOfFoundRobot]))
 			{
-				$sequence = $this->convertRobotToSequenceActivity($robot);
-				foreach ($loader->ValidateTemplate($sequence, $user) as $rawError)
+				if ($robot->isActivated())
 				{
-					$errors->setError(new Error(trim($rawError['message'])));
+					$sequence = $this->convertRobotToSequenceActivity($robot);
+					foreach ($loader->ValidateTemplate($sequence, $user) as $rawError)
+					{
+						$errors->setError(new Error(trim($rawError['message'])));
+					}
 				}
 				unset($originalRobots[$indexOfFoundRobot]);
 			}
@@ -555,7 +558,11 @@ class Template
 		}
 
 		$parallelActivity = $raw['TEMPLATE'][0]['Children'][0];
-		if (!$parallelActivity || $parallelActivity['Type'] !== static::$parallelActivityType)
+		if (
+			!$parallelActivity
+			|| $parallelActivity['Type'] !== static::$parallelActivityType
+			|| (isset($parallelActivity['Activated']) && $parallelActivity['Activated'] === 'N')
+		)
 		{
 			$this->isExternalModified = true;
 			return false; // modified or incorrect.
@@ -597,13 +604,32 @@ class Template
 				if ($delay !== null)
 				{
 					$delayInterval = DelayInterval::createFromActivityProperties($delay['Properties']);
+					$delayInterval->setActivated(\CBPHelper::getBool($delay['Activated'] ?? true));
+
 					$robotActivity->setDelayInterval($delayInterval);
 					$robotActivity->setDelayName($delay['Name']);
+
+					if($delayInterval->isActivated() !== $robotActivity->isActivated())
+					{
+						$this->isExternalModified = true;
+						$this->robots = [];
+
+						return false; // modified
+					}
+
 					$delay = null;
 				}
 
 				if ($condition !== null)
 				{
+					if ($condition->isActivated() !== $robotActivity->isActivated())
+					{
+						$this->isExternalModified = true;
+						$this->robots = [];
+
+						return false; // modified
+					}
+
 					$robotActivity->setCondition($condition);
 					$condition = null;
 				}
@@ -692,9 +718,12 @@ class Template
 				$robot->setDelayName($delayName);
 			}
 
+			$delayIntervalProperties = $delayInterval->toActivityProperties($this->getDocumentType());
+
 			$sequence['Children'][] = $this->createDelayActivity(
-				$delayInterval->toActivityProperties($this->getDocumentType()),
-				$delayName
+				$delayIntervalProperties,
+				$delayName,
+				$robot->isActivated()
 			);
 		}
 
@@ -714,10 +743,15 @@ class Template
 	protected function isRobot(array $activity)
 	{
 		if (!in_array($activity['Type'], static::getAvailableRobotClasses($this->getDocumentType())))
+		{
 			return false;
+		}
 
 		if (!empty($activity['Children']))
+		{
 			return false;
+		}
+
 		return true;
 	}
 
@@ -727,9 +761,30 @@ class Template
 	public function getRobots()
 	{
 		if ($this->robots === null)
+		{
 			$this->convertTemplate();
+		}
 
 		return $this->robots;
+	}
+
+	public function getActivatedRobots(): array
+	{
+		if ($this->robots === null)
+		{
+			$this->convertTemplate();
+		}
+
+		$activatedRobots = [];
+		foreach ($this->robots as $robot)
+		{
+			if ($robot->isActivated())
+			{
+				$activatedRobots[] = $robot;
+			}
+		}
+
+		return $activatedRobots;
 	}
 
 	/**
@@ -746,6 +801,7 @@ class Template
 				return  $robot;
 			}
 		}
+
 		return  null;
 	}
 
@@ -864,40 +920,43 @@ class Template
 
 	private function createSequenceActivity()
 	{
-		return array(
+		return [
 			'Type' => static::$sequenceActivityType,
 			'Name' => Robot::generateName(),
 			'Properties' => [
 				'Title' => 'Automation sequence',
 			],
 			'Children' => [],
-		);
+			'Activated' => 'Y',
+		];
 	}
 
 	private function createParallelActivity()
 	{
-		return array(
+		return [
 			'Type' => static::$parallelActivityType,
 			'Name' => Robot::generateName(),
-			'Properties' => array(
+			'Properties' => [
 				'Title' => Loc::getMessage('BIZPROC_AUTOMATION_PARALLEL_ACTIVITY'),
-			),
+			],
 			'Children' => [],
-		);
+			'Activated' => 'Y',
+		];
 	}
 
-	private function createDelayActivity(array $delayProperties, $delayName)
+	private function createDelayActivity(array $delayProperties, $delayName, $delayActived)
 	{
 		if (!isset($delayProperties['Title']))
 		{
 			$delayProperties['Title'] = Loc::getMessage('BIZPROC_AUTOMATION_ROBOT_DELAY_ACTIVITY');
 		}
 
-		return array(
+		return [
 			'Type' => static::$robotDelayActivityType,
 			'Name' => $delayName,
+			'Activated' => $delayActived ? 'Y' : 'N',
 			'Properties' => $delayProperties,
 			'Children' => [],
-		);
+		];
 	}
 }

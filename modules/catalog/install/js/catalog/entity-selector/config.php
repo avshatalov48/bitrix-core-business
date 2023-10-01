@@ -114,7 +114,47 @@ return [
 						],
 					],
 				]
-			]
+			],
+			[
+				'id' => 'agent-contractor-product-variation',
+				'options' => [
+					'dynamicLoad' => true,
+					'dynamicSearch' => true,
+					'searchFields' => $entitiesSearchFields,
+					'itemOptions' => [
+						'default' => [
+							'avatar' => '/bitrix/js/catalog/entity-selector/src/images/product.svg',
+							'captionOptions' => [
+								'fitContent' => true,
+								'maxWidth' => 150
+							],
+						],
+					],
+				],
+			],
+			[
+				'id' => 'agent-contractor-section',
+				'options' => [
+					'dynamicLoad' => true,
+					'dynamicSearch' => true,
+					'searchFields' => $entitiesSearchFields,
+					'itemOptions' => [
+						'default' => [
+							'avatar' => '/bitrix/js/catalog/entity-selector/src/images/product.svg',
+							'captionOptions' => [
+								'fitContent' => true,
+								'maxWidth' => 150
+							],
+						],
+					],
+					'tagOptions' => [
+						'default' => [
+							'textColor' => '#535c69',
+							'bgColor' => '#d2f95f',
+						]
+					],
+				],
+			],
 		],
 	],
 ];

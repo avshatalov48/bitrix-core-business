@@ -14,11 +14,13 @@ use Bitrix\Sender\Internals\PrettyDate;
 
 Loc::loadMessages(__FILE__);
 
-/** @var \CAllMain $APPLICATION */
-/** @var \SenderLetterEditComponent $component */
+/** @var CMain $APPLICATION */
+/** @var SenderLetterEditComponent $component */
 /** @var array $arParams */
 /** @var array $arResult */
 $containerId = 'bx-sender-letter-edit';
+
+Loader::includeModule('ai');
 
 Extension::load([
 	'ui.buttons',
@@ -28,11 +30,15 @@ Extension::load([
 	'ui.sidepanel.layout',
 	'ui.info-helper',
 	'sender.consent.preview',
+	'ai.picker',
 ]);
 
 CJSCore::Init(array('admin_interface'));
 
-if($arParams['IFRAME'] === 'Y')
+if(
+	($arParams['IFRAME'] === 'Y')
+	&& Loader::includeModule('ui')
+)
 {
 	\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
 }
@@ -61,7 +67,11 @@ if($arParams['IFRAME'] === 'Y')
 					'SENDER_LETTER_EDIT_OUTSIDE_ADD_SUCCESS',
 					['%path%' => $arParams['PATH_TO_LIST']]
 				)
-			)
+			),
+			'hasBottomTextareaPanel' => $arResult['HAS_BOTTOM_TEXTAREA_PANEL'],
+			'isAITextAvailable' => $arResult['isAITextAvailable'] ? 'Y' : 'N',
+			'AITextContextId' => $arResult['AITextContextId'],
+
 		))?>);
 	});
 </script>

@@ -25,19 +25,6 @@ interface IProvider
 	 */
 	public static function getContractorByDocumentId(int $documentId): ?IContractor;
 
-	// region Migration
-
-	/**
-	 * @return bool
-	 */
-	public static function isMigrated(): bool;
-
-	public static function runMigration(): void;
-
-	public static function showMigrationProgress(): void;
-
-	// endregion
-
 	// region Documents grid
 
 	/**

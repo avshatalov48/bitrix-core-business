@@ -53,10 +53,6 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_FAQ_6_TEXT'),
 			'type' => 'typo',
 		],
-		'.landing-block-node-element-title' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_FAQ_6_TITLE'),
-			'type' => 'typo',
-		],
 		'.landing-block-node-card-img-container' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_FAQ_6_ICON'),
 			'type' => 'color',

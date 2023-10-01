@@ -30,11 +30,6 @@ Class sale extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = SALE_VERSION;
-			$this->MODULE_VERSION_DATE = SALE_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = Loc::getMessage("SALE_INSTALL_NAME");
 		$this->MODULE_DESCRIPTION = Loc::getMessage("SALE_INSTALL_DESCRIPTION");
@@ -282,6 +277,8 @@ Class sale extends CModule
 
 		Option::set('sale', 'sale_locationpro_import_performed', 'Y');
 		Option::set('sale', 'product_viewed_save', 'N', '');
+
+		Option::set('sale', 'encode_fuser_id', 'Y');
 
 		// install tasks + operations for statuses
 		$operations = array();

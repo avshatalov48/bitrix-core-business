@@ -1,12 +1,11 @@
+/* eslint-disable */
 (function (exports,main_core,ui_dialogs_messagebox,bizproc_globals) {
 	'use strict';
 
 	var namespace = main_core.Reflection.namespace('BX.Bizproc.Component');
-
 	var GlobalFieldListComponent = /*#__PURE__*/function () {
 	  function GlobalFieldListComponent(options) {
 	    babelHelpers.classCallCheck(this, GlobalFieldListComponent);
-
 	    if (main_core.Type.isPlainObject(options)) {
 	      this.componentName = options.componentName;
 	      this.signedParameters = options.signedParameters;
@@ -16,7 +15,6 @@
 	      this.slider = options.slider;
 	    }
 	  }
-
 	  babelHelpers.createClass(GlobalFieldListComponent, [{
 	    key: "init",
 	    value: function init() {
@@ -28,14 +26,12 @@
 	      if (this.gridId) {
 	        return BX.Main.gridManager && BX.Main.gridManager.getInstanceById(this.gridId);
 	      }
-
 	      return null;
 	    }
 	  }, {
 	    key: "reloadGrid",
 	    value: function reloadGrid() {
 	      var grid = this.getGrid();
-
 	      if (grid) {
 	        grid.reload();
 	      }
@@ -61,19 +57,15 @@
 	    value: function onAfterUpsert(slider) {
 	      var info = slider.getData().entries();
 	      var keys = Object.keys(info);
-
 	      if (keys.length <= 0) {
 	        return;
 	      }
-
 	      if (this.sliderDict) {
 	        var _this$sliderDict$get;
-
 	        var items = (_this$sliderDict$get = this.sliderDict.get('upsert')) !== null && _this$sliderDict$get !== void 0 ? _this$sliderDict$get : {};
 	        items[keys[0]] = info[keys[0]];
 	        this.sliderDict.set('upsert', items);
 	      }
-
 	      this.reloadGrid();
 	    }
 	  }, {
@@ -113,12 +105,10 @@
 	            } else {
 	              if (me.sliderDict) {
 	                var _me$sliderDict$get;
-
 	                var items = (_me$sliderDict$get = me.sliderDict.get('delete')) !== null && _me$sliderDict$get !== void 0 ? _me$sliderDict$get : [];
 	                items.push(id);
 	                me.sliderDict.set('delete', items);
 	              }
-
 	              me.reloadGrid();
 	            }
 	          });
@@ -129,7 +119,6 @@
 	          events: {
 	            onAfterShow: function onAfterShow(event) {
 	              var okBtn = event.getTarget().getButton('ok');
-
 	              if (okBtn) {
 	                okBtn.getContainer().focus();
 	              }
@@ -142,7 +131,6 @@
 	    key: "deleteFieldsAction",
 	    value: function deleteFieldsAction(mode) {
 	      var _this = this;
-
 	      var me = this;
 	      var message = this.getPluralDeletePhrase(mode);
 	      new ui_dialogs_messagebox.MessageBox({
@@ -163,16 +151,12 @@
 	            } else {
 	              if (me.sliderDict) {
 	                var _me$sliderDict$get2;
-
 	                var items = (_me$sliderDict$get2 = me.sliderDict.get('delete')) !== null && _me$sliderDict$get2 !== void 0 ? _me$sliderDict$get2 : [];
-
 	                _this.getGrid().getRows().getSelectedIds().forEach(function (id) {
 	                  items.push(id);
 	                });
-
 	                me.sliderDict.set('delete', items);
 	              }
-
 	              me.reloadGrid();
 	            }
 	          });
@@ -183,7 +167,6 @@
 	          events: {
 	            onAfterShow: function onAfterShow(event) {
 	              var okBtn = event.getTarget().getButton('ok');
-
 	              if (okBtn) {
 	                okBtn.getContainer().focus();
 	              }
@@ -195,7 +178,6 @@
 	  }]);
 	  return GlobalFieldListComponent;
 	}();
-
 	namespace.GlobalFieldListComponent = GlobalFieldListComponent;
 
 }((this.window = this.window || {}),BX,BX.UI.Dialogs,BX.Bizproc));

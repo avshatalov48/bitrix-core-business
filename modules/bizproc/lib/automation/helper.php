@@ -446,10 +446,12 @@ class Helper
 					'Expression' => '{{' . $field['Name'] . '}}',
 					'SystemExpression' => '{=Document:' . $id . '}',
 					'Options' => $field['Options'] ?? null,
+					'Settings' => $field['Settings'] ?? null,
 					'Multiple' => $field['Multiple'] ?? false,
 				];
 			}
 		}
+
 		return $resultFields;
 	}
 
@@ -805,7 +807,7 @@ class Helper
 			$template = new Engine\Template($documentType, $status);
 			if ($template->getId() > 0)
 			{
-				$cnt += count($template->getRobots());
+				$cnt += count($template->getActivatedRobots());
 			}
 		}
 

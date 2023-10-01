@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main;
 use Bitrix\Lists\Internals\Error\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
@@ -682,23 +683,7 @@ class LiveFeedAjaxController extends Controller
 
 	protected function unEscape($data)
 	{
-		global $APPLICATION;
-
-		if(is_array($data))
-		{
-			$res = array();
-			foreach($data as $k => $v)
-			{
-				$k = $APPLICATION->ConvertCharset(\CHTTP::urnDecode($k), "UTF-8", LANG_CHARSET);
-				$res[$k] = $this->unEscape($v);
-			}
-		}
-		else
-		{
-			$res = $APPLICATION->ConvertCharset(\CHTTP::urnDecode($data), "UTF-8", LANG_CHARSET);
-		}
-
-		return $res;
+		return Main\Text\Encoding::convertEncoding($data, 'UTF-8', LANG_CHARSET);
 	}
 
 	protected function processActionCheckDataElementCreation()
@@ -822,7 +807,7 @@ class LiveFeedAjaxController extends Controller
 				else
 					$deleteArray = array();
 				$props[$field["ID"]] = array();
-				$files = $this->unEscape($_FILES);
+				$files = $_FILES;
 				if(isset($files[$fieldId]) && is_array($files[$fieldId]))
 				{
 					CFile::ConvertFilesToPost($files[$fieldId], $props[$field["ID"]]);
@@ -2180,6 +2165,7 @@ class LiveFeedAjaxController extends Controller
 								<? endforeach; ?>
 								</select>
 								<?= $spanTwo ?>
+								<?= $field['customHtml'] ?? '' ?>
 								</td>
 								<?
 							endif;

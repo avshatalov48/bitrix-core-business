@@ -18,7 +18,7 @@
 							Monica and Eddie</h2>
 						<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium text-uppercase g-font-weight-700 g-color-primary g-mb-25">
 							March
-							15, 2022
+							15, 2023
 						</h6>
 						<blockquote class="landing-block-node-card-text landing-semantic-text-image-medium js-animation fadeInRightBig g-color-gray-light-v1 g-mb-40">
 							<p>Curabitur eget
@@ -47,7 +47,7 @@
 							Sofia and Carl</h2>
 						<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium text-uppercase g-font-weight-700 g-color-primary g-mb-25">
 							November
-							01, 2022
+							01, 2023
 						</h6>
 						<blockquote class="landing-block-node-card-text landing-semantic-text-image-medium js-animation fadeInLeft g-color-gray-light-v1 g-mb-40">
 							<p>Curabitur eget

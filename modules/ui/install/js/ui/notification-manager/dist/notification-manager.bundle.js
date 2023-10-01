@@ -327,6 +327,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  onNotificationClick(event) {
 	    const [id] = event.detail;
+	    BXDesktopSystem.SetActiveTab();
 	    this.notificationClick(id);
 	  }
 	  onNotificationAction(event) {
@@ -831,7 +832,6 @@ this.BX.UI = this.BX.UI || {};
 	      eventNamespace: Notifier.EVENT_NAMESPACE
 	    };
 	    if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isMac() && DesktopHelper.geApiVersion() >= 73) {
-	      console.log('in', DesktopHelper.geApiVersion() >= 73);
 	      return new MacProvider(providerOptions);
 	    }
 	    if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isWindows()) {

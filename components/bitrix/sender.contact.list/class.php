@@ -90,7 +90,6 @@ class SenderContactListComponent extends Bitrix\Sender\Internals\CommonSenderCom
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_CONTACT_LIST_TITLE1'));
 		}
 

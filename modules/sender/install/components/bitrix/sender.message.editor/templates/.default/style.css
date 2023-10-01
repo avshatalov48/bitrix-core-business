@@ -157,8 +157,6 @@
 	background-position: right center;
 	font: 15px/12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	min-width: 120px;
-	width: 120px;
-	max-width: 120px;
 }
 
 .sender-message-editor-field-file-cloud {

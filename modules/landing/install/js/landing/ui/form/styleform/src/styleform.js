@@ -1,10 +1,10 @@
 import { Dom, Event, Type } from 'main.core';
-import {BaseForm} from 'landing.ui.form.baseform';
-import {Highlight} from 'landing.ui.highlight';
-import {BaseField} from 'landing.ui.field.basefield';
+import { BaseForm } from 'landing.ui.form.baseform';
+import { Highlight } from 'landing.ui.highlight';
+import { BaseField } from 'landing.ui.field.basefield';
+import { fetchEventsFromOptions } from 'landing.ui.component.internal';
 
 import './css/style_form.css';
-import {fetchEventsFromOptions} from 'landing.ui.component.internal';
 import 'ui.design-tokens';
 
 /**
@@ -24,24 +24,27 @@ export class StyleForm extends BaseForm
 		this.iframe = 'iframe' in options ? options.iframe : null;
 		this.node = 'node' in options ? options.node : null;
 		this.selector = 'selector' in options ? options.selector : null;
+		this.collapsed = 'collapsed' in options ? options.collapsed : null;
 		this.#styleFields = new Map();
 
 		this.onHeaderEnter = this.onHeaderEnter.bind(this);
 		this.onHeaderLeave = this.onHeaderLeave.bind(this);
 		this.onHeaderClick = this.onHeaderClick.bind(this);
 
+		this.prepareHeader();
+
 		Event.bind(this.header, 'click', this.onHeaderClick);
 		Event.bind(this.header, 'mouseenter', this.onHeaderEnter);
 		Event.bind(this.header, 'mouseleave', this.onHeaderLeave);
 
-		if (this.type === 'attrs')
-		{
-			Dom.addClass(this.header, 'landing-ui-static');
-		}
-
 		if (this.iframe)
 		{
 			this.onFrameLoad();
+		}
+
+		if (this.collapsed)
+		{
+			Dom.addClass(this.layout, 'landing-ui-form-style--collapsed');
 		}
 	}
 
@@ -68,6 +71,7 @@ export class StyleForm extends BaseForm
 	onHeaderClick(event: MouseEvent)
 	{
 		event.preventDefault();
+		Dom.toggleClass(this.layout, 'landing-ui-form-style--collapsed');
 	}
 
 	addField(field: BaseField)
@@ -80,7 +84,7 @@ export class StyleForm extends BaseForm
 			field.subscribe('onInit', this.onInit.bind(this));
 
 			this.fields.add(field);
-			this.body.appendChild(field.layout);
+			BX.Dom.append(field.layout, this.body);
 
 			if (attrKey)
 			{
@@ -106,25 +110,40 @@ export class StyleForm extends BaseForm
 		// hide linked fields
 		if (fieldData.hide && Type.isArray(fieldData.hide))
 		{
-			fieldData.hide.map(attr => {
+			fieldData.hide.map((attr) => {
 				const layout = this.#styleFields.get(attr);
 				if (layout)
 				{
-					layout.style.display = 'none';
+					BX.Dom.style(layout, 'display', 'none');
 				}
+
+				return null;
 			});
 		}
 
 		// show linked fields
 		if (fieldData.show && Type.isArray(fieldData.show))
 		{
-			fieldData.show.map(attr => {
+			fieldData.show.map((attr) => {
 				const layout = this.#styleFields.get(attr);
 				if (layout)
 				{
-					layout.style.display = 'block';
+					BX.Dom.style(layout, 'display', 'block');
 				}
+
+				return null;
 			});
 		}
+	}
+
+	prepareHeader()
+	{
+		const headerText = document.createElement('div');
+		BX.Dom.addClass(headerText, 'landing-ui-form-header-text');
+		while (this.header.childNodes[0])
+		{
+			BX.Dom.append(this.header.childNodes[0], headerText);
+		}
+		BX.Dom.append(headerText, this.header);
 	}
 }

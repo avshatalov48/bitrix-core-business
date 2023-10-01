@@ -198,7 +198,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 			$buffer .= sprintf("Host: %s:%s\r\n", $crmUrlHost, $crmUrlPort);
 			$buffer .= "Content-type: application/x-www-form-urlencoded; charset=UTF-8\r\n";
 			$buffer .= sprintf("Authorization: Basic %s\r\n", base64_encode($crmLogin.":".$crmPassword));
-			$buffer .= sprintf("Content-length: %s\r\n", ((function_exists('mb_strlen')? mb_strlen($body, 'latin1') : mb_strlen($body))));
+			$buffer .= sprintf("Content-length: %s\r\n", strlen($body));
 			$buffer .= $head;
 			$buffer .= "\r\n";
 			$buffer .= $body;
@@ -243,7 +243,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 				while ($lb > 0)
 				{
 					$responseBody .= fread($hServer, $lb);
-					$lb = $contentLength - ((function_exists('mb_strlen')? mb_strlen($responseBody, 'latin1') : mb_strlen($responseBody)));
+					$lb = $contentLength - strlen($responseBody);
 				}
 			}
 			else

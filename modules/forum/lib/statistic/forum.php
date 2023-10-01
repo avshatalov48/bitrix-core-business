@@ -32,8 +32,8 @@ class Forum extends Main\Update\Stepper
 SELECT ID, ENTITY_ID 
 FROM b_forum_service_statistic_queue
 WHERE ENTITY_TYPE='FORUM'
-LIMIT {$limit}
 ORDER BY ID ASC
+LIMIT {$limit}
 SQL
 		);
 

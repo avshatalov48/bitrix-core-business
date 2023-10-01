@@ -12,6 +12,9 @@ Loc::loadMessages(__FILE__);
 
 class ListsSelectElementComponent extends CBitrixComponent
 {
+	private array $canEditElements = [];
+	private array $listIblockBpTemplates = [];
+
 	public function onPrepareComponentParams($arParams)
 	{
 		$arParams['ERROR'] = [];
@@ -78,6 +81,9 @@ class ListsSelectElementComponent extends CBitrixComponent
 		$this->arResult['USER_ID'] = $this->arParams['USER_ID'];
 		$this->arResult['GRID_ID'] = 'lists_processes';
 		$this->arResult['FILTER_ID'] = 'lists_processes';
+		$this->arResult['JS_OBJECT'] = 'ListsProcessesClass_' . $this->randString();
+
+		$this->processGridAction();
 
 		$selectFields = ['ID', 'IBLOCK_TYPE_ID', 'IBLOCK_ID', 'NAME'];
 
@@ -93,7 +99,7 @@ class ListsSelectElementComponent extends CBitrixComponent
 			],
 			[
 				'id' => 'DOCUMENT_NAME',
-				'name' => Loc::getMessage('CC_BLL_DOCUMENT_NAME'),
+				'name' => Loc::getMessage('CC_BLL_DOCUMENT_NAME_MSGVER_1'),
 				'default' => true,
 				'sort' => 'DOCUMENT_NAME',
 			],
@@ -206,6 +212,7 @@ class ListsSelectElementComponent extends CBitrixComponent
 
 			$this->arResult['DATA'][] = [
 				'ID' => $element['ID'],
+				'IBLOCK_ID' => $element['IBLOCK_ID'],
 				'DOCUMENT_NAME' => $element['NAME'],
 				'DOCUMENT_URL' => $path
 					. COption::GetOptionString('lists', 'livefeed_url')
@@ -226,17 +233,10 @@ class ListsSelectElementComponent extends CBitrixComponent
 				$workflows[] = 'WF_' . $data['WORKFLOW_ID'];
 			}
 
-			$actions = [];
-			if ($data["DOCUMENT_URL"])
-			{
-				$actions[] = [
-					'ICONCLASS' => '',
-					'DEFAULT' => true,
-					'TEXT' => Loc::getMessage('CC_BLL_C_DOCUMENT'),
-					'ONCLICK' => 'window.open("' . $data["DOCUMENT_URL"] . '");',
-				];
-			}
-			$this->arResult['RECORDS'][] = ['data' => $data, 'actions' => $actions];
+			$this->arResult['RECORDS'][] = [
+				'data' => $data,
+				'actions' => $this->createRowActions($data)
+			];
 		}
 
 		$workflows = array_unique($workflows);
@@ -264,7 +264,120 @@ class ListsSelectElementComponent extends CBitrixComponent
 			["NAME" => "100", "VALUE" => "100"],
 		];
 
+		if ($this->canEditAllRows())
+		{
+			$snippet = new \Bitrix\Main\Grid\Panel\Snippet();
+			$this->arResult["GRID_ACTION_PANEL"] = [
+				"GROUPS" => [
+					[
+						"ITEMS" => [
+							$snippet->getRemoveButton(),
+						],
+					],
+				],
+			];
+		}
+
 		$this->includeComponentTemplate();
+	}
+
+	private function createRowActions($element)
+	{
+		$actions = [];
+
+		if ($element["DOCUMENT_URL"])
+		{
+			$actions[] = [
+				'ICONCLASS' => '',
+				'DEFAULT' => true,
+				'TEXT' => Loc::getMessage('CC_BLL_C_DOCUMENT_MSGVER_1'),
+				'ONCLICK' => 'window.open("' . $element["DOCUMENT_URL"] . '");',
+			];
+		}
+
+		if ($this->canEditElement($element['IBLOCK_ID'], $element['ID']))
+		{
+			$bpTemplates = $this->getIblockBpTemplates($element['IBLOCK_ID']);
+			if ($bpTemplates)
+			{
+				$documentType = BizProcDocument::generateDocumentComplexType(
+					$this->arParams['IBLOCK_TYPE_ID'],
+					$element['IBLOCK_ID']
+				);
+				$bpActions = [];
+
+				foreach ($bpTemplates as $template)
+				{
+					$params = \Bitrix\Main\Web\Json::encode(array(
+						'moduleId' => $documentType[0],
+						'entity' => $documentType[1],
+						'documentType' => $documentType[2],
+						'documentId' => $element['ID'],
+						'templateId' => $template['id'],
+						'templateName' => $template['name'],
+						'hasParameters' => $template['hasParameters']
+					));
+					$bpActions[] = [
+						'TEXT' => $template['name'],
+						'ONCLICK' => 'BX.Bizproc.Starter.singleStart('
+							. $params
+							. ', function(){BX.Main.gridManager.reload(\''
+							. CUtil::JSEscape($this->arResult['GRID_ID'])
+							. '\');});',
+					];
+				}
+
+				$actions[] = array(
+					"TEXT" => Loc::getMessage("CC_BLL_ELEMENT_ACTION_MENU_START_BP"),
+					"MENU" => $bpActions,
+				);
+			}
+
+			$actions[] = [
+				'TEXT' => Loc::getMessage('CC_BLL_ELEMENT_ACTION_MENU_DELETE'),
+				"ONCLICK" => "javascript:BX.Lists['" . $this->arResult['JS_OBJECT'] . "'].deleteElement('" .
+					$this->arResult["GRID_ID"] . "', '" . $element['ID'] . "')",
+			];
+		}
+
+		return $actions;
+	}
+
+	private function canEditElement($iblockId, $elementId): bool
+	{
+		if (!isset($this->canEditElements[$elementId]))
+		{
+			$listsPerm = CListPermissions::checkAccess(
+				$this->getUser(),
+				$this->arParams['IBLOCK_TYPE_ID'],
+				$iblockId,
+			);
+
+			$this->canEditElements[$elementId] = (
+				$listsPerm >= CListPermissions::CAN_WRITE
+				|| CIBlockElementRights::userHasRightTo($iblockId, $elementId, 'element_edit')
+			);
+		}
+
+		return $this->canEditElements[$elementId];
+	}
+
+	private function canEditAllRows(): bool
+	{
+		return !in_array(false, $this->canEditElements, true);
+	}
+
+	private function getIblockBpTemplates($iblockId): array
+	{
+		if (!isset($this->listIblockBpTemplates[$iblockId]))
+		{
+			$this->listIblockBpTemplates[$iblockId] = CBPDocument::getTemplatesForStart(
+				$this->getUser()->getId(),
+				BizProcDocument::generateDocumentComplexType($this->arParams['IBLOCK_TYPE_ID'], $iblockId),
+			);
+		}
+
+		return $this->listIblockBpTemplates[$iblockId];
 	}
 
 	protected function getApplication()
@@ -385,5 +498,39 @@ class ListsSelectElementComponent extends CBitrixComponent
 	{
 		global $USER;
 		return $USER;
+	}
+
+	private function processGridAction()
+	{
+		if ($this->arParams['LIST_PERM'] < CListPermissions::CAN_WRITE)
+		{
+			return;
+		}
+
+		$actionKey = "action_button_" . $this->arResult["GRID_ID"];
+		if (
+			check_bitrix_sessid()
+			&& $this->request->getPost($actionKey) === 'delete'
+		)
+		{
+			$filter = [];
+			$filter['CREATED_BY'] = $this->arParams['USER_ID'];
+			$filter['=IBLOCK_TYPE'] = $this->arParams['IBLOCK_TYPE_ID'];
+
+			$postId = $this->request->getPost('ID');
+			$filter["=ID"] = (is_array($postId) ? $postId : []);
+
+			if (!empty($filter["=ID"]))
+			{
+				$filter["SHOW_NEW"] = "Y";
+				$obElement = new CIBlockElement;
+
+				$rsElements = CIBlockElement::getList([], $filter, false, false, ["ID"]);
+				while ($arElement = $rsElements->Fetch())
+				{
+					$obElement->delete($arElement["ID"]);
+				}
+			}
+		}
 	}
 }

@@ -102,6 +102,7 @@ class Site
 		$params = $result->sanitizeKeys($params);
 		$getPublicUrl = false;
 		$getPreviewPicture = false;
+		$getPhone = false;
 		$mobileHit = $initiator === 'mobile';
 
 		if ($mobileHit)
@@ -167,8 +168,13 @@ class Site
 			{
 				$getPreviewPicture = true;
 			}
+			if (in_array('PHONE', $params['select']))
+			{
+				$getPhone = true;
+				$params['select'][] = 'ID';
+			}
 			// delete this keys for ORM
-			$deleted = ['DOMAIN_NAME', 'PUBLIC_URL', 'PREVIEW_PICTURE'];
+			$deleted = ['DOMAIN_NAME', 'PUBLIC_URL', 'PREVIEW_PICTURE', 'PHONE'];
 			foreach ($params['select'] as $k => $code)
 			{
 				if (in_array($code, $deleted))
@@ -220,6 +226,12 @@ class Site
 			if ($getPreviewPicture)
 			{
 				$row['PREVIEW_PICTURE'] = '';
+			}
+			if ($getPhone)
+			{
+				$row['PHONE'] = \Bitrix\Landing\Connector\Crm::getContacts(
+					$row['ID']
+				)['PHONE'] ?? null;
 			}
 			$data[$row['ID']] = $row;
 		}

@@ -460,7 +460,7 @@ class BizprocDocumentLists extends \BizprocDocument
 				$result[$key]["settings"] = $field["SETTINGS"];
 				$result[$key]["active"] = true;
 				$result[$key]["DefaultValue"] = $field["DEFAULT_VALUE"];
-				if($field["ROW_COUNT"] && $field["COL_COUNT"])
+				if (isset($field['ROW_COUNT'], $field['COL_COUNT']) && $field['ROW_COUNT'] && $field['COL_COUNT'])
 				{
 					$result[$key]["row_count"] = $field["ROW_COUNT"];
 					$result[$key]["col_count"] = $field["COL_COUNT"];
@@ -481,7 +481,7 @@ class BizprocDocumentLists extends \BizprocDocument
 					"active_type" => $field['TYPE'],
 					"DefaultValue" => $field["DEFAULT_VALUE"],
 				);
-				if($field["ROW_COUNT"] && $field["COL_COUNT"])
+				if (isset($field['ROW_COUNT'], $field['COL_COUNT']) && $field['ROW_COUNT'] && $field['COL_COUNT'])
 				{
 					$result[$fieldId]["row_count"] = $field["ROW_COUNT"];
 					$result[$fieldId]["col_count"] = $field["COL_COUNT"];
@@ -492,8 +492,8 @@ class BizprocDocumentLists extends \BizprocDocument
 		$keys = array_keys($result);
 		foreach ($keys as $k)
 		{
-			$result[$k]["BaseType"] = $documentFieldTypes[$result[$k]["Type"]]["BaseType"];
-			$result[$k]["Complex"] = $documentFieldTypes[$result[$k]["Type"]]["Complex"];
+			$result[$k]["BaseType"] = $documentFieldTypes[$result[$k]["Type"]]["BaseType"] ?? null;
+			$result[$k]["Complex"] = $documentFieldTypes[$result[$k]["Type"]]["Complex"] ?? null;
 		}
 
 		return $result;

@@ -184,7 +184,7 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 			$buttons[] = $item;
 		}
 
-		if (Contractor\Provider\Manager::isActiveProviderByModule('crm'))
+		if (Contractor\Provider\Manager::isActiveProviderByModule(Contractor\Provider\Manager::PROVIDER_STORE_DOCUMENT, 'crm'))
 		{
 			$clientsMenuItem = $this->getCrmClientsMenuItem();
 			if ($clientsMenuItem)
@@ -375,7 +375,7 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 			'IS_DISABLED' => true,
 		];
 
-		if (!Contractor\Provider\Manager::isActiveProviderByModule('crm'))
+		if (!Contractor\Provider\Manager::isActiveProviderByModule(Contractor\Provider\Manager::PROVIDER_STORE_DOCUMENT, 'crm'))
 		{
 			$url = $this->getUrlWithParams($this->arParams['PATH_TO']['CONTRACTORS']);
 			$buttons[] = [

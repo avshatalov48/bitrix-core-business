@@ -22,10 +22,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDTITLE'),
 			'type' => 'text',
 		),
-		'.landing-block-node-card-subtitle' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDSUBTITLE'),
-			'type' => 'text',
-		),
 		'.landing-block-node-card-text-unhover' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDTEXT_UNHOVER'),
 			'type' => 'text',
@@ -50,10 +46,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDTITLE'),
 			'type' => ['typo', 'heading'],
 		),
-		'.landing-block-node-card-subtitle' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDSUBTITLE'),
-			'type' => 'typo',
-		),
 		'.landing-block-node-card-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDTEXT'),
 			'type' => 'typo',
@@ -61,11 +53,6 @@ return array(
 		'.landing-block-inner' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_CARDS_LANDINGBLOCKNODECARD'),
 			'type' => 'row-align',
-		),
-		//for old version block
-		'.landing-block-node-card-inner' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDINNER'),
-			'type' => ['background-color', 'background-overlay'],
 		),
 	),
 );

@@ -1,4 +1,4 @@
-import { clone, Type, Dom, Loc, Event } from "main.core";
+import {clone, Type, Dom, Loc, Event, Tag} from "main.core";
 import { EventEmitter } from "main.core.events";
 import { ViewMode } from "./view-mode";
 import { getGlobalContext, ConditionGroup, TrackingStatus, HelpHint } from "bizproc.automation";
@@ -48,6 +48,11 @@ export class Trigger extends EventEmitter
 	{
 		this.#data = clone(data);
 
+		if (Type.isString(this.#data['ID']))
+		{
+			const id = parseInt(this.#data['ID']);
+			this.#data['ID'] = Type.isNumber(id) ? id : 0;
+		}
 		if (!Type.isPlainObject(this.#data['APPLY_RULES']))
 		{
 			this.#data['APPLY_RULES'] = {};
@@ -177,6 +182,81 @@ export class Trigger extends EventEmitter
 		return this;
 	}
 
+	enableManageMode(isActive: boolean): void
+	{
+		this.#viewMode = ViewMode.manage().setProperty('isActive', isActive);
+
+		// const checkboxNode = Tag.render`<div class="bizproc-automation-trigger-checkbox"></div>`
+		const checkboxNode = Tag.render`<div class="ui-ctl ui-ctl-inline bizproc-automation-trigger-checkbox">
+			<input class="ui-ctl-checkbox" type="checkbox" name="name">
+		</div>`;
+		const deleteButton = this.#node.querySelector('[data-role="btn-delete-trigger"]');
+		Dom.hide(deleteButton);
+
+		if (isActive && deleteButton)
+		{
+			Dom.append(checkboxNode, this.#node);
+		}
+		else
+		{
+			Dom.addClass(this.#node, '--locked-node');
+		}
+	}
+
+	disableManageMode()
+	{
+		this.#viewMode = ViewMode.edit();
+
+		const checkboxNode = this.#node.querySelector('.bizproc-automation-trigger-checkbox');
+		const deleteButton = this.#node.querySelector('[data-role="btn-delete-trigger"]');
+
+		this.#node.onclick = undefined;
+
+		this.#viewMode = ViewMode.edit();
+		this.unselectNode();
+
+		Dom.removeClass(this.#node, '--locked-node');
+		Dom.remove(checkboxNode);
+		Dom.show(deleteButton);
+	}
+
+	selectNode()
+	{
+		if (this.#node)
+		{
+			Dom.addClass(this.#node, '--selected');
+
+			const checkboxNode = this.#node.querySelector('input');
+			if (checkboxNode)
+			{
+				checkboxNode.checked = true;
+			}
+
+			this.emit('Trigger:selected');
+		}
+	}
+
+	unselectNode()
+	{
+		if (this.#node)
+		{
+			Dom.removeClass(this.#node, '--selected');
+
+			const checkboxNode = this.#node.querySelector('input');
+			if (checkboxNode)
+			{
+				checkboxNode.checked = false;
+			}
+
+			this.emit('Trigger:unselected');
+		}
+	}
+
+	isSelected(): boolean
+	{
+		return this.#viewMode.isManage() && Dom.hasClass(this.node, '--selected');
+	}
+
 	createNode()
 	{
 		let wrapperClass = 'bizproc-automation-trigger-item-wrapper';
@@ -251,7 +331,7 @@ export class Trigger extends EventEmitter
 					]
 				}),
 				copyBtn,
-				settingsBtn
+				settingsBtn,
 			]
 		});
 
@@ -280,6 +360,20 @@ export class Trigger extends EventEmitter
 		{
 			Event.bind(div, 'click', this.onSettingsButtonClick.bind(this, div));
 		}
+
+		Event.bind(div, 'click', () => {
+			if (this.#viewMode.isManage() && this.#viewMode.getProperty('isActive', false))
+			{
+				if (!this.isSelected())
+				{
+					this.selectNode();
+				}
+				else
+				{
+					this.unselectNode();
+				}
+			}
+		});
 
 		return div;
 	}

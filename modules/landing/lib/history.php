@@ -112,6 +112,11 @@ class History
 
 		$this->loadStack();
 		$this->loadStep();
+
+		if ($this->step > count($this->stack))
+		{
+			$this->step = count($this->stack);
+		}
 	}
 
 	protected function loadStack(): void

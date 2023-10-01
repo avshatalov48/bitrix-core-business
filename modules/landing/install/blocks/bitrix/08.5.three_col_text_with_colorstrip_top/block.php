@@ -12,7 +12,7 @@
 					</div>
 					<hr class="landing-block-dividing-strip g-mt-45 g-mb-20">
 					<div class="landing-block-node-info landing-semantic-text-small font-italic g-font-size-12">
-						<p>By: Alex / In: Web Trends / Posted: Aug 25, 2022</p>
+						<p>By: Alex / In: Web Trends / Posted: Aug 25, 2023</p>
 					</div>
 				</article>
 			</div>
@@ -27,7 +27,7 @@
 					</div>
 					<hr class="landing-block-dividing-strip g-mt-45 g-mb-20">
 					<div class="landing-block-node-info landing-semantic-text-small font-italic g-font-size-12">
-						<p>By: Tom / In: Tech / Posted: Aug 24, 2022</p>
+						<p>By: Tom / In: Tech / Posted: Aug 24, 2023</p>
 					</div>
 				</article>
 			</div>
@@ -42,7 +42,7 @@
 					</div>
 					<hr class="landing-block-dividing-strip g-mt-45 g-mb-20">
 					<div class="landing-block-node-info landing-semantic-text-small font-italic g-font-size-12">
-						<p>By: Kate / In: Startups / Posted: Aug 24, 2022</p>
+						<p>By: Kate / In: Startups / Posted: Aug 24, 2023</p>
 					</div>
 				</article>
 			</div>

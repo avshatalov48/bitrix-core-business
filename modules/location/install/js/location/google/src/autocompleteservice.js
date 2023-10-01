@@ -1,8 +1,17 @@
 /* global google */
 
 import {Loc} from 'main.core';
-import {Location, AutocompleteServiceBase, LocationType} from 'location.core';
-import type {AutocompleteServiceParams} from 'location.core';
+import {
+	Location,
+	AutocompleteServiceBase,
+	AutocompleteCache,
+	LocationType
+} from 'location.core';
+import type { AutocompleteServiceParams } from 'location.core';
+import { Google } from './google';
+
+const STATUS_OK = 'OK';
+const STATUS_ZERO_RESULTS = 'ZERO_RESULTS';
 
 export default class AutocompleteService extends AutocompleteServiceBase
 {
@@ -14,10 +23,6 @@ export default class AutocompleteService extends AutocompleteServiceBase
 	#loaderPromise;
 	/** {GoogleSource} */
 	#googleSource;
-	/** {string} */
-	#localStorageKey = 'locationGoogleAutocomplete';
-	/** {number} */
-	#localStorageResCount = 30;
 	/** {number} */
 	#biasBoundRadius = 50000;
 
@@ -33,110 +38,55 @@ export default class AutocompleteService extends AutocompleteServiceBase
 			});
 	}
 
-	// eslint-disable-next-line no-unused-vars
-	#getLocalStoredResults(query: string, params: AutocompleteServiceParams): object
-	{
-		let result = null;
-
-		let storedResults = this.#getStoredResults();
-
-		for(const [index, item] of storedResults.entries())
-		{
-			if(item && typeof item.query !== 'undefined' && item.query === query)
-			{
-				result = {...item};
-				break;
-			}
-		}
-
-		return result;
-	}
-
-	#getPredictionPromiseLocalStorage(query: string, params: AutocompleteServiceParams): ?Promise
-	{
-		let result = null;
-			const answer = this.#getLocalStoredResults(query, params);
-
-		if(answer !== null)
-		{
-			result = new Promise((resolve) => {
-					resolve(
-						this.#convertToLocationsList(answer.answer, answer.status)
-					);
-				}
-			);
-		}
-
-		return result;
-	}
-
-	#getStoredResults()
-	{
-		let storedResults = BX.localStorage.get(this.#localStorageKey);
-
-		if (
-			storedResults
-			&& storedResults.results
-			&& Array.isArray(storedResults.results)
-		)
-		{
-			return storedResults.results;
-		}
-
-		return [];
-	}
-
-	#setPredictionResult(query, params, answer, status): void
-	{
-		let storedResults = this.#getStoredResults();
-
-		storedResults.push({
-			status: status,
-			query: query,
-			answer: answer
-		});
-
-		if(storedResults.length > this.#localStorageResCount)
-		{
-			storedResults.shift();
-		}
-
-		BX.localStorage.set(this.#localStorageKey, {'results': storedResults}, 86400);
-	}
-
 	#getPredictionPromise(query: string, params: AutocompleteServiceParams)
 	{
-		let result = this.#getPredictionPromiseLocalStorage(query, params);
+		const queryPredictionsParams = {
+			input: query,
+		};
 
-		if(!result)
+		if (params.biasPoint)
 		{
-			const queryPredictionsParams = {
-				input: query,
-			};
+			queryPredictionsParams.location = new google.maps.LatLng(
+				params.biasPoint.latitude,
+				params.biasPoint.longitude
+			);
+			queryPredictionsParams.radius = this.#biasBoundRadius;
+		}
 
-			if(params.biasPoint)
-			{
-				queryPredictionsParams.location = new google.maps.LatLng(
-					params.biasPoint.latitude,
-					params.biasPoint.longitude
-				);
-				queryPredictionsParams.radius = this.#biasBoundRadius;
-			}
-
-			result = new Promise((resolve) => {
-					this.#googleAutocompleteService.getQueryPredictions(
-						queryPredictionsParams,
-						(res, status) => {
-							const locationsList = this.#convertToLocationsList(res, status);
-							this.#setPredictionResult(query, params, res, status);
-							resolve(locationsList);
-						}
-					);
-				}
+		let cachedResult = AutocompleteCache.get(Google.code, queryPredictionsParams);
+		if (cachedResult !== null)
+		{
+			return Promise.resolve(
+				this.#convertToLocationsList(
+					cachedResult.data.result,
+					cachedResult.data.status
+				)
 			);
 		}
 
-		return result;
+		return new Promise((resolve) => {
+				this.#googleAutocompleteService.getQueryPredictions(
+					queryPredictionsParams,
+					(res, status) => {
+						if (status === STATUS_OK || status === STATUS_ZERO_RESULTS)
+						{
+							AutocompleteCache.set(
+								Google.code,
+								queryPredictionsParams,
+								{
+									status: status,
+									result: res,
+								}
+							);
+						}
+
+						resolve(
+							this.#convertToLocationsList(res, status)
+						);
+					}
+				);
+			}
+		);
 	}
 
 	/**
@@ -147,7 +97,7 @@ export default class AutocompleteService extends AutocompleteServiceBase
 	 */
 	autocomplete(query: string, params: AutocompleteServiceParams): Promise<Array<Location>, Error>
 	{
-		if(query === '')
+		if (query === '')
 		{
 			return new Promise((resolve) => {
 				resolve([]);
@@ -175,25 +125,25 @@ export default class AutocompleteService extends AutocompleteServiceBase
 
 	#convertToLocationsList(data, status)
 	{
-		if(status === 'ZERO_RESULTS')
+		if (status === STATUS_ZERO_RESULTS)
 		{
 			return [];
 		}
 
-		if(!data || status !== 'OK')
+		if (!data || status !== STATUS_OK)
 		{
 			return false;
 		}
 
 		const result = [];
 
-		for(const item of data)
+		for (const item of data)
 		{
-			if(item.place_id)
+			if (item.place_id)
 			{
 				let name;
 
-				if(item.structured_formatting && item.structured_formatting.main_text)
+				if (item.structured_formatting && item.structured_formatting.main_text)
 				{
 					name = item.structured_formatting.main_text;
 				}
@@ -209,7 +159,7 @@ export default class AutocompleteService extends AutocompleteServiceBase
 					languageId: this.#languageId
 				});
 
-				if(item.structured_formatting && item.structured_formatting.secondary_text)
+				if (item.structured_formatting && item.structured_formatting.secondary_text)
 				{
 					location.setFieldValue(
 						LocationType.TMP_TYPE_CLARIFICATION,
@@ -219,7 +169,7 @@ export default class AutocompleteService extends AutocompleteServiceBase
 
 				const typeHint = this.#getTypeHint(item.types);
 
-				if(typeHint)
+				if (typeHint)
 				{
 					location.setFieldValue(
 						LocationType.TMP_TYPE_HINT,
@@ -238,32 +188,26 @@ export default class AutocompleteService extends AutocompleteServiceBase
 	{
 		let result = '';
 
-		if(types.indexOf('locality') >= 0)
+		if (types.indexOf('locality') >= 0)
 		{
 			result = Loc.getMessage('LOCATION_GOO_AUTOCOMPLETE_TYPE_LOCALITY');
 		}
-		else if(types.indexOf('sublocality') >= 0)
+		else if (types.indexOf('sublocality') >= 0)
 		{
 			result = Loc.getMessage('LOCATION_GOO_AUTOCOMPLETE_TYPE_SUBLOCAL');
 		}
-		else if(types.indexOf('store') >= 0)
+		else if (types.indexOf('store') >= 0)
 		{
 			result = Loc.getMessage('LOCATION_GOO_AUTOCOMPLETE_TYPE_STORE');
 		}
-		else if(types.indexOf('restaurant') >= 0)
+		else if (types.indexOf('restaurant') >= 0)
 		{
 			result = Loc.getMessage('LOCATION_GOO_AUTOCOMPLETE_TYPE_RESTAURANT');
 		}
-		else if(types.indexOf('cafe') >= 0)
+		else if (types.indexOf('cafe') >= 0)
 		{
 			result = Loc.getMessage('LOCATION_GOO_AUTOCOMPLETE_TYPE_CAFE');
 		}
-		/*
-		else
-		{
-			result = types.join(', ');
-		}
-		*/
 
 		return result;
 	}

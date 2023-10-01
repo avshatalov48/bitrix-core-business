@@ -15,7 +15,7 @@ export class Highlight
 
 		Dom.style(this.layout, {
 			position: 'absolute',
-			border: '2px #fe541e dashed',
+			border: '2px #2fc6f6 dashed',
 			top: 0,
 			left: 0,
 			right: 0,
@@ -24,6 +24,7 @@ export class Highlight
 			opacity: '.4',
 			'pointer-events': 'none',
 			transform: 'translateZ(0)',
+			'background-color': 'rgba(47, 198, 246, .15)',
 		});
 	}
 

@@ -78,10 +78,6 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_41.3.COVER_WITH_TEXT_COLUMNS_ON_BGIMG_NODES_LANDINGBLOCKNODECARDICON'),
 				'type' => 'color',
 			),
-			'.landing-block-node-bgimg' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_41.3.COVER_WITH_TEXT_COLUMNS_ON_BGIMG_NODES_LANDINGBLOCKNODEBGIMG'),
-				'type' => ['background', 'background-attachment'],
-			),
 		),
 	),
 );

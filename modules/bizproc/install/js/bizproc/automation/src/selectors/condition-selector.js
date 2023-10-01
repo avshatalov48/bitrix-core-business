@@ -7,11 +7,11 @@ import {
 	SelectorContext,
 	SelectorManager,
 } from 'bizproc.automation';
-import { Dom, Type, Event, Loc, Runtime, Tag, Text} from 'main.core';
+import { Dom, Type, Event, Loc, Runtime, Tag, Text } from 'main.core';
 
 import type { ConditionSelectorOptions } from './types';
 import { BaseEvent } from 'main.core.events';
-import { Operator } from "bizproc.condition";
+import { Operator } from 'bizproc.condition';
 
 export class ConditionSelector
 {
@@ -393,7 +393,7 @@ export class ConditionSelector
 
 							if (valueInputs.length > 0)
 							{
-								let value = valueInputs[0].value;
+								let value = valueInputs[valueInputs.length - 1].value;
 
 								if (self.#condition.operator === Operator.BETWEEN && valueInputs.length > 1)
 								{
@@ -659,6 +659,10 @@ export class ConditionSelector
 			case 'file':
 			case 'UF:crm':
 			case 'UF:resourcebooking':
+			case 'email':
+			case 'phone':
+			case 'web':
+			case 'im':
 				list = {
 					'!empty': allLabels[Operator.NOT_EMPTY],
 					'empty': allLabels[Operator.EMPTY],
@@ -745,12 +749,15 @@ export class ConditionSelector
 
 	createValueNode(docField, value)
 	{
-		const docType = (
+		const currentDocument = (
 			Designer.getInstance().component
-				? Designer.getInstance().component.document.getRawType()
-				: getGlobalContext().document.getRawType()
+				? Designer.getInstance().component.document
+				: getGlobalContext().document
 		);
-		const field = BX.clone(docField);
+
+		const docType = [...currentDocument.getRawType(), currentDocument.getCategoryId()];
+
+		const field = Runtime.clone(docField);
 		field.Multiple = false;
 
 		const valueNodes = BX.Bizproc.FieldType.renderControlPublic(

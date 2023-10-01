@@ -5,7 +5,7 @@
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
 				<div class="landing-block-node-card-date-value landing-semantic-text-image-big g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">27</div>
-				<div class="landing-block-node-card-date-text landing-semantic-text-image-medium">Jun, 2022</div>
+				<div class="landing-block-node-card-date-text landing-semantic-text-image-medium">Jun, 2023</div>
 			</div>
 			<!-- End Date -->
 
@@ -47,7 +47,7 @@
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
 				<div class="landing-block-node-card-date-value landing-semantic-text-image-big g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">01</div>
-				<div class="landing-block-node-card-date-text landing-semantic-text-image-medium">Aug, 2022</div>
+				<div class="landing-block-node-card-date-text landing-semantic-text-image-medium">Aug, 2023</div>
 			</div>
 			<!-- End Date -->
 
@@ -89,7 +89,7 @@
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
 				<div class="landing-block-node-card-date-value landing-semantic-text-image-big g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">05</div>
-				<div class="landing-block-node-card-date-text landing-semantic-text-image-medium">Oct, 2022</div>
+				<div class="landing-block-node-card-date-text landing-semantic-text-image-medium">Oct, 2023</div>
 			</div>
 			<!-- End Date -->
 
@@ -131,7 +131,7 @@
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
 				<div class="landing-block-node-card-date-value landing-semantic-text-image-big g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">22</div>
-				<div class="landing-block-node-card-date-text landing-semantic-text-image-medium">Nov, 2022</div>
+				<div class="landing-block-node-card-date-text landing-semantic-text-image-medium">Nov, 2023</div>
 			</div>
 			<!-- End Date -->
 

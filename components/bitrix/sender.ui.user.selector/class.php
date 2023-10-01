@@ -66,7 +66,7 @@ class SenderUiUserSelectorComponent extends CBitrixComponent
 		$list = is_array($this->arParams['LIST']) ? $this->arParams['LIST'] : [];
 		if (empty($list))
 		{
-			/** @var \CAllUser {$GLOBALS['USER']} */
+			/** @var \CUser {$GLOBALS['USER']} */
 			$list[] = $GLOBALS['USER']->GetID();
 		}
 

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Sale\Cashbox;
 
+use Bitrix\Main\PhoneNumber;
 use Bitrix\Main\Localization;
 
 Localization\Loc::loadMessages(__FILE__);
@@ -50,6 +51,12 @@ class CashboxAtolFarmV5 extends CashboxAtolFarmV4
 			$result['mark_code'] = $this->buildPositionGs1mMarkCode($item);
 		}
 
+		if (isset($item['supplier_info']))
+		{
+			$result['agent_info'] = $this->buildPositionAgentInfo();
+			$result['supplier_info'] = $this->buildPositionSupplierInfo($item['supplier_info']);
+		}
+
 		return $result;
 	}
 
@@ -85,6 +92,52 @@ class CashboxAtolFarmV5 extends CashboxAtolFarmV4
 		return [
 			self::MARK_CODE_TYPE_GS1_M => base64_encode($item['marking_code']),
 		];
+	}
+
+	private function buildPositionAgentInfo(): array
+	{
+		/**
+		 * tag 1222
+		 */
+		return [
+			'type' => 'another',
+		];
+	}
+
+	private function buildPositionSupplierInfo(array $supplier): array
+	{
+		$supplierInfo = [];
+
+		if (!empty($supplier['phones']))
+		{
+			$phoneParser = PhoneNumber\Parser::getInstance();
+
+			foreach ($supplier['phones'] as $phone)
+			{
+				$phoneNumber = $phoneParser->parse($phone);
+				$formattedPhone = $phoneNumber->format(PhoneNumber\Format::E164);
+				if ($formattedPhone)
+				{
+					$supplierInfo['phones'][] = $formattedPhone;
+				}
+			}
+		}
+
+		if (!empty($supplier['name']))
+		{
+			$supplierInfo['name'] = mb_substr($supplier['name'], 0, 256);
+		}
+
+		if (empty($supplier['inn']))
+		{
+			$supplierInfo['inn'] = '000000000000';
+		}
+		else
+		{
+			$supplierInfo['inn'] = $supplier['inn'];
+		}
+
+		return $supplierInfo;
 	}
 
 	/**

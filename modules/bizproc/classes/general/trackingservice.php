@@ -160,6 +160,60 @@ class CBPTrackingService extends CBPRuntimeService
 		return "CBPTrackingService::ClearOldAgent();";
 	}
 
+	/**
+	 * @internal
+	 * @return string
+	 *
+	 * CAgent::AddAgent("CBPTrackingService::clearB24Agent();", "bizproc", "N", 1800);
+	 *
+	 */
+	public static function clearB24Agent()
+	{
+		$finish = false;
+		$hour = date('H');
+		if (
+			$hour >= 0
+			&& $hour <= 7
+		)
+		{
+			$finish = self::clearB24();
+		}
+
+		return $finish ? '' : "CBPTrackingService::clearB24Agent();";
+	}
+
+	/**
+	 * @internal
+	 * @return void
+	 */
+	public static function clearB24(): bool
+	{
+		$connection = \Bitrix\Main\Application::getConnection();
+
+		$limit = 100000;
+		$partLimit = 1000;
+
+		$strSql = "SELECT ID FROM b_bp_tracking t WHERE t.MODIFIED < DATE_SUB(NOW(), INTERVAL 90 DAY) LIMIT {$limit}";
+		$ids = $connection->query($strSql)->fetchAll();
+
+		if (!$ids)
+		{
+			return true;
+		}
+
+		while ($partIds = array_splice($ids, 0, $partLimit))
+		{
+			$connection->query(
+				sprintf(
+					'DELETE from b_bp_tracking WHERE ID IN(%s)',
+					implode(',', array_column($partIds, 'ID'))
+				)
+			);
+		}
+
+		return false;
+	}
+
 	public static function parseStringParameter($string, $documentType = null, $htmlSpecialChars = true)
 	{
 		if (!$documentType)

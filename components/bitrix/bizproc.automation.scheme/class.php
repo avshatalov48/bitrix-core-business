@@ -45,6 +45,14 @@ class BizprocAutomationSchemeComponent
 			);
 		}
 		$this->arParams['robotNames'] = $this->arParams['robotNames'] ?? [];
+		if (!is_array($this->arParams['triggerNames'] ?? null))
+		{
+			$this->arParams['triggerNames'] = [];
+		}
+		foreach ($this->arParams['triggerNames'] as $index => $name)
+		{
+			$this->arParams['triggerNames'][$index] = (int)$name;
+		}
 
 		$knownActions = ['copy', 'move'];
 		if (!in_array($this->action, $knownActions, true))
@@ -54,7 +62,7 @@ class BizprocAutomationSchemeComponent
 			);
 		}
 
-		$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
 		$target = $documentService->createAutomationTarget($this->documentType);
 
 		if (is_null($target))
@@ -69,7 +77,7 @@ class BizprocAutomationSchemeComponent
 			if (is_null($this->scheme))
 			{
 				$this->errorCollection->setError(
-					new Error(Loc::getMessage('BIZPROC_AUTOMATION_SCHEME_SCHEME_ERROR'))
+					new Error(Loc::getMessage('BIZPROC_AUTOMATION_SCHEME_SCHEME_ERROR_1'))
 				);
 			}
 		}
@@ -81,6 +89,20 @@ class BizprocAutomationSchemeComponent
 
 		if (!$this->getErrors())
 		{
+			if ($this->arParams['robotNames'] && !$this->arParams['triggerNames'])
+			{
+				$locShard = $this->action === 'copy' ? '_1' : '';
+			}
+			elseif ($this->arParams['triggerNames'] && !$this->arParams['robotNames'])
+			{
+				$locShard = '_TRIGGERS';
+			}
+			else
+			{
+				$locShard = '_ROBOTS_AND_TRIGGERS';
+			}
+
+			$this->arResult['locShard'] = $locShard;
 			$this->arResult['action'] = mb_strtoupper($this->action);
 			$this->arResult['templatesScheme'] = $this->signScheme();
 			$this->includeComponentTemplate();
@@ -105,7 +127,7 @@ class BizprocAutomationSchemeComponent
 
 	public function listKeysSignedParameters(): array
 	{
-		return ['documentType', 'documentCategory', 'templateStatus', 'action', 'robotNames'];
+		return ['documentType', 'documentCategory', 'templateStatus', 'action', 'robotNames', 'triggerNames'];
 	}
 
 	public function copyMoveAction(array $dstScope): ?array
@@ -173,7 +195,8 @@ class BizprocAutomationSchemeComponent
 			switch ($this->action)
 			{
 				case 'copy':
-					$result = $tunnel->copyRobots($this->arParams['robotNames'], $currentUserId);
+					$robotResult = $tunnel->copyRobots($this->arParams['robotNames'], $currentUserId);
+					$triggerResult = $tunnel->copyTriggers($this->arParams['triggerNames']);
 					break;
 
 				case 'move':
@@ -181,18 +204,23 @@ class BizprocAutomationSchemeComponent
 						$srcScope->getTemplate()->toArray(),
 						$srcScope->getComplexDocumentType()
 					);
-					$result = $tunnel->moveRobots($this->arParams['robotNames'], $currentUserId);
+
+					$robotResult = $tunnel->moveRobots($this->arParams['robotNames'], $currentUserId);
+					$triggerResult = $tunnel->moveTriggers($this->arParams['triggerNames']);
+
 					break;
 
 				default:
-					$result = new Result();
+					$robotResult = new Result();
+					$triggerResult = new Result();
 					break;
 			}
 
-			if ($result->isSuccess())
+			$robotsNames = [];
+			$triggerNames = [];
+			if ($robotResult->isSuccess())
 			{
-				$robotsNames = [];
-				foreach ($result->getData() as $direction => $robots)
+				foreach ($robotResult->getData() as $direction => $robots)
 				{
 					$robotsNames[$direction] = [];
 					foreach ($robots as $robot)
@@ -200,13 +228,83 @@ class BizprocAutomationSchemeComponent
 						$robotsNames[$direction][] = $robot->getName();
 					}
 				}
-				$result->setData(array_merge($robotsNames, ['restoreData' => $originalTemplates]));
+				$robotsNames['restoreData'] = $originalTemplates;
+			}
+			if ($triggerResult->isSuccess())
+			{
+				/**
+				 * @var  string $direction
+				 * @var  \Bitrix\Bizproc\Automation\Trigger\Entity\EO_Trigger[] | \Bitrix\Crm\Automation\Trigger\Entity\TriggerObject[] $triggers
+				 */
+				foreach ($triggerResult->getData() as $direction => $triggers)
+				{
+					$triggerNames[$direction] = [];
+					foreach ($triggers as $trigger)
+					{
+						$triggerNames[$direction][] = $trigger->getId();
+					}
+				}
+
+				/**
+				 * @var \Bitrix\Bizproc\Automation\Trigger\Entity\EO_Trigger[] | \Bitrix\Crm\Automation\Trigger\Entity\TriggerObject[] $triggersForRecovery
+				 * @var \Bitrix\Bizproc\Automation\Trigger\Entity\EO_Trigger[] | \Bitrix\Crm\Automation\Trigger\Entity\TriggerObject[] $triggersForDeletion
+				 */
+				$triggersForRecovery = [];
+				$triggersForDeletion = [];
+				switch ($this->action)
+				{
+					case 'copy':
+						$triggersForDeletion = $triggerResult->getData()['copied'] ?? [];
+						break;
+
+					case 'move':
+						$triggersForRecovery = $triggerResult->getData()['original'] ?? [];
+						$triggersForDeletion = $triggerResult->getData()['moved'] ?? [];
+						break;
+				}
+
+				$originalTriggers = [];
+				foreach ($triggersForRecovery as $trigger)
+				{
+					$rawTrigger = $trigger->getValues();
+					unset($rawTrigger['ID']);
+
+					$originalTriggers[] = $rawTrigger;
+				}
+				foreach ($triggersForDeletion as $trigger)
+				{
+					$rawTrigger = $trigger->getValues();
+					$rawTrigger['DELETED'] = 'Y';
+
+					$originalTriggers[] = $rawTrigger;
+				}
+
+				$this->createTarget()->prepareTriggersToShow($originalTriggers);
+				$triggerNames['restoreData'] = $originalTriggers;
+			}
+
+			$result = new Result();
+			$result->addErrors($robotResult->getErrors());
+			$result->addErrors($triggerResult->getErrors());
+			if ($result->isSuccess())
+			{
+				$result->setData([
+					'robots' => $robotsNames,
+					'triggers' => $triggerNames,
+				]);
 			}
 
 			return $result;
 		}
 
 		return $creationResult;
+	}
+
+	private function createTarget(): \Bitrix\Bizproc\Automation\Target\BaseTarget
+	{
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
+
+		return $documentService->createAutomationTarget($this->documentType);
 	}
 
 	private function normalizeRawTemplateScope(array $scope): array

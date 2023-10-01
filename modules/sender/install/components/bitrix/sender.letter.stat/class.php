@@ -66,7 +66,6 @@ class SenderLetterStatComponent extends CBitrixComponent
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_LETTER_STAT_COMP_TITLE'));
 		}
 

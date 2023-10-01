@@ -127,6 +127,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			this._entityTypeName = BX.prop.getString(this._settings, "entityTypeName", '');
 			this._entityTypeTitle = BX.prop.getString(this._settings, "entityTypeTitle", '');
 			this._useFieldsSearch = BX.prop.getBoolean(this._settings, "useFieldsSearch", false);
+			this._useForceFieldsAdd = BX.prop.getBoolean(this._settings, "useForceFieldsAdd", true);
 			this._entityId = BX.prop.getInteger(this._settings, "entityId", 0);
 			this.moduleId = BX.prop.getString(this._settings, "moduleId", '');
 			this._isNew = this._entityId <= 0 && this._model.isIdentifiable();

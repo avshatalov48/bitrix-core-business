@@ -173,10 +173,7 @@ class Designer
 						}
 						if (!isset($selectorName[$selector]))
 						{
-							$nodeTitle = (isset($item['type']) && is_string($item['type']))
-								? $item['type']
-								: $selector;
-							$selectorName[$selector] = Loc::getMessage('LANDING_DESIGNER_NODE_' . mb_strtoupper($nodeTitle));
+							$selectorName[$selector] = Loc::getMessage('LANDING_DESIGN_NODE_' . mb_strtoupper($selector));
 						}
 						$item['name'] = $selectorName[$selector];
 						$references[$selector][$category] = $item;

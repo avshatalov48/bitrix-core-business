@@ -17,6 +17,19 @@ Loc::loadMessages(__FILE__);
 
 /**
  * Linking pay systems to specific payment of order
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_PaymentPaySystemAvailable_Query query()
+ * @method static EO_PaymentPaySystemAvailable_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_PaymentPaySystemAvailable_Result getById($id)
+ * @method static EO_PaymentPaySystemAvailable_Result getList(array $parameters = [])
+ * @method static EO_PaymentPaySystemAvailable_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable_Collection wakeUpCollection($rows)
  */
 class PaymentPaySystemAvailableTable extends DataManager
 {

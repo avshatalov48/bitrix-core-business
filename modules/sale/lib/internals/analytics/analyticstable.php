@@ -14,6 +14,19 @@ use Bitrix\Main\Type\DateTime;
  *
  * @package Bitrix\Sale\Internals
  * @internal
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Analytics_Query query()
+ * @method static EO_Analytics_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_Analytics_Result getById($id)
+ * @method static EO_Analytics_Result getList(array $parameters = [])
+ * @method static EO_Analytics_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\Analytics\EO_Analytics createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\Analytics\EO_Analytics_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\Analytics\EO_Analytics wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\Analytics\EO_Analytics_Collection wakeUpCollection($rows)
  */
 class AnalyticsTable extends Main\Entity\DataManager
 {

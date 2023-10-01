@@ -392,7 +392,7 @@ else
 				if($fp = fopen($ABS_FILE_NAME, "ab"))
 				{
 					$result = fwrite($fp, $DATA);
-					if($result === (function_exists("mb_strlen")? mb_strlen($DATA, 'latin1') : mb_strlen($DATA)))
+					if($result === strlen($DATA))
 					{
 						if($_SESSION["BX_CML2_EXPORT"]["zip"])
 							$_SESSION["BX_CML2_EXPORT"]["zip"] = $ABS_FILE_NAME;
@@ -494,7 +494,7 @@ else
 				if($fp = fopen($ABS_FILE_NAME, "ab"))
 				{
 					$result = fwrite($fp, $DATA);
-					if($result === (function_exists("mb_strlen")? mb_strlen($DATA, 'latin1') : mb_strlen($DATA)))
+					if($result === strlen($DATA))
 					{
 						if($_SESSION["BX_CML2_EXPORT"]["zip"])
 							$_SESSION["BX_CML2_EXPORT"]["zip"] = $ABS_FILE_NAME;
@@ -783,11 +783,11 @@ if(!$bDesignMode)
 		$contents = gzcompress($contents);
 
 		header("Content-Type: application/octet-stream");
-		header("Content-Length: ".(function_exists("mb_strlen")? mb_strlen($contents, 'latin1') : mb_strlen($contents)));
+		header("Content-Length: " . strlen($contents));
 	}
 	else
 	{
-		$str = (function_exists("mb_strlen")? mb_strlen($contents, 'latin1') : mb_strlen($contents));
+		$str = strlen($contents);
 		if(in_array($_GET["mode"], array("query", "info")) || in_array($_POST["mode"], array("query", "info")))
 		{
 			header("Content-Type: application/xml; charset=windows-1251");

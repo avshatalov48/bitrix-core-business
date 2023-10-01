@@ -94,10 +94,10 @@ class CBPGetUserInfoActivity extends CBPActivity
 		}
 
 		//compatible, without new b24 editions checking
-		if (!isset($user['TIMEMAN_STATUS']) && CModule::IncludeModule('timeman'))
+		if (!isset($user['TIMEMAN_STATUS']))
 		{
-			$tmUser = new CTimeManUser($userId);
-			$this->__set('TIMEMAN_STATUS', $tmUser->State());
+			$schedule = $this->workflow->getRuntime()->getUserService()->getUserSchedule($userId);
+			$this->__set('TIMEMAN_STATUS', $schedule->getWorkDayStatus());
 		}
 		$this->logUserFields();
 

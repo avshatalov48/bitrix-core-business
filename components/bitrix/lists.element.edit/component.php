@@ -1,5 +1,10 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
 /** @global CDatabase $DB */
@@ -669,7 +674,6 @@ if(
 			$arElement["PROPERTY_VALUES"] = $arProps;
 			if($arResult["ELEMENT_ID"] > 0)
 			{
-				$ignoreProperty = array("F", "L", "N");
 				//We have to read properties from database in order not to delete its values
 				$dbPropV = CIBlockElement::GetProperty(
 					$arResult["IBLOCK_ID"],
@@ -679,18 +683,14 @@ if(
 				);
 				while($arPropV = $dbPropV->Fetch())
 				{
-					if(!in_array($arPropV["PROPERTY_TYPE"], $ignoreProperty))
+					if (!isset($arProps[$arPropV["ID"]]))
 					{
-						if (empty($arProps[$arPropV["ID"]]))
-						{
-							if(!array_key_exists($arPropV["ID"], $arElement["PROPERTY_VALUES"]))
-								$arElement["PROPERTY_VALUES"][$arPropV["ID"]] = array();
-
-							$arElement["PROPERTY_VALUES"][$arPropV["ID"]][$arPropV["PROPERTY_VALUE_ID"]] = array(
+						$arElement["PROPERTY_VALUES"][$arPropV["ID"]] = [
+							$arPropV["PROPERTY_VALUE_ID"] => [
 								"VALUE" => $arPropV["VALUE"],
 								"DESCRIPTION" => $arPropV["DESCRIPTION"],
-							);
-						}
+							],
+						];
 					}
 				}
 			}
@@ -1219,8 +1219,10 @@ $arResult['RAND_STRING'] = $this->randString();
 
 $this->IncludeComponentTemplate();
 
-if($arResult["ELEMENT_ID"])
-	$APPLICATION->SetTitle($arResult["IBLOCK"]["ELEMENT_NAME"].": ".$arResult["ELEMENT_FIELDS"]["NAME"]);
+if($arResult["ELEMENT_ID"] && !empty($arResult["ELEMENT_FIELDS"]["NAME"]))
+{
+	$APPLICATION->SetTitle($arResult["IBLOCK"]["ELEMENT_NAME"] . ": " . $arResult["ELEMENT_FIELDS"]["NAME"]);
+}
 else
 	$APPLICATION->SetTitle($arResult["IBLOCK"]["ELEMENT_NAME"]);
 

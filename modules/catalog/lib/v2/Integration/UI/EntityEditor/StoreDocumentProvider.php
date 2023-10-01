@@ -34,7 +34,9 @@ class StoreDocumentProvider extends BaseProvider
 	{
 		$this->document = $documentFields;
 		$this->config = $config;
-		$this->contractorsProvider = Contractor\Provider\Manager::getActiveProvider();
+		$this->contractorsProvider = Contractor\Provider\Manager::getActiveProvider(
+			Contractor\Provider\Manager::PROVIDER_STORE_DOCUMENT
+		);
 	}
 
 	/**

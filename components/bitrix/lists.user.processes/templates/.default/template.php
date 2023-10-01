@@ -21,12 +21,9 @@ use Bitrix\Main\Localization\Loc;
 
 \Bitrix\Main\Loader::includeModule('ui');
 
-CJSCore::Init(['lists', 'ui.fonts.opensans']);
+CJSCore::Init(['lists', 'ui.fonts.opensans', 'bp_starter']);
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 \Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/components/bitrix/bizproc.workflow.faces/templates/.default/style.css');
-
-$randString = $component->randString();
-$jsClass = 'ListsProcessesClass_'.$randString;
 ?>
 
 <div id="bx-lists-store_items" class="bx-lists-store-items"></div>
@@ -109,15 +106,15 @@ $APPLICATION->IncludeComponent(
 		"ENABLE_NEXT_PAGE" => $arResult["GRID_ENABLE_NEXT_PAGE"],
 		"ACTION_PANEL" => $arResult["GRID_ACTION_PANEL"] ?? null,
 		"SHOW_CHECK_ALL_CHECKBOXES" => true,
-		"SHOW_ROW_CHECKBOXES" => false,
+		"SHOW_ROW_CHECKBOXES" => isset($arResult["GRID_ACTION_PANEL"]),
 		"SHOW_ROW_ACTIONS_MENU" => true,
 		"SHOW_GRID_SETTINGS_MENU" => true,
 		"SHOW_NAVIGATION_PANEL" => true,
 		"SHOW_PAGINATION" => true,
-		"SHOW_SELECTED_COUNTER" => false,
+		"SHOW_SELECTED_COUNTER" => isset($arResult["GRID_ACTION_PANEL"]),
 		"SHOW_TOTAL_COUNTER" => true,
 		"SHOW_PAGESIZE" => true,
-		"SHOW_ACTION_PANEL" => false,
+		"SHOW_ACTION_PANEL" => isset($arResult["GRID_ACTION_PANEL"]),
 		"ALLOW_COLUMNS_SORT" => true,
 		"ALLOW_COLUMNS_RESIZE" => true,
 		"ALLOW_HORIZONTAL_SCROLL" => true,
@@ -132,6 +129,11 @@ $APPLICATION->IncludeComponent(
 
 <script type="text/javascript">
 	BX(function () {
-		BX.Lists['<?=$jsClass?>'] = new BX.Lists.ListsProcessesClass({});
+		BX.Lists['<?= CUtil::JSEscape($arResult['JS_OBJECT']) ?>'] = new BX.Lists.ListsProcessesClass({});
+
+		BX.message({
+			CT_BLL_TOOLBAR_ELEMENT_DELETE_WARNING: '<?=GetMessageJS("CT_BLL_TOOLBAR_ELEMENT_DELETE_WARNING")?>',
+			CT_BLL_DELETE_POPUP_ACCEPT_BUTTON: '<?=GetMessageJS("CT_BLL_DELETE_POPUP_ACCEPT_BUTTON")?>',
+		});
 	});
 </script>

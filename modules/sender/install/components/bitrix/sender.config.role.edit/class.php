@@ -72,7 +72,6 @@ class ConfigRoleEditSenderComponent extends Bitrix\Sender\Internals\CommonSender
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(
 					Loc::getMessage('SENDER_CONFIG_ROLE_EDIT_COMP_ACCESS_RIGHTS')
 			);

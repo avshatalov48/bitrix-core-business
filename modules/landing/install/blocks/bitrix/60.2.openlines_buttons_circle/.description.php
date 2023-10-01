@@ -33,20 +33,12 @@ return [
 				],
 			],
 		],
-		'.landing-block-node-title' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_60_2_TITLE'),
-			'type' => 'text',
-		],
 	],
 	'style' => [
 		'block' => [
 			'type' => ['block-default', 'block-border'],
 		],
 		'nodes' => [
-			'.landing-block-node-title' => [
-				'name' => Loc::getMessage('LANDING_BLOCK_60_2_TITLE'),
-				'type' => ['typo'],
-			],
 			'.landing-block-node-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_60_2_TITLE'),
 				'type' => ['container'],

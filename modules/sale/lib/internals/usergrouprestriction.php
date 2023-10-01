@@ -24,9 +24,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_UserGroupRestriction_Query query()
- * @method static EO_UserGroupRestriction_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserGroupRestriction_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_UserGroupRestriction_Result getById($id)
- * @method static EO_UserGroupRestriction_Result getList(array $parameters = array())
+ * @method static EO_UserGroupRestriction_Result getList(array $parameters = [])
  * @method static EO_UserGroupRestriction_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_UserGroupRestriction createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_UserGroupRestriction_Collection createCollection()

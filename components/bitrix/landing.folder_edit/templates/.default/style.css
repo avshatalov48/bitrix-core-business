@@ -135,7 +135,7 @@
 	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 19px;
-	line-height: 39px;
+	line-height: 56px;
 	color: #929292;
 }
 
@@ -231,7 +231,7 @@
 	align-items: center;
 	justify-content: center;
 	width: 39px;
-	height: 39px;
+	height: 56px;
 	cursor: pointer;
 	transition: .2s;
 	opacity: .3;

@@ -3812,15 +3812,20 @@ class CSaleOrderLoader
 					$arAgent = $arExportInfo[$arOrder["PERSON_TYPE_ID"]];
 					foreach($arAgent as $k => $v)
 					{
-						if(empty($v) ||
-								(
-										(empty($v["VALUE"]) || $v["TYPE"] != "PROPERTY") &&
-										(empty($arOrder["USER_PROPS"])
-												|| (is_array($v) && is_string($v["VALUE"]) && empty($arOrder["USER_PROPS"][$v["VALUE"]]))
-										)
+						if(
+							empty($v)
+							|| !is_array($v)
+							|| (
+								(empty($v["VALUE"]) || $v["TYPE"] !== "PROPERTY")
+								&& (
+									empty($arOrder["USER_PROPS"])
+									|| (is_array($v) && is_string($v["VALUE"]) && empty($arOrder["USER_PROPS"][$v["VALUE"]]))
 								)
+							)
 						)
+						{
 							unset($arAgent[$k]);
+						}
 					}
 
 					if(intval($arOrder["USER_ID"]) > 0)

@@ -30,10 +30,13 @@ Class bizproc extends CModule
 	function InstallDB($install_wizard = true)
 	{
 		global $DB, $APPLICATION;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$errors = null;
-		if (!$DB->Query("SELECT 'x' FROM b_bp_workflow_instance", true))
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/db/mysql/install.sql");
+
+		if (!$DB->TableExists('b_bp_workflow_instance'))
+		{
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bizproc/install/db/' . $connection->getType() . '/install.sql');
+		}
 
 		if (!empty($errors))
 		{
@@ -64,11 +67,11 @@ Class bizproc extends CModule
 	function UnInstallDB($arParams = Array())
 	{
 		global $DB, $APPLICATION;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$errors = null;
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/db/mysql/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/db/".$connection->getType()."/uninstall.sql");
 
 			if (!empty($errors))
 			{

@@ -25,11 +25,6 @@ class advertising extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = ADVERTISING_VERSION;
-			$this->MODULE_VERSION_DATE = ADVERTISING_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("AD_INSTALL_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("AD_INSTALL_MODULE_DESCRIPTION");
@@ -76,7 +71,7 @@ class advertising extends CModule
 
 		if ($EMPTY=="Y")
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/install/db/mysql/install.sql");
 
 			if (!empty($errors))
 			{
@@ -210,7 +205,7 @@ class advertising extends CModule
 		{
 			$errors = false;
 			// delete whole base
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/install/db/mysql/uninstall.sql");
 
 			if (!empty($errors))
 			{

@@ -67,7 +67,7 @@ export class Uploader extends EventEmitter
 			const acceptedFileTypes = ['image/png', 'image/jpeg'];
 
 			return new FileUploader({
-				controller: this.getOptions().controller.upload,
+				controller: this.getOptions().controller?.upload,
 				assignAsFile: true,
 				browseElement: [
 					dropzoneLayout,
@@ -318,7 +318,7 @@ export class Uploader extends EventEmitter
 						{
 							return this.getMessage().getLayout();
 						}
-		
+
 						return '';
 					})()}
 					${this.getHeader().getLayout()}
@@ -332,7 +332,7 @@ export class Uploader extends EventEmitter
 								</div>
 							`;
 						}
-				
+
 						return '';
 					})()}
 					${this.getHiddenInput()}
@@ -367,8 +367,14 @@ export class Uploader extends EventEmitter
 
 				resultFile.subscribeOnce(FileEvent.LOAD_COMPLETE, () => {
 					this.getPreview().hide();
-					this.getStatus().showUploadStatus({reset: true});
+					const { controller } = this.getOptions();
+					if (!controller)
+					{
+						resolve(resultFile);
+						return;
+					}
 
+					this.getStatus().showUploadStatus({reset: true});
 					resultFile.upload({
 						onComplete: () => {
 							resolve(resultFile);
@@ -401,6 +407,12 @@ export class Uploader extends EventEmitter
 
 					this.upload()
 						.then((uploaderFile) => {
+							const { controller } = this.getOptions();
+							if (!controller)
+							{
+								return this.emitAsync('onSaveAsync', {file: uploaderFile.toJSON()});
+							}
+
 							return Promise.all([
 								new Promise((resolve) => {
 									Uploader.#delay(() => {

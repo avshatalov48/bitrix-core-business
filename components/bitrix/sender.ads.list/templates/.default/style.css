@@ -84,6 +84,12 @@
 	cursor: pointer;
 }
 
+.sender-letter-list-button-name {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
 .sender-letter-list-block-flexible {
 	display: flex;
 	/*flex-wrap: wrap;*/

@@ -19,9 +19,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_StatusLang_Query query()
- * @method static EO_StatusLang_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_StatusLang_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_StatusLang_Result getById($id)
- * @method static EO_StatusLang_Result getList(array $parameters = array())
+ * @method static EO_StatusLang_Result getList(array $parameters = [])
  * @method static EO_StatusLang_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_StatusLang createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_StatusLang_Collection createCollection()

@@ -8,8 +8,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Web\Json;
 use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 
-/** @var $this \CBitrixComponentTemplate */
-/** @var \CAllMain $APPLICATION */
+/** @var $this CBitrixComponentTemplate */
+/** @var CMain $APPLICATION */
 /** @var array $arResult*/
 /** @var array $arParams*/
 

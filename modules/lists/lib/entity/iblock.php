@@ -209,7 +209,7 @@ class Iblock implements Controllable, Errorable
 
 	private function getOrder()
 	{
-		$order = ["ID" => "ASC"];
+		$order = [];
 		if (is_array($this->params["IBLOCK_ORDER"]))
 		{
 			$fieldList = ["ID", "IBLOCK_TYPE", "NAME", "ACTIVE", "CODE", "SORT", "ELEMENT_CNT", "TIMESTAMP_X"];
@@ -222,6 +222,10 @@ class Iblock implements Controllable, Errorable
 				}
 				$order[$fieldId] = $orderParam;
 			}
+		}
+		if (!isset($order['ID']))
+		{
+			$order['ID'] = 'DESC';
 		}
 
 		return $order;

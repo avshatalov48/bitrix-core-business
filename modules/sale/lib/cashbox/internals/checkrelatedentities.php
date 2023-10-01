@@ -11,9 +11,9 @@ use Bitrix\Main\Entity\DataManager;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_CheckRelatedEntities_Query query()
- * @method static EO_CheckRelatedEntities_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CheckRelatedEntities_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_CheckRelatedEntities_Result getById($id)
- * @method static EO_CheckRelatedEntities_Result getList(array $parameters = array())
+ * @method static EO_CheckRelatedEntities_Result getList(array $parameters = [])
  * @method static EO_CheckRelatedEntities_Entity getEntity()
  * @method static \Bitrix\Sale\Cashbox\Internals\EO_CheckRelatedEntities createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Cashbox\Internals\EO_CheckRelatedEntities_Collection createCollection()

@@ -85,7 +85,6 @@ class MessageAudioCall implements Message\iBase, Message\iMailable, Message\iAud
 				'items' => \CVoxImplantConfig::GetPortalNumbers(false),
 				'view' => function ()
 				{
-					/** @var \CAllMain {$GLOBALS['APPLICATION']} */
 					ob_start();
 					$GLOBALS['APPLICATION']->includeComponent(
 						"bitrix:sender.call.number", "",

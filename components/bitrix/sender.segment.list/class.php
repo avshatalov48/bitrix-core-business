@@ -88,7 +88,6 @@ class SenderSegmentListComponent extends Bitrix\Sender\Internals\CommonSenderCom
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_SEGMENT_LIST_COMP_TITLE'));
 		}
 

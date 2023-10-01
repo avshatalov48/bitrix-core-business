@@ -11,7 +11,12 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_j
 IncludeModuleLangFile(__FILE__);
 
 \Bitrix\Main\Loader::includeModule('ui');
-\Bitrix\Main\UI\Extension::load(['ui.alerts']);
+\Bitrix\Main\UI\Extension::load([
+	'ui.alerts',
+	'ui.icon-set.actions',
+	'ui.buttons',
+	'ui.design-tokens',
+]);
 
 if (empty($_POST['document_type']))
 {
@@ -72,6 +77,11 @@ else
 {
 	echo GetMessage("BIZPROC_AS_DESC_1");
 }
+?>
+<button class="ui-btn ui-btn-link ui-btn-xs bizprocdesigner-activity-btn-more" data-role="activity-settings-more">
+	<div class="ui-icon-set --more"></div>
+</button>
+<?php
 
 $runtime->IncludeActivityFile($activityType);
 
@@ -94,16 +104,15 @@ if (!empty($_POST["save"]) && check_bitrix_sessid())
 {
 	//TODO: Experimental
 	$currentRequest = $_POST;
+	$isActivated = $currentRequest['activated'] ?? 'Y';
 	unset(
 		$currentRequest['arWorkflowTemplate'],
 		$currentRequest['arWorkflowParameters'],
 		$currentRequest['arWorkflowVariables'],
-		$currentRequest['arWorkflowConstants']
+		$currentRequest['arWorkflowConstants'],
+		$currentRequest['activated'],
 	);
-	$currentRequest = \Bitrix\Bizproc\Automation\Helper::unConvertProperties(
-		$currentRequest,
-		$documentType
-	);
+	$currentRequest = \Bitrix\Bizproc\Automation\Helper::unConvertProperties($currentRequest, $documentType);
 
 	$res = CBPActivity::CallStaticMethod(
 		$activityType,
@@ -143,7 +152,7 @@ if (!empty($_POST["save"]) && check_bitrix_sessid())
 		}
 	}
 
-	if($res && count($arErrors)<=0)
+	if(($isActivated === 'N') || ($res && count($arErrors) <= 0))
 	{
 		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 		if (!is_array($arCurrentActivity["Properties"]))
@@ -154,6 +163,7 @@ if (!empty($_POST["save"]) && check_bitrix_sessid())
 		$arCurrentActivity["Properties"]["Title"] = $currentRequest["title"];
 		$arCurrentActivity["Properties"]["EditorComment"] = $currentRequest["activity_editor_comment"];
 		$arCurrentActivity["Name"] = $currentRequest["activity_id"];
+		$arCurrentActivity['Activated'] = $isActivated === 'N' ? 'N' : 'Y';
 		?>
 		<script>
 		arWorkflowParameters = <?= CUtil::PhpToJSObject($arWorkflowParameters) ?>;
@@ -180,12 +190,14 @@ echo PHPToHiddens($arWorkflowVariables, 'arWorkflowVariables');
 echo PHPToHiddens($arWorkflowConstants, 'arWorkflowConstants');
 
 CBPDocument::AddShowParameterInit(MODULE_ID, "all", $_POST['document_type'], ENTITY);
+$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 ?>
 <?= bitrix_sessid_post() ?>
 <input type="hidden" name="activity" value="<?= htmlspecialcharsbx($activityType) ?>">
 <input type="hidden" name="document_type" value="<?= htmlspecialcharsbx($document_type) ?>">
 <input type="hidden" name="id" value="<?= htmlspecialcharsbx($activityName) ?>">
 <input type="hidden" name="current_site_id" value="<?= htmlspecialcharsbx($currentSiteId) ?>">
+<input type="hidden" name="activated" value="<?= htmlspecialcharsbx($arCurrentActivity['Activated']) ?>">
 <?php
 	if(count($arErrors)>0)
 	{
@@ -197,7 +209,7 @@ CBPDocument::AddShowParameterInit(MODULE_ID, "all", $_POST['document_type'], ENT
 <table class="adm-detail-content-table edit-table" id="<?= $tableID ?>">
 <?php
 
-$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
+
 $brokenLinks = [];
 if (!empty($_POST["postback"]))
 {
@@ -266,7 +278,8 @@ else
 					$object = 'Template';
 				}
 
-				$brokenLinks[] = htmlspecialcharsbx('{=' . $object . ':' . $field . '}');
+				$link = '{=' . $object . ':' . $field . '}';
+				$brokenLinks[$link] = htmlspecialcharsbx($link);
 			}
 		}
 		elseif ($object === \Bitrix\Bizproc\Workflow\Template\SourceType::Activity)
@@ -274,7 +287,8 @@ else
 			$activityUsage = CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $field);
 			if (!array_key_exists($returnField, $runtime->getActivityReturnProperties($activityUsage)))
 			{
-				$brokenLinks[] = htmlspecialcharsbx('{=' . $field . ':' . $returnField . '}');
+				$link = '{=' . $field . ':' . $returnField . '}';
+				$brokenLinks[$link] = htmlspecialcharsbx($link);
 			}
 		}
 	}
@@ -442,7 +456,83 @@ setTimeout("document.getElementById('bpastitle').focus();", 100);
 		overflow: hidden;
 		transition: height 0.3s linear;
 	}
+
+	.bizprocdesigner-activity-btn-more {
+		margin-left: auto;
+		--ui-icon-set__icon-color: var(--ui-color-base-90);
+	}
+
+	.bizprocdesigner-activity-btn-more:hover {
+		--ui-icon-set__icon-color: var(--ui-color-base-70);
+	}
+
+	.bx-core-adm-dialog-head-block.bx-edit-settings {
+		display: flex!important;
+		align-items: center;
+		padding: 5px 12px;
+	}
 </style>
+<script>
+	BX.Event.ready(() => {
+		BX.message({
+			BP_ACT_SETTINGS_ACTIONS_DEACTIVATED_BUTTON_TEXT: '<?= GetMessageJS('BP_ACT_SETTINGS_ACTIONS_DEACTIVATED_BUTTON_TEXT') ?>',
+			BP_ACT_SETTINGS_ACTIONS_ACTIVATED_BUTTON_TEXT: '<?= GetMessageJS('BP_ACT_SETTINGS_ACTIONS_ACTIVATED_BUTTON_TEXT') ?>',
+			BP_ACT_SETTINGS_ACTIONS_ACTIVATED_BUTTON_NOTIFY_TEXT: '<?= GetMessageJS('BP_ACT_SETTINGS_ACTIONS_ACTIVATED_BUTTON_NOTIFY_TEXT') ?>',
+			BP_ACT_SETTINGS_ACTIONS_DEACTIVATED_BUTTON_NOTIFY_TEXT: '<?= GetMessageJS('BP_ACT_SETTINGS_ACTIONS_DEACTIVATED_BUTTON_NOTIFY_TEXT') ?>',
+		});
+
+		const button = document.querySelector('[data-role="activity-settings-more"]');
+		if (button)
+		{
+			let isActivityActivated = '<?= CUtil::JSEscape($arCurrentActivity['Activated']) ?>';
+			const canActivate = '<?= (isset($_POST['can_be_activated']) && $_POST['can_be_activated'] === 'Y') ? 'Y' : 'N' ?>';
+
+			BX.Event.bind(button, 'click', () => {
+				if (BX.Reflection.getClass('BX.Main.Menu'))
+				{
+					const deactivateItem = {
+						text: (
+							isActivityActivated === 'Y'
+								? BX.Loc.getMessage('BP_ACT_SETTINGS_ACTIONS_DEACTIVATED_BUTTON_TEXT')
+								: BX.Loc.getMessage('BP_ACT_SETTINGS_ACTIONS_ACTIVATED_BUTTON_TEXT')
+						),
+						disabled: !(canActivate === 'Y'),
+						onclick: (event, menuItem) => {
+							const activatedInput = document.getElementsByName('activated')[0];
+							if (activatedInput)
+							{
+								activatedInput.value = activatedInput.value === 'Y' ? 'N' : 'Y';
+								isActivityActivated = activatedInput.value;
+
+								if (BX.Reflection.getClass('BX.UI.Notification.Manager'))
+								{
+									BX.UI.Notification.Center.notify({
+										content: (
+											isActivityActivated === 'Y'
+												? BX.Loc.getMessage('BP_ACT_SETTINGS_ACTIONS_ACTIVATED_BUTTON_NOTIFY_TEXT')
+												: BX.Loc.getMessage('BP_ACT_SETTINGS_ACTIONS_DEACTIVATED_BUTTON_NOTIFY_TEXT')
+										),
+										autoHideDelay: 1500,
+									});
+								}
+							}
+							menuItem.getMenuWindow().destroy();
+						},
+					};
+
+					(new BX.Main.Menu({
+						bindElement: button,
+						width: 150,
+						height: 52,
+						autoHide: true,
+						angle: {offset: (BX.Dom.getPosition(button).width / 2) + BX.Main.Popup.getOption('angleMinTop')},
+						items: [deactivateItem],
+					})).show();
+				}
+			});
+		}
+	});
+</script>
 
 <input type="hidden" name="save" value="Y" />
 <input type="hidden" name="postback" value="Y" />

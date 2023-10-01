@@ -18,9 +18,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_PaySystemRestriction_Query query()
- * @method static EO_PaySystemRestriction_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PaySystemRestriction_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_PaySystemRestriction_Result getById($id)
- * @method static EO_PaySystemRestriction_Result getList(array $parameters = array())
+ * @method static EO_PaySystemRestriction_Result getList(array $parameters = [])
  * @method static EO_PaySystemRestriction_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_PaySystemRestriction createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_PaySystemRestriction_Collection createCollection()

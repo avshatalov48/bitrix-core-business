@@ -1,4 +1,4 @@
-import { Dom, Type, Event, Text, Loc, Runtime } from 'main.core';
+import { Dom, Type, Event, Text, Loc, Runtime, Tag } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { Document } from './document/document';
 import { Template } from './template';
@@ -8,6 +8,7 @@ import { HelpHint } from './help-hint';
 import { ConditionGroup, Helper } from 'bizproc.automation';
 import { Tracker } from './tracker/tracker'
 import { TrackingStatus } from './tracker/types';
+import { Menu, MenuItem } from 'main.popup';
 
 export class Robot extends EventEmitter
 {
@@ -137,6 +138,7 @@ export class Robot extends EventEmitter
 		{
 			this.#data.Name = Robot.generateName();
 		}
+		this.#data.Activated = !Type.isNil(this.#data.Activated) ? Text.toBoolean(this.#data.Activated) : true;
 
 		this.#delay = new DelayInterval(this.#data.Delay);
 		this.#condition = new ConditionGroup(this.#data.Condition);
@@ -265,6 +267,13 @@ export class Robot extends EventEmitter
 		if (this.#node)
 		{
 			Dom.addClass(this.#node, '--selected');
+
+			const checkboxNode = this.#node.querySelector('input');
+			if (checkboxNode)
+			{
+				checkboxNode.checked = true;
+			}
+
 			this.emit('Robot:selected');
 		}
 	}
@@ -274,6 +283,13 @@ export class Robot extends EventEmitter
 		if (this.#node)
 		{
 			Dom.removeClass(this.#node, '--selected');
+
+			const checkboxNode = this.#node.querySelector('input');
+			if (checkboxNode)
+			{
+				checkboxNode.checked = false;
+			}
+
 			this.emit('Robot:unselected');
 		}
 	}
@@ -281,6 +297,19 @@ export class Robot extends EventEmitter
 	isSelected()
 	{
 		return this.#node && Dom.hasClass(this.#node, '--selected');
+	}
+
+	isActivated(): boolean
+	{
+		return Text.toBoolean(this.#data.Activated);
+	}
+
+	setActivated(activated: boolean): this
+	{
+		this.#data.Activated = Text.toBoolean(activated);
+		this.emit(this.#data.Activated === true ? 'Robot:onAfterActivated' : 'Robot:onAfterDeactivated');
+
+		return this;
 	}
 
 	enableManageMode(isActive: boolean)
@@ -333,6 +362,12 @@ export class Robot extends EventEmitter
 		{
 			wrapperClass += ' bizproc-automation-robot-container-wrapper-draggable';
 		}
+		if (this.#data.Activated === false)
+		{
+			containerClass += ' --deactivated';
+			wrapperClass += ' --deactivated';
+		}
+
 		if (this.draft)
 		{
 			containerClass += ' --draft';
@@ -497,10 +532,18 @@ export class Robot extends EventEmitter
 			},
 			children: [
 				Dom.create("div", {
-					props: {
-						className: "bizproc-automation-robot-container-checkbox"
-					}
+					attrs: { className: "ui-ctl ui-ctl-inline bizproc-automation-robot-container-checkbox" },
+					children: [
+						Dom.create("input", {
+							attrs: {
+								className: ' ui-ctl-checkbox',
+								type: "checkbox",
+								name: "name",
+							}
+						}),
+					],
 				}),
+				this.#renderDeactivatedInfoBlock(),
 				Dom.create('div', {
 					attrs: {
 						className: wrapperClass
@@ -563,14 +606,13 @@ export class Robot extends EventEmitter
 			Event.bind(deleteBtn, 'click', this.onDeleteButtonClick.bind(this, deleteBtn));
 			div.lastChild.appendChild(deleteBtn);
 
-			const copyBtn = Dom.create('div', {
-				attrs: {
-					className: 'bizproc-automation-robot-btn-copy'
-				},
-				text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_COPY') || 'copy'
-			});
-			Event.bind(copyBtn, 'click', this.onCopyButtonClick.bind(this, copyBtn));
-			div.appendChild(copyBtn);
+			const actionsButton = Tag.render`
+				<div class="bizproc-automation-robot-btn-copy">
+					${Loc.getMessage('BIZPROC_AUTOMATION_ACTIONS_BUTTON_TEXT')}
+				</div>
+			`;
+			Event.bind(actionsButton, 'click', this.#onActionsButtonClick.bind(this, actionsButton));
+			Dom.append(actionsButton, div);
 
 			const settingsBtn = Dom.create('div', {
 				attrs: {
@@ -584,6 +626,20 @@ export class Robot extends EventEmitter
 		}
 
 		return div;
+	}
+
+	#renderDeactivatedInfoBlock()
+	{
+		if (this.#data.Activated === true)
+		{
+			return '';
+		}
+
+		return Tag.render`
+			<div class="bizproc-automation-robot-deactivated" data-role="deactivate-robot">
+				${Loc.getMessage('BIZPROC_AUTOMATION_DEACTIVATED_ROBOT_BLOCK_TITLE')}
+			</div>
+	`;
 	}
 
 	onDeleteButtonClick(button, event)
@@ -613,6 +669,56 @@ export class Robot extends EventEmitter
 		}
 	}
 
+	#onActionsButtonClick(button, event)
+	{
+		if (!this.canEdit())
+		{
+			event.stopPropagation();
+			HelpHint.showNoPermissionsHint(button);
+
+			return;
+		}
+
+		if (!this.#viewMode.isManage())
+		{
+			event.stopPropagation();
+			const buttonText = (
+				this.#data.Activated
+					? Loc.getMessage('BIZPROC_AUTOMATION_ACTIONS_DEACTIVATE_BUTTON_TEXT')
+					: Loc.getMessage('BIZPROC_AUTOMATION_ACTIONS_ACTIVATE_BUTTON_TEXT')
+			);
+
+			const menu = new Menu({
+				bindElement: button,
+				width: 150,
+				height: 90,
+				autoHide: true,
+				angle: {
+					offset: (Dom.getPosition(button).width / 2) + 23,
+				},
+				items: [
+					{
+						text: Loc.getMessage('BIZPROC_AUTOMATION_ACTIONS_COPY_BUTTON_TEXT'),
+						title: Loc.getMessage('BIZPROC_AUTOMATION_ACTIONS_COPY_BUTTON_TEXT'),
+						onclick: (e: PointerEvent, menuItem: MenuItem) => {
+							this.onCopyButtonClick(menuItem, e);
+							menu.destroy();
+						},
+					},
+					{
+						text: buttonText,
+						title: buttonText,
+						onclick: () => {
+							this.#onDeactivateButtonClick();
+							menu.destroy();
+						},
+					},
+				],
+			});
+			menu.show();
+		}
+	}
+
 	onCopyButtonClick(button, event)
 	{
 		event.stopPropagation();
@@ -634,6 +740,12 @@ export class Robot extends EventEmitter
 
 			Template.copyRobotTo(this.#template, copiedRobot, this.#template.getNextRobot(this));
 		}
+	}
+
+	#onDeactivateButtonClick()
+	{
+		this.setActivated(!this.isActivated());
+		this.reInit();
 	}
 
 	onTitleEditClick(e)
@@ -755,6 +867,7 @@ export class Robot extends EventEmitter
 		if (Type.isPlainObject(data))
 		{
 			this.#data = data;
+			this.#data.Activated = !Type.isNil(this.#data.Activated) ? Text.toBoolean(this.#data.Activated) : true;
 		}
 		else
 		{
@@ -769,6 +882,7 @@ export class Robot extends EventEmitter
 		delete result['DialogContext'];
 		result.Delay = this.#delay.serialize();
 		result.Condition = this.#condition.serialize();
+		result.Activated = result.Activated ? 'Y' : 'N';
 
 		return result;
 	}

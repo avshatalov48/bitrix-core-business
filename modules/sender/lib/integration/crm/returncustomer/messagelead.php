@@ -117,7 +117,7 @@ class MessageLead extends MessageBase implements Message\iHideable
 				'code' => 'COMMENT',
 				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_COMMENT'),
 				'required' => true,
-				'hint' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_COMMENT_HINT'),
+				'placeholder' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_COMMENT_HINT'),
 			],
 		]);
 	}

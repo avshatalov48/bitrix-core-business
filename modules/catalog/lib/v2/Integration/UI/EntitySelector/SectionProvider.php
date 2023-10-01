@@ -10,7 +10,7 @@ use Bitrix\UI\EntitySelector\SearchQuery;
 class SectionProvider extends BaseProvider
 {
 	private const SECTION_LIMIT = 20;
-	private const SECTION_ENTITY_ID = 'section';
+	protected const SECTION_ENTITY_ID = 'section';
 
 	public function __construct(array $options = [])
 	{
@@ -64,7 +64,7 @@ class SectionProvider extends BaseProvider
 			}
 		}
 
-		$recentItemsCount = count($dialog->getRecentItems()->getEntityItems(self::SECTION_ENTITY_ID));
+		$recentItemsCount = count($dialog->getRecentItems()->getEntityItems(static::SECTION_ENTITY_ID));
 
 		if ($recentItemsCount < self::SECTION_LIMIT)
 		{
@@ -152,7 +152,7 @@ class SectionProvider extends BaseProvider
 	{
 		return new Item([
 			'id' => $section['ID'],
-			'entityId' => self::SECTION_ENTITY_ID,
+			'entityId' => static::SECTION_ENTITY_ID,
 			'title' => $section['NAME'],
 			'avatar' => $section['PICTURE'],
 		]);

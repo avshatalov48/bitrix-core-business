@@ -12,9 +12,9 @@ use Bitrix\Sale\Exchange\EntityType;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_ExchangeLog_Query query()
- * @method static EO_ExchangeLog_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ExchangeLog_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_ExchangeLog_Result getById($id)
- * @method static EO_ExchangeLog_Result getList(array $parameters = array())
+ * @method static EO_ExchangeLog_Result getList(array $parameters = [])
  * @method static EO_ExchangeLog_Entity getEntity()
  * @method static \Bitrix\Sale\Exchange\Internals\EO_ExchangeLog createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Exchange\Internals\EO_ExchangeLog_Collection createCollection()

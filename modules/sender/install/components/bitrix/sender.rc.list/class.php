@@ -93,7 +93,6 @@ class RcListSenderComponent extends Bitrix\Sender\Internals\CommonSenderComponen
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_LETTER_LIST_COMP_TITLE'));
 		}
 
@@ -523,7 +522,7 @@ class RcListSenderComponent extends Bitrix\Sender\Internals\CommonSenderComponen
 		$result = array();
 		foreach ($list as $data)
 		{
-			$result[$data['USER_ID']] = \CAllUser::FormatName(
+			$result[$data['USER_ID']] = CUser::FormatName(
 				$this->arParams['NAME_TEMPLATE'],
 				array(
 					'LOGIN' => $data['USER_LOGIN'] ?? '',
@@ -585,7 +584,7 @@ class RcListSenderComponent extends Bitrix\Sender\Internals\CommonSenderComponen
 		}
 
 		$data['USER_PATH'] = str_replace('#id#', $data['USER_ID'], $this->arParams['PATH_TO_USER_PROFILE']);
-		$data['USER'] = \CAllUser::FormatName(
+		$data['USER'] = CUser::FormatName(
 			$this->arParams['NAME_TEMPLATE'],
 			array(
 				'LOGIN' => $data['USER_LOGIN'] ?? '',

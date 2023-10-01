@@ -45,6 +45,7 @@ export default class DesktopProvider extends BaseProvider
 	{
 		const [id] = event.detail;
 
+		BXDesktopSystem.SetActiveTab();
 		this.notificationClick(id);
 	}
 

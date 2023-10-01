@@ -17,7 +17,7 @@ return array(
 		'.landing-block-node-card-contact' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CARD_CONTACT'),
 			'label' => array(
-				'.landing-block-node-contact-text', '.landing-block-node-contact-link',
+				'.landing-block-node-contact-text',
 				'.landing-block-card-linkcontact-link',
 			),
 			'presets' => include __DIR__ . '/presets.php',
@@ -55,10 +55,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CONTACT_TEXT'),
 			'type' => 'text',
 		),
-		'.landing-block-node-contact-link' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CONTACT_LINK'),
-			'type' => 'link',
-		),
 		'.landing-block-card-linkcontact-link' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CONTACT_LINK'),
 			'type' => 'link',
@@ -89,17 +85,9 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CONTACT_TEXT'),
 				'type' => 'typo',
 			),
-			'.landing-block-node-contact-link' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CONTACT_LINK'),
-				'type' => 'typo',
-			),
 			'.landing-block-card-linkcontact-link' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CONTACT_LINK'),
 				'type' => 'typo-link',
-			),
-			'.landing-block-node-bgimg' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_BGIMG'),
-				'type' => 'background-attachment',
 			),
 			'.landing-block-node-row' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33_2_NODE_BLOCK'),

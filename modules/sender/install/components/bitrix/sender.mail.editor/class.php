@@ -11,6 +11,7 @@ use Bitrix\Sender\Internals\QueryController as Controller;
 use Bitrix\Sender\PostingRecipientTable;
 use Bitrix\Sender\Security;
 use Bitrix\Sender\TemplateTable;
+use Bitrix\Sender\Integration;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -174,6 +175,20 @@ class SenderMessageEditorMailComponent extends CBitrixComponent
 			'isUserHavePhpAccess' => $this->arParams['HAS_USER_ACCESS'] ?? '',
 			'useLightTextEditor' => $this->arParams['USE_LIGHT_TEXT_EDITOR'] ?? '',
 		));
+
+		$userId = Security\User::current()->getId();
+		$this->arResult['AITextContextId'] = 'sender_marketing_mail_message_text_' . $userId;
+		$this->arResult['AIImageContextId'] = 'sender_marketing_mail_message_image_' . $userId;
+
+		$this->arResult['isAITextAvailable'] = Integration\AI\Controller::isAvailable(
+			Integration\AI\Controller::TEXT_CATEGORY,
+			$this->arResult['AITextContextId']
+		);
+		$this->arResult['isAIImageAvailable'] = Integration\AI\Controller::isAvailable(
+			Integration\AI\Controller::IMAGE_CATEGORY,
+			$this->arResult['AIImageContextId']
+		);
+
 
 		return true;
 	}

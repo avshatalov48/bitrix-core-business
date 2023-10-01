@@ -123,13 +123,17 @@ switch($request->get('action'))
 		break;
 
 	case 'preview_mail':
+		if (!check_bitrix_sessid())
+		{
+			break;
+		}
 
 		$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 		$previewParams = array(
 			'CAN_EDIT_PHP' => $GLOBALS["USER"]->CanDoOperation('edit_php'),
 			'CAN_USE_LPA' => $GLOBALS["USER"]->CanDoOperation('lpa_template_edit'),
 			'SITE' => $request->get('site_id'),
-			'HTML' => $request->get('content'),
+			'HTML' => $request->getPost('content'),
 			'FIELDS' => array(
 				'SENDER_CHAIN_CODE' => 'sender_chain_item_0',
 			),

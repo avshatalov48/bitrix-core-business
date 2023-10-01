@@ -1,0 +1,26 @@
+<?php
+$MESS["BIZPROC_AUTOMATION_SCHEME_CATEGORIES_NOT_EXISTS"] = "Die von Ihnen ausgewählte Option hat keine Pipelines. Sie können diesen Schritt überspringen.";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_COPY"] = "Zielort, wohin kopieren";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_COPY_ROBOTS_AND_TRIGGERS"] = "Zielort, wohin zu kopieren, ist für ausgewählte Automatisierungsregeln und Trigger nicht ausgewählt.";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_COPY_TRIGGERS"] = "Zielort, wohin zu kopieren, ist für ausgewählte Trigger nicht ausgewählt.";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_MOVE"] = "Zielort, wohin verschieben";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_MOVE_ROBOTS_AND_TRIGGERS"] = "Zielort, wohin zu verschieben, ist für ausgewählte Automatisierungsregeln und Trigger nicht ausgewählt.";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_MOVE_TRIGGERS"] = "Zielort, wohin zu verschieben, ist für ausgewählte Trigger nicht ausgewählt.";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DROPDOWN_PLACEHOLDER"] = "Auswählen";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_CATEGORY"] = "Zielpipeline";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_STAGE"] = "Zielphase";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_COPY"] = "Automatisierungsregeln kopieren in";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_COPY_1"] = "Wohin möchten Sie Automatisierungsregeln kopieren?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_COPY_ROBOTS_AND_TRIGGERS"] = "Wohin möchten Sie Automatisierungsregeln und Trigger kopieren?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_COPY_TRIGGERS"] = "Wohin möchten Sie Trigger kopieren?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_MOVE"] = "Automatisierungsregeln verschieben in";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_MOVE_ROBOTS_AND_TRIGGERS"] = "Wohin möchten Sie Automatisierungsregeln und Trigger verschieben?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_MOVE_TRIGGERS"] = "Wohin möchten Sie Trigger verschieben?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_EXECUTE_BUTTON"] = "Starten";
+$MESS["BIZPROC_AUTOMATION_SCHEME_HELP_BUTTON"] = "Hilfe";
+$MESS["BIZPROC_AUTOMATION_SCHEME_TITLE_ACTION_COPY"] = "Automatisierungsregeln kopieren";
+$MESS["BIZPROC_AUTOMATION_SCHEME_TITLE_ACTION_COPY_1"] = "Kopieren";
+$MESS["BIZPROC_AUTOMATION_SCHEME_TITLE_ACTION_MOVE"] = "Automatisierungsregeln verschieben";
+$MESS["BIZPROC_AUTOMATION_SCHEME_TITLE_ACTION_MOVE_1"] = "Verschieben";
+$MESS["BIZPROC_AUTOMATION_SCHEME_TITLE_ACTION_MOVE_ROBOTS_AND_TRIGGERS"] = "Automatisierungsregeln oder Trigger verschieben";
+$MESS["BIZPROC_AUTOMATION_SCHEME_TITLE_ACTION_MOVE_TRIGGERS"] = "Trigger verschieben";

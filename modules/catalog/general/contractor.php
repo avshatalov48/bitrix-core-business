@@ -31,7 +31,7 @@ class CAllCatalogContractor
 	{
 		global $DB, $APPLICATION;
 
-		if (Contractor\Provider\Manager::getActiveProvider())
+		if (Contractor\Provider\Manager::isActiveProviderExists())
 		{
 			$APPLICATION->throwException('This API has been deprecated and is no longer available');
 			return false;
@@ -64,7 +64,7 @@ class CAllCatalogContractor
 	{
 		global $DB, $APPLICATION;
 
-		if (Contractor\Provider\Manager::getActiveProvider())
+		if (Contractor\Provider\Manager::isActiveProviderExists())
 		{
 			$APPLICATION->throwException('This API has been deprecated and is no longer available');
 			return false;

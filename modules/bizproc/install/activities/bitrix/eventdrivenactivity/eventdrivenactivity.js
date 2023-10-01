@@ -1,33 +1,48 @@
-/////////////////////////////////////////////////////////////////////////////////////
-// EventDrivenActivity
-/////////////////////////////////////////////////////////////////////////////////////
-EventDrivenActivity = function()
-{
-	var ob = new SequentialWorkflowActivity();
-	ob.Type = 'EventDrivenActivity';
+/* eslint-disable */
+(function (exports,main_core) {
+	'use strict';
 
-	ob.DrawSequentialWorkflowActivity = ob.Draw;
-	ob.Draw = function (d)
-	{
-		if(ob.parentActivity.Type == 'StateActivity')
-			ob.DrawSequentialWorkflowActivity(d);
-		else
-			ob.DrawSequenceActivity(d);
-	};
+	const SequentialWorkflowActivity = window.SequentialWorkflowActivity;
+	var _draw = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("draw");
+	var _afterSequenceDraw = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("afterSequenceDraw");
+	var _setError = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setError");
+	class EventDrivenActivity extends SequentialWorkflowActivity {
+	  constructor() {
+	    super();
+	    Object.defineProperty(this, _setError, {
+	      value: _setError2
+	    });
+	    Object.defineProperty(this, _afterSequenceDraw, {
+	      value: _afterSequenceDraw2
+	    });
+	    Object.defineProperty(this, _draw, {
+	      value: _draw2
+	    });
+	    this.Type = 'EventDrivenActivity';
+	    this.DrawSequentialWorkflowActivity = this.Draw;
+	    this.Draw = babelHelpers.classPrivateFieldLooseBase(this, _draw)[_draw].bind(this);
+	    this.AfterSDraw = babelHelpers.classPrivateFieldLooseBase(this, _afterSequenceDraw)[_afterSequenceDraw].bind(this);
+	    this.SetError = babelHelpers.classPrivateFieldLooseBase(this, _setError)[_setError].bind(this);
+	  }
+	}
+	function _draw2(wrapper) {
+	  if (this.parentActivity.Type === 'StateActivity') {
+	    this.DrawSequentialWorkflowActivity(wrapper);
+	  } else {
+	    this.DrawSequenceActivity(wrapper);
+	  }
+	}
+	function _afterSequenceDraw2() {
+	  if (this.parentActivity.Type === 'StateActivity' && this.childsContainer.rows.length > 2) {
+	    main_core.Dom.style(this.childsContainer.rows[0], 'display', 'none');
+	    main_core.Dom.style(this.childsContainer.rows[1], 'display', 'none');
+	  }
+	}
+	function _setError2(hasError, setFocus) {
+	  this.parentActivity.SetError(hasError, setFocus);
+	}
 
-	ob.AfterSDraw = function ()
-	{
-		if(ob.parentActivity.Type == 'StateActivity' && ob.childsContainer.rows.length>2)
-		{
-			ob.childsContainer.rows[0].style.display = 'none';
-			ob.childsContainer.rows[1].style.display = 'none';
-		}
-	};
+	exports.EventDrivenActivity = EventDrivenActivity;
 
-	ob.SetError = function (s, setFocus)
-	{
-		ob.parentActivity.SetError(s, setFocus);
-	};
-
-	return ob;
-};
+}((this.window = this.window || {}),BX));
+//# sourceMappingURL=eventdrivenactivity.js.map

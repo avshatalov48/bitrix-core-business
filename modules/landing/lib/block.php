@@ -2370,6 +2370,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			return [];
 		}
 
+		if (preg_match('/[^a-z0-9_.:-]+/i', $code))
+		{
+			return [];
+		}
+
 		if (isset($manifests[$code]))
 		{
 			return $manifests[$code];
@@ -5459,6 +5464,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$result = [];
 
 		$filter['*%SEARCH_CONTENT'] = $query;
+		$filter['=DELETED'] = 'N';
 
 		$res = Internals\BlockTable::getList([
 			'select' => $select,

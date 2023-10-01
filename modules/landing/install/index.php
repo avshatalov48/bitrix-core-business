@@ -164,10 +164,11 @@ class Landing extends \CModule
 	public function installDB()
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 
 		// db
 		$errors = $DB->runSQLBatch(
-			$this->docRoot.'/bitrix/modules/landing/install/db/mysql/install.sql'
+			$this->docRoot.'/bitrix/modules/landing/install/db/'.$connection->getType().'/install.sql'
 		);
 		if ($errors !== false)
 		{
@@ -180,7 +181,7 @@ class Landing extends \CModule
 
 		// full text
 		$errors = $DB->runSQLBatch(
-			$this->docRoot.'/bitrix/modules/landing/install/db/mysql/install_ft.sql'
+			$this->docRoot.'/bitrix/modules/landing/install/db/'.$connection->getType().'/install_ft.sql'
 		);
 		if ($errors === false)
 		{
@@ -549,14 +550,14 @@ class Landing extends \CModule
 	public function uninstallDB($arParams = array())
 	{
 		global $APPLICATION, $DB;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$errors = false;
 
 		// delete DB
 		if (isset($arParams['savedata']) && !$arParams['savedata'])
 		{
 			$errors = $DB->runSQLBatch(
-				$this->docRoot.'/bitrix/modules/landing/install/db/mysql/uninstall.sql'
+				$this->docRoot.'/bitrix/modules/landing/install/db/'.$connection->getType().'/uninstall.sql'
 			);
 		}
 		if ($errors !== false)

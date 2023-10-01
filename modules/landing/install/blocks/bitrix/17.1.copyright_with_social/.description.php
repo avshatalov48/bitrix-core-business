@@ -42,10 +42,6 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_STYLE_LANDINGBLOCKNODETEXT'),
 				'type' => array('typo', 'animation'),
 			),
-			'.landing-block-node-link' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_STYLE_LANDINGBLOCKNODELINK'),
-				'type' => 'typo',
-			),
 			'.landing-block-card-social-icon-link' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_NODES_LANDINGBLOCKNODESOCIALLINK'),
 				'type' => array('color', 'color-hover', 'background-color', 'background-hover'),

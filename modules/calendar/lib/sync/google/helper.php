@@ -32,6 +32,11 @@ class Helper
 	public const VERSION_DIFFERENCE = 1;
 	public const END_OF_TIME = "01.01.2038";
 
+	public const NEED_SCOPE = [
+		'https://www.googleapis.com/auth/calendar',
+		'https://www.googleapis.com/auth/calendar.readonly',
+	];
+
 	/**
 	 * @param $accountType
 	 * @return bool
@@ -55,18 +60,18 @@ class Helper
 	{
 		return !empty($errorText)
 			&& (preg_match("/^(\[410\] The requested minimum modification time lies too far in the past.)/i", $errorText)
-			|| preg_match("/^(\[410\] Sync token is no longer valid, a full sync is required.)/i", $errorText))
-		;
+				|| preg_match("/^(\[410\] Sync token is no longer valid, a full sync is required.)/i", $errorText))
+			;
 	}
 
 	public function isMissingRequiredAuthCredential(string $errorText = null): bool
 	{
 		return !empty($errorText)
 			&& preg_match("/^\[401\] Request is missing required authentication credential.[a-z0-9 _]*/i", $errorText)
-		;
+			;
 	}
-
-
+	
+	
 	/**
 	 * @return string|null
 	 * @throws \Bitrix\Main\ArgumentNullException
@@ -82,7 +87,7 @@ class Helper
 		{
 			return $apiKey;
 		}
-
+		
 		if (Loader::includeModule('fileman'))
 		{
 			$apiKey = AddressType::getApiKey();
@@ -91,9 +96,9 @@ class Helper
 				return $apiKey;
 			}
 		}
-
+		
 		return Option::get('fileman', 'google_map_api_key', null)
 			?? Option::get('bitrix24', 'google_map_api_key', null)
-		;
+			;
 	}
 }

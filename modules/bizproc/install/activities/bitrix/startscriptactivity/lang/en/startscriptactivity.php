@@ -1,0 +1,19 @@
+<?php
+$MESS["BP_SSA_ACTIVITY_EMPTY_DOCUMENT_ID"] = "Item ID is missing.";
+$MESS["BP_SSA_ACTIVITY_EMPTY_START_BY"] = "The field \"Run as user\" is required.";
+$MESS["BP_SSA_ACTIVITY_INCORRECT_TEMPLATE_ID"] = "Invalid template ID.";
+$MESS["BP_SSA_ACTIVITY_LIMIT_DOCUMENT_IDS"] = "Maximum number of smart script launches exceeded.";
+$MESS["BP_SSA_ACTIVITY_LIMIT_QUEUE"] = "This smart script is still running. You cannot start it again.";
+$MESS["BP_SSA_ACTIVITY_LOOPING_ERROR"] = "Smart script blocked because it calls itself recursively.";
+$MESS["BP_SSA_ACTIVITY_MAP_DOCUMENT_ID"] = "Item ID";
+$MESS["BP_SSA_ACTIVITY_MAP_PARAMETERS"] = "Smart script start parameters";
+$MESS["BP_SSA_ACTIVITY_MAP_PARAMETERS_HIDDEN"] = "Insufficient permission to edit parameters of the current smart script.";
+$MESS["BP_SSA_ACTIVITY_MAP_START_BY"] = "Run as user";
+$MESS["BP_SSA_ACTIVITY_MAP_TEMPLATE_ID"] = "Smart script";
+$MESS["BP_SSA_ACTIVITY_NOT_FOUND_DOCUMENT"] = "Cannot find item with this ID.";
+$MESS["BP_SSA_ACTIVITY_NOT_FOUND_TEMPLATE"] = "Smart script not found or inactive.";
+$MESS["BP_SSA_ACTIVITY_NOT_MATCH_DOCUMENT_TYPE"] = "The type of the selected item ID is not supported by smart scripts.";
+$MESS["BP_SSA_ACTIVITY_TEMPLATE_PARAMETERS_ERROR"] = "The required parameter is empty: #NAME#.";
+$MESS["BP_SSA_ACTIVITY_VALIDATE_EMPTY_DOCUMENT_ID"] = "The field \"Item ID\" is required.";
+$MESS["BP_SSA_ACTIVITY_VALIDATE_EMPTY_START_BY"] = "The field \"Run as user\" is required.";
+$MESS["BP_SSA_ACTIVITY_VALIDATE_EMPTY_TEMPLATE_ID"] = "The field \"Smart script\" is required.";

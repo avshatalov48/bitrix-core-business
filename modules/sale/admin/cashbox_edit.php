@@ -431,7 +431,18 @@ elseif (Loader::includeModule('intranet'))
 	$zone = \CIntranetUtils::getPortalZone();
 }
 
-$needOfdSettings = !$isCashboxPaySystem && $zone === 'ru';
+$needOfdSettings = true;
+if ($zone !== 'ru')
+{
+	$needOfdSettings = false;
+}
+elseif ($isCashboxPaySystem)
+{
+	if (!is_a($cashboxObject->getField('HANDLER'), Cashbox\CashboxYooKassa::class, true))
+	{
+		$needOfdSettings = false;
+	}
+}
 
 if ($needOfdSettings)
 {

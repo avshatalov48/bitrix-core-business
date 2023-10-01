@@ -41,7 +41,8 @@ $jsonDataMap = [
 	'form_data_json' => 'form_data',
 	'triggers_json' => 'triggers',
 	'templates_json' => 'templates',
-	'robot_names' => 'robot_names'
+	'robot_names' => 'robot_names',
+	'trigger_names' => 'trigger_names',
 ];
 $jsonValues = [];
 
@@ -359,15 +360,47 @@ switch ($action)
 
 		$result = new \Bitrix\Main\Result();
 		$selectedStatus = $_REQUEST['selected_status'] ?? null;
-		$selectedRobotNames = $jsonValues['robot_names'] ?? null;
-
-		if (is_string($selectedStatus) && $selectedStatus && is_array($selectedRobotNames) && $selectedRobotNames)
+		$selectedRobotNames = $jsonValues['robot_names'] ?? [];
+		$selectedTriggerIds = $jsonValues['trigger_names'] ?? [];
+		if (!is_array($selectedRobotNames))
 		{
+			$selectedRobotNames = [];
+		}
+		if (!is_array($selectedTriggerIds))
+		{
+			$selectedTriggerIds = [];
+		}
+
+		if (
+			is_string($selectedStatus)
+			&& $selectedStatus
+			&& ($selectedRobotNames || $selectedTriggerIds)
+		) {
 			$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType, $selectedStatus);
 			$originalTemplate = BizprocAutomationComponent::getTemplateViewData($template->toArray(), $documentType);
 
 			if ($template->getId() > 0)
 			{
+				$originalStatusTriggers = $target->getTriggers([$selectedStatus]);
+				$statusTriggers = $originalStatusTriggers;
+				foreach ($statusTriggers as &$trigger)
+				{
+					$id = isset($trigger['ID']) ? (int)$trigger['ID'] : null;
+
+					if (in_array($id, $selectedTriggerIds, true))
+					{
+						$trigger['DELETED'] = 'Y';
+					}
+				}
+				unset($trigger);
+				foreach ($originalStatusTriggers as &$trigger)
+				{
+					unset($trigger['ID']);
+				}
+				$statusTriggers = $target->setTriggers($statusTriggers);
+				$target->prepareTriggersToShow($originalStatusTriggers);
+				$target->prepareTriggersToShow($statusTriggers);
+
 				$robots = $template->getRobotsByNames($selectedRobotNames);
 				$deletingResult = $template->deleteRobots($robots, $curUser->getId());
 				if ($deletingResult->isSuccess())
@@ -378,7 +411,11 @@ switch ($action)
 					);
 					$result->setData([
 						'template' => $updatedTemplate,
-						'restoreData' => [$originalTemplate],
+						'triggers' => $statusTriggers,
+						'restoreData' => [
+							'template' => $originalTemplate,
+							'triggers' => $originalStatusTriggers,
+						],
 					]);
 				}
 				else
@@ -416,6 +453,16 @@ switch ($action)
 
 		$sendResponse($result);
 		break;
+
+	case 'GET_TRIGGERS':
+		$checkConfigWritePerms();
+
+		$statusList = array_keys($target->getDocumentStatusList($documentCategoryId));
+
+		$triggers = $target->getTriggers($statusList);
+		$target->prepareTriggersToShow($triggers);
+
+		$sendResponse(['triggers' => $triggers]);
 
 	default:
 		$sendError('Unknown action!');

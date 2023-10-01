@@ -65,8 +65,6 @@ abstract class TemplatesScheme
 		if (
 			is_null($srcTemplate)
 			|| is_null($dstTemplate)
-			|| $srcTemplate->isExternalModified()
-			|| $dstTemplate->isExternalModified()
 		)
 		{
 			$errorMessage = Loc::getMessage('BIZPROC_AUTOMATION_SCHEME_TEMPLATE_ERROR');

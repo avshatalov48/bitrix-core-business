@@ -159,7 +159,7 @@ class AddressType extends BaseType
 	public static function prepareSettings(array $userField): array
 	{
 		return [
-			'SHOW_MAP' => ($userField['SETTINGS']['SHOW_MAP'] === 'N' ? 'N' : 'Y')
+			'SHOW_MAP' => ($userField['SETTINGS']['SHOW_MAP'] === 'N' ? 'N' : 'Y'),
 		];
 	}
 
@@ -259,6 +259,10 @@ class AddressType extends BaseType
 		{
 			$value = self::formatAddressToString($address);
 		}
+		else
+		{
+			$value = self::getTextAddress($address);
+		}
 
 		self::clearManualEditFlag($userField);
 
@@ -299,23 +303,65 @@ class AddressType extends BaseType
 			}
 		}
 
-		return [$value, $coords, $addressId];
+		$json = null;
+		if ($addressId)
+		{
+			$address = Address::load($addressId);
+			if ($address)
+			{
+				$json = $address->toJson();
+			}
+		}
+		else
+		{
+			$address = self::tryConvertFromJsonToAddress($value);
+			if ($address)
+			{
+				$json = $value;
+				$value = self::getTextAddress($address);
+			}
+		}
+
+		return [
+			$value,
+			$coords,
+			$addressId,
+			$json,
+		];
 	}
 
-	/**
-	 * @param Address $address
-	 * @return string
-	 */
+	private static function tryConvertFromJsonToAddress($value): ?Address
+	{
+		$result = null;
+		try
+		{
+			$result = Address::fromJson(
+				Encoding::convertEncoding($value, LANG_CHARSET, 'UTF-8')
+			);
+		}
+		catch (\Exception | \TypeError $exception) {}
+
+		return $result;
+	}
+
 	private static function formatAddressToString(Address $address): string
 	{
 		return (
-			$address->toString(FormatService::getInstance()->findDefault(LANGUAGE_ID), StringConverter::STRATEGY_TYPE_TEMPLATE_COMMA)
+			self::getTextAddress($address)
 			. '|'
 			. $address->getLatitude()
 			. ';'
 			. $address->getLongitude()
 			. '|'
 			. $address->getId()
+		);
+	}
+
+	private static function getTextAddress(Address $address): string
+	{
+		return $address->toString(
+			FormatService::getInstance()->findDefault(LANGUAGE_ID),
+			StringConverter::STRATEGY_TYPE_TEMPLATE_COMMA
 		);
 	}
 
@@ -359,18 +405,7 @@ class AddressType extends BaseType
 			return null;
 		}
 
-		$address = null;
-
-		try
-		{
-			$convertedValue = Encoding::convertEncoding($value, LANG_CHARSET, 'UTF-8');
-			$address = Address::fromJson($convertedValue);
-		}
-		catch (\Exception | \TypeError $exception)
-		{
-			// the value is not in JSON format, so we can try another format
-		}
-
+		$address = self::tryConvertFromJsonToAddress($value);
 		if (!$address)
 		{
 			$addressId = self::parseValue($value)[2];

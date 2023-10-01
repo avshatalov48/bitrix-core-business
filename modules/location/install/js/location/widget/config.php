@@ -26,7 +26,8 @@ return [
 		'location.core',
 		'location.google',
 		'location.osm',
-		'ls'
+		'ls',
+		'location.source',
 	],
 	'skip_core' => false,
 	'oninit' => static function()

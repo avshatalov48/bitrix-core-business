@@ -28,6 +28,9 @@
 		this.isOutside = params.isOutside || false;
 		this.mess = params.mess;
 		this.letterTile = params.letterTile || {};
+		this.hasBottomTextareaPanel = params.hasBottomTextareaPanel;
+		this.AITextContextId = params.AITextContextId;
+		this.isAITextAvailable = params.isAITextAvailable === 'Y';
 
 		this.templateChangeButton = BX('SENDER_LETTER_BUTTON_CHANGE');
 		this.selectorNode = Helper.getNode('template-selector', this.context);
@@ -90,7 +93,62 @@
 		{
 			this.context.classList.add('bx-sender-letter-ms-ie');
 		}
+
+		if (this.hasBottomTextareaPanel)
+		{
+			this.createBottomTextareaPanel();
+		}
 	};
+	Letter.prototype.createBottomTextareaPanel = function() {
+		this.configurationMessageInput = document.getElementById('CONFIGURATION_COMMENT');
+		if (this.configurationMessageInput)
+		{
+			const bottomPanel = BX.create('div', {
+				'props': {
+					'className': 'sender-letter-textarea-bottom-panel'
+				},
+				'children': [
+					BX.create(
+						'span',
+						{
+							'attrs': {
+								'data-bx-sms-panel-tools-button': 'ai-text',
+								'class': 'sender-letter-text-editor-panel-tools-item sender-letter-text-editor-panel-tools-ai-text',
+							},
+						}
+					),
+				],
+			});
+			this.configurationMessageInput.classList.add('sender-letter-text-editor-configuration-message-with-panel')
+			const parentNode = this.configurationMessageInput.parentNode;
+			parentNode.classList.add('sender-letter-text-editor-message-wrap');
+			parentNode.appendChild(bottomPanel);
+			this.initPanelToolsButtons();
+		}
+	}
+	Letter.prototype.initPanelToolsButtons = function() {
+		if (this.isAITextAvailable)
+		{
+			const aiTextButton = this.context.querySelector('[data-bx-sms-panel-tools-button="ai-text"]');
+			aiTextButton.addEventListener('click', () => {
+				const aiTextPicker = new BX.AI.Picker({
+					moduleId: 'sender',
+					contextId: this.AITextContextId,
+					analyticLabel: 'sender_letter_ai_text',
+					history: true,
+					onSelect: (info) => {
+						const text = info.data;
+						this.configurationMessageInput.value = this.configurationMessageInput.value + text;
+					},
+					onTariffRestriction: () => {
+						// BX.UI.InfoHelper.show(`limit_sender_ai_image`);
+					},
+				});
+				aiTextPicker.setLangSpace(BX.AI.Picker.LangSpace.text);
+				aiTextPicker.text();
+			});
+		}
+	}
 	Letter.prototype.onPopupClose = function(event) {
 		var slider = event.getSlider();
 		var _this = this;

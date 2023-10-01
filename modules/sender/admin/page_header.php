@@ -13,7 +13,7 @@ if(!Loader::includeModule("sender"))
 
 if (!Security\User::current()->canView())
 {
-	/** @var \CAllMain $APPLICATION */
+	/** @var CMain $APPLICATION */
 	$APPLICATION->AuthForm(Security\AccessChecker::getError()->getMessage());
 }
 

@@ -54,7 +54,7 @@ return [
 		'nodes' => [
 			'.landing-block-node-navbar' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_MENU_26-NAVBAR'),
-				'type' => ['navbar-bg-color', 'navbar-collapse-bg', 'hamburger-size', 'hamburger-animation'],
+				'type' => ['navbar-bg-color', 'navbar-collapse-bg'],
 			],
 			'.landing-block-node-menu-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_MENU_26-NAVBAR'),
@@ -63,6 +63,10 @@ return [
 			'.landing-block-node-hamburger-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_MENU_26-HAMBURGER'),
 				'type' => ['color', 'typo-simple'],
+			],
+			'.landing-block-node-hamburger' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_MENU_26_HAMB'),
+				'type' => ['hamburger-size', 'hamburger-animation'],
 			],
 		],
 	],

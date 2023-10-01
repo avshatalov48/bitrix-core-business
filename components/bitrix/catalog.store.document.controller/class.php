@@ -65,7 +65,7 @@ class CatalogStoreDocumentControllerComponent extends CBitrixComponent
 		}
 		$this->arResult['VARIABLES'] = $variables;
 
-		$this->arResult['IS_CRM_CONTRACTORS_PROVIDER'] = Manager::isActiveProviderByModule('crm');
+		$this->arResult['IS_CRM_CONTRACTORS_PROVIDER'] = Manager::isActiveProviderByModule(Manager::PROVIDER_STORE_DOCUMENT, 'crm');
 		$this->arResult['CONTRACTORS_MIGRATION_PROGRESS'] = Manager::getMigrationProgressHtml();
 
 		$this->includeComponentTemplate($template);

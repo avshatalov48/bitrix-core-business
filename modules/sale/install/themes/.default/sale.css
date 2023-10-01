@@ -1764,7 +1764,7 @@ a.dashed-link:hover { text-decoration: none; }
 	display: block;
 	width: 16px;
 	height: 16px;
-	background: url(/bitrix/images/sale//green_red.png) no-repeat;
+	background: url(/bitrix/images/sale/green_red.png) no-repeat;
 }
 
 .adm-bus-orderinfoblock-content-last-icon.green span { background-position: 0 0; }

@@ -16,7 +16,7 @@ $this->setFrameMode(false);
 /** @var CCacheManager $CACHE_MANAGER */
 global $CACHE_MANAGER;
 
-$arParams["LIST_ID"] = intval($arParams["LIST_ID"]);
+$arParams["LIST_ID"] = intval($arParams["LIST_ID"] ?? 0);
 $arResult["LISTS"] = array();
 
 $arUserGroups = $USER->GetUserGroupArray();

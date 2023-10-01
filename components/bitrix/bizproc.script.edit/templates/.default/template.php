@@ -53,7 +53,7 @@ $APPLICATION->IncludeComponent("bitrix:ui.sidepanel.wrappermenu", "", [
 ?>
 
 <div id="bizproc.script.edit-base" style="display: flex">
-	<form id="bizproc.script.edit-form" data-section="general" class="bizproc-script-edit-block bizproc-script-edit-block--general" onsubmit="return false;">
+	<form id="bizproc.script.edit-form" data-section="general" class="ui-slider-section bizproc-script-edit-block bizproc-script-edit-block--general" onsubmit="return false;">
 		<input type="hidden" name="ID" value="<?=(int)$script['ID']?>">
 		<div class="ui-form">
 			<div class="ui-slider-heading-4"><?= Loc::getMessage('BIZPROC_SCRIPT_EDIT_SECTION_GENERAL') ?></div>

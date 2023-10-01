@@ -30,9 +30,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_DeliveryRestHandler_Query query()
- * @method static EO_DeliveryRestHandler_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_DeliveryRestHandler_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_DeliveryRestHandler_Result getById($id)
- * @method static EO_DeliveryRestHandler_Result getList(array $parameters = array())
+ * @method static EO_DeliveryRestHandler_Result getList(array $parameters = [])
  * @method static EO_DeliveryRestHandler_Entity getEntity()
  * @method static \Bitrix\Sale\Delivery\Rest\Internals\EO_DeliveryRestHandler createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Delivery\Rest\Internals\EO_DeliveryRestHandler_Collection createCollection()

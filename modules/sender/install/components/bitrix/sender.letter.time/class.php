@@ -184,7 +184,6 @@ class SenderLetterTimeComponent extends CommonSenderComponent
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle($this->getMessage('SENDER_LETTER_TIME_COMP_TITLE'));
 		}
 

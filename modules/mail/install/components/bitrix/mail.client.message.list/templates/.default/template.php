@@ -198,15 +198,6 @@ $this->setViewTarget('mail-msg-counter-panel');
 
 $this->endViewTarget();
 
-$this->setViewTarget('mail-msg-temp-alert');
-
-if ($arParams['SHOW_TOP_ALERT']):
-?>
-	<div class="mail-msq-temp-alert"></div>
-<?php
-endif;
-$this->endViewTarget();
-
 	$this->setViewTarget('progress');?>
 	<div data-role="mail-progress-bar" class="mail-progress">
 		<div class="mail-progress-bar"></div>
@@ -964,29 +955,6 @@ $APPLICATION->includeComponent(
 				'slider-ignore-autobinding',
 				'true'
 			);
-		}
-
-		const topAlertBlock = document.querySelector('.mail-msq-temp-alert');
-		if (topAlertBlock)
-		{
-			const message = '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MAILBOX_TEMPORARY_ALERT_MSG_1', ['#LINK#' => '<a href="https://mail.google.com" target="_blank">Gmail</a>'])) ?>';
-			const alert = new BX.UI.Alert({
-				text: message,
-				closeBtn: true,
-				animate: true,
-				color: BX.UI.Alert.Color.WARNING,
-			});
-
-			alert.getCloseBtn().addEventListener('click', function () {
-				BX.ajax.runComponentAction('bitrix:mail.client.config', 'closeTemporaryDangerButton', {
-					mode: 'class',
-					data: {
-						type: 'temp_alert_google',
-					}
-				});
-			});
-
-			alert.renderTo(topAlertBlock);
 		}
 
 		<? if (empty($arResult['CONFIG_SYNC_DIRS'])): ?>

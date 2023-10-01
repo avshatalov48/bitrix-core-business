@@ -55,7 +55,6 @@ class YandexCheckoutHandler
 	public const PAYMENT_METHOD_YANDEX_MONEY = 'yoo_money';
 	public const PAYMENT_METHOD_SBERBANK = 'sberbank';
 	public const PAYMENT_METHOD_QIWI = 'qiwi';
-	public const PAYMENT_METHOD_WEBMONEY = 'webmoney';
 	public const PAYMENT_METHOD_CASH = 'cash';
 	public const PAYMENT_METHOD_EMBEDDED = 'embedded';
 	public const PAYMENT_METHOD_TINKOFF_BANK = 'tinkoff_bank';
@@ -70,7 +69,6 @@ class YandexCheckoutHandler
 	public const MODE_SBERBANK_SMS = 'sberbank_sms';
 	public const MODE_SBERBANK_QR = 'sberbank_qr';
 	public const MODE_QIWI = 'qiwi';
-	public const MODE_WEBMONEY = 'webmoney';
 	public const MODE_CASH = 'cash';
 	public const MODE_MOBILE_BALANCE = 'mobile_balance';
 	public const MODE_EMBEDDED = 'embedded';
@@ -1096,12 +1094,19 @@ class YandexCheckoutHandler
 				&& !$this->isSetEmbeddedPaymentType()
 			)
 			{
+				$psModeList = static::getHandlerModeList();
+
+				if (!isset($psModeList[$psMode]))
+				{
+					$psModeList[$psMode] = $psMode;
+				}
+
 				$result->addError(
 					PaySystem\Error::create(
 						Localization\Loc::getMessage(
 							'SALE_HPS_YANDEX_CHECKOUT_ERROR_PAYMENT_METHOD_NOT_SUPPORT',
 							[
-								'#PAYMENT_METHOD#' => static::getHandlerModeList()[$psMode]
+								'#PAYMENT_METHOD#' => $psModeList[$psMode],
 							]
 						)
 					)
@@ -1369,7 +1374,6 @@ class YandexCheckoutHandler
 			static::MODE_SBERBANK_SMS => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_SMS'),
 			static::MODE_SBERBANK_QR => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_QR'),
 			static::MODE_QIWI => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_QIWI'),
-			static::MODE_WEBMONEY => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_WEBMONEY'),
 			static::MODE_ALFABANK => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ALFABANK'),
 			static::MODE_CASH => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_CASH'),
 			static::MODE_EMBEDDED => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_EMBEDDED'),
@@ -1394,7 +1398,6 @@ class YandexCheckoutHandler
 			static::MODE_SBERBANK_SMS => static::PAYMENT_METHOD_SBERBANK,
 			static::MODE_SBERBANK_QR => static::PAYMENT_METHOD_SBERBANK,
 			static::MODE_QIWI => static::PAYMENT_METHOD_QIWI,
-			static::MODE_WEBMONEY => static::PAYMENT_METHOD_WEBMONEY,
 			static::MODE_CASH => static::PAYMENT_METHOD_CASH,
 			static::MODE_EMBEDDED => static::PAYMENT_METHOD_EMBEDDED,
 			static::MODE_TINKOFF_BANK => static::PAYMENT_METHOD_TINKOFF_BANK,

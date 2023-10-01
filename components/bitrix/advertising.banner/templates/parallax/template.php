@@ -10,7 +10,7 @@
 	$frame = $this->createFrame()->begin("");
 ?>
 
-<?if ($arParams['PREVIEW'] != 'Y'):?>
+<?if (!isset($arParams['PREVIEW']) || $arParams['PREVIEW'] != 'Y'):?>
 	<?foreach($arResult["BANNERS"] as $k => $banner):?>
 		<?=$banner?>
 	<?endforeach;?>

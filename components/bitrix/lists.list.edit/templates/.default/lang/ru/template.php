@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["CT_BLLE_TOOLBAR_LIST_TITLE"] = "Просмотр и правка элементов списка";
 $MESS["CT_BLLE_TOOLBAR_FIELDS"] = "Поля списка";
 $MESS["CT_BLLE_TOOLBAR_FIELDS_TITLE"] = "Настроить поля списка";
@@ -58,7 +59,8 @@ $MESS["CT_BLLE_DELETE_POPUP_CANCEL_BUTTON"] = "Отмена";
 $MESS["CT_BLLE_COPY_POPUP_TITLE"] = "Подтверждение копирования";
 $MESS["CT_BLLE_COPY_POPUP_TITLE_1"] = "Копировать процесс";
 $MESS["CT_BLLE_COPY_POPUP_CONTENT"] = "Вы уверены, что хотите копировать?";
-$MESS["CT_BLLE_COPY_POPUP_CONTENT_1"] = "Вы уверены, что хотите скопировать процесс?";
+$MESS["CT_BLLE_COPY_POPUP_TEXT_PROCESS"] = "Вы действительно хотите скопировать этот процесс?";
+$MESS["CT_BLLE_COPY_POPUP_TEXT"] = "Вы действительно хотите скопировать этот список?";
 $MESS["CT_BLLE_COPY_CONFIRM_BUTTON"] = "Да, скопировать";
 $MESS["CT_BLLE_COPY_POPUP_ACCEPT_BUTTON"] = "Копировать";
 $MESS["CT_BLLE_COPY_POPUP_CANCEL_BUTTON"] = "Отмена";

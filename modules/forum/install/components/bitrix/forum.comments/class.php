@@ -1,9 +1,5 @@
-<?php
+<?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) { die(); }
 
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
-{
-	die();
-}
 
 use Bitrix\Forum\Internals\Error\Error;
 use Bitrix\Forum\Internals\Error\ErrorCollection;
@@ -533,6 +529,12 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 					"USE_SMILES" => $post["REVIEW_USE_SMILES"] ?? 'Y',
 					"GUEST_ID" => Main\ModuleManager::isModuleInstalled("statistic") ? $_SESSION["SESS_GUEST_ID"] : null
 				);
+
+				if (isset($post['SOURCE_ID']))
+				{
+					$arPost['SOURCE_ID'] = Forum\MessageTable::filterSourceIdParam($post['SOURCE_ID']);
+				}
+
 				if ($realIp = Main\Service\GeoIp\Manager::getRealIp())
 				{
 					$arPost["AUTHOR_IP"] = $realIp;

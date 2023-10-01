@@ -336,6 +336,23 @@
 	--ui-icon-set__path_idea-lamp: url('/bitrix/js/ui/icon-set/main/images/idea-lamp.svg');
 	--ui-icon-set__path_magic-image: url('/bitrix/js/ui/icon-set/main/images/magic-image.svg');
 	--ui-icon-set__path_ai: url('/bitrix/js/ui/icon-set/main/images/ai.svg');
+	--ui-icon-set__path_switch: url('/bitrix/js/ui/icon-set/main/images/switch.svg');
+	--ui-icon-set__path_sequential-queue: url('/bitrix/js/ui/icon-set/main/images/sequential-queue.svg');
+	--ui-icon-set__path_parallel-queue: url('/bitrix/js/ui/icon-set/main/images/parallel-queue.svg');
+	--ui-icon-set__path_condition: url('/bitrix/js/ui/icon-set/main/images/condition.svg');
+	--ui-icon-set__path_complete: url('/bitrix/js/ui/icon-set/main/images/complete.svg');
+	--ui-icon-set__path_translation: url('/bitrix/js/ui/icon-set/main/images/translation.svg');
+	--ui-icon-set__path_speed-meter: url('/bitrix/js/ui/icon-set/main/images/speed-meter.svg');
+	--ui-icon-set__path_add-chat: url('/bitrix/js/ui/icon-set/main/images/add-chat.svg');
+	--ui-icon-set__path_watch: url('/bitrix/js/ui/icon-set/main/images/watch.svg');
+}
+
+.ui-icon-set.--watch {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_watch);
+}
+
+.ui-icon-set.--add-chat {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_add-chat);
 }
 
 .ui-icon-set.--person-location {
@@ -1672,4 +1689,32 @@
 
 .ui-icon-set.--ai {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_ai);
+}
+
+.ui-icon-set.--switch {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_switch);
+}
+
+.ui-icon-set.--sequential-queue {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_sequential-queue);
+}
+
+.ui-icon-set.--parallel-queue {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_parallel-queue);
+}
+
+.ui-icon-set.--condition {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_condition);
+}
+
+.ui-icon-set.--complete {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_complete);
+}
+
+.ui-icon-set.--translation {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_translation);
+}
+
+.ui-icon-set.--speed-meter {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_speed-meter);
 }

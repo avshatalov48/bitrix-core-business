@@ -194,11 +194,27 @@ $row = $arResult['FOLDER'];
 			}
 		}
 
+		function nodeShow(node)
+		{
+			if (node)
+			{
+				node.style.display = 'flex';
+			}
+		}
+
+		function nodeHide(node)
+		{
+			if (node)
+			{
+				node.style.display = 'none';
+			}
+		}
+
 		function onEditMode(selectorNode, editableText, inputNode, editIconNode)
 		{
-			BX.hide(editableText);
-			BX.hide(editIconNode);
-			BX.show(inputNode);
+			nodeHide(editableText);
+			nodeHide(editIconNode);
+			nodeShow(inputNode);
 			var input = inputNode.querySelector('.ui-ctl-element');
 			input.value = editableText.innerText;
 			input.focus();
@@ -236,8 +252,8 @@ $row = $arResult['FOLDER'];
 
 		function offEditMode(selectorNode, editableText, inputNode, editIconNode)
 		{
-			BX.show(editableText);
-			BX.show(editIconNode);
+			nodeShow(editableText);
+			nodeShow(editIconNode);
 			inputNode.setAttribute('style', 'display: none !important')
 		}
 

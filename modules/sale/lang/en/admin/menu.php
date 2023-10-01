@@ -73,6 +73,7 @@ $MESS["SALE_LOCATION_REINDEX"] = "Re-index search";
 $MESS["SALE_LOCATION_REINDEX_DESCR"] = "Re-index search";
 $MESS["SALE_MASTER_CONVERTER_TEXT"] = "Convert e-Store";
 $MESS["SALE_MASTER_CONVERTER_TITLE"] = "Convert";
+$MESS["SALE_MENU_AGENT_SCHEME"] = "Contractor presets";
 $MESS["SALE_MENU_CRM_SITE_MASTER"] = "Go to Bitrix24";
 $MESS["SALE_MENU_CRM_SITE_MASTER_ITEM"] = "Bitrix24 Installation Wizard";
 $MESS["SALE_MENU_DELIVERY_REQUESTS"] = "Transportation orders";

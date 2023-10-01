@@ -1,4 +1,4 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) { die(); }
 if (!$this->__component->__parent || empty($this->__component->__parent->__name)):
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/themes/blue/style.css');
@@ -15,7 +15,8 @@ $arParams["SHOW_RSS"] = ($arParams["SHOW_RSS"] == "Y" && !empty($arResult["FORUM
 if ($arParams["SHOW_RSS"] == "Y"):
 	$APPLICATION->AddHeadString('<link rel="alternate" type="application/rss+xml" href="'.$arResult["URL"]["RSS_DEFAULT"].'" />');
 endif;
-$arResult["USER"]["HIDDEN_GROUPS"] = explode("/", $_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_FORUM_GROUP"]);
+$cookieKey = COption::GetOptionString("main", "cookie_name", "BITRIX_SM") . "_FORUM_GROUP";
+$arResult["USER"]["HIDDEN_GROUPS"] = explode("/", ($_COOKIE[$cookieKey] ?? ''));
 $arParams["TMPLT_SHOW_ADDITIONAL_MARKER"] = trim($arParams["TMPLT_SHOW_ADDITIONAL_MARKER"]);
 /********************************************************************
 				/Input params
@@ -77,7 +78,7 @@ if (!function_exists("__PrintForumGroupsAndForums"))
 			return false;
 		
 
-		if (intval($arGroup["ID"]) > 0 && $arGroup["ID"] != $arResult["GROUP"]["ID"])
+		if (!empty($arGroup["ID"]) && (empty($arResult["GROUP"]["ID"]) || $arGroup["ID"] != $arResult["GROUP"]["ID"]))
 		{
 			if ($bInsertSeparator):
 ?>
@@ -316,7 +317,7 @@ if (!function_exists("__PrintForumGroupsAndForums"))
 	}
 }
 if (!empty($arResult["FORUMS"])):
-	if ($arResult["GROUP"]["ID"] > 0):
+	if (isset($arResult["GROUP"]["ID"])):
 		__PrintForumGroupsAndForums($arResult["FORUMS"]["GROUPS"][$arResult["GROUP"]["ID"]], $arResult, $arParams, 0);
 	else:
 		__PrintForumGroupsAndForums($arResult["FORUMS"], $arResult, $arParams, 0);

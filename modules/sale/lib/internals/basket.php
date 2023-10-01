@@ -15,6 +15,22 @@ use Bitrix\Sale\Reservation\Internals\BasketReservationTable;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class BasketTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Basket_Query query()
+ * @method static EO_Basket_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_Basket_Result getById($id)
+ * @method static EO_Basket_Result getList(array $parameters = [])
+ * @method static EO_Basket_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_Basket createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_Basket_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_Basket wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_Basket_Collection wakeUpCollection($rows)
+ */
 class BasketTable extends Main\Entity\DataManager
 {
 

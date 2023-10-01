@@ -4080,7 +4080,14 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 	};
 	BX.UI.EntityEditorSection.prototype.onAddChildBtnClick = function(e)
 	{
-		this.openAddChildMenu();
+		if (this._settings.editor._useForceFieldsAdd && !this.getEditor().isEmbedded())
+		{
+			this.openTransferDialog();
+		}
+		else
+		{
+			this.openAddChildMenu();
+		}
 	};
 	BX.UI.EntityEditorSection.prototype.openAddChildMenu = function()
 	{
@@ -4216,61 +4223,75 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 					title: BX.message("UI_ENTITY_EDITOR_FIELD_TRANSFER_DIALOG_TITLE"),
 					buttonTitle: this._settings.editor._entityTypeTitle,
 					useFieldsSearch: this._settings.editor._useFieldsSearch,
+					hiddenElements: this._settings.editor._useForceFieldsAdd ? this._editor.getAvailableSchemeElements() : [],
 				}
 			);
 			this._fieldSelector.addClosingListener(BX.delegate(this.onTransferFieldSelect, this));
 		}
 
+		this._fieldSelector.setCurrentSchemeElementName(this.getSchemeElement().getName());
 		this._fieldSelector.open();
 	};
 	BX.UI.EntityEditorSection.prototype.onTransferFieldSelect = function(event)
 	{
-		if(event.data["isCanceled"])
+		if (event.data['isCanceled'])
 		{
 			return;
 		}
 
-		var items = BX.prop.getArray(event.data, "items");
-		if(items.length === 0)
+		const items = BX.prop.getArray(event.data, 'items');
+		if (items.length === 0)
 		{
 			return;
 		}
 
-		for(var i = 0, length = items.length; i < length; i++)
+		for (let i = 0, length = items.length; i < length; i++)
 		{
-			var item = items[i];
-
-			var sectionName = BX.prop.getString(item, "sectionName", "");
-			var fieldName = BX.prop.getString(item, "fieldName", "");
-
-			var sourceSection = this._editor.getControlById(sectionName);
-			if(!sourceSection)
+			const item = items[i];
+			const sectionName = BX.prop.getString(item, 'sectionName', '');
+			const fieldName = BX.prop.getString(item, 'fieldName', '');
+			const sourceSection = this._editor.getControlById(sectionName);
+			if (!sourceSection)
 			{
 				continue;
 			}
 
-			var sourceField = sourceSection.getChildById(fieldName);
-			if(!sourceField)
+			const hiddenSourceField = this._editor.getAvailableSchemeElementByName(fieldName);
+			const sourceField = sourceSection.getChildById(fieldName);
+			if (sourceField)
 			{
-				continue;
+				sourceSection.removeChild(sourceField, { enableSaving: false });
+				const transferField = this.createTransferField(sourceField.getSchemeElement());
+
+				//Option "notifyIfNotDisplayed" to enable user notification if field will not be displayed because of settings.
+				//Option "forceDisplay" to enable "showAlways" flag if required .
+				this.addChild(transferField, { layout: { forceDisplay: true }, enableSaving: false });
 			}
+			else if (this._settings.editor._useForceFieldsAdd && hiddenSourceField)
+			{
+				hiddenSourceField.setParent(sourceSection);
+				const transferField = this.createTransferField(hiddenSourceField);
 
-			var schemeElement = sourceField.getSchemeElement();
-
-			sourceSection.removeChild(sourceField, { enableSaving: false });
-
-			var targetField = this._editor.createControl(
-				schemeElement.getType(),
-				schemeElement.getName(),
-				{ schemeElement: schemeElement, model: this._model, parent: this, mode: this._mode }
-			);
-
-			//Option "notifyIfNotDisplayed" to enable user notification if field will not be displayed because of settings.
-			//Option "forceDisplay" to enable "showAlways" flag if required .
-			this.addChild(targetField, { layout: { forceDisplay: true }, enableSaving: false });
+				//Option "notifyIfNotDisplayed" to enable user notification if field will not be displayed because of settings.
+				//Option "forceDisplay" to enable "showAlways" flag if required .
+				sourceSection.addChild(transferField, { layout: { forceDisplay: true } });
+			}
 		}
 
 		this._editor.saveSchemeChanges();
+	};
+	BX.UI.EntityEditorSection.prototype.createTransferField = function(sourceField)
+	{
+		return this._editor.createControl(
+			sourceField.getType(),
+			sourceField.getName(),
+			{
+				schemeElement: sourceField,
+				model: this._model,
+				parent: this,
+				mode: this._mode
+			}
+		);
 	};
 	BX.UI.EntityEditorSection.prototype.createFieldConfigurator = function(params)
 	{

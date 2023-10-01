@@ -2,3 +2,4 @@
 .idea
 *.log
 /modules/main/admin/define.php
+/modules/updater_versions.php

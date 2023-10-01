@@ -32,7 +32,11 @@ export class Document
 		this.#currentStatusIndex = 0;
 		if (Type.isArray(options.statusList))
 		{
-			this.#statusList = options.statusList
+			this.#statusList = options.statusList.map((status) => {
+				status.STATUS_ID = String(status.STATUS_ID);
+
+				return status;
+			})
 			this.#currentStatusIndex = this.#statusList.findIndex(status => status.STATUS_ID === options.statusId)
 		}
 		else if (Type.isStringFilled(options.statusId))

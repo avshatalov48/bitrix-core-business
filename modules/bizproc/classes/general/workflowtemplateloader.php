@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
+use Bitrix\Main\Localization\Loc;
 
 define("BP_EI_DIRECTION_EXPORT", 0);
 define("BP_EI_DIRECTION_IMPORT", 1);
@@ -69,44 +70,63 @@ class CBPWorkflowTemplateLoader
 
 	public function validateTemplate($arActivity, $user)
 	{
-		$errors = CBPActivity::CallStaticMethod(
-			$arActivity["Type"],
-			"ValidateProperties",
-			array($arActivity["Properties"], $user)
+		$errors = CBPActivity::callStaticMethod(
+			$arActivity['Type'],
+			'ValidateProperties',
+			[$arActivity['Properties'], $user]
 		);
 
 		$pref = '';
-		if (isset($arActivity["Properties"]) && isset($arActivity["Properties"]["Title"]))
+		if (isset($arActivity['Properties']['Title']))
 		{
-			$pref = str_replace("#TITLE#", $arActivity["Properties"]["Title"], GetMessage("BPWTL_ERROR_MESSAGE_PREFIX"))." ";
+			$pref =
+				Loc::getMessage('BPWTL_ERROR_MESSAGE_PREFIX', ['#TITLE#' => $arActivity['Properties']['Title']])
+				. ' '
+			;
 		}
 
 		foreach ($errors as $i => $e)
 		{
-			$errors[$i]["message"] = $pref.$e["message"];
-			$errors[$i]["activityName"] = $arActivity['Name'];
+			$errors[$i]['message'] = $pref . $e['message'];
+			$errors[$i]['activityName'] = $arActivity['Name'];
 		}
 
-		if (array_key_exists("Children", $arActivity) && count($arActivity["Children"]) > 0)
+		if (array_key_exists('Children', $arActivity) && count($arActivity['Children']) > 0)
 		{
 			$bFirst = true;
-			foreach ($arActivity["Children"] as $arChildActivity)
-			{
-				$childErrors = CBPActivity::CallStaticMethod(
-					$arActivity["Type"],
-					"ValidateChild",
-					array($arChildActivity["Type"], $bFirst)
-				);
-				foreach ($childErrors as $i => $e)
-				{
-					$childErrors[$i]["message"] = $pref.$e["message"];
-					$childErrors[$i]["activityName"] = $arActivity['Name'];
-				}
-				$errors = array_merge($errors, $childErrors);
 
-				$bFirst = false;
-				$errors = array_merge($errors, $this->ValidateTemplate($arChildActivity, $user));
+			$childrenErrors = [];
+			foreach ($arActivity['Children'] as $arChildActivity)
+			{
+				if (!isset($arChildActivity['Activated']) || $arChildActivity['Activated'] !== 'N')
+				{
+					$childErrors = CBPActivity::callStaticMethod(
+						$arActivity['Type'],
+						'ValidateChild',
+						[$arChildActivity['Type'], $bFirst]
+					);
+
+					foreach ($childErrors as $i => $e)
+					{
+						$childErrors[$i]['message'] = $pref . $e['message'];
+						$childErrors[$i]['activityName'] = $arActivity['Name'];
+					}
+
+					if ($childErrors)
+					{
+						$childrenErrors[] = $childErrors;
+					}
+
+					$bFirst = false;
+					$validateErrors = $this->validateTemplate($arChildActivity, $user);
+					if ($validateErrors)
+					{
+						$childrenErrors[] = $validateErrors;
+					}
+				}
 			}
+
+			$errors = array_merge($errors, ...$childrenErrors);
 		}
 
 		return $errors;
@@ -373,8 +393,8 @@ class CBPWorkflowTemplateLoader
 			}
 
 			$arActivityNames[] = $activityFormatted['Name'];
-			$activity = $this->CreateActivity($activityFormatted['Type'], $activityFormatted['Name']);
-			if ($activity == null)
+			$activity = $this->createActivity($activityFormatted);
+			if ($activity === null)
 			{
 				throw new Exception('Activity is not found.');
 			}
@@ -394,11 +414,21 @@ class CBPWorkflowTemplateLoader
 		return $activity;
 	}
 
-	private function createActivity($activityCode, $activityName): ?CBPActivity
+	private function createActivity(array $activityFormatted): ?CBPActivity
 	{
-		if (CBPActivity::IncludeActivityFile($activityCode))
+		$code = $activityFormatted['Type'];
+		$name = $activityFormatted['Name'];
+		$activated = !isset($activityFormatted['Activated']) || $activityFormatted['Activated'] === 'Y';
+
+		if (CBPActivity::includeActivityFile($code))
 		{
-			return CBPActivity::CreateInstance($activityCode, $activityName);
+			$instance = CBPActivity::createInstance($code, $name);
+			if ($instance)
+			{
+				$instance->setActivated($activated);
+			}
+
+			return $instance;
 		}
 		else
 		{
@@ -778,6 +808,12 @@ class CBPWorkflowTemplateLoader
 	public static function &FindActivityByName(&$arWorkflowTemplate, $activityName)
 	{
 		$res = null;
+
+		if (!$activityName)
+		{
+			return $res;
+		}
+
 		foreach ($arWorkflowTemplate as $key => $value)
 		{
 			$valueName = $value['Name'] ?? null;

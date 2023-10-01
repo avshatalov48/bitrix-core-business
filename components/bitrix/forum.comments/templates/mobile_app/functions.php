@@ -1,9 +1,4 @@
-<?php
-
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
-{
-	die();
-}
+<?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) { die(); }
 
 function forumCommentsCommentMobile(
 	array $comment,
@@ -11,8 +6,6 @@ function forumCommentsCommentMobile(
 	array $arResult,
 	ForumCommentsComponent $component)
 {
-	$arParams["AVATAR_SIZE"] = (intval($arParams["AVATAR_SIZE"]) ?: 58);
-
 	static $parser = null;
 	if ($parser == null)
 	{
@@ -42,8 +35,8 @@ function forumCommentsCommentMobile(
 			"LOGIN" => $comment["~LOGIN"],
 			"AVATAR" => ($comment["AVATAR"] && $comment["AVATAR"]["FILE"] ? $comment["AVATAR"]["FILE"]['src'] : "")
 		),
-		"FILES" => $comment["FILES"],
-		"UF" => $comment["PROPS"],
+		"FILES" => $comment["FILES"] ?? null,
+		"UF" => $comment["PROPS"] ?? null,
 		"POST_MESSAGE_TEXT" => $text,
 		"~POST_MESSAGE_TEXT" => $comment["~POST_MESSAGE_TEXT"],
 		"CLASSNAME" => "",

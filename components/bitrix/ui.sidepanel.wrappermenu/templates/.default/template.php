@@ -2,14 +2,13 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\UI\Extension;
-use Bitrix\Main\Web\Json;
 
 /** @var $this \CBitrixComponentTemplate */
-/** @var \CAllMain $APPLICATION */
+/** @var CMain $APPLICATION */
 /** @var array $arResult*/
 /** @var array $arParams*/
 
-\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+Extension::load('ui.fonts.opensans');
 ?>
 
 <?php $this->SetViewTarget($arResult['VIEW_TARGET']) ?>

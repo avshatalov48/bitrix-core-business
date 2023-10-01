@@ -26,9 +26,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Location_Query query()
- * @method static EO_Location_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Location_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Location_Result getById($id)
- * @method static EO_Location_Result getList(array $parameters = array())
+ * @method static EO_Location_Result getList(array $parameters = [])
  * @method static EO_Location_Entity getEntity()
  * @method static \Bitrix\Sale\Location\EO_Location createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Location\EO_Location_Collection createCollection()

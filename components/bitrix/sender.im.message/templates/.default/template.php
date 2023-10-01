@@ -16,15 +16,21 @@ use Bitrix\Main\Localization\Loc;
 
 $containerId = 'sender-im-message-editor';
 
-\Bitrix\Main\UI\Extension::load(['ui.design-tokens', 'ui.fonts.opensans']);
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ai.picker',
+]);
 ?>
 <script type="text/javascript">
 	BX.ready(function () {
-		BX.Sender.Im.Message.init(<?=Json::encode(array(
+		BX.Sender.Im.Message.init(<?=Json::encode([
 			'containerId' => $containerId,
 			'actionUrl' => $arResult['ACTION_URL'],
-			'mess' => array()
-		))?>);
+			'mess' => [],
+			'isAITextAvailable' => $arResult['isAITextAvailable'] ? 'Y' : 'N',
+			'AITextContextId' => $arResult['AITextContextId'],
+		])?>);
 	});
 </script>
 <div class="bx-im-sender-value">
@@ -36,6 +42,11 @@ $containerId = 'sender-im-message-editor';
 			name="<?=htmlspecialcharsbx($arParams['INPUT_NAME'])?>"
 			><?=htmlspecialcharsbx($arResult['VALUE'])?></textarea>
 		<div class="sender-im-message-count">
+			<div class="sender-im-text-editor-panel-tools">
+				<?php if ($arResult['isAITextAvailable']): ?>
+					<span class="sender-im-text-editor-panel-tools-item sender-im-text-editor-panel-tools-ai-text" data-bx-im-panel-tools-button="ai-text"></span>
+				<?php endif; ?>
+			</div>
 			<div class="sender-im-message-count-inner">
 				<span class="sender-im-message-count-name"><?=Loc::getMessage('SENDER_IM_MESSAGE_TEXT_COUNT')?></span>
 				<span data-role="counter" class="sender-im-message-count-number"></span>

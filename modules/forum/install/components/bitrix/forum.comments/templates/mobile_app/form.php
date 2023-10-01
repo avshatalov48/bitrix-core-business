@@ -1,4 +1,5 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) { die(); }
+
 /**
  * @var array $arResult
  * @var array $arParams
@@ -83,6 +84,7 @@ if(!empty($arResult["Smiles"]))
 		<input type="hidden" name="ENTITY_ID" value="<?=$arParams["ENTITY_ID"]?>" />
 		<input type="hidden" name="REVIEW_USE_SMILES" value="Y"  />
 		<input type="hidden" name="comment_review" value="Y"  />
+		<input type="hidden" name="SOURCE_ID" value="MOBILE"  />
 	</form>
 <?
 $APPLICATION->IncludeComponent("bitrix:main.post.form",

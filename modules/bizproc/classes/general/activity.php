@@ -35,6 +35,7 @@ abstract class CBPActivity
 	protected $arPropertiesTypes = [];
 
 	protected $name = '';
+	protected bool $activated = true;
 	/** @var CBPWorkflow | \Bitrix\Bizproc\Debugger\Workflow\DebugWorkflow $workflow */
 	public $workflow = null;
 
@@ -268,13 +269,20 @@ abstract class CBPActivity
 		return $rootActivity->arFieldTypes[$rootActivity->arVariablesTypes[$variableName]["Type"]]["BaseType"];
 	}
 
-	public function setVariables($arVariables = array())
+	public function setVariables($variables = [])
 	{
-		if (count($arVariables) > 0)
+		if (!is_array($variables))
+		{
+			throw new CBPArgumentTypeException("variables", "array");
+		}
+
+		if (count($variables) > 0)
 		{
 			$rootActivity = $this->GetRootActivity();
-			foreach ($arVariables as $key => $value)
+			foreach ($variables as $key => $value)
+			{
 				$rootActivity->arVariables[$key] = $value;
+			}
 		}
 	}
 
@@ -909,6 +917,8 @@ abstract class CBPActivity
 				if ($format && $priority === 'format')
 				{
 					$value = $fieldTypeObject->formatValue($value, $format);
+					//$value becomes String
+					$fieldTypeObject->setTypeClass(Bizproc\BaseType\StringType::class);
 				}
 
 				if ($typeClass)
@@ -1305,20 +1315,23 @@ abstract class CBPActivity
 
 	public static function includeActivityFile($code)
 	{
-		$runtime = CBPRuntime::GetRuntime();
-		return $runtime->IncludeActivityFile($code);
+		return CBPRuntime::getRuntime()->includeActivityFile($code);
 	}
 
-	public static function createInstance($code, $data)
+	public static function createInstance($code, $name)
 	{
 		if (preg_match("#[^a-zA-Z0-9_]#", $code))
-			throw new Exception("Activity '".$code."' is not valid");
+		{
+			throw new Exception("Activity '" . $code . "' is not valid");
+		}
 
-		$classname = 'CBP'.$code;
+		$classname = 'CBP' . $code;
 		if (class_exists($classname))
-			return new $classname($data);
-		else
-			return null;
+		{
+			return new $classname($name);
+		}
+
+		return null;
 	}
 
 	public static function callStaticMethod($code, $method, $arParameters = array())
@@ -1357,38 +1370,42 @@ abstract class CBPActivity
 			foreach ($arParams as $key => $value)
 			{
 				if (array_key_exists($key, $this->arProperties))
+				{
 					$this->arProperties[$key] = $value;
+				}
 			}
 		}
 	}
 
 	/************************  MARK  ****************************************************************/
 
-	public function markCanceled($arEventParameters = array())
+	public function markCanceled($arEventParameters = [])
 	{
 		if ($this->executionStatus != CBPActivityExecutionStatus::Closed)
 		{
 			if ($this->executionStatus != CBPActivityExecutionStatus::Canceling)
+			{
 				throw new Exception("InvalidCancelActivityState");
+			}
 
 			$this->executionResult = CBPActivityExecutionResult::Canceled;
 			$this->MarkClosed($arEventParameters);
 		}
 	}
 
-	public function markCompleted($arEventParameters = array())
+	public function markCompleted($arEventParameters = [])
 	{
 		$this->executionResult = CBPActivityExecutionResult::Succeeded;
 		$this->MarkClosed($arEventParameters);
 	}
 
-	public function markFaulted($arEventParameters = array())
+	public function markFaulted($arEventParameters = [])
 	{
 		$this->executionResult = CBPActivityExecutionResult::Faulted;
 		$this->MarkClosed($arEventParameters);
 	}
 
-	private function markClosed($arEventParameters = array())
+	private function markClosed($arEventParameters = [])
 	{
 		switch ($this->executionStatus)
 		{
@@ -1396,28 +1413,38 @@ abstract class CBPActivity
 			case CBPActivityExecutionStatus::Canceling:
 			case CBPActivityExecutionStatus::Faulting:
 			{
-				if (is_subclass_of($this, "CBPCompositeActivity"))
+				if (is_subclass_of($this, 'CBPCompositeActivity'))
 				{
 					foreach ($this->arActivities as $activity)
 					{
 						if (($activity->executionStatus != CBPActivityExecutionStatus::Initialized)
 							&& ($activity->executionStatus != CBPActivityExecutionStatus::Closed))
 						{
-							throw new Exception("ActiveChildExist");
+							throw new Exception('ActiveChildExist');
 						}
 					}
 				}
 
-				/** @var CBPTrackingService $trackingService */
-				$trackingService = $this->workflow->GetService("TrackingService");
-				$trackingService->Write($this->GetWorkflowInstanceId(), CBPTrackingType::CloseActivity, $this->name, $this->executionStatus, $this->executionResult, ($this->IsPropertyExists("Title") ? $this->Title : ""));
-				$this->SetStatus(CBPActivityExecutionStatus::Closed, $arEventParameters);
+				if ($this->isActivated())
+				{
+					/** @var CBPTrackingService $trackingService */
+					$trackingService = $this->workflow->getService('TrackingService');
+					$trackingService->write(
+						$this->getWorkflowInstanceId(),
+						CBPTrackingType::CloseActivity,
+						$this->getName(),
+						$this->executionStatus,
+						$this->executionResult,
+						$this->getTitle()
+					);
+				}
+				$this->setStatus(CBPActivityExecutionStatus::Closed, $arEventParameters);
 
 				return;
 			}
 		}
 
-		throw new Exception("InvalidCloseActivityState");
+		throw new Exception('InvalidCloseActivityState');
 	}
 
 	protected function writeToTrackingService($message = "", $modifiedBy = 0, $trackingType = -1)
@@ -1520,7 +1547,7 @@ abstract class CBPActivity
 		}
 	}
 
-	protected function getTitle(): string
+	public function getTitle(): string
 	{
 		$activityTitle = $this->isPropertyExists('Title') ? $this->Title : '';
 
@@ -1530,6 +1557,16 @@ abstract class CBPActivity
 		}
 
 		return '';
+	}
+
+	public function setActivated(bool $activated): void
+	{
+		$this->activated = $activated;
+	}
+
+	public function isActivated(): bool
+	{
+		return $this->activated;
 	}
 
 	public static function validateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)

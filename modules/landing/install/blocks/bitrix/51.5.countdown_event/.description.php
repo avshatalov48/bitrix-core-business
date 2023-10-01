@@ -70,10 +70,6 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--TITLE'),
 				'type' => ['typo', 'heading'],
 			),
-			'.landing-block-node-text' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--TEXT'),
-				'type' => 'typo',
-			),
 			'.landing-block-node-number-number' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--NUMBER_NUMBER'),
 				'type' => array('color', 'font-family'),

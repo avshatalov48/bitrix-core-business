@@ -27,6 +27,9 @@ class CashboxYooKassa extends CashboxPaySystem
 	private const CODE_VAT_10 = 3;
 	private const CODE_VAT_20 = 4;
 
+	private const SETTLEMENT_TYPE_PREPAYMENT = 'prepayment';
+	private const CHECK_TYPE_PAYMENT = 'payment';
+
 	private const MARK_CODE_TYPE_GS1M = 'gs_1m';
 
 	public static function getName(): string
@@ -66,7 +69,10 @@ class CashboxYooKassa extends CashboxPaySystem
 			if ($phoneParser)
 			{
 				$phoneNumber = $phoneParser->parse($checkData['client_phone']);
-				$fields['customer']['phone'] = $phoneNumber->format(PhoneNumber\Format::E164);
+				if ($phoneNumber->isValid())
+				{
+					$fields['customer']['phone'] = $phoneNumber->format(PhoneNumber\Format::E164);
+				}
 			}
 		}
 
@@ -101,6 +107,25 @@ class CashboxYooKassa extends CashboxPaySystem
 			}
 
 			$fields['items'][] = $receiptItem;
+		}
+
+		if ($this->needDataForSecondCheck($payment))
+		{
+			$fields['send'] = true;
+			$fields['type'] = self::CHECK_TYPE_PAYMENT;
+			$fields['payment_id'] = $payment->getField('PS_INVOICE_ID');
+			$fields['settlements'] = [];
+
+			foreach ($checkData['payments'] as $paymentItem)
+			{
+				$fields['settlements'][] = [
+					'type' => self::SETTLEMENT_TYPE_PREPAYMENT,
+					'amount' => [
+						'value' => (string)Sale\PriceMaths::roundPrecision($paymentItem['sum']),
+						'currency' => (string)$paymentItem['currency'],
+					],
+				];
+			}
 		}
 
 		return $fields;
@@ -225,6 +250,7 @@ class CashboxYooKassa extends CashboxPaySystem
 			'filter' => [
 				'ORDER_ID' => $payment->getOrderId(),
 			],
+			'order' => ['ID' => 'DESC'],
 		])->fetchAll();
 
 		$data = $result->getData();
@@ -515,6 +541,11 @@ class CashboxYooKassa extends CashboxPaySystem
 	protected function getCheckHttpMethod(): string
 	{
 		return self::SEND_METHOD_HTTP_GET;
+	}
+
+	private function needDataForSecondCheck(Sale\Payment $payment): bool
+	{
+		return (bool)$payment->getField('PS_INVOICE_ID');
 	}
 
 	private function getHeaders(Sale\Payment $payment): array

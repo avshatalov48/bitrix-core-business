@@ -233,12 +233,12 @@ class CListElementField extends CListField
 		else
 			$arIBlockFields = CIBlock::GetFieldsDefaults();
 
-		$this->_iblock_field = $arIBlockFields[$field_id];
+		$this->_iblock_field = $arIBlockFields[$field_id] ?? null;
 	}
 
 	public function IsRequired()
 	{
-		return $this->_iblock_field["IS_REQUIRED"] == "Y";
+		return isset($this->_iblock_field["IS_REQUIRED"]) && $this->_iblock_field["IS_REQUIRED"] == "Y";
 	}
 
 	public function IsMultiple()
@@ -263,7 +263,7 @@ class CListElementField extends CListField
 			"FIELD_ID" => $this->_field_id,
 			"SORT" => $this->_sort,
 			"NAME" => $this->_label,
-			"IS_REQUIRED" => $this->_iblock_field["IS_REQUIRED"],
+			"IS_REQUIRED" => $this->_iblock_field["IS_REQUIRED"] ?? 'N',
 			"MULTIPLE" => "N",
 			"DEFAULT_VALUE" => $this->_iblock_field["DEFAULT_VALUE"] ?? null,
 			"TYPE" => $this->GetTypeID(),
@@ -514,7 +514,7 @@ class CListPropertyField extends CListField
 			{
 				self::resetPropertyArrayCache();
 
-				if($this->_property["PROPERTY_TYPE"] == "L" && is_array($arFields["LIST"]))
+				if($this->_property["PROPERTY_TYPE"] == "L" && is_array($arFields["LIST"] ?? null))
 					CList::UpdatePropertyList($this->_property["ID"], $arFields["LIST"]);
 
 				return new CListPropertyField($this->_property["IBLOCK_ID"], "PROPERTY_".$this->_property["ID"], $arFields["NAME"], $arFields["SORT"]);

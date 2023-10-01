@@ -260,7 +260,8 @@ abstract class Check extends AbstractCheck
 					'entity' => $payment['ENTITY'],
 					'type' => $payment['TYPE'],
 					'is_cash' => $payment['IS_CASH'],
-					'sum' => $payment['SUM']
+					'sum' => $payment['SUM'],
+					'currency' => $payment['CURRENCY'],
 				];
 
 				if (isset($payment['ADDITIONAL_PARAMS']))
@@ -404,6 +405,7 @@ abstract class Check extends AbstractCheck
 		$discounts = null;
 		$shopPrices = null;
 		$totalSum = 0;
+		$currency = null;
 
 		foreach ($entities as $entity)
 		{
@@ -418,13 +420,15 @@ abstract class Check extends AbstractCheck
 				$service = $entity->getPaySystem();
 				$type = $service->getField('IS_CASH') === 'Y' ? static::PAYMENT_TYPE_CASH : static::PAYMENT_TYPE_CASHLESS;
 
-				$result['PAYMENTS'][] = array(
+				$result['PAYMENTS'][] = [
 					'ENTITY' => $entity,
 					'IS_CASH' => $service->getField('IS_CASH'),
 					'TYPE' => $type,
-					'SUM' => $entity->getSum()
-				);
+					'SUM' => $entity->getSum(),
+					'CURRENCY' => $entity->getField('CURRENCY'),
+				];
 
+				$currency = $entity->getField('CURRENCY');
 				$totalSum += $entity->getSum();
 
 				if ($this->isShipmentExists())
@@ -549,6 +553,7 @@ abstract class Check extends AbstractCheck
 		}
 
 		$result['TOTAL_SUM'] = $totalSum;
+		$result['CURRENCY'] = $currency;
 
 		unset($shopPrices, $discounts);
 

@@ -11,9 +11,9 @@ use Bitrix\Main;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_BusinessValue_Query query()
- * @method static EO_BusinessValue_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_BusinessValue_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_BusinessValue_Result getById($id)
- * @method static EO_BusinessValue_Result getList(array $parameters = array())
+ * @method static EO_BusinessValue_Result getList(array $parameters = [])
  * @method static EO_BusinessValue_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_BusinessValue createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_BusinessValue_Collection createCollection()

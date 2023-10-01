@@ -172,6 +172,11 @@ return [
 				'name' => Loc::getMessage('LANDING_BLOCK_0_MENU_16-SOCIAL_ICON'),
 				'type' => ['color', 'color-hover', 'background-color', 'background-hover'],
 			],
+
+			'.landing-block-node-hamburger' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_0_MENU_1_STYLE_HAMB'),
+				'type' => ['hamburger-size', 'hamburger-animation'],
+			],
 		],
 	],
 	'assets' => [

@@ -13,7 +13,7 @@
 
 use Bitrix\Main\Localization\Loc;
 
-CJSCore::init(array('lists'));
+CJSCore::init(['lists', 'bp_starter']);
 ?>
 
 <script type="text/javascript">

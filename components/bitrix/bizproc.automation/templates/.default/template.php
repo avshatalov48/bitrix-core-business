@@ -37,6 +37,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'b
 	'ui.dialogs.messagebox',
 	'ui.entity-selector',
 	'ui.hint',
+	'ui.icon-set.main',
 ]);
 /**
  * @var array $arResult
@@ -195,7 +196,7 @@ endif;
 		<div class="bizproc-automation-status">
 			<div class="bizproc-automation-status-list">
 				<?php if (count($arResult['STATUSES']) > 1): foreach ($arResult['STATUSES'] as $statusId => $status):
-					$color = htmlspecialcharsbx($status['COLOR'] ? str_replace('#','',$status['COLOR']) : 'acf2fa');
+					$color = htmlspecialcharsbx(!empty($status['COLOR']) ? str_replace('#','',$status['COLOR']) : 'acf2fa');
 				?>
 				<div class="bizproc-automation-status-list-item">
 					<div class="bizproc-automation-status-title" data-role="automation-status-title" data-bgcolor="<?=$color?>">
@@ -293,7 +294,7 @@ endif;
 				BIZPROC_AUTOMATION_NO: '<?=GetMessageJS('MAIN_NO')?>',
 				BIZPROC_AUTOMATION_DELAY_MIN_LIMIT_LABEL: '<?=CUtil::JSEscape($arResult['DELAY_MIN_LIMIT_LABEL'])?>',
 				BIZPROC_AUTOMATION_RIGHTS_ERROR: '<?=GetMessageJS("BIZPROC_AUTOMATION_RIGHTS_ERROR")?>',
-				BIZPOC_AUTOMATION_NO_ROBOT_SELECTED: '<?=GetMessageJS("BIZPOC_AUTOMATION_NO_ROBOT_SELECTED")?>',
+				BIZPOC_AUTOMATION_NO_ROBOT_OR_TRIGGER_SELECTED: '<?=GetMessageJS("BIZPOC_AUTOMATION_NO_ROBOT_OR_TRIGGER_SELECTED")?>',
 			});
 
 			var viewMode = BX.Bizproc.Automation.Component.ViewMode.Edit;

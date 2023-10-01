@@ -2,10 +2,8 @@ this.BX = this.BX || {};
 (function (exports,main_core,main_core_events,landing_ui_form_styleform,landing_loc,landing_ui_field_colorpickerfield,landing_backend,landing_env,landing_ui_field_color,landing_pageobject,landing_ui_panel_formsettingspanel) {
 	'use strict';
 
-	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var themesMap = new Map();
 	themesMap.set('business-light', {
 	  theme: 'business-light',
@@ -236,30 +234,24 @@ this.BX = this.BX || {};
 	  theme: 'pixel-dark'
 	}));
 
-	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
-	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$1(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 	/**
 	 * @memberOf BX.Landing
 	 */
-
 	var FormStyleAdapter = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(FormStyleAdapter, _EventEmitter);
-
 	  function FormStyleAdapter(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, FormStyleAdapter);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FormStyleAdapter).call(this));
-
 	    _this.setEventNamespace('BX.Landing.FormStyleAdapter');
-
 	    _this.options = _objectSpread$1({}, options);
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this.onDebouncedFormChange = main_core.Runtime.debounce(_this.onDebouncedFormChange, 500);
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(FormStyleAdapter, [{
 	    key: "setFormOptions",
 	    value: function setFormOptions(options) {
@@ -274,7 +266,6 @@ this.BX = this.BX || {};
 	    key: "load",
 	    value: function load() {
 	      var _this2 = this;
-
 	      if (main_core.Text.capitalize(landing_env.Env.getInstance().getOptions().params.type) === 'SMN') {
 	        this.setFormOptions({
 	          data: {
@@ -283,10 +274,8 @@ this.BX = this.BX || {};
 	        });
 	        return Promise.resolve(this);
 	      }
-
 	      return main_core.Runtime.loadExtension('crm.form.client').then(function (_ref) {
 	        var FormClient = _ref.FormClient;
-
 	        if (FormClient) {
 	          return FormClient.getInstance().getOptions(_this2.options.formId).then(function (result) {
 	            _this2.setFormOptions(main_core.Runtime.merge(main_core.Runtime.clone(result), {
@@ -294,11 +283,9 @@ this.BX = this.BX || {};
 	                design: main_core.Runtime.clone(_this2.getCrmForm().design)
 	              }
 	            }));
-
 	            return _this2;
 	          });
 	        }
-
 	        return null;
 	      });
 	    }
@@ -306,10 +293,8 @@ this.BX = this.BX || {};
 	    key: "getThemeField",
 	    value: function getThemeField() {
 	      var _this3 = this;
-
 	      return this.cache.remember('themeField', function () {
 	        var theme = _this3.getFormOptions().data.design.theme;
-
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        return new rootWindow.BX.Landing.UI.Field.Dropdown({
 	          selector: 'theme',
@@ -339,10 +324,8 @@ this.BX = this.BX || {};
 	    key: "getDarkField",
 	    value: function getDarkField() {
 	      var _this4 = this;
-
 	      return this.cache.remember('darkField', function () {
 	        var theme = _this4.getFormOptions().data.design.theme;
-
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        return new rootWindow.BX.Landing.UI.Field.Dropdown({
 	          selector: 'dark',
@@ -364,7 +347,6 @@ this.BX = this.BX || {};
 	    value: function onThemeChange() {
 	      var themeId = this.getStyleForm().serialize().theme;
 	      var theme = themesMap.get(themeId);
-
 	      if (theme) {
 	        if (main_core.Type.isPlainObject(theme.color)) {
 	          this.getPrimaryColorField().setValue({
@@ -389,33 +371,25 @@ this.BX = this.BX || {};
 	            '--color': FormStyleAdapter.prepareColorFieldValue(theme.color.fieldBorder)
 	          });
 	        }
-
 	        this.getStyleField().setValue(theme.style);
-
 	        if (main_core.Type.isBoolean(theme.shadow)) {
 	          this.getShadowField().setValue(theme.shadow);
 	        }
-
 	        if (main_core.Type.isPlainObject(theme.font)) {
 	          var font = _objectSpread$1({}, theme.font);
-
 	          if (!main_core.Type.isStringFilled(font.family)) {
 	            font.family = landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FONT_DEFAULT');
 	          }
-
 	          this.getFontField().setValue(font);
 	        }
-
 	        if (main_core.Type.isPlainObject(theme.border)) {
 	          var borders = Object.entries(theme.border).reduce(function (acc, _ref2) {
 	            var _ref3 = babelHelpers.slicedToArray(_ref2, 2),
-	                key = _ref3[0],
-	                value = _ref3[1];
-
+	              key = _ref3[0],
+	              value = _ref3[1];
 	            if (value) {
 	              acc.push(key);
 	            }
-
 	            return acc;
 	          }, []);
 	          this.getBorderField().setValue(borders);
@@ -426,7 +400,6 @@ this.BX = this.BX || {};
 	    key: "getShadowField",
 	    value: function getShadowField() {
 	      var _this5 = this;
-
 	      return this.cache.remember('shadow', function () {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        return new rootWindow.BX.Landing.UI.Field.Dropdown({
@@ -447,7 +420,6 @@ this.BX = this.BX || {};
 	    key: "getStyleField",
 	    value: function getStyleField() {
 	      var _this6 = this;
-
 	      return this.cache.remember('styleField', function () {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        return new rootWindow.BX.Landing.UI.Field.Dropdown({
@@ -468,7 +440,6 @@ this.BX = this.BX || {};
 	    key: "getPrimaryColorField",
 	    value: function getPrimaryColorField() {
 	      var _this7 = this;
-
 	      return this.cache.remember('primaryColorField', function () {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
@@ -487,7 +458,6 @@ this.BX = this.BX || {};
 	    key: "getPrimaryTextColorField",
 	    value: function getPrimaryTextColorField() {
 	      var _this8 = this;
-
 	      return this.cache.remember('primaryTextColorField', function () {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
@@ -506,7 +476,6 @@ this.BX = this.BX || {};
 	    key: "getBackgroundColorField",
 	    value: function getBackgroundColorField() {
 	      var _this9 = this;
-
 	      return this.cache.remember('backgroundColorField', function () {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
@@ -525,7 +494,6 @@ this.BX = this.BX || {};
 	    key: "getTextColorField",
 	    value: function getTextColorField() {
 	      var _this10 = this;
-
 	      return this.cache.remember('textColorField', function () {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
@@ -544,7 +512,6 @@ this.BX = this.BX || {};
 	    key: "getFieldBackgroundColorField",
 	    value: function getFieldBackgroundColorField() {
 	      var _this11 = this;
-
 	      return this.cache.remember('fieldBackgroundColorField', function () {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
@@ -563,7 +530,6 @@ this.BX = this.BX || {};
 	    key: "getFieldFocusBackgroundColorField",
 	    value: function getFieldFocusBackgroundColorField() {
 	      var _this12 = this;
-
 	      return this.cache.remember('fieldFocusBackgroundColorField', function () {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
@@ -583,7 +549,6 @@ this.BX = this.BX || {};
 	    key: "getFieldBorderColorField",
 	    value: function getFieldBorderColorField() {
 	      var _this13 = this;
-
 	      return this.cache.remember('fieldBorderColorField', function () {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
 	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
@@ -603,14 +568,11 @@ this.BX = this.BX || {};
 	    key: "getFontField",
 	    value: function getFontField() {
 	      var _this14 = this;
-
 	      return this.cache.remember('fontField', function () {
 	        var value = _objectSpread$1({}, _this14.getFormOptions().data.design.font);
-
 	        if (!main_core.Type.isStringFilled(value.family)) {
 	          value.family = landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FONT_DEFAULT');
 	        }
-
 	        return new BX.Landing.UI.Field.Font({
 	          selector: 'font',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FONT'),
@@ -623,23 +585,19 @@ this.BX = this.BX || {};
 	    key: "getBorderField",
 	    value: function getBorderField() {
 	      var _this15 = this;
-
 	      return this.cache.remember('borderField', function () {
 	        return new BX.Landing.UI.Field.Checkbox({
 	          selector: 'border',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_BORDER'),
 	          value: function () {
 	            var border = _this15.getFormOptions().data.design.border;
-
 	            return Object.entries(border).reduce(function (acc, _ref4) {
 	              var _ref5 = babelHelpers.slicedToArray(_ref4, 2),
-	                  key = _ref5[0],
-	                  value = _ref5[1];
-
+	                key = _ref5[0],
+	                value = _ref5[1];
 	              if (value) {
 	                acc.push(key);
 	              }
-
 	              return acc;
 	            }, []);
 	          }(),
@@ -663,7 +621,7 @@ this.BX = this.BX || {};
 	    key: "getStyleForm",
 	    value: function getStyleForm() {
 	      var _this16 = this;
-
+	      var collapsed = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 	      return this.cache.remember('styleForm', function () {
 	        return new landing_ui_form_styleform.StyleForm({
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FORM_TITLE'),
@@ -688,12 +646,10 @@ this.BX = this.BX || {};
 	              top: value.border.includes('top'),
 	              bottom: value.border.includes('bottom')
 	            };
-
 	            if (value.font.family === landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FONT_DEFAULT')) {
 	              value.font.family = '';
 	              value.font.uri = '';
 	            }
-
 	            delete value.primary;
 	            delete value.primaryText;
 	            delete value.text;
@@ -702,7 +658,8 @@ this.BX = this.BX || {};
 	            delete value.fieldFocusBackground;
 	            delete value.fieldBorder;
 	            return value;
-	          }
+	          },
+	          collapsed: collapsed
 	        });
 	      });
 	    }
@@ -710,15 +667,12 @@ this.BX = this.BX || {};
 	    key: "getCrmForm",
 	    value: function getCrmForm() {
 	      var formApp = main_core.Reflection.getClass('b24form.App');
-
 	      if (formApp) {
 	        if (this.options.instanceId) {
 	          return formApp.get(this.options.instanceId);
 	        }
-
 	        return formApp.list()[0];
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -734,7 +688,6 @@ this.BX = this.BX || {};
 	      this.setFormOptions(mergedOptions);
 	      this.getCrmForm().design.adjust(mergedOptions.data.design);
 	      var formSettingsPanel = landing_ui_panel_formsettingspanel.FormSettingsPanel.getInstance();
-
 	      if (formSettingsPanel.isShown()) {
 	        var initialOptions = formSettingsPanel.getInitialFormOptions();
 	        var currentOptions = formSettingsPanel.getFormOptions();
@@ -743,10 +696,8 @@ this.BX = this.BX || {};
 	        currentOptions.data.design = mergedOptions.data.design;
 	        formSettingsPanel.setFormOptions(currentOptions);
 	      }
-
 	      this.onDebouncedFormChange();
 	    } // eslint-disable-next-line class-methods-use-this
-
 	  }, {
 	    key: "isCrmFormPage",
 	    value: function isCrmFormPage() {
@@ -756,19 +707,14 @@ this.BX = this.BX || {};
 	    key: "saveFormDesign",
 	    value: function saveFormDesign() {
 	      var _this17 = this;
-
 	      return main_core.Runtime.loadExtension('crm.form.client').then(function (_ref6) {
 	        var FormClient = _ref6.FormClient;
-
 	        if (FormClient) {
 	          var formClient = FormClient.getInstance();
-
 	          var formOptions = _this17.getFormOptions();
-
 	          formClient.resetCache(formOptions.id);
 	          return formClient.saveOptions(formOptions);
 	        }
-
 	        return null;
 	      });
 	    }
@@ -776,7 +722,6 @@ this.BX = this.BX || {};
 	    key: "saveBlockDesign",
 	    value: function saveBlockDesign() {
 	      var _this18 = this;
-
 	      var currentBlock = this.options.currentBlock;
 	      var design = this.getFormOptions().data.design;
 	      var formNode = currentBlock.node.querySelector('.bitrix24forms');
@@ -786,12 +731,9 @@ this.BX = this.BX || {};
 	      });
 	      main_core.Runtime.loadExtension('crm.form.client').then(function (_ref7) {
 	        var FormClient = _ref7.FormClient;
-
 	        if (FormClient) {
 	          var formClient = FormClient.getInstance();
-
 	          var formOptions = _this18.getFormOptions();
-
 	          formClient.resetCache(formOptions.id);
 	        }
 	      });
@@ -815,14 +757,12 @@ this.BX = this.BX || {};
 	    key: "onDebouncedFormChange",
 	    value: function onDebouncedFormChange() {
 	      var _this19 = this;
-
 	      if (this.isCrmFormPage()) {
 	        main_core.Runtime.loadExtension('landing.ui.panel.formsettingspanel').then(function (_ref8) {
 	          var FormSettingsPanel = _ref8.FormSettingsPanel;
 	          var formSettingsPanel = FormSettingsPanel.getInstance();
 	          formSettingsPanel.setCurrentBlock(_this19.options.currentBlock);
 	          void _this19.saveFormDesign();
-
 	          if (formSettingsPanel.useBlockDesign()) {
 	            formSettingsPanel.disableUseBlockDesign();
 	          }
@@ -841,11 +781,9 @@ this.BX = this.BX || {};
 	    value: function convertColorFieldValueToHexa(value) {
 	      var opacity = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var parsedPrimary = landing_ui_field_colorpickerfield.ColorPickerField.parseHex(value);
-
 	      if (!main_core.Type.isNil(opacity)) {
 	        parsedPrimary[3] = opacity;
 	      }
-
 	      return landing_ui_field_colorpickerfield.ColorPickerField.toHex.apply(landing_ui_field_colorpickerfield.ColorPickerField, babelHelpers.toConsumableArray(parsedPrimary));
 	    }
 	  }]);

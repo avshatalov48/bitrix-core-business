@@ -72,7 +72,6 @@ class SenderConnectorResultListComponent extends Bitrix\Sender\Internals\CommonS
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_CONTACT_LIST_TITLE1'));
 		}
 
@@ -115,7 +114,6 @@ class SenderConnectorResultListComponent extends Bitrix\Sender\Internals\CommonS
 		$title = $connector->getResultView()->getTitle();
 		if ($title)
 		{
-			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle($title);
 		}
 

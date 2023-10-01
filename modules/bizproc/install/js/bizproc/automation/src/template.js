@@ -186,6 +186,32 @@ export class Template extends EventEmitter
 		return selectedRobots;
 	}
 
+	getActivatedRobotNames(): Array<string>
+	{
+		const activatedRobots = [];
+		this.#robots.forEach(robot => {
+			if (robot.isActivated())
+			{
+				activatedRobots.push(robot.data.Name);
+			}
+		});
+
+		return activatedRobots;
+	}
+
+	getDeactivatedRobotNames(): Array<string>
+	{
+		const deactivatedRobots = [];
+		this.#robots.forEach(robot => {
+			if (!robot.isActivated())
+			{
+				deactivatedRobots.push(robot.data.Name);
+			}
+		});
+
+		return deactivatedRobots;
+	}
+
 	getSerializedRobots()
 	{
 		const serialized = [];
@@ -221,6 +247,7 @@ export class Template extends EventEmitter
 		if (this.isExternalModified())
 		{
 			this.createExternalLocker();
+			this.createManageModeButton();
 		}
 		else if (this.#viewMode.isEdit() && this.getTemplateId() > 0)
 		{
@@ -338,7 +365,7 @@ export class Template extends EventEmitter
 		}
 
 		const manageButton = Dom.create('a', {
-			text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_MANAGE_ROBOTS'),
+			text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_MANAGE_ROBOTS_1'),
 			attrs: {
 				className: "bizproc-automation-robot-btn-set",
 				target: '_top',

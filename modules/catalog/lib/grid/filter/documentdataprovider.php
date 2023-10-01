@@ -91,7 +91,7 @@ class DocumentDataProvider extends EntityDataProvider
 
 	public function __construct($mode)
 	{
-		$this->contractorsProvider = Manager::getActiveProvider();
+		$this->contractorsProvider = Manager::getActiveProvider(Manager::PROVIDER_STORE_DOCUMENT);
 
 		$this->mode = $mode;
 		self::$fields = [

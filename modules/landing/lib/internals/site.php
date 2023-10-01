@@ -535,7 +535,7 @@ class SiteTable extends Entity\DataManager
 		}
 
 		// check rights
-		if ($primary['ID'] && Rights::isOn())
+		if (isset($primary['ID']) && Rights::isOn())
 		{
 			$rights = Rights::getOperationsForSite(
 				$primary['ID']

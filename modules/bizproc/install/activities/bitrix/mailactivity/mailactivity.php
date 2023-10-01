@@ -84,7 +84,7 @@ class CBPMailActivity extends CBPActivity
 		$charset = $this->MailCharset;
 		$mailMessageType = $this->MailMessageType;
 		$mailText = $this->getMailText($mailMessageType);
-		$mailSubject = $this->MailSubject;
+		$mailSubject = CBPHelper::stringify($this->MailSubject);
 
 		if ($this->workflow->isDebug())
 		{

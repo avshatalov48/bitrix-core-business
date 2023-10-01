@@ -14,9 +14,9 @@ namespace Bitrix\Sale\Location;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_GroupLocation_Query query()
- * @method static EO_GroupLocation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_GroupLocation_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_GroupLocation_Result getById($id)
- * @method static EO_GroupLocation_Result getList(array $parameters = array())
+ * @method static EO_GroupLocation_Result getList(array $parameters = [])
  * @method static EO_GroupLocation_Entity getEntity()
  * @method static \Bitrix\Sale\Location\EO_GroupLocation createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Location\EO_GroupLocation_Collection createCollection()

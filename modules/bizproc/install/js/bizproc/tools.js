@@ -251,35 +251,60 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 
 	BX.Bizproc.delegateTask = function(taskId, fromUserId, toUserId)
 	{
-		var parameters = {
-			SITE_ID: BX.message('SITE_ID'),
-			action: 'delegate',
-			sessid: BX.bitrix_sessid(),
-			task_id: taskId,
-			from_user_id: fromUserId,
-			to_user_id: toUserId
+		const actionData = {
+			taskIds: !BX.Type.isArray(taskId) ? [taskId] : taskId,
+			fromUserId: fromUserId,
+			toUserId: toUserId,
 		};
 
-		BX.ajax({
-			action: 'delegate',
-			method:'POST',
-			dataType: 'json',
-			url:'/bitrix/components/bitrix/bizproc.task/delegate.php',
-			data: parameters,
-			onsuccess: function(response)
-			{
-				window.alert(response.message);
-				if (response.success)
-				{
-					if (!!BX.Bizproc.taskPopupInstance)
-						BX.Bizproc.taskPopupInstance.close();
-					if (BX.Bizproc.taskPopupCallback)
-						BX.Bizproc.taskPopupCallback();
-					else
-						window.location.reload()
+		BX.ajax.runAction('bizproc.task.delegate', {data: actionData})
+			.then(
+				(response) => {
+					const okCallback = () => {
+						if (BX.Bizproc.taskPopupInstance)
+						{
+							BX.Bizproc.taskPopupInstance.close();
+						}
+
+						if (BX.Bizproc.taskPopupCallback)
+						{
+							BX.Bizproc.taskPopupCallback();
+						}
+						else
+						{
+							window.location.reload();
+						}
+
+						return true;
+					};
+
+					if (BX.Reflection.getClass('BX.UI.Dialogs.MessageBox'))
+					{
+						BX.UI.Dialogs.MessageBox.alert(
+							BX.Text.encode(response.data.message),
+							okCallback
+						);
+
+						return;
+					}
+
+					window.alert(response.data.message);
+					okCallback();
+				},
+				(response) => {
+					if (BX.Reflection.getClass('BX.UI.Dialogs.MessageBox'))
+					{
+						BX.UI.Dialogs.MessageBox.alert(
+							BX.Text.encode(response.errors[0].message),
+						);
+
+						return;
+					}
+
+					window.alert(response.errors[0].message);
 				}
-			}
-		});
+			)
+		;
 	};
 
 	BX.Bizproc.showWorkflowInfoPopup = function (workflowId)

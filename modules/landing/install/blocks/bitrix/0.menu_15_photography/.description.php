@@ -113,6 +113,10 @@ return [
 				'name' => Loc::getMessage('LANDING_BLOCK_0.MENU_1_STYLE_LANDINGBLOCKNODEMENULIST'),
 				'type' => ['navbar'],
 			],
+			'.landing-block-node-hamburger' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_0_MENU_1_STYLE_LANDINGBLOCKNODE_HAMB'),
+				'type' => ['hamburger-size', 'hamburger-animation'],
+			],
 		],
 	],
 	'assets' => [

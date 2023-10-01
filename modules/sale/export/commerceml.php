@@ -148,7 +148,7 @@ header('Pragma: public');
 header('Cache-control: private');
 header('Accept-Ranges: bytes');
 header("Content-Type: application/xml");
-header('Content-Length: '.(function_exists("mb_strlen")? mb_strlen($content, 'latin1') : mb_strlen($content)));
+header('Content-Length: ' . strlen($content));
 header("Content-Disposition: attachment; filename=order.xml");
 
 echo $content;

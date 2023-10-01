@@ -1,80 +1,113 @@
-<?
+<?php
+
 namespace Bitrix\Forum\Integration\Search;
 
 use Bitrix\Forum;
-use Bitrix\Main\Config\Option;
+use Bitrix\Main;
 
-class Topic extends \Bitrix\Main\Update\Stepper
+class Topic extends Main\Update\Stepper
 {
-	protected static $moduleId = "forum";
+	protected static $moduleId = 'forum';
 
 	public static function getTitle()
 	{
-		return "Reindex topic";
+		return 'Reindex topic';
 	}
+
 	/**
 	 * @inheritDoc
 	 */
 	function execute(array &$option)
 	{
-		$res = Option::get("forum", "search.reindex.topic", "");
-		$res = empty($res) ? [] : unserialize($res, ["allowed_classes" => false]);
-		if (empty($res) || !is_array($res) || !\Bitrix\Main\Loader::includeModule("search"))
+		$storedInformation = Main\Config\Option::get('forum', 'search.reindex.topic', '');
+		$topicsToReindex = [];
+
+		if (
+			!empty($storedInformation)
+			&& ($topics = unserialize($storedInformation, ['allowed_classes' => false]))
+			&& is_array($topics)
+		)
+		{
+			$topicsToReindex = $topics;
+		}
+
+		if (empty($topicsToReindex) || !Main\Loader::includeModule('search'))
 		{
 			return self::FINISH_EXECUTION;
 		}
 
-		$state = reset($res);
-		$topicId = key($res);
-
-		$state["reindexFirst"] = ($state["reindexFirst"] === true);
-
+		$state = reset($topicsToReindex);
+		$topicId = $state['id'] ?? key($topicsToReindex);
 		$result = self::FINISH_EXECUTION;
 
-		if ($state["reindexFirst"] === true)
+		if (is_array($state) && $topicId > 0)
 		{
-			if (
-				($dbRes = \CForumMessage::GetList(
-					["ID" => "ASC"],
-					["TOPIC_ID" => $topicId, "NEW_TOPIC" => "Y", "GET_TOPIC_INFO" => "Y", "GET_FORUM_INFO" => "Y", "FILTER" => "Y"]
-				))
-				&& ($message = $dbRes->fetch())
-			)
-			{
-				\CForumMessage::Reindex($message["ID"], $message);
-			}
-		}
-		else
-		{
-			$state["LAST_ID"] = ($state["LAST_ID"] > 0 ? $state["LAST_ID"] : 0);
-			$limit = \Bitrix\Main\Config\Option::get("forum", "search_message_count", 20);
-			$limit = ($limit > 0 ? $limit : 20);
-			$dbRes = \Bitrix\Forum\MessageTable::getList([
-				"select" => ["*"],
-				"filter" => ["TOPIC_ID" => $topicId],
-				"limit" => \Bitrix\Main\Config\Option::get("forum", "search_message_count", 20),
-				"offset" => $state["LAST_ID"]
-			]);
-			if ($message = $dbRes->fetch())
-			{
-				$forum = \Bitrix\Forum\Forum::getById($message["FORUM_ID"]);
-				\CSearch::DeleteIndex("forum", false, false, $message["TOPIC_ID"]);
+			$state['reindexFirst'] = ($state['reindexFirst'] ?? false) === true;
 
-				if ($forum["INDEXATION"] === "Y")
+			if ($state['reindexFirst'] === true)
+			{
+				if (
+					($dbRes = \CForumMessage::GetList(
+						['ID' => 'ASC'],
+						[
+							'TOPIC_ID' => $topicId,
+							'NEW_TOPIC' => 'Y',
+							'GET_TOPIC_INFO' => 'Y',
+							'GET_FORUM_INFO' => 'Y',
+							'FILTER' => 'Y'
+						]
+					))
+					&& ($message = $dbRes->fetch())
+				)
 				{
-					$count = 0;
-					$topic = \Bitrix\Forum\Topic::getById($message["TOPIC_ID"]);
-					do
+					\CForumMessage::Reindex($message['ID'], $message);
+				}
+			}
+			else
+			{
+				$state['LAST_ID'] = (int) ($state['LAST_ID'] ?? 0);
+				if ($state['LAST_ID'] <= 0)
+				{
+					\CSearch::DeleteIndex('forum', false, false, $topicId);
+				}
+
+				$limit = Main\Config\Option::get('forum', 'search_message_count', 20);
+				$limit = ($limit > 0 ? $limit : 20);
+
+				$messages = Forum\MessageTable::query()
+					->setSelect(['*'])
+					->addFilter('=TOPIC_ID', $topicId)
+					->addFilter('>ID', $state['LAST_ID'])
+					->setLimit($limit)
+					->setOrder(['ID' => 'ASC'])
+					->exec()
+				;
+
+				if ($message = $messages->fetch())
+				{
+					$forum = Forum\Forum::getById($message['FORUM_ID']);
+
+					if ($forum['INDEXATION'] === 'Y')
 					{
-						$count++;
-						$message["FORUM_INFO"] = $forum->getData();
-						$message["TOPIC_INFO"] = $topic->getData();
-						\CForumMessage::Reindex($message["ID"], $message);
-						$state["LAST_ID"] = $message["ID"];
-					} while($message = $dbRes->fetch());
-					if ($count >= $limit)
-					{
-						$result = self::CONTINUE_EXECUTION;
+						$topic = Forum\Topic::getById($message['TOPIC_ID']);
+						$count = 0;
+
+						do
+						{
+							$count++;
+							$message['FORUM_INFO'] = $forum->getData();
+							$message['TOPIC_INFO'] = $topic->getData();
+
+							\CForumMessage::Reindex($message['ID'], $message);
+
+							$state['LAST_ID'] = $message['ID'];
+
+						} while ($message = $messages->fetch());
+
+						if ($count >= $limit)
+						{
+							$result = self::CONTINUE_EXECUTION;
+						}
 					}
 				}
 			}
@@ -82,44 +115,46 @@ class Topic extends \Bitrix\Main\Update\Stepper
 
 		if ($result === self::FINISH_EXECUTION)
 		{
-			array_shift($res);
+			array_shift($topicsToReindex);
 		}
 		else
 		{
-			$res[$topicId] = $state;
+			$topicsToReindex[$topicId] = $state;
 		}
-		$option["steps"] = 1;
-		$option["count"] = count($res);
-		if (empty($res))
+		$option['steps'] = 1;
+		$option['count'] = count($topicsToReindex);
+
+		if (empty($topicsToReindex))
 		{
-			Option::delete("forum", ["name" => "search.reindex.topic"]);
+			Main\Config\Option::delete('forum', ['name' => 'search.reindex.topic']);
 			return self::FINISH_EXECUTION;
 		}
-		Option::set("forum", "search.reindex.topic", serialize($res));
+		Main\Config\Option::set('forum', 'search.reindex.topic', serialize($topicsToReindex));
 		return self::CONTINUE_EXECUTION;
 	}
 
 	public static function reindexFirstMessage(int $topicId)
 	{
-		$res = Option::get("forum", "search.reindex.topic", "");
-		if (!empty($res))
-			$res = unserialize($res, ["allowed_classes" => false]);
-		$res = is_array($res) ? $res : [];
-		$res[$topicId] = [
-			"reindexFirst" => true
-		];
-		Option::set("forum", "search.reindex.topic", serialize($res));
-		static::bind(0);
+		static::reindex($topicId, true);
 	}
 
-	public static function reindex(int $topicId)
+	public static function reindex(int $topicId, bool $reindexOnlyFirstMessage = false)
 	{
-		$res = Option::get("forum", "search.reindex.topic", "");
-		if (!empty($res))
-			$res = unserialize($res, ["allowed_classes" => false]);
-		$res = is_array($res) ? $res : [];
-		$res[$topicId] = [];
-		Option::set("forum", "search.reindex.topic", serialize($res));
+		$storedInformation = Main\Config\Option::get('forum', 'search.reindex.topic', '');
+		$topicsToReindex = [];
+
+		if (
+			!empty($storedInformation)
+			&& ($res = unserialize($storedInformation, ['allowed_classes' => false]))
+			&& is_array($res)
+		)
+		{
+			$topicsToReindex = $res;
+		}
+
+		$topicsToReindex[$topicId] = ['id' => $topicId] + ($reindexOnlyFirstMessage === true ? ['reindexFirst' => true] : []);
+
+		Main\Config\Option::set('forum', 'search.reindex.topic', serialize($topicsToReindex));
 		static::bind(0);
 	}
 
@@ -127,7 +162,7 @@ class Topic extends \Bitrix\Main\Update\Stepper
 	{
 		if (IsModuleInstalled('search') && \CModule::IncludeModule('search'))
 		{
-			\CSearch::DeleteIndex('forum', false, $topic["FORUM_ID"], $topic['ID']);
+			\CSearch::DeleteIndex('forum', false, $topic['FORUM_ID'], $topic['ID']);
 		}
 	}
 }

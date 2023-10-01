@@ -15,4 +15,5 @@ export type SignUpOptions = {
 		onSaveClickAsync?: (event: BaseEvent) => Promise<any>,
 		onCancelClick?: (event: BaseEvent) => void,
 	},
+	signColor?: string | null,
 };

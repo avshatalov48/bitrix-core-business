@@ -2,15 +2,15 @@
 
 /** @var array $arParams */
 /** @var array $arResult */
-/** @global \CAllMain $APPLICATION */
-/** @global \CAllUser $USER */
-/** @global \CAllDatabase $DB */
-/** @var \CBitrixComponentTemplate $this */
+/** @global CMain $APPLICATION */
+/** @global CUser $USER */
+/** @global CDatabase $DB */
+/** @var CBitrixComponentTemplate $this */
 /** @var string $templateName */
 /** @var string $templateFile */
 /** @var string $templateFolder */
 /** @var string $componentPath */
-/** @var \CBitrixComponent $component */
+/** @var CBitrixComponent $component */
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;

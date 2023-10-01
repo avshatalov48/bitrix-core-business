@@ -1213,33 +1213,20 @@
 
 	BXMainMailFormField.__types['editor'].setValue = function(field, value, options)
 	{
-		var postForm = field.form.postForm;
-		var editor = field.form.editor;
-
-		if (value.length > 0)
+		const filesInfo = options.filesInfo;
+		if (Array.isArray(filesInfo))
 		{
-			for (var uid in postForm.controllers)
+			const files = new Map(options.filesInfo.map((file) => [file.serverFileId, file.serverPreviewUrl]));
+			if (value.length > 0 && files.size > 0)
 			{
-				if (!postForm.controllers.hasOwnProperty(uid))
-					continue;
-
-				var ctrl = postForm.controllers[uid];
-
-				if (ctrl.storage != 'disk')
-					continue;
-
-				if (!ctrl.values)
-					break;
-
-				for (var id in ctrl.values)
+				for (let [id, previewUrl] of files)
 				{
-					if (ctrl.values.hasOwnProperty(id) && ctrl.values[id].src)
-						value = value.replace('bxacid:'+id, ctrl.values[id].src+'&__bxacid='+id);
+					value = value.replace('bxacid:' + id, previewUrl + '&__bxacid=' + id)
 				}
-
-				break;
 			}
 		}
+
+		const editor = field.form.editor;
 
 		if (options && options.signature)
 		{
@@ -1261,7 +1248,11 @@
 
 		var regex = /[&?]__bxacid=(n?\d+)/;
 
-		var types = {'IMG': 'src', 'A': 'href'};
+		var types = {
+			'IMG': 'src',
+			'A': 'href'
+		};
+
 		for (var name in types)
 		{
 			var nodeList = editor.GetIframeDoc().getElementsByTagName(name);
@@ -1315,7 +1306,13 @@
 				}
 			}
 
+			if (ctrl.handler.removeFiles)
+			{
+				ctrl.handler.removeFiles(postForm.currentTemplateFiles);
+			}
+
 			ctrl.handler.selectFile({}, {}, value);
+			postForm.currentTemplateFiles = value.map(item => item.serverFileId);
 
 			break;
 		}

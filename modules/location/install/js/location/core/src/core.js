@@ -12,6 +12,7 @@ import FormatTemplate from './entity/format/formattemplate';
 import FormatTemplateCollection from './entity/format/formattemplatecollection';
 import {AutocompleteServiceBase} from './base/autocompleteservicebase';
 import type {AutocompleteServiceParams} from './base/autocompleteservicebase';
+import AutocompleteCache from './common/autocomplete-cache';
 
 import BaseSource from './base/sourcebase';
 import MapBase from './base/mapbase';
@@ -54,6 +55,7 @@ export {
 
 	StringConverter as AddressStringConverter,
 	AutocompleteServiceBase,
+	AutocompleteCache,
 	PhotoServiceBase,
 	BaseSource,
 	MapBase,

@@ -250,7 +250,16 @@ $isAjax = $component->isAjax();
 								.getInstance()
 								.setEntityType('landing_site')
 								.setEntityId(item.id)
-								.startVerify({mandatory: false})
+								.startVerify({
+									mandatory: false,
+									callback: function (verified) {
+										if (verified)
+										{
+											item.unLock();
+											publicationFunc(item);
+										}
+									}
+								})
 							;
 						}
 						else if (typeof BX.Landing.AlertShow !== 'undefined')

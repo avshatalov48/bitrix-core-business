@@ -34,7 +34,7 @@ IncludeModuleLangFile(__FILE__);
 if (
 	!$publicMode
 	&& Loader::includeModule('sale')
-	&& Catalog\v2\Contractor\Provider\Manager::getActiveProvider()
+	&& Catalog\v2\Contractor\Provider\Manager::isActiveProviderExists()
 )
 {
 	$APPLICATION->SetTitle(GetMessage("CONTRACTOR_PAGE_TITLE"));

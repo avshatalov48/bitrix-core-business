@@ -92,7 +92,7 @@ class Field
 					$field['PROPERTY_USER_TYPE']['GetPublicViewHTML'], array($field, $field, $controlSettings));
 			}
 
-			if ($field['TYPE'] == 'S:DiskFile' && $field['READ'] == 'Y')
+			if ($field['TYPE'] == 'S:DiskFile' && ($field['READ'] ?? '') == 'Y')
 			{
 				$field['VALUE'] = array_filter((is_array($field['VALUE']) ? $field['VALUE'] : array($field['VALUE'])));
 				foreach ($field['VALUE'] as $key => $value)
@@ -1079,7 +1079,8 @@ class Field
 			"type"=>'list',
 			"items"=>$items,
 			'show' => $field['SHOW'],
-			'value' => $field['VALUE']
+			'value' => $field['VALUE'],
+			'customHtml' => '',
 		);
 		if($field['READ'] == 'Y')
 		{
@@ -1196,6 +1197,7 @@ class Field
 			'required' => $field['IS_REQUIRED'] == 'Y' ? true : false,
 			'type' => 'custom',
 			'show' => $field['SHOW'],
+			'customHtml' => '',
 		);
 		$html = '';
 		$disabled = $field['READ'] == 'Y' ? 'disabled' : '';

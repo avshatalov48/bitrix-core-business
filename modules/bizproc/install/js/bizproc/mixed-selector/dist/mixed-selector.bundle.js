@@ -1,48 +1,30 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core,main_core_events,main_popup) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3;
-
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
 	var _fillMenuItems = /*#__PURE__*/new WeakSet();
-
 	var _getTabsMap = /*#__PURE__*/new WeakSet();
-
 	var _extractMenuItem = /*#__PURE__*/new WeakSet();
-
 	var _getTemplateActivitiesItems = /*#__PURE__*/new WeakSet();
-
 	var _onChooseFieldClick = /*#__PURE__*/new WeakSet();
-
 	var _onChooseTargetClick = /*#__PURE__*/new WeakSet();
-
 	var BpMixedSelector = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(BpMixedSelector, _EventEmitter);
-
 	  function BpMixedSelector(selectorOptions) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, BpMixedSelector);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BpMixedSelector).call(this));
-
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _onChooseTargetClick);
-
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _onChooseFieldClick);
-
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getTemplateActivitiesItems);
-
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _extractMenuItem);
-
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getTabsMap);
-
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _fillMenuItems);
-
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "targetNode", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tabs", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "template", []);
@@ -60,35 +42,21 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "menuId", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "objectInputNode", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "fieldInputNode", null);
-
 	    _this.setEventNamespace('BX.Bizproc.MixedSelector.BpMixedSelector');
-
 	    var options = main_core.Type.isPlainObject(selectorOptions) ? selectorOptions : {};
-
 	    _this.setTargetNode(options.targetNode);
-
 	    _this.setObjectTabs(options.objectTabs);
-
 	    _this.setTemplate(options.template);
-
 	    _this.setActivityName(options.activityName);
-
 	    _this.setSize(options.size);
-
 	    _this.setInputNames(options.inputNames);
-
 	    _this.setTargetTitle(options.targetTitle);
-
 	    _this.setCheckActivityChildren(options.checkActivityChildren);
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(BpMixedSelector, [{
 	    key: "setTargetNode",
-
-	    /* region basic SET/GET */
-	    value: function setTargetNode(node) {
+	    /* region basic SET/GET */value: function setTargetNode(node) {
 	      if (main_core.Type.isDomNode(node)) {
 	        this.targetNode = node;
 	      }
@@ -140,19 +108,15 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isPlainObject(size)) {
 	        return;
 	      }
-
 	      if (main_core.Type.isNumber(size.maxWidth)) {
 	        this.maxWidth = size.maxWidth;
 	      }
-
 	      if (main_core.Type.isNumber(size.minWidth)) {
 	        this.minWidth = size.minWidth;
 	      }
-
 	      if (main_core.Type.isNumber(size.maxHeight)) {
 	        this.maxHeight = size.maxHeight;
 	      }
-
 	      if (main_core.Type.isNumber(size.minHeight)) {
 	        this.minHeight = size.minHeight;
 	      }
@@ -173,11 +137,9 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isPlainObject(names)) {
 	        return;
 	      }
-
 	      if (main_core.Type.isStringFilled(names.object)) {
 	        this.objectName = names.object;
 	      }
-
 	      if (main_core.Type.isStringFilled(names.field)) {
 	        this.fieldName = names.field;
 	      }
@@ -197,7 +159,6 @@ this.BX = this.BX || {};
 	        this.targetTitle = title;
 	        return;
 	      }
-
 	      this.targetTitle = main_core.Loc.getMessage('BIZPROC_MIXED_SELECTOR_EXT_CHOOSE_TARGET');
 	    }
 	  }, {
@@ -216,19 +177,15 @@ this.BX = this.BX || {};
 	    key: "getCheckActivityChildren",
 	    value: function getCheckActivityChildren() {
 	      return this.checkActivityChildren;
-	    }
-	    /* endregion */
-
+	    } /* endregion */
 	  }, {
 	    key: "getMenu",
 	    value: function getMenu() {
 	      var me = this;
-
 	      if (this.menuId) {
 	        //todo: modify popup position.
 	        return main_popup.MenuManager.getMenuById(this.menuId);
 	      }
-
 	      this.menuId = BX.util.getRandomString();
 	      var size = this.getSize();
 	      return main_popup.MenuManager.create(me.menuId, me.getMenuTargetNode(), me.getMenuItems(), {
@@ -256,24 +213,19 @@ this.BX = this.BX || {};
 	      if (this.menuItems) {
 	        return this.menuItems;
 	      }
-
 	      this.menuItems = [];
-
 	      _classPrivateMethodGet(this, _fillMenuItems, _fillMenuItems2).call(this);
-
 	      return this.menuItems;
 	    }
 	  }, {
 	    key: "getMenuItemsByTabName",
 	    value: function getMenuItemsByTabName(tabName) {
 	      var tabsItems = this.getMenuItems();
-
 	      for (var i in tabsItems) {
 	        if (tabsItems[i].tabName === tabName) {
 	          return tabsItems[i].items;
 	        }
 	      }
-
 	      return [];
 	    }
 	  }, {
@@ -296,7 +248,6 @@ this.BX = this.BX || {};
 	      if (this.objectInputNode) {
 	        return this.objectInputNode.value;
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -305,7 +256,6 @@ this.BX = this.BX || {};
 	      if (this.fieldInputNode) {
 	        return this.fieldInputNode.value;
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -313,13 +263,11 @@ this.BX = this.BX || {};
 	    value: function setSelectedObjectAndField(object, field, fieldTitle) {
 	      var target = this.getMenuTargetNode();
 	      var tabsLocMessage = BpMixedSelector.getAvailableTabsLocMessages();
-
 	      if (BpMixedSelector.getAvailableTabsName().includes(object)) {
 	        target.innerText = tabsLocMessage[object] + ': ' + fieldTitle;
 	      } else {
 	        target.innerText = tabsLocMessage['Activity'] + ': ' + fieldTitle;
 	      }
-
 	      if (main_core.Type.isStringFilled(object) && main_core.Type.isStringFilled(field)) {
 	        this.objectInputNode.value = object;
 	        this.fieldInputNode.value = field;
@@ -346,98 +294,82 @@ this.BX = this.BX || {};
 	  }]);
 	  return BpMixedSelector;
 	}(main_core_events.EventEmitter);
-
 	function _fillMenuItems2() {
 	  var _this2 = this;
-
 	  var me = this;
-
 	  var map = _classPrivateMethodGet(this, _getTabsMap, _getTabsMap2).call(this);
-
 	  var locMapNames = BpMixedSelector.getAvailableTabsLocMessages();
 	  var mapKeys = BX.util.object_keys(map);
-
-	  for (var i in mapKeys) {
+	  var _loop = function _loop() {
 	    if (mapKeys[i] !== 'Activity') {
-	      this.menuItems.push({
+	      _this2.menuItems.push({
 	        text: locMapNames[mapKeys[i]],
-	        items: _classPrivateMethodGet(this, _extractMenuItem, _extractMenuItem2).call(this, map[mapKeys[i]], mapKeys[i]),
+	        items: _classPrivateMethodGet(_this2, _extractMenuItem, _extractMenuItem2).call(_this2, map[mapKeys[i]], mapKeys[i]),
 	        tabName: mapKeys[i]
 	      });
 	    } else {
-	      (function () {
-	        var activitiesItems = _classPrivateMethodGet(_this2, _getTemplateActivitiesItems, _getTemplateActivitiesItems2).call(_this2, _this2.template, map[mapKeys[i]]);
-
-	        var groupByItemActivitiesItems = [];
-	        activitiesItems.forEach(function (activityItem) {
-	          if (!main_core.Type.isArrayFilled(activityItem)) {
+	      var activitiesItems = _classPrivateMethodGet(_this2, _getTemplateActivitiesItems, _getTemplateActivitiesItems2).call(_this2, _this2.template, map[mapKeys[i]]);
+	      var groupByItemActivitiesItems = [];
+	      activitiesItems.forEach(function (activityItem) {
+	        if (!main_core.Type.isArrayFilled(activityItem)) {
+	          return;
+	        }
+	        var items = [];
+	        activityItem.forEach(function (item) {
+	          if (!main_core.Type.isStringFilled(item.description)) {
 	            return;
 	          }
-
-	          var items = [];
-	          activityItem.forEach(function (item) {
-	            if (!main_core.Type.isStringFilled(item.description)) {
-	              return;
-	            }
-
-	            items.push({
-	              text: main_core.Text.encode(item.text + ' (' + item.description + ')'),
-	              object: item.object,
-	              field: item.field,
-	              property: item,
-	              onclick: _classPrivateMethodGet(me, _onChooseFieldClick, _onChooseFieldClick2).bind(me)
-	            });
+	          items.push({
+	            text: main_core.Text.encode(item.text + ' (' + item.description + ')'),
+	            object: item.object,
+	            field: item.field,
+	            property: item,
+	            onclick: _classPrivateMethodGet(me, _onChooseFieldClick, _onChooseFieldClick2).bind(me)
 	          });
-
-	          if (main_core.Type.isArrayFilled(items)) {
-	            groupByItemActivitiesItems.push({
-	              text: activityItem[0].description,
-	              object: activityItem[0].object,
-	              items: items
-	            });
-	          }
 	        });
-
-	        if (main_core.Type.isArrayFilled(groupByItemActivitiesItems)) {
-	          _this2.menuItems.push({
-	            text: locMapNames[mapKeys[i]],
-	            items: groupByItemActivitiesItems,
-	            tabName: 'Activity'
+	        if (main_core.Type.isArrayFilled(items)) {
+	          groupByItemActivitiesItems.push({
+	            text: activityItem[0].description,
+	            object: activityItem[0].object,
+	            items: items
 	          });
 	        }
-	      })();
+	      });
+	      if (main_core.Type.isArrayFilled(groupByItemActivitiesItems)) {
+	        _this2.menuItems.push({
+	          text: locMapNames[mapKeys[i]],
+	          items: groupByItemActivitiesItems,
+	          tabName: 'Activity'
+	        });
+	      }
 	    }
+	  };
+	  for (var i in mapKeys) {
+	    _loop();
 	  }
 	}
-
 	function _getTabsMap2() {
 	  if (this.map) {
 	    return this.map;
 	  }
-
 	  this.map = {};
 	  var availableTabs = BpMixedSelector.getAvailableTabsName();
 	  var keys = Object.keys(this.tabs);
-
 	  for (var i in keys) {
 	    if (availableTabs.includes(keys[i]) && Object.keys(this.tabs[keys[i]]).length > 0) {
 	      this.map[keys[i]] = this.tabs[keys[i]];
 	    }
 	  }
-
 	  if (this.template.length < 0) {
 	    if (this.map['Activity']) {
 	      delete this.map['Activity'];
 	    }
 	  }
-
 	  return this.map;
 	}
-
 	function _extractMenuItem2(items, object) {
 	  var result = [];
 	  var itemsKeys = Object.keys(items);
-
 	  for (var i in itemsKeys) {
 	    result.push({
 	      text: BX.util.htmlspecialchars(items[itemsKeys[i]].Name),
@@ -447,31 +379,23 @@ this.BX = this.BX || {};
 	      onclick: _classPrivateMethodGet(this, _onChooseFieldClick, _onChooseFieldClick2).bind(this)
 	    });
 	  }
-
 	  return result;
 	}
-
 	function _getTemplateActivitiesItems2(template, activities) {
 	  var _this3 = this;
-
 	  var result = [];
-
-	  var _loop = function _loop(i, s) {
+	  var _loop2 = function _loop2(i) {
 	    var _activities$activityT;
-
 	    if (template[i].Name === _this3.activityName && !_this3.checkActivityChildren) {
 	      return "continue";
 	    }
-
 	    var activityType = template[i].Type.toLowerCase();
 	    var activityData = (_activities$activityT = activities[activityType]) !== null && _activities$activityT !== void 0 ? _activities$activityT : {};
 	    var returnActivityData = activityData['RETURN'];
 	    var additionalResult = activityData['ADDITIONAL_RESULT'];
-
 	    if (returnActivityData) {
 	      var keys = Object.keys(returnActivityData);
 	      var activityResult = [];
-
 	      for (var j in keys) {
 	        activityResult.push({
 	          text: returnActivityData[keys[j]].NAME,
@@ -485,7 +409,6 @@ this.BX = this.BX || {};
 	          }
 	        });
 	      }
-
 	      if (activityResult.length > 0) {
 	        result.push(activityResult);
 	      }
@@ -494,12 +417,9 @@ this.BX = this.BX || {};
 	      additionalResult.forEach(function (addProp) {
 	        if (properties[addProp]) {
 	          var _keys = Object.keys(properties[addProp]);
-
 	          var _activityResult = [];
-
 	          for (var _j in _keys) {
 	            var field = properties[addProp][_keys[_j]];
-
 	            _activityResult.push({
 	              text: field.Name,
 	              description: properties['Title'] || activityData['NAME'],
@@ -509,40 +429,33 @@ this.BX = this.BX || {};
 	              property: field
 	            });
 	          }
-
 	          if (_activityResult.length > 0) {
 	            result.push(_activityResult);
 	          }
 	        }
 	      }, _this3);
 	    }
-
 	    if (template[i]['Children'] && template[i]['Children'].length > 0) {
 	      var subResult = _classPrivateMethodGet(_this3, _getTemplateActivitiesItems, _getTemplateActivitiesItems2).call(_this3, template[i]['Children'], activities);
-
 	      result = result.concat(subResult);
 	    }
 	  };
-
 	  for (var i = 0, s = template.length; i < s; ++i) {
-	    var _ret = _loop(i, s);
-
+	    var _ret = _loop2(i);
 	    if (_ret === "continue") continue;
 	  }
-
 	  return result;
 	}
-
 	function _onChooseFieldClick2(event, item) {
 	  var menu = this.getMenu();
-	  menu.close(); // todo: item.text htmlspecialchars applied twice
+	  menu.close();
 
+	  // todo: item.text htmlspecialchars applied twice
 	  this.setSelectedObjectAndField(item.object, item.field, item.text);
 	  main_core_events.EventEmitter.emit(this, 'onSelect', {
 	    item: item
 	  });
 	}
-
 	function _onChooseTargetClick2(event) {
 	  var menu = this.getMenu();
 	  menu.show();

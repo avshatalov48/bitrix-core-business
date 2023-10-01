@@ -50,6 +50,10 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_MENU_24-NAVBAR'),
 				'type' => ['navbar-color', 'navbar-bg', 'navbar-color-hover', 'navbar-bg-hover', 'navbar-marker', 'typo-simple'],
 			),
+			'.landing-block-node-hamburger' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_MENU_24_HAMB'),
+				'type' => ['hamburger-size', 'hamburger-animation'],
+			],
 		),
 	),
 	'assets' => array(

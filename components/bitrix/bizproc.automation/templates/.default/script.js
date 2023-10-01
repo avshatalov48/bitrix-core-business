@@ -1,6 +1,7 @@
 ;if (!BX.getClass('BX.Bizproc.Automation.Component')) (function(BX)
 {
 	'use strict';
+
 	BX.namespace('BX.Bizproc.Automation');
 
 	var Component = function(baseNode)
@@ -20,7 +21,7 @@
 
 	Component.ViewMode = {
 		None: 0,
-		View : 1,
+		View: 1,
 		Edit: 2,
 		Manage: 3,
 	};
@@ -97,6 +98,7 @@
 					}
 				};
 			}
+
 			if (this.frameMode)
 			{
 				this.subscribeOnSliderClose();
@@ -201,7 +203,7 @@
 		},
 		initActionPanel: function ()
 		{
-			var panelNode = document.querySelector('[data-role="automation-actionpanel"]');
+			const panelNode = document.querySelector('[data-role="automation-actionpanel"]');
 			if (!panelNode)
 			{
 				return;
@@ -211,24 +213,30 @@
 				renderTo: panelNode,
 				removeLeftPosition: true,
 				maxHeight: 58,
-				parentPosition: "bottom",
+				parentPosition: 'bottom',
 				autoHide: false,
 			});
 
 			this.actionPanel.draw();
 
-			var pathToIcons = '/bitrix/components/bitrix/bizproc.automation/templates/.default/image/';
+			const pathToIconSetMain = '/bitrix/js/ui/icon-set/main/images/';
+			const pathToIconSetCRM = '/bitrix/js/ui/icon-set/crm/images/';
+			const pathToIconSetActions = '/bitrix/js/ui/icon-set/actions/images/';
+
 			this.actionPanel.appendItem({
 				id: 'automation_choose_all',
-				text: BX.message('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_CHOOSE_ALL'),
-				icon: pathToIcons + 'bizproc-automation--panel-icon-choose-all.svg',
-				onclick: function ()
+				text: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_CHOOSE_ALL'),
+				icon: `${pathToIconSetMain}complete.svg`,
+				onclick: function()
 				{
-					var status = this.templateManager.targetManageModeStatus;
-					var template = this.templateManager.getTemplateByStatusId(status);
+					const status = this.templateManager.targetManageModeStatus;
+					const triggers = this.triggerManager.findTriggersByDocumentStatus(status);
+					triggers.forEach(trigger => trigger.selectNode());
+
+					const template = this.templateManager.getTemplateByStatusId(status);
 					if (template)
 					{
-						template.robots.forEach(function (robot)
+						template.robots.forEach(function(robot)
 						{
 							robot.selectNode();
 						});
@@ -238,22 +246,37 @@
 
 			this.actionPanel.appendItem({
 				id: 'automation_copy_to',
-				text: BX.message('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_COPY'),
-				icon: pathToIcons + 'bizproc-automation--panel-icon-copy.svg',
+				text: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_COPY_1'),
+				icon: `${pathToIconSetActions}copy-plates.svg`,
 				onclick: this.onCopyMoveButtonClick.bind(this, 'copy'),
 			});
 
 			this.actionPanel.appendItem({
 				id: 'automation_move_to',
-				text: BX.message('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_MOVE'),
-				icon: pathToIcons + 'bizproc-automation--panel-icon-move.svg',
+				text: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_MOVE_1'),
+				icon: `${pathToIconSetCRM}stages.svg`,
 				onclick: this.onCopyMoveButtonClick.bind(this, 'move'),
 			});
 
 			this.actionPanel.appendItem({
+				id: 'automation_deactivate',
+				text: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_DEACTIVATE'),
+				icon: `${pathToIconSetMain}switch.svg`,
+				onclick: this.onDeactivateActionPanelButtonClick.bind(this),
+			});
+
+			this.actionPanel.appendItem({
+				id: 'automation_activate',
+				text: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_ACTIVATE'),
+				icon: `${pathToIconSetMain}switch.svg`,
+				hide: true,
+				onclick: this.onDeactivateActionPanelButtonClick.bind(this),
+			});
+
+			this.actionPanel.appendItem({
 				id: 'automation_delete',
-				text: BX.message('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_DELETE'),
-				icon: pathToIcons + 'bizproc-automation--panel-icon-delete.svg',
+				text: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_DELETE_1'),
+				icon: `${pathToIconSetMain}trash-bin.svg`,
 				onclick: this.onDeleteButtonClick.bind(this),
 			});
 
@@ -265,18 +288,21 @@
 				}
 			}.bind(this));
 		},
-		onCopyMoveButtonClick: function (action)
+		onCopyMoveButtonClick: function(action)
 		{
 			this.viewMode = Component.ViewMode.Edit;
-			var selectedStatus = this.templateManager.targetManageModeStatus;
-			var template = this.templateManager.getTemplateByStatusId(selectedStatus);
-			var selectedRobots = template.getSelectedRobotNames();
-			if (selectedRobots.length === 0)
+			const selectedStatus = this.templateManager.targetManageModeStatus;
+			const template = this.templateManager.getTemplateByStatusId(selectedStatus);
+			const selectedRobots = template.getSelectedRobotNames();
+			const selectedTriggers = this.triggerManager.getSelectedTriggers().map(trigger => trigger.getId());
+
+			if (selectedRobots.length + selectedTriggers.length === 0)
 			{
-				BX.UI.Notification.Center.notify({
-					content: BX.message('BIZPOC_AUTOMATION_NO_ROBOT_SELECTED'),
+				this.showNotification({
+					content: BX.Loc.getMessage('BIZPOC_AUTOMATION_NO_ROBOT_OR_TRIGGER_SELECTED'),
 					autoHideDelay: 4000,
 				});
+
 				return;
 			}
 
@@ -289,31 +315,71 @@
 					templateStatus: this.templateManager.targetManageModeStatus,
 					action: action,
 					selectedRobots: selectedRobots,
+					selectedTriggers: selectedTriggers,
 				},
 				events: {
-					onDestroy: function (event)
+					onCloseComplete: function (event)
 					{
-						var slider = event.slider;
+						const slider = event.slider;
 						if (slider)
 						{
-							var data = slider.getData();
-							var restoreData = data.get('restoreData');
-							var targetScope = data.get('targetScope');
+							const data = slider.getData();
+							const targetScope = data.get('targetScope');
 
-							var acceptedRobots = action === 'copy' ? data.get('copied') : data.get('moved');
-							var deniedRobots = data.get('denied');
-
-							if (!BX.type.isArray(acceptedRobots) || !BX.type.isArray(deniedRobots))
+							if (BX.type.isNil(targetScope))
 							{
 								return;
 							}
 
-							var messageId = 'BIZPROC_AUTOMATION_CMP_ROBOTS_' + (action === 'copy' ? 'COPIED' : 'MOVED');
-							var notifyMessage = BX.message(messageId);
-							notifyMessage = notifyMessage.replace('#ACCEPTED_COUNT#', acceptedRobots.length);
-							notifyMessage =
-								notifyMessage.replace('#TOTAL_COUNT#', acceptedRobots.length + deniedRobots.length)
-							;
+							const confirmObject = (item) => BX.type.isPlainObject(item) ? item : {};
+							const confirmArray = (item) => BX.type.isArray(item) ? item : [];
+
+							const allRobots = confirmObject(data.get('robots'));
+							const allTriggers = confirmObject(data.get('triggers'));
+
+							const acceptedRobots = confirmArray(action === 'copy' ? allRobots.copied : allRobots.moved);
+							const deniedRobots = confirmArray(allRobots.denied);
+							const manageRobotsCount = acceptedRobots.length + deniedRobots.length;
+
+							const acceptedTriggers = confirmArray(action === 'copy' ? allTriggers.copied : allTriggers.moved);
+							const deniedTriggers = confirmArray(allTriggers.denied);
+							const manageTriggersCount = acceptedTriggers.length + deniedTriggers.length;
+
+							let messageId = 'BIZPROC_AUTOMATION_CMP_';
+							const messageShards = [];
+							if (manageRobotsCount > 0 && manageTriggersCount === 0)
+							{
+								messageShards.push('ROBOTS');
+							}
+							else if (manageTriggersCount > 0 && manageRobotsCount === 0)
+							{
+								messageShards.push('TRIGGERS');
+							}
+							else
+							{
+								messageShards.push('ROBOTS', 'AND', 'TRIGGERS');
+							}
+							if (action === 'copy')
+							{
+								messageShards.push('COPIED');
+							}
+							else
+							{
+								messageShards.push('MOVED');
+							}
+							messageId += messageShards.join('_');
+							let notifyMessage = BX.message(messageId);
+							notifyMessage = notifyMessage.replace(
+								'#ACCEPTED_COUNT#',
+								acceptedRobots.length + acceptedTriggers.length,
+							);
+							notifyMessage = notifyMessage.replace(
+								'#TOTAL_COUNT#',
+								acceptedRobots.length
+									+ deniedRobots.length
+									+ acceptedTriggers.length
+									+ deniedTriggers.length
+							);
 
 							BX.UI.Notification.Center.notify({
 								content: notifyMessage,
@@ -323,9 +389,9 @@
 										events: {
 											click: function(event, balloon) {
 												event.preventDefault();
-												if (BX.type.isArray(restoreData))
+												if (BX.type.isArray(allRobots.restoreData))
 												{
-													this.saveTemplates(restoreData);
+													this.saveTemplates(allRobots.restoreData, allTriggers.restoreData);
 													balloon.close();
 												}
 											}.bind(this)
@@ -333,11 +399,11 @@
 									}
 								]
 							});
-							var updatedTemplateStatuses = [];
+							var updatedStatuses = [];
 							var targetStatus = this.templateManager.targetManageModeStatus;
 							if (action === 'move')
 							{
-								updatedTemplateStatuses.push(targetStatus);
+								updatedStatuses.push(targetStatus);
 							}
 							if (
 								targetScope
@@ -345,10 +411,24 @@
 								&& this.templateManager.getTemplateByStatusId(targetScope.status.Id)
 							)
 							{
-								updatedTemplateStatuses.push(targetScope.status.Id);
+								updatedStatuses.push(targetScope.status.Id);
 							}
 
-							this.templateManager.updateTemplates(updatedTemplateStatuses).onload = function ()
+							this.triggerManager.fetchTriggers(updatedStatuses).then(() => {
+								deniedTriggers.forEach((triggerId) => {
+									const trigger = this.triggerManager.findTriggerById(parseInt(triggerId));
+
+									if (trigger)
+									{
+										BX.Dom.addClass(trigger.node, '--denied');
+										setTimeout(
+											BX.Dom.removeClass.bind(null, trigger.node, '--denied'),
+											10 * 1000
+										);
+									}
+								});
+							});
+							this.templateManager.updateTemplates(updatedStatuses).onload = function ()
 							{
 								var srcTemplate = this.templateManager.getTemplateByStatusId(targetStatus);
 
@@ -374,23 +454,25 @@
 		onDeleteButtonClick: function()
 		{
 			this.viewMode = Component.ViewMode.Edit;
-			var status = this.templateManager.targetManageModeStatus;
-			var template = this.templateManager.getTemplateByStatusId(status);
+			const status = this.templateManager.targetManageModeStatus;
+			const template = this.templateManager.getTemplateByStatusId(status);
 			if (!template)
 			{
 				return;
 			}
-			var templateIndex = this.templateManager.templatesData.findIndex(function (templateData) {
+			const templateIndex = this.templateManager.templatesData.findIndex(function (templateData) {
 				return templateData.ID === template.getId();
 			});
 
-			var deletingRobots = template.getSelectedRobotNames();
-			if (deletingRobots.length === 0)
+			const deletingRobots = template.getSelectedRobotNames();
+			const deletingTriggers = this.triggerManager.getSelectedTriggers().map(trigger => trigger.getId());
+			if (deletingRobots.length + deletingTriggers.length === 0)
 			{
-				BX.UI.Notification.Center.notify({
-					content: BX.message('BIZPOC_AUTOMATION_NO_ROBOT_SELECTED'),
+				this.showNotification({
+					content: BX.Loc.getMessage('BIZPOC_AUTOMATION_NO_ROBOT_OR_TRIGGER_SELECTED'),
 					autoHideDelay: 4000,
 				});
+
 				return;
 			}
 			BX.ajax({
@@ -402,17 +484,32 @@
 					document_signed: this.documentSigned,
 					selected_status: template.getStatusId(),
 					robot_names: Helper.toJsonString(deletingRobots),
+					trigger_names: Helper.toJsonString(deletingTriggers),
 				},
 				onsuccess: function (response)
 				{
-					var notifyMessage = BX.message('BIZPROC_AUTOMATION_CMP_ROBOTS_DELETED');
-					notifyMessage = notifyMessage.replace('#TOTAL_COUNT#', deletingRobots.length);
+					const messageShards = [];
+					if (deletingRobots.length > 0 && deletingTriggers.length === 0)
+					{
+						messageShards.push('ROBOTS');
+					}
+					else if (deletingTriggers.length > 0 && deletingRobots.length === 0)
+					{
+						messageShards.push('TRIGGERS');
+					}
+					else
+					{
+						messageShards.push('ROBOTS', 'AND', 'TRIGGERS');
+					}
+					var notifyMessage = BX.message('BIZPROC_AUTOMATION_CMP_' + messageShards.join('_') + '_DELETED');
+					notifyMessage = notifyMessage.replace('#TOTAL_COUNT#', deletingRobots.length + deletingTriggers.length);
 					if (response.SUCCESS)
 					{
+						this.triggerManager.fetchTriggers().then();
 						template.reInit(response.DATA.template, this.viewMode);
 						this.templateManager.templatesData[templateIndex] = response.DATA.template;
 						this.disableManageMode();
-						notifyMessage = notifyMessage.replace('#ACCEPTED_COUNT#', deletingRobots.length);
+						notifyMessage = notifyMessage.replace('#ACCEPTED_COUNT#', deletingRobots.length + deletingTriggers.length);
 
 						var restoreData = response.DATA.restoreData;
 					}
@@ -428,17 +525,55 @@
 								events: {
 									click: function(event, balloon) {
 										event.preventDefault();
-										if (BX.type.isArray(restoreData))
+										if (BX.type.isPlainObject(restoreData))
 										{
-											this.saveTemplates(restoreData);
+											this.saveTemplates([restoreData.template], restoreData.triggers);
 											balloon.close();
 										}
-									}.bind(this)
-								}
-							}
-						]
+									}.bind(this),
+								},
+							},
+						],
 					});
-				}.bind(this)
+				}.bind(this),
+			});
+		},
+		onDeactivateActionPanelButtonClick: function()
+		{
+			const selectedStatus = this.templateManager.targetManageModeStatus;
+			const template = this.templateManager.getTemplateByStatusId(selectedStatus);
+			const selectedRobots = template.getSelectedRobotNames();
+			if (selectedRobots.length === 0)
+			{
+				this.showNotification({
+					content: BX.Loc.getMessage('BIZPOC_AUTOMATION_NO_ROBOT_SELECTED'),
+					autoHideDelay: 4000,
+				});
+
+				return;
+			}
+
+			const selectedTriggers = this.triggerManager.getSelectedTriggers().map((trigger) => trigger.getId());
+			if (selectedTriggers.length > 0)
+			{
+				this.showNotification({
+					autoHideDelay: 4000,
+					content: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DEACTIVATE_TRIGGER_ALERT_MESSAGE'),
+				});
+			}
+
+			const deactivatedRobots = template.getDeactivatedRobotNames();
+			const activate = selectedRobots.every((selectedRobotName) => deactivatedRobots.includes(selectedRobotName));
+
+			this.disableManageMode();
+			template.markModified(true);
+
+			selectedRobots.forEach((id) => {
+				const robot = template.getRobotById(id);
+				if (robot)
+				{
+					robot.setActivated(activate).reInit();
+				}
 			});
 		},
 		initTriggerManager: function()
@@ -449,8 +584,26 @@
 
 			this.triggerManager.subscribe('TriggerManager:onHelpClick', function (event)
 			{
-				this.onGlobalHelpClick.call(this, event.data)
+				this.onGlobalHelpClick.call(this, event.data);
 			}.bind(this));
+
+			this.triggerManager.onTriggerEvent('Trigger:selected', () => {
+				const template = this.templateManager.getTemplateByStatusId(this.templateManager.targetManageModeStatus);
+				const totalSelectedCount = (
+					template.getSelectedRobotNames().length
+					+ this.triggerManager.getSelectedTriggers().length
+				);
+				this.actionPanel.setTotalSelectedItems(totalSelectedCount);
+			});
+			this.triggerManager.onTriggerEvent('Trigger:unselected', () => {
+				const template = this.templateManager.getTemplateByStatusId(this.templateManager.targetManageModeStatus);
+				const selectedRobots = !BX.type.isNil(template) ? template.getSelectedRobotNames() : [];
+				const totalSelectedCount = (
+					selectedRobots.length
+					+ this.triggerManager.getSelectedTriggers().length
+				);
+				this.actionPanel.setTotalSelectedItems(totalSelectedCount);
+			});
 
 			BX.Event.EventEmitter.subscribe(
 				this,
@@ -763,7 +916,7 @@
 			}
 
 			const triggersCnt = this.triggerManager.countAllTriggers();
-			const robotsCnt = this.templateManager.countAllRobots();
+			const robotsCnt = this.templateManager.countAllActivatedRobots();
 
 			return (triggersCnt + robotsCnt > limit) ? [limit, triggersCnt, robotsCnt] : false;
 		},
@@ -810,7 +963,7 @@
 
 			const analyticsLabel = {
 				'automation_save': 'Y',
-				'robots_count': this.templateManager.countAllRobots(),
+				'robots_count': this.templateManager.countAllActivatedRobots(),
 				'triggers_count': this.triggerManager.countAllTriggers(),
 				'automation_module': this.document.getRawType()[0],
 				'automation_entity': this.document.getRawType()[2] + '_' + this.document.getCategoryId()
@@ -920,7 +1073,7 @@
 				}
 			}
 		},
-		saveTemplates: function(templatesData)
+		saveTemplates: function(templatesData, triggersData)
 		{
 			if (this.savingAutomation)
 			{
@@ -930,7 +1083,8 @@
 			var data = {
 				ajax_action: 'save_automation',
 				document_signed: this.documentSigned,
-				templates_json: Helper.toJsonString(templatesData)
+				templates_json: Helper.toJsonString(templatesData),
+				triggers_json: Helper.toJsonString(triggersData),
 			};
 
 			this.savingAutomation = true;
@@ -946,6 +1100,7 @@
 
 					if (response.SUCCESS)
 					{
+						self.triggerManager.fetchTriggers().then();
 						templatesData.forEach(function(updatedTemplate) {
 							var template = self.templateManager.getTemplateById(updatedTemplate.ID);
 							if (template)
@@ -984,7 +1139,7 @@
 			{
 				this.viewMode = Component.ViewMode.Manage;
 				this.templateManager.enableManageMode(status);
-				this.triggerManager.enableManageMode();
+				this.triggerManager.enableManageMode(status);
 			}
 		},
 		disableManageMode: function()
@@ -1424,118 +1579,127 @@
 
 			return template;
 		},
-		subscribeTemplateEvents: function (template)
+		subscribeTemplateEvents: function(template)
 		{
 			this.getTemplateEventListeners(template).forEach(function (eventListener) {
 				template.subscribe(eventListener.eventName, eventListener.listener);
 			});
 		},
-		subscribeRobotEvents: function (template)
+		subscribeRobotEvents: function(template)
 		{
 			this.getRobotEventListeners(template).forEach(function (eventListener) {
 				template.subscribeRobotEvents(eventListener.eventName, eventListener.listener);
 			});
 		},
-		getTemplateEventListeners: function (template)
+		getTemplateEventListeners: function(template)
 		{
 			return [
 				{
 					eventName: 'Template:help:show',
-					listener: function (event) {
+					listener: function(event) {
 						this.component.onGlobalHelpClick(event.data);
-					}.bind(this)
+					}.bind(this),
 				},
 				{
 					eventName: 'Template:robot:showSettings',
-					listener: function () {
+					listener: function() {
 						BX.Dom.addClass(this.component.node, 'automation-base-blocked');
-					}.bind(this)
+					}.bind(this),
 				},
 				{
 					eventName: 'Template:robot:closeSettings',
-					listener: function () {
+					listener: function() {
 						BX.Dom.removeClass(this.component.node, 'automation-base-blocked');
-					}.bind(this)
+					}.bind(this),
 				},
 				{
 					eventName: 'Template:robot:add',
-					listener: function (event) {
+					listener: function(event) {
 						var draftRobot = event.getData().robot;
 						this.getRobotEventListeners(template).forEach(function (eventListener) {
 							draftRobot.subscribe(eventListener.eventName, eventListener.listener);
 						});
-					}.bind(this)
+					}.bind(this),
 				},
 				{
 					eventName: 'Template:robot:delete',
-					listener: function (event) {
+					listener: function(event) {
 						const deletedRobot = event.getData().robot;
 
-						//analytics
+						// analytics
 						BX.ajax.runAction(
 							'bizproc.analytics.push',
 							{
 								analyticsLabel: {
 									automation_robot_delete: 'Y',
 									delete_robot: deletedRobot.data.Type.toLowerCase(),
-								}
-							}
+								},
+							},
 						);
-
-					}.bind(this)
+					}.bind(this),
 				},
 				{
 					eventName: 'Template:modified',
-					listener: function () {
+					listener: function() {
 						this.component.markModified();
-					}.bind(this)
+					}.bind(this),
 				},
 				{
 					eventName: 'Template:enableManageMode',
-					listener: function (event) {
+					listener: function(event) {
 						if (this.viewMode === Component.ViewMode.Edit)
 						{
 							this.component.enableManageMode(event.getData().documentStatus);
 						}
-					}.bind(this)
-				}
+					}.bind(this),
+				},
 			];
 		},
-		getRobotEventListeners: function (template)
+		getRobotEventListeners: function(template)
 		{
 			return [
 				{
 					eventName: 'Robot:selected',
 					listener: function () {
-						this.component.actionPanel.setTotalSelectedItems(template.getSelectedRobotNames().length);
+						const totalSelectedCount = (
+							this.component.triggerManager.getSelectedTriggers().length
+							+ template.getSelectedRobotNames().length
+						);
+						this.component.actionPanel.setTotalSelectedItems(totalSelectedCount);
+						this.toggleActionDeactivateItem(template);
 					}.bind(this)
 				},
 				{
 					eventName: 'Robot:unselected',
 					listener: function () {
-						this.component.actionPanel.setTotalSelectedItems(template.getSelectedRobotNames().length);
+						const totalSelectedCount = (
+							this.component.triggerManager.getSelectedTriggers().length
+							+ template.getSelectedRobotNames().length
+						);
+						this.component.actionPanel.setTotalSelectedItems(totalSelectedCount);
+						this.toggleActionDeactivateItem(template);
 					}.bind(this)
 				},
 				{
 					eventName: 'Robot:title:editStart',
-					listener: function () {
+					listener: function() {
 						BX.addClass(this.component.node, 'automation-base-blocked');
-					}.bind(this)
+					}.bind(this),
 				},
 				{
 					eventName: 'Robot:title:editCompleted',
-					listener: function () {
+					listener: function() {
 						BX.removeClass(this.component.node, 'automation-base-blocked');
-					}.bind(this)
+					}.bind(this),
 				},
 				{
 					eventName: 'Robot:manage',
-					listener: function (event) {
-						var dstTemplate = this.getTemplateByColumnNode(event.getData().templateNode);
-						var droppableItem = event.getData().droppableItem;
-						var robot = event.getData().robot;
+					listener: function(event) {
+						const dstTemplate = this.getTemplateByColumnNode(event.getData().templateNode);
+						const droppableItem = event.getData().droppableItem;
+						const robot = event.getData().robot;
 
-						var beforeRobot = undefined;
+						let beforeRobot;
 						if (!BX.Type.isNil(droppableItem))
 						{
 							beforeRobot = dstTemplate.getRobotById(droppableItem.getAttribute('data-id'));
@@ -1552,9 +1716,46 @@
 								robot.moveTo(dstTemplate, beforeRobot);
 							}
 						}
-					}.bind(this)
-				}
+					}.bind(this),
+				},
+				{
+					eventName: 'Robot:onAfterActivated',
+					listener: function() {
+						if (template)
+						{
+							template.markModified(true);
+						}
+					},
+				},
+				{
+					eventName: 'Robot:onAfterDeactivated',
+					listener: function() {
+						if (template)
+						{
+							template.markModified(true);
+						}
+					},
+				},
 			];
+		},
+		toggleActionDeactivateItem(template)
+		{
+			const deactivateItem = this.component.actionPanel?.getItemById('automation_deactivate');
+			const activateItem = this.component.actionPanel?.getItemById('automation_activate');
+
+			if (deactivateItem && activateItem)
+			{
+				const selectedRobots = template.getSelectedRobotNames();
+				let activate = false;
+				if (selectedRobots.length > 0)
+				{
+					const deactivatedRobots = template.getDeactivatedRobotNames();
+					activate = selectedRobots.every((selectedRobotName) => deactivatedRobots.includes(selectedRobotName));
+				}
+
+				activateItem[activate ? 'showAsInlineBlock' : 'hide']();
+				deactivateItem[activate ? 'hide' : 'showAsInlineBlock']();
+			}
 		},
 		reInitTemplates: function(templates)
 		{
@@ -1643,6 +1844,15 @@
 				cnt += template.robots.length;
 			});
 			return cnt;
+		},
+		countAllActivatedRobots: function()
+		{
+			let count = 0;
+			this.templates.forEach((template) => {
+				count += (template.getActivatedRobotNames()).length;
+			});
+
+			return count;
 		},
 		getTemplateByColumnNode: function(node)
 		{

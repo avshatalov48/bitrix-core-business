@@ -6,6 +6,7 @@ import SearchRequester from './requesters/searchrequester';
 import GeocodingService from './geocodingservice';
 import ReverseRequester from './requesters/reverserequester';
 import MapService from './mapservice';
+import MapMobileService from './mapmobileservice';
 import TileLayerAuth from '../leaflet/src/tilelayerauth';
 import TokenContainer from './tokencontainer';
 import NominatimResponseConverter from './responseconverters/nominatimresponseconverter';
@@ -77,6 +78,24 @@ export default class OSMFactory
 			geocodingService: geocodingService,
 			mapFactoryMethod: Leaflet.map,
 			markerFactoryMethod: Leaflet.marker,
+			locationRepository: new LocationRepository(),
+			sourceLanguageId: params.sourceLanguageId,
+			tileLayerFactoryMethod: () => {
+				const tileLayerAuth = new TileLayerAuth();
+				tileLayerAuth.setTokenContainer(tokenContainer);
+				tileLayerAuth.setHostName(params.hostName);
+				return tileLayerAuth;
+			},
+			serviceUrl: params.serviceUrl,
+			mapServiceUrl: params.mapServiceUrl,
+		});
+
+		osmParams.mapMobileService = new MapMobileService({
+			languageId: params.languageId,
+			geocodingService: geocodingService,
+			mapFactoryMethod: Leaflet.map,
+			markerFactoryMethod: Leaflet.marker,
+			iconFactoryMethod: Leaflet.icon,
 			locationRepository: new LocationRepository(),
 			sourceLanguageId: params.sourceLanguageId,
 			tileLayerFactoryMethod: () => {

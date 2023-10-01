@@ -51,6 +51,12 @@ class CashboxOrangeDataFfd12 extends CashboxOrangeData
 
 		$result['quantityMeasurementUnit'] = $this->buildPositionQuantityMeasurementUnit($item);
 
+		if (isset($item['supplier_info']))
+		{
+			$result += $this->buildPositionAgentInfo();
+			$result += $this->buildPositionSupplier($item['supplier_info']);
+		}
+
 		return $result;
 	}
 

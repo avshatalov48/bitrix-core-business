@@ -27,9 +27,9 @@ use Bitrix\Main\Entity\DataManager;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_RelatedData_Query query()
- * @method static EO_RelatedData_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_RelatedData_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_RelatedData_Result getById($id)
- * @method static EO_RelatedData_Result getList(array $parameters = array())
+ * @method static EO_RelatedData_Result getList(array $parameters = [])
  * @method static EO_RelatedData_Entity getEntity()
  * @method static \Bitrix\Sale\Discount\Gift\EO_RelatedData createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Discount\Gift\EO_RelatedData_Collection createCollection()

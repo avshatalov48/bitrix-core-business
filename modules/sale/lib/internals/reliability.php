@@ -14,9 +14,9 @@ use Bitrix\Main\ORM\Fields;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Reliability_Query query()
- * @method static EO_Reliability_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Reliability_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Reliability_Result getById($id)
- * @method static EO_Reliability_Result getList(array $parameters = array())
+ * @method static EO_Reliability_Result getList(array $parameters = [])
  * @method static EO_Reliability_Entity getEntity()
  * @method static \Sale\Handlers\Delivery\Additional\RusPost\Reliability\Reliability createObject($setDefaultValues = true)
  * @method static \Sale\Handlers\Delivery\Additional\RusPost\Reliability\ReliabilityCollection createCollection()

@@ -34,7 +34,20 @@ use Bitrix\Main\Type\DateTime;
  * </ul>
  *
  * @package Bitrix\Sale
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserTransact_Query query()
+ * @method static EO_UserTransact_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_UserTransact_Result getById($id)
+ * @method static EO_UserTransact_Result getList(array $parameters = [])
+ * @method static EO_UserTransact_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_UserTransact createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_UserTransact_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_UserTransact wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_UserTransact_Collection wakeUpCollection($rows)
+ */
 class UserTransactTable extends DataManager
 {
 	/**

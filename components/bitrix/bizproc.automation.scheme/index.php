@@ -24,6 +24,7 @@ if ($request['IFRAME'] === 'Y' && $request['IFRAME_TYPE'] === 'SIDE_SLIDER')
 				'templateStatus' => $request['templateStatus'],
 				'action' => $request['action'],
 				'robotNames' => $request['selectedRobots'],
+				'triggerNames' => $request['selectedTriggers'],
 			],
 		]
 	);

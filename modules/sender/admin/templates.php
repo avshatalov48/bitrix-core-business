@@ -1,7 +1,7 @@
 <?
 require_once(__DIR__ ."/page_header.php");
 
-/** @var \CAllMain $APPLICATION */
+/** @var CMain $APPLICATION */
 /** @var array $senderAdminPaths */
 $APPLICATION->IncludeComponent("bitrix:sender.template", ".default", array(
 	'SEF_MODE' => 'N',

@@ -504,40 +504,56 @@ class CBPWorkflow
 			{
 				try
 				{
-					$trackingService = $this->GetService("TrackingService");
-					$trackingService->Write($this->GetInstanceId(), CBPTrackingType::ExecuteActivity, $activity->GetName(), $activity->executionStatus, $activity->executionResult, ($activity->IsPropertyExists("Title") ? $activity->Title : ""), "");
-					$newStatus = $activity->Execute();
-
-					//analyse robots - Temporary, it is prototype
-					if ($trackingService->isForcedMode($this->GetInstanceId()))
+					$newStatus = CBPActivityExecutionStatus::Closed;
+					if ($activity->isActivated())
 					{
-						$activityType = mb_substr(get_class($activity), 3);
-						if (!in_array($activityType, [
-							'SequentialWorkflowActivity',
-							'ParallelActivity',
-							'SequenceActivity',
-							'DelayActivity',
-							'IfElseActivity',
-							'IfElseBranchActivity'
-						]))
+						$trackingService = $this->getService('TrackingService');
+						$trackingService->write(
+							$this->getInstanceId(),
+							CBPTrackingType::ExecuteActivity,
+							$activity->getName(),
+							$activity->executionStatus,
+							$activity->executionResult,
+							$activity->getTitle(),
+							''
+						);
+						$newStatus = $activity->Execute();
+
+						//analyse robots - Temporary, it is prototype
+						if ($trackingService->isForcedMode($this->GetInstanceId()))
 						{
-							/** @var \Bitrix\Bizproc\Service\Analytics $analyticsService */
-							$analyticsService = $this->GetService("AnalyticsService");
-							if ($analyticsService->isEnabled())
+							$activityType = mb_substr(get_class($activity), 3);
+							if (!in_array($activityType, [
+								'SequentialWorkflowActivity',
+								'ParallelActivity',
+								'SequenceActivity',
+								'DelayActivity',
+								'IfElseActivity',
+								'IfElseBranchActivity'
+							]))
 							{
-								$analyticsService->write(
-									$activity->GetDocumentId(),
-									'robot_run',
-									$activityType
-								);
+								/** @var \Bitrix\Bizproc\Service\Analytics $analyticsService */
+								$analyticsService = $this->GetService("AnalyticsService");
+								if ($analyticsService->isEnabled())
+								{
+									$analyticsService->write(
+										$activity->GetDocumentId(),
+										'robot_run',
+										$activityType
+									);
+								}
 							}
 						}
 					}
 
 					if ($newStatus == CBPActivityExecutionStatus::Closed)
+					{
 						$this->CloseActivity($activity);
+					}
 					elseif ($newStatus != CBPActivityExecutionStatus::Executing)
-						throw new Exception("InvalidExecutionStatus");
+					{
+						throw new Exception('InvalidExecutionStatus');
+					}
 				}
 				catch (Exception $e)
 				{

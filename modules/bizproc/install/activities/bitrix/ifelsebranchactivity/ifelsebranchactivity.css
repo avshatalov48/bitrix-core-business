@@ -1,0 +1,29 @@
+.bizproc-designer-if-else-branch-activity-title-wrapper {
+	font-size: 12px;
+	height: 23px;
+	overflow-y: hidden;
+	background-color: #f9cf82;
+	border-radius: var(--ui-border-radius-xs);
+	border: 1px solid #C0C1C3;
+}
+
+.bizproc-designer-if-else-branch-activity-title-wrapper.--deactivated {
+	background-color: #D2D3D3;
+}
+
+.bizproc-designer-if-else-branch-activity-title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 165px;
+	white-space: nowrap;
+}
+
+.bizproc-designer-if-else-branch-activity-setting-icon {
+	--ui-icon-set__icon-size: 14px;
+	--ui-icon-set__icon-color: var(--ui-color-base-70);
+	margin: 2px;
+}
+
+.bizproc-designer-if-else-branch-activity-setting-icon:hover {
+	--ui-icon-set__icon-color: var(--ui-color-base-90);
+}

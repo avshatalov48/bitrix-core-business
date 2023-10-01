@@ -11,12 +11,10 @@ this.BX = this.BX || {};
 	    this.onHover = options.onHover;
 	    this.pseudoElement = main_core.Dom.hasClass(this.element, 'landing-designer-block-pseudo-last');
 	    main_core.Event.bind(this.element, 'mouseover', this.onMouseOver.bind(this));
-
 	    if (options.className) {
 	      main_core.Dom.addClass(this.element, options.className);
 	    }
 	  }
-
 	  babelHelpers.createClass(Node, [{
 	    key: "isPseudoElement",
 	    value: function isPseudoElement() {
@@ -57,7 +55,6 @@ this.BX = this.BX || {};
 	  function DesignerBlockUI() {
 	    babelHelpers.classCallCheck(this, DesignerBlockUI);
 	  }
-
 	  babelHelpers.createClass(DesignerBlockUI, null, [{
 	    key: "getHoverDiv",
 	    value: function getHoverDiv() {
@@ -80,10 +77,8 @@ this.BX = this.BX || {};
 	var _templateObject$1;
 	var RepoPanel = /*#__PURE__*/function (_Content) {
 	  babelHelpers.inherits(RepoPanel, _Content);
-
 	  function RepoPanel(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, RepoPanel);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(RepoPanel).call(this, 'design_repo', {
 	      title: landing_loc.Loc.getMessage('LANDING_DESIGN_BLOCK_REPO_TITLE'),
@@ -92,18 +87,14 @@ this.BX = this.BX || {};
 	    _this.currentCategory = null;
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this.onElementSelect = options.onElementSelect;
-
 	    _this.renderTo(parent.document.body ? parent.document.body : document.body);
-
 	    main_core.Dom.addClass(_this.layout, 'landing-ui-panel-repo');
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(RepoPanel, [{
 	    key: "addRepository",
 	    value: function addRepository(repository) {
 	      var _this2 = this;
-
 	      repository.map(function (item) {
 	        _this2.addElement(item);
 	      });
@@ -112,29 +103,40 @@ this.BX = this.BX || {};
 	    key: "makeElementUnique",
 	    value: function makeElementUnique(element) {
 	      var _this3 = this;
-
 	      var newManifest = {};
+	      var newStyleManifest = {};
+	      var origNodes = element.manifest.nodes;
 	      Object.keys(element.manifest.nodes).map(function (selector) {
 	        var randPostfix = '-' + _this3.randomNum(1000, 9999);
-
-	        var className = selector.substr(1);
+	        var className = selector.substring(1);
 	        element.html = element.html.replaceAll(new RegExp(className + '([\\s"]{1})', 'g'), className + randPostfix + '$1');
 	        newManifest[selector + randPostfix] = element.manifest.nodes[selector];
+	        if (selector in element.manifest.style) {
+	          newStyleManifest[selector + randPostfix] = element.manifest.style[selector];
+	        }
 	      });
 	      element.manifest.nodes = newManifest;
+	      Object.keys(element.manifest.style).map(function (selector) {
+	        if (selector in origNodes) {
+	          return;
+	        }
+	        var randPostfix = '-' + _this3.randomNum(1000, 9999);
+	        var className = selector.substring(1);
+	        element.html = element.html.replaceAll(new RegExp(className + '([\\s"]{1})', 'g'), className + randPostfix + '$1');
+	        newStyleManifest[selector + randPostfix] = element.manifest.style[selector];
+	      });
+	      element.manifest.style = newStyleManifest;
 	      return element;
 	    }
 	  }, {
 	    key: "addElement",
 	    value: function addElement(element) {
 	      var _this4 = this;
-
 	      var nodeCard = new BX.Landing.UI.Card.BlockPreviewCard({
 	        title: element.name,
 	        image: '/bitrix/images/landing/designerblock/presets/' + element.code + '.jpg',
 	        onClick: function onClick() {
 	          _this4.onElementSelect(_this4.makeElementUnique(element));
-
 	          void _this4.hide();
 	        }
 	      });
@@ -164,7 +166,6 @@ this.BX = this.BX || {};
 	    });
 	    this.panel.addRepository(options.repository);
 	  }
-
 	  babelHelpers.createClass(RepoManager, [{
 	    key: "showPanel",
 	    value: function showPanel() {
@@ -178,17 +179,14 @@ this.BX = this.BX || {};
 	var DesignerBlock = /*#__PURE__*/function () {
 	  function DesignerBlock(blockNode, options) {
 	    var _this = this;
-
 	    babelHelpers.classCallCheck(this, DesignerBlock);
 	    babelHelpers.defineProperty(this, "hoverArea", null);
 	    babelHelpers.defineProperty(this, "activeNode", null);
 	    babelHelpers.defineProperty(this, "changed", false);
 	    babelHelpers.defineProperty(this, "saving", false);
-
 	    if (!blockNode) {
 	      return;
 	    }
-
 	    this.originalNode = blockNode;
 	    this.blockNode = blockNode.children[0];
 	    this.blockCode = options.code;
@@ -201,7 +199,6 @@ this.BX = this.BX || {};
 	    this.cardSelectors = options.manifest.cards ? Object.keys(options.manifest.cards) : [];
 	    this.designAllowed = !!landing_env.Env.getInstance().getOptions().design_block_allowed;
 	    this.cardSelectors.push(''); // for without cards elements
-
 	    this.nodeMap = new WeakMap();
 	    this.metrika = new landing_metrika.Metrika(true);
 	    this.repoManager = new RepoManager({
@@ -210,23 +207,16 @@ this.BX = this.BX || {};
 	    });
 	    this.saveButton = parent.document.getElementById('landing-design-block-save') || top.document.getElementById('landing-design-block-save') || document.getElementById('landing-design-block-save');
 	    BX.addCustomEvent('Landing.Editor:load', function () {
-	      _this.preventEvents(); // todo: force reinit history instance with D type
-
-
+	      _this.preventEvents();
+	      // todo: force reinit history instance with D type
 	      _this.initHistoryEvents();
-
 	      _this.initTopPanel();
-
 	      _this.initNodes();
-
 	      _this.initGrid();
-
 	      _this.initSliders();
-
 	      _this.initHoverArea();
 	    });
 	  }
-
 	  babelHelpers.createClass(DesignerBlock, [{
 	    key: "clearHtml",
 	    value: function clearHtml(content) {
@@ -236,7 +226,6 @@ this.BX = this.BX || {};
 	    key: "preventEvents",
 	    value: function preventEvents() {
 	      var _this2 = this;
-
 	      var preventMap = {
 	        a: 'click',
 	        form: 'submit',
@@ -254,7 +243,6 @@ this.BX = this.BX || {};
 	    key: "initHistoryEvents",
 	    value: function initHistoryEvents() {
 	      var _this3 = this;
-
 	      BX.Landing.History.getInstance().setTypeDesignerBlock(this.blockId).then(function () {
 	        return landing_backend.Backend.getInstance().action("History::clearDesignerBlock", {
 	          blockId: _this3.blockId
@@ -267,7 +255,6 @@ this.BX = this.BX || {};
 	          var insertAfterSelector = tag.insertAfterSelector || null;
 	          var parentNodeSelector = tag.parentNodeSelector || null;
 	          var element = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["", ""])), tag.elementHtml);
-
 	          if (insertAfterSelector) {
 	            elementAdded = true;
 	            main_core.Dom.insertAfter(element, body.querySelector(insertAfterSelector));
@@ -276,10 +263,8 @@ this.BX = this.BX || {};
 	            main_core.Dom.prepend(element, body.querySelector(parentNodeSelector));
 	          }
 	        });
-
 	        if (elementAdded) {
 	          _this3.refreshManifest();
-
 	          setTimeout(function () {
 	            _this3.sendLabel('designerBlock', 'onHistoryAddNode');
 	          }, 0);
@@ -289,9 +274,7 @@ this.BX = this.BX || {};
 	        tags.map(function (tag) {
 	          _this3.removeNode(body.querySelector(tag.elementSelector));
 	        });
-
 	        _this3.refreshManifest();
-
 	        setTimeout(function () {
 	          _this3.sendLabel('designerBlock', 'onHistoryRemoveNode');
 	        }, 0);
@@ -301,26 +284,21 @@ this.BX = this.BX || {};
 	    key: "initTopPanel",
 	    value: function initTopPanel() {
 	      var _this4 = this;
-
 	      main_core.Event.bind(this.saveButton, 'click', function () {
 	        _this4.highlight.hide(true);
-
 	        var finishCallback = function finishCallback() {
 	          if (BX.SidePanel && BX.SidePanel.Instance) {
 	            BX.SidePanel.Instance.close();
 	          }
 	        };
-
 	        if (!_this4.changed) {
 	          finishCallback();
 	          return;
 	        }
-
 	        if (!_this4.designAllowed) {
 	          top.BX.UI.InfoHelper.show('limit_crm_free_superblock1');
 	          return;
 	        }
-
 	        _this4.saving = true;
 	        var batch = {};
 	        batch['Block::updateContent'] = {
@@ -332,7 +310,6 @@ this.BX = this.BX || {};
 	            designed: 1
 	          }
 	        };
-
 	        if (_this4.autoPublicationEnabled) {
 	          batch['Landing::publication'] = {
 	            action: 'Landing::publication',
@@ -341,7 +318,6 @@ this.BX = this.BX || {};
 	            }
 	          };
 	        }
-
 	        batch['History::clearDesignerBlock'] = {
 	          action: 'History::clearDesignerBlock',
 	          data: {
@@ -352,7 +328,6 @@ this.BX = this.BX || {};
 	          _this4.saving = false;
 	          finishCallback();
 	        });
-
 	        _this4.sendLabel('designerBlock', 'save' + '&designed=' + (_this4.designed ? 'Y' : 'N') + '&code=' + _this4.blockCode);
 	      });
 	    }
@@ -360,14 +335,12 @@ this.BX = this.BX || {};
 	    key: "initNodes",
 	    value: function initNodes() {
 	      var _this5 = this;
-
 	      Object.keys(this.nodes).map(function (selector) {
 	        _this5.cardSelectors.map(function (cardSelector) {
 	          babelHelpers.toConsumableArray(_this5.blockNode.querySelectorAll((cardSelector ? cardSelector + ' ' : '') + selector)).map(function (element) {
 	            if (_this5.nodes[selector]['useInDesigner'] === false) {
 	              return;
 	            }
-
 	            _this5.addNode({
 	              element: element,
 	              selector: selector,
@@ -382,7 +355,6 @@ this.BX = this.BX || {};
 	    key: "initGrid",
 	    value: function initGrid() {
 	      var _this6 = this;
-
 	      // collect node's parent and add pseudo last elements into the wrappers
 	      Object.keys(this.nodes).map(function (selector) {
 	        _this6.cardSelectors.map(function (cardSelector) {
@@ -390,17 +362,13 @@ this.BX = this.BX || {};
 	            if (_this6.nodes[selector]['useInDesigner'] === false) {
 	              return;
 	            }
-
 	            var wrapper = _this6.nodes[selector]['type'] === 'icon' ? element.parentNode.parentNode : element.parentNode;
-
 	            if (main_core.Dom.attr(wrapper, 'data-landingWrapper')) {
 	              return;
 	            }
-
 	            var pseudoElement = DesignerBlockUI.getPseudoLast();
 	            main_core.Dom.attr(wrapper, 'data-landingWrapper', true);
 	            main_core.Dom.append(pseudoElement, wrapper);
-
 	            _this6.addNode({
 	              cardSelector: cardSelector,
 	              element: pseudoElement,
@@ -425,11 +393,9 @@ this.BX = this.BX || {};
 	    key: "initHoverArea",
 	    value: function initHoverArea() {
 	      var _this7 = this;
-
 	      if (this.hoverArea) {
 	        return;
 	      }
-
 	      this.hoverArea = DesignerBlockUI.getHoverDiv();
 	      var addNodeElement = DesignerBlockUI.getAddNodeButton();
 	      var CardAction = BX.Landing.UI.Button.CardAction;
@@ -437,7 +403,6 @@ this.BX = this.BX || {};
 	      var cardAction = new BaseButtonPanel('nodeAction', 'landing-ui-panel-block-card-action');
 	      main_core.Event.bind(addNodeElement, 'click', function () {
 	        _this7.repoManager.showPanel();
-
 	        _this7.hideHoverArea();
 	      });
 	      cardAction.addButton(new CardAction('remove', {
@@ -458,13 +423,11 @@ this.BX = this.BX || {};
 	      if (!this.hoverArea) {
 	        return;
 	      }
-
 	      this.showHoverArea();
 	      var clientRect = this.activeNode.getElement().getBoundingClientRect();
 	      var hoverElementAdd = this.hoverArea.querySelector('.landing-designer-block-node-hover-add');
 	      var hoverElementActions = this.hoverArea.querySelector('div[data-id="nodeAction"]');
 	      var editorWindow = BX.Landing.PageObject.getEditorWindow();
-
 	      if (hoverElementActions) {
 	        if (this.activeNode.isPseudoElement()) {
 	          main_core.Dom.hide(hoverElementActions);
@@ -472,13 +435,11 @@ this.BX = this.BX || {};
 	          main_core.Dom.show(hoverElementActions);
 	        }
 	      }
-
 	      if (hoverElementAdd) {
 	        main_core.Dom.style(hoverElementAdd, {
 	          top: clientRect.height - 5 + 'px'
 	        });
 	      }
-
 	      main_core.Dom.style(this.hoverArea, {
 	        top: clientRect.top + editorWindow.scrollY + 'px',
 	        left: clientRect.left + (clientRect.width < 30 ? 30 : 0) + 'px',
@@ -497,7 +458,6 @@ this.BX = this.BX || {};
 	    key: "hideHoverArea",
 	    value: function hideHoverArea() {
 	      var _this8 = this;
-
 	      if (this.hoverArea) {
 	        setTimeout(function () {
 	          main_core.Dom.hide(_this8.hoverArea);
@@ -508,13 +468,11 @@ this.BX = this.BX || {};
 	    key: "refreshManifest",
 	    value: function refreshManifest(manifest) {
 	      var _this9 = this;
-
 	      if (manifest) {
 	        Object.keys(manifest).map(function (selector) {
 	          _this9.nodes[selector] = manifest[selector];
 	        });
 	      }
-
 	      this.initNodes();
 	      this.initGrid();
 	    }
@@ -538,7 +496,6 @@ this.BX = this.BX || {};
 	    key: "addElement",
 	    value: function addElement(repoElement) {
 	      var _this10 = this;
-
 	      var activeNode = this.activeNode;
 	      var tags = [];
 	      babelHelpers.toConsumableArray(document.body.querySelectorAll(activeNode.getSelector())).map(function (node) {
@@ -570,13 +527,11 @@ this.BX = this.BX || {};
 	    key: "removeElement",
 	    value: function removeElement() {
 	      var _this11 = this;
-
 	      var tags = [];
 	      this.hideHoverArea();
 	      this.highlight.hide();
 	      setTimeout(function () {
 	        _this11.sendLabel('designerBlock', 'removeElement' + '&tagName=' + _this11.activeNode.getElement().tagName + '&code=' + _this11.blockCode);
-
 	        babelHelpers.toConsumableArray(document.body.querySelectorAll(_this11.activeNode.getSelector())).map(function (node) {
 	          tags.push({
 	            elementHtml: _this11.clearHtml(node.outerHTML),
@@ -584,13 +539,10 @@ this.BX = this.BX || {};
 	            insertAfterSelector: node.previousElementSibling ? BX.Landing.Utils.getCSSSelector(node.previousElementSibling) : null,
 	            parentNodeSelector: BX.Landing.Utils.getCSSSelector(node.parentNode)
 	          });
-
 	          _this11.removeNode(node);
 	        });
 	        _this11.changed = true;
-
 	        _this11.refreshManifest();
-
 	        landing_backend.Backend.getInstance().action("History::pushDesignerBlock", {
 	          blockId: _this11.blockId,
 	          action: 'REMOVE_NODE',
@@ -614,23 +566,20 @@ this.BX = this.BX || {};
 	      if (!this.nodeMap.get(nodeOptions.element)) {
 	        if (nodeOptions.selector.match(/^\.[\w-_]+$/i) === null) {
 	          return false;
-	        } // for some type we get parent node
+	        }
 
-
+	        // for some type we get parent node
 	        var withWrapper = this.typeWithWrapper(nodeOptions.type);
 	        nodeOptions.element = withWrapper ? nodeOptions.element.parentNode : nodeOptions.element;
-
 	        if (withWrapper) {
 	          nodeOptions.selector = nodeOptions.selector + '--type-wrapper';
 	          main_core.Dom.addClass(nodeOptions.element, nodeOptions.selector.substr(1));
-	        } // mouse over callback
-
-
+	        }
+	        // mouse over callback
 	        nodeOptions.onHover = this.onMouseOver.bind(this);
 	        this.nodeMap.set(nodeOptions.element, new Node(nodeOptions));
 	        return true;
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -647,10 +596,8 @@ this.BX = this.BX || {};
 	      if (this.saving) {
 	        return;
 	      }
-
 	      this.activeNode = node;
 	      this.adjustHoverArea();
-
 	      if (!node.isPseudoElement()) {
 	        this.highlight.show(node.getElement());
 	      }

@@ -79,40 +79,41 @@ class CAllForumUser
 		return $arResult;
 	}
 
-	//---------------> User insert, update, delete
-	public static function IsLocked($USER_ID)
+	public static function IsLocked($userID)
 	{
-		global $DB, $CACHE_MANAGER;
-		$USER_ID = intval($USER_ID);
-		if ($USER_ID <= 0)
-			return false;
-		$cache_id = "b_forum_user_locked";
-
-		if (!array_key_exists("LOCKED_USERS", $GLOBALS["FORUM_CACHE"]))
+		$userID = (int) $userID;
+		if ($userID <= 0)
 		{
-			if (CACHED_b_forum_user !== false && $CACHE_MANAGER->Read(CACHED_b_forum_user, $cache_id, "b_forum_user"))
+			return false;
+		}
+
+		$cacheID = 'b_forum_user_locked_' . $userID;
+		$cache = Bitrix\Main\Application::getInstance()->getManagedCache();
+
+		if (CACHED_b_forum_user !== false && $cache->read(CACHED_b_forum_user, $cacheID, 'b_forum_user'))
+		{
+			$result = $cache->get($cacheID);
+		}
+		else
+		{
+			$allow = Bitrix\Forum\UserTable::query()
+				->addSelect('ALLOW_POST')
+				->where('USER_ID', $userID)
+				->fetch();
+
+			if ($allow)
 			{
-				$GLOBALS["FORUM_CACHE"]["LOCKED_USERS"] = $CACHE_MANAGER->Get($cache_id);
+				$result = $allow['ALLOW_POST'];
 			}
 			else
 			{
-				$arRes = array();
-				$strSql = "SELECT ID, USER_ID FROM b_forum_user WHERE ALLOW_POST != 'Y' ORDER BY ID ASC";
-				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				if ($db_res && $res = $db_res->Fetch())
-				{
-					do
-					{
-						$arRes[intval($res["USER_ID"])] = $res;
-					} while ($res = $db_res->Fetch());
-				}
-
-				$GLOBALS["FORUM_CACHE"]["LOCKED_USERS"] = $arRes;
-				if (CACHED_b_forum_user !== false)
-					$CACHE_MANAGER->Set($cache_id, $GLOBALS["FORUM_CACHE"]["LOCKED_USERS"]);
+				$result = 'Y';
 			}
+
+			$cache->set($cacheID, $result);
 		}
-		return array_key_exists($USER_ID, $GLOBALS["FORUM_CACHE"]["LOCKED_USERS"]);
+
+		return $result != 'Y';
 	}
 
 	public static function CanUserAddUser($arUserGroups)
@@ -285,7 +286,7 @@ class CAllForumUser
 		{
 			return false;
 		}
-		unset($GLOBALS["FORUM_CACHE"]["LOCKED_USERS"]);
+
 		global $CACHE_MANAGER;
 		$CACHE_MANAGER->cleanDir("b_forum_user");
 
@@ -317,7 +318,6 @@ class CAllForumUser
 
 		if (is_set($arFields, "ALLOW_POST"))
 		{
-			unset($GLOBALS["FORUM_CACHE"]["LOCKED_USERS"]);
 			if (CACHED_b_forum_user !== false)
 				$GLOBALS["CACHE_MANAGER"]->CleanDir("b_forum_user");
 		}

@@ -56,9 +56,5 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_08_5_CARD'),
 			'type' => array('border-color',  'border-top-color', 'border-radius'),
 		),
-		'.landing-block-line' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_08_5_LINE'),
-			'type' => array('text-align', 'color', 'margin-bottom'),
-		),
 	),
 );

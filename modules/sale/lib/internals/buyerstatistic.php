@@ -16,9 +16,9 @@ use Bitrix\Main;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_BuyerStatistic_Query query()
- * @method static EO_BuyerStatistic_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_BuyerStatistic_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_BuyerStatistic_Result getById($id)
- * @method static EO_BuyerStatistic_Result getList(array $parameters = array())
+ * @method static EO_BuyerStatistic_Result getList(array $parameters = [])
  * @method static EO_BuyerStatistic_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_BuyerStatistic createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_BuyerStatistic_Collection createCollection()

@@ -1,5 +1,4 @@
 (function() {
-
 	'use strict';
 
 	BX.namespace('BX.Landing');
@@ -9,85 +8,142 @@
 	const bind = BX.Landing.Utils.bind;
 	const addClass = BX.Landing.Utils.addClass;
 	const removeClass = BX.Landing.Utils.removeClass;
-	const isNumber = BX.Landing.Utils.isNumber;
 	const data = BX.Landing.Utils.data;
 	const onTransitionEnd = BX.Landing.Utils.onTransitionEnd;
+
+	const openAi = (params = {}) => {
+		const siteId = params?.siteId;
+		const Picker = top.BX.AI ? top.BX.AI.Picker : BX.AI.Picker;
+
+		if (!siteId)
+		{
+			throw new Error('BX.Landing.landing-forms: siteId is required parameter for AI');
+		}
+
+		if (!Picker)
+		{
+			return;
+		}
+
+		const aiTextPicker = new Picker({
+			moduleId: 'landing',
+			contextId: `text_site_${siteId}`,
+			analyticLabel: 'landing_text',
+			history: true,
+			onSelect: params.onSelect,
+			onTariffRestriction: function() {
+				BX.UI.InfoHelper.show('limit_sites_TextAssistant_AI');
+			},
+		});
+
+		aiTextPicker.setLangSpace(BX.AI.Picker.LangSpace.text);
+		aiTextPicker.text();
+	};
 
 	/**
 	 * For edit title.
 	 */
-	BX.Landing.EditTitleForm = function (node, additionalWidth, isEventTargetNode, display)
+	BX.Landing.EditTitleForm = function(params)
 	{
-		this.btn = node.querySelector('.ui-title-input-btn-js');
-		this.label = node.querySelector('.landing-editable-field-label-js');
-		this.input = node.querySelector('.landing-editable-field-input-js');
-		this.additionalWidth = additionalWidth || 0;
-		this.input.IsWidthSet = false;
-		this.display = display;
+		this.siteId = params.siteId;
+		this.isAiAllowed = Boolean(params.isAiAllowed) === true;
+		this.node = params.node;
+		this.isEventTargetNode = Boolean(params.isEventTargetNode) === true;
+
+		this.controlButtonContainer = this.node.querySelector('.landing-editable-field-buttons');
+		this.btn = this.node.querySelector('.ui-title-input-btn-js');
+		this.aiBtnContainer = this.node.querySelector('.landing-editable-field-button.--ai');
+		this.label = this.node.querySelector('.landing-editable-field-label-js');
+		this.input = this.node.querySelector('.landing-editable-field-input-js');
 
 		this.hideInput = this.hideInput.bind(this);
 		this.showInput = this.showInput.bind(this);
+		this.adjustInputHeight = this.adjustInputHeight.bind(this);
 
-		if(isEventTargetNode) {
-			BX.bind(node, 'click', this.showInput);
-		} else {
-			BX.bind(this.btn, 'click', this.showInput);
+		BX.bind(this.input, 'input', this.adjustInputHeight);
+		BX.bind(this.input, 'paste', this.adjustInputHeight);
+		BX.bind(this.btn, 'click', this.showInput);
+
+		if (this.isEventTargetNode)
+		{
+			BX.bind(this.label, 'click', this.showInput);
 		}
 
-		this.input.setAttribute("data-height", this.label.offsetHeight);
+		if (this.isAiAllowed && this.aiBtnContainer)
+		{
+			this.initAiBtn();
+		}
 	};
 
-	BX.Landing.EditTitleForm.prototype =
-	{
-		showInput : function (event)
+	BX.Landing.EditTitleForm.prototype = {
+		initAiBtn: function()
+		{
+			const aiButton = BX.Tag.render`
+				<div class="ui-title-input-btn">
+					<div class="ui-icon-set --ai"></div>
+				</div>
+			`;
+
+			BX.bind(aiButton, 'click', () => {
+				openAi({
+					onSelect: (item) => {
+						const value = item.data.replace(/(\r\n|\r|\n)/g, '<br>');
+						this.label.innerText = value;
+						this.input.value = value;
+						this.adjustInputHeight();
+					},
+					siteId: this.siteId,
+				});
+			});
+
+			BX.Dom.append(aiButton, this.aiBtnContainer);
+		},
+		adjustInputHeight: function()
+		{
+			if (!this.input)
+			{
+				return;
+			}
+
+			BX.Dom.style(this.input, {
+				height: 'auto',
+			});
+
+			requestAnimationFrame(() => {
+				BX.Dom.style(this.input, {
+					height: `${this.input.scrollHeight}px`,
+				});
+			});
+		},
+		showInput: function(event)
 		{
 			event.stopPropagation();
 
-			if(!this.input.IsWidthSet)
-			{
-				this.input.style.width = this.label.offsetWidth + this.additionalWidth + 17 + 'px';
-			}
+			BX.Dom.style(this.label, 'display', 'none');
+			BX.Dom.addClass(this.controlButtonContainer, '--hidden');
+			BX.Dom.style(this.input, 'display', 'block');
 
-			if(this.input.tagName === 'TEXTAREA')
-			{
-				this.input.style.height = this.input.getAttribute("data-height") + 'px';
-			}
-			this.label.style.display = 'none';
-			this.btn.style.display = 'none';
-			this.input.style.display = 'block';
+			this.adjustInputHeight();
 
 			this.input.focus();
 			if (!BX.Dom.hasClass(this.input, 'landing-editable-field-input-js-init'))
 			{
 				this.input.selectionStart = this.input.value.length;
-				BX.Dom.addClass(this.input, "landing-editable-field-input-js-init");
+				BX.Dom.addClass(this.input, 'landing-editable-field-input-js-init');
 			}
 
-			this.input.IsWidthSet = true;
-
-			BX.bind(document, 'mousedown', this.hideInput);
+			BX.bind(this.input, 'focusout', this.hideInput);
 		},
-		hideInput : function (event)
+		hideInput: function()
 		{
-			if(event.target === this.input)
-				return;
-
 			this.label.textContent = this.input.value;
 
-			if (this.display) {
-				this.label.style.display = 'inline-block';
-			} else {
-				this.label.style.display = 'inline';
-			}
+			BX.Dom.style(this.label, 'display', null);
+			BX.Dom.style(this.input, 'display', null);
+			BX.Dom.removeClass(this.controlButtonContainer, '--hidden');
 
-			this.input.style.display = 'none';
-			this.btn.style.display = 'inline-block';
-
-			this.input.IsWidthSet = false;
-			this.input.setAttribute("data-height", this.label.offsetHeight);
-
-			BX.unbind(document, 'mousedown', this.hideInput);
-		}
+			BX.unbind(document, 'focusout', this.hideInput);
+		},
 	};
 
 	/**

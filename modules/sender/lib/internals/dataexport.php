@@ -73,7 +73,6 @@ class DataExport
 
 	protected static function flushHeaders()
 	{
-		/** @var $GLOBALS['APPLICATION'] \CAllMain */
 		$GLOBALS['APPLICATION']->RestartBuffer();
 
 		header('Content-Description: File Transfer');

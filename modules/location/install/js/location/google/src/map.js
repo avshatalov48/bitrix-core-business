@@ -1,5 +1,14 @@
-import {Event} from 'main.core';
-import {Location, LocationRepository, ControlMode, MapBase, ErrorPublisher} from 'location.core';
+import {
+	Event,
+	Text
+} from 'main.core';
+import {
+	Location,
+	LocationRepository,
+	ControlMode,
+	MapBase,
+	ErrorPublisher
+} from 'location.core';
 
 /**
  * Class for the autocomplete locations and addresses inputs
@@ -7,6 +16,9 @@ import {Location, LocationRepository, ControlMode, MapBase, ErrorPublisher} from
 export default class Map extends MapBase
 {
 	static #onChangedEvent = 'onChanged';
+	static #onStartChanging = 'onStartChanging';
+	static #onEndChanging = 'onEndChanging';
+	static #onMapViewChanged = 'onMapViewChanged';
 
 	/** {string} */
 	#languageId;
@@ -38,7 +50,7 @@ export default class Map extends MapBase
 		this.#changeDelay = props.changeDelay || 700;
 	}
 
-	render(props: object)
+	render(props: Object): Promise
 	{
 		this.#loaderPromise = this.#googleSource.loaderPromise.then(() => {
 			this.#initGoogleMap(props);
@@ -47,7 +59,7 @@ export default class Map extends MapBase
 		return this.#loaderPromise;
 	}
 
-	get loaderPromise()
+	get loaderPromise(): Promise
 	{
 		return this.#loaderPromise;
 	}
@@ -56,7 +68,7 @@ export default class Map extends MapBase
 	{
 		this.#mode = mode;
 
-		if(this.#locationMarker)
+		if (this.#locationMarker)
 		{
 			this.#locationMarker.setDraggable(mode === ControlMode.edit);
 		}
@@ -64,12 +76,12 @@ export default class Map extends MapBase
 
 	#convertLocationToPosition(location: ?Location): Object
 	{
-		if(!location)
+		if (!location)
 		{
 			return null;
 		}
 
-		if(typeof google === 'undefined' || typeof google.maps === 'undefined')
+		if (typeof google === 'undefined' || typeof google.maps === 'undefined')
 		{
 			return null;
 		}
@@ -79,14 +91,13 @@ export default class Map extends MapBase
 
 	#adjustZoom(): void
 	{
-		if(!this.#location)
+		if (!this.#location)
 		{
 			return;
 		}
 
-		let zoom = Map.#chooseZoomByLocation(this.#location);
-
-		if(zoom !== null && zoom !== this.#zoom)
+		const zoom = Map.getZoomByLocation(this.#location);
+		if (zoom !== null && zoom !== this.#zoom)
 		{
 			this.zoom = zoom;
 		}
@@ -101,7 +112,7 @@ export default class Map extends MapBase
 	{
 		this.#zoom = zoom;
 
-		if(this.#googleMap)
+		if (this.#googleMap)
 		{
 			this.#googleMap.setZoom(zoom);
 		}
@@ -115,7 +126,7 @@ export default class Map extends MapBase
 				{
 					resolve(results[0].place_id);
 				}
-				else if(status === 'ZERO_RESULTS')
+				else if (status === 'ZERO_RESULTS')
 				{
 					resolve('');
 				}
@@ -128,7 +139,7 @@ export default class Map extends MapBase
 		.then((placeId) => {
 			let result;
 
-			if(placeId)
+			if (placeId)
 			{
 				result = this.#locationRepository.findByExternalId(
 					placeId,
@@ -150,20 +161,20 @@ export default class Map extends MapBase
 	set location(location: Location)
 	{
 		this.#location = location;
-		let position = this.#convertLocationToPosition(location);
 
-		if(position)
+		const position = this.#convertLocationToPosition(location);
+		if (position)
 		{
-			if(this.#locationMarker)
+			if (this.#locationMarker)
 			{
 				this.#isUpdating = true;
 				this.#locationMarker.setPosition(position);
 				this.#isUpdating = false;
 			}
 
-			if(this.#googleMap)
+			if (this.#googleMap)
 			{
-				if(!this.#locationMarker.getMap())
+				if (!this.#locationMarker.getMap())
 				{
 					this.#locationMarker.setMap(this.#googleMap);
 				}
@@ -173,7 +184,7 @@ export default class Map extends MapBase
 		}
 		else
 		{
-			if(this.#locationMarker)
+			if (this.#locationMarker)
 			{
 				this.#locationMarker.setMap(null);
 			}
@@ -192,9 +203,24 @@ export default class Map extends MapBase
 		this.subscribe(Map.#onChangedEvent, listener);
 	}
 
+	onStartChangingSubscribe(listener: function): void
+	{
+		this.subscribe(Map.#onStartChanging, listener);
+	}
+
+	onEndChangingSubscribe(listener: function): void
+	{
+		this.subscribe(Map.#onEndChanging, listener);
+	}
+
+	onMapViewChangedSubscribe(listener: function): void
+	{
+		this.subscribe(Map.#onMapViewChanged, listener);
+	}
+
 	#emitOnLocationChangedEvent(location: ?Location)
 	{
-		if(this.#mode === ControlMode.edit)
+		if (this.#mode === ControlMode.edit)
 		{
 			this.emit(Map.#onChangedEvent, { location: location	});
 		}
@@ -202,7 +228,7 @@ export default class Map extends MapBase
 
 	#onMarkerUpdatePosition()
 	{
-		if(!this.#isUpdating && this.#mode === ControlMode.edit)
+		if (!this.#isUpdating && this.#mode === ControlMode.edit)
 		{
 			this.#createTimer(this.#locationMarker.getPosition());
 		}
@@ -210,34 +236,42 @@ export default class Map extends MapBase
 
 	#createTimer(position)
 	{
-		if(this.#timerId !== null)
+		if (this.#timerId !== null)
 		{
 			clearTimeout(this.#timerId);
 		}
 
-		this.#timerId = setTimeout(() => {
+		this.#timerId = setTimeout(
+			() => {
+				const requestId = Text.getRandom();
+				this.emit(Map.#onStartChanging, { requestId });
+
 				this.#timerId = null;
 				this.#googleMap.panTo(position);
-				this.#fulfillOnChangedEvent(position);
+				this.#fulfillOnChangedEvent(position, requestId);
 			},
 			this.#changeDelay
 		);
 	}
 
-	#fulfillOnChangedEvent(position)
+	#fulfillOnChangedEvent(position, requestId)
 	{
 		this.#getPositionToLocationPromise(position)
-		.then(this.#emitOnLocationChangedEvent.bind(this))
-		.catch((response) => {
-			ErrorPublisher.getInstance().notify(response.errors);
-		});
+			.then((location) => {
+				this.emit(Map.#onEndChanging, { requestId });
+				this.#emitOnLocationChangedEvent(location);
+			})
+			.catch((response) => {
+				this.emit(Map.#onEndChanging, { requestId });
+				ErrorPublisher.getInstance().notify(response.errors);
+			});
 	}
 
 	#onMapClick(position)
 	{
-		if(this.#mode === ControlMode.edit)
+		if (this.#mode === ControlMode.edit)
 		{
-			if(!this.#locationMarker.getMap)
+			if (!this.#locationMarker.getMap)
 			{
 				this.#locationMarker.setMap(this.#googleMap);
 			}
@@ -252,30 +286,29 @@ export default class Map extends MapBase
 		this.#mode = props.mode;
 		this.#location = props.location || null;
 
-		if(typeof google === 'undefined' || typeof google.maps.Map === 'undefined')
+		if (typeof google === 'undefined' || typeof google.maps.Map === 'undefined')
 		{
 			throw new Error('google.maps.Map must be defined');
 		}
 
-		let position = this.#convertLocationToPosition(this.#location);
+		const position = this.#convertLocationToPosition(this.#location);
 
-		let mapProps = {
+		const mapProps = {
 			gestureHandling: 'greedy',
 			disableDefaultUI: true,
-			zoomControl: true,
+			zoomControl: BX.prop.getBoolean(props, 'zoomControl', true),
 			zoomControlOptions: {
 				position: google.maps.ControlPosition.TOP_LEFT
 			}
 		};
 
-		let zoom = Map.#chooseZoomByLocation(this.#location);
-
-		if(zoom)
+		const zoom = Map.getZoomByLocation(this.#location);
+		if (zoom)
 		{
 			mapProps.zoom = zoom;
 		}
 
-		if(position)
+		if (position)
 		{
 			mapProps.center = position;
 		}
@@ -289,7 +322,7 @@ export default class Map extends MapBase
 			this.#onMapClick(e.latLng);
 		});
 
-		if(typeof google.maps.Marker === 'undefined')
+		if (typeof google.maps.Marker === 'undefined')
 		{
 			throw new Error('google.maps.Marker must be defined');
 		}
@@ -304,7 +337,7 @@ export default class Map extends MapBase
 			this.#onMarkerUpdatePosition();
 		});
 
-		if(typeof google.maps.Geocoder === 'undefined')
+		if (typeof google.maps.Geocoder === 'undefined')
 		{
 			throw new Error('google.maps.Geocoder must be defined');
 		}
@@ -312,35 +345,7 @@ export default class Map extends MapBase
 		this.#geocoder = new google.maps.Geocoder;
 	}
 
-	static #chooseZoomByLocation(location: ?Location): number
-	{
-		let result = 18;
-
-		if(location)
-		{
-			let locationType = location.type;
-
-			if(locationType > 0)
-			{
-				if(locationType < 100)
-					result = 1;
-				else if(locationType === 100)
-					result = 4;
-				else if(locationType <= 200)
-					result = 6;
-				else if(locationType <= 300)
-					result = 11;
-				else if(locationType <= 340)
-					result = 16;
-				else if(locationType > 340)
-					result = 18;
-			}
-		}
-
-		return result;
-	}
-
-	get googleMap()
+	get googleMap(): ?Object
 	{
 		return this.#googleMap;
 	}

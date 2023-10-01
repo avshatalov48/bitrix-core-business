@@ -1,53 +1,75 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
-if (!CModule::IncludeModule("bizproc"))
+if (!CModule::IncludeModule('bizproc'))
+{
 	return false;
+}
+
+use Bitrix\Main\Localization\Loc;
 
 global $USER, $APPLICATION;
 
 if (!$USER->IsAuthorized())
 {
 	$APPLICATION->AuthForm('');
+
 	return false;
 }
 
 $currentUserId = $USER->GetID();
 $isAdmin = $USER->IsAdmin() || (CModule::IncludeModule('bitrix24') && CBitrix24::IsPortalAdmin($USER->GetID()));
 
-$targetUserId = intval(empty($arParams["USER_ID"]) ? $USER->GetID() : $arParams["USER_ID"]);
+$targetUserId = intval(empty($arParams['USER_ID']) ? $USER->GetID() : $arParams['USER_ID']);
 if (
 	$targetUserId != $currentUserId
 	&& !$isAdmin
 	&& !CBPHelper::checkUserSubordination($currentUserId, $targetUserId)
 )
 {
-	ShowError(GetMessage("BPATL_ERROR_SUBORDINATION"));
+	ShowError(Loc::getMessage('BPATL_ERROR_SUBORDINATION'));
+
 	return false;
 }
 
-$arParams["WORKFLOW_ID"] = (empty($arParams["WORKFLOW_ID"]) ? ($_REQUEST["WORKFLOW_ID"] ?? '') : $arParams["WORKFLOW_ID"]);
+$arParams['WORKFLOW_ID'] =
+	(empty($arParams['WORKFLOW_ID'])
+		? ($_REQUEST['WORKFLOW_ID'] ?? '')
+		: $arParams['WORKFLOW_ID'])
+;
 
-$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? COption::GetOptionString("bizproc", "name_template", CSite::GetNameFormat(false), SITE_ID) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $arParams["NAME_TEMPLATE"]);
+$arParams['NAME_TEMPLATE'] =
+	empty($arParams['NAME_TEMPLATE'])
+		? COption::GetOptionString('bizproc', 'name_template', CSite::GetNameFormat(false), SITE_ID)
+		: str_replace(['#NOBR#', '#/NOBR#'], ['', ''], $arParams['NAME_TEMPLATE'])
+;
 
 $arResult['back_url'] = urlencode(empty($_REQUEST['back_url']) ? $APPLICATION->GetCurPage() : $_REQUEST['back_url']);
 
-$arParams["TASK_EDIT_URL"] =
-	isset($arParams["TASK_EDIT_URL"]) && is_string($arParams["TASK_EDIT_URL"])
-		? trim($arParams["TASK_EDIT_URL"])
+$arParams['TASK_EDIT_URL'] =
+	isset($arParams['TASK_EDIT_URL']) && is_string($arParams['TASK_EDIT_URL'])
+		? trim($arParams['TASK_EDIT_URL'])
 		: ''
 ;
-if (empty($arParams["TASK_EDIT_URL"]))
-	$arParams["TASK_EDIT_URL"] = $APPLICATION->GetCurPage()."?PAGE_NAME=task_edit&ID=#ID#&back_url=".$arResult["back_url"];
+if (empty($arParams['TASK_EDIT_URL']))
+{
+	$arParams['TASK_EDIT_URL'] = $APPLICATION->GetCurPage() . '?PAGE_NAME=task_edit&ID=#ID#&back_url=' . $arResult['back_url'];
+}
 else
-	$arParams["TASK_EDIT_URL"] .= (mb_strpos($arParams["TASK_EDIT_URL"], "?") === false ? "?" : "&")."back_url=".$arResult["back_url"];
+{
+	$arParams['TASK_EDIT_URL'] .=
+		(mb_strpos($arParams['TASK_EDIT_URL'], '?') === false ? '?' : '&')
+		. 'back_url='
+		. $arResult['back_url']
+	;
+}
 
-$arParams["~TASK_EDIT_URL"] = $arParams["TASK_EDIT_URL"];
-$arParams["TASK_EDIT_URL"] = htmlspecialcharsbx($arParams["~TASK_EDIT_URL"]);
+$arParams['~TASK_EDIT_URL'] = $arParams['TASK_EDIT_URL'];
+$arParams['TASK_EDIT_URL'] = htmlspecialcharsbx($arParams['~TASK_EDIT_URL']);
 
 $arParams['PAGE_ELEMENTS'] =
 	(isset($arParams['PAGE_ELEMENTS']) && intval($arParams['PAGE_ELEMENTS']) > 0)
@@ -55,40 +77,50 @@ $arParams['PAGE_ELEMENTS'] =
 		: 50
 ;
 
-$arParams["PAGE_NAVIGATION_TEMPLATE"] =
-	isset($arParams["PAGE_NAVIGATION_TEMPLATE"]) && is_string($arParams["PAGE_NAVIGATION_TEMPLATE"])
-		? trim($arParams["PAGE_NAVIGATION_TEMPLATE"])
+$arParams['PAGE_NAVIGATION_TEMPLATE'] =
+	isset($arParams['PAGE_NAVIGATION_TEMPLATE']) && is_string($arParams['PAGE_NAVIGATION_TEMPLATE'])
+		? trim($arParams['PAGE_NAVIGATION_TEMPLATE'])
 		: ''
 ;
-$arParams["SHOW_TRACKING"] = isset($arParams['SHOW_TRACKING']) && $arParams['SHOW_TRACKING'] === 'Y' ? 'Y' : 'N';
+$arParams['SHOW_TRACKING'] = isset($arParams['SHOW_TRACKING']) && $arParams['SHOW_TRACKING'] === 'Y' ? 'Y' : 'N';
 
-$arParams["SET_TITLE"] = isset($arParams['SET_TITLE']) && $arParams['SET_TITLE'] === 'N' ? 'N' : 'Y'; //Turn on by default
-$arParams["SET_NAV_CHAIN"] = isset($arParams['SET_NAV_CHAIN']) && $arParams['SET_NAV_CHAIN'] === 'N' ? 'N' : 'Y'; //Turn on by default
+$arParams['SET_TITLE'] = isset($arParams['SET_TITLE']) && $arParams['SET_TITLE'] === 'N' ? 'N' : 'Y'; //Turn on by default
+$arParams['SET_NAV_CHAIN'] = isset($arParams['SET_NAV_CHAIN']) && $arParams['SET_NAV_CHAIN'] === 'N' ? 'N' : 'Y'; //Turn on by default
 $arParams['COUNTERS_ONLY'] = (isset($arParams['COUNTERS_ONLY']) && $arParams['COUNTERS_ONLY'] == 'Y');
 
-$arResult["FatalErrorMessage"] = "";
-$arResult["ErrorMessage"] = "";
+$arResult['FatalErrorMessage'] = '';
+$arResult['ErrorMessage'] = '';
 
-$arResult["NAV_RESULT"] = "";
-$arResult["NAV_STRING"] = "";
-$arResult["TASKS"] = array();
-$arResult["TRACKING"] = array();
+$arResult['NAV_RESULT'] = '';
+$arResult['NAV_STRING'] = '';
+$arResult['TASKS'] = [];
+$arResult['TRACKING'] = [];
 
-if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
+if ($arResult['FatalErrorMessage'] == '' && !$arParams['COUNTERS_ONLY'])
 {
-	$arResult['ERRORS'] = array();
+	$arResult['ERRORS'] = [];
 	$arResult['USE_SUBORDINATION'] = (bool)CModule::IncludeModule('intranet');
 	$arResult['GRID_ID'] = 'bizproc_task_list';
 	$arResult['FILTER_ID'] = 'bizproc_task_list_filter';
 
 	$arSelectFields = [
-		"ID", "WORKFLOW_ID", "PARAMETERS", "MODIFIED", "OVERDUE_DATE", 'IS_INLINE', 'STATUS',
-		'USER_ID', 'USER_STATUS', 'WORKFLOW_STATE', 'ACTIVITY', 'DOCUMENT_NAME'
+		'ID',
+		'WORKFLOW_ID',
+		'PARAMETERS',
+		'MODIFIED',
+		'OVERDUE_DATE',
+		'IS_INLINE',
+		'STATUS',
+		'USER_ID',
+		'USER_STATUS',
+		'WORKFLOW_STATE',
+		'ACTIVITY',
+		'DOCUMENT_NAME',
 	];
 
-	$gridOptions = new CGridOptions($arResult["GRID_ID"]);
+	$gridOptions = new CGridOptions($arResult['GRID_ID']);
 	$gridColumns = $gridOptions->GetVisibleColumns();
-	$gridSort = $gridOptions->GetSorting(array("sort" => array("ID" => "desc")));
+	$gridSort = $gridOptions->GetSorting(["sort" => ["ID" => "desc"]]);
 
 	$arResult['COLUMNS'] = [
 		[
@@ -99,19 +131,19 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 		],
 		[
 			'id' => 'DOCUMENT_NAME',
-			'name' => GetMessage('BPATL_DOCUMENT_NAME'),
+			'name' => Loc::getMessage('BPATL_DOCUMENT_NAME'),
 			'default' => false,
 			'sort' => 'DOCUMENT_NAME'
 		],
 		[
 			'id' => 'DESCRIPTION',
-			'name' => GetMessage('BPATL_DESCRIPTION'),
+			'name' => Loc::getMessage('BPATL_DESCRIPTION'),
 			'default' => true,
 			'sort' => '',
 		],
 		[
 			'id' => 'COMMENTS',
-			'name' => GetMessage('BPATL_COMMENTS'),
+			'name' => Loc::getMessage('BPATL_COMMENTS'),
 			'default' => true,
 			'sort' => '',
 			'hideName' => true,
@@ -119,49 +151,49 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 		],
 		[
 			'id' => 'WORKFLOW_PROGRESS',
-			'name' => GetMessage('BPATL_WORKFLOW_PROGRESS'),
+			'name' => Loc::getMessage('BPATL_WORKFLOW_PROGRESS'),
 			'default' => true,
 			'sort' => '',
 		],
 		[
 			'id' => 'NAME',
-			'name' => GetMessage('BPATL_NAME'),
+			'name' => Loc::getMessage('BPATL_NAME'),
 			'default' => true,
 			'sort' => 'NAME',
 		],
 		[
 			'id' => 'MODIFIED',
-			'name' => GetMessage('BPATL_MODIFIED'),
+			'name' => Loc::getMessage('BPATL_MODIFIED'),
 			'default' => false,
 			'sort' => 'MODIFIED',
 		],
 		[
 			'id' => 'WORKFLOW_STARTED',
-			'name' => GetMessage('BPATL_STARTED'),
+			'name' => Loc::getMessage('BPATL_STARTED'),
 			'default' => false,
 			'sort' => 'WORKFLOW_STARTED',
 		],
 		[
 			'id' => 'WORKFLOW_STARTED_BY',
-			'name' => GetMessage('BPATL_STARTED_BY'),
+			'name' => Loc::getMessage('BPATL_STARTED_BY'),
 			'default' => false,
 			'sort' => 'WORKFLOW_STARTED_BY',
 		],
 		[
 			'id' => 'OVERDUE_DATE',
-			'name' => GetMessage('BPATL_OVERDUE_DATE'),
+			'name' => Loc::getMessage('BPATL_OVERDUE_DATE'),
 			'default' => false,
 			'sort' => 'OVERDUE_DATE',
 		],
 		[
 			'id' => 'WORKFLOW_TEMPLATE_NAME',
-			'name' => GetMessage('BPATL_WORKFLOW_NAME'),
+			'name' => Loc::getMessage('BPATL_WORKFLOW_NAME'),
 			'default' => false,
 			'sort' => 'WORKFLOW_TEMPLATE_NAME',
 		],
 		[
 			'id' => 'WORKFLOW_STATE',
-			'name' => GetMessage('BPATL_WORKFLOW_STATE'),
+			'name' => Loc::getMessage('BPATL_WORKFLOW_STATE'),
 			'default' => false,
 			'sort' => 'WORKFLOW_STATE',
 		],
@@ -184,29 +216,29 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 	$arResult['FILTER'] = [
 		[
 			'id' => 'NAME',
-			'name' => GetMessage('BPATL_NAME'),
+			'name' => Loc::getMessage('BPATL_NAME'),
 			'type' => 'string',
 			'default' => true
 		],
 		[
 			'id' => 'DESCRIPTION',
-			'name' => GetMessage('BPATL_DESCRIPTION'),
+			'name' => Loc::getMessage('BPATL_DESCRIPTION'),
 			'type' => 'string'
 		],
 		[
 			'id' => 'MODIFIED',
-			'name' => GetMessage('BPATL_MODIFIED'),
+			'name' => Loc::getMessage('BPATL_MODIFIED'),
 			'type' => 'date',
 			'default' => true,
 		],
 		[
 			'id' => 'USER_STATUS',
-			'name' => GetMessage('BPATL_FILTER_STATUS'),
+			'name' => Loc::getMessage('BPATL_FILTER_STATUS'),
 			'type' => 'list',
 			'items' => [
-				2 => GetMessage('BPATL_FILTER_STATUS_ALL'),
-				0 => GetMessage('BPATL_FILTER_STATUS_RUNNING_1'),
-				1 => GetMessage('BPATL_FILTER_STATUS_COMPLETE_1'),
+				2 => Loc::getMessage('BPATL_FILTER_STATUS_ALL'),
+				0 => Loc::getMessage('BPATL_FILTER_STATUS_RUNNING_1'),
+				1 => Loc::getMessage('BPATL_FILTER_STATUS_COMPLETE_1'),
 			],
 			'default' => true
 		],
@@ -215,15 +247,15 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 	{
 		$arResult['FILTER'][] = [
 			'id' => 'DOCUMENT_TYPE',
-			'name' => \Bitrix\Main\Localization\Loc::getMessage('BPATL_FILTER_DOCTYPE'),
+			'name' => Loc::getMessage('BPATL_FILTER_DOCTYPE'),
 			'type' => 'list',
 			'items' => [
-				'' => GetMessage('BPATL_FILTER_DOCTYPE_ALL'),
-				'processes' => GetMessage('BPATL_FILTER_DOCTYPE_CLAIMS'),
-				'crm' => GetMessage('BPATL_FILTER_DOCTYPE_CRM'),
-				'disk' => GetMessage('BPATL_FILTER_DOCTYPE_DISK'),
-				'lists' => GetMessage('BPATL_FILTER_DOCTYPE_LISTS'),
-				'rpa' => GetMessage('BPATL_FILTER_DOCTYPE_RPA')
+				'' => Loc::getMessage('BPATL_FILTER_DOCTYPE_ALL'),
+				'processes' => Loc::getMessage('BPATL_FILTER_DOCTYPE_CLAIMS'),
+				'crm' => Loc::getMessage('BPATL_FILTER_DOCTYPE_CRM'),
+				'disk' => Loc::getMessage('BPATL_FILTER_DOCTYPE_DISK'),
+				'lists' => Loc::getMessage('BPATL_FILTER_DOCTYPE_LISTS'),
+				'rpa' => Loc::getMessage('BPATL_FILTER_DOCTYPE_RPA')
 			],
 			'default' => true,
 		];
@@ -233,7 +265,7 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 	{
 		$arResult['FILTER'][] = [
 			'id' => 'USER_ID',
-			'name' => GetMessage('BPATL_FILTER_USER'),
+			'name' => Loc::getMessage('BPATL_FILTER_USER'),
 			'type' => 'entity_selector',
 			'default' => true,
 			'params' => [
@@ -256,12 +288,12 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 
 	$arResult['FILTER_PRESETS'] = [
 		'filter_running' => [
-			'name' => GetMessage('BPATL_FILTER_STATUS_RUNNING_1'),
+			'name' => Loc::getMessage('BPATL_FILTER_STATUS_RUNNING_1'),
 			'fields' => ['USER_STATUS' => 0],
 			'default' => true,
 		],
 		'filter_complete' => [
-			'name' => GetMessage('BPATL_FILTER_STATUS_COMPLETE_1'),
+			'name' => Loc::getMessage('BPATL_FILTER_STATUS_COMPLETE_1'),
 			'fields' => ['USER_STATUS' => 1],
 		],
 	];
@@ -277,24 +309,29 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 		unset($arFilter['ENTITY']);
 	}
 
-	if (empty($arParams["WORKFLOW_ID"]))
+	if (empty($arParams['WORKFLOW_ID']))
 	{
-		$ar = array("" => GetMessage("BPATL_WORKFLOW_ID_ANY"));
-		$dbResTmp = CBPWorkflowTemplateLoader::GetList(
-			array('NAME' => 'ASC'),
-			array(
-				"ACTIVE" => "Y",
-				"USER_ID" => $currentUserId,
-				'<AUTO_EXECUTE' => CBPDocumentEventType::Automation
-			),
-			false, false,
-			array('ID', 'NAME')
-		);
-
-		while ($arResTmp = $dbResTmp->GetNext())
-			$ar[$arResTmp['ID']] = $arResTmp["NAME"];
-
-		$arResult["FILTER"][] = array("id" => "WORKFLOW_TEMPLATE_ID", "name" => GetMessage("BPATL_WORKFLOW_ID"), "type" => "list", "items" => $ar);
+		$arResult['FILTER'][] = [
+			'id' => 'WORKFLOW_TEMPLATE_ID',
+			'name' => Loc::getMessage('BPATL_WORKFLOW_ID'),
+			'type' => 'entity_selector',
+			'params' => [
+				'multiple' => 'N',
+				'dialogOptions' => [
+					'context' => 'bp-filter',
+					'entities' => [
+						['id' => 'bizproc-template'],
+					],
+					'multiple' => 'N',
+					'dropdownMode' => true,
+					'hideOnSelect' => true,
+					'hideOnDeselect' => false,
+					'clearSearchOnSelect' => true,
+					'showAvatars' => false,
+					'compactView' => true,
+				],
+			],
+		];
 	}
 	else
 	{
@@ -397,7 +434,7 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 			}
 			else
 			{
-				$arResult['ERRORS'][] = GetMessage('BPATL_ERROR_SUBORDINATION');
+				$arResult['ERRORS'][] = Loc::getMessage('BPATL_ERROR_SUBORDINATION');
 				$value = 0;
 			}
 		}
@@ -422,23 +459,20 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 			}
 			if ($action == 'delegate_to' && !empty($_REQUEST['ACTION_DELEGATE_TO_ID']))
 			{
-				$allowedDelegationType = array(CBPTaskDelegationType::AllEmployees);
-				if ($isAdmin)
-				{
-					$allowedDelegationType = null;
-				}
-				elseif (CBPHelper::checkUserSubordination($currentUserId, $_REQUEST['ACTION_DELEGATE_TO_ID']))
-				{
-					$allowedDelegationType[] = CBPTaskDelegationType::Subordinate;
-				}
+				$toUserId = is_numeric($_REQUEST['ACTION_DELEGATE_TO_ID']) ? (int)$_REQUEST['ACTION_DELEGATE_TO_ID'] : 0;
 
-				CBPDocument::delegateTasks(
-					$targetUserId,
-					$_REQUEST['ACTION_DELEGATE_TO_ID'],
-					$ids,
-					$arResult['ERRORS'],
-					$allowedDelegationType
+				$taskService = new \Bitrix\Bizproc\Task\Service\TaskService(
+					new \Bitrix\Bizproc\Task\Service\AccessService($currentUserId)
 				);
+				$options = new \Bitrix\Bizproc\Task\Options\DelegateTasksOptions($ids, (int)$targetUserId, $toUserId, $currentUserId);
+				$delegateTaskResult = $taskService->delegateTasks($options);
+				if (!$delegateTaskResult->isSuccess())
+				{
+					foreach ($delegateTaskResult->getErrors() as $error)
+					{
+						$arResult['ERRORS'][] = $error->getMessage();
+					}
+				}
 			}
 		}
 	}
@@ -473,7 +507,7 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 
 		if (empty($arRecord['DOCUMENT_NAME']))
 		{
-			$arRecord['DOCUMENT_NAME'] = GetMessage("BPATL_DOCUMENT_NAME");
+			$arRecord['DOCUMENT_NAME'] = Loc::getMessage("BPATL_DOCUMENT_NAME");
 		}
 
 		$taskUrlParams = ["ID" => $arRecord["ID"], "task_id" => $arRecord["ID"]];
@@ -526,7 +560,7 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 		$aActions = [
 			[
 				'DEFAULT' => true,
-				'TEXT' => GetMessage('BPTL_C_DETAIL'),
+				'TEXT' => Loc::getMessage('BPTL_C_DETAIL'),
 				'ONCLICK' => 'window.location="' . $arRecord['URL']['TASK'] . '";',
 			],
 		];
@@ -534,7 +568,7 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 		{
 			$aActions[] = [
 				'DEFAULT' => false,
-				'TEXT' => GetMessage('BPTL_C_DOCUMENT'),
+				'TEXT' => Loc::getMessage('BPTL_C_DOCUMENT'),
 				'ONCLICK' => 'window.open("' . $arRecord['DOCUMENT_URL'] . '");'
 			];
 		}
@@ -561,7 +595,7 @@ if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 	}
 
 	$arResult["ROWS_COUNT"] = $dbRecordsList->SelectedRowsCount();
-	$arResult["NAV_STRING"] = $dbRecordsList->GetPageNavStringEx($navComponentObject, GetMessage("INTS_TASKS_NAV"), "", false);
+	$arResult["NAV_STRING"] = $dbRecordsList->GetPageNavStringEx($navComponentObject, Loc::getMessage("INTS_TASKS_NAV"), "", false);
 	$arResult["NAV_CACHED_DATA"] = $navComponentObject->GetTemplateCachedData();
 	$arResult["NAV_RESULT"] = $dbRecordsList;
 
@@ -577,8 +611,8 @@ if ($arParams["SHOW_TRACKING"] == "Y")
 	$hgridSort = $hgridOptions->GetSorting(array("sort"=>array("ID" => "desc")));
 
 	$arResult["H_HEADERS"] = array(
-		array("id" => "MODIFIED", "name" => GetMessage("BPATL_MODIFIED"), "default" => true, "sort" => ""),
-		array("id" => "ACTION_NOTE", "name" => GetMessage("BPATL_DESCRIPTION"), "default" => true, "sort" => ""),
+		array("id" => "MODIFIED", "name" => Loc::getMessage("BPATL_MODIFIED"), "default" => true, "sort" => ""),
+		array("id" => "ACTION_NOTE", "name" => Loc::getMessage("BPATL_DESCRIPTION"), "default" => true, "sort" => ""),
 	);
 
 	$arResult["H_SORT"] = $hgridSort["sort"];
@@ -618,13 +652,13 @@ if ($arParams["SHOW_TRACKING"] == "Y")
 
 		$aActions = array();
 		if ($arRecord["DOCUMENT_URL"] <> '')
-			$aActions[] = array("ICONCLASS"=>"", "DEFAULT" => false, "TEXT"=>GetMessage("BPTL_C_DOCUMENT"), "ONCLICK"=>"window.open('".$arRecord["DOCUMENT_URL"]."');");
+			$aActions[] = array("ICONCLASS"=>"", "DEFAULT" => false, "TEXT"=> Loc::getMessage("BPTL_C_DOCUMENT"), "ONCLICK"=>"window.open('".$arRecord["DOCUMENT_URL"]."');");
 
 		$arResult["H_RECORDS"][] = array("data" => $arRecord, "actions" => $aActions, "columns" => array(), "editable" => false);
 	}
 
 	$arResult["H_ROWS_COUNT"] = $dbRecordsList->SelectedRowsCount();
-	$arResult["H_NAV_STRING"] = $dbRecordsList->GetPageNavStringEx($navComponentObject, GetMessage("INTS_TASKS_NAV"), "", false);
+	$arResult["H_NAV_STRING"] = $dbRecordsList->GetPageNavStringEx($navComponentObject, Loc::getMessage("INTS_TASKS_NAV"), "", false);
 	$arResult["H_NAV_CACHED_DATA"] = $navComponentObject->GetTemplateCachedData();
 	$arResult["H_NAV_RESULT"] = $dbRecordsList;
 }
@@ -634,9 +668,9 @@ if ($arResult["FatalErrorMessage"] == '')
 	if (!$arParams['COUNTERS_ONLY'])
 	{
 		if($arParams["SET_TITLE"] == "Y")
-			$APPLICATION->SetTitle(GetMessage("BPABS_TITLE"));
+			$APPLICATION->SetTitle(Loc::getMessage("BPABS_TITLE"));
 		if ($arParams["SET_NAV_CHAIN"] == "Y")
-			$APPLICATION->AddChainItem(GetMessage("BPABS_TITLE"));
+			$APPLICATION->AddChainItem(Loc::getMessage("BPABS_TITLE"));
 	}
 
 	$arResult['COUNTERS'] = CBPTaskService::getCounters($targetUserId);
@@ -657,9 +691,9 @@ if ($arResult["FatalErrorMessage"] == '')
 elseif (!$arParams['COUNTERS_ONLY'])
 {
 	if ($arParams["SET_TITLE"] == "Y")
-		$APPLICATION->SetTitle(GetMessage("BPWC_WLC_ERROR"));
+		$APPLICATION->SetTitle(Loc::getMessage("BPWC_WLC_ERROR"));
 	if ($arParams["SET_NAV_CHAIN"] == "Y")
-		$APPLICATION->AddChainItem(GetMessage("BPWC_WLC_ERROR"));
+		$APPLICATION->AddChainItem(Loc::getMessage("BPWC_WLC_ERROR"));
 }
 
 $this->IncludeComponentTemplate();

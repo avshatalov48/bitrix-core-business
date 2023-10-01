@@ -6,13 +6,12 @@ use Bitrix\Main;
 
 class PriceMaths
 {
-	private static $valuePrecision = null;
+	private static ?int $valuePrecision = null;
 
 	/**
 	 * @param $value
 	 *
 	 * @return float
-	 * @throws Main\ArgumentNullException
 	 */
 	public static function roundPrecision($value)
 	{
@@ -25,7 +24,7 @@ class PriceMaths
 			}
 		}
 
-		return round(doubleval($value), self::$valuePrecision);
+		return round((float)$value, self::$valuePrecision);
 	}
 
 	/**
@@ -33,11 +32,11 @@ class PriceMaths
 	 *
 	 * @param $price
 	 * @param $currency
-	 * 
+	 *
 	 * @return float
 	 */
 	public static function roundByFormatCurrency($price, $currency)
 	{
-		return floatval(SaleFormatCurrency($price, $currency, false, true));
+		return (float)SaleFormatCurrency($price, $currency, false, true);
 	}
 }

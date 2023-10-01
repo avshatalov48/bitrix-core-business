@@ -3509,9 +3509,12 @@ class CAdvBanner_all
 					foreach($arr as $str)
 					{
 						$ar = explode("_",$str);
-						$banner_id = intval($ar[1]);
-						$counter = intval($ar[2]);
-						$arrCookie_counter[$banner_id] = $counter;
+						if (count($ar) >= 3)
+						{
+							$banner_id = intval($ar[1]);
+							$counter = intval($ar[2]);
+							$arrCookie_counter[$banner_id] = $counter;
+						}
 					}
 				}
 			}
@@ -3527,8 +3530,8 @@ class CAdvBanner_all
 			$arrEmptyKeywordsBanners = array(); // массив баннеров у которых поле "ключевые слова" не заполнено
 			$arrPAGE_KEYWORDS = CAdvBanner::GetKeywords(); // массив ключевых слов заданных для данной страницы
 
-			$arrDesiredPageKeywords_all = is_array($arrPAGE_KEYWORDS[""]["DESIRED"]) ? $arrPAGE_KEYWORDS[""]["DESIRED"] : array();
-			$arrRequiredPageKeywords_all = is_array($arrPAGE_KEYWORDS[""]["REQUIRED"]) ? $arrPAGE_KEYWORDS[""]["REQUIRED"] : array();
+			$arrDesiredPageKeywords_all = $arrPAGE_KEYWORDS[""]["DESIRED"] ?? [];
+			$arrRequiredPageKeywords_all = $arrPAGE_KEYWORDS[""]["REQUIRED"] ?? [];
 
 			$rs = CAdvBanner::GetPageWeights_RS();
 			while($ar=$rs->Fetch())
@@ -3545,11 +3548,8 @@ class CAdvBanner_all
 
 				if ((intval($ar["SHOWS_FOR_VISITOR"])>0 && intval($arrCookie_counter[$ar["BANNER_ID"]])<intval($ar["SHOWS_FOR_VISITOR"])) || intval($ar["SHOWS_FOR_VISITOR"])<=0)
 				{
-					$arr = $arrPAGE_KEYWORDS[$ar["TYPE_SID"]]["DESIRED"];
-					$arrDesiredPageKeywords = is_array($arr) ? $arr : array();
-
-					$arr = $arrPAGE_KEYWORDS[$ar["TYPE_SID"]]["REQUIRED"];
-					$arrRequiredPageKeywords = is_array($arr) ? $arr : array();
+					$arrDesiredPageKeywords = $arrPAGE_KEYWORDS[$ar["TYPE_SID"]]["DESIRED"] ?? [];
+					$arrRequiredPageKeywords = $arrPAGE_KEYWORDS[$ar["TYPE_SID"]]["REQUIRED"] ?? [];
 
 					if (count($arrRequiredPageKeywords)>0 ||
 						count($arrRequiredPageKeywords_all)>0 ||
@@ -3721,12 +3721,12 @@ class CAdvBanner_all
 					if ($arKeywordsSet[$tsid]=="Y")
 					{
 						// желательные слова
-						if (is_array($arrWeightSum_DesiredKeywords[$tsid]) && count($arrWeightSum_DesiredKeywords[$tsid])>0)
+						if (isset($arrWeightSum_DesiredKeywords[$tsid]) && is_array($arrWeightSum_DesiredKeywords[$tsid]) && !empty($arrWeightSum_DesiredKeywords[$tsid]))
 						{
 							$arrWeightSum[$tsid] = $arrWeightSum_DesiredKeywords[$tsid];
 						}
 						// обязательные слова
-						elseif (is_array($arrWeightSum_RequiredKeywords[$tsid]) && count($arrWeightSum_RequiredKeywords[$tsid])>0)
+						elseif (isset($arrWeightSum_RequiredKeywords[$tsid]) && is_array($arrWeightSum_RequiredKeywords[$tsid]) && !empty($arrWeightSum_RequiredKeywords[$tsid]))
 						{
 							$arrWeightSum[$tsid] = $arrWeightSum_RequiredKeywords[$tsid];
 						}

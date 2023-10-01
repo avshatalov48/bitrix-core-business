@@ -47,7 +47,7 @@ class AdvertisingBanner extends \CBitrixComponent
 			$params['QUANTITY'] = 1;
 		}
 
-		$params['BANNER_ID'] = intval($params['BANNER_ID']);
+		$params['BANNER_ID'] = intval($params['BANNER_ID'] ?? 0);
 
 		return $params;
 	}
@@ -86,10 +86,10 @@ class AdvertisingBanner extends \CBitrixComponent
 									$templateProps['NAME'],
 									array(
 										'PROPS' => $v,
-										'FILES'	=> $templateFiles[$k],
+										'FILES'	=> $templateFiles[$k] ?? [],
 										'EXT_MODE' => $templateProps['MODE'],
 										'INDEX' => $this->bannerIndex,
-										'HEIGHT' => $this->arParams['HEIGHT'],
+										'HEIGHT' => $this->arParams['HEIGHT'] ?? '',
 										'CASUAL_PROPERTIES' => array(
 											'TYPE' => $banner['AD_TYPE']
 										)
@@ -319,7 +319,7 @@ class AdvertisingBanner extends \CBitrixComponent
 
 		if ($this->setCache())
 		{
-			if ($this->arParams['PREVIEW'] === 'Y')
+			if (isset($this->arParams['PREVIEW']) && $this->arParams['PREVIEW'] === 'Y')
 			{
 				$this->loadPreview();
 			}
@@ -342,7 +342,7 @@ class AdvertisingBanner extends \CBitrixComponent
 			$this->includeComponentTemplate();
 		}
 
-		if ($this->arParams['PREVIEW'] != 'Y')
+		if (!isset($this->arParams['PREVIEW']) || $this->arParams['PREVIEW'] != 'Y')
 		{
 			$this->doFinalActions();
 		}

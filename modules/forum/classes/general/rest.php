@@ -350,7 +350,7 @@ class CForumRestService extends IRestService
 			/** @var \Bitrix\Disk\File $fileModel */
 			$contentType = 'file';
 			$imageParams = false;
-			if (\Bitrix\Disk\TypeFile::isImage($fileModel->getName()))
+			if (\Bitrix\Disk\TypeFile::isImage($fileModel))
 			{
 				$contentType = 'image';
 				$params = $fileModel->getFile();

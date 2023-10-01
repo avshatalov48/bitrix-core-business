@@ -1,6 +1,7 @@
 .bx-basket { }
 
 .bx-basket-block {
+	margin: auto;
 	position: relative;
 	padding-bottom: 5px;
 	padding-left: 20px;
@@ -23,7 +24,7 @@
 @media (min-width: 768px) {
 	.bx-basket-fixed {
 		position: fixed;
-		z-index: 998;
+		z-index: 100;
 		overflow: hidden;
 		padding-top: 10px;
 		width: 200px;
@@ -46,13 +47,17 @@
 	.block-store-catalog-list .bx-basket-fixed.bottom { bottom: 70px }
 }
 
+@media (min-width: 768px) and (width <= 992px) {
+	.block-store-catalog-list .bx-basket-fixed.bottom { bottom: 90px }
+}
+
 @media (max-width: 767px) {
 	.bx-basket-fixed {
 		position: fixed;
 		right: 0;
 		bottom: 0;
 		left: 0;
-		z-index: 998;
+		z-index: 100;
 		overflow: hidden;
 		padding-top: 10px;
 		border: 1px solid #f0f0f0;
@@ -73,14 +78,11 @@
 	}
 
 	.block-wrapper .bx-basket-fixed .bx-hdr-profile .bx-basket-block {
-		margin-right: 20px;
 		padding-bottom: 0;
 	}
 
 	/*.bx-basket-fixed */
 }
-
-.bx-basket-fixed .bx-basket-block { margin-left: 10px; }
 
 .bx-basket-item-list {
 	position: relative;

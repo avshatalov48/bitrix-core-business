@@ -395,7 +395,7 @@ class CAllCatalogDocs
 		Catalog\StoreDocumentElementTable::deleteByDocument($id);
 		Catalog\StoreDocumentBarcodeTable::deleteByDocument($id);
 
-		$contractorsProvider = Contractor\Provider\Manager::getActiveProvider();
+		$contractorsProvider = Contractor\Provider\Manager::getActiveProvider(Contractor\Provider\Manager::PROVIDER_STORE_DOCUMENT);
 		if ($contractorsProvider)
 		{
 			$contractorsProvider::onAfterDocumentDelete($id);

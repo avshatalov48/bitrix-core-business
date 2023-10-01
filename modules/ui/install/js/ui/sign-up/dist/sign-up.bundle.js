@@ -3,8 +3,8 @@ this.BX = this.BX || {};
 	'use strict';
 
 	let _ = t => t,
-	    _t,
-	    _t2;
+	  _t,
+	  _t2;
 	class Tab extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
@@ -13,16 +13,14 @@ this.BX = this.BX || {};
 	    this.setEventNamespace('BX.UI.SignUp.Tabs.Tab');
 	    this.subscribeFromOptions(options.events);
 	  }
-
 	  setOptions(options) {
-	    this.cache.set('options', { ...options
+	    this.cache.set('options', {
+	      ...options
 	    });
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  getIconNode() {
 	    return this.cache.remember('iconNode', () => {
 	      return main_core.Tag.render(_t || (_t = _`
@@ -30,7 +28,6 @@ this.BX = this.BX || {};
 			`), this.getOptions().icon);
 	    });
 	  }
-
 	  getHeaderLayout() {
 	    return this.cache.remember('headerLayout', () => {
 	      return main_core.Tag.render(_t2 || (_t2 = _`
@@ -49,40 +46,34 @@ this.BX = this.BX || {};
 			`), main_core.Text.encode(this.getOptions().id), this.onHeaderClick.bind(this), this.getIconNode(), this.getOptions().header);
 	    });
 	  }
-
 	  onHeaderClick(event) {
 	    event.preventDefault();
 	    this.emit('onHeaderClick');
 	  }
-
 	  getContent() {
 	    return this.getOptions().content;
 	  }
-
 	  activate() {
 	    main_core.Dom.addClass(this.getHeaderLayout(), 'ui-sign-up-tabs-tab-header-active');
 	    main_core.Dom.style(this.getIconNode(), {
 	      'background-image': `url('${this.getOptions().activeIcon}')`
 	    });
 	  }
-
 	  deactivate() {
 	    main_core.Dom.removeClass(this.getHeaderLayout(), 'ui-sign-up-tabs-tab-header-active');
 	    main_core.Dom.style(this.getIconNode(), {
 	      'background-image': `url('${this.getOptions().icon}')`
 	    });
 	  }
-
 	  isActive() {
 	    return main_core.Dom.hasClass(this.getHeaderLayout(), 'ui-sign-up-tabs-tab-header-active');
 	  }
-
 	}
 
 	let _$1 = t => t,
-	    _t$1,
-	    _t2$1,
-	    _t3;
+	  _t$1,
+	  _t2$1,
+	  _t3;
 	class Tabs extends main_core_events.EventEmitter {
 	  constructor(options = {}) {
 	    super();
@@ -94,12 +85,10 @@ this.BX = this.BX || {};
 	    const {
 	      defaultState
 	    } = this.getOptions();
-
 	    if (main_core.Type.isStringFilled(defaultState)) {
 	      const currentTab = this.getTabs().find(tab => {
 	        return tab.getOptions().id === defaultState;
 	      });
-
 	      if (currentTab) {
 	        this.setCurrentTab(currentTab);
 	        currentTab.activate();
@@ -114,28 +103,25 @@ this.BX = this.BX || {};
 	      firstTab.activate();
 	    }
 	  }
-
 	  getCurrentTab() {
 	    return this.cache.get('currentTab');
 	  }
-
 	  setCurrentTab(tab) {
 	    this.cache.set('currentTab', tab);
 	  }
-
 	  setOptions(options) {
-	    this.cache.set('options', { ...options
+	    this.cache.set('options', {
+	      ...options
 	    });
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  getTabs() {
 	    return this.cache.remember('tabs', () => {
 	      return this.getOptions().tabs.map(options => {
-	        return new Tab({ ...options,
+	        return new Tab({
+	          ...options,
 	          events: {
 	            onHeaderClick: this.onTabHeaderClick
 	          }
@@ -143,7 +129,6 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	  onTabHeaderClick(event) {
 	    const targetTab = event.getTarget();
 	    this.setCurrentTab(targetTab);
@@ -153,7 +138,6 @@ this.BX = this.BX || {};
 	    targetTab.activate();
 	    main_core.Dom.replace(this.getBodyLayout().firstElementChild, targetTab.getContent().getLayout());
 	  }
-
 	  getHeaderLayout() {
 	    return this.cache.remember('headerLayout', () => {
 	      return main_core.Tag.render(_t$1 || (_t$1 = _$1`
@@ -163,7 +147,6 @@ this.BX = this.BX || {};
 			`), this.getTabs().map(tab => tab.getHeaderLayout()));
 	    });
 	  }
-
 	  getBodyLayout() {
 	    return this.cache.remember('bodyLayout', () => {
 	      return main_core.Tag.render(_t2$1 || (_t2$1 = _$1`
@@ -173,7 +156,6 @@ this.BX = this.BX || {};
 			`), this.getCurrentTab().getContent().getLayout());
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t3 || (_t3 = _$1`
@@ -184,11 +166,10 @@ this.BX = this.BX || {};
 			`), this.getHeaderLayout(), this.getBodyLayout());
 	    });
 	  }
-
 	}
 
 	let _$2 = t => t,
-	    _t$2;
+	  _t$2;
 	class Footer extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
@@ -197,15 +178,12 @@ this.BX = this.BX || {};
 	    this.subscribeFromOptions(options.events);
 	    this.setOptions(options);
 	  }
-
 	  setOptions(options) {
 	    this.cache.set('options', options);
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  getSaveButton() {
 	    return this.cache.remember('saveButtons', () => {
 	      return new ui_buttons.Button({
@@ -217,7 +195,6 @@ this.BX = this.BX || {};
 	        onclick: () => {
 	          this.emit('onSaveClick');
 	          const promise = this.emitAsync('onSaveClickAsync');
-
 	          if (promise) {
 	            this.getSaveButton().setWaiting(true);
 	            promise.then(() => {
@@ -228,7 +205,6 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	  getCancelButton() {
 	    return this.cache.remember('cancelButtons', () => {
 	      return new ui_buttons.Button({
@@ -243,7 +219,6 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      const layout = main_core.Tag.render(_t$2 || (_t$2 = _$2`
@@ -251,40 +226,31 @@ this.BX = this.BX || {};
 					${0}
 				</div>
 			`), this.getSaveButton().render());
-
 	      if (this.getOptions().mode === 'desktop') {
 	        main_core.Dom.append(this.getCancelButton().render(), layout);
 	      }
-
 	      return layout;
 	    });
 	  }
-
 	}
 
 	let _$3 = t => t,
-	    _t$3;
-
+	  _t$3;
 	var _loadImage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadImage");
-
 	class CanvasWrapper {
 	  constructor(options) {
 	    this.cache = new main_core.Cache.MemoryCache();
 	    this.setOptions(options);
 	  }
-
 	  setOptions(options) {
 	    this.cache.set('options', options);
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options');
 	  }
-
 	  getDevicePixelRatio() {
 	    return window.devicePixelRatio;
 	  }
-
 	  getLayout() {
 	    const canvas = this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$3 || (_t$3 = _$3`
@@ -297,7 +263,6 @@ this.BX = this.BX || {};
 	          width: canvas.parentElement.clientWidth,
 	          height: canvas.parentElement.clientHeight
 	        };
-
 	        if (parentRect.width > 0 && parentRect.height > 0) {
 	          void this.cache.remember('adjustCanvas', () => {
 	            const canvas = this.getLayout();
@@ -312,28 +277,23 @@ this.BX = this.BX || {};
 	            const {
 	              context2d: context2dOptions = {}
 	            } = this.getOptions();
-
 	            if (main_core.Type.isPlainObject(context2dOptions)) {
 	              Object.assign(context2d, context2dOptions);
 	            }
-
 	            context2d.scale(ratio, ratio);
 	          });
 	        }
 	      }
-
 	      clearTimeout(timeoutId);
 	    });
 	    return canvas;
 	  }
-
 	  clear() {
 	    const canvas = this.getLayout();
 	    const context = canvas.getContext('2d');
 	    context.clearRect(0, 0, canvas.width * 2, canvas.height * 2);
 	  }
-
-	  renderText(text) {
+	  renderText(text, textColor = null) {
 	    const preparedText = String(text).trim();
 	    const canvas = this.getLayout();
 	    const context = canvas.getContext('2d');
@@ -342,16 +302,16 @@ this.BX = this.BX || {};
 	    const ratio = this.getDevicePixelRatio();
 	    const maxTextWidth = canvas.width - 20;
 	    let fontSize = main_core.Text.toNumber(context.font);
-
 	    while (fontSize > 1 && context.measureText(preparedText).width * ratio > maxTextWidth) {
 	      fontSize -= 1;
 	      context.font = `${fontSize}px Comforter Brush`;
 	    }
-
 	    const textWidth = context.measureText(preparedText).width * ratio;
+	    if (textColor !== null && textColor !== '') {
+	      context.fillStyle = textColor;
+	    }
 	    context.fillText(preparedText, (canvas.width - textWidth) / (2 * ratio), 34);
 	  }
-
 	  renderImage(file) {
 	    return babelHelpers.classPrivateFieldLooseBase(CanvasWrapper, _loadImage)[_loadImage](file).then(image => {
 	      const canvas = this.getLayout();
@@ -365,9 +325,7 @@ this.BX = this.BX || {};
 	      context2d.drawImage(image, 0, 0, image.width, image.height, offsetX, offsetY, image.width * ratio, image.height * ratio);
 	    });
 	  }
-
 	}
-
 	function _loadImage2(file) {
 	  const fileReader = new FileReader();
 	  return new Promise(resolve => {
@@ -381,7 +339,6 @@ this.BX = this.BX || {};
 	    });
 	  });
 	}
-
 	Object.defineProperty(CanvasWrapper, _loadImage, {
 	  value: _loadImage2
 	});
@@ -394,30 +351,30 @@ this.BX = this.BX || {};
 	    this.subscribeFromOptions(options.events);
 	    this.setOptions(options);
 	  }
-
+	  getColor() {
+	    var _this$getOptions$colo;
+	    return (_this$getOptions$colo = this.getOptions().color) != null ? _this$getOptions$colo : null;
+	  }
 	  setOptions(options) {
-	    this.cache.set('options', { ...options
+	    this.cache.set('options', {
+	      ...options
 	    });
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  getLayout() {
 	    throw new Error('Must be implemented in a child class');
 	  }
-
 	  getCanvas() {
 	    throw new Error('Must be implemented in a child class');
 	  }
-
 	}
 
 	let _$4 = t => t,
-	    _t$4,
-	    _t2$2,
-	    _t3$1;
+	  _t$4,
+	  _t2$2,
+	  _t3$1;
 	class InitialsContent extends Content {
 	  constructor(options) {
 	    super(options);
@@ -426,7 +383,6 @@ this.BX = this.BX || {};
 	    this.onInput = this.onInput.bind(this);
 	    void this.forceLoadFonts();
 	  }
-
 	  forceLoadFonts() {
 	    const allFonts = [...document.fonts];
 	    const comforterBrushFonts = allFonts.filter(font => {
@@ -434,7 +390,6 @@ this.BX = this.BX || {};
 	    });
 	    return Promise.all(comforterBrushFonts.map(font => font.load()));
 	  }
-
 	  getNameInput() {
 	    return this.cache.remember('nameInput', () => {
 	      return main_core.Tag.render(_t$4 || (_t$4 = _$4`
@@ -442,7 +397,6 @@ this.BX = this.BX || {};
 			`), this.onInput);
 	    });
 	  }
-
 	  getInitialsInput() {
 	    return this.cache.remember('initialsInput', () => {
 	      return main_core.Tag.render(_t2$2 || (_t2$2 = _$4`
@@ -450,18 +404,15 @@ this.BX = this.BX || {};
 			`), this.onInput);
 	    });
 	  }
-
 	  getTextValue() {
 	    const name = String(this.getNameInput().value);
 	    const initials = String(this.getInitialsInput().value);
 	    return `${name} ${initials}`;
 	  }
-
 	  onInput() {
-	    this.getCanvas().renderText(this.getTextValue());
+	    this.getCanvas().renderText(this.getTextValue(), this.getColor());
 	    this.emit('onChange');
 	  }
-
 	  getCanvas() {
 	    return this.cache.remember('canvas', () => {
 	      return new CanvasWrapper({
@@ -472,7 +423,6 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t3$1 || (_t3$1 = _$4`
@@ -502,7 +452,6 @@ this.BX = this.BX || {};
 			`), main_core.Loc.getMessage('UI_SIGN_UP_TAB_INITIALS_LAST_NAME_LABEL'), this.getNameInput(), main_core.Loc.getMessage('UI_SIGN_UP_TAB_INITIALS_INITIALS_LABEL'), this.getInitialsInput(), this.getCanvas().getLayout());
 	    });
 	  }
-
 	}
 
 	function getPoint(event) {
@@ -518,7 +467,6 @@ this.BX = this.BX || {};
 	      y: touch.clientY - rect.top
 	    };
 	  }
-
 	  return {
 	    x: event.offsetX,
 	    y: event.offsetY
@@ -526,8 +474,8 @@ this.BX = this.BX || {};
 	}
 
 	let _$5 = t => t,
-	    _t$5,
-	    _t2$3;
+	  _t$5,
+	  _t2$3;
 	let preventScrolling = false;
 	main_core.Event.bind(window, 'touchmove', event => {
 	  if (preventScrolling) {
@@ -549,23 +497,18 @@ this.BX = this.BX || {};
 	    main_core.Event.bind(canvasLayout, 'touchend', this.onCanvasMouseUp.bind(this));
 	    main_core.Event.bind(canvasLayout, 'touchmove', this.onCanvasMouseMove.bind(this));
 	  }
-
 	  setIsDrawing(value) {
 	    this.cache.set('isDrawing', value);
 	  }
-
 	  getIsDrawing() {
 	    return this.cache.get('isDrawing', false);
 	  }
-
 	  setStartEvent(event) {
 	    this.cache.set('startEvent', event);
 	  }
-
 	  getStartEvent() {
 	    return this.cache.get('startEvent');
 	  }
-
 	  onCanvasMouseDown(event) {
 	    this.setIsDrawing(true);
 	    preventScrolling = true;
@@ -576,39 +519,36 @@ this.BX = this.BX || {};
 	    this.setStartEvent(event);
 	    this.emit('onChange');
 	  }
-
 	  onCanvasMouseUp(event) {
 	    this.setIsDrawing(false);
 	    preventScrolling = false;
 	    const canvasLayout = this.getCanvas().getLayout();
 	    const context2d = canvasLayout.getContext('2d');
 	    context2d.closePath();
-
 	    if (event.currentTarget === canvasLayout) {
 	      const startEvent = this.getStartEvent();
 	      const startPoint = getPoint(startEvent);
 	      const currentPoint = getPoint(event);
-
 	      if (startPoint.x === currentPoint.x && startPoint.y === currentPoint.y) {
 	        context2d.lineTo(currentPoint.x, currentPoint.y);
 	        context2d.stroke();
 	      }
 	    }
-
 	    this.emit('onChange');
 	  }
-
 	  onCanvasMouseMove(event) {
 	    if (this.getIsDrawing()) {
 	      const context2d = this.getCanvas().getLayout().getContext('2d');
 	      const point = getPoint(event);
+	      const strokeColor = this.getColor();
+	      if (strokeColor !== null && strokeColor !== '') {
+	        context2d.strokeStyle = strokeColor;
+	      }
 	      context2d.lineTo(point.x, point.y);
 	      context2d.stroke();
 	    }
-
 	    this.emit('onChange');
 	  }
-
 	  onCanvasMouseOut() {
 	    this.setIsDrawing(false);
 	    preventScrolling = false;
@@ -616,7 +556,6 @@ this.BX = this.BX || {};
 	    context2d.closePath();
 	    this.emit('onChange');
 	  }
-
 	  getCanvas() {
 	    return this.cache.remember('canvas', () => {
 	      return new CanvasWrapper({
@@ -629,7 +568,6 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	  getClearButton() {
 	    return this.cache.remember('clearButton', () => {
 	      return main_core.Tag.render(_t$5 || (_t$5 = _$5`
@@ -639,20 +577,17 @@ this.BX = this.BX || {};
 			`), this.onClearClick.bind(this), main_core.Loc.getMessage('UI_SIGN_UP_TOUCH_CLEAR_BUTTON'));
 	    });
 	  }
-
 	  onClearClick(event) {
 	    event.preventDefault();
 	    this.getCanvas().clear();
 	    this.emit('onChange');
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      const onTouchMove = event => {
 	        event.preventDefault();
 	        event.stopPropagation();
 	      };
-
 	      return main_core.Tag.render(_t2$3 || (_t2$3 = _$5`
 				<div class="ui-sign-up-content" ontouchmove="${0}">
 					<div class="ui-sign-up-touch-form-label">
@@ -667,28 +602,25 @@ this.BX = this.BX || {};
 	        if (this.getOptions().mode === 'mobile') {
 	          return main_core.Loc.getMessage('UI_SIGN_UP_TOUCH_LAYOUT_MOBILE_LABEL');
 	        }
-
 	        return main_core.Loc.getMessage('UI_SIGN_UP_TOUCH_LAYOUT_LABEL');
 	      })(), this.getClearButton(), this.getCanvas().getLayout());
 	    });
 	  }
-
 	}
 	TouchContent.LineWidth = 3;
 
 	let _$6 = t => t,
-	    _t$6,
-	    _t2$4,
-	    _t3$2,
-	    _t4,
-	    _t5;
+	  _t$6,
+	  _t2$4,
+	  _t3$2,
+	  _t4,
+	  _t5;
 	class PhotoContent extends Content {
 	  constructor(options) {
 	    super(options);
 	    this.setEventNamespace('BX.UI.SignUp.Content.PhotoContent');
 	    this.subscribeFromOptions(options == null ? void 0 : options.events);
 	  }
-
 	  getTakePhotoButton() {
 	    return this.cache.remember('takePhotoButton', () => {
 	      return new ui_buttons.Button({
@@ -700,7 +632,6 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	  getUploadPhoto() {
 	    return this.cache.remember('uploadPhoto', () => {
 	      return new ui_buttons.Button({
@@ -713,7 +644,6 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	  getFileInput() {
 	    return this.cache.remember('fileInput', () => {
 	      return main_core.Tag.render(_t$6 || (_t$6 = _$6`
@@ -721,27 +651,22 @@ this.BX = this.BX || {};
 			`), this.onFileChange.bind(this));
 	    });
 	  }
-
 	  onUploadPhotoClick() {
 	    this.getFileInput().click();
 	  }
-
 	  onFileChange(event) {
 	    const [file] = event.target.files;
-
 	    if (main_core.Type.isFile(file)) {
 	      if (!main_core.Type.isStringFilled(file.type) || !file.type.startsWith('image')) {
 	        ui_dialogs_messagebox.MessageBox.alert(main_core.Loc.getMessage('UI_SIGN_UP_BAD_IMAGE_FORMAT_ALERT_MESSAGE'));
 	        return false;
 	      }
-
 	      main_core.Dom.replace(this.getButtonsLayout(), this.getPreviewLayout());
 	      this.getCanvas().renderImage(file).then(() => {
 	        this.emit('onChange');
 	      });
 	    }
 	  }
-
 	  getButtonsLayout() {
 	    return this.cache.remember('buttonsLayout', () => {
 	      // const takePhotoLayout = Tag.render`
@@ -758,13 +683,11 @@ this.BX = this.BX || {};
 			`), this.getUploadPhoto().render());
 	    });
 	  }
-
 	  getCanvas() {
 	    return this.cache.remember('canvas', () => {
 	      return new CanvasWrapper({});
 	    });
 	  }
-
 	  getMoreButton() {
 	    return this.cache.remember('moreButton', () => {
 	      return main_core.Tag.render(_t3$2 || (_t3$2 = _$6`
@@ -775,12 +698,10 @@ this.BX = this.BX || {};
 			`), this.onMoreButtonClick.bind(this));
 	    });
 	  }
-
 	  onMoreButtonClick(event) {
 	    event.preventDefault();
 	    this.getMoreMenu().show();
 	  }
-
 	  getMoreMenu() {
 	    return this.cache.remember('moreMenu', () => {
 	      return main_popup.PopupMenu.create({
@@ -794,7 +715,6 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	  getPreviewLayout() {
 	    return this.cache.remember('previewLayout', () => {
 	      return main_core.Tag.render(_t4 || (_t4 = _$6`
@@ -805,7 +725,6 @@ this.BX = this.BX || {};
 			`), this.getCanvas().getLayout(), this.getMoreButton());
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t5 || (_t5 = _$6`
@@ -816,7 +735,6 @@ this.BX = this.BX || {};
 			`), this.getButtonsLayout(), this.getFileInput());
 	    });
 	  }
-
 	}
 
 	var InitialsTabIcon = "/bitrix/js/ui/sign-up/dist/images/initials.svg";
@@ -832,11 +750,11 @@ this.BX = this.BX || {};
 	var PhotoActiveTabIcon = "/bitrix/js/ui/sign-up/dist/images/photo-active.svg";
 
 	let _$7 = t => t,
-	    _t$7;
+	  _t$7;
+
 	/**
 	 * @memberOf BX.UI
 	 */
-
 	class SignUp extends main_core_events.EventEmitter {
 	  constructor(options = {}) {
 	    super();
@@ -845,23 +763,19 @@ this.BX = this.BX || {};
 	    this.subscribeFromOptions(options.events);
 	    this.setOptions(options);
 	    this.onChangeDebounced = main_core.Runtime.debounce(this.onChangeDebounced, 200, this);
-
 	    if (!this.hasValue()) {
 	      this.getFooter().getSaveButton().setDisabled(true);
 	    }
 	  }
-
 	  setOptions(options) {
 	    this.cache.set('options', {
 	      mode: 'desktop',
 	      ...options
 	    });
 	  }
-
 	  getOptions() {
 	    return this.cache.get('options', {});
 	  }
-
 	  getFooter() {
 	    return this.cache.remember('footer', () => {
 	      return new Footer({
@@ -880,7 +794,6 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$7 || (_t$7 = _$7`
@@ -891,36 +804,33 @@ this.BX = this.BX || {};
 			`), this.getTabs().getLayout(), this.getFooter().getLayout());
 	    });
 	  }
-
 	  renderTo(target) {
 	    if (!main_core.Type.isDomNode(target)) {
 	      throw new TypeError('Target is not a HTMLElement');
 	    }
-
 	    main_core.Dom.append(this.getLayout(), target);
 	  }
-
 	  getInitialsContent() {
 	    return this.cache.remember('initialsContent', () => {
 	      return new InitialsContent({
 	        events: {
 	          onChange: this.onChangeDebounced
-	        }
+	        },
+	        color: this.getOptions().signColor
 	      });
 	    });
 	  }
-
 	  getTouchContent() {
 	    return this.cache.remember('touchContent', () => {
 	      return new TouchContent({
 	        mode: this.getOptions().mode,
 	        events: {
 	          onChange: this.onChangeDebounced
-	        }
+	        },
+	        color: this.getOptions().signColor
 	      });
 	    });
 	  }
-
 	  getPhotoContent() {
 	    return this.cache.remember('photoContent', () => {
 	      return new PhotoContent({
@@ -931,7 +841,6 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	  getTabs() {
 	    return this.cache.remember('tabs', () => {
 	      return new Tabs({
@@ -958,15 +867,12 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
-
 	  getCanvas() {
 	    return this.getTabs().getCurrentTab().getContent().getCanvas().getLayout();
 	  }
-
 	  onChangeDebounced() {
 	    this.getFooter().getSaveButton().setDisabled(!this.hasValue());
 	  }
-
 	  hasValue() {
 	    const canvas = this.getCanvas();
 	    const context = canvas.getContext('2d');
@@ -976,14 +882,12 @@ this.BX = this.BX || {};
 	      return color !== 0 && pixelsCount++ > SignUp.MIN_PIXELS_REQUIRED;
 	    });
 	  }
-
 	  async getValue() {
 	    const canvas = this.getTabs().getCurrentTab().getContent().getCanvas().getLayout();
 	    return await new Promise(resolve => {
 	      canvas.toBlob(resolve, 'image/png');
 	    });
 	  }
-
 	}
 	SignUp.MIN_PIXELS_REQUIRED = 100;
 

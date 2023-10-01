@@ -894,7 +894,11 @@
 			}
 			else if (childControlNodes.length > 0)
 			{
-				var context = BX.Bizproc.Automation && BX.Bizproc.Automation.tryGetGlobalContext();
+				const context =
+					BX.Bizproc.Automation
+					&& BX.Bizproc.Automation.tryGetGlobalContext
+					&& BX.Bizproc.Automation.tryGetGlobalContext()
+				;
 				if (context)
 				{
 					childControlNodes.forEach(function(node)
@@ -944,7 +948,11 @@
 		},
 		getGlobals: function ()
 		{
-			const context = BX.Bizproc.Automation && BX.Bizproc.Automation.tryGetGlobalContext();
+			const context =
+				BX.Bizproc.Automation
+				&& BX.Bizproc.Automation.tryGetGlobalContext
+				&& BX.Bizproc.Automation.tryGetGlobalContext()
+			;
 
 			return (
 				context && context.automationGlobals

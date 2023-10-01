@@ -87,7 +87,7 @@ class ProviderBuilderCompatibility extends ProviderBuilderBase
 			'SHIPMENT_ITEM' => $shipmentItem
 		);
 
-		if (is_null($providerName) || strval(trim($providerName)) == '')
+		if (trim((string)$providerName) === '')
 		{
 			$callbackFunction = $basketItem->getCallbackFunction();
 			if (!empty($callbackFunction))
@@ -139,7 +139,7 @@ class ProviderBuilderCompatibility extends ProviderBuilderBase
 			$fields['QUANTITY_BY_STORE'] = $productData['QUANTITY_BY_STORE'];
 		}
 
-		if (trim($providerName) == '')
+		if (trim((string)$providerName) === '')
 		{
 			$callbackFunction = $basketItem->getCallbackFunction();
 			if (!empty($callbackFunction))

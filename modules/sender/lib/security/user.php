@@ -24,7 +24,7 @@ class User
 	/** @var integer|null $id User ID. */
 	protected $id = null;
 
-	/** @var \CAllUser $object User object. */
+	/** @var \CUser $object User object. */
 	protected $object;
 
 	/** @var Access $access Access. */
@@ -276,7 +276,7 @@ class User
 	/**
 	 * Get USER object.
 	 *
-	 * @return \CAllUser|null
+	 * @return \CUser|null
 	 */
 	public function getObject()
 	{
@@ -287,7 +287,7 @@ class User
 
 		if ($this->isCurrent())
 		{
-			$this->object = (is_object($GLOBALS['USER']) && ($GLOBALS['USER'] instanceof \CAllUser)) ? $GLOBALS['USER'] : null;
+			$this->object = (is_object($GLOBALS['USER']) && ($GLOBALS['USER'] instanceof \CUser)) ? $GLOBALS['USER'] : null;
 		}
 
 		if (!$this->object)

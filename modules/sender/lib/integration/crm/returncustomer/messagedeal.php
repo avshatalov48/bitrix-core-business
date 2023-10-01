@@ -124,7 +124,7 @@ class MessageDeal extends MessageBase
 				'code' => 'COMMENT',
 				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_COMMENT'),
 				'required' => false,
-				'hint' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_COMMENT_HINT'),
+				'placeholder' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_COMMENT_HINT'),
 			],
 			[
 				'type' => 'list',

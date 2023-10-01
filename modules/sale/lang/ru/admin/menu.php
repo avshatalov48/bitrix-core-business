@@ -209,4 +209,5 @@ $MESS["SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_INITIATE_CHECKOUT"] = "Оформ�
 $MESS["SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_ADD_PAYMENT_INFO"] = "Добавление платежной информации";
 $MESS["SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_CUSTOMIZE_PRODUCT"] = "Уточнение сведений о товаре";
 $MESS["SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_CONTACT"] = "Обращение пользователя в Вашу компанию";
+$MESS["SALE_MENU_AGENT_SCHEME"] = "Агентские схемы";
 ?>

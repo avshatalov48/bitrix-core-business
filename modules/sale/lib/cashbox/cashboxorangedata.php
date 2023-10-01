@@ -5,6 +5,7 @@ namespace Bitrix\Sale\Cashbox;
 use Bitrix\Main;
 use Bitrix\Main\Text;
 use Bitrix\Main\Localization;
+use Bitrix\Main\PhoneNumber;
 use Bitrix\Sale\Cashbox\Errors;
 use Bitrix\Sale\Result;
 use Bitrix\Catalog;
@@ -172,6 +173,12 @@ class CashboxOrangeData
 			$result['nomenclatureCode'] = $this->buildPositionNomenclatureCode($item);
 		}
 
+		if (isset($item['supplier_info']))
+		{
+			$result += $this->buildPositionAgentInfo();
+			$result += $this->buildPositionSupplier($item['supplier_info']);
+		}
+
 		return $result;
 	}
 
@@ -247,6 +254,61 @@ class CashboxOrangeData
 	private function buildPositionNomenclatureCode(array $item)
 	{
 		return base64_encode($item['nomenclature_code']);
+	}
+
+	protected function buildPositionAgentInfo(): array
+	{
+		/**
+		 * tag 1222, 6 - another agent
+		 */
+		return [
+			'agentType' => 6,
+		];
+	}
+
+	protected function buildPositionSupplier(array $supplier): array
+	{
+		$result = [
+			'supplierInfo' => null,
+			'supplierINN' => null,
+		];
+
+		// 239 max length for supplierInfo's tag
+		$maxTagLength = 239;
+		$phoneLength = 0;
+
+		if (!empty($supplier['phones']))
+		{
+			$phoneParser = PhoneNumber\Parser::getInstance();
+
+			foreach ($supplier['phones'] as $phone)
+			{
+				$phoneNumber = $phoneParser->parse($phone);
+				$formattedPhone = $phoneNumber->format(PhoneNumber\Format::E164);
+				if ($formattedPhone)
+				{
+					$phoneLength += mb_strlen($formattedPhone) + 4;
+					if ($phoneLength > $maxTagLength)
+					{
+						break;
+					}
+
+					$result['supplierInfo']['phoneNumbers'][] = $formattedPhone;
+				}
+			}
+		}
+
+		if (!empty($supplier['name']) && $phoneLength < $maxTagLength)
+		{
+			$result['supplierInfo']['name'] = mb_substr($supplier['name'], 0, $maxTagLength - $phoneLength);
+		}
+
+		if (!empty($supplier['supplier_info']['inn']))
+		{
+			$result['supplierINN'] = $supplier['supplier_info']['inn'];
+		}
+
+		return $result;
 	}
 
 	/**

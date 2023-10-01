@@ -30,6 +30,11 @@ class TriggerTable extends Main\Entity\DataManager
 		return 'b_bp_automation_trigger';
 	}
 
+	public static function getObjectClass()
+	{
+		return TriggerObject::class;
+	}
+
 	/**
 	 * Get table fields map.
 	 * @return array

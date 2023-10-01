@@ -79,7 +79,7 @@ final class ConfigFactory
 		}
 		elseif (Types::DROPDOWN === $type || Types::MULTISELECT === $type)
 		{
-			$items = null;
+			$items = [];
 
 			if (isset($params['items']) && is_array($params['items']))
 			{

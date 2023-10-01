@@ -26,9 +26,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_DeliveryPaySystem_Query query()
- * @method static EO_DeliveryPaySystem_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_DeliveryPaySystem_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_DeliveryPaySystem_Result getById($id)
- * @method static EO_DeliveryPaySystem_Result getList(array $parameters = array())
+ * @method static EO_DeliveryPaySystem_Result getList(array $parameters = [])
  * @method static EO_DeliveryPaySystem_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_DeliveryPaySystem createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_DeliveryPaySystem_Collection createCollection()

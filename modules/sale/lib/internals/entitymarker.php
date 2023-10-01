@@ -14,9 +14,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_EntityMarker_Query query()
- * @method static EO_EntityMarker_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EntityMarker_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_EntityMarker_Result getById($id)
- * @method static EO_EntityMarker_Result getList(array $parameters = array())
+ * @method static EO_EntityMarker_Result getList(array $parameters = [])
  * @method static EO_EntityMarker_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_EntityMarker createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_EntityMarker_Collection createCollection()

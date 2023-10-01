@@ -23,9 +23,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Queue_Query query()
- * @method static EO_Queue_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Queue_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Queue_Result getById($id)
- * @method static EO_Queue_Result getList(array $parameters = array())
+ * @method static EO_Queue_Result getList(array $parameters = [])
  * @method static EO_Queue_Entity getEntity()
  * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Queue createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Queue_Collection createCollection()

@@ -48,3 +48,14 @@
 	display: inline-block;
 	color: #89929E;
 }
+
+.sender-sms-text-editor-panel-tools-ai-text {
+	background: url(images/ai-text.svg) no-repeat center;
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+}
+
+.sender-sms-text-editor-panel-tools-item {
+	cursor: pointer;
+}

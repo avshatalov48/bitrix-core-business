@@ -1,4 +1,5 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) { die(); }
+
 function forumCommentsCommentWeb(
 	array $comment,
 	array $arParams,
@@ -39,6 +40,7 @@ function forumCommentsCommentWeb(
 		"AUX" => $comment["AUX"] ?? '',
 		"AUX_LIVE_PARAMS" => $comment["AUX_LIVE_PARAMS"] ?? [],
 		"CAN_DELETE" => $comment["CAN_DELETE"] ?? "Y",
+		"SHOW_MOBILE_HINTS" => $comment['SHOW_MOBILE_HINTS'] ?? 'N',
 	);
 
 	if (!empty($res["FILES"]))

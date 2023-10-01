@@ -16,7 +16,11 @@ use Bitrix\Main\Localization\Loc;
 
 $containerId = 'bx-sender-sms-text-editor';
 
-\Bitrix\Main\UI\Extension::load(['ui.design-tokens', 'ui.fonts.opensans']);
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ai.picker',
+]);
 
 ?>
 <script type="text/javascript">
@@ -24,7 +28,9 @@ $containerId = 'bx-sender-sms-text-editor';
 		BX.Sender.SMS.TextEditor.init(<?=Json::encode(array(
 			'containerId' => $containerId,
 			'actionUrl' => $arResult['ACTION_URL'],
-			'mess' => array()
+			'mess' => array(),
+			'isAITextAvailable' => $arResult['isAITextAvailable'] ? 'Y' : 'N',
+			'AITextContextId' => $arResult['AITextContextId'],
 		))?>);
 	});
 </script>
@@ -34,6 +40,11 @@ $containerId = 'bx-sender-sms-text-editor';
 		name="<?=htmlspecialcharsbx($arParams['INPUT_NAME'])?>"
 		><?=htmlspecialcharsbx($arResult['VALUE'])?></textarea>
 	<div class="sender-sms-text-editor-count">
+		<div class="sender-sms-text-editor-panel-tools">
+			<?php if ($arResult['isAITextAvailable']): ?>
+				<span class="sender-sms-text-editor-panel-tools-item sender-sms-text-editor-panel-tools-ai-text" data-bx-sms-panel-tools-button="ai-text"></span>
+			<?php endif; ?>
+		</div>
 		<div class="sender-sms-text-editor-count-inner">
 			<span class="sender-sms-text-editor-count-name"><?=Loc::getMessage('SENDER_SMS_TEXT_EDITOR_COUNT_SYMBOLS')?></span>
 			<span data-role="counter" class="sender-sms-text-editor-count-number"><?=$arResult['COUNT']?></span>

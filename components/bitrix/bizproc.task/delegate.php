@@ -20,8 +20,6 @@ if ($SITE_ID != '')
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
-\Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__);
-
 if (!check_bitrix_sessid() || !$USER->IsAuthorized())
 {
 	die();
@@ -30,43 +28,32 @@ if (!check_bitrix_sessid() || !$USER->IsAuthorized())
 if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'delegate')
 {
 	CModule::IncludeModule('bizproc');
-	$isAdmin = $USER->IsAdmin() || (CModule::IncludeModule('bitrix24') && CBitrix24::IsPortalAdmin($USER->GetID()));
-	$errors = [];
 
-	$taskId = !empty($_REQUEST['task_id']) ? $_REQUEST['task_id'] : null;
-	$toUserId = !empty($_REQUEST['to_user_id']) ? (int)$_REQUEST['to_user_id'] : null;
-	$fromUserId = !empty($_REQUEST['from_user_id']) ? (int)$_REQUEST['from_user_id'] : null;
+	$taskId = !empty($_REQUEST['task_id']) ? $_REQUEST['task_id'] : [];
+	$taskIds = is_array($taskId) ? $taskId : [$taskId];
 
-	$allowedDelegationType = [CBPTaskDelegationType::AllEmployees];
-	if ($isAdmin)
-	{
-		$allowedDelegationType = null;
-	}
-	elseif (CBPHelper::checkUserSubordination($USER->GetID(), $toUserId))
-	{
-		$allowedDelegationType[] = CBPTaskDelegationType::Subordinate;
-	}
-
-	if (!empty($taskId) && $fromUserId !== null && $toUserId !== null)
-	{
-		if (!CBPDocument::delegateTasks($fromUserId, $toUserId, $taskId, $errors, $allowedDelegationType))
-		{
-			$errors[] = Bitrix\Main\Localization\Loc::getMessage('BPAT_DELEGATE_NOTASKS');
-		}
-	}
-	else
-	{
-		$errors[] = 'System error';
-	}
-
-	$message =
-		$errors
-			? $errors[0]
-			: Bitrix\Main\Localization\Loc::getMessage(
-				'BPAT_DELEGATE_SUCCESS_1',
-				['#USER_NAME#' => CBPHelper::convertUserToPrintableForm($toUserId, '', false)]
-		)
+	$fromUserId =
+		isset($_REQUEST['from_user_id']) && is_numeric($_REQUEST['from_user_id'])
+			? (int)$_REQUEST['from_user_id']
+			: 0
 	;
+	$toUserId =
+		isset($_REQUEST['to_user_id']) && is_numeric($_REQUEST['to_user_id'])
+			? (int)$_REQUEST['to_user_id']
+			: 0
+	;
+	$currentUserId = (int)$USER->GetID();
+
+	$taskService = new \Bitrix\Bizproc\Task\Service\TaskService(
+		new \Bitrix\Bizproc\Task\Service\AccessService($currentUserId)
+	);
+
+	$options = new \Bitrix\Bizproc\Task\Options\DelegateTasksOptions($taskIds, $fromUserId, $toUserId, $currentUserId);
+	$delegateTasksResult = $taskService->delegateTasks($options);
+
+	$errors = $delegateTasksResult->getErrorMessages();
+	$message = $errors ? $errors[0] : $delegateTasksResult->getSuccessDelegateTaskMessage();
+
 	echo CUtil::PhpToJSObject(['message' => $message, 'success' => empty($errors)]);
 }
 else

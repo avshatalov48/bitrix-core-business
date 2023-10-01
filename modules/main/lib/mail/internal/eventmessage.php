@@ -187,9 +187,9 @@ class EventMessageTable extends Entity\DataManager
 					$bOpenQuote = (mb_substr($str, $placeHolderPosition - 2, 2) == '"{');
 					$bCloseQuote = (mb_substr($str, $placeHolderPosition + mb_strlen($placeHolder), 2) == '}"');
 					if($bOpenPhpTag && $bOpenQuote && $bCloseQuote)
-						$replaceTo = '($arParams[\''.$placeHolderClear.'\'] ?? "")';
+						$replaceTo = '$arParams[\''.$placeHolderClear.'\']';
 					else
-						$replaceTo = '($arParams["'.$placeHolderClear.'"] ?? "")';
+						$replaceTo = '$arParams["'.$placeHolderClear.'"]';
 
 					if(!$bOpenPhpTag) $replaceTo = '<?=' . $replaceTo . ';?>';
 					$arReplaceTags[$tag[0]][] = $replaceTo;

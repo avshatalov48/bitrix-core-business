@@ -12,5 +12,5 @@ $MESS["SENDER_START_CREATE_RC"] = "Sales Boost";
 $MESS["SENDER_START_CREATE_TOLOKA"] = "Yandex.Toloka";
 $MESS["SENDER_START_CREATE_YANDEX"] = "Yandex";
 $MESS["SENDER_START_TITLE"] = "Start";
-$MESS["SENDER_START_TOUR_MASTER_YANDEX_INITIAL_TEXT"] = "Launch ad campaign from within your Bitrix24 and say goodbye to tab switching. The system is exceptionally intuitive and provides hints along the way. Use CRM to handle the leads you receive from ads, and track campaign performance in Sales Intelligence.";
-$MESS["SENDER_START_TOUR_MASTER_YANDEX_INITIAL_TITLE"] = "Campaign wizard";
+$MESS["SENDER_START_TOUR_MASTER_YANDEX_INITIAL_TEXT_MSGVER_1"] = "Use Ad Campaign Wizard to get new customers. You don't even have to switch to your Yandex.Direct account - everything you need you will find in Bitrix24. Add a link to your website to the Wizard and receive customer requests to your CRM. Available on all plans.";
+$MESS["SENDER_START_TOUR_MASTER_YANDEX_INITIAL_TITLE_MSGVER_1"] = "Start ad campaign from your Bitrix24";

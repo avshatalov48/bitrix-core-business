@@ -4,44 +4,68 @@ if(!DragNDrop)
 
 in_array = function (ar, str)
 {
-	var i;
-	for(i=0; i<ar.length; i++)
-		if(ar[i]===str)
+	for(let i = 0; i < ar.length; i++)
+	{
+		if (ar[i] === str)
+		{
 			return true;
+		}
+	}
+
 	return false;
 }
 
 
-function CreateActivity(oActivity)
+function CreateActivity(activityInfo)
 {
-	if(!oActivity.Type)
-		oActivity = {'Type': oActivity};
-
-	var t = oActivity.Type, a;
-	if(arAllActivities[t.toLowerCase()] && arAllActivities[t.toLowerCase()]['JSCLASS'])
+	if(!activityInfo.Type)
 	{
-		a = eval("new "+arAllActivities[t.toLowerCase()]['JSCLASS']+"()");
-		if(!oActivity.Properties)
-			oActivity.Properties = {};
-		else if (oActivity.Properties instanceof Array)
-		{
-			var k, properties = BX.clone(oActivity.Properties);
-			oActivity.Properties = {};
-			for (k in properties)
-				if (properties.hasOwnProperty(k))
-					oActivity.Properties[k] = properties[k];
-		}
-		if(!oActivity.Properties['Title'])
-			oActivity.Properties['Title'] = arAllActivities[t.toLowerCase()]['NAME'];
-		if(!oActivity.Icon && arAllActivities[t.toLowerCase()]['ICON'])
-			oActivity.Icon = arAllActivities[t.toLowerCase()]['ICON'];
+		activityInfo = {'Type': activityInfo};
 	}
-	else if (typeof window[t] !== 'undefined')
-		a = eval("new " + t + "()");
-	else
-		a = new UnknownBizProcActivity();
 
-	a.Init(oActivity);
+	const type = activityInfo.Type;
+	let a;
+
+	if(arAllActivities[type.toLowerCase()] && arAllActivities[type.toLowerCase()]['JSCLASS'])
+	{
+		a = eval("new " + arAllActivities[type.toLowerCase()]['JSCLASS'] + "()");
+		if(!activityInfo.Properties)
+		{
+			activityInfo.Properties = {};
+		}
+		else if (activityInfo.Properties instanceof Array)
+		{
+			let k;
+			const properties = BX.clone(activityInfo.Properties);
+			activityInfo.Properties = {};
+			for (k in properties)
+			{
+				if (properties.hasOwnProperty(k))
+				{
+					activityInfo.Properties[k] = properties[k];
+				}
+			}
+		}
+		if(!activityInfo.Properties['Title'])
+		{
+			activityInfo.Properties['Title'] = arAllActivities[type.toLowerCase()]['NAME'];
+		}
+		if(!activityInfo.Icon && arAllActivities[type.toLowerCase()]['ICON'])
+		{
+			activityInfo.Icon = arAllActivities[type.toLowerCase()]['ICON'];
+		}
+	}
+	else if (!BX.Type.isUndefined(window[type]))
+	{
+		a = eval("new " + type + "()");
+	}
+	else
+	{
+		a = new UnknownBizProcActivity();
+	}
+
+	a.Init(activityInfo);
+
 	return a;
 }
 
@@ -163,7 +187,9 @@ function JSToPHP(ob, varname)
 function ActGetRealPos(el)
 {
 	if(!el || !el.offsetParent)
+	{
 		return false;
+	}
 
 	return BX.pos(el, true);
 }
@@ -171,7 +197,9 @@ function ActGetRealPos(el)
 function XMLEncode(str)
 {
 	if(!(typeof(str) == "string" || str instanceof String))
+	{
 		return str;
+	}
 
 	str = str.replace(/&/g, '&amp;');
 	str = str.replace(/"/g, '&quot;');
@@ -185,7 +213,9 @@ function XMLEncode(str)
 function HTMLEncode(str)
 {
 	if(!(typeof(str) == "string" || str instanceof String))
+	{
 		return str;
+	}
 
 	str = str.replace(/&/g, '&amp;');
 	str = str.replace(/"/g, '&quot;');
@@ -219,27 +249,34 @@ function FindActivityById(template, id)
 }
 
 
-function _crt(r, c)
-{
-	r = r || 1;
-	c = c || 1;
-	var i, j, row, cell, t = document.createElement('TABLE');
-	t.width = '100%';
-	t.cellSpacing = '0';
-	t.cellPadding = '0';
-	t.border = '0';
-	for (i = 0; i < r; i++)
+	function _crt(r, c)
 	{
-		row = t.insertRow(-1);
-		for (j = 0; j < c; j++)
+		const rowsCount = r || 1;
+		const columnCount = c || 1;
+
+		const table = BX.Dom.create('table', {
+			attrs: {
+				width: '100%',
+				cellSpacing: '0',
+				cellPadding: '0',
+				border: '0',
+			},
+		});
+		for (let i = 0; i < rowsCount; i++)
 		{
-			cell = row.insertCell(-1);
-			cell.align = 'center';
-			cell.vAlign = 'center';
+			const row = table.insertRow(-1);
+			for (let j = 0; j < columnCount; j++)
+			{
+				const cell = row.insertCell(-1);
+				BX.Dom.attr(cell, {
+					align: 'center',
+					vAlign: 'center',
+				});
+			}
 		}
+
+		return table;
 	}
-	return t;
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // BizProcActivity
@@ -247,131 +284,209 @@ function _crt(r, c)
 
 BizProcActivity = function()
 {
-	var ob = this;
+	const ob = this;
 	ob.childActivities = [];
 	ob.parentActivity = null;
-	ob.Name = 'A'+ GenUniqId();
+	ob.Name = 'A' + GenUniqId();
 	ob.Type = 'Activity';
 	ob.Properties = {'Title': ''};
+	ob.Activated = 'Y';
+
+	ob.canBeActivated = true;
 
 	arAllId[ob.Name] = true;
 
-	this.Init = function(oActivity)
+	this.Init = function(activityInfo)
 	{
-		if(oActivity.Name)
+		if(activityInfo.Name)
 		{
-			if(!arAllId[oActivity.Name])
+			if(!arAllId[activityInfo.Name])
 			{
 				delete arAllId[this.Name];
-				this.Name = oActivity.Name;
+				this.Name = activityInfo.Name;
 				arAllId[this.Name] = true;
 			}
 		}
 
-		if(oActivity['Properties'])
-			this.Properties = BX.clone(oActivity['Properties']);
+		if(activityInfo['Properties'])
+		{
+			this.Properties = BX.Runtime.clone(activityInfo['Properties']);
+		}
 
-		if(oActivity['Icon'])
-			this.Icon = oActivity['Icon'];
+		if(activityInfo['Icon'])
+		{
+			this.Icon = activityInfo['Icon'];
+		}
 
-		if(oActivity.Type)
-			this.Type = oActivity.Type;
+		if(activityInfo.Type)
+		{
+			this.Type = activityInfo.Type;
+		}
+
+		this.Activated = activityInfo.Activated === 'N' ? 'N' : 'Y';
 
 		this.height = 0;
 		this.width = 0;
 
-		var activity;
+		let activity;
 		this.childActivities = [];
 
-		if(!oActivity.Children && oActivity.childActivities)
-			oActivity.Children = oActivity.childActivities;
-
-		for(var i in oActivity.Children)
+		if(!activityInfo.Children && activityInfo.childActivities)
 		{
-			if (!oActivity.Children.hasOwnProperty(i))
-				continue;
+			activityInfo.Children = activityInfo.childActivities;
+		}
 
-			activity = CreateActivity(oActivity.Children[i]);
+		const canBeActivatedChild = this.getCanBeActivatedChild();
+		for(const i in activityInfo.Children)
+		{
+			if (!activityInfo.Children.hasOwnProperty(i))
+			{
+				continue;
+			}
+
+			activity = CreateActivity(activityInfo.Children[i]);
 			activity.parentActivity = this;
 			this.childActivities[this.childActivities.length] = activity;
+
+			if (!canBeActivatedChild)
+			{
+				activity.setCanBeActivated(false);
+			}
 		}
 	};
 
-
-	ob.SerializeToXML = function (e)
+	ob.SerializeToXML = function ()
 	{
 		if(ob.childActivities)
 		{
-			var s = '<activity class="'+XMLEncode(ob.Type)+'" name="'+XMLEncode(ob['Properties'].Title)+'" id="'+XMLEncode(ob.Name)+'" params="" >';
-			for(var i = 0; i < ob.childActivities.length; i++)
+			let s =
+				'<activity class="'
+				+ XMLEncode(ob.Type)
+				+ '" name="'
+				+ XMLEncode(ob['Properties'].Title)
+				+ '" id="'
+				+ XMLEncode(ob.Name)
+				+ '" params="" >'
+			;
+			for(let i = 0; i < ob.childActivities.length; i++)
+			{
 				s = s + ob.childActivities[i].SerializeToXML();
+			}
+
 			return s + '</activity>';
 		}
-		else
-			return '<activity class="'+XMLEncode(ob.Type)+'" name="'+XMLEncode(ob['Properties'].Title)+'" id="'+XMLEncode(ob.Name)+'" params="" />';
+
+		return (
+			'<activity class="'
+			+ XMLEncode(ob.Type)
+			+ '" name="'
+			+ XMLEncode(ob['Properties'].Title)
+			+ '" id="'
+			+ XMLEncode(ob.Name)
+			+ '" params="" />'
+		);
 	};
 
 	ob.Serialize = function ()
 	{
-		var s = {'Type': ob.Type, 'Name': ob.Name, 'Properties': ob.Properties, 'Children': []};
+		const property = {
+			Type: ob.Type,
+			Name: ob.Name,
+			Activated: ob.Activated,
+			Properties: ob.Properties,
+			Children: [],
+		};
 
 		if(ob.childActivities)
 		{
-			for(var i = 0; i < ob.childActivities.length; i++)
-				s['Children'].push(ob.childActivities[i].Serialize());
+			for(let i = 0; i < ob.childActivities.length; i++)
+			{
+				property['Children'].push(ob.childActivities[i].Serialize());
+			}
 		}
-		return s;
+
+		return property;
 	};
 
-	ob.OnRemoveClick = function (e)
+	ob.OnRemoveClick = function ()
 	{
 		ob.parentActivity.RemoveChild(ob);
 	};
 
-	ob.OnSettingsClick = function (e)
+	ob.OnSettingsClick = function ()
 	{
 		ob.Settings();
 	};
 
-	ob.Settings = function (e)
+	ob.Settings = function ()
 	{
-		var contentUrl = "/bitrix/admin/"+MODULE_ID+"_bizproc_activity_settings.php?mode=public&bxpublic=Y&lang="+BX.message('LANGUAGE_ID')+"&entity="+ENTITY;
+		let contentUrl =
+			"/bitrix/admin/"
+			+ MODULE_ID
+			+ "_bizproc_activity_settings.php?mode=public&bxpublic=Y&lang="
+			+ BX.message('LANGUAGE_ID')
+			+ "&entity="
+			+ ENTITY
+		;
 		if (window.document_type_signed)
 		{
-			contentUrl ="/bitrix/tools/bizproc_activity_settings.php?mode=public&bxpublic=Y&lang="+BX.message('LANGUAGE_ID')+"&dts="+window.document_type_signed;
+			contentUrl =
+				"/bitrix/tools/bizproc_activity_settings.php?mode=public&bxpublic=Y&lang="
+				+ BX.message('LANGUAGE_ID')
+				+ "&dts="
+				+ window.document_type_signed
+			;
 		}
+
+		const id = 'id=' + encodeURIComponent(ob.Name);
+		const documentType = 'document_type=' + encodeURIComponent(document_type);
+		const activity = 'activity='+encodeURIComponent(ob.Type);
+		const parameters = JSToPHP(arWorkflowParameters, 'arWorkflowParameters');
+		const variables = JSToPHP(arWorkflowVariables, 'arWorkflowVariables');
+		const template = JSToPHP(Array(rootActivity.Serialize()), 'arWorkflowTemplate');
+		const constants = JSToPHP(arWorkflowConstants, 'arWorkflowConstants');
+		const currentSiteId = 'current_site_id=' + encodeURIComponent(CURRENT_SITE_ID);
+		const sessid = 'sessid=' + BX.bitrix_sessid();
+
+		const canBeActivated = 'can_be_activated=' + (ob.canBeActivated ? 'Y' : 'N');
+
+		const postData = [
+			id,
+			'decode=Y',
+			documentType,
+			activity,
+			parameters,
+			variables,
+			template,
+			constants,
+			currentSiteId,
+			canBeActivated,
+			sessid,
+		];
 
 		(new BX.CDialog({
 			'content_url': contentUrl,
-			'content_post': 'id='+encodeURIComponent(ob.Name)+ '&' +
-				'decode=Y&' +
-				'document_type=' + encodeURIComponent(document_type) + '&' +
-				'activity='+encodeURIComponent(ob.Type)+ '&' +
-				JSToPHP(arWorkflowParameters, 'arWorkflowParameters')  + '&' +
-				JSToPHP(arWorkflowVariables, 'arWorkflowVariables')  + '&' +
-				JSToPHP(Array(rootActivity.Serialize()), 'arWorkflowTemplate') + '&' +
-				JSToPHP(arWorkflowConstants, 'arWorkflowConstants') + '&' +
-				'current_site_id=' + encodeURIComponent(CURRENT_SITE_ID) + '&' +
-				'sessid=' + BX.bitrix_sessid(),
+			'content_post': postData.join('&'),
 			'height': 500,
 			'width': 900
-			})).Show();
+			})
+		).Show();
 	};
 
-	ob.RemoveResources = function (self)
+	ob.RemoveResources = function ()
 	{
 		if(ob.div && ob.div.parentNode)
 		{
-			ob.div.parentNode.removeChild(ob.div);
+			BX.Dom.remove(ob.div);
 			ob.div = null;
 		}
 	};
 
 	ob.RemoveChild = function (ch)
 	{
-		var i, j;
+		let i, j;
 
-		for(i = 0; i<ob.childActivities.length; i++)
+		for(i = 0; i < ob.childActivities.length; i++)
 		{
 			if(ob.childActivities[i].Name == ch.Name)
 			{
@@ -388,7 +503,9 @@ BizProcActivity = function()
 				delete ob.childActivities[i];
 
 				for(j = i; j<ob.childActivities.length - 1; j++)
-					ob.childActivities[j] = ob.childActivities[j+1];
+				{
+					ob.childActivities[j] = ob.childActivities[j + 1];
+				}
 
 				ob.childActivities.pop();
 
@@ -397,6 +514,7 @@ BizProcActivity = function()
 				break;
 			}
 		}
+
 		BPTemplateIsModified = true;
 	};
 
@@ -407,10 +525,14 @@ BizProcActivity = function()
 			return false;
 		}
 
-		if(s===false)
+		if(s === false)
+		{
 			ob.div.className = 'activity activity-modern';
+		}
 		else
+		{
 			ob.div.className = 'activityerr activity-modern';
+		}
 
 		if (setFocus === true && s !== false)
 		{
@@ -418,85 +540,122 @@ BizProcActivity = function()
 		}
 	};
 
-	ob.Draw = function (divC)
+	ob.Draw = function (wrapper)
 	{
-		ob.div = divC.appendChild(document.createElement('DIV'));
-		ob.div.className = (ob.isUnknown ? 'activityerr' : 'activity') + ' activity-modern';
-		var d1 = ob.div.appendChild(document.createElement('DIV'));
-		d1.className = 'activityhead';
+		ob.div = BX.Dom.create('div', {
+			attrs: {
+				className: (ob.isUnknown ? 'activityerr' : 'activity') + ' activity-modern',
+			},
+			style: {margin: '0 auto', width: (ob.activityWidth ? ob.activityWidth : '170px')}
+		});
+		BX.Dom.append(ob.div, wrapper);
 
-		var a1 = d1.appendChild(document.createElement('A'));
-		a1.className = 'activitydel';
-
-		a1.onclick = this.OnRemoveClick;// this!
+		const activityHead = BX.Dom.create('div', {
+			attrs: {
+				className: 'activityhead' + ((ob.Activated === 'N' || !ob.canBeActivated) ? ' --deactivated' : '')
+			},
+			children: [
+				BX.Dom.create('a', {
+					attrs: {
+						className: 'ui-icon-set --cross-45 activitydel'
+					},
+					events: {
+						click: this.OnRemoveClick, // this!
+					}
+				}),
+			],
+		});
+		BX.Dom.append(activityHead, ob.div);
 
 		if (!ob.isUnknown)
 		{
-			var a2 = d1.appendChild(document.createElement('A'));
-			a2.className = 'activityset';
-			a2.onclick = this.OnSettingsClick;// this!
+			const activitySettings = BX.Dom.create('a', {
+				attrs: {
+					className: 'ui-icon-set --settings-2 activityset'
+				},
+				events: {
+					click: this.OnSettingsClick, // this!
+				}
+			});
+			BX.Dom.append(activitySettings, activityHead);
 
 			if (this.OnHideClick)
 			{
-				var a3 = d1.appendChild(document.createElement('A'));
-				a3.className = 'activitymin';
-				a3.onclick = this.OnHideClick;// this!
+				const activityMin = BX.Dom.create('a', {
+					attrs: {
+						className: 'ui-icon-set --line activitymin',
+					},
+					events: {
+						click: this.OnHideClick, // this!
+					}
+				});
+				BX.Dom.append(activityMin, activityHead);
 			}
 		}
 
-		var sp = d1.appendChild(document.createElement('DIV'));
-		sp.style.padding = '9px';
-		if (ob.isUnknown)
+		const sp = BX.Dom.create('div', {
+			style: {padding: '9px', cursor: (ob.isUnknown ? 'not-allowed' : 'move')}
+		});
+		BX.Dom.append(sp, activityHead);
+
+		if (!ob.isUnknown)
 		{
-			sp.style.cursor = 'not-allowed';
-		}
-		else
-		{
-			sp.style.cursor = 'move';
 			sp.onmousedown = function (e)
 			{
 				if(!e)
+				{
 					e = window.event;
+				}
 
-				var div = DragNDrop.StartDrag(e, ob);
-
+				const div = DragNDrop.StartDrag(e, ob);
 				div.innerHTML = this.parentNode.parentNode.parentNode.innerHTML;
-				div.style.width = this.parentNode.parentNode.offsetWidth + 'px';
+				BX.Dom.style(div, 'width', this.parentNode.parentNode.offsetWidth + 'px');
 			}
 		}
 
-		var d2 = ob.div.appendChild(document.createElement('DIV'));
-		d2.style.backgroundColor = ob.isUnknown ? '#E6E6E6' : '#ffffff';
-		d2.style.overflowX = 'hidden';
-		d2.style.overflowY = 'hidden';
-		d2.style.height = (ob.activityHeight ? ob.activityHeight : '30px');
-
-		d2.ondblclick = ob.OnSettingsClick;
+		const activityBody = BX.Dom.create('div', {
+			style: {
+				backgroundColor: ob.isUnknown ? '#E6E6E6' : '#ffffff',
+				overflowX: 'hidden',
+				overflowY: 'hidden',
+				height: (ob.activityHeight ? ob.activityHeight : '30px'),
+				'border-bottom-left-radius': 'var(--ui-border-radius-xs)',
+				'border-bottom-right-radius': 'var(--ui-border-radius-xs)',
+			},
+		});
+		activityBody.ondblclick = ob.OnSettingsClick;
+		BX.Dom.append(activityBody, ob.div);
 
 		if(ob.activityContent)
 		{
-			d2.appendChild(ob.activityContent);
+			BX.Dom.append(ob.activityContent, activityBody);
 		}
 		else
 		{
-			var act = d2.appendChild(document.createElement('DIV'));
-			if(ob.Icon)
-				act.style.background = 'url('+ob.Icon+') left center no-repeat';
-			else
-				act.style.background = 'url(/bitrix/images/bizproc/act_icon.gif) left center no-repeat';
-			act.style.height = '30px';
-			act.style.margin = '2px';
-			act.style.paddingLeft = '24px';
-			act.style.textAlign = 'left';
-			act.innerHTML = HTMLEncode(ob['Properties']['Title']);
-			act.setAttribute('title', ob['Properties']['Title']);
+			const act = BX.Dom.create('div', {
+				html: HTMLEncode(ob['Properties']['Title']),
+				attrs: {
+					title: BX.Text.encode(ob['Properties']['Title']),
+				},
+				style: {
+					background:
+						ob.Icon
+							? 'url('+ob.Icon+') left center no-repeat'
+							: 'url(/bitrix/images/bizproc/act_icon.gif) left center no-repeat'
+					,
+					height: '30px',
+					margin: '2px',
+					paddingLeft: '24px',
+					textAlign: 'left',
+				}
+			});
+			BX.Dom.append(act, activityBody);
 		}
 
-		ob.div.style.margin = '0 auto';
-		ob.div.style.width = (ob.activityWidth ? ob.activityWidth : '170px');
-
-		if(ob.CheckFields && ob.CheckFields()===false)
+		if(ob.CheckFields && ob.CheckFields() === false)
+		{
 			ob.SetError(true);
+		}
 
 		this.drawEditorComment();
 	};
@@ -522,21 +681,50 @@ BizProcActivity = function()
 			return false;
 		}
 
-		var commentNode = container.appendChild(document.createElement('SPAN'));
-		commentNode.className = 'activity-comment';
-		commentNode.setAttribute('data-hint',
-			BX.util.nl2br(BX.util.htmlspecialchars(ob['Properties']['EditorComment']))
-		);
+		const commentNode = BX.Dom.create('span', {
+			props: {
+				className: 'activity-comment',
+			},
+			dataset: {
+				hint: BX.Text.encode(ob['Properties']['EditorComment']).replace(/([^>])\n/g, '$1<br/>'),
+			}
+		});
 		commentNode.setAttribute('data-hint-html', 'y');
-
+		BX.Dom.append(commentNode, container);
 		BX.UI.Hint.init(this.div);
+	};
+
+	ob.setActivated = function(activated)
+	{
+		if ((['Y', 'N'].includes(activated)))
+		{
+			ob.Activated = activated;
+			ob.childActivities.forEach((child) => child.setCanBeActivated(ob.getCanBeActivatedChild()));
+		}
+	}
+
+	ob.setCanBeActivated = function (can)
+	{
+		if (BX.Type.isBoolean(can))
+		{
+			ob.canBeActivated = can;
+			if (ob.childActivities.length > 0)
+			{
+				ob.childActivities.forEach((activity) => activity.setCanBeActivated(ob.getCanBeActivatedChild()));
+			}
+		}
+	};
+
+	ob.getCanBeActivatedChild = function ()
+	{
+		return ob.canBeActivated && ob.Activated === 'Y';
 	}
 
 	ob.findChildById = function (id)
 	{
 		if(ob.childActivities)
 		{
-			for(var i = 0; i < ob.childActivities.length; i++)
+			for(let i = 0; i < ob.childActivities.length; i++)
 			{
 				if (id === ob.childActivities[i]['Name'])
 				{
@@ -544,7 +732,7 @@ BizProcActivity = function()
 				}
 				else
 				{
-					var found = ob.childActivities[i].findChildById(id);
+					const found = ob.childActivities[i].findChildById(id);
 					if (found)
 					{
 						return found;
@@ -552,8 +740,9 @@ BizProcActivity = function()
 				}
 			}
 		}
+
 		return null;
-	}
+	};
 };
 
 function _DragNDrop()

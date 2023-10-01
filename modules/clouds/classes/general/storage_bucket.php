@@ -359,7 +359,12 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 	*/
 	function FileExists($filePath)
 	{
-		return $this->service->FileExists($this->arBucket, $filePath);
+		$result = $this->service->FileExists($this->arBucket, $filePath);
+		if (!$result && $this->RenewToken())
+		{
+			$result = $this->service->FileExists($this->getBucketArray(), $filePath);
+		}
+		return $result;
 	}
 	/**
 	 * @param mixed $arFile
@@ -405,6 +410,11 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 	function DeleteFile($filePath, $fileSize = null)
 	{
 		$result = $this->service->DeleteFile($this->arBucket, $filePath);
+		if (!$result && $this->RenewToken())
+		{
+			$result = $this->service->DeleteFile($this->getBucketArray(), $filePath);
+		}
+
 		if ($result)
 		{
 			if ($this->queueFlag)
@@ -431,6 +441,11 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 	function FileCopy($arFile, $filePath)
 	{
 		$result = $this->service->FileCopy($this->arBucket, $arFile, $filePath);
+		if (!$result && $this->RenewToken())
+		{
+			$result = $this->service->FileCopy($this->getBucketArray(), $arFile, $filePath);
+		}
+
 		if ($result)
 		{
 			if ($this->queueFlag)
@@ -494,6 +509,11 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 		$FILE_NAME = mb_substr($filePath, mb_strlen($DIR_NAME));
 
 		$arFileInfo = $this->service->GetFileInfo($this->arBucket, $filePath);
+		if ($arFileInfo === false && $this->RenewToken())
+		{
+			$arFileInfo = $this->service->GetFileInfo($this->getBucketArray(), $filePath);
+		}
+
 		if ($arFileInfo === null)
 		{
 			$arListing = $this->service->ListFiles($this->arBucket, $DIR_NAME, false);

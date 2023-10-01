@@ -5,9 +5,9 @@ use Bitrix\Bizproc\Automation\Helper;
 
 class DelayInterval
 {
-	const TYPE_BEFORE = 'before';
-	const TYPE_AFTER = 'after';
-	const TYPE_IN = 'in';
+	public const TYPE_BEFORE = 'before';
+	public const TYPE_AFTER = 'after';
+	public const TYPE_IN = 'in';
 
 	protected $type = 'after'; //TYPE_AFTER
 	protected $value;
@@ -16,6 +16,7 @@ class DelayInterval
 	protected $workTime = false;
 	protected bool $waitWorkDay = false;
 	protected ?array $inTime = null;
+	protected bool $activated = true;
 
 	/**
 	 * DelayInterval constructor.
@@ -229,13 +230,23 @@ class DelayInterval
 		return $this->inTime;
 	}
 
+	public function setActivated(bool $activated): void
+	{
+		$this->activated = $activated;
+	}
+
+	public function isActivated(): bool
+	{
+		return $this->activated;
+	}
+
 	/**
 	 * Converts instance to array.
 	 * @return array
 	 */
 	public function toArray()
 	{
-		return array(
+		return [
 			'type' => $this->getType(),
 			'value' => $this->getValue(),
 			'valueType' => $this->getValueType(),
@@ -243,7 +254,7 @@ class DelayInterval
 			'workTime' => $this->isWorkTime(),
 			'waitWorkDay' => $this->isWaitWorkDay(),
 			'inTime' => $this->getInTime(),
-		);
+		];
 	}
 
 	/**

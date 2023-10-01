@@ -3557,7 +3557,7 @@ class CAllSaleUser
 	 * Creates new anonymous user with e-mail 'anonymous_some_number@example.com' and returns his ID
 	 * Used mainly in CRM
 	 *
-	 * @return int - new user ID or ID of already existing anonymous user, 0 if error
+	 * @return int|string|false - new user ID or ID of already existing anonymous user, 0 if error
 	 */
 	public static function GetAnonymousUserID()
 	{

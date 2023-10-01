@@ -369,8 +369,11 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 			$eventParameters["REAL_USER_ID"]
 		);
 
-		$this->ResponcedInformation = $eventParameters["RESPONCE"];
-		$rootActivity->setVariables($eventParameters["RESPONCE"]);
+		if (!empty($eventParameters["RESPONCE"]))
+		{
+			$this->ResponcedInformation = $eventParameters["RESPONCE"];
+			$rootActivity->setVariables($eventParameters["RESPONCE"]);
+		}
 
 		$this->taskStatus = CBPTaskStatus::CompleteOk;
 		$this->Unsubscribe($this);
@@ -574,7 +577,7 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 					if (is_array($v["name"]))
 					{
 						$ks = array_keys($v["name"]);
-						if (!is_array($request[$k]))
+						if (!is_array($request[$k] ?? null))
 						{
 							$request[$k] = [];
 						}

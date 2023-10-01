@@ -430,10 +430,6 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			$this->arResult['LAST_MAIL_CHECK_STATUS'] = $mailboxSyncManager->getLastMailboxSyncIsSuccessStatus($mailbox['ID']);
 		}
 
-		$this->arParams['SHOW_TOP_ALERT'] = ($this->arParams['SERVICE']['name'] === 'gmail')
-			&& !\CUserOptions::GetOption('mail', 'temp_alert_google')
-		;
-
 		$this->includeComponentTemplate('edit');
 	}
 
@@ -469,11 +465,6 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		}
 
 		return false;
-	}
-
-	public function closeTemporaryDangerButtonAction($type)
-	{
-		\CUserOptions::SetOption('mail', $type, (new Main\Type\Date())->format('Ymd'));
 	}
 
 	private function setIsSmtpAvailable()

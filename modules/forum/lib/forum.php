@@ -539,7 +539,7 @@ SQL;
 			$F_EVENT3 = $this->data["EVENT3"];
 			if (empty($F_EVENT3))
 			{
-				$F_EVENT3 = $_SERVER["HTTP_REFERER"];
+				$F_EVENT3 = $_SERVER["HTTP_REFERER"] ?? '';
 			}
 			\CStatistics::Set_Event($F_EVENT1, $F_EVENT2, $F_EVENT3);
 		}

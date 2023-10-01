@@ -216,6 +216,7 @@ class CAccess
 			WHERE ID = {$userId}"
 		);
 
+		static::ClearCache($userId);
 		static::ClearCheckCache($provider, $userId);
 	}
 

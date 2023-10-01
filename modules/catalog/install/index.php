@@ -217,6 +217,22 @@ class catalog extends CModule
 			'onCatalogWebhookHandler'
 		);
 
+		$eventManager->registerEventHandler(
+			'sale',
+			'OnSaleCheckPrepareData',
+			'catalog',
+			'\Bitrix\Catalog\Integration\Sale\Cashbox\EventHandlers\Check',
+			'onSaleCheckPrepareData'
+		);
+
+		$eventManager->registerEventHandlerCompatible(
+			'iblock',
+			'OnBeforeIBlockElementDelete',
+			'catalog',
+			'\Bitrix\Catalog\v2\AgentContract\EventHandlers\IblockElement',
+			'onBeforeIBlockElementDelete'
+		);
+
 		if ($this->bitrix24mode)
 		{
 			Main\Config\Option::set('catalog', 'enable_viewed_products', 'Y');
@@ -479,6 +495,22 @@ class catalog extends CModule
 			'catalog',
 			'\Bitrix\Catalog\v2\Integration\Seo\Facebook\FacebookFacade',
 			'onCatalogWebhookHandler'
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'sale',
+			'OnSaleCheckPrepareData',
+			'catalog',
+			'\Bitrix\Catalog\Integration\Sale\Cashbox\EventHandlers\Check',
+			'onSaleCheckPrepareData'
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'iblock',
+			'OnBeforeIBlockElementDelete',
+			'catalog',
+			'\Bitrix\Catalog\v2\AgentContract\EventHandlers\IblockElement',
+			'onBeforeIBlockElementDelete'
 		);
 
 		if (Main\Loader::includeModule('catalog'))

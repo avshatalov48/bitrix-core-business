@@ -305,6 +305,18 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 				"sort" => 304,
 			];
 
+			if ($catalogInstalled)
+			{
+				$arMenu['items'][] = [
+					'text' => GetMessage("SALE_MENU_AGENT_SCHEME"),
+					'title' => GetMessage("SALE_MENU_AGENT_SCHEME"),
+					'url' => 'cat_agent_contract.php?lang=' . LANGUAGE_ID,
+					'more_url' => [],
+					'items_id' => 'cat_agent_scheme',
+					'sort' => 305,
+				];
+			}
+
 			$aMenu[] = $arMenu;
 		}
 	}

@@ -1,26 +1,23 @@
 this.BX = this.BX || {};
 this.BX.Location = this.BX.Location || {};
-(function (exports,main_core,location_core,main_core_events) {
+(function (exports,main_core,main_md5,location_core,main_core_events) {
 	'use strict';
 
-	var _type = new WeakMap();
-
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _type = /*#__PURE__*/new WeakMap();
 	var Field = /*#__PURE__*/function () {
 	  function Field(props) {
 	    babelHelpers.classCallCheck(this, Field);
-
-	    _type.set(this, {
+	    _classPrivateFieldInitSpec(this, _type, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    if (typeof props.type === 'undefined') {
 	      throw new Error('Field type must be defined');
 	    }
-
 	    babelHelpers.classPrivateFieldSet(this, _type, parseInt(props.type));
 	  }
-
 	  babelHelpers.createClass(Field, [{
 	    key: "type",
 	    get: function get() {
@@ -30,30 +27,24 @@ this.BX.Location = this.BX.Location || {};
 	  return Field;
 	}();
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
-
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-	var _fields = new WeakMap();
-
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _fields = /*#__PURE__*/new WeakMap();
 	var FieldCollection = /*#__PURE__*/function () {
 	  function FieldCollection() {
 	    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, FieldCollection);
-
-	    _fields.set(this, {
+	    _classPrivateFieldInitSpec$1(this, _fields, {
 	      writable: true,
 	      value: {}
 	    });
-
 	    this.fields = props.fields ? props.fields : [];
 	  }
-
 	  babelHelpers.createClass(FieldCollection, [{
 	    key: "isFieldExists",
-
 	    /**
 	     * Checks if field already exist in collection
 	     * @param {int} type
@@ -73,7 +64,6 @@ this.BX.Location = this.BX.Location || {};
 	      if (!(field instanceof Field)) {
 	        throw new Error('Argument field must be instance of Field!');
 	      }
-
 	      babelHelpers.classPrivateFieldGet(this, _fields)[field.type] = field;
 	      return this;
 	    }
@@ -91,11 +81,9 @@ this.BX.Location = this.BX.Location || {};
 	        return parseInt(a) - parseInt(b);
 	      });
 	      var result = 0;
-
 	      if (types.length > 0) {
 	        result = types[types.length - 1];
 	      }
-
 	      return result;
 	    }
 	  }, {
@@ -109,10 +97,8 @@ this.BX.Location = this.BX.Location || {};
 	      if (!Array.isArray(fields)) {
 	        throw new Error('Items must be array!');
 	      }
-
 	      var _iterator = _createForOfIteratorHelper(fields),
-	          _step;
-
+	        _step;
 	      try {
 	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
 	          var field = _step.value;
@@ -123,7 +109,6 @@ this.BX.Location = this.BX.Location || {};
 	      } finally {
 	        _iterator.f();
 	      }
-
 	      return this;
 	    },
 	    get: function get() {
@@ -136,45 +121,37 @@ this.BX.Location = this.BX.Location || {};
 	        if (type > upTo) {
 	          continue;
 	        }
-
 	        var field = addressFieldCollection2.getField(type);
-
 	        if (!field) {
 	          return false;
 	        }
-
 	        if (addressFieldCollection1.fields[type].value !== field.value) {
 	          return false;
 	        }
 	      }
-
 	      return true;
 	    }
 	  }]);
 	  return FieldCollection;
 	}();
 
-	var _value = new WeakMap();
-
+	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _value = /*#__PURE__*/new WeakMap();
 	var AddressField = /*#__PURE__*/function (_Field) {
 	  babelHelpers.inherits(AddressField, _Field);
-
 	  //todo: Fields validation
 	  function AddressField(props) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, AddressField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AddressField).call(this, props));
-
-	    _value.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _value, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _value, props.value || '');
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(AddressField, [{
 	    key: "value",
 	    get: function get() {
@@ -190,25 +167,20 @@ this.BX.Location = this.BX.Location || {};
 
 	var AddressFieldCollection = /*#__PURE__*/function (_FieldCollection) {
 	  babelHelpers.inherits(AddressFieldCollection, _FieldCollection);
-
 	  function AddressFieldCollection() {
 	    babelHelpers.classCallCheck(this, AddressFieldCollection);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AddressFieldCollection).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(AddressFieldCollection, [{
 	    key: "getFieldValue",
 	    value: function getFieldValue(type) {
 	      var result = null;
-
 	      if (this.isFieldExists(type)) {
 	        var field = this.getField(type);
-
 	        if (field) {
 	          result = field.value;
 	        }
 	      }
-
 	      return result;
 	    }
 	  }, {
@@ -224,28 +196,24 @@ this.BX.Location = this.BX.Location || {};
 	  return AddressFieldCollection;
 	}(FieldCollection);
 
-	var _entityId = new WeakMap();
-
-	var _entityType = new WeakMap();
-
+	function _classPrivateFieldInitSpec$3(obj, privateMap, value) { _checkPrivateRedeclaration$3(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _entityId = /*#__PURE__*/new WeakMap();
+	var _entityType = /*#__PURE__*/new WeakMap();
 	var AddressLink = /*#__PURE__*/function () {
 	  function AddressLink(props) {
 	    babelHelpers.classCallCheck(this, AddressLink);
-
-	    _entityId.set(this, {
+	    _classPrivateFieldInitSpec$3(this, _entityId, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _entityType.set(this, {
+	    _classPrivateFieldInitSpec$3(this, _entityType, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    babelHelpers.classPrivateFieldSet(this, _entityId, props.entityId);
 	    babelHelpers.classPrivateFieldSet(this, _entityType, props.entityType);
 	  }
-
 	  babelHelpers.createClass(AddressLink, [{
 	    key: "entityId",
 	    get: function get() {
@@ -260,34 +228,28 @@ this.BX.Location = this.BX.Location || {};
 	  return AddressLink;
 	}();
 
-	function _createForOfIteratorHelper$1(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$1(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
-
+	function _createForOfIteratorHelper$1(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$1(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 	function _unsupportedIterableToArray$1(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$1(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$1(o, minLen); }
-
-	function _arrayLikeToArray$1(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-	var _links = new WeakMap();
-
+	function _arrayLikeToArray$1(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	function _classPrivateFieldInitSpec$4(obj, privateMap, value) { _checkPrivateRedeclaration$4(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$4(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _links = /*#__PURE__*/new WeakMap();
 	var AddressLinkCollection = /*#__PURE__*/function () {
 	  function AddressLinkCollection() {
 	    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, AddressLinkCollection);
-
-	    _links.set(this, {
+	    _classPrivateFieldInitSpec$4(this, _links, {
 	      writable: true,
 	      value: []
 	    });
-
 	    this.links = !!props.links ? props.links : [];
 	  }
-
 	  babelHelpers.createClass(AddressLinkCollection, [{
 	    key: "addLink",
 	    value: function addLink(link) {
 	      if (!(link instanceof AddressLink)) {
 	        throw new Error('Argument link must be instance of Field!');
 	      }
-
 	      babelHelpers.classPrivateFieldGet(this, _links).push(link);
 	    }
 	  }, {
@@ -301,10 +263,8 @@ this.BX.Location = this.BX.Location || {};
 	      if (!Array.isArray(links)) {
 	        throw new Error('links must be array!');
 	      }
-
 	      var _iterator = _createForOfIteratorHelper$1(links),
-	          _step;
-
+	        _step;
 	      try {
 	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
 	          var link = _step.value;
@@ -323,43 +283,35 @@ this.BX.Location = this.BX.Location || {};
 	  return AddressLinkCollection;
 	}();
 
-	var _sort = new WeakMap();
-
-	var _name = new WeakMap();
-
-	var _description = new WeakMap();
-
+	function _classPrivateFieldInitSpec$5(obj, privateMap, value) { _checkPrivateRedeclaration$5(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$5(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _sort = /*#__PURE__*/new WeakMap();
+	var _name = /*#__PURE__*/new WeakMap();
+	var _description = /*#__PURE__*/new WeakMap();
 	var FormatField = /*#__PURE__*/function (_Field) {
 	  babelHelpers.inherits(FormatField, _Field);
-
 	  // todo: Fields validation
 	  function FormatField(props) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, FormatField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FormatField).call(this, props));
-
-	    _sort.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _sort, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _name.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _name, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _description.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _description, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _sort, parseInt(props.sort));
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _name, props.name || '');
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _description, props.description || '');
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(FormatField, [{
 	    key: "sort",
 	    get: function get() {
@@ -390,21 +342,17 @@ this.BX.Location = this.BX.Location || {};
 
 	var FormatFieldCollection = /*#__PURE__*/function (_FieldCollection) {
 	  babelHelpers.inherits(FormatFieldCollection, _FieldCollection);
-
 	  function FormatFieldCollection() {
 	    babelHelpers.classCallCheck(this, FormatFieldCollection);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FormatFieldCollection).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(FormatFieldCollection, [{
 	    key: "initFields",
 	    value: function initFields(fieldsData) {
 	      var _this = this;
-
 	      if (Array.isArray(fieldsData)) {
 	        fieldsData.forEach(function (data) {
 	          var field = new FormatField(data);
-
 	          if (field) {
 	            _this.setField(field);
 	          }
@@ -418,7 +366,6 @@ this.BX.Location = this.BX.Location || {};
 	var LocationType = function LocationType() {
 	  babelHelpers.classCallCheck(this, LocationType);
 	};
-
 	babelHelpers.defineProperty(LocationType, "UNKNOWN", 0);
 	babelHelpers.defineProperty(LocationType, "COUNTRY", 100);
 	babelHelpers.defineProperty(LocationType, "ADM_LEVEL_1", 200);
@@ -439,15 +386,12 @@ this.BX.Location = this.BX.Location || {};
 
 	var AddressType = /*#__PURE__*/function (_LocationType) {
 	  babelHelpers.inherits(AddressType, _LocationType);
-
 	  function AddressType() {
 	    babelHelpers.classCallCheck(this, AddressType);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AddressType).apply(this, arguments));
 	  }
-
 	  return AddressType;
 	}(LocationType);
-
 	babelHelpers.defineProperty(AddressType, "POSTAL_CODE", 50);
 	babelHelpers.defineProperty(AddressType, "ADDRESS_LINE_2", 600);
 	babelHelpers.defineProperty(AddressType, "RECIPIENT_COMPANY", 700);
@@ -460,17 +404,16 @@ this.BX.Location = this.BX.Location || {};
 	  this.template = template;
 	};
 
-	var _templates = new WeakMap();
-
+	function _classPrivateFieldInitSpec$6(obj, privateMap, value) { _checkPrivateRedeclaration$6(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$6(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _templates = /*#__PURE__*/new WeakMap();
 	var FormatTemplateCollection = /*#__PURE__*/function () {
 	  function FormatTemplateCollection(templateData) {
 	    babelHelpers.classCallCheck(this, FormatTemplateCollection);
-
-	    _templates.set(this, {
+	    _classPrivateFieldInitSpec$6(this, _templates, {
 	      writable: true,
 	      value: {}
 	    });
-
 	    for (var type in templateData) {
 	      // eslint-disable-next-line no-prototype-builtins
 	      if (templateData.hasOwnProperty(type)) {
@@ -478,7 +421,6 @@ this.BX.Location = this.BX.Location || {};
 	      }
 	    }
 	  }
-
 	  babelHelpers.createClass(FormatTemplateCollection, [{
 	    key: "isTemplateExists",
 	    value: function isTemplateExists(type) {
@@ -495,7 +437,6 @@ this.BX.Location = this.BX.Location || {};
 	      if (!(template instanceof FormatTemplate)) {
 	        throw new Error('Argument template must be instance of FormatTemplate!');
 	      }
-
 	      babelHelpers.classPrivateFieldGet(this, _templates)[template.type] = template;
 	    }
 	  }]);
@@ -508,7 +449,6 @@ this.BX.Location = this.BX.Location || {};
 	var FormatTemplateType = function FormatTemplateType() {
 	  babelHelpers.classCallCheck(this, FormatTemplateType);
 	};
-
 	babelHelpers.defineProperty(FormatTemplateType, "DEFAULT", 'DEFAULT');
 	babelHelpers.defineProperty(FormatTemplateType, "AUTOCOMPLETE", 'AUTOCOMPLETE');
 	babelHelpers.defineProperty(FormatTemplateType, "ADDRESS_LINE_1", 'ADDRESS_LINE_1');
@@ -516,15 +456,12 @@ this.BX.Location = this.BX.Location || {};
 	/**
 	 * Class defines how the Address will look like
 	 */
-
 	var Format = /*#__PURE__*/function () {
 	  function Format(props) {
 	    babelHelpers.classCallCheck(this, Format);
-
 	    if (main_core.Type.isUndefined(props.languageId)) {
 	      throw new TypeError('LanguageId must be defined');
 	    }
-
 	    this.languageId = props.languageId;
 	    this.code = props.code || '';
 	    this.name = props.name || '';
@@ -534,20 +471,15 @@ this.BX.Location = this.BX.Location || {};
 	    this.delimiter = props.delimiter || ', ';
 	    this.fieldForUnRecognized = props.fieldForUnRecognized || AddressType.UNKNOWN;
 	    this.fieldCollection = new FormatFieldCollection();
-
 	    if (main_core.Type.isObject(props.fieldCollection)) {
 	      this.fieldCollection.initFields(props.fieldCollection);
 	    }
-
 	    var collection = {};
-
 	    if (main_core.Type.isObject(props.templateCollection)) {
 	      collection = props.templateCollection;
 	    }
-
 	    this.templateCollection = new FormatTemplateCollection(collection);
 	  }
-
 	  babelHelpers.createClass(Format, [{
 	    key: "getField",
 	    value: function getField(type) {
@@ -578,6 +510,9 @@ this.BX.Location = this.BX.Location || {};
 	  return Format;
 	}();
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration$7(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$7(obj, privateMap, value) { _checkPrivateRedeclaration$7(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$7(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var STR_DELIMITER_PLACEHOLDER = "#S#";
 	var REGEX_COMMA_AMONG_EMPTY_SPACE = "\\s*,\\s*";
@@ -600,58 +535,41 @@ this.BX.Location = this.BX.Location || {};
 	var ERR_PARSE_GROUP_FIELD_LIST_END = 1190;
 	var ERR_PARSE_GROUP_END = 1200;
 	var ERR_PARSE_GROUP = 1210;
-
-	var _template = new WeakMap();
-
-	var _delimiter = new WeakMap();
-
-	var _htmlEncode = new WeakMap();
-
-	var _format = new WeakMap();
-
-	var _isTemplateForFieldExists = new WeakSet();
-
-	var _getFieldValueByTemplate = new WeakSet();
-
-	var _getAlterFieldValue = new WeakSet();
-
+	var _template = /*#__PURE__*/new WeakMap();
+	var _delimiter = /*#__PURE__*/new WeakMap();
+	var _htmlEncode = /*#__PURE__*/new WeakMap();
+	var _format = /*#__PURE__*/new WeakMap();
+	var _isTemplateForFieldExists = /*#__PURE__*/new WeakSet();
+	var _getFieldValueByTemplate = /*#__PURE__*/new WeakSet();
+	var _getAlterFieldValue = /*#__PURE__*/new WeakSet();
 	var StringTemplateConverter = /*#__PURE__*/function () {
 	  function StringTemplateConverter(_template2, delimiter, htmlEncode) {
 	    var format = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 	    babelHelpers.classCallCheck(this, StringTemplateConverter);
-
-	    _getAlterFieldValue.add(this);
-
-	    _getFieldValueByTemplate.add(this);
-
-	    _isTemplateForFieldExists.add(this);
-
-	    _template.set(this, {
+	    _classPrivateMethodInitSpec(this, _getAlterFieldValue);
+	    _classPrivateMethodInitSpec(this, _getFieldValueByTemplate);
+	    _classPrivateMethodInitSpec(this, _isTemplateForFieldExists);
+	    _classPrivateFieldInitSpec$7(this, _template, {
 	      writable: true,
 	      value: ""
 	    });
-
-	    _delimiter.set(this, {
+	    _classPrivateFieldInitSpec$7(this, _delimiter, {
 	      writable: true,
 	      value: ""
 	    });
-
-	    _htmlEncode.set(this, {
+	    _classPrivateFieldInitSpec$7(this, _htmlEncode, {
 	      writable: true,
 	      value: false
 	    });
-
-	    _format.set(this, {
+	    _classPrivateFieldInitSpec$7(this, _format, {
 	      writable: true,
 	      value: null
 	    });
-
 	    babelHelpers.classPrivateFieldSet(this, _template, _template2);
 	    babelHelpers.classPrivateFieldSet(this, _delimiter, delimiter);
 	    babelHelpers.classPrivateFieldSet(this, _htmlEncode, htmlEncode);
 	    babelHelpers.classPrivateFieldSet(this, _format, format);
 	  }
-
 	  babelHelpers.createClass(StringTemplateConverter, [{
 	    key: "getErrorCodes",
 	    value: function getErrorCodes() {
@@ -676,19 +594,15 @@ this.BX.Location = this.BX.Location || {};
 	      var result = "";
 	      var errorCodes = this.getErrorCodes();
 	      var errors = context["error"]["errors"];
-
 	      for (var i = 0; i < errors.length; i++) {
 	        result += "Error: ".concat(errors[i]["position"], ", ").concat(errorCodes[errors[i]["code"]], "\n");
-
 	        if (errors[i].hasOwnProperty("info") && main_core.Type.isPlainObject(errors[i]["info"])) {
 	          var errorInfo = errors[i]["info"];
 	          var needHeader = true;
-
 	          for (var paramName in errorInfo) {
 	            if (errorInfo.hasOwnProperty(paramName)) {
 	              var paramValue = errorInfo[paramName];
 	              var needPrint = false;
-
 	              if (main_core.Type.isString(paramValue)) {
 	                paramValue = "\"".concat(paramValue, "\"");
 	                needPrint = true;
@@ -704,20 +618,17 @@ this.BX.Location = this.BX.Location || {};
 	                paramValue = '{...}';
 	                needPrint = true;
 	              }
-
 	              if (needPrint) {
 	                if (needHeader) {
 	                  result += "  Error info:\n";
 	                  needHeader = false;
 	                }
-
 	                result += "    ".concat(paramName, ": ").concat(paramValue, "\n");
 	              }
 	            }
 	          }
 	        }
 	      }
-
 	      var templateValue = context["template"].replace("\n", "\\n");
 	      templateValue = templateValue.replace("\"", "\\\"");
 	      result += "Template: \"".concat(templateValue, "\"\n\n");
@@ -769,7 +680,6 @@ this.BX.Location = this.BX.Location || {};
 	    value: function unescapeText(text) {
 	      var result = "";
 	      var i;
-
 	      for (i = 0; i < text.length; i++) {
 	        if (text[i] === "\\") {
 	          if (text.length - i > 1) {
@@ -779,20 +689,18 @@ this.BX.Location = this.BX.Location || {};
 	          result += text[i];
 	        }
 	      }
-
 	      return result;
 	    }
 	  }, {
 	    key: "parseGroupDelimiter",
 	    value: function parseGroupDelimiter(context) {
 	      // Capturing the group's separator
-	      var delimiterStartPosition = context["position"]; //                [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
+	      var delimiterStartPosition = context["position"];
+	      //                [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 	      // Are looking for ^^^^
-
 	      var regEx = new RegExp(REGEX_GROUP_DELIMITER, "mg");
 	      regEx.lastIndex = delimiterStartPosition;
 	      var matches = regEx.exec(context["template"]);
-
 	      if (matches && matches.index === delimiterStartPosition) {
 	        context["info"] = {
 	          "position": delimiterStartPosition,
@@ -803,19 +711,17 @@ this.BX.Location = this.BX.Location || {};
 	      } else {
 	        this.addContextError(context, ERR_PARSE_GROUP_DELIMITER, delimiterStartPosition);
 	      }
-
 	      return context;
 	    }
 	  }, {
 	    key: "parseFieldText",
 	    value: function parseFieldText(context) {
-	      var textBlockStartPosition = context["position"]; // [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
+	      var textBlockStartPosition = context["position"];
+	      // [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 	      // Are looking for                         ^^^^^^
-
 	      var regEx = new RegExp(REGEX_GROUP_FIELD_TEXT, "mg");
 	      regEx.lastIndex = textBlockStartPosition;
 	      var matches = regEx.exec(context["template"]);
-
 	      if (matches && matches.index === textBlockStartPosition) {
 	        context["info"] = {
 	          "type": "text",
@@ -827,7 +733,6 @@ this.BX.Location = this.BX.Location || {};
 	      } else {
 	        this.addContextError(context, ERR_PARSE_GROUP_FIELD_TEXT, textBlockStartPosition);
 	      }
-
 	      return context;
 	    }
 	  }, {
@@ -842,7 +747,6 @@ this.BX.Location = this.BX.Location || {};
 	    key: "getAddressFieldValue",
 	    value: function getAddressFieldValue(address, fieldName, fieldModifiers) {
 	      var result = "";
-
 	      if (!main_core.Type.isUndefined(AddressType[fieldName])) {
 	        if (fieldName === "ADM_LEVEL_1" || fieldName === "ADM_LEVEL_2") {
 	          // Scratch "Province & Region by Locality"
@@ -850,38 +754,32 @@ this.BX.Location = this.BX.Location || {};
 	        } else {
 	          result = address.getFieldValue(AddressType[fieldName]);
 	        }
-
 	        if (result === null) {
 	          result = _classPrivateMethodGet(this, _getFieldValueByTemplate, _getFieldValueByTemplate2).call(this, fieldName, address);
 	        }
 	      }
-
 	      if (!main_core.Type.isString(result)) {
 	        result = "";
 	      }
-
 	      if (result !== "") {
 	        if (fieldModifiers.indexOf("N") >= 0) {
 	          result = result.replace(/(\r\n|\n|\r)/g, "#S#");
 	        }
-
 	        if (fieldModifiers.indexOf("U") >= 0) {
 	          result = result.toUpperCase();
 	        }
 	      }
-
 	      return result;
 	    }
 	  }, {
 	    key: "parseFieldName",
 	    value: function parseFieldName(context) {
-	      var fieldNameStartPosition = context["position"]; //          [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
+	      var fieldNameStartPosition = context["position"];
+	      //          [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 	      // Are looking for  ^^^^^^^^^^^^^^^^
-
 	      var regEx = new RegExp(REGEX_GROUP_FIELD_NAME, "mg");
 	      regEx.lastIndex = fieldNameStartPosition;
 	      var matches = regEx.exec(context["template"]);
-
 	      if (matches && matches.index === fieldNameStartPosition) {
 	        context["position"] = fieldNameStartPosition + matches[0].length;
 	        var fieldParts = this.splitFieldName(matches[0]);
@@ -899,43 +797,38 @@ this.BX.Location = this.BX.Location || {};
 	      } else {
 	        this.addContextError(context, ERR_PARSE_GROUP_FIELD_NAME, fieldNameStartPosition);
 	      }
-
 	      return context;
 	    }
 	  }, {
 	    key: "parseFieldListDelimiter",
 	    value: function parseFieldListDelimiter(context) {
-	      var markerStartPosition = context["position"]; // [", ", [ADDRESS_LINE_1:N , ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
+	      var markerStartPosition = context["position"];
+	      // [", ", [ADDRESS_LINE_1:N , ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 	      // Are looking for         ^^^
-
 	      var regEx = new RegExp(REGEX_COMMA_AMONG_EMPTY_SPACE, "mg");
 	      regEx.lastIndex = markerStartPosition;
 	      var matches = regEx.exec(context["template"]);
-
 	      if (matches && matches.index === markerStartPosition) {
 	        context["position"] = markerStartPosition + matches[0].length;
 	      } else {
 	        this.addContextError(context, ERR_PARSE_GROUP_FIELD_LIST_DELIMITER, markerStartPosition);
 	      }
-
 	      return context;
 	    }
 	  }, {
 	    key: "parseFieldListEnd",
 	    value: function parseFieldListEnd(context) {
-	      var markerStartPosition = context["position"]; // [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
+	      var markerStartPosition = context["position"];
+	      // [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 	      // Are looking for                                                    ^
-
 	      var regEx = new RegExp(REGEX_GROUP_FIELD_LIST_END, "mg");
 	      regEx.lastIndex = markerStartPosition;
 	      var matches = regEx.exec(context["template"]);
-
 	      if (matches && matches.index === markerStartPosition) {
 	        context["position"] = markerStartPosition + matches[0].length;
 	      } else {
 	        this.addContextError(context, ERR_PARSE_GROUP_FIELD_LIST_END, markerStartPosition);
 	      }
-
 	      return context;
 	    }
 	  }, {
@@ -943,23 +836,21 @@ this.BX.Location = this.BX.Location || {};
 	    value: function parseField(context) {
 	      var fieldInfo = [];
 	      var fieldStartPosition = context["position"];
-	      var errors = []; // Checking for the presence of a text block
+	      var errors = [];
 
+	      // Checking for the presence of a text block
 	      context = this.parseFieldText(context);
-
 	      if (context["hasError"]) {
 	        this.unshiftError(errors, context["error"]["code"], context["error"]["position"]);
-	        context = this.clearContextInfoAndError(context); // Checking for the presence of a field name
-
+	        context = this.clearContextInfoAndError(context);
+	        // Checking for the presence of a field name
 	        context = this.parseFieldName(context);
 	      }
-
 	      if (context["hasError"]) {
 	        this.unshiftError(errors, context["error"]["code"], context["error"]["position"]);
-	        context = this.clearContextInfoAndError(context); // Checking for the presence of a nested group
-
+	        context = this.clearContextInfoAndError(context);
+	        // Checking for the presence of a nested group
 	        context = this.parseGroup(context);
-
 	        if (context["hasError"]) {
 	          this.unshiftError(errors, context["error"]["code"], context["error"]["position"]);
 	        } else if (context["info"]["position"] > fieldStartPosition) {
@@ -968,20 +859,18 @@ this.BX.Location = this.BX.Location || {};
 	          this.unshiftError(errors, context["error"]["code"], context["error"]["position"]);
 	        }
 	      }
-
 	      if (!context["hasError"]) {
 	        fieldInfo = context["info"];
 	        fieldInfo["isFieldListEnd"] = false;
-	        context = this.clearContextInfo(context); // Checking for the presence of a field separator
+	        context = this.clearContextInfo(context);
 
+	        // Checking for the presence of a field separator
 	        context = this.parseFieldListDelimiter(context);
-
 	        if (context["hasError"]) {
 	          this.unshiftError(errors, context["error"]["code"], context["error"]["position"]);
-	          context = this.clearContextInfoAndError(context); // Checking for the presence of the end sign of the field list
-
+	          context = this.clearContextInfoAndError(context);
+	          // Checking for the presence of the end sign of the field list
 	          context = this.parseFieldListEnd(context);
-
 	          if (context["hasError"]) {
 	            this.unshiftError(errors, context["error"]["code"], context["error"]["position"]);
 	          } else {
@@ -989,45 +878,37 @@ this.BX.Location = this.BX.Location || {};
 	          }
 	        }
 	      }
-
 	      if (context["hasError"]) {
 	        this.unshiftError(errors, ERR_PARSE_GROUP_FIELD, fieldStartPosition);
 	        this.addContextErrors(context, errors);
 	      } else {
 	        context["info"] = fieldInfo;
 	      }
-
 	      return context;
 	    }
 	  }, {
 	    key: "parseGroupFieldList",
 	    value: function parseGroupFieldList(context) {
 	      var fieldListStartPosition = context["position"];
-	      var fieldValues = []; //            [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
+	      var fieldValues = [];
+	      //            [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 	      // Are looking for ^^^
-
 	      var regEx = new RegExp(REGEX_PART_FROM_DELIMITER_TO_FIELD_LIST, "mg");
 	      regEx.lastIndex = fieldListStartPosition;
 	      var matches = regEx.exec(context["template"]);
-
 	      if (matches && matches.index === fieldListStartPosition) {
 	        context["position"] = fieldListStartPosition + matches[0].length;
 	        var isFieldListEnd = false;
-
 	        while (!(context["hasError"] || isFieldListEnd)) {
 	          context = this.parseField(context);
-
 	          if (!context["hasError"]) {
 	            isFieldListEnd = context["info"].hasOwnProperty("isFieldListEnd") && context["info"]["isFieldListEnd"];
-
 	            if (context["info"]["value"] !== "") {
 	              fieldValues.push(context["info"]["value"]);
 	            }
-
 	            context = this.clearContextInfo(context);
 	          }
 	        }
-
 	        if (!context["hasError"]) {
 	          context["info"] = {
 	            "fieldValues": fieldValues
@@ -1036,11 +917,9 @@ this.BX.Location = this.BX.Location || {};
 	      } else {
 	        this.addContextError(context, ERR_PARSE_PART_FROM_DELIMITER_TO_FIELD_LIST, fieldListStartPosition);
 	      }
-
 	      if (context["hasError"]) {
 	        this.addContextError(context, ERR_PARSE_GROUP_FIELD_LIST, fieldListStartPosition);
 	      }
-
 	      return context;
 	    }
 	  }, {
@@ -1051,32 +930,28 @@ this.BX.Location = this.BX.Location || {};
 	      var regEx = new RegExp(REGEX_GROUP_PART_BEFORE_FIELDS, "mg");
 	      regEx.lastIndex = context["position"];
 	      var matches = regEx.exec(context["template"]);
-
 	      if (matches) {
 	        context["info"]["groupStartPosition"] = matches.index + matches[1].length;
 	        context["info"]["groupDelimiterStartPosition"] = matches.index + matches[1].length + matches[3].length;
 	      } else {
 	        this.addContextError(context, ERR_PARSE_GROUP_START, context["position"]);
 	      }
-
 	      return context;
 	    }
 	  }, {
 	    key: "parseGroupEnd",
 	    value: function parseGroupEnd(context) {
-	      var markerStartPosition = context["position"]; // [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
+	      var markerStartPosition = context["position"];
+	      // [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 	      // Are looking for                                                     ^
-
 	      var regEx = new RegExp(REGEX_GROUP_END, "mg");
 	      regEx.lastIndex = markerStartPosition;
 	      var matches = regEx.exec(context["template"]);
-
 	      if (matches && matches.index === markerStartPosition) {
 	        context["position"] = markerStartPosition + matches[0].length;
 	      } else {
 	        this.addContextError(context, ERR_PARSE_GROUP_END, markerStartPosition);
 	      }
-
 	      return context;
 	    }
 	  }, {
@@ -1086,10 +961,10 @@ this.BX.Location = this.BX.Location || {};
 	      var groupStartPosition = 0;
 	      var delimiterValue = "";
 	      var fieldValues = [];
-	      context["level"]++; // Checking for the presence of a start of a group
+	      context["level"]++;
 
+	      // Checking for the presence of a start of a group
 	      context = this.parseGroupStart(context);
-
 	      if (!context["hasError"]) {
 	        // Found a sign of the beginning of a group
 	        groupStartPosition = context["info"]["groupStartPosition"];
@@ -1097,29 +972,28 @@ this.BX.Location = this.BX.Location || {};
 	        context = this.clearContextInfo(context);
 	        context = this.parseGroupDelimiter(context);
 	      }
-
 	      if (!context["hasError"]) {
 	        // The value of the group separator was got
 	        delimiterValue = context["info"]["value"];
 	        context = this.clearContextInfo(context);
 	        context = this.parseGroupFieldList(context);
 	      }
-
 	      if (!context["hasError"]) {
 	        // The values of the field list was got
 	        fieldValues = context["info"]["fieldValues"];
 	        context = this.clearContextInfo(context);
 	        context = this.parseGroupEnd(context);
 	      }
-
 	      if (!context["hasError"]) {
 	        // Kremlin,Moscow,Moscow,Russia,103132 -> Kremlin,Moscow,Russia,103132
 	        fieldValues = babelHelpers.toConsumableArray(new Set(fieldValues));
-	        var value = fieldValues.join(delimiterValue); // Kaliningrad, Narvskaya, 72, , kv 8 -> Kaliningrad, Narvskaya, 72, kv 8
+	        var value = fieldValues.join(delimiterValue);
 
+	        // Kaliningrad, Narvskaya, 72, , kv 8 -> Kaliningrad, Narvskaya, 72, kv 8
 	        var reg = new RegExp("(".concat(delimiterValue, "){2,}"), 'gim');
-	        value = value.replace(new RegExp(reg), delimiterValue); // The sign of the end of the group is received, the assembly of the group value.
+	        value = value.replace(new RegExp(reg), delimiterValue);
 
+	        // The sign of the end of the group is received, the assembly of the group value.
 	        context["info"] = {
 	          "type": "group",
 	          "position": groupStartPosition,
@@ -1127,15 +1001,12 @@ this.BX.Location = this.BX.Location || {};
 	          "value": value
 	        };
 	      }
-
 	      context["level"]--;
-
 	      if (context["hasError"]) {
 	        this.addContextError(context, ERR_PARSE_GROUP, startSearchPosition, {
 	          "groupStartPosition": groupStartPosition
 	        });
 	      }
-
 	      return context;
 	    }
 	  }, {
@@ -1143,7 +1014,6 @@ this.BX.Location = this.BX.Location || {};
 	    value: function appendTextBlock(blocks, position, value) {
 	      var lastBlockIndex = blocks.length - 1;
 	      var lastBlock = lastBlockIndex >= 0 ? blocks[lastBlockIndex] : null;
-
 	      if (lastBlock && lastBlock.hasOwnProperty("type") && lastBlock["type"] === "text") {
 	        blocks[lastBlockIndex]["value"] += value;
 	        blocks[lastBlockIndex]["length"] += value.length;
@@ -1202,54 +1072,46 @@ this.BX.Location = this.BX.Location || {};
 	      /* Variable for debug only
 	      let errorDisplayed = false;
 	      */
+
 	      var blocks = [];
 	      var templateLength = context["template"].length;
-
 	      while (context["position"] < templateLength) {
 	        var blockStartPosition = context["position"];
 	        context = this.parseGroup(context);
-
 	        if (context["hasError"]) {
 	          // Debug info
-
 	          /*if (!errorDisplayed)
 	          {
 	          	console.info(this.getErrorsText(context));
 	          	errorDisplayed = true;
 	          }*/
+
 	          var errorInfo = context["error"]["info"];
 	          var blockLength = void 0;
-
 	          if (!main_core.Type.isPlainObject(errorInfo) && errorInfo.hasOwnProperty("groupStartPosition") && errorInfo["groupStartPosition"] > blockStartPosition) {
 	            blockLength = errorInfo["groupStartPosition"] - blockStartPosition + 1;
 	          } else {
 	            blockLength = 1;
 	          }
-
 	          this.appendTextBlock(blocks, context["error"]["position"], context["template"].substr(blockStartPosition, blockLength));
 	          context = this.clearContextInfoAndError(context);
 	          context["position"] = blockStartPosition + blockLength;
 	        } else {
 	          var groupStartPosition = context["info"]["position"];
-
 	          if (groupStartPosition > blockStartPosition) {
 	            this.appendTextBlock(blocks, blockStartPosition, context["template"].substr(blockStartPosition, groupStartPosition - blockStartPosition));
 	          }
-
 	          if (context["info"]["value"] !== "") {
 	            this.appendGroupBlock(blocks, groupStartPosition, context["info"]["value"]);
 	          }
-
 	          context = this.clearContextInfo(context);
 	        }
 	      }
-
 	      if (!context["hasError"]) {
 	        context["info"] = {
 	          "blocks": blocks
 	        };
 	      }
-
 	      return context;
 	    }
 	  }, {
@@ -1260,10 +1122,8 @@ this.BX.Location = this.BX.Location || {};
 	      context["template"] = babelHelpers.classPrivateFieldGet(this, _template);
 	      context["address"] = address;
 	      context = this.parseBlocks(context);
-
 	      if (!context["hasError"]) {
 	        var blocks = context["info"]["blocks"];
-
 	        for (var i = 0; i < blocks.length; i++) {
 	          if (blocks[i]["type"] === "text") {
 	            result += this.unescapeText(blocks[i]["value"]);
@@ -1272,79 +1132,63 @@ this.BX.Location = this.BX.Location || {};
 	          }
 	        }
 	      }
-
 	      if (result !== "") {
 	        var temp = result.split(STR_DELIMITER_PLACEHOLDER);
 	        var parts = [];
-
 	        for (var _i = 0; _i < temp.length; _i++) {
 	          if (temp[_i] !== "") {
 	            parts.push(temp[_i]);
 	          }
 	        }
-
 	        if (babelHelpers.classPrivateFieldGet(this, _htmlEncode) && parts.length > 0) {
 	          for (var _i2 = 0; _i2 < parts.length; _i2++) {
 	            parts[_i2] = main_core.Text.encode(parts[_i2]);
 	          }
 	        }
-
 	        result = parts.join(babelHelpers.classPrivateFieldGet(this, _delimiter));
 	      }
-
 	      return result;
 	    }
 	  }]);
 	  return StringTemplateConverter;
 	}();
-
-	var _isTemplateForFieldExists2 = function _isTemplateForFieldExists2(fieldName) {
+	function _isTemplateForFieldExists2(fieldName) {
 	  return babelHelpers.classPrivateFieldGet(this, _format) && babelHelpers.classPrivateFieldGet(this, _format).getTemplate(fieldName) !== null;
-	};
-
-	var _getFieldValueByTemplate2 = function _getFieldValueByTemplate2(fieldName, address) {
+	}
+	function _getFieldValueByTemplate2(fieldName, address) {
 	  if (!_classPrivateMethodGet(this, _isTemplateForFieldExists, _isTemplateForFieldExists2).call(this, fieldName)) {
 	    return null;
 	  }
-
 	  var template = babelHelpers.classPrivateFieldGet(this, _format).getTemplate(fieldName).template;
 	  var templateConverter = new StringTemplateConverter(template, babelHelpers.classPrivateFieldGet(this, _delimiter), babelHelpers.classPrivateFieldGet(this, _htmlEncode), babelHelpers.classPrivateFieldGet(this, _format));
 	  return templateConverter.convert(address);
-	};
-
-	var _getAlterFieldValue2 = function _getAlterFieldValue2(address, fieldType) {
+	}
+	function _getAlterFieldValue2(address, fieldType) {
 	  var localityValue = address.getFieldValue(AddressType.LOCALITY);
 	  localityValue = main_core.Type.isString(localityValue) ? localityValue : "";
 	  var result = address.getFieldValue(fieldType);
-
 	  if (!main_core.Type.isString(result)) {
 	    result = "";
 	  }
-
 	  if (result !== "" && localityValue !== "") {
 	    var localityValueUpper = localityValue.toUpperCase();
 	    var targetValueUpper = result.toUpperCase();
-
 	    if (targetValueUpper.length >= localityValueUpper.length) {
 	      var targetValueSubstr = targetValueUpper.substr(targetValueUpper.length - localityValueUpper.length);
-
 	      if (localityValueUpper === targetValueSubstr) {
 	        result = "";
 	      }
 	    }
 	  }
-
 	  return result;
-	};
+	}
 
 	var StringConverter = /*#__PURE__*/function () {
 	  function StringConverter() {
 	    babelHelpers.classCallCheck(this, StringConverter);
 	  }
-
 	  babelHelpers.createClass(StringConverter, null, [{
 	    key: "convertAddressToString",
-
 	    /**
 	     * Convert address to string
 	     * @param {Address} address
@@ -1355,35 +1199,30 @@ this.BX.Location = this.BX.Location || {};
 	     */
 	    value: function convertAddressToString(address, format, strategyType, contentType) {
 	      var result;
-
 	      if (strategyType === StringConverter.STRATEGY_TYPE_TEMPLATE || strategyType === StringConverter.STRATEGY_TYPE_TEMPLATE_COMMA || strategyType === StringConverter.STRATEGY_TYPE_TEMPLATE_NL || strategyType === StringConverter.STRATEGY_TYPE_TEMPLATE_BR) {
 	        var delimiter = null;
-
 	        switch (strategyType) {
 	          case StringConverter.STRATEGY_TYPE_TEMPLATE_COMMA:
 	            delimiter = ', ';
 	            break;
-
 	          case StringConverter.STRATEGY_TYPE_TEMPLATE_NL:
 	            delimiter = '\n';
 	            break;
-
 	          case StringConverter.STRATEGY_TYPE_TEMPLATE_BR:
 	            delimiter = '<br />';
 	            break;
 	        }
-
 	        result = StringConverter.convertAddressToStringTemplate(address, format.getTemplate(), contentType, delimiter, format);
 	      } else if (strategyType === StringConverter.STRATEGY_TYPE_FIELD_SORT) {
 	        var fieldSorter = function fieldSorter(a, b) {
 	          return a.sort - b.sort;
 	        };
-
 	        result = StringConverter.convertAddressToStringByField(address, format, fieldSorter, contentType);
 	      } else if (strategyType === StringConverter.STRATEGY_TYPE_FIELD_TYPE) {
 	        var _fieldSorter = function _fieldSorter(a, b) {
-	          var sortResult; // We suggest that UNKNOWN must be the last
+	          var sortResult;
 
+	          // We suggest that UNKNOWN must be the last
 	          if (a.type === 0) {
 	            sortResult = 1;
 	          } else if (b.type === 0) {
@@ -1391,15 +1230,12 @@ this.BX.Location = this.BX.Location || {};
 	          } else {
 	            sortResult = a.type - b.type;
 	          }
-
 	          return sortResult;
 	        };
-
 	        result = StringConverter.convertAddressToStringByField(address, format, _fieldSorter, contentType);
 	      } else {
 	        throw TypeError('Wrong strategyType');
 	      }
-
 	      return result;
 	    }
 	    /**
@@ -1411,18 +1247,15 @@ this.BX.Location = this.BX.Location || {};
 	     * @param {Format|null} format
 	     * @returns {string}
 	     */
-
 	  }, {
 	    key: "convertAddressToStringTemplate",
 	    value: function convertAddressToStringTemplate(address, template, contentType) {
 	      var delimiter = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 	      var format = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
 	      var needHtmlEncode = contentType === StringConverter.CONTENT_TYPE_HTML;
-
 	      if (delimiter === null) {
 	        delimiter = needHtmlEncode ? '<br />' : '\n';
 	      }
-
 	      var templateConverter = new StringTemplateConverter(template.template, delimiter, needHtmlEncode, format);
 	      return templateConverter.convert(address);
 	    }
@@ -1434,54 +1267,43 @@ this.BX.Location = this.BX.Location || {};
 	     * @param {string} contentType
 	     * @returns {string}
 	     */
-
 	  }, {
 	    key: "convertAddressToStringByField",
 	    value: function convertAddressToStringByField(address, format, fieldSorter, contentType) {
 	      if (!(format instanceof Format)) {
 	        BX.debug('format must be instance of Format');
 	      }
-
 	      if (!(address instanceof Address)) {
 	        BX.debug('address must be instance of Address');
 	      }
-
 	      var fieldCollection = format.fieldCollection;
-
 	      if (!fieldCollection) {
 	        return '';
 	      }
+	      var fields = Object.values(fieldCollection.fields);
 
-	      var fields = Object.values(fieldCollection.fields); // todo: make only once or cache?
-
+	      // todo: make only once or cache?
 	      fields.sort(fieldSorter);
 	      var result = '';
-
 	      for (var _i = 0, _fields = fields; _i < _fields.length; _i++) {
 	        var field = _fields[_i];
 	        var value = address.getFieldValue(field.type);
-
 	        if (value === null) {
 	          continue;
 	        }
-
 	        if (contentType === StringConverter.CONTENT_TYPE_HTML) {
 	          value = main_core.Text.encode(value);
 	        }
-
 	        if (result !== '') {
 	          result += format.delimiter;
 	        }
-
 	        result += value;
 	      }
-
 	      return result;
 	    }
 	  }]);
 	  return StringConverter;
 	}();
-
 	babelHelpers.defineProperty(StringConverter, "STRATEGY_TYPE_TEMPLATE", 'template');
 	babelHelpers.defineProperty(StringConverter, "STRATEGY_TYPE_TEMPLATE_COMMA", 'template_comma');
 	babelHelpers.defineProperty(StringConverter, "STRATEGY_TYPE_TEMPLATE_NL", 'template_nl');
@@ -1491,16 +1313,14 @@ this.BX.Location = this.BX.Location || {};
 	babelHelpers.defineProperty(StringConverter, "CONTENT_TYPE_HTML", 'html');
 	babelHelpers.defineProperty(StringConverter, "CONTENT_TYPE_TEXT", 'text');
 
-	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } return method; }
-
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
 	var JsonConverter = /*#__PURE__*/function () {
 	  function JsonConverter() {
 	    babelHelpers.classCallCheck(this, JsonConverter);
 	  }
-
 	  babelHelpers.createClass(JsonConverter, null, [{
 	    key: "convertJsonToAddress",
-
 	    /**
 	     * @param {Object} jsonData
 	     * @returns {Address}
@@ -1512,7 +1332,6 @@ this.BX.Location = this.BX.Location || {};
 	     * @param {Address} address
 	     * @returns {{languageId: string, location: ({"'...'"}|null), id: number, fieldCollection: {"'...'"}}} Json data
 	     */
-
 	  }, {
 	    key: "convertAddressToJson",
 	    value: function convertAddressToJson(address) {
@@ -1525,127 +1344,100 @@ this.BX.Location = this.BX.Location || {};
 	        links: _classStaticPrivateMethodGet(JsonConverter, JsonConverter, _objectifyLinks).call(JsonConverter, address.links),
 	        location: null
 	      };
-
 	      if (address.location) {
 	        obj.location = JSON.parse(address.location.toJson());
 	      }
-
 	      return JSON.stringify(obj);
 	    }
 	    /**
 	     * @param {AddressFieldCollection} fieldCollection
 	     * @returns {Object}
 	     */
-
 	  }]);
 	  return JsonConverter;
 	}();
-
-	var _objectifyLinks = function _objectifyLinks(links) {
+	function _objectifyFieldCollection(fieldCollection) {
+	  var result = {};
+	  Object.values(fieldCollection.fields).forEach(function (field) {
+	    result[field.type] = field.value;
+	  });
+	  return result;
+	}
+	function _objectifyLinks(links) {
 	  return links.map(function (link) {
 	    return {
 	      entityId: link.entityId,
 	      entityType: link.entityType
 	    };
 	  });
-	};
+	}
 
-	var _objectifyFieldCollection = function _objectifyFieldCollection(fieldCollection) {
-	  var result = {};
-	  Object.values(fieldCollection.fields).forEach(function (field) {
-	    result[field.type] = field.value;
-	  });
-	  return result;
-	};
-
-	function _createForOfIteratorHelper$2(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$2(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
-
+	function _createForOfIteratorHelper$2(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$2(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 	function _unsupportedIterableToArray$2(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$2(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$2(o, minLen); }
-
-	function _arrayLikeToArray$2(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-	var _id = new WeakMap();
-
-	var _languageId = new WeakMap();
-
-	var _latitude = new WeakMap();
-
-	var _longitude = new WeakMap();
-
-	var _fieldCollection = new WeakMap();
-
-	var _links$1 = new WeakMap();
-
-	var _location = new WeakMap();
-
+	function _arrayLikeToArray$2(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	function _classPrivateFieldInitSpec$8(obj, privateMap, value) { _checkPrivateRedeclaration$8(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$8(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _id = /*#__PURE__*/new WeakMap();
+	var _languageId = /*#__PURE__*/new WeakMap();
+	var _latitude = /*#__PURE__*/new WeakMap();
+	var _longitude = /*#__PURE__*/new WeakMap();
+	var _fieldCollection = /*#__PURE__*/new WeakMap();
+	var _links$1 = /*#__PURE__*/new WeakMap();
+	var _location = /*#__PURE__*/new WeakMap();
 	var Address = /*#__PURE__*/function () {
 	  /**
 	   * @param {{...}} props
 	   */
 	  function Address(props) {
 	    babelHelpers.classCallCheck(this, Address);
-
-	    _id.set(this, {
+	    _classPrivateFieldInitSpec$8(this, _id, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _languageId.set(this, {
+	    _classPrivateFieldInitSpec$8(this, _languageId, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _latitude.set(this, {
+	    _classPrivateFieldInitSpec$8(this, _latitude, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _longitude.set(this, {
+	    _classPrivateFieldInitSpec$8(this, _longitude, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _fieldCollection.set(this, {
+	    _classPrivateFieldInitSpec$8(this, _fieldCollection, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _links$1.set(this, {
+	    _classPrivateFieldInitSpec$8(this, _links$1, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _location.set(this, {
+	    _classPrivateFieldInitSpec$8(this, _location, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    if (main_core.Type.isUndefined(props.languageId)) {
 	      throw new TypeError('languageId must be defined');
 	    }
-
 	    babelHelpers.classPrivateFieldSet(this, _languageId, props.languageId);
 	    babelHelpers.classPrivateFieldSet(this, _id, props.id || 0);
 	    babelHelpers.classPrivateFieldSet(this, _latitude, props.latitude || '');
 	    babelHelpers.classPrivateFieldSet(this, _longitude, props.longitude || '');
 	    babelHelpers.classPrivateFieldSet(this, _fieldCollection, new AddressFieldCollection());
-
 	    if (main_core.Type.isObject(props.fieldCollection)) {
 	      for (var _i = 0, _Object$entries = Object.entries(props.fieldCollection); _i < _Object$entries.length; _i++) {
 	        var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
-	            type = _Object$entries$_i[0],
-	            value = _Object$entries$_i[1];
-
+	          type = _Object$entries$_i[0],
+	          value = _Object$entries$_i[1];
 	        this.setFieldValue(type, value);
 	      }
 	    }
-
 	    babelHelpers.classPrivateFieldSet(this, _links$1, new AddressLinkCollection());
-
 	    if (main_core.Type.isArray(props.links)) {
 	      var _iterator = _createForOfIteratorHelper$2(props.links),
-	          _step;
-
+	        _step;
 	      try {
 	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
 	          var link = _step.value;
@@ -1657,9 +1449,7 @@ this.BX.Location = this.BX.Location || {};
 	        _iterator.f();
 	      }
 	    }
-
 	    babelHelpers.classPrivateFieldSet(this, _location, null);
-
 	    if (props.location) {
 	      if (props.location instanceof Location) {
 	        babelHelpers.classPrivateFieldSet(this, _location, props.location);
@@ -1670,14 +1460,12 @@ this.BX.Location = this.BX.Location || {};
 	      }
 	    }
 	  }
+
 	  /**
 	   * @returns {int}
 	   */
-
-
 	  babelHelpers.createClass(Address, [{
 	    key: "setFieldValue",
-
 	    /**
 	     * @param {number} type
 	     * @param {mixed} value
@@ -1689,7 +1477,6 @@ this.BX.Location = this.BX.Location || {};
 	     * @param {number} type
 	     * @returns {?string}
 	     */
-
 	  }, {
 	    key: "getFieldValue",
 	    value: function getFieldValue(type) {
@@ -1700,7 +1487,6 @@ this.BX.Location = this.BX.Location || {};
 	     * @param type
 	     * @returns {boolean}
 	     */
-
 	  }, {
 	    key: "isFieldExists",
 	    value: function isFieldExists(type) {
@@ -1709,7 +1495,6 @@ this.BX.Location = this.BX.Location || {};
 	    /**
 	     * @return {string} JSON
 	     */
-
 	  }, {
 	    key: "toJson",
 	    value: function toJson() {
@@ -1721,7 +1506,6 @@ this.BX.Location = this.BX.Location || {};
 	     * @param {?string}contentType
 	     * @return {string}
 	     */
-
 	  }, {
 	    key: "toString",
 	    value: function toString(format, strategyType, contentType) {
@@ -1729,7 +1513,6 @@ this.BX.Location = this.BX.Location || {};
 	        console.error('format must be instance of Format');
 	        return '';
 	      }
-
 	      var strategy = strategyType || StringConverter.STRATEGY_TYPE_TEMPLATE;
 	      var type = contentType || StringConverter.CONTENT_TYPE_HTML;
 	      return StringConverter.convertAddressToString(this, format, strategy, type);
@@ -1737,24 +1520,20 @@ this.BX.Location = this.BX.Location || {};
 	    /**
 	     * @returns {?Location}
 	     */
-
 	  }, {
 	    key: "toLocation",
 	    value: function toLocation() {
 	      var result = null;
-
 	      if (this.location) {
 	        var locationObj = JSON.parse(this.location.toJson());
 	        locationObj.address = JSON.parse(this.toJson());
 	        result = new Location(locationObj);
 	      }
-
 	      return result;
 	    }
 	    /**
 	     * @return {number}
 	     */
-
 	  }, {
 	    key: "getType",
 	    value: function getType() {
@@ -1764,7 +1543,6 @@ this.BX.Location = this.BX.Location || {};
 	     * @param {string} entityId
 	     * @param {string} entityType
 	     */
-
 	  }, {
 	    key: "addLink",
 	    value: function addLink(entityId, entityType) {
@@ -1787,7 +1565,6 @@ this.BX.Location = this.BX.Location || {};
 	     * @returns {Location}
 	     */
 	    ,
-
 	    /**
 	     * @param {int} id
 	     */
@@ -1797,7 +1574,6 @@ this.BX.Location = this.BX.Location || {};
 	    /**
 	     * @param {Location} location
 	     */
-
 	  }, {
 	    key: "location",
 	    get: function get() {
@@ -1813,7 +1589,6 @@ this.BX.Location = this.BX.Location || {};
 	    /**
 	     * @returns {string}
 	     */
-
 	  }, {
 	    key: "languageId",
 	    get: function get() {
@@ -1822,7 +1597,6 @@ this.BX.Location = this.BX.Location || {};
 	    /**
 	     * @returns {AddressFieldCollection}
 	     */
-
 	  }, {
 	    key: "fieldCollection",
 	    get: function get() {
@@ -1843,7 +1617,6 @@ this.BX.Location = this.BX.Location || {};
 	    /**
 	     * @returns {string}
 	     */
-
 	  }, {
 	    key: "longitude",
 	    get: function get() {
@@ -1859,7 +1632,6 @@ this.BX.Location = this.BX.Location || {};
 	    /**
 	     * @returns {AddressLinkCollection}
 	     */
-
 	  }, {
 	    key: "links",
 	    get: function get() {
@@ -1869,27 +1641,23 @@ this.BX.Location = this.BX.Location || {};
 	  return Address;
 	}();
 
-	var _value$1 = new WeakMap();
-
+	function _classPrivateFieldInitSpec$9(obj, privateMap, value) { _checkPrivateRedeclaration$9(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$9(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _value$1 = /*#__PURE__*/new WeakMap();
 	var LocationField = /*#__PURE__*/function (_Field) {
 	  babelHelpers.inherits(LocationField, _Field);
-
 	  // todo: Fields validation
 	  function LocationField(props) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, LocationField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(LocationField).call(this, props));
-
-	    _value$1.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _value$1, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _value$1, props.value || '');
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(LocationField, [{
 	    key: "value",
 	    get: function get() {
@@ -1904,25 +1672,20 @@ this.BX.Location = this.BX.Location || {};
 
 	var LocationFieldCollection = /*#__PURE__*/function (_FieldCollection) {
 	  babelHelpers.inherits(LocationFieldCollection, _FieldCollection);
-
 	  function LocationFieldCollection() {
 	    babelHelpers.classCallCheck(this, LocationFieldCollection);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(LocationFieldCollection).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(LocationFieldCollection, [{
 	    key: "getFieldValue",
 	    value: function getFieldValue(type) {
 	      var result = null;
-
 	      if (this.isFieldExists(type)) {
 	        var field = this.getField(type);
-
 	        if (field) {
 	          result = field.value;
 	        }
 	      }
-
 	      return result;
 	    }
 	  }, {
@@ -1938,20 +1701,18 @@ this.BX.Location = this.BX.Location || {};
 	  return LocationFieldCollection;
 	}(FieldCollection);
 
-	function _classStaticPrivateMethodGet$1(receiver, classConstructor, method) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } return method; }
-
+	function _classStaticPrivateMethodGet$1(receiver, classConstructor, method) { _classCheckPrivateStaticAccess$1(receiver, classConstructor); return method; }
+	function _classCheckPrivateStaticAccess$1(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
 	var LocationObjectConverter = /*#__PURE__*/function () {
 	  function LocationObjectConverter() {
 	    babelHelpers.classCallCheck(this, LocationObjectConverter);
 	  }
-
 	  babelHelpers.createClass(LocationObjectConverter, null, [{
 	    key: "convertLocationToObject",
 	    value: function convertLocationToObject(location) {
 	      if (!(location instanceof Location)) {
 	        throw new TypeError('location must be type of location');
 	      }
-
 	      var obj = {
 	        id: location.id,
 	        code: location.code,
@@ -1965,58 +1726,51 @@ this.BX.Location = this.BX.Location || {};
 	        fieldCollection: _classStaticPrivateMethodGet$1(LocationObjectConverter, LocationObjectConverter, _objectifyFieldCollection$1).call(LocationObjectConverter, location.fieldCollection),
 	        address: null
 	      };
-
 	      if (location.address) {
 	        obj.address = JSON.parse(location.address.toJson());
 	      }
-
 	      return obj;
 	    }
 	  }]);
 	  return LocationObjectConverter;
 	}();
-
-	var _objectifyFieldCollection$1 = function _objectifyFieldCollection(fieldCollection) {
+	function _objectifyFieldCollection$1(fieldCollection) {
 	  var result = {};
 	  Object.values(fieldCollection.fields).forEach(function (field) {
 	    result[field.type] = field.value;
 	  });
 	  return result;
-	};
+	}
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var LocationJsonConverter = /*#__PURE__*/function () {
 	  function LocationJsonConverter() {
 	    babelHelpers.classCallCheck(this, LocationJsonConverter);
 	  }
-
 	  babelHelpers.createClass(LocationJsonConverter, null, [{
 	    key: "convertJsonToLocation",
-
 	    /**
 	     * @param {{...}}jsonData
 	     * @returns {Location}
 	     */
 	    value: function convertJsonToLocation(jsonData) {
-	      var initData = babelHelpers.objectSpread({}, jsonData);
-
+	      var initData = _objectSpread({}, jsonData);
 	      if (jsonData.address) {
 	        initData.address = new Address(jsonData.address);
 	      }
-
 	      return new Location(initData);
 	    }
 	    /**
 	     * @param {Location} location
 	     * @returns {{...}}
 	     */
-
 	  }, {
 	    key: "convertLocationToJson",
 	    value: function convertLocationToJson(location) {
 	      if (!(location instanceof Location)) {
 	        throw new TypeError('location must be type of location');
 	      }
-
 	      var obj = LocationObjectConverter.convertLocationToObject(location);
 	      return obj ? JSON.stringify(obj) : '';
 	    }
@@ -2024,88 +1778,67 @@ this.BX.Location = this.BX.Location || {};
 	  return LocationJsonConverter;
 	}();
 
-	var _id$1 = new WeakMap();
-
-	var _code = new WeakMap();
-
-	var _externalId = new WeakMap();
-
-	var _sourceCode = new WeakMap();
-
-	var _type$1 = new WeakMap();
-
-	var _name$1 = new WeakMap();
-
-	var _languageId$1 = new WeakMap();
-
-	var _latitude$1 = new WeakMap();
-
-	var _longitude$1 = new WeakMap();
-
-	var _address = new WeakMap();
-
-	var _fieldCollection$1 = new WeakMap();
-
+	function _classPrivateFieldInitSpec$a(obj, privateMap, value) { _checkPrivateRedeclaration$a(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$a(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _id$1 = /*#__PURE__*/new WeakMap();
+	var _code = /*#__PURE__*/new WeakMap();
+	var _externalId = /*#__PURE__*/new WeakMap();
+	var _sourceCode = /*#__PURE__*/new WeakMap();
+	var _type$1 = /*#__PURE__*/new WeakMap();
+	var _name$1 = /*#__PURE__*/new WeakMap();
+	var _languageId$1 = /*#__PURE__*/new WeakMap();
+	var _latitude$1 = /*#__PURE__*/new WeakMap();
+	var _longitude$1 = /*#__PURE__*/new WeakMap();
+	var _address = /*#__PURE__*/new WeakMap();
+	var _fieldCollection$1 = /*#__PURE__*/new WeakMap();
 	var Location = /*#__PURE__*/function () {
 	  function Location() {
 	    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Location);
-
-	    _id$1.set(this, {
+	    _classPrivateFieldInitSpec$a(this, _id$1, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _code.set(this, {
+	    _classPrivateFieldInitSpec$a(this, _code, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _externalId.set(this, {
+	    _classPrivateFieldInitSpec$a(this, _externalId, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _sourceCode.set(this, {
+	    _classPrivateFieldInitSpec$a(this, _sourceCode, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _type$1.set(this, {
+	    _classPrivateFieldInitSpec$a(this, _type$1, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _name$1.set(this, {
+	    _classPrivateFieldInitSpec$a(this, _name$1, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _languageId$1.set(this, {
+	    _classPrivateFieldInitSpec$a(this, _languageId$1, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _latitude$1.set(this, {
+	    _classPrivateFieldInitSpec$a(this, _latitude$1, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _longitude$1.set(this, {
+	    _classPrivateFieldInitSpec$a(this, _longitude$1, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _address.set(this, {
+	    _classPrivateFieldInitSpec$a(this, _address, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _fieldCollection$1.set(this, {
+	    _classPrivateFieldInitSpec$a(this, _fieldCollection$1, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    babelHelpers.classPrivateFieldSet(this, _id$1, parseInt(props.id) || 0);
 	    babelHelpers.classPrivateFieldSet(this, _code, props.code || '');
 	    babelHelpers.classPrivateFieldSet(this, _externalId, props.externalId || '');
@@ -2116,30 +1849,25 @@ this.BX.Location = this.BX.Location || {};
 	    babelHelpers.classPrivateFieldSet(this, _latitude$1, props.latitude || '');
 	    babelHelpers.classPrivateFieldSet(this, _longitude$1, props.longitude || '');
 	    babelHelpers.classPrivateFieldSet(this, _fieldCollection$1, new LocationFieldCollection());
-
 	    if (main_core.Type.isObject(props.fieldCollection)) {
 	      for (var _i = 0, _Object$entries = Object.entries(props.fieldCollection); _i < _Object$entries.length; _i++) {
 	        var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
-	            type = _Object$entries$_i[0],
-	            value = _Object$entries$_i[1];
-
+	          type = _Object$entries$_i[0],
+	          value = _Object$entries$_i[1];
 	        this.setFieldValue(type, value);
 	      }
 	    }
-
 	    babelHelpers.classPrivateFieldSet(this, _address, null);
-
 	    if (props.address) {
 	      if (props.address instanceof Address) {
 	        babelHelpers.classPrivateFieldSet(this, _address, props.address);
-	      } else if (babelHelpers.typeof(props.address) === 'object') {
+	      } else if (babelHelpers["typeof"](props.address) === 'object') {
 	        babelHelpers.classPrivateFieldSet(this, _address, new Address(props.address));
 	      } else {
 	        BX.debug('Wrong typeof props.address');
 	      }
 	    }
 	  }
-
 	  babelHelpers.createClass(Location, [{
 	    key: "toJson",
 	    value: function toJson() {
@@ -2149,13 +1877,11 @@ this.BX.Location = this.BX.Location || {};
 	    key: "toAddress",
 	    value: function toAddress() {
 	      var result = null;
-
 	      if (this.address) {
 	        var addressObj = JSON.parse(this.address.toJson());
 	        addressObj.location = JSON.parse(this.toJson());
 	        result = new Address(addressObj);
 	      }
-
 	      return result;
 	    }
 	  }, {
@@ -2267,31 +1993,27 @@ this.BX.Location = this.BX.Location || {};
 	  return Location;
 	}();
 
-	var _path = new WeakMap();
-
+	function _classPrivateFieldInitSpec$b(obj, privateMap, value) { _checkPrivateRedeclaration$b(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$b(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _path = /*#__PURE__*/new WeakMap();
 	var ActionRunner = /*#__PURE__*/function () {
 	  function ActionRunner(props) {
 	    babelHelpers.classCallCheck(this, ActionRunner);
-
-	    _path.set(this, {
+	    _classPrivateFieldInitSpec$b(this, _path, {
 	      writable: true,
 	      value: ''
 	    });
-
 	    if (!props.path) {
 	      throw new Error('props.path must not be empty!');
 	    }
-
 	    babelHelpers.classPrivateFieldSet(this, _path, props.path);
 	  }
-
 	  babelHelpers.createClass(ActionRunner, [{
 	    key: "run",
 	    value: function run(action, data) {
 	      if (!action) {
 	        throw new Error('action can not be empty!');
 	      }
-
 	      return BX.ajax.runAction("".concat(babelHelpers.classPrivateFieldGet(this, _path), ".").concat(action), {
 	        data: data
 	      });
@@ -2300,26 +2022,21 @@ this.BX.Location = this.BX.Location || {};
 	  return ActionRunner;
 	}();
 
-	function _createForOfIteratorHelper$3(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$3(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
-
+	function _createForOfIteratorHelper$3(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$3(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 	function _unsupportedIterableToArray$3(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$3(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$3(o, minLen); }
-
-	function _arrayLikeToArray$3(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-	var _actionRunner = new WeakMap();
-
+	function _arrayLikeToArray$3(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	function _classPrivateFieldInitSpec$c(obj, privateMap, value) { _checkPrivateRedeclaration$c(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$c(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _actionRunner = /*#__PURE__*/new WeakMap();
 	var BaseRepository = /*#__PURE__*/function () {
 	  function BaseRepository() {
 	    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, BaseRepository);
-
-	    _actionRunner.set(this, {
+	    _classPrivateFieldInitSpec$c(this, _actionRunner, {
 	      writable: true,
 	      value: null
 	    });
-
 	    this._path = props.path;
-
 	    if (props.actionRunner && props.actionRunner instanceof ActionRunner) {
 	      babelHelpers.classPrivateFieldSet(this, _actionRunner, props.actionRunner);
 	    } else {
@@ -2328,22 +2045,18 @@ this.BX.Location = this.BX.Location || {};
 	      }));
 	    }
 	  }
-
 	  babelHelpers.createClass(BaseRepository, [{
 	    key: "processResponse",
 	    value: function processResponse(response) {
 	      if (response.status !== 'success') {
 	        BX.debug('Request was not successful');
 	        var message = '';
-
 	        if (Array.isArray(response.errors) && response.errors.length > 0) {
 	          var _iterator = _createForOfIteratorHelper$3(response.errors),
-	              _step;
-
+	            _step;
 	          try {
 	            for (_iterator.s(); !(_step = _iterator.n()).done;) {
 	              var error = _step.value;
-
 	              if (typeof error.message === 'string' && error.message !== '') {
 	                message += "".concat(error, "\n");
 	              }
@@ -2354,10 +2067,8 @@ this.BX.Location = this.BX.Location || {};
 	            _iterator.f();
 	          }
 	        }
-
 	        throw new Error(message);
 	      }
-
 	      return response.data ? response.data : null;
 	    }
 	  }, {
@@ -2374,37 +2085,29 @@ this.BX.Location = this.BX.Location || {};
 	  return BaseRepository;
 	}();
 
+	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$d(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration$d(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
-	var _convertCollection = new WeakSet();
-
-	var _convertLocation = new WeakSet();
-
+	var _convertCollection = /*#__PURE__*/new WeakSet();
+	var _convertLocation = /*#__PURE__*/new WeakSet();
 	var LocationRepository = /*#__PURE__*/function (_BaseRepository) {
 	  babelHelpers.inherits(LocationRepository, _BaseRepository);
-
 	  function LocationRepository() {
 	    var _this;
-
 	    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, LocationRepository);
 	    props.path = props.path || 'location.api.location';
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(LocationRepository).call(this, props));
-
-	    _convertLocation.add(babelHelpers.assertThisInitialized(_this));
-
-	    _convertCollection.add(babelHelpers.assertThisInitialized(_this));
-
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _convertLocation);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _convertCollection);
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(LocationRepository, [{
 	    key: "findParents",
 	    value: function findParents(location) {
 	      if (!(location instanceof Location)) {
 	        throw new TypeError('location must be type of Location');
 	      }
-
 	      return this.actionRunner.run('findParents', {
 	        location: LocationObjectConverter.convertLocationToObject(location)
 	      }).then(this.processResponse.bind(this)).then(_classPrivateMethodGet$1(this, _convertCollection, _convertCollection2).bind(this));
@@ -2415,7 +2118,6 @@ this.BX.Location = this.BX.Location || {};
 	      if (!externalId || !sourceCode || !languageId) {
 	        throw new Error('externalId and sourceCode and languageId must be defined');
 	      }
-
 	      return this.actionRunner.run('findByExternalId', {
 	        externalId: externalId,
 	        sourceCode: sourceCode,
@@ -2428,7 +2130,6 @@ this.BX.Location = this.BX.Location || {};
 	      if (!locationId || !languageId) {
 	        throw new Error('locationId and languageId must be defined');
 	      }
-
 	      return this.actionRunner.run('findById', {
 	        id: locationId,
 	        languageId: languageId
@@ -2437,62 +2138,50 @@ this.BX.Location = this.BX.Location || {};
 	  }]);
 	  return LocationRepository;
 	}(BaseRepository);
-
-	var _convertCollection2 = function _convertCollection2(collectionJsonData) {
+	function _convertCollection2(collectionJsonData) {
 	  var _this2 = this;
-
 	  if (!Array.isArray(collectionJsonData)) {
 	    throw new Error('Can\'t convert location collection data');
 	  }
-
 	  var result = [];
 	  collectionJsonData.forEach(function (location) {
 	    result.push(_classPrivateMethodGet$1(_this2, _convertLocation, _convertLocation2).call(_this2, location));
 	  });
 	  return result;
-	};
-
-	var _convertLocation2 = function _convertLocation2(locationData) {
+	}
+	function _convertLocation2(locationData) {
 	  if (!locationData) {
 	    return null;
 	  }
-
-	  if (babelHelpers.typeof(locationData) !== 'object') {
+	  if (babelHelpers["typeof"](locationData) !== 'object') {
 	    throw new Error('Can\'t convert location data');
 	  }
-
 	  return LocationJsonConverter.convertJsonToLocation(locationData);
-	};
+	}
 
 	var AddressRepository = /*#__PURE__*/function (_BaseRepository) {
 	  babelHelpers.inherits(AddressRepository, _BaseRepository);
-
 	  function AddressRepository() {
 	    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, AddressRepository);
 	    props.path = 'location.api.address';
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AddressRepository).call(this, props));
 	  }
-
 	  babelHelpers.createClass(AddressRepository, [{
 	    key: "findById",
 	    value: function findById(addressId) {
 	      var _this = this;
-
 	      if (addressId <= 0) {
 	        throw new Error('addressId must be more than zero');
 	      }
-
 	      return this.actionRunner.run('findById', {
 	        addressId: addressId
 	      }).then(this.processResponse).then(function (address) {
 	        // address json data or null
 	        var result = null;
-
 	        if (address) {
 	          result = _this.convertJsonToAddress(address);
 	        }
-
 	        return result;
 	      });
 	    }
@@ -2500,21 +2189,17 @@ this.BX.Location = this.BX.Location || {};
 	    key: "save",
 	    value: function save(address) {
 	      var _this2 = this;
-
 	      if (!address) {
 	        throw new Error('address must be defined');
 	      }
-
 	      return this.actionRunner.run('save', {
 	        address: address
 	      }).then(this.processResponse).then(function (response) {
 	        //Address json data
 	        var result = null;
-
-	        if (babelHelpers.typeof(response) === 'object') {
+	        if (babelHelpers["typeof"](response) === 'object') {
 	          result = _this2.convertJsonToAddress(response);
 	        }
-
 	        return result;
 	      });
 	    }
@@ -2530,32 +2215,27 @@ this.BX.Location = this.BX.Location || {};
 	/**
 	 * Class responsible for the addresses format obtaining.
 	 */
-
 	var FormatRepository = /*#__PURE__*/function (_BaseRepository) {
 	  babelHelpers.inherits(FormatRepository, _BaseRepository);
-
 	  function FormatRepository() {
 	    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, FormatRepository);
 	    props.path = 'location.api.format';
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FormatRepository).call(this, props));
 	  }
+
 	  /**
 	   * Find all available formats
 	   * @param {string} languageId
 	   * @returns {Promise}
 	   */
-
-
 	  babelHelpers.createClass(FormatRepository, [{
 	    key: "findAll",
 	    value: function findAll(languageId) {
 	      var _this = this;
-
 	      if (!main_core.Type.isString(languageId)) {
 	        throw new TypeError('languageId must be type of string');
 	      }
-
 	      return this.actionRunner.run('findAll', {
 	        languageId: languageId
 	      }).then(this.processResponse).then(function (data) {
@@ -2568,18 +2248,15 @@ this.BX.Location = this.BX.Location || {};
 	     * @param {string} languageId
 	     * @returns {Promise}
 	     */
-
 	  }, {
 	    key: "findByCode",
 	    value: function findByCode(formatCode, languageId) {
 	      if (!main_core.Type.isString(formatCode)) {
 	        throw new TypeError('formatCode must be type of string');
 	      }
-
 	      if (!main_core.Type.isString(languageId)) {
 	        throw new TypeError('languageId must be type of string');
 	      }
-
 	      return this.actionRunner.run('findByCode', {
 	        formatCode: formatCode,
 	        languageId: languageId
@@ -2590,14 +2267,12 @@ this.BX.Location = this.BX.Location || {};
 	     * @param {string} languageId
 	     * @returns {Promise}
 	     */
-
 	  }, {
 	    key: "findDefault",
 	    value: function findDefault(languageId) {
 	      if (!main_core.Type.isString(languageId)) {
 	        throw new TypeError('languageId must be type of string');
 	      }
-
 	      return this.actionRunner.run('findDefault', {
 	        languageId: languageId
 	      }).then(this.processResponse).then(this.convertFormatData);
@@ -2606,11 +2281,9 @@ this.BX.Location = this.BX.Location || {};
 	    key: "convertFormatCollection",
 	    value: function convertFormatCollection(formatDataCollection) {
 	      var _this2 = this;
-
 	      if (!main_core.Type.isArray(formatDataCollection)) {
 	        throw new TypeError('Can\'t convert format collection data');
 	      }
-
 	      var result = [];
 	      formatDataCollection.forEach(function (format) {
 	        result.push(_this2.convertFormatData(format));
@@ -2623,7 +2296,6 @@ this.BX.Location = this.BX.Location || {};
 	      if (!main_core.Type.isObject(formatData)) {
 	        throw new TypeError('Can\'t convert format data');
 	      }
-
 	      return new Format(formatData);
 	    }
 	  }]);
@@ -2632,14 +2304,12 @@ this.BX.Location = this.BX.Location || {};
 
 	var SourceRepository = /*#__PURE__*/function (_BaseRepository) {
 	  babelHelpers.inherits(SourceRepository, _BaseRepository);
-
 	  function SourceRepository() {
 	    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, SourceRepository);
 	    props.path = 'location.api.source';
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SourceRepository).call(this, props));
 	  }
-
 	  babelHelpers.createClass(SourceRepository, [{
 	    key: "getProps",
 	    value: function getProps() {
@@ -2660,10 +2330,8 @@ this.BX.Location = this.BX.Location || {};
 	  function AutocompleteServiceBase() {
 	    babelHelpers.classCallCheck(this, AutocompleteServiceBase);
 	  }
-
 	  babelHelpers.createClass(AutocompleteServiceBase, [{
 	    key: "autocomplete",
-
 	    /**
 	     * @param {String} text
 	     * @param {AutocompleteServiceParams} params
@@ -2676,11 +2344,76 @@ this.BX.Location = this.BX.Location || {};
 	  return AutocompleteServiceBase;
 	}();
 
+	function _createForOfIteratorHelper$4(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$4(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray$4(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$4(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$4(o, minLen); }
+	function _arrayLikeToArray$4(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	function _classStaticPrivateMethodGet$2(receiver, classConstructor, method) { _classCheckPrivateStaticAccess$2(receiver, classConstructor); return method; }
+	function _classCheckPrivateStaticAccess$2(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+	var MAX_ITEMS_CNT = 100;
+	var MAX_SIZE_IN_BYTES = 5 * 1024 * 1024;
+	var CACHE_TTL = 3600;
+	var AutocompleteCache = /*#__PURE__*/function () {
+	  function AutocompleteCache() {
+	    babelHelpers.classCallCheck(this, AutocompleteCache);
+	  }
+	  babelHelpers.createClass(AutocompleteCache, null, [{
+	    key: "set",
+	    value: function set(sourceCode, params, data) {
+	      var results = _classStaticPrivateMethodGet$2(AutocompleteCache, AutocompleteCache, _getAll).call(AutocompleteCache, sourceCode);
+	      results.push({
+	        hash: _classStaticPrivateMethodGet$2(AutocompleteCache, AutocompleteCache, _makeParamsHash).call(AutocompleteCache, params),
+	        data: data
+	      });
+	      BX.localStorage.set(_classStaticPrivateMethodGet$2(AutocompleteCache, AutocompleteCache, _getStorageName).call(AutocompleteCache, sourceCode), _classStaticPrivateMethodGet$2(AutocompleteCache, AutocompleteCache, _getResultsToStore).call(AutocompleteCache, results), CACHE_TTL);
+	    }
+	  }, {
+	    key: "get",
+	    value: function get(sourceCode, params) {
+	      var hash = _classStaticPrivateMethodGet$2(AutocompleteCache, AutocompleteCache, _makeParamsHash).call(AutocompleteCache, params);
+	      var results = _classStaticPrivateMethodGet$2(AutocompleteCache, AutocompleteCache, _getAll).call(AutocompleteCache, sourceCode);
+	      var _iterator = _createForOfIteratorHelper$4(results),
+	        _step;
+	      try {
+	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	          var result = _step.value;
+	          if (result && result.hash === hash) {
+	            return result;
+	          }
+	        }
+	      } catch (err) {
+	        _iterator.e(err);
+	      } finally {
+	        _iterator.f();
+	      }
+	      return null;
+	    }
+	  }]);
+	  return AutocompleteCache;
+	}();
+	function _getResultsToStore(results) {
+	  if (new Blob([JSON.stringify(results)]).size > MAX_SIZE_IN_BYTES) {
+	    return [];
+	  }
+	  if (results.length > MAX_ITEMS_CNT) {
+	    return results.slice(results.length - MAX_ITEMS_CNT);
+	  }
+	  return results;
+	}
+	function _getAll(sourceCode) {
+	  var currentResults = BX.localStorage.get(_classStaticPrivateMethodGet$2(AutocompleteCache, AutocompleteCache, _getStorageName).call(AutocompleteCache, sourceCode));
+	  return Array.isArray(currentResults) ? currentResults : [];
+	}
+	function _makeParamsHash(params) {
+	  return main_md5.md5(JSON.stringify(params));
+	}
+	function _getStorageName(sourceCode) {
+	  return "location".concat(sourceCode, "AutocompleteCache");
+	}
+
 	var PhotoServiceBase = /*#__PURE__*/function () {
 	  function PhotoServiceBase() {
 	    babelHelpers.classCallCheck(this, PhotoServiceBase);
 	  }
-
 	  babelHelpers.createClass(PhotoServiceBase, [{
 	    key: "requestPhotos",
 	    value: function requestPhotos(props) {
@@ -2693,24 +2426,23 @@ this.BX.Location = this.BX.Location || {};
 	/**
 	 * Base class for source maps
 	 */
-
 	var MapBase = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(MapBase, _EventEmitter);
-
 	  function MapBase() {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, MapBase);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(MapBase).call(this));
-
 	    _this.setEventNamespace('BX.Location.Core.MapBase');
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(MapBase, [{
 	    key: "render",
 	    value: function render(props) {
+	      throw new Error('Must be implemented');
+	    }
+	  }, {
+	    key: "panTo",
+	    value: function panTo(latitude, longitude) {
 	      throw new Error('Must be implemented');
 	    }
 	  }, {
@@ -2739,6 +2471,30 @@ this.BX.Location = this.BX.Location || {};
 	    set: function set(zoom) {
 	      throw new Error('Must be implemented');
 	    }
+	  }], [{
+	    key: "getZoomByLocation",
+	    value: function getZoomByLocation(location) {
+	      var defaultZoom = 18;
+	      if (!location) {
+	        return defaultZoom;
+	      }
+	      var locationType = location.type;
+	      if (locationType <= 0) {
+	        return defaultZoom;
+	      }
+	      if (locationType < location_core.LocationType.COUNTRY) {
+	        return 1;
+	      } else if (locationType === location_core.LocationType.COUNTRY) {
+	        return 4;
+	      } else if (locationType <= location_core.LocationType.ADM_LEVEL_1) {
+	        return 6;
+	      } else if (locationType <= location_core.LocationType.LOCALITY) {
+	        return 11;
+	      } else if (locationType <= location_core.LocationType.STREET) {
+	        return 16;
+	      }
+	      return defaultZoom;
+	    }
 	  }]);
 	  return MapBase;
 	}(main_core_events.EventEmitter);
@@ -2746,12 +2502,10 @@ this.BX.Location = this.BX.Location || {};
 	/**
 	 * Base class for the sources
 	 */
-
 	var SourceBase = /*#__PURE__*/function () {
 	  function SourceBase() {
 	    babelHelpers.classCallCheck(this, SourceBase);
 	  }
-
 	  babelHelpers.createClass(SourceBase, [{
 	    key: "sourceCode",
 	    get: function get() {
@@ -2784,19 +2538,16 @@ this.BX.Location = this.BX.Location || {};
 	/**
 	 * Base class for the source geocoding service
 	 */
-
 	var GeocodingServiceBase = /*#__PURE__*/function () {
 	  function GeocodingServiceBase() {
 	    babelHelpers.classCallCheck(this, GeocodingServiceBase);
 	  }
-
 	  babelHelpers.createClass(GeocodingServiceBase, [{
 	    key: "geocode",
 	    value: function geocode(addressString) {
 	      if (!addressString) {
 	        return Promise.resolve([]);
 	      }
-
 	      return this.geocodeConcrete(addressString);
 	    }
 	  }, {
@@ -2812,7 +2563,6 @@ this.BX.Location = this.BX.Location || {};
 	  function ControlMode() {
 	    babelHelpers.classCallCheck(this, ControlMode);
 	  }
-
 	  babelHelpers.createClass(ControlMode, null, [{
 	    key: "isValid",
 	    value: function isValid(mode) {
@@ -2835,35 +2585,32 @@ this.BX.Location = this.BX.Location || {};
 	var LocationFieldType = function LocationFieldType() {
 	  babelHelpers.classCallCheck(this, LocationFieldType);
 	};
-
 	babelHelpers.defineProperty(LocationFieldType, "POSTAL_CODE", 50);
 	babelHelpers.defineProperty(LocationFieldType, "ISO_3166_1_ALPHA_2", 1000);
 
 	var SourceCreationError = /*#__PURE__*/function (_Error) {
 	  babelHelpers.inherits(SourceCreationError, _Error);
-
 	  function SourceCreationError() {
 	    babelHelpers.classCallCheck(this, SourceCreationError);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SourceCreationError).apply(this, arguments));
 	  }
-
 	  return SourceCreationError;
 	}( /*#__PURE__*/babelHelpers.wrapNativeSuper(Error));
 	var MethodNotImplemented = /*#__PURE__*/function (_Error2) {
 	  babelHelpers.inherits(MethodNotImplemented, _Error2);
-
 	  function MethodNotImplemented() {
 	    babelHelpers.classCallCheck(this, MethodNotImplemented);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(MethodNotImplemented).apply(this, arguments));
 	  }
-
 	  return MethodNotImplemented;
 	}( /*#__PURE__*/babelHelpers.wrapNativeSuper(Error));
 
-	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
-
-	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
-
+	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { _classCheckPrivateStaticAccess$3(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
+	function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } }
+	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess$3(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+	function _classCheckPrivateStaticFieldDescriptor(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
+	function _classCheckPrivateStaticAccess$3(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+	function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 	var ErrorPublisher = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ErrorPublisher, _EventEmitter);
 	  babelHelpers.createClass(ErrorPublisher, null, [{
@@ -2872,22 +2619,16 @@ this.BX.Location = this.BX.Location || {};
 	      if (_classStaticPrivateFieldSpecGet(ErrorPublisher, ErrorPublisher, _instance) === null) {
 	        _classStaticPrivateFieldSpecSet(ErrorPublisher, ErrorPublisher, _instance, new ErrorPublisher());
 	      }
-
 	      return _classStaticPrivateFieldSpecGet(ErrorPublisher, ErrorPublisher, _instance);
 	    }
 	  }]);
-
 	  function ErrorPublisher() {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, ErrorPublisher);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ErrorPublisher).call(this));
-
 	    _this.setEventNamespace('BX.Location.Core.ErrorPublisher');
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(ErrorPublisher, [{
 	    key: "notify",
 	    value: function notify(errors) {
@@ -2903,7 +2644,6 @@ this.BX.Location = this.BX.Location || {};
 	  }]);
 	  return ErrorPublisher;
 	}(main_core_events.EventEmitter);
-
 	var _instance = {
 	  writable: true,
 	  value: null
@@ -2913,22 +2653,23 @@ this.BX.Location = this.BX.Location || {};
 	  value: 'onError'
 	};
 
-	function _classStaticPrivateFieldSpecSet$1(receiver, classConstructor, descriptor, value) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
-
-	function _classStaticPrivateFieldSpecGet$1(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
-
-	var _lastAddressLocalStorageKey = new WeakMap();
-
+	function _classPrivateFieldInitSpec$d(obj, privateMap, value) { _checkPrivateRedeclaration$e(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$e(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classStaticPrivateFieldSpecSet$1(receiver, classConstructor, descriptor, value) { _classCheckPrivateStaticAccess$4(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor$1(descriptor, "set"); _classApplyDescriptorSet$1(receiver, descriptor, value); return value; }
+	function _classApplyDescriptorSet$1(receiver, descriptor, value) { if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } }
+	function _classStaticPrivateFieldSpecGet$1(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess$4(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor$1(descriptor, "get"); return _classApplyDescriptorGet$1(receiver, descriptor); }
+	function _classCheckPrivateStaticFieldDescriptor$1(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
+	function _classCheckPrivateStaticAccess$4(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+	function _classApplyDescriptorGet$1(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+	var _lastAddressLocalStorageKey = /*#__PURE__*/new WeakMap();
 	var Storage = /*#__PURE__*/function () {
 	  function Storage() {
 	    babelHelpers.classCallCheck(this, Storage);
-
-	    _lastAddressLocalStorageKey.set(this, {
+	    _classPrivateFieldInitSpec$d(this, _lastAddressLocalStorageKey, {
 	      writable: true,
 	      value: "bitrixLocationLastAddress"
 	    });
 	  }
-
 	  babelHelpers.createClass(Storage, [{
 	    key: "lastAddress",
 	    set: function set(address) {
@@ -2940,13 +2681,11 @@ this.BX.Location = this.BX.Location || {};
 	    },
 	    get: function get() {
 	      var lastAddress = BX.localStorage.get(babelHelpers.classPrivateFieldGet(this, _lastAddressLocalStorageKey));
-
 	      if (lastAddress && lastAddress['json']) {
 	        try {
 	          return JsonConverter.convertJsonToAddress(JSON.parse(lastAddress['json']));
 	        } catch (e) {}
 	      }
-
 	      return null;
 	    }
 	  }], [{
@@ -2955,22 +2694,20 @@ this.BX.Location = this.BX.Location || {};
 	      if (_classStaticPrivateFieldSpecGet$1(Storage, Storage, _instance$1) === null) {
 	        _classStaticPrivateFieldSpecSet$1(Storage, Storage, _instance$1, new Storage());
 	      }
-
 	      return _classStaticPrivateFieldSpecGet$1(Storage, Storage, _instance$1);
 	    }
 	  }]);
 	  return Storage;
 	}();
-
 	var _instance$1 = {
 	  writable: true,
 	  value: null
 	};
 
-	var _latitude$2 = new WeakMap();
-
-	var _longitude$2 = new WeakMap();
-
+	function _classPrivateFieldInitSpec$e(obj, privateMap, value) { _checkPrivateRedeclaration$f(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$f(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _latitude$2 = /*#__PURE__*/new WeakMap();
+	var _longitude$2 = /*#__PURE__*/new WeakMap();
 	/**
 	 * Base class for the working with latitude and longitude
 	 */
@@ -2978,23 +2715,20 @@ this.BX.Location = this.BX.Location || {};
 	  /** {String} */
 
 	  /** {String} */
+
 	  function Point(latitude, longitude) {
 	    babelHelpers.classCallCheck(this, Point);
-
-	    _latitude$2.set(this, {
+	    _classPrivateFieldInitSpec$e(this, _latitude$2, {
 	      writable: true,
 	      value: void 0
 	    });
-
-	    _longitude$2.set(this, {
+	    _classPrivateFieldInitSpec$e(this, _longitude$2, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    babelHelpers.classPrivateFieldSet(this, _latitude$2, latitude);
 	    babelHelpers.classPrivateFieldSet(this, _longitude$2, longitude);
 	  }
-
 	  babelHelpers.createClass(Point, [{
 	    key: "toArray",
 	    value: function toArray() {
@@ -3023,10 +2757,8 @@ this.BX.Location = this.BX.Location || {};
 	  function DistanceCalculator() {
 	    babelHelpers.classCallCheck(this, DistanceCalculator);
 	  }
-
 	  babelHelpers.createClass(DistanceCalculator, null, [{
 	    key: "getDistanceFromLatLonInKm",
-
 	    /**
 	     * @param {number} lat1
 	     * @param {number} lon1
@@ -3036,7 +2768,6 @@ this.BX.Location = this.BX.Location || {};
 	     */
 	    value: function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
 	      var R = 6371; // Radius of the earth in km
-
 	      var dLat = DistanceCalculator.deg2rad(lat2 - lat1);
 	      var dLon = DistanceCalculator.deg2rad(lon2 - lon1);
 	      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(DistanceCalculator.deg2rad(lat1)) * Math.cos(DistanceCalculator.deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
@@ -3047,7 +2778,6 @@ this.BX.Location = this.BX.Location || {};
 	     * @param {number} deg
 	     * @returns {number}
 	     */
-
 	  }, {
 	    key: "deg2rad",
 	    value: function deg2rad(deg) {
@@ -3072,6 +2802,7 @@ this.BX.Location = this.BX.Location || {};
 	exports.SourceRepository = SourceRepository;
 	exports.AddressStringConverter = StringConverter;
 	exports.AutocompleteServiceBase = AutocompleteServiceBase;
+	exports.AutocompleteCache = AutocompleteCache;
 	exports.PhotoServiceBase = PhotoServiceBase;
 	exports.BaseSource = SourceBase;
 	exports.MapBase = MapBase;
@@ -3085,5 +2816,5 @@ this.BX.Location = this.BX.Location || {};
 	exports.Point = Point;
 	exports.DistanceCalculator = DistanceCalculator;
 
-}((this.BX.Location.Core = this.BX.Location.Core || {}),BX,BX.Location.Core,BX.Event));
+}((this.BX.Location.Core = this.BX.Location.Core || {}),BX,BX,BX.Location.Core,BX.Event));
 //# sourceMappingURL=core.bundle.js.map

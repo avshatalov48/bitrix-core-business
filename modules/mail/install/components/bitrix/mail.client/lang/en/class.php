@@ -169,4 +169,3 @@ $MESS["MAIL_SYNC_NOT_AVAILABLE"] = "Email synchronization is not available on yo
 $MESS["MAIL_THE_MAILBOX_HAS_BEEN_DELETED"] = "This mailbox no longer exists.";
 $MESS["MESSAGES_ALREADY_EXIST_IN_FOLDER"] = "Selected messages are already in this folder";
 $MESS["MAIL_MESSAGE_SEPARATOR_OF_NAMES_AND_EMAILS_IN_LISTS"] = ',';
-$MESS["MAIL_MAILBOX_TEMPORARY_ALERT_MSG_1"] = 'There could be some problems with receiving new emails via Gmail in your Bitrix24 account.<br>We recommend checking your mail directly on the website #LINK# or inside you mail app to avoid missed emails.';

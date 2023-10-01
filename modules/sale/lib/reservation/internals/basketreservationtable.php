@@ -7,6 +7,22 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Sale\Internals\BasketTable;
 
+/**
+ * Class BasketReservationTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_BasketReservation_Query query()
+ * @method static EO_BasketReservation_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_BasketReservation_Result getById($id)
+ * @method static EO_BasketReservation_Result getList(array $parameters = [])
+ * @method static EO_BasketReservation_Entity getEntity()
+ * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservation createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservation_Collection createCollection()
+ * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservation wakeUpObject($row)
+ * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservation_Collection wakeUpCollection($rows)
+ */
 class BasketReservationTable extends DataManager
 {
 	public static function getTableName()

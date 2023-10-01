@@ -76,6 +76,8 @@ class MessageTable extends Main\Entity\DataManager
 {
 	const SOURCE_ID_EMAIL = "EMAIL";
 	const SOURCE_ID_WEB = "WEB";
+	const SOURCE_ID_MOBILE = "MOBILE";
+
 	/**
 	 * Returns DB table name for entity.
 	 *
@@ -108,7 +110,7 @@ class MessageTable extends Main\Entity\DataManager
 			(new BooleanField("USE_SMILES", ["values" => ["N", "Y"], "default_value" => "Y"])),
 			(new BooleanField("NEW_TOPIC", ["values" => ["N", "Y"], "default_value" => "N"])),
 			(new BooleanField("APPROVED", ["values" => ["N", "Y"], "default_value" => "Y"])),
-			(new BooleanField("SOURCE_ID", ["values" => [self::SOURCE_ID_EMAIL, self::SOURCE_ID_WEB], "default_value" => self::SOURCE_ID_WEB])),
+			(new BooleanField("SOURCE_ID", ["values" => [self::SOURCE_ID_EMAIL, self::SOURCE_ID_WEB, self::SOURCE_ID_MOBILE], "default_value" => self::SOURCE_ID_WEB])),
 			(new DatetimeField("POST_DATE", ["required" => true, "default_value" => function(){ return new DateTime();}])),
 			(new TextField("POST_MESSAGE", ["required" => true])),
 			(new TextField("POST_MESSAGE_HTML")),
@@ -173,8 +175,17 @@ class MessageTable extends Main\Entity\DataManager
 		}
 		if (array_key_exists("SOURCE_ID", $data))
 		{
-			$data["SOURCE_ID"] = $data["SOURCE_ID"] === self::SOURCE_ID_EMAIL ? self::SOURCE_ID_EMAIL : self::SOURCE_ID_WEB;
+			$data["SOURCE_ID"] = self::filterSourceIdParam($data['SOURCE_ID']);
 		}
+	}
+
+	public static function filterSourceIdParam(string $sourceId): string
+	{
+		if (in_array($sourceId, [self::SOURCE_ID_WEB, self::SOURCE_ID_MOBILE, self::SOURCE_ID_EMAIL], true))
+		{
+			return $sourceId;
+		}
+		return self::SOURCE_ID_WEB;
 	}
 
 	public static function onBeforeAdd(Event $event)

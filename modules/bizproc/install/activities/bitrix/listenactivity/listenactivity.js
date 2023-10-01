@@ -1,12 +1,18 @@
-////////////////////////////////////////////////////////////////////////////////////////
-// ListenActivity
-////////////////////////////////////////////////////////////////////////////////////////
+/* eslint-disable */
+(function (exports) {
+	'use strict';
 
-ListenActivity = function()
-{
-	var ob = new ParallelActivity();
-	ob.Type = 'ListenActivity';
-	ob.__parallelActivityInitType = 'EventDrivenActivity';
+	const ParallelActivity = window.ParallelActivity;
+	class ListenActivity extends ParallelActivity {
+	  constructor() {
+	    super();
+	    this.Type = 'ListenActivity';
+	    // eslint-disable-next-line @bitrix24/bitrix24-rules/no-pseudo-private,no-underscore-dangle
+	    this.__parallelActivityInitType = 'EventDrivenActivity';
+	  }
+	}
 
-	return ob;
-}
+	exports.ListenActivity = ListenActivity;
+
+}((this.window = this.window || {})));
+//# sourceMappingURL=listenactivity.js.map

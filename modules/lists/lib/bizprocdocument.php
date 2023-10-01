@@ -884,7 +884,7 @@ class BizprocDocument extends CIBlockDocument
 			list($fieldsTemporary["TYPE"], $fieldsTemporary["USER_TYPE"]) = explode(":", $fields["type"], 2);
 			if($fields["type"] == "E:EList")
 			{
-				$fieldsTemporary["LINK_IBLOCK_ID"] = $fields["options"];
+				$fieldsTemporary["LINK_IBLOCK_ID"] = $fields["options"] ?? null;
 			}
 			elseif($fields["type"] == "E:ECrm")
 			{
@@ -1098,7 +1098,7 @@ class BizprocDocument extends CIBlockDocument
 				list($fieldData["TYPE"], $fieldData["USER_TYPE"]) = explode(":", $fields["type"], 2);
 				if($fields["type"] == "E:EList")
 				{
-					$fieldData["LINK_IBLOCK_ID"] = $fields["options"];
+					$fieldData["LINK_IBLOCK_ID"] = $fields["options"] ?? null;
 				}
 				elseif($fields["type"] == "E:ECrm")
 				{

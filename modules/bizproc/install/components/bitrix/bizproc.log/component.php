@@ -1,4 +1,9 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VERSION"] == 2)
 {
@@ -13,16 +18,26 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 
 	$arParams["ID"] = trim($arParams["ID"]);
 	if ($arParams["ID"] == '')
+	{
 		$arParams["ID"] = trim($_REQUEST["ID"]);
+	}
 	if ($arParams["ID"] == '')
+	{
 		$arParams["ID"] = trim($_REQUEST["id"]);
+	}
 
 	if ($arParams["ID"] == '')
+	{
 		$arResult["FatalErrorMessage"] .= GetMessage("BPABL_INVALID_WF").". ";
+	}
 
-	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on by default
-	$arParams["INLINE_MODE"] = ($arParams["INLINE_MODE"] == "Y" ? "Y" : "N");
-	$arResult["AJAX_MODE"] = $arParams["AJAX_MODE"] = ($arParams["AJAX_MODE"] == "N" ? "N" : "Y"); //Backward compatibility
+	$arParams["SET_TITLE"] = (($arParams["SET_TITLE"] ?? '') == "N" ? "N" : "Y"); //Turn on by default
+	$arParams["INLINE_MODE"] = (($arParams["INLINE_MODE"] ?? '') == "Y" ? "Y" : "N");
+	$arResult['AJAX_MODE'] = $arParams['AJAX_MODE'] =
+		isset($arParams['AJAX_MODE']) && $arParams['AJAX_MODE'] == 'N'
+			? 'N'
+			: 'Y'
+	; //Backward compatibility
 
 	$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? COption::GetOptionString("bizproc", "name_template", CSite::GetNameFormat(false), SITE_ID) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $arParams["NAME_TEMPLATE"]);
 
@@ -64,7 +79,7 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 			$documentType = $documentId;
 		}
 
-		$arResult["GRID_ID"] = "bizproc_loggrid_".$arWorkflowState["WORKFLOW_TEMPLATE_ID"];
+		$arResult["GRID_ID"] = "bizproc_loggrid_" . ($arWorkflowState["WORKFLOW_TEMPLATE_ID"] ?? '');
 
 		$gridOptions = new CGridOptions($arResult["GRID_ID"]);
 		$gridColumns = $gridOptions->GetVisibleColumns();
@@ -267,7 +282,7 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 	{
 		if ($arParams["SET_TITLE"] == "Y")
 			$APPLICATION->SetTitle(GetMessage("BPABL_PAGE_TITLE").": ".$arResult["WorkflowState"]["TEMPLATE_NAME"]);
-		if ($arParams["SET_NAV_CHAIN"] == "Y")
+		if (isset($arParams["SET_NAV_CHAIN"]) && $arParams["SET_NAV_CHAIN"] === "Y")
 			$APPLICATION->AddChainItem(GetMessage("BPABL_PAGE_TITLE").": ".$arResult["WorkflowState"]["TEMPLATE_NAME"]);
 	}
 	else

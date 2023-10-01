@@ -218,11 +218,12 @@ class User extends \CBPRuntimeService
 		}
 
 		$departmentIblockId = $this->getDepartmentIblockId();
-		$pathResult = \CIBlockSection::getNavChain($departmentIblockId, $departmentId);
-		while ($path = $pathResult->fetch())
-		{
-			$chain[] = (int) $path['ID'];
-		}
+		$chain = \CIBlockSection::getNavChain($departmentIblockId, $departmentId, ['ID'], true);
+
+		$chain = array_map(
+			static fn($value) => (int)$value['ID'],
+			$chain
+		);
 
 		return array_reverse($chain);
 	}
@@ -312,7 +313,7 @@ class User extends \CBPRuntimeService
 		$userFieldIds = Main\UserFieldTable::getList([
 			'select' => ['ID'],
 			'filter' => [
-				'ENTITY_ID' => 'USER',
+				'=ENTITY_ID' => 'USER',
 				'%=FIELD_NAME' => 'UF_USR_%',
 			],
 		])->fetchAll();

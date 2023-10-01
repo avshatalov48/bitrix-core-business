@@ -37,7 +37,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_TEXT'),
 			'type' => 'text',
 		),
-		
 		'.landing-block-card-contact-icon' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_CONTACT_ICON'),
 			'type' => 'icon',
@@ -50,11 +49,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_CONTACT_TEXT'),
 			'type' => 'text',
 		),
-		'.landing-block-card-contact-link' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_CONTACT_LINK'),
-			'type' => 'link',
-		),
-		
 		'.landing-block-card-linkcontact-icon' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_CONTACT_ICON'),
 			'type' => 'icon',
@@ -80,7 +74,6 @@ return array(
 			'allowInlineEdit' => false,
 			'textOnly' => true,
 		),
-	
 	),
 	'style' => array(
 		'.landing-block-node-main-title' => array(
@@ -91,7 +84,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_TEXT'),
 			'type' => 'typo',
 		),
-		
 		'.landing-block-card-contact-icon-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_CONTACT_ICON'),
 			'type' => 'color',
@@ -100,7 +92,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_CONTACT'),
 			'type' => 'animation',
 		),
-		
 		'.landing-block-card-contact-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_CONTACT_TITLE'),
 			'type' => 'typo',
@@ -109,11 +100,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_CONTACT_TEXT'),
 			'type' => 'typo',
 		),
-		'.landing-block-card-contact-link' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_CONTACT_LINK'),
-			'type' => 'typo',
-		),
-		
 		'.landing-block-card-linkcontact-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.12_NODE_CONTACT_TITLE'),
 			'type' => 'typo',

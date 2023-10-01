@@ -248,7 +248,7 @@ foreach ($arResult["DATA"] as $row)
 				"default" => false,
 				"editable" => [
 					"TYPE" => \Bitrix\Main\Grid\Editor\Types::DROPDOWN,
-					"items" => $this->arParams["FORUM_GROUP_IDS"]
+					"items" => $arParams["FORUM_GROUP_IDS"]
 				]
 			],
 			[

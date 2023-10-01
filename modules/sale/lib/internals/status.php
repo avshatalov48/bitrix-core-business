@@ -17,9 +17,9 @@ use Bitrix\Main\Localization\Loc;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Status_Query query()
- * @method static EO_Status_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Status_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Status_Result getById($id)
- * @method static EO_Status_Result getList(array $parameters = array())
+ * @method static EO_Status_Result getList(array $parameters = [])
  * @method static EO_Status_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_Status createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_Status_Collection createCollection()

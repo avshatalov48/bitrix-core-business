@@ -10,9 +10,9 @@ use Bitrix\Sale;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_CompanyLocation_Query query()
- * @method static EO_CompanyLocation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CompanyLocation_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_CompanyLocation_Result getById($id)
- * @method static EO_CompanyLocation_Result getList(array $parameters = array())
+ * @method static EO_CompanyLocation_Result getList(array $parameters = [])
  * @method static EO_CompanyLocation_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_CompanyLocation createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_CompanyLocation_Collection createCollection()

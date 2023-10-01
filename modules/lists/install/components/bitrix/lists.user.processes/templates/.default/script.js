@@ -119,6 +119,33 @@ BX.Lists.ListsProcessesClass = (function ()
 		menu.popupWindow.show();
 	};
 
+	ListsProcessesClass.prototype.deleteElement = function (gridId, elementId)
+	{
+		BX.UI.Dialogs.MessageBox.confirm(
+			BX.Loc.getMessage('CT_BLL_TOOLBAR_ELEMENT_DELETE_WARNING'),
+			() =>
+			{
+				const reloadParams = {};
+				reloadParams['action_button_'+gridId] = 'delete';
+				reloadParams['ID'] = [elementId];
+
+				const gridObject = BX.Main.gridManager.getById(gridId);
+				if(gridObject.hasOwnProperty('instance'))
+				{
+					gridObject.instance.reloadTable('POST', reloadParams);
+					var rowObject = gridObject.instance.getRows().getById(elementId);
+					if (rowObject)
+					{
+						rowObject.closeActionsMenu();
+					}
+				}
+
+				return true;
+			},
+			BX.Loc.getMessage("CT_BLL_DELETE_POPUP_ACCEPT_BUTTON"),
+		);
+	};
+
 	return ListsProcessesClass;
 
 })();

@@ -20,6 +20,22 @@ if (!Main\Loader::includeModule('iblock'))
 	return;
 }
 
+/**
+ * Class ProductTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Product_Query query()
+ * @method static EO_Product_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_Product_Result getById($id)
+ * @method static EO_Product_Result getList(array $parameters = [])
+ * @method static EO_Product_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_Product createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_Product_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_Product wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_Product_Collection wakeUpCollection($rows)
+ */
 class ProductTable extends Main\Entity\DataManager
 {
 	public static function getTableName()

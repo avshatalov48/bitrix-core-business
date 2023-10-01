@@ -27,7 +27,7 @@ $lists_perm = CListPermissions::CheckAccess(
 	$USER,
 	$arParams["~IBLOCK_TYPE_ID"],
 	$IBLOCK_ID,
-	$arParams["~SOCNET_GROUP_ID"]
+	$arParams["~SOCNET_GROUP_ID"] ?? 0
 );
 
 if(!CListPermissions::CheckFieldId($IBLOCK_ID, $arParams["FIELD_ID"]))

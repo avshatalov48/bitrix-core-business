@@ -15,8 +15,6 @@ return array(
 		'subtype_params' => array(
 			'source' => 'catalog',
 		)
-		//			'type' => 'store',
-		//			'html' => false
 	),
 	'cards' => array(
 		'.landing-block-node-menu-list-item' => array(
@@ -43,6 +41,10 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_MENU_21--NAVBAR'),
 				'type' => ['navbar'],
 			),
+			'.landing-block-node-hamburger' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_MENU_21_HAMB'),
+				'type' => ['hamburger-size', 'hamburger-animation'],
+			],
 		),
 	),
 	'assets' => array(

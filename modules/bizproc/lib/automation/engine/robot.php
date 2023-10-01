@@ -151,6 +151,11 @@ class Robot
 		return $this->bizprocActivity['Type'];
 	}
 
+	public function isActivated(): bool
+	{
+		return \CBPHelper::getBool($this->bizprocActivity['Activated'] ?? true);
+	}
+
 	public function getDescription(): ?array
 	{
 		return \CBPRuntime::GetRuntime(true)->GetActivityDescription($this->getType());

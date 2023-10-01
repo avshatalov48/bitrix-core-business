@@ -413,7 +413,7 @@ class Message
 				$fields['FIELD_CC'],
 				$fields['FIELD_BCC'],
 				$fields['SUBJECT'],
-				$fields['BODY'],
+				strlen($fields['BODY_HTML']) > 0 ? HTMLToTxt($fields['BODY_HTML']) : $fields['BODY'],
 			)
 		));
 	}

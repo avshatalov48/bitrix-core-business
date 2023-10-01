@@ -126,7 +126,6 @@ class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSend
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(
 				$this->arParams['CONTACT_ID']
 					?

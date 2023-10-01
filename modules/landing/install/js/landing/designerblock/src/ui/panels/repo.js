@@ -57,13 +57,30 @@ export class RepoPanel extends Content
 	makeElementUnique(element: RepoElementType): RepoElementType
 	{
 		const newManifest = {};
+		const newStyleManifest = {};
+		const origNodes = element.manifest.nodes;
 		Object.keys(element.manifest.nodes).map(selector => {
 			const randPostfix = '-' + this.randomNum(1000, 9999);
-			const className = selector.substr(1);
+			const className = selector.substring(1);
 			element.html = element.html.replaceAll(new RegExp(className + '([\\s"]{1})', 'g'), className + randPostfix + '$1');
 			newManifest[selector + randPostfix] = element.manifest.nodes[selector];
+			if (selector in element.manifest.style)
+			{
+				newStyleManifest[selector + randPostfix] = element.manifest.style[selector];
+			}
 		});
 		element.manifest.nodes = newManifest;
+		Object.keys(element.manifest.style).map(selector => {
+			if (selector in origNodes)
+			{
+				return;
+			}
+			const randPostfix = '-' + this.randomNum(1000, 9999);
+			const className = selector.substring(1);
+			element.html = element.html.replaceAll(new RegExp(className + '([\\s"]{1})', 'g'), className + randPostfix + '$1');
+			newStyleManifest[selector + randPostfix] = element.manifest.style[selector];
+		});
+		element.manifest.style = newStyleManifest;
 		return element;
 	}
 

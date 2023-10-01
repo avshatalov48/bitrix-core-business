@@ -96,7 +96,7 @@ final class Document extends Base
 			],
 		];
 
-		if (!Manager::getActiveProvider())
+		if (!Manager::isActiveProviderExists())
 		{
 			$result['CONTRACTOR_ID'] = [
 				'TYPE' => DataType::TYPE_INT,

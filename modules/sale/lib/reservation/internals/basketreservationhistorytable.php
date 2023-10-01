@@ -10,6 +10,22 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Type\DateTime;
 
+/**
+ * Class BasketReservationHistoryTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_BasketReservationHistory_Query query()
+ * @method static EO_BasketReservationHistory_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_BasketReservationHistory_Result getById($id)
+ * @method static EO_BasketReservationHistory_Result getList(array $parameters = [])
+ * @method static EO_BasketReservationHistory_Entity getEntity()
+ * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory_Collection createCollection()
+ * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory wakeUpObject($row)
+ * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory_Collection wakeUpCollection($rows)
+ */
 class BasketReservationHistoryTable extends DataManager
 {
 	public static function getTableName()

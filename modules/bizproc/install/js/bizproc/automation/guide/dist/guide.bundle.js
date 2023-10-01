@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Bizproc = this.BX.Bizproc || {};
 (function (exports,ui_tour,main_core,main_core_events,bizproc_localSettings) {

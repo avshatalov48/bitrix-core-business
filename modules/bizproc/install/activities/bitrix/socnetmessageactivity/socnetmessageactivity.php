@@ -78,15 +78,7 @@ class CBPSocNetMessageActivity extends CBPActivity
 			$messageText = implode(', ', CBPHelper::MakeArrayFlat($messageText));
 		}
 
-		$messageText = (string) $messageText;
-
-		if ($messageText)
-		{
-			$messageText = strip_tags($messageText);
-			$messageText = CBPHelper::convertBBtoText($messageText);
-		}
-
-		return $messageText;
+		return (string)$messageText;
 	}
 
 	private function getPushText(string $htmlMessage): string
@@ -129,7 +121,7 @@ class CBPSocNetMessageActivity extends CBPActivity
 		]]);
 
 		$attach->AddDelimiter();
-		$attach->AddHtml($messageText);
+		$attach->AddMessage($messageText);
 
 		$arMessageUserFrom = CBPHelper::ExtractUsers($this->MessageUserFrom, $documentId, true);
 		$arMessageUserTo = CBPHelper::ExtractUsers($this->MessageUserTo, $documentId, false);

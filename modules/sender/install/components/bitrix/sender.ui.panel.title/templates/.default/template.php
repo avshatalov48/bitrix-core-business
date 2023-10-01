@@ -7,7 +7,7 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\Model;
 
-/** @var CAllMain $APPLICATION */
+/** @var CMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 /** @var \CBitrixComponentTemplate $this */

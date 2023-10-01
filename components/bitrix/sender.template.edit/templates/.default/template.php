@@ -9,7 +9,7 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Internals\PrettyDate;
 use Bitrix\Sender\Message\ConfigurationOption as ConOpt;
 
-/** @var CAllMain $APPLICATION */
+/** @var CMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 $containerId = 'bx-sender-template-edit';

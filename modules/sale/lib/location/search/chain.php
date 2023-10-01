@@ -25,9 +25,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Chain_Query query()
- * @method static EO_Chain_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Chain_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Chain_Result getById($id)
- * @method static EO_Chain_Result getList(array $parameters = array())
+ * @method static EO_Chain_Result getList(array $parameters = [])
  * @method static EO_Chain_Entity getEntity()
  * @method static \Bitrix\Sale\Location\Search\EO_Chain createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Location\Search\EO_Chain_Collection createCollection()

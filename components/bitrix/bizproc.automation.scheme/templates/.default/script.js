@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,main_core,bizproc_automation,main_popup) {
 	'use strict';
 
@@ -141,9 +142,10 @@
 	  }, {
 	    key: "onTypeSelectorClick",
 	    value: function onTypeSelectorClick(event) {
+	      // debugger;
 	      event.preventDefault();
 	      var self = this;
-	      this.adjustDropdown(event.target, this.scheme.getDocumentTypes().map(function (type) {
+	      this.adjustDropdown(event.target.closest('.ui-ctl-dropdown'), this.scheme.getDocumentTypes().map(function (type) {
 	        return {
 	          id: type.Type,
 	          text: type.Name,
@@ -165,7 +167,7 @@
 	      var self = this;
 	      var categories = !main_core.Type.isNil(this.selectedType) ? this.scheme.getTypeCategories(this.selectedType) : [];
 	      if (categories.length > 0) {
-	        this.adjustDropdown(event.target, categories.map(function (category) {
+	        this.adjustDropdown(event.target.closest('.ui-ctl-dropdown'), categories.map(function (category) {
 	          return {
 	            id: category.Id,
 	            text: category.Name,
@@ -190,7 +192,7 @@
 	        statuses = this.scheme.getTypeStatuses(this.selectedType, this.selectedCategory);
 	      }
 	      if (statuses.length > 0) {
-	        this.adjustDropdown(event.target, statuses.map(function (status) {
+	        this.adjustDropdown(event.target.closest('.ui-ctl-dropdown'), statuses.map(function (status) {
 	          return {
 	            id: status.Id,
 	            text: status.Name,

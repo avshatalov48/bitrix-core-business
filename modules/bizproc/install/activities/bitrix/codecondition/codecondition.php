@@ -5,6 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Localization\Loc;
+
 class CBPCodeCondition extends CBPActivityCondition
 {
 	public $condition = '';
@@ -21,19 +23,19 @@ class CBPCodeCondition extends CBPActivityCondition
 		return $result;
 	}
 
-	public static function ValidateProperties($value = null, CBPWorkflowTemplateUser $user = null)
+	public static function validateProperties($value = null, CBPWorkflowTemplateUser $user = null)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
 		if ($user == null || !$user->isAdmin())
 		{
 			$arErrors[] = [
 				'code' => 'perm',
-				'message' => GetMessage('BPCC_NO_PERMS'),
+				'message' => Loc::getMessage('BPCC_NO_PERMS'),
 			];
 		}
 
-		return array_merge($arErrors, parent::ValidateProperties($value, $user));
+		return array_merge($arErrors, parent::validateProperties($value, $user));
 	}
 
 	public static function GetPropertiesDialog(
@@ -77,13 +79,13 @@ class CBPCodeCondition extends CBPActivityCondition
 		{
 			$arErrors[] = [
 				'code' => '',
-				'message' => GetMessage('BPCC_EMPTY_CODE'),
+				'message' => Loc::getMessage('BPCC_EMPTY_CODE'),
 			];
 
 			return null;
 		}
 
-		$arErrors = self::ValidateProperties(
+		$arErrors = self::validateProperties(
 			$arCurrentValues['php_code_condition'],
 			new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser)
 		);

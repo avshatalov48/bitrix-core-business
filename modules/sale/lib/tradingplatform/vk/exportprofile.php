@@ -15,9 +15,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_ExportProfile_Query query()
- * @method static EO_ExportProfile_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ExportProfile_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_ExportProfile_Result getById($id)
- * @method static EO_ExportProfile_Result getList(array $parameters = array())
+ * @method static EO_ExportProfile_Result getList(array $parameters = [])
  * @method static EO_ExportProfile_Entity getEntity()
  * @method static \Bitrix\Sale\TradingPlatform\Vk\EO_ExportProfile createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\TradingPlatform\Vk\EO_ExportProfile_Collection createCollection()

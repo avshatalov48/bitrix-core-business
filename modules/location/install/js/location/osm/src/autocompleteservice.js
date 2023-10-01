@@ -1,5 +1,10 @@
-import {AutocompleteServiceBase, Location} from 'location.core';
-import type {AutocompleteServiceParams} from 'location.core';
+import {
+	AutocompleteServiceBase,
+	Location,
+	AutocompleteCache,
+} from 'location.core';
+import type { AutocompleteServiceParams } from 'location.core';
+import OSM from './osm';
 
 export default class AutocompleteService extends AutocompleteServiceBase
 {
@@ -45,12 +50,28 @@ export default class AutocompleteService extends AutocompleteServiceBase
 			}
 		}
 
+		let cachedResult = AutocompleteCache.get(OSM.code, params);
+		if (cachedResult !== null)
+		{
+			return Promise.resolve(
+				this.#autocompleteResponseConverter.convertResponse(
+					cachedResult.data.result,
+					{text, autocompleteServiceParams}
+				)
+			);
+		}
+
 		return BX.ajax.runAction(
 			'location.api.location.autocomplete',
 			{data: {params: params}}
 		)
 			.then((response) =>
 			{
+				if (response)
+				{
+					AutocompleteCache.set(OSM.code, params, { result: response.data });
+				}
+
 				return response ? this.#autocompleteResponseConverter.convertResponse(
 					response.data,
 					{text, autocompleteServiceParams}

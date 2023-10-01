@@ -273,6 +273,8 @@ class LandingEditComponent extends LandingBaseFormComponent
 			$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSiteByLanding(
 				\Bitrix\Landing\Landing::createInstance($this->id, ['skip_blocks' => true])
 			);
+			$this->arResult['ALLOW_AI_TEXT'] = \Bitrix\Landing\Connector\Ai::isTextAvailable();
+			$this->arResult['ALLOW_AI_IMAGE'] = \Bitrix\Landing\Connector\Ai::isImageAvailable();
 			$this->arResult['LANDINGS'] = $this->arParams['SITE_ID'] > 0
 				? $this->getLandings(array(
 						'filter' => array(

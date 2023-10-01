@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,main_core,ui_dialogs_messagebox) {
 	'use strict';
 

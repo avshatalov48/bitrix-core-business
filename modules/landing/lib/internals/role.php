@@ -42,7 +42,8 @@ class RoleTable extends Entity\DataManager
 		return array(
 			'ID' => new Entity\IntegerField('ID', array(
 				'title' => 'ID',
-				'primary' => true
+				'primary' => true,
+				'autocomplete' => true,
 			)),
 			'TITLE' => new Entity\StringField('TITLE', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_ROLE_TITLE')

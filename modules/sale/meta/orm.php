@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderTable:sale/lib/internals/order.php:3d0de89ce4fa6034c18fcb27315a3ef0 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderTable:sale\lib\internals\order.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Order
@@ -1241,6 +1241,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Order_Collection merge(?EO_Order_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Order_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderTable */
@@ -1274,7 +1276,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Order_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\FuserTable:sale/lib/internals/fuser.php:ccfb91a3e0b7014f178023e15089c53e */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\FuserTable:sale\lib\internals\fuser.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Fuser
@@ -1436,6 +1438,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Fuser_Collection merge(?EO_Fuser_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Fuser_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\FuserTable */
@@ -1469,7 +1473,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Fuser_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\Product2ProductTable:sale/lib/internals/product2product.php:444abf4b53dd95144421471a504840f2 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\Product2ProductTable:sale\lib\internals\product2product.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Product2Product
@@ -1588,6 +1592,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Product2Product_Collection merge(?EO_Product2Product_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Product2Product_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\Product2ProductTable */
@@ -1621,7 +1627,187 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Product2Product_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PersonTypeTable:sale/lib/internals/persontype.php:e49e769f2b42235a4bf128ad4fb4bd2f */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\StoreProductTable:sale\lib\internals\storeproduct.php */
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_StoreProduct
+	 * @see \Bitrix\Sale\Internals\StoreProductTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getProductId()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setProductId(\int|\Bitrix\Main\DB\SqlExpression $productId)
+	 * @method bool hasProductId()
+	 * @method bool isProductIdFilled()
+	 * @method bool isProductIdChanged()
+	 * @method \int remindActualProductId()
+	 * @method \int requireProductId()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct resetProductId()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unsetProductId()
+	 * @method \int fillProductId()
+	 * @method \Bitrix\Sale\Internals\EO_Product getSaleProduct()
+	 * @method \Bitrix\Sale\Internals\EO_Product remindActualSaleProduct()
+	 * @method \Bitrix\Sale\Internals\EO_Product requireSaleProduct()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setSaleProduct(\Bitrix\Sale\Internals\EO_Product $object)
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct resetSaleProduct()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unsetSaleProduct()
+	 * @method bool hasSaleProduct()
+	 * @method bool isSaleProductFilled()
+	 * @method bool isSaleProductChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Product fillSaleProduct()
+	 * @method \float getAmount()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setAmount(\float|\Bitrix\Main\DB\SqlExpression $amount)
+	 * @method bool hasAmount()
+	 * @method bool isAmountFilled()
+	 * @method bool isAmountChanged()
+	 * @method \float remindActualAmount()
+	 * @method \float requireAmount()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct resetAmount()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unsetAmount()
+	 * @method \float fillAmount()
+	 * @method \int getStoreId()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setStoreId(\int|\Bitrix\Main\DB\SqlExpression $storeId)
+	 * @method bool hasStoreId()
+	 * @method bool isStoreIdFilled()
+	 * @method bool isStoreIdChanged()
+	 * @method \int remindActualStoreId()
+	 * @method \int requireStoreId()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct resetStoreId()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unsetStoreId()
+	 * @method \int fillStoreId()
+	 * @method \Bitrix\Catalog\EO_Store getStore()
+	 * @method \Bitrix\Catalog\EO_Store remindActualStore()
+	 * @method \Bitrix\Catalog\EO_Store requireStore()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setStore(\Bitrix\Catalog\EO_Store $object)
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct resetStore()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unsetStore()
+	 * @method bool hasStore()
+	 * @method bool isStoreFilled()
+	 * @method bool isStoreChanged()
+	 * @method \Bitrix\Catalog\EO_Store fillStore()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct set($fieldName, $value)
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct reset($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Internals\EO_StoreProduct wakeUp($data)
+	 */
+	class EO_StoreProduct {
+		/* @var \Bitrix\Sale\Internals\StoreProductTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\StoreProductTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_StoreProduct_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getProductIdList()
+	 * @method \int[] fillProductId()
+	 * @method \Bitrix\Sale\Internals\EO_Product[] getSaleProductList()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection getSaleProductCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fillSaleProduct()
+	 * @method \float[] getAmountList()
+	 * @method \float[] fillAmount()
+	 * @method \int[] getStoreIdList()
+	 * @method \int[] fillStoreId()
+	 * @method \Bitrix\Catalog\EO_Store[] getStoreList()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection getStoreCollection()
+	 * @method \Bitrix\Catalog\EO_Store_Collection fillStore()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Internals\EO_StoreProduct $object)
+	 * @method bool has(\Bitrix\Sale\Internals\EO_StoreProduct $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct getByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Internals\EO_StoreProduct $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Internals\EO_StoreProduct_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_StoreProduct_Collection merge(?EO_StoreProduct_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_StoreProduct_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Internals\StoreProductTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\StoreProductTable';
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_StoreProduct_Result exec()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_StoreProduct_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection fetchCollection()
+	 */
+	class EO_StoreProduct_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection createCollection()
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct wakeUpObject($row)
+	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection wakeUpCollection($rows)
+	 */
+	class EO_StoreProduct_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PersonTypeTable:sale\lib\internals\persontype.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_PersonType
@@ -1801,6 +1987,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_PersonType_Collection merge(?EO_PersonType_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_PersonType_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\PersonTypeTable */
@@ -1834,7 +2022,363 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_PersonType_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\SectionTable:sale/lib/internals/section.php:c44dec5e24b090909fc66d6a7e10f936 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ProductTable:sale\lib\internals\product.php */
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_Product
+	 * @see \Bitrix\Sale\Internals\ProductTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Internals\EO_Product setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getTimestampX()
+	 * @method \Bitrix\Sale\Internals\EO_Product setTimestampX(\int|\Bitrix\Main\DB\SqlExpression $timestampX)
+	 * @method bool hasTimestampX()
+	 * @method bool isTimestampXFilled()
+	 * @method bool isTimestampXChanged()
+	 * @method \int remindActualTimestampX()
+	 * @method \int requireTimestampX()
+	 * @method \Bitrix\Sale\Internals\EO_Product resetTimestampX()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetTimestampX()
+	 * @method \int fillTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime getDateUpdated()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpdated()
+	 * @method \Bitrix\Main\Type\DateTime requireDateUpdated()
+	 * @method bool hasDateUpdated()
+	 * @method bool isDateUpdatedFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetDateUpdated()
+	 * @method \Bitrix\Main\Type\DateTime fillDateUpdated()
+	 * @method \float getQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_Product setQuantity(\float|\Bitrix\Main\DB\SqlExpression $quantity)
+	 * @method bool hasQuantity()
+	 * @method bool isQuantityFilled()
+	 * @method bool isQuantityChanged()
+	 * @method \float remindActualQuantity()
+	 * @method \float requireQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_Product resetQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetQuantity()
+	 * @method \float fillQuantity()
+	 * @method \int getMeasure()
+	 * @method \Bitrix\Sale\Internals\EO_Product setMeasure(\int|\Bitrix\Main\DB\SqlExpression $measure)
+	 * @method bool hasMeasure()
+	 * @method bool isMeasureFilled()
+	 * @method bool isMeasureChanged()
+	 * @method \int remindActualMeasure()
+	 * @method \int requireMeasure()
+	 * @method \Bitrix\Sale\Internals\EO_Product resetMeasure()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetMeasure()
+	 * @method \int fillMeasure()
+	 * @method \float getPurchasingPrice()
+	 * @method \Bitrix\Sale\Internals\EO_Product setPurchasingPrice(\float|\Bitrix\Main\DB\SqlExpression $purchasingPrice)
+	 * @method bool hasPurchasingPrice()
+	 * @method bool isPurchasingPriceFilled()
+	 * @method bool isPurchasingPriceChanged()
+	 * @method \float remindActualPurchasingPrice()
+	 * @method \float requirePurchasingPrice()
+	 * @method \Bitrix\Sale\Internals\EO_Product resetPurchasingPrice()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetPurchasingPrice()
+	 * @method \float fillPurchasingPrice()
+	 * @method \string getPurchasingCurrency()
+	 * @method \Bitrix\Sale\Internals\EO_Product setPurchasingCurrency(\string|\Bitrix\Main\DB\SqlExpression $purchasingCurrency)
+	 * @method bool hasPurchasingCurrency()
+	 * @method bool isPurchasingCurrencyFilled()
+	 * @method bool isPurchasingCurrencyChanged()
+	 * @method \string remindActualPurchasingCurrency()
+	 * @method \string requirePurchasingCurrency()
+	 * @method \Bitrix\Sale\Internals\EO_Product resetPurchasingCurrency()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetPurchasingCurrency()
+	 * @method \string fillPurchasingCurrency()
+	 * @method \Bitrix\Iblock\EO_Element getIblock()
+	 * @method \Bitrix\Iblock\EO_Element remindActualIblock()
+	 * @method \Bitrix\Iblock\EO_Element requireIblock()
+	 * @method \Bitrix\Sale\Internals\EO_Product setIblock(\Bitrix\Iblock\EO_Element $object)
+	 * @method \Bitrix\Sale\Internals\EO_Product resetIblock()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetIblock()
+	 * @method bool hasIblock()
+	 * @method bool isIblockFilled()
+	 * @method bool isIblockChanged()
+	 * @method \Bitrix\Iblock\EO_Element fillIblock()
+	 * @method \string getName()
+	 * @method \string remindActualName()
+	 * @method \string requireName()
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetName()
+	 * @method \string fillName()
+	 * @method \string getNameWithIdent()
+	 * @method \string remindActualNameWithIdent()
+	 * @method \string requireNameWithIdent()
+	 * @method bool hasNameWithIdent()
+	 * @method bool isNameWithIdentFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetNameWithIdent()
+	 * @method \string fillNameWithIdent()
+	 * @method \boolean getActive()
+	 * @method \boolean remindActualActive()
+	 * @method \boolean requireActive()
+	 * @method bool hasActive()
+	 * @method bool isActiveFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetActive()
+	 * @method \boolean fillActive()
+	 * @method \float getWeight()
+	 * @method \Bitrix\Sale\Internals\EO_Product setWeight(\float|\Bitrix\Main\DB\SqlExpression $weight)
+	 * @method bool hasWeight()
+	 * @method bool isWeightFilled()
+	 * @method bool isWeightChanged()
+	 * @method \float remindActualWeight()
+	 * @method \float requireWeight()
+	 * @method \Bitrix\Sale\Internals\EO_Product resetWeight()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetWeight()
+	 * @method \float fillWeight()
+	 * @method \float getWeightInSiteUnits()
+	 * @method \float remindActualWeightInSiteUnits()
+	 * @method \float requireWeightInSiteUnits()
+	 * @method bool hasWeightInSiteUnits()
+	 * @method bool isWeightInSiteUnitsFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetWeightInSiteUnits()
+	 * @method \float fillWeightInSiteUnits()
+	 * @method \float getPrice()
+	 * @method \float remindActualPrice()
+	 * @method \float requirePrice()
+	 * @method bool hasPrice()
+	 * @method bool isPriceFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetPrice()
+	 * @method \float fillPrice()
+	 * @method \string getCurrency()
+	 * @method \string remindActualCurrency()
+	 * @method \string requireCurrency()
+	 * @method bool hasCurrency()
+	 * @method bool isCurrencyFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetCurrency()
+	 * @method \string fillCurrency()
+	 * @method \float getSummaryPrice()
+	 * @method \float remindActualSummaryPrice()
+	 * @method \float requireSummaryPrice()
+	 * @method bool hasSummaryPrice()
+	 * @method bool isSummaryPriceFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetSummaryPrice()
+	 * @method \float fillSummaryPrice()
+	 * @method \float getCurrentCurrencyRate()
+	 * @method \float remindActualCurrentCurrencyRate()
+	 * @method \float requireCurrentCurrencyRate()
+	 * @method bool hasCurrentCurrencyRate()
+	 * @method bool isCurrentCurrencyRateFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetCurrentCurrencyRate()
+	 * @method \float fillCurrentCurrencyRate()
+	 * @method \float getCurrentCurrencyRateCnt()
+	 * @method \float remindActualCurrentCurrencyRateCnt()
+	 * @method \float requireCurrentCurrencyRateCnt()
+	 * @method bool hasCurrentCurrencyRateCnt()
+	 * @method bool isCurrentCurrencyRateCntFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetCurrentCurrencyRateCnt()
+	 * @method \float fillCurrentCurrencyRateCnt()
+	 * @method \float getCurrentSiteCurrencyRate()
+	 * @method \float remindActualCurrentSiteCurrencyRate()
+	 * @method \float requireCurrentSiteCurrencyRate()
+	 * @method bool hasCurrentSiteCurrencyRate()
+	 * @method bool isCurrentSiteCurrencyRateFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetCurrentSiteCurrencyRate()
+	 * @method \float fillCurrentSiteCurrencyRate()
+	 * @method \float getCurrentSiteCurrencyRateCnt()
+	 * @method \float remindActualCurrentSiteCurrencyRateCnt()
+	 * @method \float requireCurrentSiteCurrencyRateCnt()
+	 * @method bool hasCurrentSiteCurrencyRateCnt()
+	 * @method bool isCurrentSiteCurrencyRateCntFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetCurrentSiteCurrencyRateCnt()
+	 * @method \float fillCurrentSiteCurrencyRateCnt()
+	 * @method \float getPurchasingCurrencyRate()
+	 * @method \float remindActualPurchasingCurrencyRate()
+	 * @method \float requirePurchasingCurrencyRate()
+	 * @method bool hasPurchasingCurrencyRate()
+	 * @method bool isPurchasingCurrencyRateFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetPurchasingCurrencyRate()
+	 * @method \float fillPurchasingCurrencyRate()
+	 * @method \float getPurchasingCurrencyRateCnt()
+	 * @method \float remindActualPurchasingCurrencyRateCnt()
+	 * @method \float requirePurchasingCurrencyRateCnt()
+	 * @method bool hasPurchasingCurrencyRateCnt()
+	 * @method bool isPurchasingCurrencyRateCntFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetPurchasingCurrencyRateCnt()
+	 * @method \float fillPurchasingCurrencyRateCnt()
+	 * @method \float getPriceInSiteCurrency()
+	 * @method \float remindActualPriceInSiteCurrency()
+	 * @method \float requirePriceInSiteCurrency()
+	 * @method bool hasPriceInSiteCurrency()
+	 * @method bool isPriceInSiteCurrencyFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetPriceInSiteCurrency()
+	 * @method \float fillPriceInSiteCurrency()
+	 * @method \float getPurchasingPriceInSiteCurrency()
+	 * @method \float remindActualPurchasingPriceInSiteCurrency()
+	 * @method \float requirePurchasingPriceInSiteCurrency()
+	 * @method bool hasPurchasingPriceInSiteCurrency()
+	 * @method bool isPurchasingPriceInSiteCurrencyFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetPurchasingPriceInSiteCurrency()
+	 * @method \float fillPurchasingPriceInSiteCurrency()
+	 * @method \float getSummaryPriceInSiteCurrency()
+	 * @method \float remindActualSummaryPriceInSiteCurrency()
+	 * @method \float requireSummaryPriceInSiteCurrency()
+	 * @method bool hasSummaryPriceInSiteCurrency()
+	 * @method bool isSummaryPriceInSiteCurrencyFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Product unsetSummaryPriceInSiteCurrency()
+	 * @method \float fillSummaryPriceInSiteCurrency()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_Product set($fieldName, $value)
+	 * @method \Bitrix\Sale\Internals\EO_Product reset($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_Product unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Internals\EO_Product wakeUp($data)
+	 */
+	class EO_Product {
+		/* @var \Bitrix\Sale\Internals\ProductTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\ProductTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_Product_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getTimestampXList()
+	 * @method \int[] fillTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdatedList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpdated()
+	 * @method \float[] getQuantityList()
+	 * @method \float[] fillQuantity()
+	 * @method \int[] getMeasureList()
+	 * @method \int[] fillMeasure()
+	 * @method \float[] getPurchasingPriceList()
+	 * @method \float[] fillPurchasingPrice()
+	 * @method \string[] getPurchasingCurrencyList()
+	 * @method \string[] fillPurchasingCurrency()
+	 * @method \Bitrix\Iblock\EO_Element[] getIblockList()
+	 * @method \Bitrix\Sale\Internals\EO_Product_Collection getIblockCollection()
+	 * @method \Bitrix\Iblock\EO_Element_Collection fillIblock()
+	 * @method \string[] getNameList()
+	 * @method \string[] fillName()
+	 * @method \string[] getNameWithIdentList()
+	 * @method \string[] fillNameWithIdent()
+	 * @method \boolean[] getActiveList()
+	 * @method \boolean[] fillActive()
+	 * @method \float[] getWeightList()
+	 * @method \float[] fillWeight()
+	 * @method \float[] getWeightInSiteUnitsList()
+	 * @method \float[] fillWeightInSiteUnits()
+	 * @method \float[] getPriceList()
+	 * @method \float[] fillPrice()
+	 * @method \string[] getCurrencyList()
+	 * @method \string[] fillCurrency()
+	 * @method \float[] getSummaryPriceList()
+	 * @method \float[] fillSummaryPrice()
+	 * @method \float[] getCurrentCurrencyRateList()
+	 * @method \float[] fillCurrentCurrencyRate()
+	 * @method \float[] getCurrentCurrencyRateCntList()
+	 * @method \float[] fillCurrentCurrencyRateCnt()
+	 * @method \float[] getCurrentSiteCurrencyRateList()
+	 * @method \float[] fillCurrentSiteCurrencyRate()
+	 * @method \float[] getCurrentSiteCurrencyRateCntList()
+	 * @method \float[] fillCurrentSiteCurrencyRateCnt()
+	 * @method \float[] getPurchasingCurrencyRateList()
+	 * @method \float[] fillPurchasingCurrencyRate()
+	 * @method \float[] getPurchasingCurrencyRateCntList()
+	 * @method \float[] fillPurchasingCurrencyRateCnt()
+	 * @method \float[] getPriceInSiteCurrencyList()
+	 * @method \float[] fillPriceInSiteCurrency()
+	 * @method \float[] getPurchasingPriceInSiteCurrencyList()
+	 * @method \float[] fillPurchasingPriceInSiteCurrency()
+	 * @method \float[] getSummaryPriceInSiteCurrencyList()
+	 * @method \float[] fillSummaryPriceInSiteCurrency()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Internals\EO_Product $object)
+	 * @method bool has(\Bitrix\Sale\Internals\EO_Product $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_Product getByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_Product[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Internals\EO_Product $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Internals\EO_Product_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Internals\EO_Product current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_Product_Collection merge(?EO_Product_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_Product_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Internals\ProductTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\ProductTable';
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Product_Result exec()
+	 * @method \Bitrix\Sale\Internals\EO_Product fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Product_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_Product fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fetchCollection()
+	 */
+	class EO_Product_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_Product createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Internals\EO_Product_Collection createCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Product wakeUpObject($row)
+	 * @method \Bitrix\Sale\Internals\EO_Product_Collection wakeUpCollection($rows)
+	 */
+	class EO_Product_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\SectionTable:sale\lib\internals\section.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Section
@@ -1929,6 +2473,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Section_Collection merge(?EO_Section_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Section_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\SectionTable */
@@ -1962,7 +2508,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Section_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderProcessingTable:sale/lib/internals/orderprocessing.php:fe1f01832eeee334ea18d0629c18f919 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderProcessingTable:sale\lib\internals\orderprocessing.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderProcessing
@@ -2082,6 +2628,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderProcessing_Collection merge(?EO_OrderProcessing_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderProcessing_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderProcessingTable */
@@ -2115,7 +2663,157 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderProcessing_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxTable:sale/lib/cashbox/internals/cashbox.php:f6ee5d33e2850591845d00bef1de38cf */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\GoodsSectionTable:sale\lib\internals\goodssection.php */
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_GoodsSection
+	 * @see \Bitrix\Sale\Internals\GoodsSectionTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getIblockElementId()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection setIblockElementId(\int|\Bitrix\Main\DB\SqlExpression $iblockElementId)
+	 * @method bool hasIblockElementId()
+	 * @method bool isIblockElementIdFilled()
+	 * @method bool isIblockElementIdChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Product getProduct()
+	 * @method \Bitrix\Sale\Internals\EO_Product remindActualProduct()
+	 * @method \Bitrix\Sale\Internals\EO_Product requireProduct()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection setProduct(\Bitrix\Sale\Internals\EO_Product $object)
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection resetProduct()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection unsetProduct()
+	 * @method bool hasProduct()
+	 * @method bool isProductFilled()
+	 * @method bool isProductChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Product fillProduct()
+	 * @method \int getIblockSectionId()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection setIblockSectionId(\int|\Bitrix\Main\DB\SqlExpression $iblockSectionId)
+	 * @method bool hasIblockSectionId()
+	 * @method bool isIblockSectionIdFilled()
+	 * @method bool isIblockSectionIdChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Section getSect()
+	 * @method \Bitrix\Sale\Internals\EO_Section remindActualSect()
+	 * @method \Bitrix\Sale\Internals\EO_Section requireSect()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection setSect(\Bitrix\Sale\Internals\EO_Section $object)
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection resetSect()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection unsetSect()
+	 * @method bool hasSect()
+	 * @method bool isSectFilled()
+	 * @method bool isSectChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Section fillSect()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection set($fieldName, $value)
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection reset($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Internals\EO_GoodsSection wakeUp($data)
+	 */
+	class EO_GoodsSection {
+		/* @var \Bitrix\Sale\Internals\GoodsSectionTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\GoodsSectionTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_GoodsSection_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIblockElementIdList()
+	 * @method \Bitrix\Sale\Internals\EO_Product[] getProductList()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection getProductCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fillProduct()
+	 * @method \int[] getIblockSectionIdList()
+	 * @method \Bitrix\Sale\Internals\EO_Section[] getSectList()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection getSectCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Section_Collection fillSect()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Internals\EO_GoodsSection $object)
+	 * @method bool has(\Bitrix\Sale\Internals\EO_GoodsSection $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection getByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Internals\EO_GoodsSection $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Internals\EO_GoodsSection_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_GoodsSection_Collection merge(?EO_GoodsSection_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_GoodsSection_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Internals\GoodsSectionTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\GoodsSectionTable';
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_GoodsSection_Result exec()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_GoodsSection_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection fetchCollection()
+	 */
+	class EO_GoodsSection_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection createCollection()
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection wakeUpObject($row)
+	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection wakeUpCollection($rows)
+	 */
+	class EO_GoodsSection_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxTable:sale\lib\cashbox\internals\cashbox.php */
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
 	 * EO_Cashbox
@@ -2366,6 +3064,8 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Cashbox_Collection merge(?EO_Cashbox_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Cashbox_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Cashbox\Internals\CashboxTable */
@@ -2399,7 +3099,7 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 */
 	class EO_Cashbox_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxCheckTable:sale/lib/cashbox/internals/cashboxcheck.php:7d167bc1d092303bc6d4cd3a89125dd7 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxCheckTable:sale\lib\cashbox\internals\cashboxcheck.php */
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
 	 * EO_CashboxCheck
@@ -2713,6 +3413,8 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CashboxCheck_Collection merge(?EO_CashboxCheck_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CashboxCheck_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Cashbox\Internals\CashboxCheckTable */
@@ -2746,7 +3448,7 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 */
 	class EO_CashboxCheck_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxCheckCorrectionTable:sale/lib/cashbox/internals/cashboxcheckcorrection.php:611d907153030bd83e23ad9e37942976 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxCheckCorrectionTable:sale\lib\cashbox\internals\cashboxcheckcorrection.php */
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
 	 * EO_CashboxCheckCorrection
@@ -2926,6 +3628,8 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CashboxCheckCorrection_Collection merge(?EO_CashboxCheckCorrection_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CashboxCheckCorrection_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Cashbox\Internals\CashboxCheckCorrectionTable */
@@ -2959,7 +3663,7 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 */
 	class EO_CashboxCheckCorrection_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxConnectTable:sale/lib/cashbox/internals/cashboxconnect.php:8da9f5dd64d318d7d1d86666ca51971b */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxConnectTable:sale\lib\cashbox\internals\cashboxconnect.php */
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
 	 * EO_CashboxConnect
@@ -3066,6 +3770,8 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CashboxConnect_Collection merge(?EO_CashboxConnect_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CashboxConnect_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Cashbox\Internals\CashboxConnectTable */
@@ -3099,7 +3805,7 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 */
 	class EO_CashboxConnect_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxErrLogTable:sale/lib/cashbox/internals/cashboxerrlog.php:1ba1f94a88593cece5e00943dd740a6a */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxErrLogTable:sale\lib\cashbox\internals\cashboxerrlog.php */
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
 	 * EO_CashboxErrLog
@@ -3218,6 +3924,8 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CashboxErrLog_Collection merge(?EO_CashboxErrLog_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CashboxErrLog_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Cashbox\Internals\CashboxErrLogTable */
@@ -3251,7 +3959,7 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 */
 	class EO_CashboxErrLog_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxZReportTable:sale/lib/cashbox/internals/cashboxzreport.php:2397ff97dfe2527d6c129e3330f98cc7 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxZReportTable:sale\lib\cashbox\internals\cashboxzreport.php */
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
 	 * EO_CashboxZReport
@@ -3478,6 +4186,8 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CashboxZReport_Collection merge(?EO_CashboxZReport_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CashboxZReport_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Cashbox\Internals\CashboxZReportTable */
@@ -3511,7 +4221,7 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 */
 	class EO_CashboxZReport_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\Check2CashboxTable:sale/lib/cashbox/internals/check2cashbox.php:ae1adab449aa47ddd20c134aeaf7c65d */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\Check2CashboxTable:sale\lib\cashbox\internals\check2cashbox.php */
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
 	 * EO_Check2Cashbox
@@ -3618,6 +4328,8 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Check2Cashbox_Collection merge(?EO_Check2Cashbox_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Check2Cashbox_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Cashbox\Internals\Check2CashboxTable */
@@ -3651,7 +4363,7 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 */
 	class EO_Check2Cashbox_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CheckRelatedEntitiesTable:sale/lib/cashbox/internals/checkrelatedentities.php:52264d7a9db1599f81871a16e60e988a */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CheckRelatedEntitiesTable:sale\lib\cashbox\internals\checkrelatedentities.php */
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
 	 * EO_CheckRelatedEntities
@@ -3782,6 +4494,8 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CheckRelatedEntities_Collection merge(?EO_CheckRelatedEntities_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CheckRelatedEntities_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Cashbox\Internals\CheckRelatedEntitiesTable */
@@ -3815,7 +4529,7 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 */
 	class EO_CheckRelatedEntities_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\KkmModelTable:sale/lib/cashbox/internals/kkmmodel.php:f17011d9911b404f7679a5b67d6ea071 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\KkmModelTable:sale\lib\cashbox\internals\kkmmodel.php */
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
 	 * EO_KkmModel
@@ -3922,6 +4636,8 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_KkmModel_Collection merge(?EO_KkmModel_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_KkmModel_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Cashbox\Internals\KkmModelTable */
@@ -3955,7 +4671,7 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 */
 	class EO_KkmModel_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\DeliveryLocationTable:sale/lib/delivery/deliverylocation.php:eb51306de71764286ed9421a09f26d6a */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\DeliveryLocationTable:sale\lib\delivery\deliverylocation.php */
 namespace Bitrix\Sale\Delivery {
 	/**
 	 * EO_DeliveryLocation
@@ -4089,6 +4805,8 @@ namespace Bitrix\Sale\Delivery {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DeliveryLocation_Collection merge(?EO_DeliveryLocation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DeliveryLocation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Delivery\DeliveryLocationTable */
@@ -4122,7 +4840,7 @@ namespace Bitrix\Sale\Delivery {
 	 */
 	class EO_DeliveryLocation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\DeliveryLocationExcludeTable:sale/lib/delivery/deliverylocationexclude.php:8f92755ee250eb102b2e3186d214c78a */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\DeliveryLocationExcludeTable:sale\lib\delivery\deliverylocationexclude.php */
 namespace Bitrix\Sale\Delivery {
 	/**
 	 * EO_DeliveryLocationExclude
@@ -4256,6 +4974,8 @@ namespace Bitrix\Sale\Delivery {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DeliveryLocationExclude_Collection merge(?EO_DeliveryLocationExclude_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DeliveryLocationExclude_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Delivery\DeliveryLocationExcludeTable */
@@ -4289,7 +5009,7 @@ namespace Bitrix\Sale\Delivery {
 	 */
 	class EO_DeliveryLocationExclude_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\ExtraServices\Table:sale/lib/delivery/extra_services/table.php:407b8a7cb2bd9ca68162b4199c402ee1 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\ExtraServices\Table:sale\lib\delivery\extra_services\table.php */
 namespace Bitrix\Sale\Delivery\ExtraServices {
 	/**
 	 * EO_NNM_Object
@@ -4505,6 +5225,8 @@ namespace Bitrix\Sale\Delivery\ExtraServices {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO__Collection merge(?EO__Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO__Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Delivery\ExtraServices\Table */
@@ -4538,7 +5260,7 @@ namespace Bitrix\Sale\Delivery\ExtraServices {
 	 */
 	class EO__Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\Requests\RequestTable:sale/lib/delivery/requests/request.php:34b0349fcd5236288a76d33ab9cac876 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\Requests\RequestTable:sale\lib\delivery\requests\request.php */
 namespace Bitrix\Sale\Delivery\Requests {
 	/**
 	 * EO_Request
@@ -4582,6 +5304,16 @@ namespace Bitrix\Sale\Delivery\Requests {
 	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request resetStatus()
 	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request unsetStatus()
 	 * @method \int fillStatus()
+	 * @method \int getCreatedBy()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request setCreatedBy(\int|\Bitrix\Main\DB\SqlExpression $createdBy)
+	 * @method bool hasCreatedBy()
+	 * @method bool isCreatedByFilled()
+	 * @method bool isCreatedByChanged()
+	 * @method \int remindActualCreatedBy()
+	 * @method \int requireCreatedBy()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request resetCreatedBy()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request unsetCreatedBy()
+	 * @method \int fillCreatedBy()
 	 * @method \string getExternalId()
 	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request setExternalId(\string|\Bitrix\Main\DB\SqlExpression $externalId)
 	 * @method bool hasExternalId()
@@ -4592,6 +5324,26 @@ namespace Bitrix\Sale\Delivery\Requests {
 	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request resetExternalId()
 	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request unsetExternalId()
 	 * @method \string fillExternalId()
+	 * @method \string getExternalStatus()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request setExternalStatus(\string|\Bitrix\Main\DB\SqlExpression $externalStatus)
+	 * @method bool hasExternalStatus()
+	 * @method bool isExternalStatusFilled()
+	 * @method bool isExternalStatusChanged()
+	 * @method \string remindActualExternalStatus()
+	 * @method \string requireExternalStatus()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request resetExternalStatus()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request unsetExternalStatus()
+	 * @method \string fillExternalStatus()
+	 * @method \string getExternalStatusSemantic()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request setExternalStatusSemantic(\string|\Bitrix\Main\DB\SqlExpression $externalStatusSemantic)
+	 * @method bool hasExternalStatusSemantic()
+	 * @method bool isExternalStatusSemanticFilled()
+	 * @method bool isExternalStatusSemanticChanged()
+	 * @method \string remindActualExternalStatusSemantic()
+	 * @method \string requireExternalStatusSemantic()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request resetExternalStatusSemantic()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request unsetExternalStatusSemantic()
+	 * @method \string fillExternalStatusSemantic()
 	 * @method \Bitrix\Sale\Delivery\Services\EO_NNM_Object getDelivery()
 	 * @method \Bitrix\Sale\Delivery\Services\EO_NNM_Object remindActualDelivery()
 	 * @method \Bitrix\Sale\Delivery\Services\EO_NNM_Object requireDelivery()
@@ -4602,6 +5354,27 @@ namespace Bitrix\Sale\Delivery\Requests {
 	 * @method bool isDeliveryFilled()
 	 * @method bool isDeliveryChanged()
 	 * @method \Bitrix\Sale\Delivery\Services\EO_NNM_Object fillDelivery()
+	 * @method array getExternalProperties()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request setExternalProperties(array|\Bitrix\Main\DB\SqlExpression $externalProperties)
+	 * @method bool hasExternalProperties()
+	 * @method bool isExternalPropertiesFilled()
+	 * @method bool isExternalPropertiesChanged()
+	 * @method array remindActualExternalProperties()
+	 * @method array requireExternalProperties()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request resetExternalProperties()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request unsetExternalProperties()
+	 * @method array fillExternalProperties()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Shipment_Collection getShipments()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Shipment_Collection requireShipments()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Shipment_Collection fillShipments()
+	 * @method bool hasShipments()
+	 * @method bool isShipmentsFilled()
+	 * @method bool isShipmentsChanged()
+	 * @method void addToShipments(\Bitrix\Sale\Delivery\Requests\EO_Shipment $shipment)
+	 * @method void removeFromShipments(\Bitrix\Sale\Delivery\Requests\EO_Shipment $shipment)
+	 * @method void removeAllShipments()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request resetShipments()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request unsetShipments()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -4652,11 +5425,22 @@ namespace Bitrix\Sale\Delivery\Requests {
 	 * @method \int[] fillDeliveryId()
 	 * @method \int[] getStatusList()
 	 * @method \int[] fillStatus()
+	 * @method \int[] getCreatedByList()
+	 * @method \int[] fillCreatedBy()
 	 * @method \string[] getExternalIdList()
 	 * @method \string[] fillExternalId()
+	 * @method \string[] getExternalStatusList()
+	 * @method \string[] fillExternalStatus()
+	 * @method \string[] getExternalStatusSemanticList()
+	 * @method \string[] fillExternalStatusSemantic()
 	 * @method \Bitrix\Sale\Delivery\Services\EO_NNM_Object[] getDeliveryList()
 	 * @method \Bitrix\Sale\Delivery\Requests\EO_Request_Collection getDeliveryCollection()
 	 * @method \Bitrix\Sale\Delivery\Services\EO__Collection fillDelivery()
+	 * @method array[] getExternalPropertiesList()
+	 * @method array[] fillExternalProperties()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Shipment_Collection[] getShipmentsList()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Shipment_Collection getShipmentsCollection()
+	 * @method \Bitrix\Sale\Delivery\Requests\EO_Shipment_Collection fillShipments()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -4682,6 +5466,8 @@ namespace Bitrix\Sale\Delivery\Requests {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Request_Collection merge(?EO_Request_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Request_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Delivery\Requests\RequestTable */
@@ -4715,7 +5501,7 @@ namespace Bitrix\Sale\Delivery\Requests {
 	 */
 	class EO_Request_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\Requests\ShipmentTable:sale/lib/delivery/requests/shipment.php:2e08c47c4154add055a04a2c33855b91 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\Requests\ShipmentTable:sale\lib\delivery\requests\shipment.php */
 namespace Bitrix\Sale\Delivery\Requests {
 	/**
 	 * EO_Shipment
@@ -4872,6 +5658,8 @@ namespace Bitrix\Sale\Delivery\Requests {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Shipment_Collection merge(?EO_Shipment_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Shipment_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Delivery\Requests\ShipmentTable */
@@ -4905,7 +5693,7 @@ namespace Bitrix\Sale\Delivery\Requests {
 	 */
 	class EO_Shipment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\Rest\Internals\DeliveryRestHandlerTable:sale/lib/delivery/rest/internals/deliveryresthandlertable.php:162fe624c72a042aa5c018e32dfc4e52 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\Rest\Internals\DeliveryRestHandlerTable:sale\lib\delivery\rest\internals\deliveryresthandlertable.php */
 namespace Bitrix\Sale\Delivery\Rest\Internals {
 	/**
 	 * EO_DeliveryRestHandler
@@ -5072,6 +5860,8 @@ namespace Bitrix\Sale\Delivery\Rest\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DeliveryRestHandler_Collection merge(?EO_DeliveryRestHandler_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DeliveryRestHandler_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Delivery\Rest\Internals\DeliveryRestHandlerTable */
@@ -5105,7 +5895,7 @@ namespace Bitrix\Sale\Delivery\Rest\Internals {
 	 */
 	class EO_DeliveryRestHandler_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\Services\Table:sale/lib/delivery/services/table.php:79ee0f51a358ee113835ca2f45e67e1e */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\Services\Table:sale\lib\delivery\services\table.php */
 namespace Bitrix\Sale\Delivery\Services {
 	/**
 	 * EO_NNM_Object
@@ -5369,6 +6159,8 @@ namespace Bitrix\Sale\Delivery\Services {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO__Collection merge(?EO__Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO__Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Delivery\Services\Table */
@@ -5402,7 +6194,7 @@ namespace Bitrix\Sale\Delivery\Services {
 	 */
 	class EO__Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Discount\Gift\RelatedDataTable:sale/lib/discount/gift/relateddata.php:8c786b0adde891711b89b16aaaf6812c */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Discount\Gift\RelatedDataTable:sale\lib\discount\gift\relateddata.php */
 namespace Bitrix\Sale\Discount\Gift {
 	/**
 	 * EO_RelatedData
@@ -5559,6 +6351,8 @@ namespace Bitrix\Sale\Discount\Gift {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_RelatedData_Collection merge(?EO_RelatedData_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_RelatedData_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Discount\Gift\RelatedDataTable */
@@ -5592,7 +6386,7 @@ namespace Bitrix\Sale\Discount\Gift {
 	 */
 	class EO_RelatedData_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Discount\Index\IndexElementTable:sale/lib/discount/index/indexelement.php:c82bc9ac946dccab77d8dcd286c30c56 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Discount\Index\IndexElementTable:sale\lib\discount\index\indexelement.php */
 namespace Bitrix\Sale\Discount\Index {
 	/**
 	 * EO_IndexElement
@@ -5725,6 +6519,8 @@ namespace Bitrix\Sale\Discount\Index {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_IndexElement_Collection merge(?EO_IndexElement_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_IndexElement_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Discount\Index\IndexElementTable */
@@ -5758,7 +6554,7 @@ namespace Bitrix\Sale\Discount\Index {
 	 */
 	class EO_IndexElement_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Discount\Index\IndexSectionTable:sale/lib/discount/index/indexsection.php:80c1118095b2a5f89fcb50477f4762f9 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Discount\Index\IndexSectionTable:sale\lib\discount\index\indexsection.php */
 namespace Bitrix\Sale\Discount\Index {
 	/**
 	 * EO_IndexSection
@@ -5891,6 +6687,8 @@ namespace Bitrix\Sale\Discount\Index {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_IndexSection_Collection merge(?EO_IndexSection_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_IndexSection_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Discount\Index\IndexSectionTable */
@@ -5924,7 +6722,7 @@ namespace Bitrix\Sale\Discount\Index {
 	 */
 	class EO_IndexSection_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Domain\Verification\Internals\DomainVerificationTable:sale/lib/domain/verification/internals/domainverification.php:34e85dc5a9809b5f08d301f82b5779b9 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Domain\Verification\Internals\DomainVerificationTable:sale\lib\domain\verification\internals\domainverification.php */
 namespace Bitrix\Sale\Domain\Verification\Internals {
 	/**
 	 * EO_DomainVerification
@@ -6055,6 +6853,8 @@ namespace Bitrix\Sale\Domain\Verification\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DomainVerification_Collection merge(?EO_DomainVerification_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DomainVerification_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Domain\Verification\Internals\DomainVerificationTable */
@@ -6088,7 +6888,7 @@ namespace Bitrix\Sale\Domain\Verification\Internals {
 	 */
 	class EO_DomainVerification_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationBindTable:sale/lib/exchange/integration/entity/b24integrationbindtable.php:b19b3e9050aed8a19f8b586f02062f7d */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationBindTable:sale\lib\exchange\integration\entity\b24integrationbindtable.php */
 namespace Bitrix\Sale\Exchange\Integration\Entity {
 	/**
 	 * EO_B24IntegrationBind
@@ -6225,6 +7025,8 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_B24IntegrationBind_Collection merge(?EO_B24IntegrationBind_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_B24IntegrationBind_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationBindTable */
@@ -6258,7 +7060,7 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	 */
 	class EO_B24IntegrationBind_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationRelationTable:sale/lib/exchange/integration/entity/b24integrationrelationtable.php:5217e5624e32ae763c626ccc1fe58a3b */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationRelationTable:sale\lib\exchange\integration\entity\b24integrationrelationtable.php */
 namespace Bitrix\Sale\Exchange\Integration\Entity {
 	/**
 	 * EO_B24IntegrationRelation
@@ -6383,6 +7185,8 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_B24IntegrationRelation_Collection merge(?EO_B24IntegrationRelation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_B24IntegrationRelation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationRelationTable */
@@ -6416,7 +7220,7 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	 */
 	class EO_B24IntegrationRelation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationStatProviderTable:sale/lib/exchange/integration/entity/b24integrationstatprovidertable.php:0dc3b02b9d7042544ee3a89d3a6108fd */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationStatProviderTable:sale\lib\exchange\integration\entity\b24integrationstatprovidertable.php */
 namespace Bitrix\Sale\Exchange\Integration\Entity {
 	/**
 	 * EO_B24IntegrationStatProvider
@@ -6559,6 +7363,8 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_B24IntegrationStatProvider_Collection merge(?EO_B24IntegrationStatProvider_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_B24IntegrationStatProvider_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationStatProviderTable */
@@ -6592,7 +7398,7 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	 */
 	class EO_B24IntegrationStatProvider_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24integrationStatTable:sale/lib/exchange/integration/entity/b24integrationstattable.php:d179be87368daa0de1ecd086591812ba */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24integrationStatTable:sale\lib\exchange\integration\entity\b24integrationstattable.php */
 namespace Bitrix\Sale\Exchange\Integration\Entity {
 	/**
 	 * EO_B24integrationStat
@@ -6783,6 +7589,8 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_B24integrationStat_Collection merge(?EO_B24integrationStat_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_B24integrationStat_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Exchange\Integration\Entity\B24integrationStatTable */
@@ -6816,7 +7624,7 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	 */
 	class EO_B24integrationStat_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24integrationTokenTable:sale/lib/exchange/integration/entity/b24integrationtokentable.php:3a4f32587426c133c4dec65485817055 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24integrationTokenTable:sale\lib\exchange\integration\entity\b24integrationtokentable.php */
 namespace Bitrix\Sale\Exchange\Integration\Entity {
 	/**
 	 * Token
@@ -6995,6 +7803,8 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_B24integrationToken_Collection merge(?EO_B24integrationToken_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_B24integrationToken_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Exchange\Integration\Entity\B24integrationTokenTable */
@@ -7028,7 +7838,7 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	 */
 	class EO_B24integrationToken_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Internals\ExchangeLogTable:sale/lib/exchange/internals/exchangelog.php:c780a48db943ba790114bae489f7a78a */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Internals\ExchangeLogTable:sale\lib\exchange\internals\exchangelog.php */
 namespace Bitrix\Sale\Exchange\Internals {
 	/**
 	 * EO_ExchangeLog
@@ -7255,6 +8065,8 @@ namespace Bitrix\Sale\Exchange\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ExchangeLog_Collection merge(?EO_ExchangeLog_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ExchangeLog_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Exchange\Internals\ExchangeLogTable */
@@ -7288,7 +8100,7 @@ namespace Bitrix\Sale\Exchange\Internals {
 	 */
 	class EO_ExchangeLog_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BusinessValuePersonDomainTable:sale/lib/internals/businessvalue_persondomain.php:a7d9a80c0f10be19ef211df655eb17c8 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BusinessValuePersonDomainTable:sale\lib\internals\businessvalue_persondomain.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_BusinessValuePersonDomain
@@ -7390,6 +8202,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_BusinessValuePersonDomain_Collection merge(?EO_BusinessValuePersonDomain_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_BusinessValuePersonDomain_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\BusinessValuePersonDomainTable */
@@ -7423,7 +8237,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_BusinessValuePersonDomain_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PersonTypeSiteTable:sale/lib/internals/persontypesite.php:933c6f72f7e60c554aa2cc15fac754ca */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PersonTypeSiteTable:sale\lib\internals\persontypesite.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_PersonTypeSite
@@ -7512,6 +8326,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_PersonTypeSite_Collection merge(?EO_PersonTypeSite_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_PersonTypeSite_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\PersonTypeSiteTable */
@@ -7545,7 +8361,1033 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_PersonTypeSite_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BasketArchiveTable:sale/lib/internals/basketarchive.php:f35032566587a53bc12558bf2aaefbc2 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\Analytics\AnalyticsTable:sale\lib\internals\analytics\analyticstable.php */
+namespace Bitrix\Sale\Internals\Analytics {
+	/**
+	 * EO_Analytics
+	 * @see \Bitrix\Sale\Internals\Analytics\AnalyticsTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getCode()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics setCode(\string|\Bitrix\Main\DB\SqlExpression $code)
+	 * @method bool hasCode()
+	 * @method bool isCodeFilled()
+	 * @method bool isCodeChanged()
+	 * @method \string remindActualCode()
+	 * @method \string requireCode()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics resetCode()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics unsetCode()
+	 * @method \string fillCode()
+	 * @method \Bitrix\Main\Type\DateTime getCreatedAt()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics setCreatedAt(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $createdAt)
+	 * @method bool hasCreatedAt()
+	 * @method bool isCreatedAtFilled()
+	 * @method bool isCreatedAtChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualCreatedAt()
+	 * @method \Bitrix\Main\Type\DateTime requireCreatedAt()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics resetCreatedAt()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics unsetCreatedAt()
+	 * @method \Bitrix\Main\Type\DateTime fillCreatedAt()
+	 * @method array getPayload()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics setPayload(array|\Bitrix\Main\DB\SqlExpression $payload)
+	 * @method bool hasPayload()
+	 * @method bool isPayloadFilled()
+	 * @method bool isPayloadChanged()
+	 * @method array remindActualPayload()
+	 * @method array requirePayload()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics resetPayload()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics unsetPayload()
+	 * @method array fillPayload()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics set($fieldName, $value)
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics reset($fieldName)
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Internals\Analytics\EO_Analytics wakeUp($data)
+	 */
+	class EO_Analytics {
+		/* @var \Bitrix\Sale\Internals\Analytics\AnalyticsTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\Analytics\AnalyticsTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Internals\Analytics {
+	/**
+	 * EO_Analytics_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getCodeList()
+	 * @method \string[] fillCode()
+	 * @method \Bitrix\Main\Type\DateTime[] getCreatedAtList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillCreatedAt()
+	 * @method array[] getPayloadList()
+	 * @method array[] fillPayload()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Internals\Analytics\EO_Analytics $object)
+	 * @method bool has(\Bitrix\Sale\Internals\Analytics\EO_Analytics $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics getByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Internals\Analytics\EO_Analytics $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Internals\Analytics\EO_Analytics_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_Analytics_Collection merge(?EO_Analytics_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_Analytics_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Internals\Analytics\AnalyticsTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\Analytics\AnalyticsTable';
+	}
+}
+namespace Bitrix\Sale\Internals\Analytics {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Analytics_Result exec()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics fetchObject()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Analytics_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics fetchObject()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics_Collection fetchCollection()
+	 */
+	class EO_Analytics_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics_Collection createCollection()
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics wakeUpObject($row)
+	 * @method \Bitrix\Sale\Internals\Analytics\EO_Analytics_Collection wakeUpCollection($rows)
+	 */
+	class EO_Analytics_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BasketTable:sale\lib\internals\basket.php */
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_Basket
+	 * @see \Bitrix\Sale\Internals\BasketTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getLid()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setLid(\string|\Bitrix\Main\DB\SqlExpression $lid)
+	 * @method bool hasLid()
+	 * @method bool isLidFilled()
+	 * @method bool isLidChanged()
+	 * @method \string remindActualLid()
+	 * @method \string requireLid()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetLid()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetLid()
+	 * @method \string fillLid()
+	 * @method \int getFuserId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setFuserId(\int|\Bitrix\Main\DB\SqlExpression $fuserId)
+	 * @method bool hasFuserId()
+	 * @method bool isFuserIdFilled()
+	 * @method bool isFuserIdChanged()
+	 * @method \int remindActualFuserId()
+	 * @method \int requireFuserId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetFuserId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetFuserId()
+	 * @method \int fillFuserId()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser getFuser()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser remindActualFuser()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser requireFuser()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setFuser(\Bitrix\Sale\Internals\EO_Fuser $object)
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetFuser()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetFuser()
+	 * @method bool hasFuser()
+	 * @method bool isFuserFilled()
+	 * @method bool isFuserChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser fillFuser()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetUser()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \int getOrderId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setOrderId(\int|\Bitrix\Main\DB\SqlExpression $orderId)
+	 * @method bool hasOrderId()
+	 * @method bool isOrderIdFilled()
+	 * @method bool isOrderIdChanged()
+	 * @method \int remindActualOrderId()
+	 * @method \int requireOrderId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetOrderId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetOrderId()
+	 * @method \int fillOrderId()
+	 * @method \Bitrix\Sale\Internals\EO_Order getOrder()
+	 * @method \Bitrix\Sale\Internals\EO_Order remindActualOrder()
+	 * @method \Bitrix\Sale\Internals\EO_Order requireOrder()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setOrder(\Bitrix\Sale\Internals\EO_Order $object)
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetOrder()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetOrder()
+	 * @method bool hasOrder()
+	 * @method bool isOrderFilled()
+	 * @method bool isOrderChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Order fillOrder()
+	 * @method \int getProductId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setProductId(\int|\Bitrix\Main\DB\SqlExpression $productId)
+	 * @method bool hasProductId()
+	 * @method bool isProductIdFilled()
+	 * @method bool isProductIdChanged()
+	 * @method \int remindActualProductId()
+	 * @method \int requireProductId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetProductId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProductId()
+	 * @method \int fillProductId()
+	 * @method \Bitrix\Sale\Internals\EO_Product getProduct()
+	 * @method \Bitrix\Sale\Internals\EO_Product remindActualProduct()
+	 * @method \Bitrix\Sale\Internals\EO_Product requireProduct()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setProduct(\Bitrix\Sale\Internals\EO_Product $object)
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetProduct()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProduct()
+	 * @method bool hasProduct()
+	 * @method bool isProductFilled()
+	 * @method bool isProductChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Product fillProduct()
+	 * @method \int getProductPriceId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setProductPriceId(\int|\Bitrix\Main\DB\SqlExpression $productPriceId)
+	 * @method bool hasProductPriceId()
+	 * @method bool isProductPriceIdFilled()
+	 * @method bool isProductPriceIdChanged()
+	 * @method \int remindActualProductPriceId()
+	 * @method \int requireProductPriceId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetProductPriceId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProductPriceId()
+	 * @method \int fillProductPriceId()
+	 * @method \int getPriceTypeId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setPriceTypeId(\int|\Bitrix\Main\DB\SqlExpression $priceTypeId)
+	 * @method bool hasPriceTypeId()
+	 * @method bool isPriceTypeIdFilled()
+	 * @method bool isPriceTypeIdChanged()
+	 * @method \int remindActualPriceTypeId()
+	 * @method \int requirePriceTypeId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetPriceTypeId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetPriceTypeId()
+	 * @method \int fillPriceTypeId()
+	 * @method \string getName()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
+	 * @method \string remindActualName()
+	 * @method \string requireName()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetName()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetName()
+	 * @method \string fillName()
+	 * @method \string getNameWithIdent()
+	 * @method \string remindActualNameWithIdent()
+	 * @method \string requireNameWithIdent()
+	 * @method bool hasNameWithIdent()
+	 * @method bool isNameWithIdentFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetNameWithIdent()
+	 * @method \string fillNameWithIdent()
+	 * @method \float getPrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setPrice(\float|\Bitrix\Main\DB\SqlExpression $price)
+	 * @method bool hasPrice()
+	 * @method bool isPriceFilled()
+	 * @method bool isPriceChanged()
+	 * @method \float remindActualPrice()
+	 * @method \float requirePrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetPrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetPrice()
+	 * @method \float fillPrice()
+	 * @method \string getCurrency()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setCurrency(\string|\Bitrix\Main\DB\SqlExpression $currency)
+	 * @method bool hasCurrency()
+	 * @method bool isCurrencyFilled()
+	 * @method bool isCurrencyChanged()
+	 * @method \string remindActualCurrency()
+	 * @method \string requireCurrency()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetCurrency()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCurrency()
+	 * @method \string fillCurrency()
+	 * @method \float getBasePrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setBasePrice(\float|\Bitrix\Main\DB\SqlExpression $basePrice)
+	 * @method bool hasBasePrice()
+	 * @method bool isBasePriceFilled()
+	 * @method bool isBasePriceChanged()
+	 * @method \float remindActualBasePrice()
+	 * @method \float requireBasePrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetBasePrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetBasePrice()
+	 * @method \float fillBasePrice()
+	 * @method \boolean getVatIncluded()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setVatIncluded(\boolean|\Bitrix\Main\DB\SqlExpression $vatIncluded)
+	 * @method bool hasVatIncluded()
+	 * @method bool isVatIncludedFilled()
+	 * @method bool isVatIncludedChanged()
+	 * @method \boolean remindActualVatIncluded()
+	 * @method \boolean requireVatIncluded()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetVatIncluded()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetVatIncluded()
+	 * @method \boolean fillVatIncluded()
+	 * @method \Bitrix\Main\Type\DateTime getDateInsert()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setDateInsert(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateInsert)
+	 * @method bool hasDateInsert()
+	 * @method bool isDateInsertFilled()
+	 * @method bool isDateInsertChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime requireDateInsert()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetDateInsert()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime fillDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime getDateIns()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateIns()
+	 * @method \Bitrix\Main\Type\DateTime requireDateIns()
+	 * @method bool hasDateIns()
+	 * @method bool isDateInsFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateIns()
+	 * @method \Bitrix\Main\Type\DateTime fillDateIns()
+	 * @method \Bitrix\Main\Type\DateTime getDateUpdate()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setDateUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateUpdate)
+	 * @method bool hasDateUpdate()
+	 * @method bool isDateUpdateFilled()
+	 * @method bool isDateUpdateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpdate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateUpdate()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetDateUpdate()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateUpdate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateUpdate()
+	 * @method \Bitrix\Main\Type\DateTime getDateUpd()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpd()
+	 * @method \Bitrix\Main\Type\DateTime requireDateUpd()
+	 * @method bool hasDateUpd()
+	 * @method bool isDateUpdFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateUpd()
+	 * @method \Bitrix\Main\Type\DateTime fillDateUpd()
+	 * @method \Bitrix\Main\Type\DateTime getDateRefresh()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setDateRefresh(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateRefresh)
+	 * @method bool hasDateRefresh()
+	 * @method bool isDateRefreshFilled()
+	 * @method bool isDateRefreshChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateRefresh()
+	 * @method \Bitrix\Main\Type\DateTime requireDateRefresh()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetDateRefresh()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateRefresh()
+	 * @method \Bitrix\Main\Type\DateTime fillDateRefresh()
+	 * @method \Bitrix\Main\Type\DateTime getDateRef()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateRef()
+	 * @method \Bitrix\Main\Type\DateTime requireDateRef()
+	 * @method bool hasDateRef()
+	 * @method bool isDateRefFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateRef()
+	 * @method \Bitrix\Main\Type\DateTime fillDateRef()
+	 * @method \float getWeight()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setWeight(\float|\Bitrix\Main\DB\SqlExpression $weight)
+	 * @method bool hasWeight()
+	 * @method bool isWeightFilled()
+	 * @method bool isWeightChanged()
+	 * @method \float remindActualWeight()
+	 * @method \float requireWeight()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetWeight()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetWeight()
+	 * @method \float fillWeight()
+	 * @method \float getQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setQuantity(\float|\Bitrix\Main\DB\SqlExpression $quantity)
+	 * @method bool hasQuantity()
+	 * @method bool isQuantityFilled()
+	 * @method bool isQuantityChanged()
+	 * @method \float remindActualQuantity()
+	 * @method \float requireQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetQuantity()
+	 * @method \float fillQuantity()
+	 * @method \boolean getDelay()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setDelay(\boolean|\Bitrix\Main\DB\SqlExpression $delay)
+	 * @method bool hasDelay()
+	 * @method bool isDelayFilled()
+	 * @method bool isDelayChanged()
+	 * @method \boolean remindActualDelay()
+	 * @method \boolean requireDelay()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetDelay()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDelay()
+	 * @method \boolean fillDelay()
+	 * @method \float getSummaryPrice()
+	 * @method \float remindActualSummaryPrice()
+	 * @method \float requireSummaryPrice()
+	 * @method bool hasSummaryPrice()
+	 * @method bool isSummaryPriceFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetSummaryPrice()
+	 * @method \float fillSummaryPrice()
+	 * @method \boolean getCanBuy()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setCanBuy(\boolean|\Bitrix\Main\DB\SqlExpression $canBuy)
+	 * @method bool hasCanBuy()
+	 * @method bool isCanBuyFilled()
+	 * @method bool isCanBuyChanged()
+	 * @method \boolean remindActualCanBuy()
+	 * @method \boolean requireCanBuy()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetCanBuy()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCanBuy()
+	 * @method \boolean fillCanBuy()
+	 * @method \string getMarkingCodeGroup()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setMarkingCodeGroup(\string|\Bitrix\Main\DB\SqlExpression $markingCodeGroup)
+	 * @method bool hasMarkingCodeGroup()
+	 * @method bool isMarkingCodeGroupFilled()
+	 * @method bool isMarkingCodeGroupChanged()
+	 * @method \string remindActualMarkingCodeGroup()
+	 * @method \string requireMarkingCodeGroup()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetMarkingCodeGroup()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetMarkingCodeGroup()
+	 * @method \string fillMarkingCodeGroup()
+	 * @method \string getModule()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setModule(\string|\Bitrix\Main\DB\SqlExpression $module)
+	 * @method bool hasModule()
+	 * @method bool isModuleFilled()
+	 * @method bool isModuleChanged()
+	 * @method \string remindActualModule()
+	 * @method \string requireModule()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetModule()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetModule()
+	 * @method \string fillModule()
+	 * @method \string getProductProviderClass()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setProductProviderClass(\string|\Bitrix\Main\DB\SqlExpression $productProviderClass)
+	 * @method bool hasProductProviderClass()
+	 * @method bool isProductProviderClassFilled()
+	 * @method bool isProductProviderClassChanged()
+	 * @method \string remindActualProductProviderClass()
+	 * @method \string requireProductProviderClass()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetProductProviderClass()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProductProviderClass()
+	 * @method \string fillProductProviderClass()
+	 * @method \string getNotes()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setNotes(\string|\Bitrix\Main\DB\SqlExpression $notes)
+	 * @method bool hasNotes()
+	 * @method bool isNotesFilled()
+	 * @method bool isNotesChanged()
+	 * @method \string remindActualNotes()
+	 * @method \string requireNotes()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetNotes()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetNotes()
+	 * @method \string fillNotes()
+	 * @method \string getDetailPageUrl()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setDetailPageUrl(\string|\Bitrix\Main\DB\SqlExpression $detailPageUrl)
+	 * @method bool hasDetailPageUrl()
+	 * @method bool isDetailPageUrlFilled()
+	 * @method bool isDetailPageUrlChanged()
+	 * @method \string remindActualDetailPageUrl()
+	 * @method \string requireDetailPageUrl()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetDetailPageUrl()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDetailPageUrl()
+	 * @method \string fillDetailPageUrl()
+	 * @method \float getDiscountPrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setDiscountPrice(\float|\Bitrix\Main\DB\SqlExpression $discountPrice)
+	 * @method bool hasDiscountPrice()
+	 * @method bool isDiscountPriceFilled()
+	 * @method bool isDiscountPriceChanged()
+	 * @method \float remindActualDiscountPrice()
+	 * @method \float requireDiscountPrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetDiscountPrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDiscountPrice()
+	 * @method \float fillDiscountPrice()
+	 * @method \string getCatalogXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setCatalogXmlId(\string|\Bitrix\Main\DB\SqlExpression $catalogXmlId)
+	 * @method bool hasCatalogXmlId()
+	 * @method bool isCatalogXmlIdFilled()
+	 * @method bool isCatalogXmlIdChanged()
+	 * @method \string remindActualCatalogXmlId()
+	 * @method \string requireCatalogXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetCatalogXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCatalogXmlId()
+	 * @method \string fillCatalogXmlId()
+	 * @method \string getProductXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setProductXmlId(\string|\Bitrix\Main\DB\SqlExpression $productXmlId)
+	 * @method bool hasProductXmlId()
+	 * @method bool isProductXmlIdFilled()
+	 * @method bool isProductXmlIdChanged()
+	 * @method \string remindActualProductXmlId()
+	 * @method \string requireProductXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetProductXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProductXmlId()
+	 * @method \string fillProductXmlId()
+	 * @method \string getDiscountName()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setDiscountName(\string|\Bitrix\Main\DB\SqlExpression $discountName)
+	 * @method bool hasDiscountName()
+	 * @method bool isDiscountNameFilled()
+	 * @method bool isDiscountNameChanged()
+	 * @method \string remindActualDiscountName()
+	 * @method \string requireDiscountName()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetDiscountName()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDiscountName()
+	 * @method \string fillDiscountName()
+	 * @method \string getDiscountValue()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setDiscountValue(\string|\Bitrix\Main\DB\SqlExpression $discountValue)
+	 * @method bool hasDiscountValue()
+	 * @method bool isDiscountValueFilled()
+	 * @method bool isDiscountValueChanged()
+	 * @method \string remindActualDiscountValue()
+	 * @method \string requireDiscountValue()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetDiscountValue()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDiscountValue()
+	 * @method \string fillDiscountValue()
+	 * @method \string getDiscountCoupon()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setDiscountCoupon(\string|\Bitrix\Main\DB\SqlExpression $discountCoupon)
+	 * @method bool hasDiscountCoupon()
+	 * @method bool isDiscountCouponFilled()
+	 * @method bool isDiscountCouponChanged()
+	 * @method \string remindActualDiscountCoupon()
+	 * @method \string requireDiscountCoupon()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetDiscountCoupon()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDiscountCoupon()
+	 * @method \string fillDiscountCoupon()
+	 * @method \float getVatRate()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setVatRate(\float|\Bitrix\Main\DB\SqlExpression $vatRate)
+	 * @method bool hasVatRate()
+	 * @method bool isVatRateFilled()
+	 * @method bool isVatRateChanged()
+	 * @method \float remindActualVatRate()
+	 * @method \float requireVatRate()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetVatRate()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetVatRate()
+	 * @method \float fillVatRate()
+	 * @method \string getVatRatePrc()
+	 * @method \string remindActualVatRatePrc()
+	 * @method \string requireVatRatePrc()
+	 * @method bool hasVatRatePrc()
+	 * @method bool isVatRatePrcFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetVatRatePrc()
+	 * @method \string fillVatRatePrc()
+	 * @method \boolean getSubscribe()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setSubscribe(\boolean|\Bitrix\Main\DB\SqlExpression $subscribe)
+	 * @method bool hasSubscribe()
+	 * @method bool isSubscribeFilled()
+	 * @method bool isSubscribeChanged()
+	 * @method \boolean remindActualSubscribe()
+	 * @method \boolean requireSubscribe()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetSubscribe()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetSubscribe()
+	 * @method \boolean fillSubscribe()
+	 * @method \int getNSubscribe()
+	 * @method \int remindActualNSubscribe()
+	 * @method \int requireNSubscribe()
+	 * @method bool hasNSubscribe()
+	 * @method bool isNSubscribeFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetNSubscribe()
+	 * @method \int fillNSubscribe()
+	 * @method \boolean getReserved()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setReserved(\boolean|\Bitrix\Main\DB\SqlExpression $reserved)
+	 * @method bool hasReserved()
+	 * @method bool isReservedFilled()
+	 * @method bool isReservedChanged()
+	 * @method \boolean remindActualReserved()
+	 * @method \boolean requireReserved()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetReserved()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetReserved()
+	 * @method \boolean fillReserved()
+	 * @method \float getReserveQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setReserveQuantity(\float|\Bitrix\Main\DB\SqlExpression $reserveQuantity)
+	 * @method bool hasReserveQuantity()
+	 * @method bool isReserveQuantityFilled()
+	 * @method bool isReserveQuantityChanged()
+	 * @method \float remindActualReserveQuantity()
+	 * @method \float requireReserveQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetReserveQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetReserveQuantity()
+	 * @method \float fillReserveQuantity()
+	 * @method \boolean getBarcodeMulti()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setBarcodeMulti(\boolean|\Bitrix\Main\DB\SqlExpression $barcodeMulti)
+	 * @method bool hasBarcodeMulti()
+	 * @method bool isBarcodeMultiFilled()
+	 * @method bool isBarcodeMultiChanged()
+	 * @method \boolean remindActualBarcodeMulti()
+	 * @method \boolean requireBarcodeMulti()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetBarcodeMulti()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetBarcodeMulti()
+	 * @method \boolean fillBarcodeMulti()
+	 * @method \boolean getCustomPrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setCustomPrice(\boolean|\Bitrix\Main\DB\SqlExpression $customPrice)
+	 * @method bool hasCustomPrice()
+	 * @method bool isCustomPriceFilled()
+	 * @method bool isCustomPriceChanged()
+	 * @method \boolean remindActualCustomPrice()
+	 * @method \boolean requireCustomPrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetCustomPrice()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCustomPrice()
+	 * @method \boolean fillCustomPrice()
+	 * @method \string getDimensions()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setDimensions(\string|\Bitrix\Main\DB\SqlExpression $dimensions)
+	 * @method bool hasDimensions()
+	 * @method bool isDimensionsFilled()
+	 * @method bool isDimensionsChanged()
+	 * @method \string remindActualDimensions()
+	 * @method \string requireDimensions()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetDimensions()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDimensions()
+	 * @method \string fillDimensions()
+	 * @method \int getType()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setType(\int|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method bool hasType()
+	 * @method bool isTypeFilled()
+	 * @method bool isTypeChanged()
+	 * @method \int remindActualType()
+	 * @method \int requireType()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetType()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetType()
+	 * @method \int fillType()
+	 * @method \int getSetParentId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setSetParentId(\int|\Bitrix\Main\DB\SqlExpression $setParentId)
+	 * @method bool hasSetParentId()
+	 * @method bool isSetParentIdFilled()
+	 * @method bool isSetParentIdChanged()
+	 * @method \int remindActualSetParentId()
+	 * @method \int requireSetParentId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetSetParentId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetSetParentId()
+	 * @method \int fillSetParentId()
+	 * @method \int getMeasureCode()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setMeasureCode(\int|\Bitrix\Main\DB\SqlExpression $measureCode)
+	 * @method bool hasMeasureCode()
+	 * @method bool isMeasureCodeFilled()
+	 * @method bool isMeasureCodeChanged()
+	 * @method \int remindActualMeasureCode()
+	 * @method \int requireMeasureCode()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetMeasureCode()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetMeasureCode()
+	 * @method \int fillMeasureCode()
+	 * @method \string getMeasureName()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setMeasureName(\string|\Bitrix\Main\DB\SqlExpression $measureName)
+	 * @method bool hasMeasureName()
+	 * @method bool isMeasureNameFilled()
+	 * @method bool isMeasureNameChanged()
+	 * @method \string remindActualMeasureName()
+	 * @method \string requireMeasureName()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetMeasureName()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetMeasureName()
+	 * @method \string fillMeasureName()
+	 * @method \string getCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setCallbackFunc(\string|\Bitrix\Main\DB\SqlExpression $callbackFunc)
+	 * @method bool hasCallbackFunc()
+	 * @method bool isCallbackFuncFilled()
+	 * @method bool isCallbackFuncChanged()
+	 * @method \string remindActualCallbackFunc()
+	 * @method \string requireCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCallbackFunc()
+	 * @method \string fillCallbackFunc()
+	 * @method \string getOrderCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setOrderCallbackFunc(\string|\Bitrix\Main\DB\SqlExpression $orderCallbackFunc)
+	 * @method bool hasOrderCallbackFunc()
+	 * @method bool isOrderCallbackFuncFilled()
+	 * @method bool isOrderCallbackFuncChanged()
+	 * @method \string remindActualOrderCallbackFunc()
+	 * @method \string requireOrderCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetOrderCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetOrderCallbackFunc()
+	 * @method \string fillOrderCallbackFunc()
+	 * @method \string getCancelCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setCancelCallbackFunc(\string|\Bitrix\Main\DB\SqlExpression $cancelCallbackFunc)
+	 * @method bool hasCancelCallbackFunc()
+	 * @method bool isCancelCallbackFuncFilled()
+	 * @method bool isCancelCallbackFuncChanged()
+	 * @method \string remindActualCancelCallbackFunc()
+	 * @method \string requireCancelCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetCancelCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCancelCallbackFunc()
+	 * @method \string fillCancelCallbackFunc()
+	 * @method \string getPayCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setPayCallbackFunc(\string|\Bitrix\Main\DB\SqlExpression $payCallbackFunc)
+	 * @method bool hasPayCallbackFunc()
+	 * @method bool isPayCallbackFuncFilled()
+	 * @method bool isPayCallbackFuncChanged()
+	 * @method \string remindActualPayCallbackFunc()
+	 * @method \string requirePayCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetPayCallbackFunc()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetPayCallbackFunc()
+	 * @method \string fillPayCallbackFunc()
+	 * @method \string getRecommendation()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setRecommendation(\string|\Bitrix\Main\DB\SqlExpression $recommendation)
+	 * @method bool hasRecommendation()
+	 * @method bool isRecommendationFilled()
+	 * @method bool isRecommendationChanged()
+	 * @method \string remindActualRecommendation()
+	 * @method \string requireRecommendation()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetRecommendation()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetRecommendation()
+	 * @method \string fillRecommendation()
+	 * @method \float getAllPrice()
+	 * @method \float remindActualAllPrice()
+	 * @method \float requireAllPrice()
+	 * @method bool hasAllPrice()
+	 * @method bool isAllPriceFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetAllPrice()
+	 * @method \float fillAllPrice()
+	 * @method \float getSummaryPurchasingPrice()
+	 * @method \float remindActualSummaryPurchasingPrice()
+	 * @method \float requireSummaryPurchasingPrice()
+	 * @method bool hasSummaryPurchasingPrice()
+	 * @method bool isSummaryPurchasingPriceFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetSummaryPurchasingPrice()
+	 * @method \float fillSummaryPurchasingPrice()
+	 * @method \float getGrossProfit()
+	 * @method \float remindActualGrossProfit()
+	 * @method \float requireGrossProfit()
+	 * @method bool hasGrossProfit()
+	 * @method bool isGrossProfitFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetGrossProfit()
+	 * @method \float fillGrossProfit()
+	 * @method \float getProfitability()
+	 * @method \float remindActualProfitability()
+	 * @method \float requireProfitability()
+	 * @method bool hasProfitability()
+	 * @method bool isProfitabilityFilled()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProfitability()
+	 * @method \float fillProfitability()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem getShipmentItem()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem remindActualShipmentItem()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem requireShipmentItem()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setShipmentItem(\Bitrix\Sale\Internals\EO_ShipmentItem $object)
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetShipmentItem()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetShipmentItem()
+	 * @method bool hasShipmentItem()
+	 * @method bool isShipmentItemFilled()
+	 * @method bool isShipmentItemChanged()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem fillShipmentItem()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment getShipment()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment remindActualShipment()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment requireShipment()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setShipment(\Bitrix\Sale\Internals\EO_Shipment $object)
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetShipment()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetShipment()
+	 * @method bool hasShipment()
+	 * @method bool isShipmentFilled()
+	 * @method bool isShipmentChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment fillShipment()
+	 * @method \Bitrix\Sale\Internals\EO_Payment getPayment()
+	 * @method \Bitrix\Sale\Internals\EO_Payment remindActualPayment()
+	 * @method \Bitrix\Sale\Internals\EO_Payment requirePayment()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setPayment(\Bitrix\Sale\Internals\EO_Payment $object)
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetPayment()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetPayment()
+	 * @method bool hasPayment()
+	 * @method bool isPaymentFilled()
+	 * @method bool isPaymentChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Payment fillPayment()
+	 * @method \int getSort()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setSort(\int|\Bitrix\Main\DB\SqlExpression $sort)
+	 * @method bool hasSort()
+	 * @method bool isSortFilled()
+	 * @method bool isSortChanged()
+	 * @method \int remindActualSort()
+	 * @method \int requireSort()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetSort()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetSort()
+	 * @method \int fillSort()
+	 * @method \string getXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket setXmlId(\string|\Bitrix\Main\DB\SqlExpression $xmlId)
+	 * @method bool hasXmlId()
+	 * @method bool isXmlIdFilled()
+	 * @method bool isXmlIdChanged()
+	 * @method \string remindActualXmlId()
+	 * @method \string requireXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket resetXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket unsetXmlId()
+	 * @method \string fillXmlId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_Basket set($fieldName, $value)
+	 * @method \Bitrix\Sale\Internals\EO_Basket reset($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_Basket unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Internals\EO_Basket wakeUp($data)
+	 */
+	class EO_Basket {
+		/* @var \Bitrix\Sale\Internals\BasketTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\BasketTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_Basket_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getLidList()
+	 * @method \string[] fillLid()
+	 * @method \int[] getFuserIdList()
+	 * @method \int[] fillFuserId()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser[] getFuserList()
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getFuserCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser_Collection fillFuser()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \int[] getOrderIdList()
+	 * @method \int[] fillOrderId()
+	 * @method \Bitrix\Sale\Internals\EO_Order[] getOrderList()
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getOrderCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Order_Collection fillOrder()
+	 * @method \int[] getProductIdList()
+	 * @method \int[] fillProductId()
+	 * @method \Bitrix\Sale\Internals\EO_Product[] getProductList()
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getProductCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fillProduct()
+	 * @method \int[] getProductPriceIdList()
+	 * @method \int[] fillProductPriceId()
+	 * @method \int[] getPriceTypeIdList()
+	 * @method \int[] fillPriceTypeId()
+	 * @method \string[] getNameList()
+	 * @method \string[] fillName()
+	 * @method \string[] getNameWithIdentList()
+	 * @method \string[] fillNameWithIdent()
+	 * @method \float[] getPriceList()
+	 * @method \float[] fillPrice()
+	 * @method \string[] getCurrencyList()
+	 * @method \string[] fillCurrency()
+	 * @method \float[] getBasePriceList()
+	 * @method \float[] fillBasePrice()
+	 * @method \boolean[] getVatIncludedList()
+	 * @method \boolean[] fillVatIncluded()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateInsertList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateInsList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateIns()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpdate()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpd()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateRefreshList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateRefresh()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateRefList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateRef()
+	 * @method \float[] getWeightList()
+	 * @method \float[] fillWeight()
+	 * @method \float[] getQuantityList()
+	 * @method \float[] fillQuantity()
+	 * @method \boolean[] getDelayList()
+	 * @method \boolean[] fillDelay()
+	 * @method \float[] getSummaryPriceList()
+	 * @method \float[] fillSummaryPrice()
+	 * @method \boolean[] getCanBuyList()
+	 * @method \boolean[] fillCanBuy()
+	 * @method \string[] getMarkingCodeGroupList()
+	 * @method \string[] fillMarkingCodeGroup()
+	 * @method \string[] getModuleList()
+	 * @method \string[] fillModule()
+	 * @method \string[] getProductProviderClassList()
+	 * @method \string[] fillProductProviderClass()
+	 * @method \string[] getNotesList()
+	 * @method \string[] fillNotes()
+	 * @method \string[] getDetailPageUrlList()
+	 * @method \string[] fillDetailPageUrl()
+	 * @method \float[] getDiscountPriceList()
+	 * @method \float[] fillDiscountPrice()
+	 * @method \string[] getCatalogXmlIdList()
+	 * @method \string[] fillCatalogXmlId()
+	 * @method \string[] getProductXmlIdList()
+	 * @method \string[] fillProductXmlId()
+	 * @method \string[] getDiscountNameList()
+	 * @method \string[] fillDiscountName()
+	 * @method \string[] getDiscountValueList()
+	 * @method \string[] fillDiscountValue()
+	 * @method \string[] getDiscountCouponList()
+	 * @method \string[] fillDiscountCoupon()
+	 * @method \float[] getVatRateList()
+	 * @method \float[] fillVatRate()
+	 * @method \string[] getVatRatePrcList()
+	 * @method \string[] fillVatRatePrc()
+	 * @method \boolean[] getSubscribeList()
+	 * @method \boolean[] fillSubscribe()
+	 * @method \int[] getNSubscribeList()
+	 * @method \int[] fillNSubscribe()
+	 * @method \boolean[] getReservedList()
+	 * @method \boolean[] fillReserved()
+	 * @method \float[] getReserveQuantityList()
+	 * @method \float[] fillReserveQuantity()
+	 * @method \boolean[] getBarcodeMultiList()
+	 * @method \boolean[] fillBarcodeMulti()
+	 * @method \boolean[] getCustomPriceList()
+	 * @method \boolean[] fillCustomPrice()
+	 * @method \string[] getDimensionsList()
+	 * @method \string[] fillDimensions()
+	 * @method \int[] getTypeList()
+	 * @method \int[] fillType()
+	 * @method \int[] getSetParentIdList()
+	 * @method \int[] fillSetParentId()
+	 * @method \int[] getMeasureCodeList()
+	 * @method \int[] fillMeasureCode()
+	 * @method \string[] getMeasureNameList()
+	 * @method \string[] fillMeasureName()
+	 * @method \string[] getCallbackFuncList()
+	 * @method \string[] fillCallbackFunc()
+	 * @method \string[] getOrderCallbackFuncList()
+	 * @method \string[] fillOrderCallbackFunc()
+	 * @method \string[] getCancelCallbackFuncList()
+	 * @method \string[] fillCancelCallbackFunc()
+	 * @method \string[] getPayCallbackFuncList()
+	 * @method \string[] fillPayCallbackFunc()
+	 * @method \string[] getRecommendationList()
+	 * @method \string[] fillRecommendation()
+	 * @method \float[] getAllPriceList()
+	 * @method \float[] fillAllPrice()
+	 * @method \float[] getSummaryPurchasingPriceList()
+	 * @method \float[] fillSummaryPurchasingPrice()
+	 * @method \float[] getGrossProfitList()
+	 * @method \float[] fillGrossProfit()
+	 * @method \float[] getProfitabilityList()
+	 * @method \float[] fillProfitability()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem[] getShipmentItemList()
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getShipmentItemCollection()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem_Collection fillShipmentItem()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment[] getShipmentList()
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getShipmentCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment_Collection fillShipment()
+	 * @method \Bitrix\Sale\Internals\EO_Payment[] getPaymentList()
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getPaymentCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Payment_Collection fillPayment()
+	 * @method \int[] getSortList()
+	 * @method \int[] fillSort()
+	 * @method \string[] getXmlIdList()
+	 * @method \string[] fillXmlId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Internals\EO_Basket $object)
+	 * @method bool has(\Bitrix\Sale\Internals\EO_Basket $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_Basket getByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_Basket[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Internals\EO_Basket $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Internals\EO_Basket_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Internals\EO_Basket current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_Basket_Collection merge(?EO_Basket_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_Basket_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Internals\BasketTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\BasketTable';
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Basket_Result exec()
+	 * @method \Bitrix\Sale\Internals\EO_Basket fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Basket_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_Basket fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection fetchCollection()
+	 */
+	class EO_Basket_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_Basket createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection createCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Basket wakeUpObject($row)
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection wakeUpCollection($rows)
+	 */
+	class EO_Basket_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BasketArchiveTable:sale\lib\internals\basketarchive.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_BasketArchive
@@ -7833,6 +9675,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_BasketArchive_Collection merge(?EO_BasketArchive_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_BasketArchive_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\BasketArchiveTable */
@@ -7866,7 +9710,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_BasketArchive_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BasketArchivePackedTable:sale/lib/internals/basketarchivepacked.php:6d8aa2c5182dad41456113bf935f369e */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BasketArchivePackedTable:sale\lib\internals\basketarchivepacked.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_BasketArchivePacked
@@ -7961,6 +9805,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_BasketArchivePacked_Collection merge(?EO_BasketArchivePacked_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_BasketArchivePacked_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\BasketArchivePackedTable */
@@ -7994,7 +9840,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_BasketArchivePacked_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BasketPropertyTable:sale/lib/internals/basketproperties.php:6fd784b0dd108f0f549e60d6c4d5a4d2 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BasketPropertyTable:sale\lib\internals\basketproperties.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_BasketProperty
@@ -8162,6 +10008,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_BasketProperty_Collection merge(?EO_BasketProperty_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_BasketProperty_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\BasketPropertyTable */
@@ -8195,7 +10043,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_BasketProperty_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BusinessValueTable:sale/lib/internals/businessvalue.php:ca6639890293244667451426db7a06eb */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BusinessValueTable:sale\lib\internals\businessvalue.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_BusinessValue
@@ -8314,6 +10162,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_BusinessValue_Collection merge(?EO_BusinessValue_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_BusinessValue_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\BusinessValueTable */
@@ -8347,7 +10197,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_BusinessValue_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BusinessValueCode1CTable:sale/lib/internals/businessvalue_code_1c.php:3027189e27df63ebfe446154e8018026 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BusinessValueCode1CTable:sale\lib\internals\businessvalue_code_1c.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_BusinessValueCode1C
@@ -8448,6 +10298,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_BusinessValueCode1C_Collection merge(?EO_BusinessValueCode1C_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_BusinessValueCode1C_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\BusinessValueCode1CTable */
@@ -8481,7 +10333,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_BusinessValueCode1C_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BuyerStatisticTable:sale/lib/internals/buyerstatistic.php:ef616b119187566adb296fab5777bbdf */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BuyerStatisticTable:sale\lib\internals\buyerstatistic.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_BuyerStatistic
@@ -8674,6 +10526,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_BuyerStatistic_Collection merge(?EO_BuyerStatistic_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_BuyerStatistic_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\BuyerStatisticTable */
@@ -8707,7 +10561,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_BuyerStatistic_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CallbackRegistryTable:sale/lib/internals/callbackregistry.php:cecf49d240a1e54e2fd52ca6781143ac */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CallbackRegistryTable:sale\lib\internals\callbackregistry.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_CallbackRegistry
@@ -8850,6 +10704,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CallbackRegistry_Collection merge(?EO_CallbackRegistry_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CallbackRegistry_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\CallbackRegistryTable */
@@ -8883,7 +10739,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_CallbackRegistry_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CashboxRestHandlerTable:sale/lib/internals/cashboxresthandler.php:b6daadec50ba192da631c48664704dc9 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CashboxRestHandlerTable:sale\lib\internals\cashboxresthandler.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_CashboxRestHandler
@@ -9026,6 +10882,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CashboxRestHandler_Collection merge(?EO_CashboxRestHandler_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CashboxRestHandler_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\CashboxRestHandlerTable */
@@ -9059,7 +10917,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_CashboxRestHandler_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyTable:sale/lib/internals/company.php:f1112fa5b0639528eaa626d865aa6f96 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyTable:sale\lib\internals\company.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Company
@@ -9313,6 +11171,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Company_Collection merge(?EO_Company_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Company_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\CompanyTable */
@@ -9346,7 +11206,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Company_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyGroupTable:sale/lib/internals/companygroup.php:6d0624846d07050c64623b728cc4508e */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyGroupTable:sale\lib\internals\companygroup.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_CompanyGroup
@@ -9453,6 +11313,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CompanyGroup_Collection merge(?EO_CompanyGroup_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CompanyGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\CompanyGroupTable */
@@ -9486,7 +11348,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_CompanyGroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyLocationTable:sale/lib/internals/companylocation.php:66851e2c5b6aaa311429c3855aa6dc8c */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyLocationTable:sale\lib\internals\companylocation.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_CompanyLocation
@@ -9620,6 +11482,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CompanyLocation_Collection merge(?EO_CompanyLocation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CompanyLocation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\CompanyLocationTable */
@@ -9653,7 +11517,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_CompanyLocation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyResponsibleGroupTable:sale/lib/internals/companyresponsiblegroup.php:b6ed95d96c6a986710ce5b8b598a13b1 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyResponsibleGroupTable:sale\lib\internals\companyresponsiblegroup.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_CompanyResponsibleGroup
@@ -9760,6 +11624,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CompanyResponsibleGroup_Collection merge(?EO_CompanyResponsibleGroup_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CompanyResponsibleGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\CompanyResponsibleGroupTable */
@@ -9793,7 +11659,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_CompanyResponsibleGroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyServiceTable:sale/lib/internals/companyservice.php:882e3c27293171bf5a7772226d60de8a */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyServiceTable:sale\lib\internals\companyservice.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_CompanyService
@@ -9888,6 +11754,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CompanyService_Collection merge(?EO_CompanyService_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CompanyService_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\CompanyServiceTable */
@@ -9921,7 +11789,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_CompanyService_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CustomFieldsTable:sale/lib/internals/customfields.php:e2085f617958dc32b8312d8ddc866bdf */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CustomFieldsTable:sale\lib\internals\customfields.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_CustomFields
@@ -10052,6 +11920,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CustomFields_Collection merge(?EO_CustomFields_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CustomFields_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\CustomFieldsTable */
@@ -10085,7 +11955,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_CustomFields_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DeliveryPaySystemTable:sale/lib/internals/delivery_paysystem.php:cb6550349a9a3a801dcf2dd5b315126d */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DeliveryPaySystemTable:sale\lib\internals\delivery_paysystem.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_DeliveryPaySystem
@@ -10206,6 +12076,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DeliveryPaySystem_Collection merge(?EO_DeliveryPaySystem_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DeliveryPaySystem_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\DeliveryPaySystemTable */
@@ -10239,7 +12111,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_DeliveryPaySystem_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountTable:sale/lib/internals/discount.php:e566d48196c1ffef1dbea26d49f49683 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountTable:sale\lib\internals\discount.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Discount
@@ -10806,6 +12678,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Discount_Collection merge(?EO_Discount_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Discount_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\DiscountTable */
@@ -10839,7 +12713,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Discount_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountCouponTable:sale/lib/internals/discountcoupon.php:c3e6a40e18285b76df039e895b68ab07 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountCouponTable:sale\lib\internals\discountcoupon.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_DiscountCoupon
@@ -11141,6 +13015,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DiscountCoupon_Collection merge(?EO_DiscountCoupon_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DiscountCoupon_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\DiscountCouponTable */
@@ -11174,7 +13050,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_DiscountCoupon_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountEntitiesTable:sale/lib/internals/discountentities.php:228f49946d7a44229d203f307042e098 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountEntitiesTable:sale\lib\internals\discountentities.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_DiscountEntities
@@ -11330,6 +13206,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DiscountEntities_Collection merge(?EO_DiscountEntities_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DiscountEntities_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\DiscountEntitiesTable */
@@ -11363,7 +13241,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_DiscountEntities_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountGroupTable:sale/lib/internals/discountgroup.php:ef2298cfa6331ab7402d073864d03ec9 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountGroupTable:sale\lib\internals\discountgroup.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_DiscountGroup
@@ -11495,6 +13373,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DiscountGroup_Collection merge(?EO_DiscountGroup_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DiscountGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\DiscountGroupTable */
@@ -11528,7 +13408,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_DiscountGroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountModuleTable:sale/lib/internals/discountmodule.php:25154e5db9e183a928065a8a6f926afe */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountModuleTable:sale\lib\internals\discountmodule.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_DiscountModule
@@ -11635,6 +13515,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DiscountModule_Collection merge(?EO_DiscountModule_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DiscountModule_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\DiscountModuleTable */
@@ -11668,7 +13550,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_DiscountModule_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\EntityMarkerTable:sale/lib/internals/entitymarker.php:e22959ba30fea9a845b5a692fe00fa45 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\EntityMarkerTable:sale\lib\internals\entitymarker.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_EntityMarker
@@ -11883,6 +13765,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_EntityMarker_Collection merge(?EO_EntityMarker_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_EntityMarker_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\EntityMarkerTable */
@@ -11916,70 +13800,60 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_EntityMarker_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\LocalDeliveryRequestTable:sale/lib/internals/localdeliveryrequest.php:4fbb9c0d8c3ff854ad485096f211ac67 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\FacebookConversionParamsTable:sale\lib\internals\facebookconversionparams.php */
 namespace Bitrix\Sale\Internals {
 	/**
-	 * EO_LocalDeliveryRequest
-	 * @see \Bitrix\Sale\Internals\LocalDeliveryRequestTable
+	 * EO_FacebookConversionParams
+	 * @see \Bitrix\Sale\Internals\FacebookConversionParamsTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int getId()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams setId(\int|\Bitrix\Main\DB\SqlExpression $id)
 	 * @method bool hasId()
 	 * @method bool isIdFilled()
 	 * @method bool isIdChanged()
-	 * @method \int getDeliveryServiceId()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest setDeliveryServiceId(\int|\Bitrix\Main\DB\SqlExpression $deliveryServiceId)
-	 * @method bool hasDeliveryServiceId()
-	 * @method bool isDeliveryServiceIdFilled()
-	 * @method bool isDeliveryServiceIdChanged()
-	 * @method \int remindActualDeliveryServiceId()
-	 * @method \int requireDeliveryServiceId()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest resetDeliveryServiceId()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest unsetDeliveryServiceId()
-	 * @method \int fillDeliveryServiceId()
-	 * @method \int getShipmentId()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest setShipmentId(\int|\Bitrix\Main\DB\SqlExpression $shipmentId)
-	 * @method bool hasShipmentId()
-	 * @method bool isShipmentIdFilled()
-	 * @method bool isShipmentIdChanged()
-	 * @method \int remindActualShipmentId()
-	 * @method \int requireShipmentId()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest resetShipmentId()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest unsetShipmentId()
-	 * @method \int fillShipmentId()
-	 * @method \Bitrix\Main\Type\DateTime getCreatedAt()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest setCreatedAt(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $createdAt)
-	 * @method bool hasCreatedAt()
-	 * @method bool isCreatedAtFilled()
-	 * @method bool isCreatedAtChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualCreatedAt()
-	 * @method \Bitrix\Main\Type\DateTime requireCreatedAt()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest resetCreatedAt()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest unsetCreatedAt()
-	 * @method \Bitrix\Main\Type\DateTime fillCreatedAt()
-	 * @method \string getExternalId()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest setExternalId(\string|\Bitrix\Main\DB\SqlExpression $externalId)
-	 * @method bool hasExternalId()
-	 * @method bool isExternalIdFilled()
-	 * @method bool isExternalIdChanged()
-	 * @method \string remindActualExternalId()
-	 * @method \string requireExternalId()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest resetExternalId()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest unsetExternalId()
-	 * @method \string fillExternalId()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment getShipment()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment remindActualShipment()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment requireShipment()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest setShipment(\Bitrix\Sale\Internals\EO_Shipment $object)
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest resetShipment()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest unsetShipment()
-	 * @method bool hasShipment()
-	 * @method bool isShipmentFilled()
-	 * @method bool isShipmentChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment fillShipment()
+	 * @method \string getEventName()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams setEventName(\string|\Bitrix\Main\DB\SqlExpression $eventName)
+	 * @method bool hasEventName()
+	 * @method bool isEventNameFilled()
+	 * @method bool isEventNameChanged()
+	 * @method \string remindActualEventName()
+	 * @method \string requireEventName()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams resetEventName()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams unsetEventName()
+	 * @method \string fillEventName()
+	 * @method \string getLid()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams setLid(\string|\Bitrix\Main\DB\SqlExpression $lid)
+	 * @method bool hasLid()
+	 * @method bool isLidFilled()
+	 * @method bool isLidChanged()
+	 * @method \string remindActualLid()
+	 * @method \string requireLid()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams resetLid()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams unsetLid()
+	 * @method \string fillLid()
+	 * @method \string getEnabled()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams setEnabled(\string|\Bitrix\Main\DB\SqlExpression $enabled)
+	 * @method bool hasEnabled()
+	 * @method bool isEnabledFilled()
+	 * @method bool isEnabledChanged()
+	 * @method \string remindActualEnabled()
+	 * @method \string requireEnabled()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams resetEnabled()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams unsetEnabled()
+	 * @method \string fillEnabled()
+	 * @method \string getParams()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams setParams(\string|\Bitrix\Main\DB\SqlExpression $params)
+	 * @method bool hasParams()
+	 * @method bool isParamsFilled()
+	 * @method bool isParamsChanged()
+	 * @method \string remindActualParams()
+	 * @method \string requireParams()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams resetParams()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams unsetParams()
+	 * @method \string fillParams()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -11995,9 +13869,9 @@ namespace Bitrix\Sale\Internals {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest set($fieldName, $value)
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest reset($fieldName)
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest unset($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams set($fieldName, $value)
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams reset($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -12005,11 +13879,11 @@ namespace Bitrix\Sale\Internals {
 	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Sale\Internals\EO_LocalDeliveryRequest wakeUp($data)
+	 * @method static \Bitrix\Sale\Internals\EO_FacebookConversionParams wakeUp($data)
 	 */
-	class EO_LocalDeliveryRequest {
-		/* @var \Bitrix\Sale\Internals\LocalDeliveryRequestTable */
-		static public $dataClass = '\Bitrix\Sale\Internals\LocalDeliveryRequestTable';
+	class EO_FacebookConversionParams {
+		/* @var \Bitrix\Sale\Internals\FacebookConversionParamsTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\FacebookConversionParamsTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
@@ -12018,52 +13892,51 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * EO_LocalDeliveryRequest_Collection
+	 * EO_FacebookConversionParams_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int[] getIdList()
-	 * @method \int[] getDeliveryServiceIdList()
-	 * @method \int[] fillDeliveryServiceId()
-	 * @method \int[] getShipmentIdList()
-	 * @method \int[] fillShipmentId()
-	 * @method \Bitrix\Main\Type\DateTime[] getCreatedAtList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillCreatedAt()
-	 * @method \string[] getExternalIdList()
-	 * @method \string[] fillExternalId()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment[] getShipmentList()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest_Collection getShipmentCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment_Collection fillShipment()
+	 * @method \string[] getEventNameList()
+	 * @method \string[] fillEventName()
+	 * @method \string[] getLidList()
+	 * @method \string[] fillLid()
+	 * @method \string[] getEnabledList()
+	 * @method \string[] fillEnabled()
+	 * @method \string[] getParamsList()
+	 * @method \string[] fillParams()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Sale\Internals\EO_LocalDeliveryRequest $object)
-	 * @method bool has(\Bitrix\Sale\Internals\EO_LocalDeliveryRequest $object)
+	 * @method void add(\Bitrix\Sale\Internals\EO_FacebookConversionParams $object)
+	 * @method bool has(\Bitrix\Sale\Internals\EO_FacebookConversionParams $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest getByPrimary($primary)
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest[] getAll()
-	 * @method bool remove(\Bitrix\Sale\Internals\EO_LocalDeliveryRequest $object)
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams getByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Internals\EO_FacebookConversionParams $object)
 	 * @method void removeByPrimary($primary)
 	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Sale\Internals\EO_LocalDeliveryRequest_Collection wakeUp($data)
+	 * @method static \Bitrix\Sale\Internals\EO_FacebookConversionParams_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest current() Iterator
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_FacebookConversionParams_Collection merge(?EO_FacebookConversionParams_Collection $collection)
+	 * @method bool isEmpty()
 	 */
-	class EO_LocalDeliveryRequest_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Sale\Internals\LocalDeliveryRequestTable */
-		static public $dataClass = '\Bitrix\Sale\Internals\LocalDeliveryRequestTable';
+	class EO_FacebookConversionParams_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Internals\FacebookConversionParamsTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\FacebookConversionParamsTable';
 	}
 }
 namespace Bitrix\Sale\Internals {
@@ -12071,29 +13944,29 @@ namespace Bitrix\Sale\Internals {
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_LocalDeliveryRequest_Result exec()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest fetchObject()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest_Collection fetchCollection()
+	 * @method EO_FacebookConversionParams_Result exec()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams_Collection fetchCollection()
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 */
-	class EO_LocalDeliveryRequest_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_FacebookConversionParams_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest fetchObject()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest_Collection fetchCollection()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams_Collection fetchCollection()
 	 */
-	class EO_LocalDeliveryRequest_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_FacebookConversionParams_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest createObject($setDefaultValues = true)
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest_Collection createCollection()
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest wakeUpObject($row)
-	 * @method \Bitrix\Sale\Internals\EO_LocalDeliveryRequest_Collection wakeUpCollection($rows)
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams_Collection createCollection()
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams wakeUpObject($row)
+	 * @method \Bitrix\Sale\Internals\EO_FacebookConversionParams_Collection wakeUpCollection($rows)
 	 */
-	class EO_LocalDeliveryRequest_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_FacebookConversionParams_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderArchiveTable:sale/lib/internals/orderarchive.php:b09453338767921981129d650adc76c3 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderArchiveTable:sale\lib\internals\orderarchive.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderArchive
@@ -12468,6 +14341,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderArchive_Collection merge(?EO_OrderArchive_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderArchive_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderArchiveTable */
@@ -12501,7 +14376,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderArchive_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderArchivePackedTable:sale/lib/internals/orderarchivepacked.php:a6ee75058881810dd7a053295a88a940 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderArchivePackedTable:sale\lib\internals\orderarchivepacked.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderArchivePacked
@@ -12596,6 +14471,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderArchivePacked_Collection merge(?EO_OrderArchivePacked_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderArchivePacked_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderArchivePackedTable */
@@ -12629,7 +14506,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderArchivePacked_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderChangeTable:sale/lib/internals/orderchange.php:b402c02604a1153fac315258577fd146 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderChangeTable:sale\lib\internals\orderchange.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderChange
@@ -12808,6 +14685,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderChange_Collection merge(?EO_OrderChange_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderChange_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderChangeTable */
@@ -12841,7 +14720,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderChange_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderConverterCrmErrorTable:sale/lib/internals/orderconvertercrmerror.php:6715a25d9d03949834e2fb8de9631de1 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderConverterCrmErrorTable:sale\lib\internals\orderconvertercrmerror.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderConverterCrmError
@@ -12948,6 +14827,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderConverterCrmError_Collection merge(?EO_OrderConverterCrmError_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderConverterCrmError_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderConverterCrmErrorTable */
@@ -12981,7 +14862,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderConverterCrmError_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderDeliveryReqTable:sale/lib/internals/orderdeliveryreq.php:4f3c3f9671c55e599db47d95cf8160a2 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderDeliveryReqTable:sale\lib\internals\orderdeliveryreq.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderDeliveryReq
@@ -13124,6 +15005,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderDeliveryReq_Collection merge(?EO_OrderDeliveryReq_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderDeliveryReq_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderDeliveryReqTable */
@@ -13157,7 +15040,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderDeliveryReq_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderDiscountTable:sale/lib/internals/orderdiscount.php:4de87a786da21099f96b8d07b79e0e2b */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderDiscountTable:sale\lib\internals\orderdiscount.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderDiscount
@@ -13396,6 +15279,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderDiscount_Collection merge(?EO_OrderDiscount_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderDiscount_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderDiscountTable */
@@ -13429,7 +15314,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderDiscount_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderCouponsTable:sale/lib/internals/orderdiscount.php:4de87a786da21099f96b8d07b79e0e2b */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderCouponsTable:sale\lib\internals\orderdiscount.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderCoupons
@@ -13597,6 +15482,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderCoupons_Collection merge(?EO_OrderCoupons_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderCoupons_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderCouponsTable */
@@ -13630,7 +15517,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderCoupons_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderModulesTable:sale/lib/internals/orderdiscount.php:4de87a786da21099f96b8d07b79e0e2b */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderModulesTable:sale\lib\internals\orderdiscount.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderModules
@@ -13737,6 +15624,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderModules_Collection merge(?EO_OrderModules_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderModules_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderModulesTable */
@@ -13770,7 +15659,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderModules_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderDiscountDataTable:sale/lib/internals/orderdiscount.php:4de87a786da21099f96b8d07b79e0e2b */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderDiscountDataTable:sale\lib\internals\orderdiscount.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderDiscountData
@@ -13913,6 +15802,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderDiscountData_Collection merge(?EO_OrderDiscountData_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderDiscountData_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderDiscountDataTable */
@@ -13946,7 +15837,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderDiscountData_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderRulesTable:sale/lib/internals/orderdiscount.php:4de87a786da21099f96b8d07b79e0e2b */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderRulesTable:sale\lib\internals\orderdiscount.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderRules
@@ -14175,6 +16066,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderRules_Collection merge(?EO_OrderRules_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderRules_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderRulesTable */
@@ -14208,7 +16101,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderRules_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderRulesDescrTable:sale/lib/internals/orderdiscount.php:4de87a786da21099f96b8d07b79e0e2b */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderRulesDescrTable:sale\lib\internals\orderdiscount.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderRulesDescr
@@ -14351,6 +16244,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderRulesDescr_Collection merge(?EO_OrderRulesDescr_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderRulesDescr_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderRulesDescrTable */
@@ -14384,7 +16279,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderRulesDescr_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsTable:sale/lib/internals/orderprops.php:410e7229e5c52f345a93690319736a6f */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsTable:sale\lib\internals\orderprops.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderProps
@@ -14588,6 +16483,26 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_OrderProps resetIsAddress()
 	 * @method \Bitrix\Sale\Internals\EO_OrderProps unsetIsAddress()
 	 * @method \boolean fillIsAddress()
+	 * @method \boolean getIsAddressFrom()
+	 * @method \Bitrix\Sale\Internals\EO_OrderProps setIsAddressFrom(\boolean|\Bitrix\Main\DB\SqlExpression $isAddressFrom)
+	 * @method bool hasIsAddressFrom()
+	 * @method bool isIsAddressFromFilled()
+	 * @method bool isIsAddressFromChanged()
+	 * @method \boolean remindActualIsAddressFrom()
+	 * @method \boolean requireIsAddressFrom()
+	 * @method \Bitrix\Sale\Internals\EO_OrderProps resetIsAddressFrom()
+	 * @method \Bitrix\Sale\Internals\EO_OrderProps unsetIsAddressFrom()
+	 * @method \boolean fillIsAddressFrom()
+	 * @method \boolean getIsAddressTo()
+	 * @method \Bitrix\Sale\Internals\EO_OrderProps setIsAddressTo(\boolean|\Bitrix\Main\DB\SqlExpression $isAddressTo)
+	 * @method bool hasIsAddressTo()
+	 * @method bool isIsAddressToFilled()
+	 * @method bool isIsAddressToChanged()
+	 * @method \boolean remindActualIsAddressTo()
+	 * @method \boolean requireIsAddressTo()
+	 * @method \Bitrix\Sale\Internals\EO_OrderProps resetIsAddressTo()
+	 * @method \Bitrix\Sale\Internals\EO_OrderProps unsetIsAddressTo()
+	 * @method \boolean fillIsAddressTo()
 	 * @method \boolean getActive()
 	 * @method \Bitrix\Sale\Internals\EO_OrderProps setActive(\boolean|\Bitrix\Main\DB\SqlExpression $active)
 	 * @method bool hasActive()
@@ -14770,6 +16685,10 @@ namespace Bitrix\Sale\Internals {
 	 * @method \boolean[] fillIsPhone()
 	 * @method \boolean[] getIsAddressList()
 	 * @method \boolean[] fillIsAddress()
+	 * @method \boolean[] getIsAddressFromList()
+	 * @method \boolean[] fillIsAddressFrom()
+	 * @method \boolean[] getIsAddressToList()
+	 * @method \boolean[] fillIsAddressTo()
 	 * @method \boolean[] getActiveList()
 	 * @method \boolean[] fillActive()
 	 * @method \boolean[] getUtilList()
@@ -14817,6 +16736,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderProps_Collection merge(?EO_OrderProps_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderProps_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderPropsTable */
@@ -14850,7 +16771,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderProps_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsGroupTable:sale/lib/internals/orderprops_group.php:6e67939309e0b4c644e0a0fbecd3e6d6 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsGroupTable:sale\lib\internals\orderprops_group.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderPropsGroup
@@ -14981,6 +16902,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderPropsGroup_Collection merge(?EO_OrderPropsGroup_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderPropsGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderPropsGroupTable */
@@ -15014,7 +16937,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderPropsGroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsRelationTable:sale/lib/internals/orderprops_relation.php:a498c687e90fd92e318e29e2315ba225 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsRelationTable:sale\lib\internals\orderprops_relation.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderPropsRelation
@@ -15122,6 +17045,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderPropsRelation_Collection merge(?EO_OrderPropsRelation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderPropsRelation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderPropsRelationTable */
@@ -15155,7 +17080,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderPropsRelation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsValueTable:sale/lib/internals/orderprops_value.php:ce9cb1c4da947f27fe4923cbbc6f495e */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsValueTable:sale\lib\internals\orderprops_value.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderPropsValue
@@ -15347,6 +17272,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderPropsValue_Collection merge(?EO_OrderPropsValue_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderPropsValue_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderPropsValueTable */
@@ -15380,7 +17307,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderPropsValue_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsVariantTable:sale/lib/internals/orderprops_variant.php:6332232dc961a3150c12cc0771640e69 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsVariantTable:sale\lib\internals\orderprops_variant.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderPropsVariant
@@ -15535,6 +17462,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderPropsVariant_Collection merge(?EO_OrderPropsVariant_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderPropsVariant_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderPropsVariantTable */
@@ -15568,7 +17497,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderPropsVariant_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderRoundTable:sale/lib/internals/orderround.php:b49bf864a8d73bed36ccca75b961fc5f */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderRoundTable:sale\lib\internals\orderround.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderRound
@@ -15747,6 +17676,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OrderRound_Collection merge(?EO_OrderRound_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OrderRound_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\OrderRoundTable */
@@ -15780,7 +17711,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderRound_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PayableItemTable:sale/lib/internals/payableitem.php:78e73c932cbedc50b4c72e1e7da5124c */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PayableItemTable:sale\lib\internals\payableitem.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_PayableItem
@@ -15861,6 +17792,36 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_PayableItem resetXmlId()
 	 * @method \Bitrix\Sale\Internals\EO_PayableItem unsetXmlId()
 	 * @method \string fillXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_Payment getPayment()
+	 * @method \Bitrix\Sale\Internals\EO_Payment remindActualPayment()
+	 * @method \Bitrix\Sale\Internals\EO_Payment requirePayment()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem setPayment(\Bitrix\Sale\Internals\EO_Payment $object)
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem resetPayment()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem unsetPayment()
+	 * @method bool hasPayment()
+	 * @method bool isPaymentFilled()
+	 * @method bool isPaymentChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Payment fillPayment()
+	 * @method \Bitrix\Sale\Internals\EO_Basket getBasket()
+	 * @method \Bitrix\Sale\Internals\EO_Basket remindActualBasket()
+	 * @method \Bitrix\Sale\Internals\EO_Basket requireBasket()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem setBasket(\Bitrix\Sale\Internals\EO_Basket $object)
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem resetBasket()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem unsetBasket()
+	 * @method bool hasBasket()
+	 * @method bool isBasketFilled()
+	 * @method bool isBasketChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Basket fillBasket()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment getShipment()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment remindActualShipment()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment requireShipment()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem setShipment(\Bitrix\Sale\Internals\EO_Shipment $object)
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem resetShipment()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem unsetShipment()
+	 * @method bool hasShipment()
+	 * @method bool isShipmentFilled()
+	 * @method bool isShipmentChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment fillShipment()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -15919,6 +17880,15 @@ namespace Bitrix\Sale\Internals {
 	 * @method \float[] fillQuantity()
 	 * @method \string[] getXmlIdList()
 	 * @method \string[] fillXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_Payment[] getPaymentList()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem_Collection getPaymentCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Payment_Collection fillPayment()
+	 * @method \Bitrix\Sale\Internals\EO_Basket[] getBasketList()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem_Collection getBasketCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection fillBasket()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment[] getShipmentList()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem_Collection getShipmentCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment_Collection fillShipment()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -15944,6 +17914,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_PayableItem_Collection merge(?EO_PayableItem_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_PayableItem_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\PayableItemTable */
@@ -15977,7 +17949,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_PayableItem_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaymentTable:sale/lib/internals/payment.php:625ea0bb3d8d354e8406c61a3fe0bf92 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaymentTable:sale\lib\internals\payment.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Payment
@@ -16680,6 +18652,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Payment_Collection merge(?EO_Payment_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Payment_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\PaymentTable */
@@ -16713,7 +18687,175 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Payment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemActionTable:sale/lib/internals/paysystemaction.php:ffca5c145dca4e0c1f05cdd429283c95 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaymentPaySystemAvailableTable:sale\lib\internals\paymentpaysystemavailabletable.php */
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_PaymentPaySystemAvailable
+	 * @see \Bitrix\Sale\Internals\PaymentPaySystemAvailableTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getPaymentId()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable setPaymentId(\int|\Bitrix\Main\DB\SqlExpression $paymentId)
+	 * @method bool hasPaymentId()
+	 * @method bool isPaymentIdFilled()
+	 * @method bool isPaymentIdChanged()
+	 * @method \int remindActualPaymentId()
+	 * @method \int requirePaymentId()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable resetPaymentId()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable unsetPaymentId()
+	 * @method \int fillPaymentId()
+	 * @method \int getPaySystemId()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable setPaySystemId(\int|\Bitrix\Main\DB\SqlExpression $paySystemId)
+	 * @method bool hasPaySystemId()
+	 * @method bool isPaySystemIdFilled()
+	 * @method bool isPaySystemIdChanged()
+	 * @method \int remindActualPaySystemId()
+	 * @method \int requirePaySystemId()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable resetPaySystemId()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable unsetPaySystemId()
+	 * @method \int fillPaySystemId()
+	 * @method \Bitrix\Sale\Internals\EO_Payment getPayment()
+	 * @method \Bitrix\Sale\Internals\EO_Payment remindActualPayment()
+	 * @method \Bitrix\Sale\Internals\EO_Payment requirePayment()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable setPayment(\Bitrix\Sale\Internals\EO_Payment $object)
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable resetPayment()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable unsetPayment()
+	 * @method bool hasPayment()
+	 * @method bool isPaymentFilled()
+	 * @method bool isPaymentChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Payment fillPayment()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction getPaySystem()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction remindActualPaySystem()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction requirePaySystem()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable setPaySystem(\Bitrix\Sale\Internals\EO_PaySystemAction $object)
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable resetPaySystem()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable unsetPaySystem()
+	 * @method bool hasPaySystem()
+	 * @method bool isPaySystemFilled()
+	 * @method bool isPaySystemChanged()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction fillPaySystem()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable set($fieldName, $value)
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable reset($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable wakeUp($data)
+	 */
+	class EO_PaymentPaySystemAvailable {
+		/* @var \Bitrix\Sale\Internals\PaymentPaySystemAvailableTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\PaymentPaySystemAvailableTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_PaymentPaySystemAvailable_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getPaymentIdList()
+	 * @method \int[] fillPaymentId()
+	 * @method \int[] getPaySystemIdList()
+	 * @method \int[] fillPaySystemId()
+	 * @method \Bitrix\Sale\Internals\EO_Payment[] getPaymentList()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable_Collection getPaymentCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Payment_Collection fillPayment()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction[] getPaySystemList()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable_Collection getPaySystemCollection()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction_Collection fillPaySystem()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable $object)
+	 * @method bool has(\Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable getByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_PaymentPaySystemAvailable_Collection merge(?EO_PaymentPaySystemAvailable_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_PaymentPaySystemAvailable_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Internals\PaymentPaySystemAvailableTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\PaymentPaySystemAvailableTable';
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_PaymentPaySystemAvailable_Result exec()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_PaymentPaySystemAvailable_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable_Collection fetchCollection()
+	 */
+	class EO_PaymentPaySystemAvailable_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable_Collection createCollection()
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable wakeUpObject($row)
+	 * @method \Bitrix\Sale\Internals\EO_PaymentPaySystemAvailable_Collection wakeUpCollection($rows)
+	 */
+	class EO_PaymentPaySystemAvailable_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemActionTable:sale\lib\internals\paysystemaction.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_PaySystemAction
@@ -16857,6 +18999,16 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction resetPsMode()
 	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction unsetPsMode()
 	 * @method \string fillPsMode()
+	 * @method \string getPsClientType()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction setPsClientType(\string|\Bitrix\Main\DB\SqlExpression $psClientType)
+	 * @method bool hasPsClientType()
+	 * @method bool isPsClientTypeFilled()
+	 * @method bool isPsClientTypeChanged()
+	 * @method \string remindActualPsClientType()
+	 * @method \string requirePsClientType()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction resetPsClientType()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction unsetPsClientType()
+	 * @method \string fillPsClientType()
 	 * @method \boolean getHavePayment()
 	 * @method \Bitrix\Sale\Internals\EO_PaySystemAction setHavePayment(\boolean|\Bitrix\Main\DB\SqlExpression $havePayment)
 	 * @method bool hasHavePayment()
@@ -17077,6 +19229,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method \string[] fillTarif()
 	 * @method \string[] getPsModeList()
 	 * @method \string[] fillPsMode()
+	 * @method \string[] getPsClientTypeList()
+	 * @method \string[] fillPsClientType()
 	 * @method \boolean[] getHavePaymentList()
 	 * @method \boolean[] fillHavePayment()
 	 * @method \boolean[] getHaveActionList()
@@ -17132,6 +19286,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_PaySystemAction_Collection merge(?EO_PaySystemAction_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_PaySystemAction_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\PaySystemActionTable */
@@ -17165,7 +19321,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_PaySystemAction_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemErrLogTable:sale/lib/internals/paysystemerrlog.php:85bd0562b91c31e169032597269d2223 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemErrLogTable:sale\lib\internals\paysystemerrlog.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_PaySystemErrLog
@@ -17272,6 +19428,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_PaySystemErrLog_Collection merge(?EO_PaySystemErrLog_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_PaySystemErrLog_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\PaySystemErrLogTable */
@@ -17305,7 +19463,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_PaySystemErrLog_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemRestHandlersTable:sale/lib/internals/paysystemresthandlers.php:3f5ea6c692fb2a594184489099083421 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemRestHandlersTable:sale\lib\internals\paysystemresthandlers.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_PaySystemRestHandlers
@@ -17448,6 +19606,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_PaySystemRestHandlers_Collection merge(?EO_PaySystemRestHandlers_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_PaySystemRestHandlers_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\PaySystemRestHandlersTable */
@@ -17481,7 +19641,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_PaySystemRestHandlers_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemRestrictionTable:sale/lib/internals/paysystemrestriction.php:1dae6f8ea596c7442deb1e445c2479ab */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemRestrictionTable:sale\lib\internals\paysystemrestriction.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_PaySystemRestriction
@@ -17612,6 +19772,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_PaySystemRestriction_Collection merge(?EO_PaySystemRestriction_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_PaySystemRestriction_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\PaySystemRestrictionTable */
@@ -17645,7 +19807,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_PaySystemRestriction_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemServiceTable:sale/lib/internals/paysystemservice.php:4e0c6790a6cfc35b0ed802efb0345029 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemServiceTable:sale\lib\internals\paysystemservice.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_PaySystemService
@@ -17825,6 +19987,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_PaySystemService_Collection merge(?EO_PaySystemService_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_PaySystemService_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\PaySystemServiceTable */
@@ -17858,7 +20022,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_PaySystemService_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ReliabilityTable:sale/lib/internals/reliability.php:4111233a8501b04fdeb22f91367da0b3 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ReliabilityTable:sale\lib\internals\reliability.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * Reliability
@@ -18001,6 +20165,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method ReliabilityCollection merge(?ReliabilityCollection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Reliability_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\ReliabilityTable */
@@ -18034,7 +20200,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Reliability_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ServiceRestrictionTable:sale/lib/internals/servicerestriction.php:7734f56c78d27ea2265e7bac82de4f86 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ServiceRestrictionTable:sale\lib\internals\servicerestriction.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_ServiceRestriction
@@ -18177,6 +20343,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ServiceRestriction_Collection merge(?EO_ServiceRestriction_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ServiceRestriction_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\ServiceRestrictionTable */
@@ -18210,7 +20378,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_ServiceRestriction_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentTable:sale/lib/internals/shipment.php:eb62c02599c542da4598ea06ef2697b9 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentTable:sale\lib\internals\shipment.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Shipment
@@ -18264,6 +20432,16 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_Shipment resetDateInsert()
 	 * @method \Bitrix\Sale\Internals\EO_Shipment unsetDateInsert()
 	 * @method \Bitrix\Main\Type\DateTime fillDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime getDateUpdate()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment setDateUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateUpdate)
+	 * @method bool hasDateUpdate()
+	 * @method bool isDateUpdateFilled()
+	 * @method bool isDateUpdateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpdate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateUpdate()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment resetDateUpdate()
+	 * @method \Bitrix\Sale\Internals\EO_Shipment unsetDateUpdate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateUpdate()
 	 * @method \string getDateInsertShort()
 	 * @method \string remindActualDateInsertShort()
 	 * @method \string requireDateInsertShort()
@@ -18895,6 +21073,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_Order_Collection fillOrder()
 	 * @method \Bitrix\Main\Type\DateTime[] getDateInsertList()
 	 * @method \Bitrix\Main\Type\DateTime[] fillDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpdate()
 	 * @method \string[] getDateInsertShortList()
 	 * @method \string[] fillDateInsertShort()
 	 * @method \string[] getStatusIdList()
@@ -19048,6 +21228,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Shipment_Collection merge(?EO_Shipment_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Shipment_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\ShipmentTable */
@@ -19081,7 +21263,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Shipment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentExtraServiceTable:sale/lib/internals/shipmentextraservice.php:ed970798a32102bf88ce3d6f2a2cf11c */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentExtraServiceTable:sale\lib\internals\shipmentextraservice.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_ShipmentExtraService
@@ -19213,6 +21395,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ShipmentExtraService_Collection merge(?EO_ShipmentExtraService_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ShipmentExtraService_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\ShipmentExtraServiceTable */
@@ -19246,7 +21430,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_ShipmentExtraService_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentItemTable:sale/lib/internals/shipmentitem.php:32d7ed1c3bfe74997024c18a617c9c50 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentItemTable:sale\lib\internals\shipmentitem.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_ShipmentItem
@@ -19436,6 +21620,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ShipmentItem_Collection merge(?EO_ShipmentItem_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ShipmentItem_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\ShipmentItemTable */
@@ -19469,7 +21655,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_ShipmentItem_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentItemStoreTable:sale/lib/internals/shipmentitemstore.php:582785523d9719481173d122ad7af633 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentItemStoreTable:sale\lib\internals\shipmentitemstore.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_ShipmentItemStore
@@ -19493,6 +21679,16 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore resetOrderDeliveryBasketId()
 	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore unsetOrderDeliveryBasketId()
 	 * @method \int fillOrderDeliveryBasketId()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem getOrderDeliveryBasket()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem remindActualOrderDeliveryBasket()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem requireOrderDeliveryBasket()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore setOrderDeliveryBasket(\Bitrix\Sale\Internals\EO_ShipmentItem $object)
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore resetOrderDeliveryBasket()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore unsetOrderDeliveryBasket()
+	 * @method bool hasOrderDeliveryBasket()
+	 * @method bool isOrderDeliveryBasketFilled()
+	 * @method bool isOrderDeliveryBasketChanged()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem fillOrderDeliveryBasket()
 	 * @method \int getBasketId()
 	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore setBasketId(\int|\Bitrix\Main\DB\SqlExpression $basketId)
 	 * @method bool hasBasketId()
@@ -19629,6 +21825,9 @@ namespace Bitrix\Sale\Internals {
 	 * @method \int[] getIdList()
 	 * @method \int[] getOrderDeliveryBasketIdList()
 	 * @method \int[] fillOrderDeliveryBasketId()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem[] getOrderDeliveryBasketList()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore_Collection getOrderDeliveryBasketCollection()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem_Collection fillOrderDeliveryBasket()
 	 * @method \int[] getBasketIdList()
 	 * @method \int[] fillBasketId()
 	 * @method \string[] getBarcodeList()
@@ -19672,6 +21871,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ShipmentItemStore_Collection merge(?EO_ShipmentItemStore_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ShipmentItemStore_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\ShipmentItemStoreTable */
@@ -19705,7 +21906,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_ShipmentItemStore_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\SiteCurrencyTable:sale/lib/internals/sitecurrency.php:3e8b0b5eb4a811ca9015ce0e7537b65f */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\SiteCurrencyTable:sale\lib\internals\sitecurrency.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_SiteCurrency
@@ -19800,6 +22001,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_SiteCurrency_Collection merge(?EO_SiteCurrency_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_SiteCurrency_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\SiteCurrencyTable */
@@ -19833,7 +22036,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_SiteCurrency_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\StatusTable:sale/lib/internals/status.php:2d294f810fde27d95fb8411872bfe326 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\StatusTable:sale\lib\internals\status.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Status
@@ -19989,6 +22192,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Status_Collection merge(?EO_Status_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Status_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\StatusTable */
@@ -20022,7 +22227,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Status_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\StatusGroupTaskTable:sale/lib/internals/status_grouptask.php:42a68c579aca7ebb986ec60859f9d1a6 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\StatusGroupTaskTable:sale\lib\internals\status_grouptask.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_StatusGroupTask
@@ -20156,6 +22361,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_StatusGroupTask_Collection merge(?EO_StatusGroupTask_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_StatusGroupTask_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\StatusGroupTaskTable */
@@ -20189,7 +22396,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_StatusGroupTask_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\StatusLangTable:sale/lib/internals/status_lang.php:0483193edea9e471fdb9d49d91f04169 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\StatusLangTable:sale\lib\internals\status_lang.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_StatusLang
@@ -20315,6 +22522,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_StatusLang_Collection merge(?EO_StatusLang_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_StatusLang_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\StatusLangTable */
@@ -20348,7 +22557,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_StatusLang_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\SynchronizerLogTable:sale/lib/internals/synchronizerlog.php:d5d3672b4d650698c9204c2650e85742 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\SynchronizerLogTable:sale\lib\internals\synchronizerlog.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_SynchronizerLog
@@ -20467,6 +22676,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_SynchronizerLog_Collection merge(?EO_SynchronizerLog_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_SynchronizerLog_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\SynchronizerLogTable */
@@ -20500,7 +22711,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_SynchronizerLog_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatformTable:sale/lib/internals/tradingplatform.php:4d057fbf9a16a04f468f8caf3a863a24 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatformTable:sale\lib\internals\tradingplatform.php */
 namespace Bitrix\Sale {
 	/**
 	 * EO_TradingPlatform
@@ -20679,6 +22890,8 @@ namespace Bitrix\Sale {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_TradingPlatform_Collection merge(?EO_TradingPlatform_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_TradingPlatform_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\TradingPlatformTable */
@@ -20712,7 +22925,7 @@ namespace Bitrix\Sale {
 	 */
 	class EO_TradingPlatform_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\UserGroupRestrictionTable:sale/lib/internals/usergrouprestriction.php:4613750adbd3a8efb814d60e0c3dd49a */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\UserGroupRestrictionTable:sale\lib\internals\usergrouprestriction.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_UserGroupRestriction
@@ -20831,6 +23044,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserGroupRestriction_Collection merge(?EO_UserGroupRestriction_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserGroupRestriction_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\UserGroupRestrictionTable */
@@ -20864,7 +23079,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_UserGroupRestriction_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\UserPropsTable:sale/lib/internals/userprops.php:5821cb3a17d9dbfb0de3e1fc22012b61 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\UserPropsTable:sale\lib\internals\userprops.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_UserProps
@@ -21019,6 +23234,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserProps_Collection merge(?EO_UserProps_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserProps_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\UserPropsTable */
@@ -21052,7 +23269,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_UserProps_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\UserPropsValueTable:sale/lib/internals/userpropsvalue.php:919222aa3563df0ea5ae0302cf232fc3 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\UserPropsValueTable:sale\lib\internals\userpropsvalue.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_UserPropsValue
@@ -21209,6 +23426,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserPropsValue_Collection merge(?EO_UserPropsValue_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserPropsValue_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\UserPropsValueTable */
@@ -21242,7 +23461,283 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_UserPropsValue_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\YandexSettingsTable:sale/lib/internals/yandexsettings.php:5188358ed0153b6815cf00c981a8309c */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\UserTransactTable:sale\lib\internals\usertransacttable.php */
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_UserTransact
+	 * @see \Bitrix\Sale\Internals\UserTransactTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetUserId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \Bitrix\Main\Type\DateTime getTimestampX()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setTimestampX(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $timestampX)
+	 * @method bool hasTimestampX()
+	 * @method bool isTimestampXFilled()
+	 * @method bool isTimestampXChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime requireTimestampX()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetTimestampX()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime fillTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime getTransactDate()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setTransactDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $transactDate)
+	 * @method bool hasTransactDate()
+	 * @method bool isTransactDateFilled()
+	 * @method bool isTransactDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualTransactDate()
+	 * @method \Bitrix\Main\Type\DateTime requireTransactDate()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetTransactDate()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetTransactDate()
+	 * @method \Bitrix\Main\Type\DateTime fillTransactDate()
+	 * @method \float getAmount()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setAmount(\float|\Bitrix\Main\DB\SqlExpression $amount)
+	 * @method bool hasAmount()
+	 * @method bool isAmountFilled()
+	 * @method bool isAmountChanged()
+	 * @method \float remindActualAmount()
+	 * @method \float requireAmount()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetAmount()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetAmount()
+	 * @method \float fillAmount()
+	 * @method \string getCurrency()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setCurrency(\string|\Bitrix\Main\DB\SqlExpression $currency)
+	 * @method bool hasCurrency()
+	 * @method bool isCurrencyFilled()
+	 * @method bool isCurrencyChanged()
+	 * @method \string remindActualCurrency()
+	 * @method \string requireCurrency()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetCurrency()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetCurrency()
+	 * @method \string fillCurrency()
+	 * @method \boolean getDebit()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setDebit(\boolean|\Bitrix\Main\DB\SqlExpression $debit)
+	 * @method bool hasDebit()
+	 * @method bool isDebitFilled()
+	 * @method bool isDebitChanged()
+	 * @method \boolean remindActualDebit()
+	 * @method \boolean requireDebit()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetDebit()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetDebit()
+	 * @method \boolean fillDebit()
+	 * @method \int getOrderId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setOrderId(\int|\Bitrix\Main\DB\SqlExpression $orderId)
+	 * @method bool hasOrderId()
+	 * @method bool isOrderIdFilled()
+	 * @method bool isOrderIdChanged()
+	 * @method \int remindActualOrderId()
+	 * @method \int requireOrderId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetOrderId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetOrderId()
+	 * @method \int fillOrderId()
+	 * @method \string getDescription()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setDescription(\string|\Bitrix\Main\DB\SqlExpression $description)
+	 * @method bool hasDescription()
+	 * @method bool isDescriptionFilled()
+	 * @method bool isDescriptionChanged()
+	 * @method \string remindActualDescription()
+	 * @method \string requireDescription()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetDescription()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetDescription()
+	 * @method \string fillDescription()
+	 * @method \string getNotes()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setNotes(\string|\Bitrix\Main\DB\SqlExpression $notes)
+	 * @method bool hasNotes()
+	 * @method bool isNotesFilled()
+	 * @method bool isNotesChanged()
+	 * @method \string remindActualNotes()
+	 * @method \string requireNotes()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetNotes()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetNotes()
+	 * @method \string fillNotes()
+	 * @method \int getPaymentId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setPaymentId(\int|\Bitrix\Main\DB\SqlExpression $paymentId)
+	 * @method bool hasPaymentId()
+	 * @method bool isPaymentIdFilled()
+	 * @method bool isPaymentIdChanged()
+	 * @method \int remindActualPaymentId()
+	 * @method \int requirePaymentId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetPaymentId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetPaymentId()
+	 * @method \int fillPaymentId()
+	 * @method \int getEmployeeId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setEmployeeId(\int|\Bitrix\Main\DB\SqlExpression $employeeId)
+	 * @method bool hasEmployeeId()
+	 * @method bool isEmployeeIdFilled()
+	 * @method bool isEmployeeIdChanged()
+	 * @method \int remindActualEmployeeId()
+	 * @method \int requireEmployeeId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetEmployeeId()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetEmployeeId()
+	 * @method \int fillEmployeeId()
+	 * @method \Bitrix\Sale\Internals\EO_Order getOrder()
+	 * @method \Bitrix\Sale\Internals\EO_Order remindActualOrder()
+	 * @method \Bitrix\Sale\Internals\EO_Order requireOrder()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setOrder(\Bitrix\Sale\Internals\EO_Order $object)
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetOrder()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetOrder()
+	 * @method bool hasOrder()
+	 * @method bool isOrderFilled()
+	 * @method bool isOrderChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Order fillOrder()
+	 * @method \Bitrix\Sale\Internals\EO_Payment getPayment()
+	 * @method \Bitrix\Sale\Internals\EO_Payment remindActualPayment()
+	 * @method \Bitrix\Sale\Internals\EO_Payment requirePayment()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact setPayment(\Bitrix\Sale\Internals\EO_Payment $object)
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact resetPayment()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unsetPayment()
+	 * @method bool hasPayment()
+	 * @method bool isPaymentFilled()
+	 * @method bool isPaymentChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Payment fillPayment()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact set($fieldName, $value)
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact reset($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Internals\EO_UserTransact wakeUp($data)
+	 */
+	class EO_UserTransact {
+		/* @var \Bitrix\Sale\Internals\UserTransactTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\UserTransactTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_UserTransact_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \Bitrix\Main\Type\DateTime[] getTimestampXList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime[] getTransactDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillTransactDate()
+	 * @method \float[] getAmountList()
+	 * @method \float[] fillAmount()
+	 * @method \string[] getCurrencyList()
+	 * @method \string[] fillCurrency()
+	 * @method \boolean[] getDebitList()
+	 * @method \boolean[] fillDebit()
+	 * @method \int[] getOrderIdList()
+	 * @method \int[] fillOrderId()
+	 * @method \string[] getDescriptionList()
+	 * @method \string[] fillDescription()
+	 * @method \string[] getNotesList()
+	 * @method \string[] fillNotes()
+	 * @method \int[] getPaymentIdList()
+	 * @method \int[] fillPaymentId()
+	 * @method \int[] getEmployeeIdList()
+	 * @method \int[] fillEmployeeId()
+	 * @method \Bitrix\Sale\Internals\EO_Order[] getOrderList()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact_Collection getOrderCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Order_Collection fillOrder()
+	 * @method \Bitrix\Sale\Internals\EO_Payment[] getPaymentList()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact_Collection getPaymentCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Payment_Collection fillPayment()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Internals\EO_UserTransact $object)
+	 * @method bool has(\Bitrix\Sale\Internals\EO_UserTransact $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact getByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Internals\EO_UserTransact $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Internals\EO_UserTransact_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_UserTransact_Collection merge(?EO_UserTransact_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_UserTransact_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Internals\UserTransactTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\UserTransactTable';
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_UserTransact_Result exec()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_UserTransact_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact_Collection fetchCollection()
+	 */
+	class EO_UserTransact_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact_Collection createCollection()
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact wakeUpObject($row)
+	 * @method \Bitrix\Sale\Internals\EO_UserTransact_Collection wakeUpCollection($rows)
+	 */
+	class EO_UserTransact_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\YandexSettingsTable:sale\lib\internals\yandexsettings.php */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_YandexSettings
@@ -21385,6 +23880,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_YandexSettings_Collection merge(?EO_YandexSettings_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_YandexSettings_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Internals\YandexSettingsTable */
@@ -21418,7 +23915,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_YandexSettings_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\DefaultSiteTable:sale/lib/location/defaultsite.php:281078d19c773e9ca514523c8134b03c */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\DefaultSiteTable:sale\lib\location\defaultsite.php */
 namespace Bitrix\Sale\Location {
 	/**
 	 * EO_DefaultSite
@@ -21545,6 +24042,8 @@ namespace Bitrix\Sale\Location {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DefaultSite_Collection merge(?EO_DefaultSite_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DefaultSite_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\DefaultSiteTable */
@@ -21578,7 +24077,7 @@ namespace Bitrix\Sale\Location {
 	 */
 	class EO_DefaultSite_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\ExternalTable:sale/lib/location/external.php:f94331eebbd0dcf30d55953edbb8fcd7 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\ExternalTable:sale\lib\location\external.php */
 namespace Bitrix\Sale\Location {
 	/**
 	 * EO_External
@@ -21723,6 +24222,8 @@ namespace Bitrix\Sale\Location {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_External_Collection merge(?EO_External_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_External_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\ExternalTable */
@@ -21756,7 +24257,7 @@ namespace Bitrix\Sale\Location {
 	 */
 	class EO_External_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\ExternalServiceTable:sale/lib/location/externalservice.php:19fe577d898a909d6dd890515c7ff28f */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\ExternalServiceTable:sale\lib\location\externalservice.php */
 namespace Bitrix\Sale\Location {
 	/**
 	 * EO_ExternalService
@@ -21864,6 +24365,8 @@ namespace Bitrix\Sale\Location {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ExternalService_Collection merge(?EO_ExternalService_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ExternalService_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\ExternalServiceTable */
@@ -21897,7 +24400,7 @@ namespace Bitrix\Sale\Location {
 	 */
 	class EO_ExternalService_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\GroupTable:sale/lib/location/group.php:44ab2a7461c4b32c75e33e7b15a9e974 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\GroupTable:sale\lib\location\group.php */
 namespace Bitrix\Sale\Location {
 	/**
 	 * EO_Group
@@ -22030,6 +24533,8 @@ namespace Bitrix\Sale\Location {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Group_Collection merge(?EO_Group_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Group_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\GroupTable */
@@ -22063,7 +24568,7 @@ namespace Bitrix\Sale\Location {
 	 */
 	class EO_Group_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\GroupLocationTable:sale/lib/location/grouplocation.php:32c29407730fbe486d54133ebe5a6e47 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\GroupLocationTable:sale\lib\location\grouplocation.php */
 namespace Bitrix\Sale\Location {
 	/**
 	 * EO_GroupLocation
@@ -22187,6 +24692,8 @@ namespace Bitrix\Sale\Location {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_GroupLocation_Collection merge(?EO_GroupLocation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_GroupLocation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\GroupLocationTable */
@@ -22220,7 +24727,7 @@ namespace Bitrix\Sale\Location {
 	 */
 	class EO_GroupLocation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeTable:sale/lib/location/import/compiler/db/exporttree.php:0d32156f43e4188a376114780e01d8c4 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeTable:sale\lib\location\import\compiler\db\exporttree.php */
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	/**
 	 * EO_ExportTree
@@ -22459,6 +24966,8 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ExportTree_Collection merge(?EO_ExportTree_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ExportTree_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeTable */
@@ -22492,7 +25001,7 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	 */
 	class EO_ExportTree_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeBelarusTable:sale/lib/location/import/compiler/db/exporttreebelarus.php:bb6b8113c28c6397360b7990a8a43e8a */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeBelarusTable:sale\lib\location\import\compiler\db\exporttreebelarus.php */
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	/**
 	 * EO_ExportTreeBelarus
@@ -22731,6 +25240,8 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ExportTreeBelarus_Collection merge(?EO_ExportTreeBelarus_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ExportTreeBelarus_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeBelarusTable */
@@ -22764,7 +25275,7 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	 */
 	class EO_ExportTreeBelarus_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeRussiaTable:sale/lib/location/import/compiler/db/exporttreerussia.php:e7bcf067fcb7a2c229716f626719a4c2 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeRussiaTable:sale\lib\location\import\compiler\db\exporttreerussia.php */
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	/**
 	 * EO_ExportTreeRussia
@@ -23015,6 +25526,8 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ExportTreeRussia_Collection merge(?EO_ExportTreeRussia_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ExportTreeRussia_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeRussiaTable */
@@ -23048,7 +25561,7 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	 */
 	class EO_ExportTreeRussia_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeUkrainTable:sale/lib/location/import/compiler/db/exporttreeukrain.php:ae0b9cff7719c16bcbfae209b59f5851 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeUkrainTable:sale\lib\location\import\compiler\db\exporttreeukrain.php */
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	/**
 	 * EO_ExportTreeUkrain
@@ -23335,6 +25848,8 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ExportTreeUkrain_Collection merge(?EO_ExportTreeUkrain_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ExportTreeUkrain_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeUkrainTable */
@@ -23368,7 +25883,7 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	 */
 	class EO_ExportTreeUkrain_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\FiasTable:sale/lib/location/import/compiler/db/fias.php:c6396b58cfe853c130d2e6866be987d5 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\FiasTable:sale\lib\location\import\compiler\db\fias.php */
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	/**
 	 * EO_Fias
@@ -23565,6 +26080,8 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Fias_Collection merge(?EO_Fias_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Fias_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\Import\Compiler\Db\FiasTable */
@@ -23598,7 +26115,7 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	 */
 	class EO_Fias_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\LocationTable:sale/lib/location/location.php:75b1384df2d8827054a02f9ac774844d */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\LocationTable:sale\lib\location\location.php */
 namespace Bitrix\Sale\Location {
 	/**
 	 * EO_Location
@@ -23990,6 +26507,8 @@ namespace Bitrix\Sale\Location {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Location_Collection merge(?EO_Location_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Location_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\LocationTable */
@@ -24023,7 +26542,7 @@ namespace Bitrix\Sale\Location {
 	 */
 	class EO_Location_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\GroupTable:sale/lib/location/name/group.php:026f090072d576f73975b37cedbdbaca */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\GroupTable:sale\lib\location\name\group.php */
 namespace Bitrix\Sale\Location\Name {
 	/**
 	 * EO_Group
@@ -24182,6 +26701,8 @@ namespace Bitrix\Sale\Location\Name {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Group_Collection merge(?EO_Group_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Group_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\Name\GroupTable */
@@ -24215,7 +26736,7 @@ namespace Bitrix\Sale\Location\Name {
 	 */
 	class EO_Group_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\LocationTable:sale/lib/location/name/location.php:8182bddd5791d8251b965ad6e5be231d */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\LocationTable:sale\lib\location\name\location.php */
 namespace Bitrix\Sale\Location\Name {
 	/**
 	 * EO_Location
@@ -24392,6 +26913,8 @@ namespace Bitrix\Sale\Location\Name {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Location_Collection merge(?EO_Location_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Location_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\Name\LocationTable */
@@ -24425,7 +26948,7 @@ namespace Bitrix\Sale\Location\Name {
 	 */
 	class EO_Location_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\TypeTable:sale/lib/location/name/type.php:2d2ce4e8556bcb21cb42d48ee4c0c0ca */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\TypeTable:sale\lib\location\name\type.php */
 namespace Bitrix\Sale\Location\Name {
 	/**
 	 * EO_Type
@@ -24566,6 +27089,8 @@ namespace Bitrix\Sale\Location\Name {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Type_Collection merge(?EO_Type_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Type_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\Name\TypeTable */
@@ -24599,7 +27124,7 @@ namespace Bitrix\Sale\Location\Name {
 	 */
 	class EO_Type_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Search\ChainTable:sale/lib/location/search/chain.php:c857b56705954a71fd98073173161afc */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Search\ChainTable:sale\lib\location\search\chain.php */
 namespace Bitrix\Sale\Location\Search {
 	/**
 	 * EO_Chain
@@ -24700,6 +27225,8 @@ namespace Bitrix\Sale\Location\Search {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Chain_Collection merge(?EO_Chain_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Chain_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\Search\ChainTable */
@@ -24733,7 +27260,7 @@ namespace Bitrix\Sale\Location\Search {
 	 */
 	class EO_Chain_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Search\SiteLinkTable:sale/lib/location/search/sitelink.php:3201f91245127983a907c1d8c4dae3c3 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Search\SiteLinkTable:sale\lib\location\search\sitelink.php */
 namespace Bitrix\Sale\Location\Search {
 	/**
 	 * EO_SiteLink
@@ -24822,6 +27349,8 @@ namespace Bitrix\Sale\Location\Search {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_SiteLink_Collection merge(?EO_SiteLink_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_SiteLink_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\Search\SiteLinkTable */
@@ -24855,7 +27384,7 @@ namespace Bitrix\Sale\Location\Search {
 	 */
 	class EO_SiteLink_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Search\WordTable:sale/lib/location/search/word.php:60d979d05ffab129cfbd7866c2fd8967 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Search\WordTable:sale\lib\location\search\word.php */
 namespace Bitrix\Sale\Location\Search {
 	/**
 	 * EO_Word
@@ -24971,6 +27500,8 @@ namespace Bitrix\Sale\Location\Search {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Word_Collection merge(?EO_Word_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Word_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\Search\WordTable */
@@ -25004,7 +27535,7 @@ namespace Bitrix\Sale\Location\Search {
 	 */
 	class EO_Word_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\SiteLocationTable:sale/lib/location/sitelocation.php:3c2f2025c6470a1e522555d9408ee4de */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\SiteLocationTable:sale\lib\location\sitelocation.php */
 namespace Bitrix\Sale\Location {
 	/**
 	 * EO_SiteLocation
@@ -25138,6 +27669,8 @@ namespace Bitrix\Sale\Location {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_SiteLocation_Collection merge(?EO_SiteLocation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_SiteLocation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\SiteLocationTable */
@@ -25171,7 +27704,7 @@ namespace Bitrix\Sale\Location {
 	 */
 	class EO_SiteLocation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\TypeTable:sale/lib/location/type.php:ae2279bacdeaf03d5efd5310b4faf5ce */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\TypeTable:sale\lib\location\type.php */
 namespace Bitrix\Sale\Location {
 	/**
 	 * EO_Type
@@ -25316,6 +27849,8 @@ namespace Bitrix\Sale\Location {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Type_Collection merge(?EO_Type_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Type_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Location\TypeTable */
@@ -25349,7 +27884,377 @@ namespace Bitrix\Sale\Location {
 	 */
 	class EO_Type_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Tax\RateTable:sale/lib/tax/rate.php:956b0efed935ec828b607d7fefb22ef2 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Reservation\Internals\BasketReservationHistoryTable:sale\lib\reservation\internals\basketreservationhistorytable.php */
+namespace Bitrix\Sale\Reservation\Internals {
+	/**
+	 * EO_BasketReservationHistory
+	 * @see \Bitrix\Sale\Reservation\Internals\BasketReservationHistoryTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getReservationId()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory setReservationId(\int|\Bitrix\Main\DB\SqlExpression $reservationId)
+	 * @method bool hasReservationId()
+	 * @method bool isReservationIdFilled()
+	 * @method bool isReservationIdChanged()
+	 * @method \int remindActualReservationId()
+	 * @method \int requireReservationId()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory resetReservationId()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory unsetReservationId()
+	 * @method \int fillReservationId()
+	 * @method \Bitrix\Main\Type\DateTime getDateReserve()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory setDateReserve(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateReserve)
+	 * @method bool hasDateReserve()
+	 * @method bool isDateReserveFilled()
+	 * @method bool isDateReserveChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateReserve()
+	 * @method \Bitrix\Main\Type\DateTime requireDateReserve()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory resetDateReserve()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory unsetDateReserve()
+	 * @method \Bitrix\Main\Type\DateTime fillDateReserve()
+	 * @method \float getQuantity()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory setQuantity(\float|\Bitrix\Main\DB\SqlExpression $quantity)
+	 * @method bool hasQuantity()
+	 * @method bool isQuantityFilled()
+	 * @method bool isQuantityChanged()
+	 * @method \float remindActualQuantity()
+	 * @method \float requireQuantity()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory resetQuantity()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory unsetQuantity()
+	 * @method \float fillQuantity()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation getReservation()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation remindActualReservation()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation requireReservation()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory setReservation(\Bitrix\Sale\Reservation\Internals\EO_BasketReservation $object)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory resetReservation()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory unsetReservation()
+	 * @method bool hasReservation()
+	 * @method bool isReservationFilled()
+	 * @method bool isReservationChanged()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation fillReservation()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory set($fieldName, $value)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory reset($fieldName)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory wakeUp($data)
+	 */
+	class EO_BasketReservationHistory {
+		/* @var \Bitrix\Sale\Reservation\Internals\BasketReservationHistoryTable */
+		static public $dataClass = '\Bitrix\Sale\Reservation\Internals\BasketReservationHistoryTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Reservation\Internals {
+	/**
+	 * EO_BasketReservationHistory_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getReservationIdList()
+	 * @method \int[] fillReservationId()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateReserveList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateReserve()
+	 * @method \float[] getQuantityList()
+	 * @method \float[] fillQuantity()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation[] getReservationList()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory_Collection getReservationCollection()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation_Collection fillReservation()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory $object)
+	 * @method bool has(\Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory getByPrimary($primary)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_BasketReservationHistory_Collection merge(?EO_BasketReservationHistory_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_BasketReservationHistory_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Reservation\Internals\BasketReservationHistoryTable */
+		static public $dataClass = '\Bitrix\Sale\Reservation\Internals\BasketReservationHistoryTable';
+	}
+}
+namespace Bitrix\Sale\Reservation\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_BasketReservationHistory_Result exec()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory fetchObject()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_BasketReservationHistory_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory fetchObject()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory_Collection fetchCollection()
+	 */
+	class EO_BasketReservationHistory_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory_Collection createCollection()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory wakeUpObject($row)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservationHistory_Collection wakeUpCollection($rows)
+	 */
+	class EO_BasketReservationHistory_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Reservation\Internals\BasketReservationTable:sale\lib\reservation\internals\basketreservationtable.php */
+namespace Bitrix\Sale\Reservation\Internals {
+	/**
+	 * EO_BasketReservation
+	 * @see \Bitrix\Sale\Reservation\Internals\BasketReservationTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \float getQuantity()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation setQuantity(\float|\Bitrix\Main\DB\SqlExpression $quantity)
+	 * @method bool hasQuantity()
+	 * @method bool isQuantityFilled()
+	 * @method bool isQuantityChanged()
+	 * @method \float remindActualQuantity()
+	 * @method \float requireQuantity()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation resetQuantity()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation unsetQuantity()
+	 * @method \float fillQuantity()
+	 * @method \Bitrix\Main\Type\DateTime getDateReserve()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation setDateReserve(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateReserve)
+	 * @method bool hasDateReserve()
+	 * @method bool isDateReserveFilled()
+	 * @method bool isDateReserveChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateReserve()
+	 * @method \Bitrix\Main\Type\DateTime requireDateReserve()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation resetDateReserve()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation unsetDateReserve()
+	 * @method \Bitrix\Main\Type\DateTime fillDateReserve()
+	 * @method \Bitrix\Main\Type\DateTime getDateReserveEnd()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation setDateReserveEnd(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateReserveEnd)
+	 * @method bool hasDateReserveEnd()
+	 * @method bool isDateReserveEndFilled()
+	 * @method bool isDateReserveEndChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateReserveEnd()
+	 * @method \Bitrix\Main\Type\DateTime requireDateReserveEnd()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation resetDateReserveEnd()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation unsetDateReserveEnd()
+	 * @method \Bitrix\Main\Type\DateTime fillDateReserveEnd()
+	 * @method \int getReservedBy()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation setReservedBy(\int|\Bitrix\Main\DB\SqlExpression $reservedBy)
+	 * @method bool hasReservedBy()
+	 * @method bool isReservedByFilled()
+	 * @method bool isReservedByChanged()
+	 * @method \int remindActualReservedBy()
+	 * @method \int requireReservedBy()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation resetReservedBy()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation unsetReservedBy()
+	 * @method \int fillReservedBy()
+	 * @method \int getBasketId()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation setBasketId(\int|\Bitrix\Main\DB\SqlExpression $basketId)
+	 * @method bool hasBasketId()
+	 * @method bool isBasketIdFilled()
+	 * @method bool isBasketIdChanged()
+	 * @method \int remindActualBasketId()
+	 * @method \int requireBasketId()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation resetBasketId()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation unsetBasketId()
+	 * @method \int fillBasketId()
+	 * @method \int getStoreId()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation setStoreId(\int|\Bitrix\Main\DB\SqlExpression $storeId)
+	 * @method bool hasStoreId()
+	 * @method bool isStoreIdFilled()
+	 * @method bool isStoreIdChanged()
+	 * @method \int remindActualStoreId()
+	 * @method \int requireStoreId()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation resetStoreId()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation unsetStoreId()
+	 * @method \int fillStoreId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket getBasket()
+	 * @method \Bitrix\Sale\Internals\EO_Basket remindActualBasket()
+	 * @method \Bitrix\Sale\Internals\EO_Basket requireBasket()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation setBasket(\Bitrix\Sale\Internals\EO_Basket $object)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation resetBasket()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation unsetBasket()
+	 * @method bool hasBasket()
+	 * @method bool isBasketFilled()
+	 * @method bool isBasketChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Basket fillBasket()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation set($fieldName, $value)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation reset($fieldName)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservation wakeUp($data)
+	 */
+	class EO_BasketReservation {
+		/* @var \Bitrix\Sale\Reservation\Internals\BasketReservationTable */
+		static public $dataClass = '\Bitrix\Sale\Reservation\Internals\BasketReservationTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Reservation\Internals {
+	/**
+	 * EO_BasketReservation_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \float[] getQuantityList()
+	 * @method \float[] fillQuantity()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateReserveList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateReserve()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateReserveEndList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateReserveEnd()
+	 * @method \int[] getReservedByList()
+	 * @method \int[] fillReservedBy()
+	 * @method \int[] getBasketIdList()
+	 * @method \int[] fillBasketId()
+	 * @method \int[] getStoreIdList()
+	 * @method \int[] fillStoreId()
+	 * @method \Bitrix\Sale\Internals\EO_Basket[] getBasketList()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation_Collection getBasketCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection fillBasket()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Reservation\Internals\EO_BasketReservation $object)
+	 * @method bool has(\Bitrix\Sale\Reservation\Internals\EO_BasketReservation $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation getByPrimary($primary)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Reservation\Internals\EO_BasketReservation $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Reservation\Internals\EO_BasketReservation_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_BasketReservation_Collection merge(?EO_BasketReservation_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_BasketReservation_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Reservation\Internals\BasketReservationTable */
+		static public $dataClass = '\Bitrix\Sale\Reservation\Internals\BasketReservationTable';
+	}
+}
+namespace Bitrix\Sale\Reservation\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_BasketReservation_Result exec()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation fetchObject()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_BasketReservation_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation fetchObject()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation_Collection fetchCollection()
+	 */
+	class EO_BasketReservation_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation_Collection createCollection()
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation wakeUpObject($row)
+	 * @method \Bitrix\Sale\Reservation\Internals\EO_BasketReservation_Collection wakeUpCollection($rows)
+	 */
+	class EO_BasketReservation_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Tax\RateTable:sale\lib\tax\rate.php */
 namespace Bitrix\Sale\Tax {
 	/**
 	 * EO_Rate
@@ -25432,6 +28337,8 @@ namespace Bitrix\Sale\Tax {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Rate_Collection merge(?EO_Rate_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Rate_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Tax\RateTable */
@@ -25465,7 +28372,7 @@ namespace Bitrix\Sale\Tax {
 	 */
 	class EO_Rate_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Tax\RateLocationTable:sale/lib/tax/ratelocation.php:83228eb57a61f49e5180ed87436d11d5 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Tax\RateLocationTable:sale\lib\tax\ratelocation.php */
 namespace Bitrix\Sale\Tax {
 	/**
 	 * EO_RateLocation
@@ -25599,6 +28506,8 @@ namespace Bitrix\Sale\Tax {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_RateLocation_Collection merge(?EO_RateLocation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_RateLocation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\Tax\RateLocationTable */
@@ -25632,7 +28541,7 @@ namespace Bitrix\Sale\Tax {
 	 */
 	class EO_RateLocation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Ebay\CategoryTable:sale/lib/tradingplatform/ebay/category.php:cf779c8e6053a2fb84894952fca8d917 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Ebay\CategoryTable:sale\lib\tradingplatform\ebay\category.php */
 namespace Bitrix\Sale\TradingPlatform\Ebay {
 	/**
 	 * EO_Category
@@ -25775,6 +28684,8 @@ namespace Bitrix\Sale\TradingPlatform\Ebay {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Category_Collection merge(?EO_Category_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Category_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\TradingPlatform\Ebay\CategoryTable */
@@ -25808,7 +28719,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay {
 	 */
 	class EO_Category_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Ebay\CategoryVariationTable:sale/lib/tradingplatform/ebay/categoryvariation.php:9aead367182a14c5984944c5301953bc */
+/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Ebay\CategoryVariationTable:sale\lib\tradingplatform\ebay\categoryvariation.php */
 namespace Bitrix\Sale\TradingPlatform\Ebay {
 	/**
 	 * EO_CategoryVariation
@@ -25999,6 +28910,8 @@ namespace Bitrix\Sale\TradingPlatform\Ebay {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CategoryVariation_Collection merge(?EO_CategoryVariation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CategoryVariation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\TradingPlatform\Ebay\CategoryVariationTable */
@@ -26032,7 +28945,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay {
 	 */
 	class EO_CategoryVariation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Ebay\Feed\QueueTable:sale/lib/tradingplatform/ebay/feed/queue.php:21ea3cfa55b24a83a4bc0cfaa1edb49e */
+/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Ebay\Feed\QueueTable:sale\lib\tradingplatform\ebay\feed\queue.php */
 namespace Bitrix\Sale\TradingPlatform\Ebay\Feed {
 	/**
 	 * EO_Queue
@@ -26139,6 +29052,8 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Feed {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Queue_Collection merge(?EO_Queue_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Queue_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\TradingPlatform\Ebay\Feed\QueueTable */
@@ -26172,7 +29087,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Feed {
 	 */
 	class EO_Queue_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Ebay\Feed\ResultsTable:sale/lib/tradingplatform/ebay/feed/results.php:d0a9c098a4565c1975269d793a1d3aad */
+/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Ebay\Feed\ResultsTable:sale\lib\tradingplatform\ebay\feed\results.php */
 namespace Bitrix\Sale\TradingPlatform\Ebay\Feed {
 	/**
 	 * EO_Results
@@ -26327,6 +29242,8 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Feed {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Results_Collection merge(?EO_Results_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Results_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\TradingPlatform\Ebay\Feed\ResultsTable */
@@ -26360,7 +29277,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Feed {
 	 */
 	class EO_Results_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\MapTable:sale/lib/tradingplatform/map.php:cf5e07f3719b3c9cb478adc77e2ab9d9 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\MapTable:sale\lib\tradingplatform\map.php */
 namespace Bitrix\Sale\TradingPlatform {
 	/**
 	 * EO_Map
@@ -26491,6 +29408,8 @@ namespace Bitrix\Sale\TradingPlatform {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Map_Collection merge(?EO_Map_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Map_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\TradingPlatform\MapTable */
@@ -26524,7 +29443,7 @@ namespace Bitrix\Sale\TradingPlatform {
 	 */
 	class EO_Map_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\MapEntityTable:sale/lib/tradingplatform/mapentity.php:c2492623b52fccab44b97c6e1a35da85 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\MapEntityTable:sale\lib\tradingplatform\mapentity.php */
 namespace Bitrix\Sale\TradingPlatform {
 	/**
 	 * EO_MapEntity
@@ -26631,6 +29550,8 @@ namespace Bitrix\Sale\TradingPlatform {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_MapEntity_Collection merge(?EO_MapEntity_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_MapEntity_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\TradingPlatform\MapEntityTable */
@@ -26664,7 +29585,7 @@ namespace Bitrix\Sale\TradingPlatform {
 	 */
 	class EO_MapEntity_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\OrderTable:sale/lib/tradingplatform/order.php:e093e8c5f03ee81d640226b0a25cc19a */
+/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\OrderTable:sale\lib\tradingplatform\order.php */
 namespace Bitrix\Sale\TradingPlatform {
 	/**
 	 * EO_Order
@@ -26833,6 +29754,8 @@ namespace Bitrix\Sale\TradingPlatform {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Order_Collection merge(?EO_Order_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Order_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\TradingPlatform\OrderTable */
@@ -26866,7 +29789,7 @@ namespace Bitrix\Sale\TradingPlatform {
 	 */
 	class EO_Order_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Vk\ExportProfileTable:sale/lib/tradingplatform/vk/exportprofile.php:e27cb8d2625f43a43127ad01e50d5b89 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Vk\ExportProfileTable:sale\lib\tradingplatform\vk\exportprofile.php */
 namespace Bitrix\Sale\TradingPlatform\Vk {
 	/**
 	 * EO_ExportProfile
@@ -27033,6 +29956,8 @@ namespace Bitrix\Sale\TradingPlatform\Vk {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ExportProfile_Collection merge(?EO_ExportProfile_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ExportProfile_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\TradingPlatform\Vk\ExportProfileTable */
@@ -27066,7 +29991,7 @@ namespace Bitrix\Sale\TradingPlatform\Vk {
 	 */
 	class EO_ExportProfile_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Vk\LogTable:sale/lib/tradingplatform/vk/log.php:adfa3e049cbf7659a3e30c2160137afe */
+/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\Vk\LogTable:sale\lib\tradingplatform\vk\log.php */
 namespace Bitrix\Sale\TradingPlatform\Vk {
 	/**
 	 * EO_Log
@@ -27209,6 +30134,8 @@ namespace Bitrix\Sale\TradingPlatform\Vk {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Log_Collection merge(?EO_Log_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Log_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Sale\TradingPlatform\Vk\LogTable */

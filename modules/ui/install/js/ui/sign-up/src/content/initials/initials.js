@@ -58,7 +58,7 @@ export class InitialsContent extends Content
 
 	onInput()
 	{
-		this.getCanvas().renderText(this.getTextValue());
+		this.getCanvas().renderText(this.getTextValue(), this.getColor());
 		this.emit('onChange');
 	}
 

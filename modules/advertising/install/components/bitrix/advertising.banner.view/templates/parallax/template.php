@@ -14,10 +14,10 @@ $arParams['PROPS']['HEADING_FONT_SIZE'] = intval($arParams['PROPS']['HEADING_FON
 $arParams['PROPS']['ANNOUNCEMENT_FONT_SIZE'] = intval($arParams['PROPS']['ANNOUNCEMENT_FONT_SIZE']);
 $arParams['PROPS']['HEADING_BG_OPACITY'] = isset($arParams['PROPS']['HEADING_BG_OPACITY']) ? intval($arParams['PROPS']['HEADING_BG_OPACITY']) : 100;
 
-$arParams['PROPS']['OVERLAY_COLOR'] = hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 0, 2)).','
-	.hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 2, 2)).','
-	.hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 4, 2)).','
-	.abs(100 - intval($arParams['PROPS']['OVERLAY_OPACITY']))/100;
+$arParams['PROPS']['OVERLAY_COLOR'] = hexdec(mb_substr(($arParams['PROPS']['OVERLAY_COLOR'] ?? ''), 0, 2)).','
+	.hexdec(mb_substr(($arParams['PROPS']['OVERLAY_COLOR'] ?? ''), 2, 2)).','
+	.hexdec(mb_substr(($arParams['PROPS']['OVERLAY_COLOR'] ?? ''), 4, 2)).','
+	.abs(100 - intval($arParams['PROPS']['OVERLAY_OPACITY'] ?? 0))/100;
 
 $arParams['PROPS']['HEADING_BG_COLOR'] = hexdec(mb_substr($arParams['PROPS']['HEADING_BG_COLOR'], 0, 2)).','
 	.hexdec(mb_substr($arParams['PROPS']['HEADING_BG_COLOR'], 2, 2)).','
@@ -74,7 +74,7 @@ else
 				<div class="bx-advertisingbanner-pattern" style="background:rgba(<?=$arParams['PROPS']['OVERLAY_COLOR']?>)"></div>
 			<? endif ?>
 			<? if ($arParams['PROPS']['HEADING_SHOW'] == 'Y' || $arParams['PROPS']['ANNOUNCEMENT_SHOW'] == 'Y' || $arParams['PROPS']['BUTTON'] == 'Y'): ?>
-				<div class="bx-advertisingbanner-content<?=$playClass?>"<?=$animation?> <? if ($arParams['PROPS']['PRESET']==2 || $arParams['PROPS']['PRESET']==3){echo 'style="background:rgba('.$arParams['PROPS']['HEADING_BG_COLOR'].');"';}?>>
+				<div class="bx-advertisingbanner-content" <? if ($arParams['PROPS']['PRESET']==2 || $arParams['PROPS']['PRESET']==3){echo 'style="background:rgba('.$arParams['PROPS']['HEADING_BG_COLOR'].');"';}?>>
 					<? if ($arParams['PROPS']['HEADING_SHOW'] == 'Y'): ?>
 						<div id='text<?=$rnd?>' class="bx-advertisingbanner-text-title" style="display:inline-block;font-size:<?=$arParams['PROPS']['HEADING_FONT_SIZE']?>px;color:#<?=$arParams['PROPS']['HEADING_FONT_COLOR']?>;<? if ($arParams['PROPS']['PRESET']==1 || $arParams['PROPS']['PRESET']==4){echo 'background:rgba('.$arParams['PROPS']['HEADING_BG_COLOR'].');';}?>"><?=$headingText?></div>
 					<? endif ?>
@@ -85,7 +85,7 @@ else
 						<? if (isset($arParams['PREVIEW'])): ?>
 							<button  class="bx-advertisingbanner-btn" style="background-color: rgb(<?=$arParams['PROPS']['BUTTON_BG_COLOR']?>);color:#<?=$arParams['PROPS']['BUTTON_FONT_COLOR']?>;border: 0;"><?=$arParams['PROPS']['BUTTON_TEXT']?></button>
 						<? else: ?>
-							<a class="bx-advertisingbanner-btn" href="<?=$arParams['PROPS']['BUTTON_LINK_URL']?>" title="<?=$arParams['PROPS']['BUTTON_LINK_TITLE']?>" target="<?=$arParams['PROPS']['BUTTON_LINK_TARGET']?>" style="background-color: rgb(<?=$arParams['PROPS']['BUTTON_BG_COLOR']?>);color:#<?=$arParams['PROPS']['BUTTON_FONT_COLOR']?>">
+							<a class="bx-advertisingbanner-btn" href="<?=$arParams['PROPS']['BUTTON_LINK_URL']?>" title="<?=$arParams['PROPS']['BUTTON_LINK_TITLE'] ?? ''?>" target="<?=$arParams['PROPS']['BUTTON_LINK_TARGET']?>" style="background-color: rgb(<?=$arParams['PROPS']['BUTTON_BG_COLOR']?>);color:#<?=$arParams['PROPS']['BUTTON_FONT_COLOR']?>">
 								<?=$arParams['PROPS']['BUTTON_TEXT']?>
 							</a>
 						<? endif ?>

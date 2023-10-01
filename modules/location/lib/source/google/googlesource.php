@@ -137,4 +137,9 @@ class GoogleSource extends Source
 
 		return $langMap[$bitrixLang] ?? $bitrixLang;
 	}
+
+	public function isAvailable(): bool
+	{
+		return $this->getBackendKey() && $this->getFrontendKey();
+	}
 }

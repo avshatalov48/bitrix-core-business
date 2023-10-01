@@ -1,7 +1,7 @@
-;(function() {
-	"use strict";
+(function() {
+	'use strict';
 
-	BX.namespace("BX.Landing.UI.Button");
+	BX.namespace('BX.Landing.UI.Button');
 
 	BX.Landing.UI.Button.StyleTable = function(id, options)
 	{
@@ -18,135 +18,142 @@
 			event.preventDefault();
 			event.stopPropagation();
 
-			var table = this.options.table;
-			var options = [];
+			const table = this.options.table;
+			const options = [];
 			options.table = table;
 			options.setTd = this.options.setTd;
 			options.target = this.options.target;
 			if (!this.menu)
 			{
 				this.menu = new BX.PopupMenuWindow({
-					id: "change-table-style-menu-" + BX.Text.getRandom(),
+					id: `change-table-style-menu-${BX.Text.getRandom()}`,
 					bindElement: this.layout,
 					zIndex: -678,
 					items: [
 						new BX.PopupMenuItem({
-							id: "style1",
-							text: BX.Landing.Loc.getMessage("LANDING_TABLE_STYLE_1"),
+							id: 'style1',
+							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_1'),
 							onclick: this.onChange,
 							table: table,
 							options: options,
 						}),
 						new BX.PopupMenuItem({
-							id: "style2",
-							text: BX.Landing.Loc.getMessage("LANDING_TABLE_STYLE_2"),
+							id: 'style2',
+							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_2'),
 							onclick: this.onChange,
 							table: table,
 							options: options,
 						}),
 						new BX.PopupMenuItem({
-							id: "style3",
-							text: BX.Landing.Loc.getMessage("LANDING_TABLE_STYLE_3"),
+							id: 'style3',
+							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_3'),
 							onclick: this.onChange,
 							table: table,
 							options: options,
 						}),
 						new BX.PopupMenuItem({
-							id: "style4",
-							text: BX.Landing.Loc.getMessage("LANDING_TABLE_STYLE_4"),
+							id: 'style4',
+							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_4'),
 							onclick: this.onChange,
 							table: table,
 							options: options,
 						}),
 						new BX.PopupMenuItem({
-							id: "style5",
-							text: BX.Landing.Loc.getMessage("LANDING_TABLE_STYLE_5"),
+							id: 'style5',
+							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_5'),
 							onclick: this.onChange,
 							table: table,
 							options: options,
 						}),
 						new BX.PopupMenuItem({
-							id: "style6",
-							text: BX.Landing.Loc.getMessage("LANDING_TABLE_STYLE_6"),
+							id: 'style6',
+							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_6'),
 							onclick: this.onChange,
 							table: table,
 							options: options,
 						}),
 						new BX.PopupMenuItem({
-							id: "style7",
-							text: BX.Landing.Loc.getMessage("LANDING_TABLE_STYLE_7"),
+							id: 'style7',
+							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_7'),
 							onclick: this.onChange,
 							table: table,
 							options: options,
 						}),
 						new BX.PopupMenuItem({
-							id: "style8",
-							text: BX.Landing.Loc.getMessage("LANDING_TABLE_STYLE_8"),
+							id: 'style8',
+							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_8'),
 							onclick: this.onChange,
 							table: table,
 							options: options,
 						}),
 						new BX.PopupMenuItem({
-							id: "style9",
-							text: BX.Landing.Loc.getMessage("LANDING_TABLE_STYLE_9"),
+							id: 'style9',
+							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_9'),
 							onclick: this.onChange,
 							table: table,
 							options: options,
 						}),
 						new BX.PopupMenuItem({
-							id: "style10",
-							text: BX.Landing.Loc.getMessage("LANDING_TABLE_STYLE_10"),
+							id: 'style10',
+							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_10'),
 							onclick: this.onChange,
 							table: table,
 							options: options,
 						}),
-					]
+					],
 				});
 			}
-			var menuItems = this.menu.menuItems;
-			menuItems.forEach(function(menuItem) {
-				menuItem.menuItems = menuItems;
-			});
-			if (table.classList.contains('landing-table-style-1'))
+			this.menuItems = this.menu.menuItems;
+			if (BX.Dom.hasClass(table, 'landing-table-style-1'))
 			{
-				menuItems[0].layout.item.style.fontWeight = "bold";
+				BX.Dom.style(this.menuItems[0].layout.item, 'font-weight', 'bold');
 			}
-			if (table.classList.contains('landing-table-style-2'))
+
+			if (BX.Dom.hasClass(table, 'landing-table-style-2'))
 			{
-				menuItems[1].layout.item.style.fontWeight = "bold";
+				BX.Dom.style(this.menuItems[1].layout.item, 'font-weight', 'bold');
 			}
-			if (table.classList.contains('landing-table-style-3'))
+
+			if (BX.Dom.hasClass(table, 'landing-table-style-3'))
 			{
-				menuItems[2].layout.item.style.fontWeight = "bold";
+				BX.Dom.style(this.menuItems[2].layout.item, 'font-weight', 'bold');
 			}
-			if (table.classList.contains('landing-table-style-4'))
+
+			if (BX.Dom.hasClass(table, 'landing-table-style-4'))
 			{
-				menuItems[3].layout.item.style.fontWeight = "bold";
+				BX.Dom.style(this.menuItems[3].layout.item, 'font-weight', 'bold');
 			}
-			if (table.classList.contains('landing-table-style-5'))
+
+			if (BX.Dom.hasClass(table, 'landing-table-style-5'))
 			{
-				menuItems[4].layout.item.style.fontWeight = "bold";
+				BX.Dom.style(this.menuItems[4].layout.item, 'font-weight', 'bold');
 			}
-			if (table.classList.contains('landing-table-style-6'))
+
+			if (BX.Dom.hasClass(table, 'landing-table-style-6'))
 			{
-				menuItems[5].layout.item.style.fontWeight = "bold";
+				BX.Dom.style(this.menuItems[5].layout.item, 'font-weight', 'bold');
 			}
-			if (table.classList.contains('landing-table-style-7'))
+
+			if (BX.Dom.hasClass(table, 'landing-table-style-7'))
 			{
-				menuItems[6].layout.item.style.fontWeight = "bold";
+				BX.Dom.style(this.menuItems[6].layout.item, 'font-weight', 'bold');
 			}
-			if (table.classList.contains('landing-table-style-8'))
+
+			if (BX.Dom.hasClass(table, 'landing-table-style-8'))
 			{
-				menuItems[7].layout.item.style.fontWeight = "bold";
+				BX.Dom.style(this.menuItems[7].layout.item, 'font-weight', 'bold');
 			}
-			if (table.classList.contains('landing-table-style-9'))
+
+			if (BX.Dom.hasClass(table, 'landing-table-style-9'))
 			{
-				menuItems[8].layout.item.style.fontWeight = "bold";
+				BX.Dom.style(this.menuItems[8].layout.item, 'font-weight', 'bold');
 			}
-			if (table.classList.contains('landing-table-style-10'))
+
+			if (BX.Dom.hasClass(table, 'landing-table-style-10'))
 			{
-				menuItems[9].layout.item.style.fontWeight = "bold";
+				BX.Dom.style(this.menuItems[9].layout.item, 'font-weight', 'bold');
 			}
+
 			if (this.menu.popupWindow.isShown())
 			{
 				this.menu.close();
@@ -162,9 +169,9 @@
 			event.stopPropagation();
 			menuItem.menuWindow.close();
 
-			var newTableStyle;
-			var styleNumber;
-			var setTableStyles = [
+			let newTableStyle;
+			let styleNumber;
+			const setTableStyles = [
 				'landing-table-style-1',
 				'landing-table-style-2',
 				'landing-table-style-3',
@@ -176,7 +183,8 @@
 				'landing-table-style-9',
 				'landing-table-style-10',
 			];
-			switch (menuItem.id) {
+			switch (menuItem.id)
+			{
 				case 'style1':
 					newTableStyle = setTableStyles[0];
 					styleNumber = 0;
@@ -217,43 +225,61 @@
 					newTableStyle = setTableStyles[9];
 					styleNumber = 9;
 					break;
+				default:
+					break;
 			}
+
 			if (newTableStyle !== undefined)
 			{
-				var count = 0;
-				menuItem.menuItems.forEach(function(menuItem) {
+				let count = 0;
+				this.menuItems.forEach((item) => {
 					if (count === styleNumber)
 					{
-						menuItem.layout.item.style.fontWeight = "bold";
+						BX.Dom.style(item.layout.item, 'font-weight', 'bold');
 					}
 					else
 					{
-						menuItem.layout.item.style.fontWeight = "normal";
+						BX.Dom.style(item.layout.item, 'font-weight', 'normal');
 					}
 					count++;
 				});
-				setTableStyles.forEach(function(tableStyle) {
-					if (tableStyle === newTableStyle)
-					{
-						menuItem.table.classList.add(tableStyle);
-						var lightTextColor = '#cccccc';
-						var darkTextColor = '#333333';
-						if (styleNumber >= 5)
-						{
-							BX.Landing.UI.Button.ColorAction.prototype.prepareOptionsForApplyColorInTableCells(lightTextColor, menuItem.options.options.options);
-						}
-						else
-						{
-							BX.Landing.UI.Button.ColorAction.prototype.prepareOptionsForApplyColorInTableCells(darkTextColor, menuItem.options.options.options);
-						}
-					}
-					else
-					{
-						menuItem.table.classList.remove(tableStyle);
-					}
-				})
+
+				context.applyTableStyles(setTableStyles, newTableStyle, styleNumber, menuItem);
 			}
 			BX.Landing.Block.Node.Text.currentNode.onChange(true);
-		}
+		},
+
+		applyTableStyles: function(tableStyles, newTableStyle, styleNumber, menuItem)
+		{
+			tableStyles.forEach((tableStyle) => {
+				if (tableStyle === newTableStyle)
+				{
+					BX.Dom.addClass(menuItem.table, tableStyle);
+					if (styleNumber >= 5)
+					{
+						const lightTextColor = '#ccc';
+						BX.Landing.UI.Button.TableColorAction.prototype.prepareOptionsForApplyColorInTableCells(
+							lightTextColor,
+							menuItem.options.options.options,
+						);
+					}
+
+					if (styleNumber < 5)
+					{
+						const darkTextColor = '#333';
+						BX.Landing.UI.Button.TableColorAction.prototype.prepareOptionsForApplyColorInTableCells(
+							darkTextColor,
+							menuItem.options.options.options,
+						);
+					}
+				}
+				else
+				{
+					BX.Dom.removeClass(menuItem.table, tableStyle);
+				}
+			});
+		},
 	};
+
+	const context = new BX.Landing.UI.Button.StyleTable();
 })();

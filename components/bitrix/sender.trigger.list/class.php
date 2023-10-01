@@ -55,7 +55,6 @@ class SenderTriggerListComponent extends Bitrix\Sender\Internals\CommonSenderCom
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var \CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_CAMPAIGN_COMP_TITLE'));
 		}
 
@@ -274,7 +273,7 @@ class SenderTriggerListComponent extends Bitrix\Sender\Internals\CommonSenderCom
 		}
 
 		$data['USER_PATH'] = str_replace('#id#', $data['USER_ID'], $this->arParams['PATH_TO_USER_PROFILE']);
-		$data['USER'] = \CAllUser::FormatName(
+		$data['USER'] = CUser::FormatName(
 			$this->arParams['NAME_TEMPLATE'],
 			array(
 				'LOGIN' => $data['USER_LOGIN'],

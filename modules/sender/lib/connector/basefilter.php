@@ -70,7 +70,6 @@ abstract class BaseFilter extends Base
 	private function buildUi($filterId, $currentPresetId, $presets, $filter)
 	{
 		ob_start();
-		/** @var \CAllMain $GLOBALS['APPLICATION'] Application. */
 		$GLOBALS['APPLICATION']->includeComponent(
 			"bitrix:main.ui.filter",
 			"",

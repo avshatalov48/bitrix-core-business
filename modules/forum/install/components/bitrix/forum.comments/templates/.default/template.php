@@ -1,9 +1,4 @@
-<?php
-
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
-{
-	die();
-}
+<?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) { die(); }
 
 /**
  * @var CMain $APPLICATION
@@ -32,7 +27,8 @@ if (isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"])
 else
 {
 	$editRight = (
-		$arResult["PANELS"]["EDIT"] == "N"
+		isset($arResult["PANELS"]["EDIT"])
+		&& $arResult["PANELS"]["EDIT"] == "N"
 			? (
 				$arParams["ALLOW_EDIT_OWN_MESSAGE"] === "ALL"
 					? "OWN"
@@ -42,7 +38,7 @@ else
 	);
 }
 
-$canCreateTask = ($arResult['POST_CONTENT_TYPE_ID'] && !$arParams['PUBLIC_MODE']);
+$canCreateTask = ($arResult['POST_CONTENT_TYPE_ID'] && !(isset($arParams['PUBLIC_MODE']) && $arParams['PUBLIC_MODE']));
 
 $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 	"bitrix:main.post.list",
@@ -57,10 +53,10 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"NAV_RESULT" => $arResult["NAV_RESULT"] ?? null,
 		"PREORDER" => $arParams["PREORDER"],
 		"RIGHTS" => array(
-			"MODERATE" =>  $arResult["PANELS"]["MODERATE"],
+			"MODERATE" =>  $arResult["PANELS"]["MODERATE"] ?? null,
 			"EDIT" => $editRight,
 			"DELETE" => $editRight,
-			'CREATETASK' => ($arResult['POST_CONTENT_TYPE_ID'] && !$arParams['PUBLIC_MODE'] ? 'Y' : 'N'),
+			'CREATETASK' => ($arResult['POST_CONTENT_TYPE_ID'] && !(isset($arParams['PUBLIC_MODE']) && $arParams['PUBLIC_MODE']) ? 'Y' : 'N'),
 			'CREATESUBTASK' => ($canCreateTask && $arParams['ENTITY_TYPE'] === 'TK' ? 'Y' : 'N')
 		),
 		'POST_CONTENT_TYPE_ID' => $arResult['POST_CONTENT_TYPE_ID'],
@@ -84,10 +80,10 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"SHOW_LOGIN" => $arParams['SHOW_LOGIN'],
 
 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
-		"LAZYLOAD" => $arParams["LAZYLOAD"],
+		"LAZYLOAD" => $arParams["LAZYLOAD"] ?? null,
 
-		"NOTIFY_TAG" => ($arParams["bFromList"] ? "BLOG|COMMENT" : ""),
-		"NOTIFY_TEXT" => ($arParams["bFromList"] ? TruncateText(str_replace(Array("\r\n", "\n"), " ", $arParams["POST_DATA"]["~TITLE"]), 100) : ""),
+		"NOTIFY_TAG" => (isset($arParams["bFromList"]) && $arParams["bFromList"] ? "BLOG|COMMENT" : ""),
+		"NOTIFY_TEXT" => (isset($arParams["bFromList"]) && $arParams["bFromList"] ? TruncateText(str_replace(Array("\r\n", "\n"), " ", $arParams["POST_DATA"]["~TITLE"]), 100) : ""),
 		"SHOW_MINIMIZED" => $arParams["SHOW_MINIMIZED"],
 
 		"FORM_ID" => $arParams["FORM_ID"], // instead of SHOW_POST_FORM

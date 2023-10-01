@@ -1,5 +1,5 @@
 import { Type, Event, Loc, Dom, Text, Uri, ajax } from "main.core";
-import { EventEmitter } from "main.core.events";
+import {BaseEvent, EventEmitter} from "main.core.events";
 import { ViewMode } from "./view-mode";
 import { Trigger } from "./trigger";
 import { Helper } from "./helper";
@@ -16,6 +16,7 @@ export class TriggerManager extends EventEmitter
 	#columnNodes: NodeList;
 	#listNodes: NodeList;
 	#modified: boolean;
+	#triggerEventsListeners: Object<string, (event: BaseEvent) => void> = {};
 
 	constructor(triggersContainerNode: HTMLElement)
 	{
@@ -23,6 +24,37 @@ export class TriggerManager extends EventEmitter
 		this.setEventNamespace('BX.Bizproc.Automation');
 
 		this.#triggersContainerNode = triggersContainerNode;
+	}
+
+	async fetchTriggers()
+	{
+		const self = this;
+
+		return new Promise((resolve, reject) => ajax({
+			method: 'POST',
+			dataType: 'json',
+			url: getGlobalContext().ajaxUrl,
+			data: {
+				ajax_action: 'get_triggers',
+				document_signed: getGlobalContext().signedDocument,
+			},
+			onsuccess(response)
+			{
+				if (response.SUCCESS)
+				{
+					self.reInit({TRIGGERS: response.DATA.triggers}, self.#viewMode);
+					resolve();
+				}
+				else
+				{
+					reject();
+				}
+			},
+			onerror()
+			{
+				reject();
+			}
+		}));
 	}
 
 	init(data: ?Object<string, any>, viewMode: ViewMode)
@@ -99,6 +131,23 @@ export class TriggerManager extends EventEmitter
 		});
 		trigger.subscribe('Trigger:deleted', (event) => this.deleteTrigger(event.data.trigger));
 
+		Object
+			.entries(this.#triggerEventsListeners)
+			.forEach(([eventName, listener]) => trigger.subscribe(eventName, listener));
+	}
+
+	onTriggerEvent(eventName: string, listener: (event: BaseEvent, trigger: Trigger) => void)
+	{
+		this.#triggerEventsListeners[eventName] = listener;
+
+		this.#triggers.forEach((trigger: Trigger) => {
+			trigger.subscribe(eventName, (event) => listener(event, trigger))
+		});
+	}
+
+	getSelectedTriggers(): Array<Trigger>
+	{
+		return this.#triggers.filter(trigger => trigger.isSelected());
 	}
 
 	onSearch(event)
@@ -106,22 +155,30 @@ export class TriggerManager extends EventEmitter
 		this.#triggers.forEach(trigger => trigger.onSearch(event));
 	}
 
-	enableManageMode()
+	enableManageMode(status)
 	{
 		this.#viewMode = ViewMode.manage();
-		const deleteButtons = document.querySelectorAll('[data-role="btn-delete-trigger"]');
-		deleteButtons.forEach(node => Dom.hide(node));
 
-		this.#triggers.forEach(trigger => Dom.addClass(trigger.node, '--locked-node'));
+		document.querySelectorAll('[data-role="trigger-list"]').forEach((listNode) => {
+			if (listNode.dataset.statusId === status)
+			{
+				Dom.addClass(listNode, '--multiselect-mode');
+			}
+		});
+		this.#triggers.forEach((trigger) => {
+			trigger.enableManageMode(trigger.documentStatus === status)
+		});
 	}
 
 	disableManageMode()
 	{
 		this.#viewMode = ViewMode.edit();
-		const deleteButtons = document.querySelectorAll('[data-role="btn-delete-trigger"]');
-		deleteButtons.forEach(node => Dom.show(node));
 
-		this.#triggers.forEach(trigger => Dom.removeClass(trigger.node, '--locked-node'));
+		document.querySelectorAll('[data-role="trigger-list"]').forEach((listNode) => {
+			Dom.removeClass(listNode, '--multiselect-mode');
+		});
+
+		this.#triggers.forEach(trigger => trigger.disableManageMode());
 	}
 
 	addTrigger(triggerData: ?Object<string, any>, callback)
@@ -203,6 +260,16 @@ export class TriggerManager extends EventEmitter
 	countAllTriggers(): number
 	{
 		return this.#triggers.filter(trigger => !trigger.deleted).length;
+	}
+
+	findTriggerById(id: number): Trigger | undefined
+	{
+		return this.#triggers.find(trigger => trigger.getId() === id);
+	}
+
+	findTriggersByDocumentStatus(statusId: string): Array<Trigger>
+	{
+		return this.#triggers.filter(trigger => trigger.getStatusId() === statusId);
 	}
 
 	getTriggerName(code: string)
@@ -899,14 +966,17 @@ export class TriggerManager extends EventEmitter
 			attrs: { className: "bizproc-automation-popup-settings" },
 			children: [
 				BX.Bizproc.FieldType.renderControl(
-					getGlobalContext().document.getRawType(),
+					[
+						...getGlobalContext().document.getRawType(),
+						getGlobalContext().document.getCategoryId(),
+					],
 					{
-						Type: 'user'
+						Type: 'user',
 					},
 					'execute_by',
 					trigger.draft
 						? Helper.getResponsibleUserExpression(getGlobalContext().document.getFields())
-						: trigger.getExecuteBy()
+						: trigger.getExecuteBy(),
 				),
 			],
 		}), form);

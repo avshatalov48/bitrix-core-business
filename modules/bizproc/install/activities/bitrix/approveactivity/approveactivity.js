@@ -1,38 +1,53 @@
-////////////////////////////////////////////////////////////////////////////////////////
-// ApproveActivity
-////////////////////////////////////////////////////////////////////////////////////////
+/* eslint-disable */
+(function (exports,main_core) {
+	'use strict';
 
-ApproveActivity = function()
-{
-	var ob = new ParallelActivity();
-	ob.Type = 'ApproveActivity';
-	ob.__parallelActivityInitType = 'SequenceActivity';
+	let _ = t => t,
+	  _t;
+	const ParallelActivity = window.ParallelActivity;
+	var _draw = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("draw");
+	class ApproveActivity extends ParallelActivity {
+	  constructor() {
+	    super();
+	    Object.defineProperty(this, _draw, {
+	      value: _draw2
+	    });
+	    this.Type = 'ApproveActivity';
+	    // eslint-disable-next-line @bitrix24/bitrix24-rules/no-pseudo-private,no-underscore-dangle
+	    this.__parallelActivityInitType = 'SequenceActivity';
 
-	ob.DrawParallelActivity = ob.Draw;
-
-	ob.Draw = function (d)
-	{
-		var act = _crt(1, 4);
-		act.style.fontSize = '11px';
-
-		act.rows[0].cells[1].style.background = 'url('+ob.Icon+') 2px 2px no-repeat';
-		act.rows[0].cells[1].style.height = '24px';
-		act.rows[0].cells[1].style.width = '24px';
-
-		act.rows[0].cells[2].align = 'left';
-		act.rows[0].cells[2].innerHTML = HTMLEncode(ob['Properties']['Title']);
-
-		act.rows[0].cells[0].width = '33';
-		act.rows[0].cells[0].align = 'left';
-		act.rows[0].cells[0].innerHTML = '&nbsp;<span style="color: #007700">'+BPMESS['APPR_YES']+'</span>';
-		act.rows[0].cells[3].align = 'right';
-		act.rows[0].cells[3].innerHTML = '<span style="color: #770000">'+BPMESS['APPR_NO']+'</span>&nbsp;';
-
-		ob.activityContent = act;
-		ob.activityHeight = '30px';
-		ob.activityWidth = '200px';
-		ob.DrawParallelActivity(d);
+	    // compatibility
+	    this.DrawParallelActivity = this.Draw;
+	    this.Draw = babelHelpers.classPrivateFieldLooseBase(this, _draw)[_draw];
+	  }
+	}
+	function _draw2(wrapper) {
+	  this.activityContent = main_core.Tag.render(_t || (_t = _`
+			<table style="font-size: 11px; width: 100%" cellpadding="0" cellspacing="0" border="0">
+				<tbody>
+					<tr>
+						<td align="left" valign="center" width="33">
+							&nbsp;<span style="color: #007700">${0}</span>
+						</td>
+						<td 
+							align="center"
+							valign="center"
+							style="background: url(${0}) 2px 2px no-repeat; height: 24px; width: 24px"
+						></td>
+						<td align="left" valign="center">${0}</td>
+						<td align="right" valign="center">
+							<span style="color: #770000">${0}</span>&nbsp;
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		`), main_core.Text.encode(window.BPMESS.APPR_YES), this.Icon, main_core.Text.encode(this.Properties.Title), main_core.Text.encode(window.BPMESS.APPR_NO));
+	  this.activityHeight = '30px';
+	  this.activityWidth = '200px';
+	  this.DrawParallelActivity(wrapper);
 	}
 
-	return ob;
-}
+	exports.ApproveActivity = ApproveActivity;
+
+}((this.window = this.window || {}),BX));
+//# sourceMappingURL=approveactivity.js.map

@@ -777,6 +777,11 @@ class CCloudStorageService_S3 extends CCloudStorageService
 			$APPLICATION->ResetException();
 			return true;
 		}
+		elseif($this->checkForTokenExpiration($this->status, $this->result))
+		{
+			$this->tokenHasExpired = true;
+			return false;
+		}
 		else//if($this->status == 404)
 		{
 			$APPLICATION->ResetException();
@@ -840,6 +845,11 @@ class CCloudStorageService_S3 extends CCloudStorageService
 		if($this->status == 200)
 		{
 			return $this->GetFileSRC($arBucket, $filePath);
+		}
+		elseif($this->checkForTokenExpiration($this->status, $this->result))
+		{
+			$this->tokenHasExpired = true;
+			return false;
 		}
 		elseif (
 			$this->status == 400
@@ -1035,6 +1045,11 @@ class CCloudStorageService_S3 extends CCloudStorageService
 		{
 			$APPLICATION->ResetException();
 			return true;
+		}
+		elseif($this->checkForTokenExpiration($this->status, $this->result))
+		{
+			$this->tokenHasExpired = true;
+			return false;
 		}
 		else
 		{
@@ -1294,6 +1309,11 @@ class CCloudStorageService_S3 extends CCloudStorageService
 
 			return count($result) == 3 ? $result : null;
 		}
+		elseif($this->checkForTokenExpiration($this->status, $this->result))
+		{
+			$this->tokenHasExpired = true;
+			return false;
+		}
 		else
 		{
 			$APPLICATION->ResetException();
@@ -1551,7 +1571,11 @@ class CCloudStorageService_S3 extends CCloudStorageService
 			return true;
 		if ($status == 400 && mb_strpos($result, 'token is malformed') !== false)
 			return true;
+		if ($status == 400 && $result === '')
+			return true;
 		if ($status == 403 && mb_strpos($result, 'The AWS Access Key Id you provided does not exist in our records.') !== false)
+			return true;
+		if ($status == 403 && $result === '')
 			return true;
 		return false;
 	}

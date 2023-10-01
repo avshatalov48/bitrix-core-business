@@ -82,9 +82,8 @@ Class location extends CModule
 	{
 		global $DB;
 
-		$DB->query(
-			"
-				INSERT IGNORE INTO b_location_source (
+		$DB->query("
+				INSERT INTO b_location_source (
 					CODE,
 					NAME,
 					CONFIG
@@ -120,11 +119,10 @@ Class location extends CModule
 						]
 					)) . "'
 				 );
-			"
-		);
+		", true);
 
 		$DB->query("
-			INSERT IGNORE INTO b_location_source (
+			INSERT b_location_source (
 				CODE,
 				NAME,
 				CONFIG
@@ -152,7 +150,7 @@ Class location extends CModule
 				]
 			)) . "'
 			)
-		");
+		", true);
 	}
 
 	public function installAreas()
@@ -195,6 +193,26 @@ Class location extends CModule
 		\CTimeZone::Enable();
 	}
 
+	public function installRecentAddressesCleaner()
+	{
+		\CTimeZone::Disable();
+
+		/**
+		 * @see \Bitrix\Location\Infrastructure\Service\RecentAddressesService::cleanUp()
+		 */
+		CAgent::AddAgent(
+			"\\Bitrix\\Location\\Infrastructure\\Service\\RecentAddressesService::cleanUp();",
+			'location',
+			'N',
+			86400,
+			'',
+			'Y',
+			\ConvertTimeStamp(time() + \CTimeZone::GetOffset() + 3600, 'FULL')
+		);
+
+		\CTimeZone::Enable();
+	}
+
 	public function DoUninstall()
 	{
 		global $APPLICATION, $step;
@@ -224,11 +242,12 @@ Class location extends CModule
 	public function InstallDB()
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
-		if(!$DB->Query("SELECT 'x' FROM b_location", true))
+		if (!$DB->TableExists('b_location'))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/location/install/db/mysql/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/location/install/db/' . $connection->getType() . '/install.sql');
 		}
 
 		if($this->errors !== false)
@@ -249,6 +268,7 @@ Class location extends CModule
 		$this->installSources();
 		$this->installAreas();
 		$this->installConfigurer();
+		$this->installRecentAddressesCleaner();
 		$this->setDefaultFormatCode();
 
 		return true;
@@ -257,11 +277,12 @@ Class location extends CModule
 	public function UnInstallDB($arParams = Array())
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		if (array_key_exists('savedata', $arParams) && $arParams['savedata'] !== 'Y')
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"] . '/bitrix/modules/location/install/db/mysql/uninstall.sql');
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/location/install/db/".$connection->getType()."/uninstall.sql");
 		}
 
 		if ($this->errors !== false)

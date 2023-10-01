@@ -31,7 +31,7 @@ if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_VIEW))
 if (
 	!$publicMode
 	&& Loader::includeModule('sale')
-	&& Catalog\v2\Contractor\Provider\Manager::getActiveProvider()
+	&& Catalog\v2\Contractor\Provider\Manager::isActiveProviderExists()
 )
 {
 	$APPLICATION->SetTitle(Loc::getMessage("CAT_DOCS"));

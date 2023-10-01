@@ -77,7 +77,6 @@ class MessageBase implements Message\iBase, Message\iReturnCustomer
 			->setCode($this->getCode())
 			->loadConfiguration($id, $this->configuration);
 
-		/** @var \CAllMain {$GLOBALS['APPLICATION']} */
 		$assignOption = $this->configuration->getOption('ASSIGNED_BY');
 		if ($assignOption)
 		{

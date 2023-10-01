@@ -61,6 +61,8 @@
 	--ui-icon-set__path_speed-1-5: url('/bitrix/js/ui/icon-set/editor/images/speed-1-5.svg');
 	--ui-icon-set__path_speed-1-7: url('/bitrix/js/ui/icon-set/editor/images/speed-1-7.svg');
 	--ui-icon-set__path_speed-2-0: url('/bitrix/js/ui/icon-set/editor/images/speed-2-0.svg');
+	--ui-icon-set__path_make-longer: url('/bitrix/js/ui/icon-set/editor/images/make-longer.svg');
+	--ui-icon-set__path_make-shorter: url('/bitrix/js/ui/icon-set/editor/images/make-shorter.svg');
 }
 
 .ui-icon-set.--bold {
@@ -301,4 +303,12 @@
 
 .ui-icon-set.--speed-2-0 {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_speed-2-0);
+}
+
+.ui-icon-set.--make-longer {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_make-longer);
+}
+
+.ui-icon-set.--make-shorter {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_make-shorter);
 }

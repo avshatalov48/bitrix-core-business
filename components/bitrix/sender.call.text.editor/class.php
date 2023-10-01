@@ -3,6 +3,8 @@
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Integration\VoxImplant\SpeechRate;
+use Bitrix\Sender\Security;
+use Bitrix\Sender\Integration;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -40,6 +42,13 @@ class SenderCallTextEditorComponent extends CBitrixComponent
 		$this->arResult['SPEECH_RATES'] = SpeechRate::getList();
 		$this->arResult['SPEECH_RATE_INTERVAL'] = SpeechRate::getBaseInterval();
 		$this->arResult['TEMPLATE_OPTIONS_SELECTOR'] = \Bitrix\Sender\Message\Helper::getTemplateOptionSelector();
+		$userId = Security\User::current()->getId();
+		$this->arResult['AITextContextId'] = 'sender_marketing_call_message_text_' . $userId;
+
+		$this->arResult['isAITextAvailable'] = Integration\AI\Controller::isAvailable(
+			Integration\AI\Controller::TEXT_CATEGORY,
+			$this->arResult['AITextContextId']
+		);
 
 		return true;
 	}

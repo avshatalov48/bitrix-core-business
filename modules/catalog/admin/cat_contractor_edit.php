@@ -47,7 +47,7 @@ if (!$hasAccess)
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 }
 
-if (Manager::getActiveProvider())
+if (Manager::isActiveProviderExists())
 {
 	LocalRedirect($listUrl);
 }

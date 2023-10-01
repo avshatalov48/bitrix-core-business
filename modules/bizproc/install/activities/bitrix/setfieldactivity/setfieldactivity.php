@@ -102,7 +102,8 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 				$key = $documentFieldsAliasesMap[$key];
 			}
 
-			if (($property = $documentFields[$key]) && ($value || $mergeValues))
+			$property = $documentFields[$key] ?? null;
+			if ($property && ($value || $mergeValues))
 			{
 				$fieldTypeObject = $documentService->getFieldTypeObject($documentType, $property);
 				if ($fieldTypeObject)

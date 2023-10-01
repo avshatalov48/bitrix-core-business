@@ -774,6 +774,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.subscribeFromOptions(options.events);
 	    this.setOptions(options);
 	    this.cache.remember('fileUploader', () => {
+	      var _this$getOptions$cont;
 	      const dropzoneLayout = this.getDropzone().getLayout();
 	      const previewLayout = this.getPreview().getLayout();
 	      const fileSelectButtonLayout = this.getFileSelect().getLayout();
@@ -784,7 +785,7 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	      const acceptedFileTypes = ['image/png', 'image/jpeg'];
 	      return new ui_uploader_core.Uploader({
-	        controller: this.getOptions().controller.upload,
+	        controller: (_this$getOptions$cont = this.getOptions().controller) == null ? void 0 : _this$getOptions$cont.upload,
 	        assignAsFile: true,
 	        browseElement: [dropzoneLayout, previewLayout, fileSelectButtonLayout, this.getHiddenInput()],
 	        dropElement: [dropzoneLayout, previewLayout],
@@ -1002,6 +1003,13 @@ this.BX.UI = this.BX.UI || {};
 	        const [resultFile] = this.getFileUploader().getFiles();
 	        resultFile.subscribeOnce(ui_uploader_core.FileEvent.LOAD_COMPLETE, () => {
 	          this.getPreview().hide();
+	          const {
+	            controller
+	          } = this.getOptions();
+	          if (!controller) {
+	            resolve(resultFile);
+	            return;
+	          }
 	          this.getStatus().showUploadStatus({
 	            reset: true
 	          });
@@ -1031,6 +1039,14 @@ this.BX.UI = this.BX.UI || {};
 	          const saveButton = this.getInlineSaveButton();
 	          saveButton.setWaiting(true);
 	          this.upload().then(uploaderFile => {
+	            const {
+	              controller
+	            } = this.getOptions();
+	            if (!controller) {
+	              return this.emitAsync('onSaveAsync', {
+	                file: uploaderFile.toJSON()
+	              });
+	            }
 	            return Promise.all([new Promise(resolve => {
 	              babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
 	                this.getPreview().show(uploaderFile.getClientPreview());

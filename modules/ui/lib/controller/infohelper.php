@@ -11,9 +11,9 @@ use Bitrix\Main\Web\HttpClient;
 
 class InfoHelper extends Engine\Controller
 {
-	public function getInitParamsAction()
+	public function getInitParamsAction(?string $currentUrl = null)
 	{
-		return \Bitrix\UI\InfoHelper::getInitParams();
+		return \Bitrix\UI\InfoHelper::getInitParams($currentUrl);
 	}
 
 	public function activateDemoLicenseAction()

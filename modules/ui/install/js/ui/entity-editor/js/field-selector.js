@@ -18,6 +18,7 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 		this._popup = null;
 		this.fieldVisibleClass = 'ui-entity-editor-popup-field-search-list-item-visible';
 		this.fieldHiddenClass = 'ui-entity-editor-popup-field-search-list-item-hidden';
+		this._currentSchemeElementName = '';
 	};
 
 	BX.UI.EntityEditorFieldSelector.prototype =
@@ -60,6 +61,10 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 		isOpened: function()
 		{
 			return this._popup && this._popup.isShown();
+		},
+		setCurrentSchemeElementName: function(currentSchemeElementName)
+		{
+			this._currentSchemeElementName = currentSchemeElementName;
 		},
 		open: function()
 		{
@@ -123,14 +128,14 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 		},
 		prepareContent: function()
 		{
-			this._contentWrapper = BX.create("div", {
-				props: { className: "ui-entity-editor-popup-field-selector" }
+			this._contentWrapper = BX.create('div', {
+				props: { className: 'ui-entity-editor-popup-field-selector' }
 			});
 
-			var useFieldsSearch =  BX.prop.getString(this._settings, 'useFieldsSearch', false);
+			const useFieldsSearch =  BX.prop.getString(this._settings, 'useFieldsSearch', false);
 			if (useFieldsSearch)
 			{
-				var headerWrapper = BX.create('div', {
+				let headerWrapper = BX.create('div', {
 					attrs: {
 						className: 'ui-entity-editor-popup-field-search-header-wrapper',
 					},
@@ -149,107 +154,56 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 				this.prepareContentHeaderSearch(headerWrapper);
 			}
 
-			var container = BX.create("div", {
-				props: { className: "ui-entity-editor-popup-field-selector-list" }
+			let container = BX.create('div', {
+				props: {
+					className: 'ui-entity-editor-popup-field-selector-list'
+				}
 			});
 
-			var columns = this._scheme.getElements();
-			for(var i = 0, columnCount = columns.length; i < columnCount; i++)
+			let columns = this._scheme.getElements();
+			for (let i = 0, columnCount = columns.length; i < columnCount; i++)
 			{
-				var column = columns[i];
-
-				var sections = column.getElements();
-				for(var k = 0, sectionCount = sections.length; k < sectionCount; k++)
+				const column = columns[i];
+				const sections = column.getElements();
+				for (let k = 0, sectionCount = sections.length; k < sectionCount; k++)
 				{
-					var section = sections[k];
-					if(!this.isSchemeElementEnabled(section))
+					const section = sections[k];
+					if (!this.isSchemeElementEnabled(section))
 					{
 						continue;
 					}
 
-					var effectiveElements = [];
-					var elementChildren = section.getElements();
-					var childElement;
-					for(var j = 0; j < elementChildren.length; j++)
+					const effectiveElements = [];
+					const elementChildren = section.getElements();
+					for (let j = 0; j < elementChildren.length; j++)
 					{
-						childElement = elementChildren[j];
-						if(childElement.isTransferable() && childElement.getName() !== "")
+						const childElement = elementChildren[j];
+						if (childElement.isTransferable() && childElement.getName() !== '')
 						{
 							effectiveElements.push(childElement);
 						}
 					}
 
-					if(effectiveElements.length === 0)
+					if (effectiveElements.length === 0)
 					{
 						continue;
 					}
 
-					var parentName = section.getName();
-					var parentTitle = section.getTitle();
+					const sectionContainer = this.createSectionWrapper(container, section.getTitle());
 
-					container.appendChild(
-						BX.create(
-							"div",
-							{
-								attrs: { className: "ui-entity-editor-popup-field-selector-list-caption" },
-								text: parentTitle
-							}
-						)
-					);
-
-					var sectionContainer = BX.create(
-						"div",
-						{
-							attrs: { className: "ui-entity-editor-popup-field-selector-list-section" }
-						}
-					);
-					container.appendChild(sectionContainer);
-
-					for(var j = 0; j < effectiveElements.length; j++)
-					{
-						childElement = effectiveElements[j];
-
-						var childElementName = childElement.getName();
-						var childElementTitle = childElement.getTitle();
-
-						var itemId = parentName + "\\" + childElementName;
-						var itemWrapper = BX.create(
-							"div",
-							{
-								attrs: { className: "ui-entity-editor-popup-field-selector-list-item" }
-							}
-						);
-						sectionContainer.appendChild(itemWrapper);
-
-						itemWrapper.appendChild(
-							BX.create(
-								"input",
-								{
-									attrs:
-										{
-											id: itemId,
-											type: "checkbox",
-											className: "ui-entity-editor-popup-field-selector-list-checkbox"
-										}
-								}
-							)
-						);
-
-						itemWrapper.appendChild(
-							BX.create(
-								"label",
-								{
-									attrs:
-										{
-											for: itemId,
-											className: "ui-entity-editor-popup-field-selector-list-label"
-										},
-									text: childElementTitle
-								}
-							)
-						);
-					}
+					this.fillSectionElements(section.getName(), sectionContainer, effectiveElements);
 				}
+			}
+
+			const hiddenElements = BX.prop.getArray(this._settings, 'hiddenElements', []);
+			if (hiddenElements.length > 0)
+			{
+				const hiddenSectionContainer = this.createSectionWrapper(
+					container,
+					BX.Loc.getMessage('UI_ENTITY_EDITOR_SECTION_WITH_HIDDEN_FIELDS')
+				);
+
+				this.fillSectionElements(this._currentSchemeElementName, hiddenSectionContainer, hiddenElements);
 			}
 
 			this._contentWrapper.appendChild(container);
@@ -453,6 +407,40 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 
 			this._contentWrapper = null;
 			this._popup = null;
+		},
+		createSectionWrapper: function(container, title)
+		{
+			container.appendChild(
+				BX.Tag.render`<div class="ui-entity-editor-popup-field-selector-list-caption">${BX.Text.encode(title)}</div>`
+			);
+
+			const sectionContainer = BX.Tag.render`<div class="ui-entity-editor-popup-field-selector-list-section"></div>`
+
+			container.appendChild(sectionContainer);
+
+			return sectionContainer;
+		},
+		fillSectionElements: function(parentName, container, elements)
+		{
+			elements.forEach(function(childElement)
+			{
+				const itemId = parentName + '\\' + childElement.getName();
+				const itemWrapper = BX.Tag.render`<div class="ui-entity-editor-popup-field-selector-list-item"></div>`
+
+				container.appendChild(itemWrapper);
+				itemWrapper.appendChild(
+					BX.Tag.render`
+						<input type="checkbox" id="${itemId}" class="ui-entity-editor-popup-field-selector-list-checkbox">
+					`
+				);
+				itemWrapper.appendChild(
+					BX.Tag.render`
+						<label for="${itemId}" class="ui-entity-editor-popup-field-selector-list-label">
+							${BX.Text.encode(childElement.getTitle())}
+						</label>
+					`
+				);
+			});
 		}
 	};
 

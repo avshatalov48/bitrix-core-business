@@ -25,6 +25,7 @@ BX.UI.Notification.State = State;
  * @property {BX.UI.Notification.Stack} stack
  * @property {string|Element} [content]
  * @property {boolean} [autoHide=true]
+ * @property {boolean} [showOnTopWindow=false]
  * @property {number} [autoHideDelay=8000]
  * @property {boolean} [closeButton=true]
  * @property {string} [category]
@@ -54,6 +55,7 @@ BX.UI.Notification.Balloon = function(options)
 	this.stack = options.stack;
 	this.state = State.INIT;
 
+	this.showOnTopWindow = options.showOnTopWindow === true;
 	this.container = null;
 	this.content = null;
 	this.actions = [];
@@ -104,7 +106,14 @@ BX.UI.Notification.Balloon.prototype =
 		if (!this.getContainer().parentNode)
 		{
 			firstLaunch = true;
-			document.body.appendChild(this.getContainer());
+			if (this.showOnTopWindow)
+			{
+				window.top.document.body.appendChild(this.getContainer());
+			}
+			else
+			{
+				document.body.appendChild(this.getContainer());
+			}
 			BX.ZIndexManager.register(this.getContainer(), { alwaysOnTop: true });
 
 			this.getStack().add(this);

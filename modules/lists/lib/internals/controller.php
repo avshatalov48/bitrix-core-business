@@ -87,7 +87,7 @@ abstract class Controller implements IErrorable
 	}
 
 	/**
-	 * @return array|bool|\CAllUser|\CUser
+	 * @return array|bool|\CUser|\CUser
 	 */
 	protected function getUser()
 	{
@@ -402,7 +402,7 @@ abstract class Controller implements IErrorable
 	}
 
 	/**
-	 * @return Application|\Bitrix\Main\HttpApplication|\CAllMain|\CMain
+	 * @return Application|\Bitrix\Main\HttpApplication|\CMain
 	 */
 	protected function getApplication()
 	{

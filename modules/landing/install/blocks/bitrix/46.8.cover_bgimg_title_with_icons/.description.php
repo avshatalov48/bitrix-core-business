@@ -60,7 +60,7 @@ return array(
 		'block' => array(
 			'type' => array('display'),
 			'additional' => [
-				'name' => Loc::getMessage('COVER_BGIMG_TITLE_WITH_ICONS_NODES_SLIDER'),
+				'name' => Loc::getMessage('LANDING_BLOCK_46.8.COVER_BGIMG_TITLE_WITH_ICONS_NODES_SLIDER'),
 				'attrsType' => ['autoplay', 'autoplay-speed', 'pause-hover', 'slides-show'],
 			]
 		),

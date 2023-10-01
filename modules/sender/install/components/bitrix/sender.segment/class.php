@@ -41,7 +41,7 @@ class SenderSegmentComponent extends CBitrixComponent
 		$this->arParams['ELEMENT_ID'] = isset($this->arParams['ELEMENT_ID']) ? $this->arParams['ELEMENT_ID'] : $this->request->get('id');
 
 		$this->arParams['IFRAME'] = isset($this->arParams['IFRAME']) ? $this->arParams['IFRAME'] : true;
-		$this->arResult['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? \CAllSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
+		$this->arResult['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
 		$this->arResult['PATH_TO_USER_PROFILE'] = isset($this->arParams['PATH_TO_USER_PROFILE']) ? $this->arParams['PATH_TO_USER_PROFILE'] : '/company/personal/user/#id#/';
 		$this->arParams['SHOW_CONTACT_SETS'] = isset($this->arParams['SHOW_CONTACT_SETS']) ? $this->arParams['SHOW_CONTACT_SETS'] : false;
 
@@ -113,7 +113,7 @@ class SenderSegmentComponent extends CBitrixComponent
 				$componentPage = 'result';
 			}
 
-			/**	@var \CAllMain $APPLICATION */
+			/**	@var CMain $APPLICATION */
 			global $APPLICATION;
 			foreach ($arDefaultUrlTemplates404 as $url => $value)
 			{

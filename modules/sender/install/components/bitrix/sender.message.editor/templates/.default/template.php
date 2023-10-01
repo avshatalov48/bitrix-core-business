@@ -18,7 +18,7 @@ Extension::load([
 ]);
 
 
-/** @var CAllMain $APPLICATION */
+/** @var CMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 $containerId = 'bx-sender-message-editor';
@@ -44,6 +44,44 @@ $getHintText = function (array $option)
 	}
 
 	return $hint;
+};
+$getPlaceholderText = function (array $option)
+{
+	if (!empty($option['placeholder']))
+	{
+		if (is_string($option['placeholder']))
+		{
+			return $option['placeholder'];
+		}
+		elseif (is_array($option['placeholder']))
+		{
+			if (isset($option['placeholder']['text']))
+			{
+				return $option['placeholder']['text'];
+			}
+		}
+
+		return '';
+	}
+
+	if (empty($option['hint']))
+	{
+		return '';
+	}
+
+	if (is_string($option['hint']))
+	{
+		return $option['hint'];
+	}
+	elseif (is_array($option['hint']))
+	{
+		if (isset($option['hint']['text']))
+		{
+			return $option['hint']['text'];
+		}
+	}
+
+	return '';
 };
 
 $getHintHtml = function (array $option)
@@ -182,7 +220,7 @@ $fieldPrefix = 'CONFIGURATION_';
 			$hint = $getHintHtml($option);
 			$hintUsed = false;
 			$hintText = htmlspecialcharsbx($getHintText($option));
-			$placeholder = strip_tags($getHintText($option));
+			$placeholder = strip_tags($getPlaceholderText($option));
 
 			$inputHtml = '';
 			$inputDisplay = '';

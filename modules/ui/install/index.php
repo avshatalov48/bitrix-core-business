@@ -83,13 +83,12 @@ class UI extends \CModule
 	function installDB()
 	{
 		global $DB;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
-		if (!$DB->Query("SELECT 'x' FROM b_ui_entity_editor_config", true))
+
+		if (!$DB->TableExists('b_ui_entity_editor_config'))
 		{
-			$this->errors = $DB->RunSQLBatch(
-				$_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/ui/install/db/mysql/install.sql'
-			);
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/ui/install/db/' . $connection->getType() . '/install.sql');
 		}
 
 		if (is_array($this->errors))
@@ -127,9 +126,10 @@ class UI extends \CModule
 	function uninstallDB()
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
 
 		$this->errors = $DB->RunSQLBatch(
-			$_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/ui/install/db/mysql/uninstall.sql'
+			$_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/ui/install/db/' . $connection->getType() . '/uninstall.sql'
 		);
 
 		if (is_array($this->errors))

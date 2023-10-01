@@ -6,6 +6,7 @@ use Bitrix\Location\Entity\Source;
 use Bitrix\Location\Infrastructure\Service\DisputedAreaService;
 use Bitrix\Location\Infrastructure\Service\LoggerService;
 use Bitrix\Location\Infrastructure\Service\CurrentRegionFinderService;
+use Bitrix\Location\Infrastructure\Service\RecentAddressesService;
 use Bitrix\Location\Infrastructure\SourceCodePicker;
 use Bitrix\Location\Repository\AddressRepository;
 use	Bitrix\Location\Exception\ErrorCodes;
@@ -114,6 +115,7 @@ class Factory implements IFactory
 
 			case CurrentRegionFinderService::class:
 			case DisputedAreaService::class:
+			case RecentAddressesService::class:
 				break;
 
 			default:

@@ -115,7 +115,7 @@ class SenderContactComponent extends CBitrixComponent
 				$componentPage = 'recipient';
 			}
 
-			/**	@var \CAllMain $APPLICATION */
+			/**	@var CMain $APPLICATION */
 			global $APPLICATION;
 			foreach ($arDefaultUrlTemplates404 as $url => $value)
 			{

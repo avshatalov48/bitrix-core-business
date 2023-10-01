@@ -61,8 +61,8 @@
 					steps: [
 						{
 							target: '[data-id="master_yandex"]',
-							title: BX.Loc.getMessage('SENDER_START_TOUR_MASTER_YANDEX_INITIAL_TITLE'),
-							text: BX.Loc.getMessage('SENDER_START_TOUR_MASTER_YANDEX_INITIAL_TEXT'),
+							title: BX.Loc.getMessage('SENDER_START_TOUR_MASTER_YANDEX_INITIAL_TITLE_MSGVER_1'),
+							text: BX.Loc.getMessage('SENDER_START_TOUR_MASTER_YANDEX_INITIAL_TEXT_MSGVER_1'),
 							position: 'right',
 							article: articleCode
 						},

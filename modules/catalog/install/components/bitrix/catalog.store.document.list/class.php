@@ -47,6 +47,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 	private $navParamName = 'page';
 
 	/** @var \Bitrix\Catalog\Grid\Filter\DocumentDataProvider $itemProvider */
+
 	private $itemProvider;
 	/** @var \Bitrix\Main\Filter\Filter $filter */
 	private $filter;
@@ -1165,9 +1166,9 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			$preparedFilter['DOC_NUMBER'] = '%' . $preparedFilter['DOC_NUMBER'] . '%';
 		}
 
-		if (Manager::getActiveProvider())
+		if (Manager::getActiveProvider(Manager::PROVIDER_STORE_DOCUMENT))
 		{
-			Manager::getActiveProvider()::setDocumentsGridFilter($preparedFilter);
+			Manager::getActiveProvider(Manager::PROVIDER_STORE_DOCUMENT)::setDocumentsGridFilter($preparedFilter);
 		}
 
 		$filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filter->getID());
@@ -1384,9 +1385,9 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 	 */
 	private function getContractorName(array $column): string
 	{
-		if (Manager::getActiveProvider())
+		if (Manager::getActiveProvider(Manager::PROVIDER_STORE_DOCUMENT))
 		{
-			$contractor = Manager::getActiveProvider()::getContractorByDocumentId((int)$column['ID']);
+			$contractor = Manager::getActiveProvider(Manager::PROVIDER_STORE_DOCUMENT)::getContractorByDocumentId((int)$column['ID']);
 
 			return $contractor ? $contractor->getName() : '';
 		}

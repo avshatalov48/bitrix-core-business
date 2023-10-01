@@ -103,6 +103,7 @@ this.BX.UI = this.BX.UI || {};
 	  PENCIL_50: 'pencil-50',
 	  PENCIL_40: 'pencil-40',
 	  BRUSH: 'brush',
+	  PEN: 'pen',
 	  KEYBOARD: 'keyboard',
 	  KEYBOARD_2: 'keyboard-2',
 	  CONNECTION: 'connection',
@@ -202,6 +203,7 @@ this.BX.UI = this.BX.UI || {};
 	  MESSAGE_CHAT_WITH_ARROW: 'message-chat-with-arrow',
 	  CHAT_BUTTON: 'chat-button',
 	  FEEDBACK: 'feedback',
+	  ADD_CHAT: 'add-chat',
 	  BOOKMARK_1: 'bookmark-1',
 	  FOLDER_CURVED_ARROW: 'folder-curved-arrow',
 	  FOLDER_24: 'folder-24',
@@ -235,6 +237,8 @@ this.BX.UI = this.BX.UI || {};
 	  STOPWATCH: 'stopwatch',
 	  ALARM: 'alarm',
 	  BLACK_CLOCK: 'black-clock',
+	  SPEED_METER: 'speed-meter',
+	  WATCH: 'watch',
 	  SMART_PROCESS: 'smart-process',
 	  SEARCH_1: 'search-1',
 	  SEARCH_2: 'search-2',
@@ -479,7 +483,13 @@ this.BX.UI = this.BX.UI || {};
 	  COLLABORATION: 'collaboration',
 	  DOCUMENT: 'document',
 	  CHECK_RECEIPT: 'check-receipt',
-	  CALCULATOR: 'calculator'
+	  CALCULATOR: 'calculator',
+	  SWITCH: 'switch',
+	  SEQUENTIAL_QUEUE: 'sequential-queue',
+	  PARALLEL_QUEUE: 'parallel-queue',
+	  CONDITION: 'condition',
+	  COMPLETE: 'complete',
+	  TRANSLATION: 'translation'
 	});
 	const ContactCenter = Object.freeze({
 	  DIAL_5: 'dial-5',
@@ -623,7 +633,9 @@ this.BX.UI = this.BX.UI || {};
 	  SPEED_1_2: 'speed-1-2',
 	  SPEED_1_5: 'speed-1-5',
 	  SPEED_1_7: 'speed-1-7',
-	  SPEED_2_0: 'speed-2-0'
+	  SPEED_2_0: 'speed-2-0',
+	  MAKE_LONGER: 'make-longer',
+	  MAKE_SHORTER: 'make-shorter'
 	});
 	const Special = Object.freeze({
 	  // : '',

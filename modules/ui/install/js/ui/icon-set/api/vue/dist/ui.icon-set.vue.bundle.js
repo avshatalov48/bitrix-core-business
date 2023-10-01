@@ -8,11 +8,9 @@ this.BX.UI = this.BX.UI || {};
 	    name: {
 	      type: String,
 	      required: true,
-
 	      validator(value) {
 	        return Object.values(ui_iconSet_api_core.Set).includes(value);
 	      }
-
 	    },
 	    color: {
 	      type: String
@@ -25,19 +23,15 @@ this.BX.UI = this.BX.UI || {};
 	    className() {
 	      return ['ui-icon-set', `--${this.name}`];
 	    },
-
 	    inlineSize() {
 	      return this.size ? '--ui-icon-set__icon-size: ' + this.size + 'px;' : '';
 	    },
-
 	    inlineColor() {
 	      return this.color ? '--ui-icon-set__icon-color: ' + this.color + ';' : '';
 	    },
-
 	    inlineStyle() {
 	      return this.inlineSize + this.inlineColor;
 	    }
-
 	  },
 	  template: `<div
 				:class="className"

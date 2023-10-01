@@ -92,7 +92,7 @@ class CBPForEachActivity extends CBPCompositeActivity implements IBPActivityEven
 				$this->valuesKeys = array_keys($this->values);
 				if ($property && isset($property['Type']))
 				{
-					$this->setPropertiesTypes(['Value' => ['Type' => $property['Type']]]);
+					$this->setPropertiesTypes(['Value' => $property]);
 				}
 			}
 		}

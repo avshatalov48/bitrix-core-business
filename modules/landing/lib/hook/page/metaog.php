@@ -21,7 +21,7 @@ class MetaOg extends \Bitrix\Landing\Hook\Page
 	protected function getMap()
 	{
 		return array(
-			'TITLE' => new Field\Text('TITLE', array(
+			'TITLE' => new Field\Textarea('TITLE', array(
 				'title' => Loc::getMessage('LANDING_HOOK_METAOG_TITLE'),
 				'placeholder' => Loc::getMessage('LANDING_HOOK_METAOG_TITLE_PLACEHOLDER'),
 				'maxlength' => 140,

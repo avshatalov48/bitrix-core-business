@@ -11,8 +11,8 @@ use Bitrix\Sender\Internals\PrettyDate;
 
 Loc::loadMessages(__FILE__);
 
-/** @var \CAllMain $APPLICATION */
-/** @var \SenderLetterEditComponent $component */
+/** @var CMain $APPLICATION */
+/** @var SenderLetterEditComponent $component */
 /** @var array $arParams */
 /** @var array $arResult */
 $containerId = 'bx-sender-toloka-edit';

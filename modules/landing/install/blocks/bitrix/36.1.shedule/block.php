@@ -64,7 +64,7 @@
 					<div class="col-md-7 order-1 landing-block-node-card-inner d-flex order-md-2 px-0 g-mb-15 g-mb-0--md d-block d-md-flex">
 						<div class="align-self-center g-width-100x">
 							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-color-primary g-mb-5">
-								Design Trands of 2022</h6>
+								Design Trands of 2023</h6>
 							<h3 class="landing-block-node-card-title landing-semantic-title-small text-uppercase g-font-weight-700 g-mb-10">
 								Kate Watson,
 								Designer</h3>

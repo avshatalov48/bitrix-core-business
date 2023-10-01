@@ -111,7 +111,7 @@ class Scope
 	}
 
 	/**
-	 * @return \CAllUser|\CUser
+	 * @return \CUser
 	 */
 	protected function getUser()
 	{

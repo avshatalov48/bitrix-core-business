@@ -1,0 +1,2 @@
+jn.define('bbcode/parser', (require, exports, module) => {
+	const {Type} = jn.require('type');

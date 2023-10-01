@@ -10,9 +10,9 @@ use Bitrix\Main\Entity\DataManager;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Check2Cashbox_Query query()
- * @method static EO_Check2Cashbox_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Check2Cashbox_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Check2Cashbox_Result getById($id)
- * @method static EO_Check2Cashbox_Result getList(array $parameters = array())
+ * @method static EO_Check2Cashbox_Result getList(array $parameters = [])
  * @method static EO_Check2Cashbox_Entity getEntity()
  * @method static \Bitrix\Sale\Cashbox\Internals\EO_Check2Cashbox createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Cashbox\Internals\EO_Check2Cashbox_Collection createCollection()

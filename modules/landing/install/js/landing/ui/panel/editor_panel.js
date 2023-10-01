@@ -228,6 +228,25 @@
 			attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_PASTE_TABLE")},
 			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
+
+		if (BX.Landing.Main.getInstance()["options"]["allow_ai_text"])
+		{
+			editor.addButton(new BX.Landing.UI.Button.AiText.getInstance("ai_text", {
+				html: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT"),
+				attrs: { title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT") },
+				onSelect: function(item) {
+					if (editor.currentElement.querySelector('.landing-ui-field-input'))
+					{
+						editor.currentElement.querySelector('.landing-ui-field-input').innerHTML = item.data.replace(/(\r\n|\r|\n)/g, "<br>");
+					}
+					else if (BX.Landing.Block.Node.Text.currentNode)
+					{
+						BX.Landing.Block.Node.Text.currentNode.node.innerHTML = item.data.replace(/(\r\n|\r|\n)/g, "<br>");
+						BX.Landing.Block.Node.Text.currentNode.onChange();
+					}
+				},
+			}));
+		}
 	}
 
 

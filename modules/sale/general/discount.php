@@ -1273,7 +1273,7 @@ class CAllSaleDiscount
 	* @deprecated deprecated since sale 14.11.0
 	* @see \Bitrix\Sale\Internals\DiscountTable::delete
 	*/
-	public function Delete($ID)
+	public static function Delete($ID)
 	{
 		$ID = (int)$ID;
 		if ($ID <= 0)

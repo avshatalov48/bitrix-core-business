@@ -1,9 +1,4 @@
-<?php
-
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
-{
-	die();
-}
+<?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) { die(); }
 
 /**
  * @var CMain $APPLICATION
@@ -21,7 +16,7 @@ if ($arResult["OK_MESSAGE"] && mb_strpos($arResult["OK_MESSAGE"], "MID=") !== fa
 	$arResult["OK_MESSAGE"] = preg_replace(array("/\(MID\=\d+\)/is", "/\s\s/", "/\s\./"), array("", " ", "."), $arResult["OK_MESSAGE"]);
 }
 
-$arParams["SHOW_LINK_TO_MESSAGE"] = ($arParams["SHOW_LINK_TO_MESSAGE"] == "N" ? "N" : "Y");
+$arParams["SHOW_LINK_TO_MESSAGE"] = (isset($arParams["SHOW_LINK_TO_MESSAGE"]) && $arParams["SHOW_LINK_TO_MESSAGE"] === "N" ? "N" : "Y");
 $arParams["SHOW_MINIMIZED"] = "Y";
 $arParams["form_index"] = str_pad($arParams["index"], 5, "0", STR_PAD_LEFT);
 $arParams["FORM_ID"] = "COMMENTS_".$arParams["form_index"];
@@ -110,7 +105,7 @@ if (!empty($arResult["MESSAGES"]))
 	foreach ($arResult["MESSAGES"] as $key => $res)
 	{
 		$arResult["MESSAGES"][$key] = forumCommentsCommentWeb($res, $arParams, $arResult, $this->__component);
-		if (in_array($arResult["ACTION"], ["hide", "show", "edit", "add"]) && intval($arResult["RESULT"]) == intval($res["ID"]))
+		if (!empty($arResult["ACTION"]) && in_array($arResult["ACTION"], ["hide", "show", "edit", "add"]) && intval($arResult["RESULT"]) == intval($res["ID"]))
 		{
 			if ($this->__component->prepareMobileData)
 			{
@@ -137,7 +132,7 @@ if (!empty($arResult["MESSAGES"]))
 		}
 	}
 }
-if ($arResult["ACTION"] == "del" && $arResult["RESULT"] > 0)
+if (isset($arResult["ACTION"]) && $arResult["ACTION"] == "del" && !empty($arResult["RESULT"]))
 {
 	$arResult["PUSH&PULL"] = array(
 		"ID" => $arResult["RESULT"],

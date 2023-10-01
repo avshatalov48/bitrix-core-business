@@ -10,6 +10,8 @@ use Bitrix\Landing\Internals\HookDataTable;
 use Bitrix\Landing\Restriction\Site;
 use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Main\UI\Extension;
 
 class Copyright extends \Bitrix\Landing\Hook\Page
 {
@@ -99,7 +101,7 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 
 	/**
 	 * Save current site language
-	 * @param string $lang
+	 * @param string|null $lang Language.
 	 * @return void
 	 */
 	public function setLang(?string $lang): void
@@ -118,10 +120,10 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 
 	/**
 	 * Save current site id
-	 * @param int $siteId
+	 * @param int|null $siteId SiteId.
 	 * @return void
 	 */
-	public function setSiteId(?string $siteId): void
+	public function setSiteId(?int $siteId): void
 	{
 		$this->siteId = $this->siteId ?: $siteId;
 	}
@@ -170,6 +172,9 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 			}
 			$footer .= '</span>';
 			$footer .= '</div>';
+
+			Extension::load('ui.hint');
+			$footer .= "<script>BX.ready(function() {BX.UI.Hint.init(BX('.bitrix-footer-terms'))})</script>";
 
 			return $footer;
 		}
@@ -335,10 +340,11 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 			],
 		];
 		$region = Application::getInstance()->getLicense()->getRegion();
-		$hrefLinkReport = $setLinks[$region]['report'] ?? $setLinks['com']['report'];
-		$url = "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$hrefLinkReport = new Uri($setLinks[$region]['report'] ?? $setLinks['com']['report']);
+		$protocol = Manager::isHttps() ? 'https://' : 'http://';
+		$url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		$siteId = $this->getSiteId();
-		$portalName = \COption::GetOptionString("main", "server_name", '');
+		$portalName = \COption::getOptionString("main", "server_name", '');
 		$senderPage = strtoupper(Landing::getSiteType());
 		$urlParams = [
 			'sender_page' => urlencode($senderPage),
@@ -346,7 +352,7 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 			'siteId' => urlencode($siteId),
 			'from_url' => urlencode($url),
 		];
-		$hrefLinkReportWithParams = $hrefLinkReport . '?' . http_build_query($urlParams);
+		$hrefLinkReportWithParams = $hrefLinkReport->addParams($urlParams);
 		$linkReport = '<a class="bitrix-footer-link bitrix-footer-link-report" target="_blank" href="'
 			. $hrefLinkReportWithParams
 			. '">'
@@ -400,6 +406,15 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 		return rand(1, self::RANDOM_PHRASE_COUNT);
 	}
 
+	/**
+	 * Hook copy handler for save editor value, randomizer
+	 * @param array|null $data Data.
+	 * @param int $entityId Entity.
+	 * @param string $type Type.
+	 * @param bool $publication Is publication.
+	 *
+	 * @return array|null
+	 */
 	public static function onCopy(?array $data, int $entityId, string $type, bool $publication = false): ?array
 	{
 		// only for site

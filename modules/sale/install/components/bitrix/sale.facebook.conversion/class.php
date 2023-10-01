@@ -176,7 +176,7 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 
 			if ($currentParamsData)
 			{
-				$params = unserialize($currentParamsData['PARAMS'], ['allowedClasses' => false]);
+				$params = unserialize($currentParamsData['PARAMS'], ['allowed_classes' => false]);
 			}
 			else
 			{
@@ -335,7 +335,7 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 
 		if ($facebookConversionParams)
 		{
-			$params = unserialize($facebookConversionParams['PARAMS'], ['allow_classes' => false]);
+			$params = unserialize($facebookConversionParams['PARAMS'], ['allowed_classes' => false]);
 			$params[$paramName] = $state;
 			$serializedParams = serialize($params);
 			FacebookConversionParamsTable::update(

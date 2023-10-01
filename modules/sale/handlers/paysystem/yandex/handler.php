@@ -630,7 +630,6 @@ class YandexHandler
 			"AC" => Loc::getMessage("SALE_HPS_YANDEX_Cards"),
 			"GP" => Loc::getMessage("SALE_HPS_YANDEX_Terminals"),
 			"MC" => Loc::getMessage("SALE_HPS_YANDEX_Mobile"),
-			"WM" => "WebMoney",
 			"SB" => Loc::getMessage("SALE_HPS_YANDEX_Sberbank"),
 			"MP" => Loc::getMessage("SALE_HPS_YANDEX_mPOS"),
 			"AB" => Loc::getMessage("SALE_HPS_YANDEX_AlphaClick"),
@@ -648,7 +647,7 @@ class YandexHandler
 	 */
 	public function isRefundableExtended()
 	{
-		$whiteList = array('PC', 'AC', 'MC', 'WM', 'MP', 'AB', 'MA', 'QW', 'KV', 'QP');
+		$whiteList = array('PC', 'AC', 'MC', 'MP', 'AB', 'MA', 'QW', 'KV', 'QP');
 		return in_array($this->service->getField('PS_MODE'), $whiteList);
 	}
 

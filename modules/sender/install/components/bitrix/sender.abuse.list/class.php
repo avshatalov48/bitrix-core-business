@@ -69,7 +69,6 @@ class SenderAbuseListComponent extends \Bitrix\Sender\Internals\CommonSenderComp
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var \CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_ABUSE_LIST_COMP_TITLE'));
 		}
 

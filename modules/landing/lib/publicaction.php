@@ -213,6 +213,13 @@ class PublicAction
 				Loc::getMessage('LANDING_ACCESS_DENIED2')
 			);
 		}
+		else if (!Manager::isB24() && Manager::getApplication()->getGroupRight('landing') < 'W')
+		{
+			$error->addError(
+				'ACCESS_DENIED',
+				Loc::getMessage('LANDING_ACCESS_DENIED2')
+			);
+		}
 		// if method::action exist in PublicAction, call it
 		elseif (($action = self::getMethodInfo($action, $data)))
 		{

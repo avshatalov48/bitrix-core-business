@@ -24,9 +24,9 @@ Main\Localization\Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_OrderDeliveryReq_Query query()
- * @method static EO_OrderDeliveryReq_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_OrderDeliveryReq_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_OrderDeliveryReq_Result getById($id)
- * @method static EO_OrderDeliveryReq_Result getList(array $parameters = array())
+ * @method static EO_OrderDeliveryReq_Result getList(array $parameters = [])
  * @method static EO_OrderDeliveryReq_Entity getEntity()
  * @method static \Bitrix\Sale\Internals\EO_OrderDeliveryReq createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Internals\EO_OrderDeliveryReq_Collection createCollection()

@@ -16,6 +16,7 @@ use Bitrix\Sale\Helpers\Admin\Blocks\OrderBuyer;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\PaySystem;
 use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Sale\Registry;
 use \Bitrix\Sale\Delivery;
 use Bitrix\Sale\Result;
@@ -529,6 +530,10 @@ abstract class OrderBuilder
 			{
 				$deliveryId = (int)$item['DELIVERY_ID'];
 			}
+			elseif ($shipment->getField('DELIVERY_ID'))
+			{
+				$deliveryId = $shipment->getField('DELIVERY_ID');
+			}
 
 			$shipmentFields['DELIVERY_ID'] = $deliveryId;
 
@@ -542,7 +547,7 @@ abstract class OrderBuilder
 					{
 						try
 						{
-							$shipmentFields[$fieldName] = new Date($item[$fieldName]);
+							$shipmentFields[$fieldName] = new DateTime($item[$fieldName]);
 						}
 						catch (ObjectException $exception)
 						{
@@ -702,9 +707,13 @@ abstract class OrderBuilder
 
 			$fields = array(
 				'CUSTOM_PRICE_DELIVERY' => $isCustomPrice ? 'Y' : 'N',
-				'ALLOW_DELIVERY' => $item['ALLOW_DELIVERY'] ?? 'N',
 				'PRICE_DELIVERY' => (float)str_replace(',', '.', $item['PRICE_DELIVERY'] ?? 0),
 			);
+
+			if (isset($item['ALLOW_DELIVERY']))
+			{
+				$fields['ALLOW_DELIVERY'] = $item['ALLOW_DELIVERY'] === 'Y' ? 'Y' : 'N';
+			}
 
 			if (isset($item['BASE_PRICE_DELIVERY']))
 			{
@@ -846,13 +855,16 @@ abstract class OrderBuilder
 					$isSupportedMarkingCode = $items['IS_SUPPORTED_MARKING_CODE'] === 'Y';
 				}
 
-				$tmp = array(
+				$tmp = [
 					'BASKET_CODE' => $basketCode,
 					'AMOUNT' => $items['AMOUNT'] ?? 0,
 					'ORDER_DELIVERY_BASKET_ID' => $items['ORDER_DELIVERY_BASKET_ID'] ?? 0,
-					'XML_ID' => $items['XML_ID'] ?? '',
 					'IS_SUPPORTED_MARKING_CODE' => $isSupportedMarkingCode ? 'Y' : 'N',
-				);
+				];
+				if (array_key_exists('XML_ID', $items))
+				{
+					$tmp['XML_ID'] = $items['XML_ID'];
+				}
 				$idsFromForm[$basketCode] = array();
 
 				if (
@@ -1032,9 +1044,14 @@ abstract class OrderBuilder
 			if(!$r->isSuccess())
 				$result->addErrors($r->getErrors());
 
-			$setFieldResult = $shipmentItem->setField('XML_ID', $shippingItem['XML_ID']);
-			if (!$setFieldResult->isSuccess())
-				$result->addErrors($setFieldResult->getErrors());
+			if (array_key_exists('XML_ID', $shippingItem))
+			{
+				$setFieldResult = $shipmentItem->setField('XML_ID', $shippingItem['XML_ID']);
+				if (!$setFieldResult->isSuccess())
+				{
+					$result->addErrors($setFieldResult->getErrors());
+				}
+			}
 		}
 
 		if ($isStartField)
@@ -1284,10 +1301,13 @@ abstract class OrderBuilder
 			$paymentData['COMPANY_ID'] = (isset($paymentData['COMPANY_ID']) && intval($paymentData['COMPANY_ID']) > 0) ? intval($paymentData['COMPANY_ID']) : 0;
 			$paymentData['PAY_SYSTEM_NAME'] = ($psService) ? $psService->getField('NAME') : '';
 
-			$paymentFields['PAID'] = $paymentData['PAID'] ?? 'N';
-			unset($paymentData['PAID']);
+			if (isset($paymentData['PAID']))
+			{
+				$paymentFields['PAID'] = ($paymentData['PAID'] === 'Y') ? 'Y' : 'N';
+				unset($paymentData['PAID']);
+			}
 
-			if($isNew)
+			if ($isNew)
 			{
 				if(empty($paymentData['COMPANY_ID']))
 				{

@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
@@ -24,6 +25,7 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 	protected $iblockId = 0;
 	protected $listIblockId = array();
 	protected $listIblockName = array();
+	protected $listIblockType = [];
 	protected $listIblockElementId = array();
 	protected $listIblockElementTemplateUrl = array();
 	protected $listIblockSocnetGroupId = array();
@@ -31,6 +33,7 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 	protected $listFieldsValue = array();
 	protected $listObject = array();
 	protected $listIblockPermission = array();
+	protected $listIblockBpTemplates = [];
 
 	protected $properties = array();
 	protected $selectedFields = array();
@@ -321,6 +324,7 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 			$this->listIblockId[] = $iblockId;
 			$this->listIblockSocnetGroupId[$iblockId] = $iblock['SOCNET_GROUP_ID'];
 			$this->listIblockName[$iblockId] = $iblock['NAME'];
+			$this->listIblockType[$iblockId] = $iblock['IBLOCK_TYPE_ID'];
 			$this->listElementData[$iblock['IBLOCK_TYPE_ID']][$iblockId] = array();
 
 			$elementFilter = [
@@ -683,6 +687,40 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 		];
 		if ($canEdit)
 		{
+			$bpTemplates = $this->getIblockBpTemplates($iblockId);
+			if ($bpTemplates)
+			{
+				$documentType = BizProcDocument::generateDocumentComplexType($this->listIblockType[$iblockId], $iblockId);
+				$bpActions = [];
+
+				foreach ($bpTemplates as $template)
+				{
+					$params = \Bitrix\Main\Web\Json::encode(array(
+						'moduleId' => $documentType[0],
+						'entity' => $documentType[1],
+						'documentType' => $documentType[2],
+						'documentId' => $elementId,
+						'templateId' => $template['id'],
+						'templateName' => $template['name'],
+						'hasParameters' => $template['hasParameters']
+					));
+					$bpActions[] = [
+						'TEXT' => $template['name'],
+						'ONCLICK' => 'BX.Bizproc.Starter.singleStart('
+							. $params
+							. ', function(){BX.Main.gridManager.reload(\''
+							. CUtil::JSEscape($this->listGridId[$iblockId])
+							. '\');});',
+					];
+				}
+
+				$actions[] = array(
+					"TEXT" => Loc::getMessage("LEAC_GRID_ACTION_ELEMENT_START_BP"),
+					"MENU" => $bpActions,
+				);
+			}
+
+
 			$actions[] = [
 				'text' => Loc::getMessage('LEAC_GRID_ACTION_ELEMENT_UNBIND_DEL'),
 				'title' => Loc::getMessage('LEAC_GRID_ACTION_ELEMENT_UNBIND_TITLE_DEL'),
@@ -703,5 +741,27 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 			$values[] = $propertyValues;
 
 		return $values;
+	}
+
+	protected function getIblockBpTemplates($iblockId): array
+	{
+		if (!isset($this->listIblockBpTemplates[$iblockId]))
+		{
+			$this->listIblockBpTemplates[$iblockId] = [];
+
+			if (
+				CLists::isBpFeatureEnabled($this->listIblockType[$iblockId])
+				&& CModule::IncludeModule('bizproc')
+			)
+			{
+				$user = Main\Engine\CurrentUser::get();
+				$this->listIblockBpTemplates[$iblockId] = CBPDocument::getTemplatesForStart(
+					$user->getId(),
+					BizProcDocument::generateDocumentComplexType($this->listIblockType[$iblockId], $iblockId),
+				);
+			}
+		}
+
+		return $this->listIblockBpTemplates[$iblockId];
 	}
 }

@@ -1,4 +1,8 @@
 <?php
+$MESS["BIZPROC_AUTOMATION_ACTIONS_ACTIVATE_BUTTON_TEXT"] = "Enable";
+$MESS["BIZPROC_AUTOMATION_ACTIONS_BUTTON_TEXT"] = "actions";
+$MESS["BIZPROC_AUTOMATION_ACTIONS_COPY_BUTTON_TEXT"] = "Copy";
+$MESS["BIZPROC_AUTOMATION_ACTIONS_DEACTIVATE_BUTTON_TEXT"] = "Disable";
 $MESS["BIZPROC_AUTOMATION_ASK_CONSTANT"] = "Provided by administrator before launch";
 $MESS["BIZPROC_AUTOMATION_ASK_MANUAL"] = "Select now";
 $MESS["BIZPROC_AUTOMATION_ASK_PARAMETER"] = "Ask before launch";
@@ -49,6 +53,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_IN_TIME"] = "exact time";
 $MESS["BIZPROC_AUTOMATION_CMP_IN_TIME_2"] = "Exact time";
 $MESS["BIZPROC_AUTOMATION_CMP_IN_WORKTIME"] = "working hours";
 $MESS["BIZPROC_AUTOMATION_CMP_MANAGE_ROBOTS"] = "Copy or move automation rules";
+$MESS["BIZPROC_AUTOMATION_CMP_MANAGE_ROBOTS_1"] = "Group actions";
 $MESS["BIZPROC_AUTOMATION_CMP_MIN1"] = "minute";
 $MESS["BIZPROC_AUTOMATION_CMP_MIN2"] = "minutes";
 $MESS["BIZPROC_AUTOMATION_CMP_MIN3"] = "minutes";
@@ -67,6 +72,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_TO_EXECUTE"] = "Run";
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_ALLOW_REVERSE"] = "Allow moving back to previous status";
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_NAME"] = "Trigger name";
 $MESS["BIZPROC_AUTOMATION_CMP_WEBHOOK_ID"] = "{{ID}} is the entity ID";
+$MESS["BIZPROC_AUTOMATION_DEACTIVATED_ROBOT_BLOCK_TITLE"] = "Automation rule is disabled.";
 $MESS["BIZPROC_AUTOMATION_DELAY_WAIT_WORK_DAY_HELP"] = "The automation rule will run as soon as the responsible person clocks in in the morning or resumes the working day. Employee availability will be registered by the Working Time Management in Bitrix24";
 $MESS["BIZPROC_AUTOMATION_DELAY_WAIT_WORK_DAY_MSGVER_1"] = "Respect responsible person's working hours";
 $MESS["BIZPROC_AUTOMATION_DELAY_WORK_TIME_HELP"] = "Automation rule will start only during the working hours indicated by the Bitrix24 account administrator. Weekend days and holidays will also be skipped as per account settings.";

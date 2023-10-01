@@ -10,6 +10,19 @@ use Bitrix\Sale;
 /**
  * Class PayableItemTable
  * @package Bitrix\Sale\Internals
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_PayableItem_Query query()
+ * @method static EO_PayableItem_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_PayableItem_Result getById($id)
+ * @method static EO_PayableItem_Result getList(array $parameters = [])
+ * @method static EO_PayableItem_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_PayableItem createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_PayableItem_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_PayableItem wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_PayableItem_Collection wakeUpCollection($rows)
  */
 class PayableItemTable extends Main\ORM\Data\DataManager
 {

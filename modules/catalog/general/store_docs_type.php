@@ -1288,9 +1288,9 @@ class CCatalogArrivalDocs extends CCatalogDocsTypes
 			return false;
 		}
 
-		if (Manager::getActiveProvider())
+		if (Manager::getActiveProvider(Manager::PROVIDER_STORE_DOCUMENT))
 		{
-			$contractor = Manager::getActiveProvider()::getContractorByDocumentId($documentId);
+			$contractor = Manager::getActiveProvider(Manager::PROVIDER_STORE_DOCUMENT)::getContractorByDocumentId($documentId);
 			$isContractorSpecified = !is_null($contractor);
 		}
 		else

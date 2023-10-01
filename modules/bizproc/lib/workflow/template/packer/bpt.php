@@ -110,8 +110,14 @@ class Bpt extends BasePacker
 		$tpl->set('PARAMETERS', $datumTmp['PARAMETERS']);
 		$tpl->set('VARIABLES', $datumTmp['VARIABLES']);
 		$tpl->set('CONSTANTS', $datumTmp['CONSTANTS']);
+		$result->setTpl($tpl);
 
-		return $result->setTpl($tpl)->setDocumentFields($datumTmp['DOCUMENT_FIELDS']);
+		if (is_array($datumTmp['DOCUMENT_FIELDS'] ?? null))
+		{
+			$result->setDocumentFields($datumTmp['DOCUMENT_FIELDS']);
+		}
+
+		return $result;
 	}
 
 	private static function replaceTemplateDocumentFieldsAliases(&$template, $aliases)

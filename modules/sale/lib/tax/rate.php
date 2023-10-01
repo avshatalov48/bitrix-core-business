@@ -18,9 +18,9 @@ use Bitrix\Main\Entity;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Rate_Query query()
- * @method static EO_Rate_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Rate_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Rate_Result getById($id)
- * @method static EO_Rate_Result getList(array $parameters = array())
+ * @method static EO_Rate_Result getList(array $parameters = [])
  * @method static EO_Rate_Entity getEntity()
  * @method static \Bitrix\Sale\Tax\EO_Rate createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Tax\EO_Rate_Collection createCollection()

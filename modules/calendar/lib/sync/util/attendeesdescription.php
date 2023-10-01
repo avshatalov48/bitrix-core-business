@@ -78,9 +78,7 @@ class AttendeesDescription
 	private function prepareUserNames(array $codes, ?int $parentId): string
 	{
 		$result = '';
-		$declined = [];
-		$accepted = [];
-		$invited = [];
+		$attendees = [];
 		$users = \CCalendar::GetDestinationUsers($codes, true);
 		$usersMeetingStatus = [];
 
@@ -101,45 +99,18 @@ class AttendeesDescription
 		foreach ($users as $user)
 		{
 			$userName = $user['FORMATTED_NAME'];
-			if (isset($usersMeetingStatus[$user['ID']]) && $usersMeetingStatus[$user['ID']] === 'Y')
-			{
-				$accepted[] = $userName;
-			}
-			else if (isset($usersMeetingStatus[$user['ID']]) && $usersMeetingStatus[$user['ID']] === 'H')
-			{
-				$accepted[] = $userName;
-			}
-			else if (isset($usersMeetingStatus[$user['ID']]) && $usersMeetingStatus[$user['ID']] === 'N')
-			{
-				$declined[] = $userName;
-			}
-			else
-			{
-				$invited[] = $userName;
-			}
+			
+			$attendees[] = $userName;
 		}
-
-		if ($accepted)
+		
+		if (!empty($attendees))
 		{
-			$result .= Loc::getMessage('CAL_SYNC_UTIL_ATTENDEES_STATUS_Y', false, $this->languageId)
-				. ' '
-				. implode(', ', $accepted);
+			$result .= Loc::getMessage('CAL_SYNC_UTIL_ATTENDEES', false, $this->languageId)
+				. ': '
+				. implode(', ', $attendees)
+			;
 		}
-		if ($invited)
-		{
-			$result .= "\r\n"
-				. Loc::getMessage('CAL_SYNC_UTIL_ATTENDEES_STATUS_Q', false, $this->languageId)
-				. ' '
-				. implode(', ', $invited);
-		}
-		if ($declined)
-		{
-			$result .= "\r\n"
-				. Loc::getMessage('CAL_SYNC_UTIL_ATTENDEES_STATUS_N', false, $this->languageId)
-				. ' '
-				. implode(', ', $declined);
-		}
-
+		
 		return $result;
 	}
 

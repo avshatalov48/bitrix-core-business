@@ -70,7 +70,7 @@ class SenderYandexTolokaListComponent extends CBitrixComponent
 			? $this->arParams['PATH_TO_LIST'] : '';
 		$this->arParams['PATH_TO_USER_PROFILE'] = isset($this->arParams['PATH_TO_USER_PROFILE'])
 			? $this->arParams['PATH_TO_USER_PROFILE'] : '';
-		$this->arParams['NAME_TEMPLATE']        = empty($this->arParams['NAME_TEMPLATE'])? \CAllSite::GetNameFormat(
+		$this->arParams['NAME_TEMPLATE']        = empty($this->arParams['NAME_TEMPLATE'])? CSite::GetNameFormat(
 			false
 		) : str_replace(["#NOBR#", "#/NOBR#"], ["", ""], $this->arParams["NAME_TEMPLATE"]);
 
@@ -96,7 +96,6 @@ class SenderYandexTolokaListComponent extends CBitrixComponent
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain */
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_TOLOKA_LIST_COMP_TITLE'));
 		}
 
@@ -364,7 +363,7 @@ class SenderYandexTolokaListComponent extends CBitrixComponent
 		$result = [];
 		foreach ($list as $data)
 		{
-			$result[$data['USER_ID']] = \CAllUser::FormatName(
+			$result[$data['USER_ID']] = CUser::FormatName(
 				$this->arParams['NAME_TEMPLATE'],
 				[
 					'LOGIN'       => $data['USER_LOGIN'] ?? '',
@@ -539,7 +538,7 @@ class SenderYandexTolokaListComponent extends CBitrixComponent
 		}
 
 		$data['USER_PATH'] = str_replace('#id#', $data['USER_ID'], $this->arParams['PATH_TO_USER_PROFILE']);
-		$data['USER']      = \CAllUser::FormatName(
+		$data['USER']      = CUser::FormatName(
 			$this->arParams['NAME_TEMPLATE'],
 			[
 				'LOGIN'       => $data['USER_LOGIN'] ?? '',

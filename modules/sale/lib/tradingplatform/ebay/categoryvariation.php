@@ -29,9 +29,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_CategoryVariation_Query query()
- * @method static EO_CategoryVariation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CategoryVariation_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_CategoryVariation_Result getById($id)
- * @method static EO_CategoryVariation_Result getList(array $parameters = array())
+ * @method static EO_CategoryVariation_Result getList(array $parameters = [])
  * @method static EO_CategoryVariation_Entity getEntity()
  * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_CategoryVariation createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_CategoryVariation_Collection createCollection()

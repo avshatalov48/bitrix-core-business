@@ -16,9 +16,9 @@ use Bitrix\Sale;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_DeliveryLocation_Query query()
- * @method static EO_DeliveryLocation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_DeliveryLocation_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_DeliveryLocation_Result getById($id)
- * @method static EO_DeliveryLocation_Result getList(array $parameters = array())
+ * @method static EO_DeliveryLocation_Result getList(array $parameters = [])
  * @method static EO_DeliveryLocation_Entity getEntity()
  * @method static \Bitrix\Sale\Delivery\EO_DeliveryLocation createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Delivery\EO_DeliveryLocation_Collection createCollection()

@@ -1768,7 +1768,6 @@ class CAllMailMessage
 		}
 
 		// @TODO: MAX_ALLOWED_PACKET
-		$arFields['SEARCH_CONTENT'] = \Bitrix\Mail\Helper\Message::prepareSearchContent($arFields);
 		$arFields['INDEX_VERSION'] = \Bitrix\Mail\Helper\MessageIndexStepper::INDEX_VERSION;
 
 		if (isset($params['replaces']) && $params['replaces'] > 0)
@@ -1920,6 +1919,9 @@ class CAllMailMessage
 
 				\CMailMessage::update($message_id, array('BODY_HTML' => $arFields['BODY_HTML']), $mailbox_id);
 			}
+
+			$arFields['SEARCH_CONTENT'] = \Bitrix\Mail\Helper\Message::prepareSearchContent($arFields);
+			\CMailMessage::update($message_id, ['SEARCH_CONTENT' => $arFields['SEARCH_CONTENT']], $mailbox_id);
 
 			if (!(isset($params['replaces']) && $params['replaces'] > 0))
 			{

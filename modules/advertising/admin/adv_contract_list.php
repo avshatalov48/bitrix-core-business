@@ -105,18 +105,24 @@ if($lAdmin->EditAction() && $isAdmin)
 {
 	foreach($FIELDS as $ID=>$arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
-		if(!$lAdmin->IsUpdated($ID))
+		if (!$lAdmin->IsUpdated($ID))
+		{
 			continue;
+		}
 
-		if(!CAdvContract::Set($arFields, $ID))
+		$DB->StartTransaction();
+
+		if (CAdvContract::Set($arFields, $ID))
+		{
+			$DB->Commit();
+		}
+		else
 		{
 			$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$ob->LAST_ERROR, $ID);
 			$DB->Rollback();
 		}
-		$DB->Commit();
 	}
 }
 

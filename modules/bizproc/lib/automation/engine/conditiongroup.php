@@ -11,11 +11,11 @@ Loc::loadMessages(__FILE__);
 
 class ConditionGroup
 {
-	const TYPE_FIELD = 'field';
-	const TYPE_MIXED = 'mixed';
+	public const TYPE_FIELD = 'field';
+	public const TYPE_MIXED = 'mixed';
 
-	const JOINER_AND = 'AND';// 0
-	const JOINER_OR = 'OR';// 1
+	public const JOINER_AND = 'AND';// 0
+	public const JOINER_OR = 'OR';// 1
 
 	private $type;
 	private $items = [];
@@ -189,6 +189,16 @@ class ConditionGroup
 		return [];
 	}
 
+	public function setActivated(bool $isActivated): void
+	{
+		$this->activated = $isActivated;
+	}
+
+	public function isActivated(): bool
+	{
+		return $this->activated;
+	}
+
 	/**
 	 * @return array Array presentation of condition group.
 	 */
@@ -202,7 +212,11 @@ class ConditionGroup
 			$itemsArray[] = [$condition->toArray(), $joiner];
 		}
 
-		return ['type' => $this->getType(), 'items' => $itemsArray, 'activityNames' => $this->getActivityNames()];
+		return [
+			'type' => $this->getType(),
+			'items' => $itemsArray,
+			'activityNames' => $this->getActivityNames(),
+		];
 	}
 
 	/**
@@ -290,9 +304,11 @@ class ConditionGroup
 		}
 
 		$title = Loc::getMessage('BIZPROC_AUTOMATION_CONDITION_TITLE');
+		$activated = $childActivity['Activated'] === 'N' ? 'N' : 'Y';
 		$activity = [
 			'Type' => 'IfElseActivity',
 			'Name' => Robot::generateName(),
+			'Activated' => $activated,
 			'Properties' => ['Title' => $title],
 			'Children' => [
 				[
@@ -302,7 +318,8 @@ class ConditionGroup
 						'Title' => $title,
 						'mixedcondition' => $mixedCondition
 					],
-					'Children' => [$childActivity]
+					'Children' => [$childActivity],
+					'Activated' => $activated,
 				],
 				[
 					'Type' => 'IfElseBranchActivity',
@@ -311,7 +328,8 @@ class ConditionGroup
 						'Title' => $title,
 						'truecondition' => '1',
 					],
-					'Children' => []
+					'Children' => [],
+					'Activated' => $activated,
 				]
 			]
 		];
@@ -345,6 +363,7 @@ class ConditionGroup
 			$conditionGroup = new static();
 			$conditionGroup->setType(static::TYPE_MIXED);
 			$conditionGroup->setActivityNames($activity);
+			$conditionGroup->setActivated(\CBPHelper::getBool($activity['Activated'] ?? true));
 
 			$isMixed = isset($activity['Children'][0]['Properties']['mixedcondition']);
 			$bizprocConditions = $activity['Children'][0]['Properties'][$isMixed?'mixedcondition':'fieldcondition'];

@@ -55,7 +55,7 @@ final class Notification implements \JsonSerializable
 			throw new ArgumentException('NotificationManager: Cannot create a notification without an ID');
 		}
 
-		$this->uid = $id . self::SEPARATOR . Uuid::getV4();
+		$this->uid = $id . self::SEPARATOR . self::getUuidV4();
 	}
 
 	private function setCategory($category): void
@@ -105,5 +105,19 @@ final class Notification implements \JsonSerializable
 			'button1Text' => $this->button1Text,
 			'button2Text' => $this->button2Text,
 		];
+	}
+
+	private static function getUuidV4(): string
+	{
+		return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+			random_int(0, 0xffff),
+			random_int(0, 0xffff),
+			random_int(0, 0xffff),
+			random_int(0, 0x0fff) | 0x4000,
+			random_int(0, 0x3fff) | 0x8000,
+			random_int(0, 0xffff),
+			random_int(0, 0xffff),
+			random_int(0, 0xffff)
+		);
 	}
 }

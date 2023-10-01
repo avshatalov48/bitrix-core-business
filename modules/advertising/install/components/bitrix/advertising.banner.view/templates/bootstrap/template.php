@@ -10,17 +10,17 @@
 $this->setFrameMode(true);
 $rnd = $component->randString();
 
-$arParams['PROPS']['VIDEO_MUTE'] = $arParams['PROPS']['VIDEO_MUTE'] == 'Y' ? 'muted' : '';
-$arParams['PROPS']['STREAM_MUTE'] = $arParams['PROPS']['STREAM_MUTE'] == 'Y' ? '1' : '0';
+$arParams['PROPS']['VIDEO_MUTE'] = ($arParams['PROPS']['VIDEO_MUTE'] ?? '') == 'Y' ? 'muted' : '';
+$arParams['PROPS']['STREAM_MUTE'] = ($arParams['PROPS']['STREAM_MUTE'] ?? '') == 'Y' ? '1' : '0';
 $arParams['AUTOPLAY'] = $arParams['INDEX'] == '0' ? '&autoplay=1' : '';
 $arParams['PROPS']['HEADING_FONT_SIZE'] = intval($arParams['PROPS']['HEADING_FONT_SIZE']);
 $arParams['PROPS']['ANNOUNCEMENT_FONT_SIZE'] = intval($arParams['PROPS']['ANNOUNCEMENT_FONT_SIZE']);
 $arParams['PROPS']['HEADING_BG_OPACITY'] = isset($arParams['PROPS']['HEADING_BG_OPACITY']) ? intval($arParams['PROPS']['HEADING_BG_OPACITY']) : 100;
 
-$arParams['PROPS']['OVERLAY_COLOR'] = hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 0, 2)).','
-	.hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 2, 2)).','
-	.hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 4, 2)).','
-	.abs(100 - intval($arParams['PROPS']['OVERLAY_OPACITY']))/100;
+$arParams['PROPS']['OVERLAY_COLOR'] = hexdec(mb_substr(($arParams['PROPS']['OVERLAY_COLOR'] ?? ''), 0, 2)).','
+	.hexdec(mb_substr(($arParams['PROPS']['OVERLAY_COLOR'] ?? ''), 2, 2)).','
+	.hexdec(mb_substr(($arParams['PROPS']['OVERLAY_COLOR'] ?? ''), 4, 2)).','
+	.abs(100 - intval($arParams['PROPS']['OVERLAY_OPACITY'] ?? 0))/100;
 
 $arParams['PROPS']['HEADING_BG_COLOR'] = hexdec(mb_substr($arParams['PROPS']['HEADING_BG_COLOR'], 0, 2)).','
 	.hexdec(mb_substr($arParams['PROPS']['HEADING_BG_COLOR'], 2, 2)).','
@@ -32,9 +32,9 @@ $arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'] = hexdec(mb_substr($arParams['PROPS'
 	.hexdec(mb_substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'], 4, 2)).','
 	.abs(100 - intval($arParams['PROPS']['ANNOUNCEMENT_BG_OPACITY']))/100;
 
-$arParams['PROPS']['BUTTON_BG_COLOR'] = hexdec(mb_substr($arParams['PROPS']['BUTTON_BG_COLOR'], 0, 2)).','
-	.hexdec(mb_substr($arParams['PROPS']['BUTTON_BG_COLOR'], 2, 2)).','
-	.hexdec(mb_substr($arParams['PROPS']['BUTTON_BG_COLOR'], 4, 2));
+$arParams['PROPS']['BUTTON_BG_COLOR'] = hexdec(mb_substr(($arParams['PROPS']['BUTTON_BG_COLOR'] ?? ''), 0, 2)).','
+	.hexdec(mb_substr(($arParams['PROPS']['BUTTON_BG_COLOR'] ?? ''), 2, 2)).','
+	.hexdec(mb_substr(($arParams['PROPS']['BUTTON_BG_COLOR'] ?? ''), 4, 2));
 
 $arParams['PROPS']['PRESET'] = intval($arParams['PROPS']['PRESET']);
 $animation = $arParams['PROPS']['ANIMATION'] == 'Y' ? ' data-duration="'.intval($arParams['PROPS']['ANIMATION_DURATION']).'" data-delay="'.intval($arParams['PROPS']['ANIMATION_DELAY']).'"' : '';

@@ -99,6 +99,13 @@ export class TouchContent extends Content
 		{
 			const context2d = this.getCanvas().getLayout().getContext('2d');
 			const point = getPoint(event);
+
+			const strokeColor = this.getColor();
+			if (strokeColor !== null && strokeColor !== '')
+			{
+				context2d.strokeStyle = strokeColor;
+			}
+
 			context2d.lineTo(point.x, point.y);
 			context2d.stroke();
 		}

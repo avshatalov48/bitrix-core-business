@@ -229,54 +229,25 @@ else
 					</div>
 				</div>
 			</div>
-			<div class="preview-right">
-				<div class="landing-template-preview-info" data-editable="true">
-					<div class="pagetitle-wrap">
-						<div class="pagetitle-inner-container">
-							<div class="pagetitle landing-template-preview-title" id="landing-template-preview-title">
-								<span id="pagetitle" class="landing-template-preview-edit-title landing-editable-field-label-js">
-									<?= htmlspecialcharsbx($template['TITLE']) ?>
-								</span>
-								<input type="text" data-name="title" class="landing-template-preview-input-title landing-template-preview-edit-input landing-editable-field-input-js" value="<?= htmlspecialcharsbx($template['TITLE']) ?>" style="display: none;">
-								<span class="landing-template-preview-edit-btn ui-title-input-btn-js"></span>
-							</div>
-						</div>
-					</div>
-
-					<div class="landing-template-preview-description">
-						<p id="landing-template-preview-description-text">
-							<span class="landing-editable-field-label-js"><?= htmlspecialcharsbx($template['DESCRIPTION']) ?></span>
-							<span class="landing-template-preview-edit-btn ui-title-input-btn-js"></span>
-							<textarea data-name="description" class="landing-template-preview-input-description landing-template-preview-edit-textarea landing-editable-field-input-js" style="display: none;"><?= htmlspecialcharsbx($template['DESCRIPTION']) ?></textarea>
-						</p>
-						<span class="landing-template-preview-notice"><?= Loc::getMessage('LANDING_PREVIEW_NOTICE') ?></span>
-					</div>
+			<div hidden class="preview-data">
+					<input type="text" data-name="title" class="landing-template-preview-input-title" value="<?= htmlspecialcharsbx($template['TITLE']) ?>">
+					<textarea data-name="description" class="landing-template-preview-input-description"><?= htmlspecialcharsbx($template['DESCRIPTION']) ?></textarea>
 
 					<?php if ($siteGroup):?>
-						<div class="landing-template-preview-header">
-							<?= Loc::getMessage('LANDING_TPL_HEADER_SITE_GROUP') ?>
-						</div>
-						<div class="landing-template-preview-palette landing-template-preview-site-group"
+						<div class="landing-template-preview-site-group"
 							 data-name="param">
 							<?php foreach ($siteGroup as $i => $site):?>
 								<div data-base-url="<?= $site['url']?>"
 									 data-value="<?= $site['code']?>"
-									 class="landing-template-preview-palette-item landing-template-preview-site-group-item <?= $i++ === 0 ? 'active' : ''?>"
-									 style="background-color: <?= $site['color'] ?>;"><span></span></div>
+									 class="<?= $i++ === 0 ? 'active' : ''?>"
+									 ></div>
 							<?php endforeach;?>
 						</div>
 					<?php endif;?>
 
 					<?php if ($template['URL_PREVIEW']):?>
-					<div
-						hidden class="landing-template-preview-base-url"
-						data-base-url="<?= htmlspecialcharsbx($template['URL_PREVIEW'])?>"
-					></div>
-					<div id="landing-template-preview-settings" class="landing-template-preview-settings">
-						<div class="landing-template-preview-header">
-							<?= Loc::getMessage('LANDING_TPL_HEADER_COLOR')?>
-						</div>
-						<div class="landing-template-preview-palette landing-template-preview-themes" data-name="theme">
+					<div class="landing-template-preview-base-url" data-base-url="<?= htmlspecialcharsbx($template['URL_PREVIEW'])?>"></div>
+					<div class="landing-template-preview-themes" data-name="theme">
 							<?php
 							$allColors = [];
 							foreach ($colors as $code => $color):
@@ -293,21 +264,22 @@ else
 								{
 									continue;
 								}
-								?>
+								if ($themeCurr !== $code || $arParams['SITE_ID'])
+								{
+									continue;
+								}
+							?>
 								<div
 									data-value="<?= substr($color['color'], 1)?>"
-									data-metrika24="Color::BaseSet"
-									data-metrika24value="<?= trim($color['color'], '#')?>"
-									class="landing-template-preview-palette-item bitrix24-metrika landing-template-preview-themes-item <?= ($themeCurr === $code && !$arParams['SITE_ID']) ? 'active' : ''?>"
+									class="active"
 									style="background-color: <?= $color['color'] ?>;"
-								><span></span></div>
+								></div>
 							<?php endforeach;?>
 						</div>
 
 						<?php if ($allowed): ?>
-							<div class="landing-template-preview-setting-container">
-								<div class="landing-demo-preview-custom-color" data-name="theme_custom_color">
-									<div id="colorpicker-theme" class="landing-template-site-color-item">
+							<div data-name="theme_custom_color">
+									<div id="colorpicker-theme">
 										<?php
 										$field = new Bitrix\Landing\Field\Text('');
 										$field->viewForm([
@@ -331,40 +303,16 @@ else
 										});
 									</script>
 								</div>
-								<div class="landing-template-preview-header landing-template-preview-header-site-color">
-									<?= Loc::getMessage('LANDING_TPL_MY_COLOR') ?>
-								</div>
-							</div>
 						<?php else: ?>
-							<label id="theme-slider" for="theme-slider">
-								<div class="landing-template-preview-setting-container cursor-pointer">
-									<div style="background-color: <?=LandingSiteDemoPreviewComponent::COLOR_PICKER_COLOR?>"
-										 class="landing-template-preview-palette-item landing-template-site-color-item">
-									</div>
-									<div class="landing-template-preview-header landing-template-preview-header-site-color">
-										<?php echo Loc::getMessage('LANDING_TPL_MY_COLOR');
-										echo Restriction\Manager::getLockIcon(Restriction\Hook::getRestrictionCodeByHookCode('THEME'), ['theme-slider']); ?>
-									</div>
-								</div>
-							</label>
+							<label id="theme-slider" for="theme-slider"></label>
 						<?php endif; ?>
 						<?php
 						// add USE SITE COLOR setting only for adding page in exist site
 						if ($arParams['SITE_ID']): ?>
-							<div class="landing-template-preview-setting-container">
-								<div class="landing-template-preview-site-color" data-name="theme_use_site">
-									<div data-value="<?=(!$allowed && !(in_array($colorSite, $allColors, true))) ? substr(LandingSiteDemoPreviewComponent::BASE_COLOR,1) : substr($colorSite, 1)?>"
-										 class="landing-template-preview-palette-item landing-template-site-color-item active"
-										 style="background-color: <?=(!$allowed && !(in_array($colorSite, $allColors, true))) ? LandingSiteDemoPreviewComponent::BASE_COLOR : $colorSite?>"><span></span>
-									</div>
-								</div>
-								<div class="landing-template-preview-header landing-template-preview-header-site-color">
-									&mdash;&nbsp;<?= Loc::getMessage('LANDING_TPL_COLOR_USE_SITE') ?>
-								</div>
+							<div class="landing-template-preview-site-color" data-name="theme_use_site">
+								<div data-value="<?=(!$allowed && !(in_array($colorSite, $allColors, true))) ? substr(LandingSiteDemoPreviewComponent::BASE_COLOR,1) : substr($colorSite, 1)?>"></div>
 							</div>
 						<?php endif; ?>
-					</div>
-				</div>
 				<?php endif; ?>
 			</div>
 		</div>
@@ -449,12 +397,6 @@ else
 		adminSection: <?= $arParams['ADMIN_SECTION'] === 'Y' ? 'true' : 'false'?>,
 		urlPreview: <?=CUtil::PhpToJSObject($template['URL_PREVIEW'])?>,
 	});
-	var previewBlock = document.querySelector(".landing-template-preview-info");
-
-	if(previewBlock.dataset.editable) {
-		new BX.Landing.EditTitleForm(BX("landing-template-preview-title"), 300, true);
-		new BX.Landing.EditTitleForm(BX("landing-template-preview-description-text"), 0, true);
-	}
 
 	<?php if (!$createStore):?>
 	BX.ready(function(){

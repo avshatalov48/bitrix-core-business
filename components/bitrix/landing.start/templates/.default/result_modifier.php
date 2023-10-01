@@ -22,7 +22,7 @@ if ($request->get('IFRAME') !== 'Y' && $context->getServer()->getRequestMethod()
 	{
 		$session->set('LANDING_OPEN_SIDE_PANEL', Application::getInstance()->getContext()->getRequest()->getRequestUri());
 		//when opening link to create page in existing site
-		if ($arResult['VARS']['site_show'] > 0 && $arResult['VARS']['landing_edit'] === '0' && $this->getPageName() === 'landing_edit')
+		if (($arResult['VARS']['site_show'] ?? 0) > 0 && $arResult['VARS']['landing_edit'] === '0' && $this->getPageName() === 'landing_edit')
 		{
 			localRedirect('/sites/site/' . $arResult['VARS']['site_show'] . '/');
 		}
@@ -35,7 +35,11 @@ if ($session->has('LANDING_OPEN_SIDE_PANEL'))
 	<script>
 		BX.ready(function()
 		{
+			<?php if (preg_match('/width=([\d]+)/', $session['LANDING_OPEN_SIDE_PANEL'], $matches)):?>
+			BX.SidePanel.Instance.open('<?= \CUtil::JSEscape($session['LANDING_OPEN_SIDE_PANEL'])?>', {allowChangeHistory: false, width: <?= $matches[0]?>});
+			<?php else:?>
 			BX.SidePanel.Instance.open('<?= \CUtil::JSEscape($session['LANDING_OPEN_SIDE_PANEL'])?>', {allowChangeHistory: false});
+			<?php endif?>
 		});
 	</script>
 	<?

@@ -82,7 +82,7 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 		$type = mb_strtoupper($type);
 
 		// local domain
-		if (in_array($zone, ['ru', 'by', 'ua']))
+		if (in_array($zone, ['ru', 'by']))
 		{
 			$postfix = '.';
 			$postfix .= ($type === 'STORE') ? 'bitrix24shop' : 'bitrix24site';

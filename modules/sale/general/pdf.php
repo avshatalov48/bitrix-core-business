@@ -315,9 +315,6 @@ class CSalePdf
 
 	public static function isPdfAvailable()
 	{
-		if (!extension_loaded("mbstring"))
-			return false;
-
 		if (!file_exists(FPDF_FONTPATH.'/pt_serif-regular.ttf') || !file_exists(FPDF_FONTPATH.'/pt_serif-bold.ttf'))
 			return false;
 

@@ -20,9 +20,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_ExternalService_Query query()
- * @method static EO_ExternalService_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ExternalService_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_ExternalService_Result getById($id)
- * @method static EO_ExternalService_Result getList(array $parameters = array())
+ * @method static EO_ExternalService_Result getList(array $parameters = [])
  * @method static EO_ExternalService_Entity getEntity()
  * @method static \Bitrix\Sale\Location\EO_ExternalService createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Location\EO_ExternalService_Collection createCollection()

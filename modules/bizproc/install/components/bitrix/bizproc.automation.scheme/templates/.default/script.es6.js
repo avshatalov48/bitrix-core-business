@@ -172,11 +172,12 @@ class Scheme
 
 	onTypeSelectorClick(event)
 	{
+		// debugger;
 		event.preventDefault();
 		const self = this;
 
 		this.adjustDropdown(
-			event.target,
+			event.target.closest('.ui-ctl-dropdown'),
 			this.scheme.getDocumentTypes().map(type => {
 				return {
 					id: type.Type,
@@ -204,7 +205,7 @@ class Scheme
 		if (categories.length > 0)
 		{
 			this.adjustDropdown(
-				event.target,
+				event.target.closest('.ui-ctl-dropdown'),
 				categories.map(category => {
 					return {
 						id: category.Id,
@@ -236,7 +237,7 @@ class Scheme
 		if (statuses.length > 0)
 		{
 			this.adjustDropdown(
-				event.target,
+				event.target.closest('.ui-ctl-dropdown'),
 				statuses.map(status => {
 					return {
 						id: status.Id,

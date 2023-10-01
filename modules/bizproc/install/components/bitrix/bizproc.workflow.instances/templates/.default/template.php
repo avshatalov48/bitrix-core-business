@@ -32,7 +32,7 @@ else
 		"FILTER_PRESETS" => $arResult['FILTER_PRESETS'],
 		'FILTER_ID' => $arResult['FILTER_ID'],
 		'GRID_ID' => $arResult["GRID_ID"],
-		'ENABLE_LIVE_SEARCH' => false,
+		'DISABLE_SEARCH' => true,
 		"ENABLE_LABEL" => true,
 		'RESET_TO_DEFAULT_MODE' => true,
 		'THEME' => \Bitrix\Main\UI\Filter\Theme::MUTED,
@@ -52,7 +52,7 @@ else
 		{
 			if (empty($record['data'][$field]))
 				$record['data'][$field] = '<span class="bp-warning">'.getMessage('BPWIT_UNKNOWN').'</span>';
-			elseif ($field === 'WS_DOCUMENT_NAME')
+			elseif ($field === 'WS_DOCUMENT_NAME' || $field === 'WS_WORKFLOW_TEMPLATE_ID')
 			{
 				$record['data'][$field] = htmlspecialcharsbx($record['data'][$field]);
 			}

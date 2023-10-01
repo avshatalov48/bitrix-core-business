@@ -16,7 +16,6 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\Web\HttpClient;
-use COffice365OAuthInterface;
 use CSocServOffice365OAuth;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
@@ -29,7 +28,7 @@ class Office365Context implements ContextInterface
 {
 	/** @var array */
 	private static array $instances = [];
-
+	
 	/** @var EventManager */
 	private EventManager $eventManager;
 	/** @var Helper */
@@ -44,14 +43,14 @@ class Office365Context implements ContextInterface
 	private ApiService $apiService;
 	/** @var Connection  */
 	private Connection $connection;
-
+	
 	/** @var IncomingSectionManagerInterface */
 	private IncomingSectionManagerInterface $incomingManager;
 	/** @var OutgoingEventManagerInterface  */
 	private OutgoingEventManagerInterface $outgoingEventManager;
 	private Converter $converter;
 	private PushManager $pushManager;
-
+	
 	/**
 	 * @param Connection $connection
 	 *
@@ -68,7 +67,7 @@ class Office365Context implements ContextInterface
 		}
 		return self::$instances[$connection->getId()];
 	}
-
+	
 	/**
 	 * @param Connection $connection
 	 *
@@ -81,7 +80,7 @@ class Office365Context implements ContextInterface
 		$this->owner = $connection->getOwner();
 		$this->helper = ServiceLocator::getInstance()->get('calendar.service.office365.helper');
 	}
-
+	
 	/**
 	 * @return EventManager
 	 */
@@ -91,10 +90,10 @@ class Office365Context implements ContextInterface
 		{
 			$this->eventManager = new EventManager($this);
 		}
-
+		
 		return $this->eventManager;
 	}
-
+	
 	/**
 	 * @return VendorSyncService
 	 *
@@ -109,10 +108,10 @@ class Office365Context implements ContextInterface
 		{
 			$this->syncService = new VendorSyncService($this);
 		}
-
+		
 		return $this->syncService;
 	}
-
+	
 	/**
 	 * @return ApiService
 	 *
@@ -127,10 +126,10 @@ class Office365Context implements ContextInterface
 		{
 			$this->apiService = new ApiService($this);
 		}
-
+		
 		return $this->apiService;
 	}
-
+	
 	/**
 	 * @return ApiClient
 	 *
@@ -145,19 +144,19 @@ class Office365Context implements ContextInterface
 		if(empty($this->apiClient))
 		{
 			$httpClient = $this->prepareHttpClient();
-
+			
 			$this->apiClient = new ApiClient($httpClient, $this);
 		}
-
+		
 		return $this->apiClient;
 	}
-
-
+	
+	
 	protected function getMaxPageSize(): ?int
 	{
 		return 100;
 	}
-
+	
 	/**
 	 * @return Helper
 	 */
@@ -165,7 +164,7 @@ class Office365Context implements ContextInterface
 	{
 		return $this->helper;
 	}
-
+	
 	/**
 	 * @return Connection
 	 */
@@ -173,7 +172,7 @@ class Office365Context implements ContextInterface
 	{
 		return $this->connection;
 	}
-
+	
 	/**
 	 * @return PushManager
 	 */
@@ -185,7 +184,7 @@ class Office365Context implements ContextInterface
 		}
 		return $this->pushManager;
 	}
-
+	
 	/**
 	 * @return Converter
 	 */
@@ -197,7 +196,7 @@ class Office365Context implements ContextInterface
 		}
 		return $this->converter;
 	}
-
+	
 	/**
 	 * @return HttpClient
 	 *
@@ -213,7 +212,7 @@ class Office365Context implements ContextInterface
 			throw new LoaderException('Module socialservices is required.');
 		}
 		$httpClient = new HttpClient();
-
+		
 		$oAuthEntity = $this->prepareAuthEntity($this->owner->getId());
 		if ($oAuthEntity->GetAccessToken())
 		{
@@ -233,7 +232,7 @@ class Office365Context implements ContextInterface
 			}
 			else
 			{
-				throw new AuthException('Access token not recived', 401);
+				throw new AuthException('Access token not received', 401);
 			}
 		}
 		else
@@ -247,18 +246,27 @@ class Office365Context implements ContextInterface
 		}
 		return $httpClient;
 	}
-
+	
 	/**
 	 * @param $userId
 	 *
-	 * @return COffice365OAuthInterface
+	 * @return \COffice365OAuthInterface
 	 */
-	public function prepareAuthEntity($userId): COffice365OAuthInterface
+	public function prepareAuthEntity($userId): \COffice365OAuthInterface
 	{
 		$oauth = new CSocServOffice365OAuth($userId);
 		$oAuthEntity = $oauth->getEntityOAuth();
 		$oAuthEntity->addScope($this->helper::NEED_SCOPE);
 		$oAuthEntity->setUser($this->owner->getId());
+		
+		$tokens = $this->getStorageToken($userId);
+		if ($tokens)
+		{
+			$oAuthEntity->setToken($tokens['OATOKEN']);
+			$oAuthEntity->setAccessTokenExpires($tokens['OATOKEN_EXPIRES']);
+			$oAuthEntity->setRefreshToken($tokens['REFRESH_TOKEN']);
+		}
+		
 		if (!$oAuthEntity->checkAccessToken())
 		{
 			$oAuthEntity->getNewAccessToken(
@@ -267,20 +275,37 @@ class Office365Context implements ContextInterface
 				true
 			);
 		}
-
+		
 		return $oAuthEntity;
 	}
-
+	
+	/**
+	 * @param $userId
+	 * @return array|false
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function getStorageToken($userId)
+	{
+		return \Bitrix\Socialservices\UserTable::query()
+			->setSelect(['USER_ID', 'EXTERNAL_AUTH_ID', 'OATOKEN', 'OATOKEN_EXPIRES', 'REFRESH_TOKEN'])
+			->where('USER_ID', $userId)
+			->where('EXTERNAL_AUTH_ID', 'Office365')
+			->exec()->fetch()
+			;
+	}
+	
 	public function getIncomingManager()
 	{
 		if (empty($this->incomingManager))
 		{
 			$this->incomingManager = new IncomingManager($this);
 		}
-
+		
 		return $this->incomingManager;
 	}
-
+	
 	public function getOutgoingEventManager(): OutgoingEventManagerInterface
 	{
 		if (empty($this->outgoingEventManager))
@@ -289,7 +314,7 @@ class Office365Context implements ContextInterface
 		}
 		return $this->outgoingEventManager;
 	}
-
+	
 	/**
 	 * @return Role
 	 */
@@ -297,7 +322,7 @@ class Office365Context implements ContextInterface
 	{
 		return $this->owner;
 	}
-
+	
 	/**
 	 * @return LoggerInterface
 	 */
@@ -311,7 +336,7 @@ class Office365Context implements ContextInterface
 		{
 			$logger = new NullLogger();
 		}
-
+		
 		return $logger;
 	}
 }

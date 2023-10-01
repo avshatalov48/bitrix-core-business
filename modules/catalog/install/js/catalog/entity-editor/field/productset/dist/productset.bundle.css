@@ -1,0 +1,8 @@
+.ui-selector-search-footer-label--hide {
+	display: none;
+}
+.ui-tag-selector-tag-avatar {
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+}

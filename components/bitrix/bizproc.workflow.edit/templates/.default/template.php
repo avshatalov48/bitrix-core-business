@@ -1,6 +1,6 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -10,8 +10,18 @@ $isAdminSection = (isset($arParams['IS_ADMIN_SECTION']));
 use Bitrix\Main\Page\Asset;
 
 \Bitrix\Main\Loader::includeModule('rest');
+\Bitrix\Main\Loader::includeModule('ui');
 CUtil::InitJSCore(['window', 'ajax', 'bp_selector', 'clipboard', 'marketplace', 'bp_field_type']);
-\Bitrix\Main\UI\Extension::load(['ui.hint', 'bizproc.automation', 'bizproc.globals']);
+\Bitrix\Main\UI\Extension::load([
+	'ui.hint',
+	'bizproc.automation',
+	'bizproc.globals',
+	'ui.icon-set.main',
+	'ui.icon-set.actions',
+	'ui.buttons',
+	'main.popup',
+	'ui.design-tokens',
+]);
 
 if ($isAdminSection)
 {

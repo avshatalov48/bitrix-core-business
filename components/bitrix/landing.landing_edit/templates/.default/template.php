@@ -127,7 +127,7 @@ else
 
 // assets
 
-Extension::load(['ui.buttons', 'ui.layout-form']);
+Extension::load(['ui.buttons', 'ui.layout-form', 'ui.icon-set.actions', 'ai-picker']);
 CJSCore::init(['color_picker', 'landing_master']);
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css');
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.site_edit/templates/.default/style.css');
@@ -207,7 +207,7 @@ if ($arParams['SUCCESS_SAVE'])
 
 		<div class="landing-form-title-block">
 			<div class="ui-form-title-block">
-				<span class="landing-editable-field" id="<?= $template->getFieldId('EDITABLE_TITLE') ?>">
+				<div class="landing-editable-field --one-row" id="<?= $template->getFieldId('EDITABLE_TITLE') ?>">
 					<label class="landing-editable-field-label landing-editable-field-label-js">
 						<?= $row['TITLE']['CURRENT']?>
 					</label>
@@ -215,9 +215,15 @@ if ($arParams['SUCCESS_SAVE'])
 						name="fields[TITLE]"
 						class="ui-input landing-editable-field-input landing-editable-field-input-js"
 						value="<?=$row['TITLE']['CURRENT']?>"
-						placeholder="<?=$row['TITLE']['TITLE']?>"/>
-					<span class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen"></span>
-				</span>
+						placeholder="<?=$row['TITLE']['TITLE']?>"
+						autocomplete="off"
+					/>
+					<div class="landing-editable-field-buttons">
+						<div class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen">
+							<div class="ui-icon-set --pencil-60"></div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -360,12 +366,13 @@ if ($arParams['SUCCESS_SAVE'])
 									<script type="text/javascript">
 										BX.ready(function ()
 										{
-											new BX.Landing.EditTitleForm(
-												BX('<?=$template->getFieldId('EDITABLE_PAGE_TITLE') ?>'),
-												0,
-												true,
-												true
-											);
+											new BX.Landing.EditTitleForm({
+												node: BX('<?=$template->getFieldId('EDITABLE_PAGE_TITLE') ?>'),
+												isEventTargetNode: true,
+												display: true,
+												isAiAllowed: <?=empty($arResult['ALLOW_AI_TEXT']) ? 0 : $arResult['ALLOW_AI_TEXT']?>,
+												siteId: '<?= $row['SITE_ID']['CURRENT'] ?>',
+											});
 										});
 									</script>
 									<div class="landing-form-social-text-title">
@@ -381,9 +388,16 @@ if ($arParams['SUCCESS_SAVE'])
 												'class' => 'ui-input landing-editable-field-input landing-editable-field-input-js',
 												'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]',
 												'id' => $template->getFieldId('METAOG_TITLE'),
+												'rows' => 1,
+												'autocomplete' => 'off',
 											]);
 											?>
-											<span class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen"></span>
+											<div class="landing-editable-field-buttons">
+												<div class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen">
+													<div class="ui-icon-set --pencil-60"></div>
+												</div>
+												<div class="landing-editable-field-button --ai"></div>
+											</div>
 										</span>
 									</div>
 								<?php endif; ?>
@@ -396,12 +410,13 @@ if ($arParams['SUCCESS_SAVE'])
 									<script type="text/javascript">
 										BX.ready(function ()
 										{
-											new BX.Landing.EditTitleForm(
-												BX('<?=$template->getFieldId('EDITABLE_PAGE_TEXT') ?>'),
-												0,
-												true,
-												true
-											);
+											new BX.Landing.EditTitleForm({
+												node: BX('<?=$template->getFieldId('EDITABLE_PAGE_TEXT') ?>'),
+												isEventTargetNode: true,
+												isAiAllowed: <?=empty($arResult['ALLOW_AI_TEXT']) ? 0 : $arResult['ALLOW_AI_TEXT']?>,
+												siteId: '<?= $row['SITE_ID']['CURRENT'] ?>',
+												display: true,
+											});
 										});
 									</script>
 									<div class="landing-form-social-text">
@@ -416,9 +431,18 @@ if ($arParams['SUCCESS_SAVE'])
 											$pageFields['METAOG_DESCRIPTION']->viewForm([
 												'class' => 'ui-textarea landing-editable-field-textarea landing-editable-field-input-js',
 												'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]',
+												'autocomplete' => 'off',
+												'rows' => '1',
 											]);
 											?>
-											<span class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen"></span>
+											<div class="landing-editable-field-buttons">
+												<div class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen">
+													<div class="ui-icon-set --pencil-60"></div>
+												</div>
+												<div class="landing-editable-field-button --ai">
+
+												</div>
+											</div>
 										</span>
 									</div>
 								<?php endif; ?>
@@ -1031,6 +1055,10 @@ if ($arParams['SUCCESS_SAVE'])
 		BX.UI.Hint.init(BX('landing-page-set-form'));
 		new BX.UI.LayoutForm({container: BX('landing-page-set-form')});
 		new BX.Landing.ToggleAdditionalFields(BX('landing-page-set-form'));
-		new BX.Landing.EditTitleForm(BX('<?= $template->getFieldId('EDITABLE_TITLE') ?>'), 600, true);
+		new BX.Landing.EditTitleForm({
+			node: BX('<?= $template->getFieldId('EDITABLE_TITLE') ?>'),
+			additionalWidth: 600,
+			isEventTargetNode: true,
+		});
 	});
 </script>

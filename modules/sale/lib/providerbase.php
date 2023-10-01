@@ -2203,7 +2203,7 @@ abstract class ProviderBase
 				$resultList[$basketCode] = $resultProduct;
 
 			}
-			elseif (class_exists($providerName))
+			elseif ($providerName && class_exists($providerName))
 			{
 				/** @var ShipmentCollection $shipmentCollection */
 				$shipmentCollection = $shipment->getCollection();

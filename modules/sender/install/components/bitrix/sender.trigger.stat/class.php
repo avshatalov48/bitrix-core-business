@@ -39,7 +39,6 @@ class SenderTriggerStatComponent extends \Bitrix\Sender\Internals\CommonSenderCo
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_TRIGGER_STAT_COMP_TITLE'));
 		}
 

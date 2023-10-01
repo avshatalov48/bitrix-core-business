@@ -14,9 +14,9 @@ use Bitrix\Main\Entity\DataManager;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_IndexSection_Query query()
- * @method static EO_IndexSection_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_IndexSection_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_IndexSection_Result getById($id)
- * @method static EO_IndexSection_Result getList(array $parameters = array())
+ * @method static EO_IndexSection_Result getList(array $parameters = [])
  * @method static EO_IndexSection_Entity getEntity()
  * @method static \Bitrix\Sale\Discount\Index\EO_IndexSection createObject($setDefaultValues = true)
  * @method static \Bitrix\Sale\Discount\Index\EO_IndexSection_Collection createCollection()

@@ -120,7 +120,6 @@ class SenderAdsListComponent extends Bitrix\Sender\Internals\CommonSenderCompone
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_LETTER_LIST_COMP_TITLE'));
 		}
 		$this->arResult['ERRORS'] = array();
@@ -446,7 +445,7 @@ class SenderAdsListComponent extends Bitrix\Sender\Internals\CommonSenderCompone
 		$result = array();
 		foreach ($list as $data)
 		{
-			$result[$data['USER_ID']] = \CAllUser::FormatName(
+			$result[$data['USER_ID']] = CUser::FormatName(
 				$this->arParams['NAME_TEMPLATE'],
 				array(
 					'LOGIN' => $data['USER_LOGIN'],
@@ -508,7 +507,7 @@ class SenderAdsListComponent extends Bitrix\Sender\Internals\CommonSenderCompone
 		}
 
 		$data['USER_PATH'] = str_replace('#id#', $data['USER_ID'], $this->arParams['PATH_TO_USER_PROFILE']);
-		$data['USER'] = \CAllUser::FormatName(
+		$data['USER'] = CUser::FormatName(
 			$this->arParams['NAME_TEMPLATE'],
 			array(
 				'LOGIN' => $data['USER_LOGIN'],

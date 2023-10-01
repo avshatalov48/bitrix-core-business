@@ -8,7 +8,6 @@
 	const changeTagName = BX.Landing.Utils.changeTagName;
 	const textToPlaceholders = BX.Landing.Utils.textToPlaceholders;
 
-
 	/**
 	 * Implements interface for works with text node of blocks
 	 *
@@ -402,69 +401,13 @@
 		{
 			if (!this.aiTextButton)
 			{
-				this.aiTextButton = new BX.Landing.UI.Button.AiText("ai_text", {
+				this.aiTextButton = new BX.Landing.UI.Button.AiText.getInstance("ai_text", {
 					html: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT"),
 					attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT")},
-					onClick: function() {
-						BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
-
-						const repository = BX.Landing.Main.getInstance()["options"]["blocks"];
-						const sections = this.manifest.sections;
-						let startMessage = '';
-						const engineParameters = {
-						//	assistant_text: "friendly business tone"
-						};
-
-						// retrieve startMessage from settings' meta
-						for (let i = 0, c = sections.length; i < c; i++)
-						{
-							const section = sections[i];
-							if (repository[section] && repository[section]["meta"])
-							{
-								if (repository[section]["meta"]["ai_text_placeholder"])
-								{
-									startMessage = repository[section]["meta"]["ai_text_placeholder"];
-								}
-								if (repository[section]["meta"]["ai_text_max_tokens"])
-								{
-									engineParameters['max_tokens'] = parseInt(repository[section]["meta"]["ai_text_max_tokens"]);
-								}
-								/*if (repository[section]["meta"]["ai_text_assistant_text"])
-								{
-									engineParameters['assistant_text'] = repository[section]["meta"]["ai_text_assistant_text"];
-								}*/
-							}
-						}
-
-						if (!this.aiTextPicker)
-						{
-							const siteId = BX.Landing.Main.getInstance()["options"]["site_id"];
-							const picker = top.BX.AI ? top.BX.AI.Picker : BX.AI.Picker;
-
-							this.aiTextPicker = new picker({
-								/*startMessage: (startMessage.length > 0)
-									? startMessage
-									: "write {text, reviews,benefits} {for website}, {flower shop}, {family business}",*/
-								moduleId: "landing",
-								contextId: "text_site_" + siteId,
-								analyticLabel: 'landing_text',
-								history: true,
-								onSelect: function (item) {
-									this.node.innerHTML = item.data.replace(/(\r\n|\r|\n)/g, '<br>');
-									this.onChange();
-								}.bind(this),
-								onTariffRestriction: function() {
-									BX.UI.InfoHelper.show("limit_sites_TextAssistant_AI");
-								},
-							});
-
-							this.aiTextPicker.setLangSpace(BX.AI.Picker.LangSpace.text)
-						}
-
-						this.aiTextPicker.setEngineParameters(engineParameters);
-
-						this.aiTextPicker.text();
-
+					sections: this.manifest.sections,
+					onSelect: function (item) {
+						this.node.innerHTML = item.data.replace(/(\r\n|\r|\n)/g, "<br>");
+						this.onChange();
 					}.bind(this)
 				});
 			}
@@ -887,11 +830,11 @@
 					html: "<span class=\"landing-ui-icon-editor-justify\"></span>",
 					attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_JUSTIFY")},
 				}),
-				new BX.Landing.UI.Button.ColorAction("tableTextColor", {
+				new BX.Landing.UI.Button.TableColorAction("tableTextColor", {
 					text: BX.Landing.Loc.getMessage("EDITOR_ACTION_SET_FORE_COLOR"),
 					attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_COLOR")},
 				}),
-				new BX.Landing.UI.Button.ColorAction("tableBgColor", {
+				new BX.Landing.UI.Button.TableColorAction("tableBgColor", {
 					html: "<i class=\"landing-ui-icon-editor-fill-color\"></i>",
 					attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_TABLE_CELL_BG")},
 				}),
@@ -915,8 +858,9 @@
 				new BX.Landing.UI.Button.DeleteTable("deleteTable", {
 					html: "<span class=\"landing-ui-icon-editor-delete\"></span>",
 					attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_TABLE_DELETE")},
-				})
+				}),
 			);
+
 			return this.buttons;
 		},
 

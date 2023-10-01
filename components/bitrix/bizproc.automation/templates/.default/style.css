@@ -816,25 +816,23 @@
 .bizproc-automation-robot-container.--selected > * {
 	pointer-events: none;
 }
-
+.bizproc-automation-trigger-checkbox,
 .bizproc-automation-robot-container-checkbox {
 	position: absolute;
-	width: 18px;
-	height: 18px;
-	background: #fff;
-	border: 1px solid rgba(130,139,149,.67);
-	border-radius: 2px;
-	top: 9px;
-	right: 10px;
+	top: 0;
+	right: 7px;
 	pointer-events: none;
 	opacity: 0;
 	transition: .15s;
 	z-index: 99;
 }
 
+.bizproc-automation-trigger-list.--multiselect-mode .bizproc-automation-trigger-checkbox,
 .bizproc-automation-robot-list.--multiselect-mode .bizproc-automation-robot-container-checkbox,
 .automation-base-node.--multiselect-mode .bizproc-automation-robot-container-checkbox {
 	opacity: 1;
+	z-index: 999;
+	pointer-events: all;
 }
 
 .automation-base-node.--multiselect-mode .bizproc-automation-robot-container,
@@ -842,26 +840,15 @@
 	cursor: pointer;
 }
 
+.bizproc-automation-trigger-item.--selected .bizproc-automation-trigger-checkbox,
+.bizproc-automation-robot-container.--selected .bizproc-automation-trigger-checkbox,
 .bizproc-automation-robot-container.--selected .bizproc-automation-robot-container-checkbox {
-	border-color: #2687E8;
-	background: #2687E8;
 	transition: .1s;
 	opacity: 1;
 }
 
 .bizproc-automation-robot-container.--search-mismatch {
 	opacity: .1;
-}
-
-.bizproc-automation-robot-container-checkbox:before {
-	content: ' ';
-	position: absolute;
-	width: 11px;
-	height: 9px;
-	top: 5px;
-	left: 4px;
-	transition: .1s;
-	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2211px%22%20height%3D%229px%22%20viewBox%3D%220%200%2011%209%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%3Cg%20transform%3D%22translate%28-429.000000%2C%20-293.000000%29%22%20fill%3D%22%23fff%22%3E%3Cg%20transform%3D%22translate%28235.000000%2C%20274.000000%29%22%3E%3Cpolygon%20points%3D%22195.763786%2021.7055734%20198.039772%2023.9815596%20203.025463%2019%20204.789249%2020.763786%20199.807689%2025.7453457%20198.039772%2027.5091317%20196.275986%2025.7453457%20194%2023.4693595%22%3E%3C/polygon%3E%3C/g%3E%3C/g%3E%3C/svg%3E') center center no-repeat;
 }
 
 .bizproc-automation-robot-container-drag {
@@ -2188,3 +2175,7 @@
 }
 
 
+.bizpoc-automation-body .ui-action-panel-item-icon {
+	width: 20px;
+	height: 20px;
+}

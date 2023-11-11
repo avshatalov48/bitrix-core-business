@@ -219,6 +219,8 @@ class OrmAnnotateCommand extends Command implements AnnotationInterface
 				$io->warning('Exception: '.$e->getMessage().PHP_EOL.$e->getTraceAsString());
 			}
 		}
+
+		return 0;
 	}
 
 	protected function getDirsToScan($inputModules, InputInterface $input, OutputInterface $output)

@@ -1,6 +1,7 @@
 import { ImModelDialog } from 'im.v2.model';
-import { ChatOption } from 'im.v2.const';
+import { ChatActionType } from 'im.v2.const';
 import { AddToChat } from 'im.v2.component.entity-selector';
+import { PermissionManager } from 'im.v2.lib.permission';
 import { Avatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
 
 import { Settings } from './settings';
@@ -57,11 +58,11 @@ export const GroupChatPreview = {
 		},
 		canSeeMembers(): boolean
 		{
-			return this.$store.getters['dialogues/getChatOption'](this.dialog.type, ChatOption.userList);
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.userList, this.dialogId);
 		},
 		canInviteMembers(): boolean
 		{
-			return this.$store.getters['dialogues/getChatOption'](this.dialog.type, ChatOption.extend);
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
 		},
 	},
 	methods:

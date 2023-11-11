@@ -23,11 +23,6 @@ class pull extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = PULL_VERSION;
-			$this->MODULE_VERSION_DATE = PULL_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("PULL_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("PULL_MODULE_DESCRIPTION");
@@ -43,10 +38,13 @@ class pull extends CModule
 	function InstallDB()
 	{
 		global $DB, $APPLICATION;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
-		if(!$DB->Query("SELECT 'x' FROM b_pull_stack", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/pull/install/db/mysql/install.sql");
+
+		if (!$DB->TableExists('b_pull_stack'))
+		{
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/pull/install/db/' . $connection->getType() . '/install.sql');
+		}
 
 		if($this->errors !== false)
 		{
@@ -107,11 +105,11 @@ class pull extends CModule
 	function UnInstallDB($arParams = Array())
 	{
 		global $APPLICATION, $DB, $errors;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		if (!$arParams['savedata'])
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/pull/install/db/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/pull/install/db/".$connection->getType()."/uninstall.sql");
 
 		$arSQLErrors = Array();
 		if(is_array($this->errors))

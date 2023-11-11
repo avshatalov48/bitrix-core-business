@@ -1,7 +1,7 @@
 import { Text } from 'main.core';
 
 import { RecentCallStatus } from 'im.v2.const';
-import { Avatar, AvatarSize, ChatTitle, Button, ButtonSize, ButtonColor, ButtonIcon } from 'im.v2.component.elements';
+import { Avatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonSize, ButtonColor, ButtonIcon } from 'im.v2.component.elements';
 import { CallManager } from 'im.v2.lib.call';
 
 import '../css/active-call.css';
@@ -12,7 +12,7 @@ import type { CustomColorScheme } from 'im.v2.component.elements';
 // @vue/component
 export const ActiveCall = {
 	name: 'ActiveCall',
-	components: { Avatar, ChatTitle, Button },
+	components: { Avatar, ChatTitle, MessengerButton },
 	props: {
 		item: {
 			type: Object,
@@ -113,20 +113,17 @@ export const ActiveCall = {
 					</div>
 					<div v-if="!hasJoined" class="bx-im-list-recent-active-call__actions_container">
 						<div class="bx-im-list-recent-active-call__actions_item --join">
-							<Button @click.stop="onJoinClick" :size="ButtonSize.M" :color="ButtonColor.Success" :isRounded="true" :text="loc('IM_LIST_RECENT_ACTIVE_CALL_JOIN')" />
+							<MessengerButton @click.stop="onJoinClick" :size="ButtonSize.M" :color="ButtonColor.Success" :isRounded="true" :text="loc('IM_LIST_RECENT_ACTIVE_CALL_JOIN')" />
 						</div>
 					</div>
 					<div v-else-if="hasJoined && isTabWithActiveCall" class="bx-im-list-recent-active-call__actions_container">
 						<div class="bx-im-list-recent-active-call__actions_item --return">
-							<Button @click.stop="returnToCall" :size="ButtonSize.M" :color="ButtonColor.Success" :isRounded="true" :text="loc('IM_LIST_RECENT_ACTIVE_CALL_RETURN')" />
-						</div>
-						<div class="bx-im-list-recent-active-call__actions_item --end-call">
-							<Button @click.stop="onLeaveCallClick" :size="ButtonSize.M" :color="ButtonColor.Danger" :isRounded="true" :icon="ButtonIcon.EndCall" />
+							<MessengerButton @click.stop="returnToCall" :size="ButtonSize.M" :color="ButtonColor.Success" :isRounded="true" :text="loc('IM_LIST_RECENT_ACTIVE_CALL_RETURN')" />
 						</div>
 					</div>
 					<div v-else-if="hasJoined && !isTabWithActiveCall" class="bx-im-list-recent-active-call__actions_container">
 						<div class="bx-im-list-recent-active-call__actions_item --another-device">
-							<Button :size="ButtonSize.M" :customColorScheme="anotherDeviceColorScheme" :isRounded="true" :text="loc('IM_LIST_RECENT_ACTIVE_CALL_ANOTHER_DEVICE')" />
+							<MessengerButton :size="ButtonSize.M" :customColorScheme="anotherDeviceColorScheme" :isRounded="true" :text="loc('IM_LIST_RECENT_ACTIVE_CALL_ANOTHER_DEVICE')" />
 						</div>
 					</div>
 				</div>

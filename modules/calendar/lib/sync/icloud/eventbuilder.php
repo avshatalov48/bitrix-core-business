@@ -3,6 +3,7 @@
 namespace Bitrix\Calendar\Sync\Icloud;
 
 use Bitrix\Calendar\Core\Base\DateTimeZone;
+use Bitrix\Calendar\Core\Base\SingletonTrait;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\Remind;
@@ -14,24 +15,9 @@ use Bitrix\Main\SystemException;
 
 class EventBuilder
 {
+	use SingletonTrait;
+
 	const DAY_LENGTH = 86400;
-
-	/** @var ?EventBuilder $instance */
-	private static ?EventBuilder $instance = null;
-
-	protected function __construct()
-	{
-	}
-
-	public static function getInstance(): EventBuilder
-	{
-		if (!self::$instance)
-		{
-			self::$instance = new self();
-		}
-
-		return self::$instance;
-	}
 
 	/**
 	 * @throws \Bitrix\Main\LoaderException

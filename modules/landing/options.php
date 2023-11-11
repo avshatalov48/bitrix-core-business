@@ -165,6 +165,11 @@ if ($postRight >= 'R'):
 		Loc::getMessage('LANDING_OPT_DELETED_LIFETIME_DAYS') . ':',
 		array('text', 4)
 	);
+	$allOptions[] = [
+		'history_lifetime_days',
+		Loc::getMessage('LANDING_OPT_HISTORY_LIFETIME') . ':',
+		['text', 4]
+	];
 	if (Manager::isB24())
 	{
 		$allOptions[] = array(

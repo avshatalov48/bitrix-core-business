@@ -566,6 +566,8 @@ class BlogPost extends Base
 		}
 
 		$client = new \Bitrix\Main\Web\HttpClient();
+		$client->setPrivateIp(false);
+
 		$tempPath = \CFile::getTempName('', bx_basename($imageUrl));
 		$isDownloaded = $client->download($imageUrl, $tempPath);
 		if (!$isDownloaded)

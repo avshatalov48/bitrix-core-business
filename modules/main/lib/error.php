@@ -41,7 +41,7 @@ class Error implements \JsonSerializable
 	 * @param Throwable $exception
 	 * @return static
 	 */
-	public static function createFromThrowable(Throwable $exception): self
+	public static function createFromThrowable(Throwable $exception): static
 	{
 		return new static($exception->getMessage(), $exception->getCode());
 	}

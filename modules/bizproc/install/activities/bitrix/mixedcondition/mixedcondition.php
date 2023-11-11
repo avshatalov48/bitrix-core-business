@@ -94,9 +94,9 @@ class CBPMixedCondition extends CBPActivityCondition
 		$arWorkflowConstants = null
 	)
 	{
-		$runtime = CBPRuntime::GetRuntime();
-		$documentService = $runtime->GetService("DocumentService");
-		$arFieldTypes = $documentService->GetDocumentFieldTypes($documentType);
+		$runtime = CBPRuntime::getRuntime();
+		$documentService = $runtime->getDocumentService();
+		$arFieldTypes = $documentService->getDocumentFieldTypes($documentType);
 
 		if (is_array($arCurrentValues))
 		{
@@ -139,15 +139,15 @@ class CBPMixedCondition extends CBPActivityCondition
 
 		return $runtime->ExecuteResourceFile(
 			__FILE__,
-			"properties_dialog.php",
+			'properties_dialog.php',
 			[
-				"arCurrentValues" => $arCurrentValues,
-				"documentService" => $documentService,
-				"documentType" => $documentType,
-				"arProperties" => $arWorkflowParameters,
-				"arVariables" => $arWorkflowVariables,
-				"formName" => $formName,
-				"arFieldTypes" => $arFieldTypes,
+				'arCurrentValues' => $arCurrentValues,
+				'documentService' => $documentService,
+				'documentType' => $documentType,
+				'arProperties' => $arWorkflowParameters,
+				'arVariables' => $arWorkflowVariables,
+				'formName' => $formName,
+				'arFieldTypes' => $arFieldTypes,
 			]
 		);
 	}
@@ -164,14 +164,11 @@ class CBPMixedCondition extends CBPActivityCondition
 	{
 		$errors = [];
 
-		if (
-			!array_key_exists("mixed_condition", $arCurrentValues)
-			|| !is_array($arCurrentValues["mixed_condition"])
-		)
+		if (!array_key_exists('mixed_condition', $arCurrentValues) || !is_array($arCurrentValues['mixed_condition']))
 		{
 			$errors[] = [
-				"code" => "",
-				"message" => GetMessage("BPMC_EMPTY_CONDITION"),
+				'code' => '',
+				'message' => \Bitrix\Main\Localization\Loc::getMessage('BPMC_EMPTY_CONDITION'),
 			];
 
 			return null;
@@ -199,7 +196,7 @@ class CBPMixedCondition extends CBPActivityCondition
 				$condition['operator'],
 				$documentType,
 				$property,
-				"mixed_condition_value_" . $index,
+				'mixed_condition_value_' . $index,
 				$arCurrentValues,
 			);
 			if (!$inputResult->isSuccess())
@@ -225,8 +222,8 @@ class CBPMixedCondition extends CBPActivityCondition
 		if (count($result) <= 0)
 		{
 			$errors[] = [
-				"code" => "",
-				"message" => GetMessage("BPMC_EMPTY_CONDITION"),
+				'code' => '',
+				'message' => \Bitrix\Main\Localization\Loc::getMessage('BPMC_EMPTY_CONDITION'),
 			];
 
 			return null;
@@ -235,7 +232,15 @@ class CBPMixedCondition extends CBPActivityCondition
 		return $result;
 	}
 
-	private static function getDialogProperty($object, $field, $documentType, $template, $parameters, $variables, $constants): ?array
+	private static function getDialogProperty(
+		$object,
+		$field,
+		$documentType,
+		$template,
+		$parameters,
+		$variables,
+		$constants
+	): ?array
 	{
 		switch ($object)
 		{
@@ -258,8 +263,8 @@ class CBPMixedCondition extends CBPActivityCondition
 				static $fields;
 				if (!$fields)
 				{
-					$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
-					$fields = $documentService->GetDocumentFields($documentType);
+					$documentService = CBPRuntime::getRuntime()->getDocumentService();
+					$fields = $documentService->getDocumentFields($documentType);
 				}
 
 				return $fields[$field] ?? null;
@@ -278,7 +283,7 @@ class CBPMixedCondition extends CBPActivityCondition
 			return null;
 		}
 
-		$props = \CBPRuntime::GetRuntime(true)->getActivityReturnProperties($activity);
+		$props = \CBPRuntime::getRuntime()->getActivityReturnProperties($activity);
 
 		return $props[$field] ?? null;
 	}

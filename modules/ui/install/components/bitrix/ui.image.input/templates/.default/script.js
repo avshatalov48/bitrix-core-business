@@ -1,9 +1,9 @@
+/* eslint-disable */
 (function (exports,main_core,main_core_events,main_loader) {
 	'use strict';
 
 	var _templateObject;
 	var instances = new Map();
-
 	var ImageInput = /*#__PURE__*/function () {
 	  babelHelpers.createClass(ImageInput, null, [{
 	    key: "getById",
@@ -11,7 +11,6 @@
 	      return instances.get(id) || null;
 	    }
 	  }]);
-
 	  function ImageInput() {
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ImageInput);
@@ -28,35 +27,29 @@
 	    this.loaderContainerId = params.loaderContainerId;
 	    this.settings = params.settings || {};
 	    this.disabled = params.disabled || false;
-
 	    if (this.disabled) {
 	      main_core.Event.bind(this.getContainer(), 'click', function (event) {
 	        event.stopPropagation();
 	        event.preventDefault();
 	      });
 	    }
-
 	    this.addImageHandler = this.addImage.bind(this);
 	    this.editImageHandler = this.editImage.bind(this);
 	    main_core_events.EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
 	    instances.set(this.instanceId, this);
 	  }
-
 	  babelHelpers.createClass(ImageInput, [{
 	    key: "handleOnUploaderIsInited",
 	    value: function handleOnUploaderIsInited(event) {
 	      var _this = this;
-
 	      var _event$getCompatData = event.getCompatData(),
-	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
-	          id = _event$getCompatData2[0],
-	          uploader = _event$getCompatData2[1];
-
+	        _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
+	        id = _event$getCompatData2[0],
+	        uploader = _event$getCompatData2[1];
 	      if (this.instanceId === id) {
 	        if (this.getPreviews().length > 0) {
 	          main_core.Dom.addClass(this.getFileWrapper(), 'ui-image-input-wrapper');
 	        }
-
 	        requestAnimationFrame(function () {
 	          _this.getLoaderContainer() && (_this.getLoaderContainer().style.display = 'none');
 	          _this.getContainer().style.display = '';
@@ -90,12 +83,10 @@
 	    value: function getContainer() {
 	      if (!this.container) {
 	        this.container = document.getElementById(this.containerId);
-
 	        if (!main_core.Type.isDomNode(this.container)) {
 	          throw Error("Can't find container with id ".concat(this.containerId));
 	        }
 	      }
-
 	      return this.container;
 	    }
 	  }, {
@@ -104,7 +95,6 @@
 	      if (!this.fileWrapper) {
 	        this.fileWrapper = this.getContainer().querySelector('.adm-fileinput-wrapper');
 	      }
-
 	      return this.fileWrapper;
 	    }
 	  }, {
@@ -113,7 +103,6 @@
 	      if (!this.loaderContainer) {
 	        this.loaderContainer = document.getElementById(this.loaderContainerId);
 	      }
-
 	      return this.loaderContainer;
 	    }
 	  }, {
@@ -122,7 +111,6 @@
 	      if (!this.addButton) {
 	        this.addButton = this.getContainer().querySelector('[data-role="image-add-button"]');
 	      }
-
 	      return this.addButton;
 	    }
 	  }, {
@@ -132,15 +120,14 @@
 	        // api call .click() to fire file upload dialog
 	        if (event.detail === 0) {
 	          return;
-	        } // disable default file dialog open
+	        }
+	        // disable default file dialog open
 	        else {
 	          event.preventDefault();
 	        }
 	      }
-
 	      var inputInstance = this.getInputInstance();
 	      var items = inputInstance.agent.getItems().items;
-
 	      for (var id in items) {
 	        if (items.hasOwnProperty(id)) {
 	          // hack to open editor (for unknown reasons the flag disappears)
@@ -160,7 +147,6 @@
 	    /**
 	     * @returns {Loader}
 	     */
-
 	  }, {
 	    key: "getLoader",
 	    value: function getLoader() {
@@ -169,7 +155,6 @@
 	          target: this.getFileWrapper().querySelector('.adm-fileinput-drag-area')
 	        });
 	      }
-
 	      return this.loader;
 	    }
 	  }, {
@@ -189,11 +174,9 @@
 	    key: "onFileIsDeletedHandler",
 	    value: function onFileIsDeletedHandler() {
 	      var _this2 = this;
-
 	      this.timeout = clearTimeout(this.timeout);
 	      this.timeout = setTimeout(function () {
 	        _this2.hideLoader();
-
 	        _this2.recalculateWrapper();
 	      }, 100);
 	    }
@@ -201,19 +184,15 @@
 	    key: "onUploadStartHandler",
 	    value: function onUploadStartHandler(event) {
 	      var _this3 = this;
-
 	      var _event$getCompatData3 = event.getCompatData(),
-	          _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
-	          stream = _event$getCompatData4[0];
-
+	        _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
+	        stream = _event$getCompatData4[0];
 	      if (stream) {
 	        this.uploading = true;
 	      }
-
 	      clearTimeout(this.timeout);
 	      this.timeout = setTimeout(function () {
 	        _this3.showLoader();
-
 	        _this3.recalculateWrapper();
 	      }, 100);
 	    }
@@ -221,17 +200,14 @@
 	    key: "onUploadDoneHandler",
 	    value: function onUploadDoneHandler(event) {
 	      var _this4 = this;
-
 	      var _event$getCompatData5 = event.getCompatData(),
-	          _event$getCompatData6 = babelHelpers.slicedToArray(_event$getCompatData5, 1),
-	          stream = _event$getCompatData6[0];
-
+	        _event$getCompatData6 = babelHelpers.slicedToArray(_event$getCompatData5, 1),
+	        stream = _event$getCompatData6[0];
 	      if (stream) {
 	        this.uploading = false;
 	        this.timeout = clearTimeout(this.timeout);
 	        requestAnimationFrame(function () {
 	          _this4.hideLoader();
-
 	          _this4.recalculateWrapper();
 	        });
 	      }
@@ -240,13 +216,11 @@
 	    key: "onFileCanvasIsLoadedHandler",
 	    value: function onFileCanvasIsLoadedHandler() {
 	      var _this5 = this;
-
 	      if (this.timeout && !this.uploading) {
 	        this.uploading = false;
 	        this.timeout = clearTimeout(this.timeout);
 	        requestAnimationFrame(function () {
 	          _this5.hideLoader();
-
 	          _this5.recalculateWrapper();
 	        });
 	      }
@@ -262,16 +236,12 @@
 	      if (wrapper.offsetParent === null) {
 	        return;
 	      }
-
 	      var shadowElement = wrapper.querySelector('div.ui-image-item-shadow');
-
 	      if (!shadowElement) {
 	        shadowElement = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-image-item-shadow\"></div>"])));
 	        main_core.Dom.prepend(shadowElement, wrapper);
 	      }
-
 	      var canvas = wrapper.querySelector('canvas');
-
 	      if (canvas) {
 	        var bottomMargin = 4;
 	        shadowElement.style.height = canvas.offsetHeight + 'px';
@@ -291,14 +261,12 @@
 	      var wrapper = this.getFileWrapper();
 	      var previews = this.getPreviews();
 	      var length = Math.min(previews.length, 3);
-
 	      if (length) {
 	        this.buildShadowElement(previews[0]);
 	        main_core.Dom.addClass(wrapper, 'ui-image-input-wrapper');
 	        this.getFileInput().style.display = 'none';
 	        main_core.Event.unbind(wrapper, 'click', this.editImageHandler);
 	        main_core.Event.bind(wrapper, 'click', this.editImageHandler);
-
 	        if (this.isMultipleInput()) {
 	          this.getAddButton().style.display = '';
 	          main_core.Event.unbindAll(this.getAddButton());
@@ -308,24 +276,20 @@
 	        main_core.Dom.removeClass(wrapper, 'ui-image-input-wrapper');
 	        this.getFileInput().style.display = '';
 	        main_core.Event.unbind(wrapper, 'click', this.editImageHandler);
-
 	        if (this.isMultipleInput()) {
 	          this.getAddButton().style.display = 'none';
 	          main_core.Event.unbindAll(this.getAddButton());
 	        }
 	      }
-
 	      switch (length) {
 	        case 3:
 	          main_core.Dom.addClass(wrapper, 'ui-image-input-wrapper-multiple');
 	          main_core.Dom.removeClass(wrapper, 'ui-image-input-wrapper-double');
 	          break;
-
 	        case 2:
 	          main_core.Dom.addClass(wrapper, 'ui-image-input-wrapper-double');
 	          main_core.Dom.removeClass(wrapper, 'ui-image-input-wrapper-multiple');
 	          break;
-
 	        default:
 	          main_core.Dom.removeClass(wrapper, 'ui-image-input-wrapper-double');
 	          main_core.Dom.removeClass(wrapper, 'ui-image-input-wrapper-multiple');
@@ -335,7 +299,6 @@
 	  }]);
 	  return ImageInput;
 	}();
-
 	main_core.Reflection.namespace('BX.UI').ImageInput = ImageInput;
 
 }((this.window = this.window || {}),BX,BX.Event,BX));

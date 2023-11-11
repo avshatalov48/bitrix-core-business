@@ -1,30 +1,33 @@
-import type {ImModelSidebarTaskItem} from 'im.v2.model';
-import {SidebarDetailBlock} from 'im.v2.const';
-import {SidebarCollectionFormatter} from '../../classes/sidebar-collection-formatter';
-import {MeetingMenu} from '../../classes/context-menu/meeting/meeting-menu';
-import {SidebarDetail} from '../detail';
-import {DateGroup} from '../date-group';
-import {MeetingItem} from './meeting-item';
-import {DetailEmptyState} from '../detail-empty-state';
+import { SidebarDetailBlock } from 'im.v2.const';
+
+import { SidebarCollectionFormatter } from '../../classes/sidebar-collection-formatter';
+import { MeetingMenu } from '../../classes/context-menu/meeting/meeting-menu';
+import { SidebarDetail } from '../detail';
+import { DateGroup } from '../date-group';
+import { MeetingItem } from './meeting-item';
+import { DetailEmptyState } from '../detail-empty-state';
+
 import '../../css/meeting/detail.css';
+
+import type { ImModelSidebarTaskItem } from 'im.v2.model';
 
 // @vue/component
 export const MeetingDetail = {
 	name: 'MeetingDetail',
-	components: {MeetingItem, DateGroup, SidebarDetail, DetailEmptyState},
+	components: { MeetingItem, DateGroup, SidebarDetail, DetailEmptyState },
 	props: {
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		chatId: {
 			type: Number,
-			required: true
+			required: true,
 		},
 		service: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	computed:
 	{
@@ -62,11 +65,11 @@ export const MeetingDetail = {
 		{
 			const item = {
 				...event,
-				dialogId: this.dialogId
+				dialogId: this.dialogId,
 			};
 
 			this.contextMenu.openMenu(item, target);
-		}
+		},
 	},
 	template: `
 		<SidebarDetail
@@ -77,19 +80,19 @@ export const MeetingDetail = {
 			v-slot="slotProps"
 			class="bx-im-sidebar-meeting-detail__scope"
 		>
-			<template v-for="dateGroup in formattedCollection">
+			<div v-for="dateGroup in formattedCollection" class="bx-im-sidebar-meeting-detail__date-group_container">
 				<DateGroup :dateText="dateGroup.dateGroupTitle" />
 				<MeetingItem
 					v-for="meeting in dateGroup.items"
 					:meeting="meeting"
 					@contextMenuClick="onContextMenuClick"
 				/>
-			</template>
+			</div>
 			<DetailEmptyState
 				v-if="!slotProps.isLoading && isEmptyState"
 				:title="$Bitrix.Loc.getMessage('IM_SIDEBAR_MEETINGS_EMPTY')"
 				:iconType="SidebarDetailBlock.meeting"
 			/>
 		</SidebarDetail>
-	`
+	`,
 };

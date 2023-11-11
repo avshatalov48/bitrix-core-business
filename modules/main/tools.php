@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 use Bitrix\Main;
@@ -13,6 +14,7 @@ use Bitrix\Main\Text;
 use Bitrix\Main\Application;
 use Bitrix\Main\Context;
 use Bitrix\Main\Security;
+use Bitrix\Main\SystemException;
 
 /**
  * @deprecated Use microtime(true)
@@ -732,8 +734,8 @@ function convertTimeToMilitary ($strTime, $fromFormat = 'H:MI T', $toFormat = 'H
 
 /**
  * @param string|array $format
- * @param int|bool|\Bitrix\Main\Type\Date $timestamp
- * @param int|bool|\Bitrix\Main\Type\Date $now
+ * @param int|bool|Main\Type\Date $timestamp
+ * @param int|bool|Main\Type\Date $now
  *
  * @return string
  */
@@ -745,7 +747,7 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 	{
 		$timestamp = time();
 	}
-	else if ($timestamp instanceof \Bitrix\Main\Type\Date)
+	else if ($timestamp instanceof Main\Type\Date)
 	{
 		$timestamp = $timestamp->getTimestamp();
 	}
@@ -758,7 +760,7 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 	{
 		$now = time();
 	}
-	else if ($now instanceof \Bitrix\Main\Type\Date)
+	else if ($now instanceof Main\Type\Date)
 	{
 		$now = $now->getTimestamp();
 	}
@@ -965,7 +967,7 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 	)/x", $format, 0, PREG_SPLIT_DELIM_CAPTURE);
 
 	$result = "";
-	$currentLanguage = \Bitrix\Main\Localization\Loc::getCurrentLang();
+	$currentLanguage = Main\Localization\Loc::getCurrentLang();
 	foreach($arFormatParts as $format_part)
 	{
 		switch($format_part)
@@ -1785,7 +1787,7 @@ function is_set(&$a, $k=false)
 }
 
 /**
- * @deprecated Use \Bitrix\Main\Security\Random
+ * @deprecated Use Main\Security\Random
  * @param int $pass_len
  * @param bool $pass_chars
  * @return string
@@ -1812,7 +1814,7 @@ function randString($pass_len=10, $pass_chars=false)
 
 /**
  * Alias for randString()
- * @deprecated Use \Bitrix\Main\Security\Random
+ * @deprecated Use Main\Security\Random
  * @param int $len
  * @return string
  */
@@ -2526,7 +2528,7 @@ function GetScriptFileExt()
 	if($FILEMAN_SCRIPT_EXT !== false)
 		return $FILEMAN_SCRIPT_EXT;
 
-	$script_files = COption::GetOptionString("fileman", "~script_files", "php,php3,php4,php5,php6,phtml,pl,asp,aspx,cgi,dll,exe,ico,shtm,shtml,fcg,fcgi,fpl,asmx,pht,py,psp,var");
+	$script_files = COption::GetOptionString("fileman", "~script_files", "php,php3,php4,php5,php6,php7,php8,phtml,pl,asp,aspx,cgi,dll,exe,ico,shtm,shtml,fcg,fcgi,fpl,asmx,pht,py,psp,var");
 	$arScriptFiles = array();
 	foreach(explode(",", mb_strtolower($script_files)) as $ext)
 		if(($e = trim($ext)) != "")
@@ -2866,7 +2868,7 @@ function Rel2Abs($curdir, $relpath)
 }
 
 /**
- * @deprecated Use \Bitrix\Main\IO\Path::normalize()
+ * @deprecated Use Main\IO\Path::normalize()
  */
 function _normalizePath($strPath)
 {
@@ -2938,7 +2940,7 @@ function GetMessage($name, $aReplace=null)
 		return $s;
 	}
 
-	return \Bitrix\Main\Localization\Loc::getMessage($name, $aReplace);
+	return Main\Localization\Loc::getMessage($name, $aReplace);
 }
 
 /**
@@ -2962,9 +2964,9 @@ function GetLangFileName($before, $after, $lang=false)
 	global $ALL_LANG_FILES;
 	$ALL_LANG_FILES[] = $before.$lang.$after;
 
-	if (\Bitrix\Main\Localization\Translation::allowConvertEncoding())
+	if (Main\Localization\Translation::allowConvertEncoding())
 	{
-		$langFile = \Bitrix\Main\Localization\Translation::convertLangPath($before. $lang. $after, $lang);
+		$langFile = Main\Localization\Translation::convertLangPath($before. $lang. $after, $lang);
 		if(file_exists($langFile))
 		{
 			return $langFile;
@@ -2991,14 +2993,14 @@ function GetLangFileName($before, $after, $lang=false)
 }
 
 /**
- * @deprecated Use \Bitrix\Main\Localization\Loc
+ * @deprecated Use Main\Localization\Loc
  */
 function __IncludeLang($path, $bReturnArray=false, $bFileChecked=false)
 {
 	global $ALL_LANG_FILES;
 	$ALL_LANG_FILES[] = $path;
 
-	if (\Bitrix\Main\Localization\Translation::allowConvertEncoding())
+	if (Main\Localization\Translation::allowConvertEncoding())
 	{
 		// extract language from path
 		$language = '';
@@ -3016,12 +3018,12 @@ function __IncludeLang($path, $bReturnArray=false, $bFileChecked=false)
 		}
 		else
 		{
-			$convertEncoding = \Bitrix\Main\Localization\Translation::needConvertEncoding($language);
+			$convertEncoding = Main\Localization\Translation::needConvertEncoding($language);
 			$targetEncoding = $sourceEncoding = '';
 			if ($convertEncoding)
 			{
-				$targetEncoding = \Bitrix\Main\Localization\Translation::getCurrentEncoding();
-				$sourceEncoding = \Bitrix\Main\Localization\Translation::getSourceEncoding($language);
+				$targetEncoding = Main\Localization\Translation::getCurrentEncoding();
+				$sourceEncoding = Main\Localization\Translation::getSourceEncoding($language);
 			}
 
 			$encodingCache[$language] = array($convertEncoding, $targetEncoding, $sourceEncoding);
@@ -3034,7 +3036,7 @@ function __IncludeLang($path, $bReturnArray=false, $bFileChecked=false)
 		}
 		else
 		{
-			$path = \Bitrix\Main\Localization\Translation::convertLangPath($path, LANGUAGE_ID);
+			$path = Main\Localization\Translation::convertLangPath($path, LANGUAGE_ID);
 			if (file_exists($path))
 			{
 				include($path);
@@ -3045,14 +3047,14 @@ function __IncludeLang($path, $bReturnArray=false, $bFileChecked=false)
 		{
 			if ($convertEncoding)
 			{
-				$convertEncoding = \Bitrix\Main\Localization\Translation::checkPathRestrictionConvertEncoding($path);
+				$convertEncoding = Main\Localization\Translation::checkPathRestrictionConvertEncoding($path);
 			}
 
 			foreach ($MESS as $key => $val)
 			{
 				if ($convertEncoding)
 				{
-					$val = \Bitrix\Main\Text\Encoding::convertEncoding($val, $sourceEncoding, $targetEncoding);
+					$val = Main\Text\Encoding::convertEncoding($val, $sourceEncoding, $targetEncoding);
 				}
 
 				$MESS[$key] = $val;
@@ -3081,7 +3083,7 @@ function __IncludeLang($path, $bReturnArray=false, $bFileChecked=false)
 		}
 		else
 		{
-			$path = \Bitrix\Main\Localization\Translation::convertLangPath($path, LANGUAGE_ID);
+			$path = Main\Localization\Translation::convertLangPath($path, LANGUAGE_ID);
 			if (file_exists($path))
 			{
 				include($path);
@@ -3116,7 +3118,7 @@ function __IncludeLang($path, $bReturnArray=false, $bFileChecked=false)
 }
 
 /**
- * @deprecated Use \Bitrix\Main\Localization\Loc
+ * @deprecated Use Main\Localization\Loc
  */
 function IncludeTemplateLangFile($filepath, $lang=false)
 {
@@ -3183,7 +3185,7 @@ function IncludeTemplateLangFile($filepath, $lang=false)
 		if ($subst_lang <> $lang)
 		{
 			$fname = $module_path.$module_name."/install/templates/lang/".$subst_lang."/".$file_name;
-			$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $subst_lang);
+			$fname = Main\Localization\Translation::convertLangPath($fname, $subst_lang);
 			if (file_exists($fname))
 			{
 				__IncludeLang($fname, false, true);
@@ -3191,7 +3193,7 @@ function IncludeTemplateLangFile($filepath, $lang=false)
 		}
 
 		$fname = $module_path.$module_name."/install/templates/lang/".$lang."/".$file_name;
-		$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang);
+		$fname = Main\Localization\Translation::convertLangPath($fname, $lang);
 		if (file_exists($fname))
 		{
 			__IncludeLang($fname, false, true);
@@ -3208,7 +3210,7 @@ function IncludeTemplateLangFile($filepath, $lang=false)
 		if ($subst_lang <> $lang)
 		{
 			$fname = $templ_path.$template_name."/lang/".$subst_lang."/".$file_name;
-			$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $subst_lang);
+			$fname = Main\Localization\Translation::convertLangPath($fname, $subst_lang);
 			if (file_exists($fname))
 			{
 				__IncludeLang($fname, false, true);
@@ -3218,7 +3220,7 @@ function IncludeTemplateLangFile($filepath, $lang=false)
 
 		// required lang
 		$fname = $templ_path.$template_name."/lang/".$lang."/".$file_name;
-		$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang);
+		$fname = Main\Localization\Translation::convertLangPath($fname, $lang);
 		if (file_exists($fname))
 		{
 			__IncludeLang($fname, false, true);
@@ -3231,7 +3233,7 @@ function IncludeTemplateLangFile($filepath, $lang=false)
 			if ($subst_lang <> $lang)
 			{
 				$fname = $templ_path.".default/lang/".$subst_lang."/".$file_name;
-				$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $subst_lang);
+				$fname = Main\Localization\Translation::convertLangPath($fname, $subst_lang);
 				if (file_exists($fname))
 				{
 					__IncludeLang($fname, false, true);
@@ -3240,7 +3242,7 @@ function IncludeTemplateLangFile($filepath, $lang=false)
 			}
 
 			$fname = $templ_path.".default/lang/".$lang."/".$file_name;
-			$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang);
+			$fname = Main\Localization\Translation::convertLangPath($fname, $lang);
 			if (file_exists($fname))
 			{
 				__IncludeLang($fname, false, true);
@@ -3253,7 +3255,7 @@ function IncludeTemplateLangFile($filepath, $lang=false)
 		if ($subst_lang <> $lang)
 		{
 			$fname = $module_path.$module_name."/install/templates/lang/".$subst_lang."/".$file_name;
-			$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $subst_lang);
+			$fname = Main\Localization\Translation::convertLangPath($fname, $subst_lang);
 			if (file_exists($fname))
 			{
 				__IncludeLang($fname, false, true);
@@ -3261,7 +3263,7 @@ function IncludeTemplateLangFile($filepath, $lang=false)
 		}
 
 		$fname = $module_path.$module_name."/install/templates/lang/".$lang."/".$file_name;
-		$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang);
+		$fname = Main\Localization\Translation::convertLangPath($fname, $lang);
 		if(file_exists($fname))
 		{
 			__IncludeLang($fname, false, true);
@@ -3275,7 +3277,7 @@ function IncludeModuleLangFile($filepath, $lang=false, $bReturnArray=false)
 {
 	if($lang === false && $bReturnArray === false)
 	{
-		\Bitrix\Main\Localization\Loc::loadMessages($filepath);
+		Main\Localization\Loc::loadMessages($filepath);
 		return true;
 	}
 
@@ -3316,7 +3318,7 @@ function IncludeModuleLangFile($filepath, $lang=false, $bReturnArray=false)
 	if ($lang_subst <> $lang)
 	{
 		$fname = $module_path."/lang/".$lang_subst."/".$rel_path;
-		$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang_subst);
+		$fname = Main\Localization\Translation::convertLangPath($fname, $lang_subst);
 		if (file_exists($fname))
 		{
 			$arMess = __IncludeLang($fname, $bReturnArray, true);
@@ -3324,7 +3326,7 @@ function IncludeModuleLangFile($filepath, $lang=false, $bReturnArray=false)
 	}
 
 	$fname = $module_path."/lang/".$lang."/".$rel_path;
-	$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang);
+	$fname = Main\Localization\Translation::convertLangPath($fname, $lang);
 	if (file_exists($fname))
 	{
 		$msg = __IncludeLang($fname, $bReturnArray, true);
@@ -3343,7 +3345,7 @@ function IncludeModuleLangFile($filepath, $lang=false, $bReturnArray=false)
 }
 
 /**
- * @deprecated Use \Bitrix\Main\Localization\Loc
+ * @deprecated Use Main\Localization\Loc
  */
 function LangSubst($lang)
 {
@@ -4497,6 +4499,9 @@ function bxmail($to, $subject, $message, $additional_headers="", $additional_par
 		return $mailer->sendMailBySmtp($to, $subject, $message, $additional_headers, $additional_parameters);
 	}
 
+	//message must not contain any null bytes
+	$message = str_replace("\0", ' ', $message);
+
 	if(function_exists("custom_mail"))
 	{
 		return custom_mail($to, $subject, $message, $additional_headers, $additional_parameters, $context);
@@ -4521,7 +4526,7 @@ function bx_accelerator_reset()
 }
 
 /**
- * @deprecated Use \Bitrix\Main\Config\Ini::getBool().
+ * @deprecated Use Main\Config\Ini::getBool().
  */
 function ini_get_bool($param)
 {
@@ -4545,7 +4550,7 @@ function ini_get_bool($param)
  */
 function sortByColumn(array &$array, $columns, $callbacks = '', $defaultValueIfNotSetValue = null, $preserveKeys = false)
 {
-	\Bitrix\Main\Type\Collection::sortByColumn($array, $columns, $callbacks, $defaultValueIfNotSetValue, $preserveKeys);
+	Main\Type\Collection::sortByColumn($array, $columns, $callbacks, $defaultValueIfNotSetValue, $preserveKeys);
 }
 
 function getLocalPath($path, $baseFolder = "/bitrix")
@@ -4566,6 +4571,19 @@ function getLocalPath($path, $baseFolder = "/bitrix")
 	{
 		return $baseFolder."/".$path;
 	}
+
+	// cli repository mode
+	if (empty($_SERVER["DOCUMENT_ROOT"]) || defined('REPOSITORY_ROOT'))
+	{
+		$root = realpath(__DIR__ . '/../../');
+		$localPath = $root . '/' . $path;
+
+		if (file_exists($localPath))
+		{
+			return $localPath;
+		}
+	}
+
 	return false;
 }
 
@@ -4575,7 +4593,7 @@ function getLocalPath($path, $baseFolder = "/bitrix")
  */
 function setSessionExpired($pIsExpired = true)
 {
-	\Bitrix\Main\Application::getInstance()->getKernelSession()->set("IS_EXPIRED", $pIsExpired);
+	Application::getInstance()->getKernelSession()->set("IS_EXPIRED", $pIsExpired);
 }
 
 /**
@@ -4583,7 +4601,7 @@ function setSessionExpired($pIsExpired = true)
  */
 function isSessionExpired()
 {
-	return \Bitrix\Main\Application::getInstance()->getKernelSession()->get("IS_EXPIRED") === true;
+	return Application::getInstance()->getKernelSession()->get("IS_EXPIRED") === true;
 }
 
 $SHOWIMAGEFIRST = false;
@@ -4591,4 +4609,178 @@ $SHOWIMAGEFIRST = false;
 function ShowImage($PICTURE_ID, $iMaxW=0, $iMaxH=0, $sParams=false, $strImageUrl="", $bPopup=false, $strPopupTitle=false,$iSizeWHTTP=0, $iSizeHHTTP=0)
 {
 	return CFile::ShowImage($PICTURE_ID, $iMaxW, $iMaxH, $sParams, $strImageUrl, $bPopup, $strPopupTitle,$iSizeWHTTP, $iSizeHHTTP);
+}
+
+function BXClearCache($full = false, $initdir = '')
+{
+	return CPHPCache::ClearCache($full, $initdir);
+}
+
+function RegisterModule($id)
+{
+	Main\ModuleManager::registerModule($id);
+}
+
+function UnRegisterModule($id)
+{
+	Main\ModuleManager::unRegisterModule($id);
+}
+
+function AddEventHandler($FROM_MODULE_ID, $MESSAGE_ID, $CALLBACK, $SORT=100, $FULL_PATH = false)
+{
+	$eventManager = Main\EventManager::getInstance();
+	return $eventManager->addEventHandlerCompatible($FROM_MODULE_ID, $MESSAGE_ID, $CALLBACK, $FULL_PATH, $SORT);
+}
+
+function RemoveEventHandler($FROM_MODULE_ID, $MESSAGE_ID, $iEventHandlerKey)
+{
+	$eventManager = Main\EventManager::getInstance();
+	return $eventManager->removeEventHandler($FROM_MODULE_ID, $MESSAGE_ID, $iEventHandlerKey);
+}
+
+function GetModuleEvents($MODULE_ID, $MESSAGE_ID, $bReturnArray = false)
+{
+	$eventManager = Main\EventManager::getInstance();
+	$arrResult = $eventManager->findEventHandlers($MODULE_ID, $MESSAGE_ID);
+
+	foreach($arrResult as $k => $event)
+	{
+		$arrResult[$k]['FROM_MODULE_ID'] = $MODULE_ID;
+		$arrResult[$k]['MESSAGE_ID'] = $MESSAGE_ID;
+	}
+
+	if($bReturnArray)
+	{
+		return $arrResult;
+	}
+	else
+	{
+		$resRS = new CDBResult;
+		$resRS->InitFromArray($arrResult);
+		return $resRS;
+	}
+}
+
+/**
+ * @deprecated
+ */
+function ExecuteModuleEvent($arEvent)
+{
+	$args = [];
+	for ($i = 1, $nArgs = func_num_args(); $i < $nArgs; $i++)
+	{
+		$args[] = func_get_arg($i);
+	}
+
+	return ExecuteModuleEventEx($arEvent, $args);
+}
+
+function ExecuteModuleEventEx($arEvent, $arParams = [])
+{
+	$result = true;
+
+	if(
+		isset($arEvent["TO_MODULE_ID"])
+		&& $arEvent["TO_MODULE_ID"]<>""
+		&& $arEvent["TO_MODULE_ID"]<>"main"
+	)
+	{
+		if(!CModule::IncludeModule($arEvent["TO_MODULE_ID"]))
+		{
+			return null;
+		}
+	}
+	elseif(
+		isset($arEvent["TO_PATH"])
+		&& $arEvent["TO_PATH"]<>""
+		&& file_exists($_SERVER["DOCUMENT_ROOT"].BX_ROOT.$arEvent["TO_PATH"])
+	)
+	{
+		$result = include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT.$arEvent["TO_PATH"]);
+	}
+	elseif(
+		isset($arEvent["FULL_PATH"])
+		&& $arEvent["FULL_PATH"]<>""
+		&& file_exists($arEvent["FULL_PATH"])
+	)
+	{
+		$result = include_once($arEvent["FULL_PATH"]);
+	}
+
+	if ((empty($arEvent["TO_CLASS"]) || empty($arEvent["TO_METHOD"])) && !isset($arEvent["CALLBACK"]))
+	{
+		return $result;
+	}
+
+	if (isset($arEvent["TO_METHOD_ARG"]) && is_array($arEvent["TO_METHOD_ARG"]) && !empty($arEvent["TO_METHOD_ARG"]))
+	{
+		$args = array_merge($arEvent["TO_METHOD_ARG"], $arParams);
+	}
+	else
+	{
+		$args = $arParams;
+	}
+
+	//TODO: Возможно заменить на EventManager::getInstance()->getLastEvent();
+	global $BX_MODULE_EVENT_LAST;
+	$BX_MODULE_EVENT_LAST = $arEvent;
+
+	if (isset($arEvent["CALLBACK"]))
+	{
+		$result = call_user_func_array($arEvent["CALLBACK"], $args);
+	}
+	else
+	{
+		//php bug: http://bugs.php.net/bug.php?id=47948
+		if (class_exists($arEvent["TO_CLASS"]) && is_callable([$arEvent["TO_CLASS"], $arEvent["TO_METHOD"]]))
+		{
+			$result =  call_user_func_array([$arEvent["TO_CLASS"], $arEvent["TO_METHOD"]], $args);
+		}
+		else
+		{
+			$exception = new SystemException("Event handler error: could not invoke {$arEvent["TO_CLASS"]}::{$arEvent["TO_METHOD"]}. Class or method does not exist.");
+			$application = Application::getInstance();
+			$exceptionHandler = $application->getExceptionHandler();
+			$exceptionHandler->writeToLog($exception);
+
+			$result = null;
+		}
+	}
+
+	return $result;
+}
+
+function UnRegisterModuleDependences($FROM_MODULE_ID, $MESSAGE_ID, $TO_MODULE_ID, $TO_CLASS="", $TO_METHOD="", $TO_PATH="", $TO_METHOD_ARG = array())
+{
+	$eventManager = Main\EventManager::getInstance();
+	$eventManager->unRegisterEventHandler($FROM_MODULE_ID, $MESSAGE_ID, $TO_MODULE_ID, $TO_CLASS, $TO_METHOD, $TO_PATH, $TO_METHOD_ARG);
+}
+
+function RegisterModuleDependences($FROM_MODULE_ID, $MESSAGE_ID, $TO_MODULE_ID, $TO_CLASS="", $TO_METHOD="", $SORT=100, $TO_PATH="", $TO_METHOD_ARG = array())
+{
+	$eventManager = Main\EventManager::getInstance();
+	$eventManager->registerEventHandlerCompatible($FROM_MODULE_ID, $MESSAGE_ID, $TO_MODULE_ID, $TO_CLASS, $TO_METHOD, $SORT, $TO_PATH, $TO_METHOD_ARG);
+}
+
+function IsModuleInstalled($module_id)
+{
+	return Main\ModuleManager::isModuleInstalled($module_id);
+}
+
+function GetModuleID($str)
+{
+	$arr = explode("/",$str);
+	$i = array_search("modules",$arr);
+	return $arr[$i+1];
+}
+
+/**
+ * @deprecated Use version_compare()
+ * Returns TRUE if version1 >= version2
+ * version1 = "XX.XX.XX"
+ * version2 = "XX.XX.XX"
+ */
+function CheckVersion($version1, $version2)
+{
+	return (version_compare($version1, $version2) >= 0);
 }

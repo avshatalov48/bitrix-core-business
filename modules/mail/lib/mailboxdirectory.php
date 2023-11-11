@@ -293,7 +293,7 @@ class MailboxDirectory
 			],
 			'select'  => ['MIN_SYNC_TIME'],
 			'runtime' => [
-				new ExpressionField('MIN_SYNC_TIME', 'MIN(IFNULL(%s, 0))', 'SYNC_TIME'),
+				new ExpressionField('MIN_SYNC_TIME', 'MIN(COALESCE(%s, 0))', 'SYNC_TIME'),
 			]
 		])->fetch();
 

@@ -41,6 +41,7 @@ Extension::load([
 				rowIdMask: '<?=CUtil::JSEscape($arParams['ROW_ID_MASK'])?>',
 				mode: '<?=CUtil::JSEscape($arResult['MODE'])?>',
 				fileType: '<?=CUtil::JSEscape($arResult['FILE_TYPE'])?>',
+				columnName: '<?=CUtil::JSEscape($arResult['COLUMN_NAME'])?>',
 				immutableFields: ['NAME'],
 				storeMap: [],
 			}

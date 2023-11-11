@@ -275,14 +275,9 @@ ob_end_clean();
 
 if($oRequest->Internal())
 {
+	$APPLICATION->RestartBuffer();
 	$oResponse->Send();
-	//This will execute Epilog handlers
-	//needed to clear pages cache when activation/deactivation of this site happend
-	//or other controller activity detected which may concern about
-	//site contents
-	$db_events = GetModuleEvents("main", "OnEpilog");
-	while($arEvent = $db_events->Fetch())
-		ExecuteModuleEventEx($arEvent);
+	require_once(__DIR__."/../include/epilog_after.php");
 }
 else
 {
@@ -299,6 +294,3 @@ else
 	}
 	require_once(__DIR__."/../include/epilog.php");
 }
-
-//echo '<HR>c='.$c."<hR>";
-?>

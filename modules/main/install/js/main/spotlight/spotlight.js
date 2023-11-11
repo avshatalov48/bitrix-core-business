@@ -18,6 +18,7 @@
 		this.lightMode = false;
 		this.autoSave = false;
 		this.zIndex = null;
+		this.color = null;
 
 		this.observerTimeoutId = null;
 		this.observerTimeout = 1000;
@@ -215,6 +216,21 @@
 			}
 		},
 
+		getColor: function()
+		{
+			return this.color;
+		},
+
+		setColor: function(color)
+		{
+			this.color = color;
+
+			if (BX.type.isDomNode(this.container))
+			{
+				this.container.style.color = this.getColor();
+			}
+		},
+
 		getAutoSave: function()
 		{
 			return this.autoSave;
@@ -386,6 +402,7 @@
 			this.container.style.left = left + this.getOffsetLeft() + "px";
 			this.container.style.top = top + this.getOffsetTop() + "px";
 			this.container.style.zIndex = this.getZindex();
+			this.container.style.color = this.getColor();
 		},
 
 		handlePageResize: function()

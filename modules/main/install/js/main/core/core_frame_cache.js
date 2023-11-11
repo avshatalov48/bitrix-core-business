@@ -234,7 +234,20 @@
 			const items = styles.concat(scripts);
 			if (items.length > 0)
 			{
-				BX.load(items, callback)
+				let callOnce = false;
+				const callbackOnce = () => {
+					if (callOnce)
+					{
+						console.log('BX.load invoked callback twice', block);
+					}
+					else
+					{
+						callOnce = true;
+						callback();
+					}
+				};
+
+				BX.load(items, callbackOnce);
 			}
 			else
 			{
@@ -808,4 +821,3 @@
 	BX.frameCache.init();
 
 })(window);
-

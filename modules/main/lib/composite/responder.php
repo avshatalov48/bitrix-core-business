@@ -260,7 +260,7 @@ class Responder
 					$contents = Helper::gzdecode($contents);
 				}
 
-				header("Content-Length: ".Helper::getBinaryLength($contents));
+				header("Content-Length: " . strlen($contents));
 				echo $contents;
 			}
 

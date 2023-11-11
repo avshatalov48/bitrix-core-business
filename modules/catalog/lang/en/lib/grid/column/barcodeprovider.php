@@ -1,0 +1,2 @@
+<?php
+$MESS['BARCODE_COLUMN_PROVIDER_FIELD_BARCODE'] = "Bar code";

@@ -500,7 +500,9 @@
 
 .popup-window-resource-select{
 	max-height: 350px;
-	overflow: auto;
+}
+.popup-window-resource-select .popup-window-content {
+	overflow-x: auto;
 }
 .popup-window-resource-select .calendar-resourcebook-content-block-control-delete {
 	width: 25px;
@@ -544,10 +546,6 @@
 }
 .menu-popup-item-resource-all .menu-popup-item-icon{
 	display: none;
-}
-
-.menu-popup{
-	overflow: hidden;
 }
 
 .popup-window-resource-select .menu-popup .menu-popup-item {
@@ -752,7 +750,6 @@ input[type="radio"]:checked + .menu-popup-item-text:before {
 .calendar-resourcebook-select-popup {
 	opacity: 1;
 	max-height: 0;
-	overflow: hidden;
 	transition: 400ms all ease;
 }
 
@@ -783,7 +780,6 @@ input[type="radio"]:checked + .menu-popup-item-text:before {
 }
 
 .calendar-resourcebook-select-popup {
-	overflow: auto;
 	max-height: 300px;
 }
 

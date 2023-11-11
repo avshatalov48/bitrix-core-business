@@ -3,12 +3,12 @@
 namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\Image\BaseImage;
 use Bitrix\Catalog\v2\Image\DetailImage;
 use Bitrix\Catalog\v2\Image\MorePhotoImage;
 use Bitrix\Catalog\v2\Image\PreviewImage;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
-use Bitrix\Catalog\v2\Sku\BaseSku;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\FileTable;
@@ -49,15 +49,15 @@ final class ProductImage extends Controller
 			return null;
 		}
 
-		$sku = $this->getSku($productId);
-		if (!$sku)
+		$product = $this->getProduct($productId);
+		if (!$product)
 		{
 			$this->addError(new Error('Product was not found'));
 			return null;
 		}
 
 
-		$r = $this->checkPermissionProductRead($sku);
+		$r = $this->checkPermissionProductRead($product);
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
@@ -65,7 +65,7 @@ final class ProductImage extends Controller
 		}
 
 		$result = [];
-		foreach ($sku->getImageCollection() as $image)
+		foreach ($product->getImageCollection() as $image)
 		{
 			$result[] = $this->prepareFileStructure($image, $restServer, $select);
 		}
@@ -88,21 +88,21 @@ final class ProductImage extends Controller
 	 */
 	public function getAction(int $id, int $productId, \CRestServer $restServer = null): ?array
 	{
-		$sku = $this->getSku($productId);
-		if (!$sku)
+		$product = $this->getProduct($productId);
+		if (!$product)
 		{
 			$this->addError(new Error('Product was not found'));
 			return null;
 		}
 
-		$r = $this->checkPermissionProductRead($sku);
+		$r = $this->checkPermissionProductRead($product);
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
 			return null;
 		}
 
-		$r = $this->hasImage($id, $sku);
+		$r = $this->hasImage($id, $product);
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
@@ -110,7 +110,7 @@ final class ProductImage extends Controller
 		}
 
 		/** @var BaseImage $image */
-		$image = $sku->getImageCollection()->findById($id);
+		$image = $product->getImageCollection()->findById($id);
 
 		return ['PRODUCT_IMAGE' => $this->prepareFileStructure($image, $restServer)];
 	}
@@ -131,14 +131,14 @@ final class ProductImage extends Controller
 			return null;
 		}
 
-		$sku = $this->getSku((int)$fields['PRODUCT_ID']);
-		if (!$sku)
+		$product = $this->getProduct((int)$fields['PRODUCT_ID']);
+		if (!$product)
 		{
 			$this->addError(new Error('Product was not found'));
 			return null;
 		}
 
-		$r = $this->checkPermissionProductWrite($sku);
+		$r = $this->checkPermissionProductWrite($product);
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
@@ -161,15 +161,15 @@ final class ProductImage extends Controller
 
 		if ($fields['TYPE'] === DetailImage::CODE)
 		{
-			$sku->getImageCollection()->getDetailImage()->setFileStructure($fileData);
+			$product->getImageCollection()->getDetailImage()->setFileStructure($fileData);
 		}
 		elseif ($fields['TYPE'] === PreviewImage::CODE)
 		{
-			$sku->getImageCollection()->getPreviewImage()->setFileStructure($fileData);
+			$product->getImageCollection()->getPreviewImage()->setFileStructure($fileData);
 		}
 		else
 		{
-			if (!$sku->getPropertyCollection()->findByCode(MorePhotoImage::CODE))
+			if (!$product->getPropertyCollection()->findByCode(MorePhotoImage::CODE))
 			{
 				$this->addError(
 					new Error(
@@ -180,10 +180,10 @@ final class ProductImage extends Controller
 				return null;
 			}
 
-			$sku->getImageCollection()->addValue($fileData);
+			$product->getImageCollection()->addValue($fileData);
 		}
 
-		$r = $sku->save();
+		$r = $product->save();
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
@@ -191,15 +191,15 @@ final class ProductImage extends Controller
 
 		if ($fields['TYPE'] === DetailImage::CODE)
 		{
-			$image = $sku->getImageCollection()->getDetailImage();
+			$image = $product->getImageCollection()->getDetailImage();
 		}
 		elseif ($fields['TYPE'] === PreviewImage::CODE)
 		{
-			$image = $sku->getImageCollection()->getPreviewImage();
+			$image = $product->getImageCollection()->getPreviewImage();
 		}
 		else
 		{
-			$morePhotos = $sku->getImageCollection()->getMorePhotos();
+			$morePhotos = $product->getImageCollection()->getMorePhotos();
 			$image = end($morePhotos);
 		}
 
@@ -216,34 +216,34 @@ final class ProductImage extends Controller
 	 */
 	public function deleteAction(int $id, int $productId): ?bool
 	{
-		$sku = $this->getSku($productId);
-		if (!$sku)
+		$product = $this->getProduct($productId);
+		if (!$product)
 		{
 			$this->addError(new Error('Product was not found'));
 			return null;
 		}
 
-		$r = $this->checkPermissionProductWrite($sku);
+		$r = $this->checkPermissionProductWrite($product);
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
 			return null;
 		}
 
-		$r = $this->hasImage($id, $sku);
+		$r = $this->hasImage($id, $product);
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
 			return null;
 		}
 
-		$sku
+		$product
 			->getImageCollection()
 			->findById($id)
 			->remove()
 		;
 
-		$r = $sku->save();
+		$r = $product->save();
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
@@ -310,12 +310,12 @@ final class ProductImage extends Controller
 		return new FileTable();
 	}
 
-	private function getSku(int $skuId): ?BaseSku
+	private function getProduct(int $productId): ?BaseEntity
 	{
-		return ServiceContainer::getRepositoryFacade()->loadVariation($skuId);
+		return ServiceContainer::getRepositoryFacade()->loadProduct($productId);
 	}
 
-	private function hasImage(int $id, BaseSku $sku): Result
+	private function hasImage(int $id, BaseEntity $product): Result
 	{
 		$r = $this->exists($id);
 		if (!$r->isSuccess())
@@ -323,7 +323,7 @@ final class ProductImage extends Controller
 			return $r;
 		}
 
-		$image = $sku->getImageCollection()->findById($id);
+		$image = $product->getImageCollection()->findById($id);
 		if (!$image)
 		{
 			$r->addError(new Error('Image does not exist'));
@@ -343,7 +343,7 @@ final class ProductImage extends Controller
 		return $r;
 	}
 
-	private function checkPermissionProductRead(BaseSku $sku): Result
+	private function checkPermissionProductRead(BaseEntity $product): Result
 	{
 		$r = $this->checkReadPermissionEntity();
 		if (!$r->isSuccess())
@@ -351,10 +351,10 @@ final class ProductImage extends Controller
 			return $r;
 		}
 
-		return $this->checkPermissionProduct($sku, self::IBLOCK_ELEMENT_READ, 200040300010);
+		return $this->checkPermissionProduct($product, self::IBLOCK_ELEMENT_READ, 200040300010);
 	}
 
-	private function checkPermissionProductWrite(BaseSku $sku): Result
+	private function checkPermissionProductWrite(BaseEntity $product): Result
 	{
 		$r = $this->checkModifyPermissionEntity();
 		if (!$r->isSuccess())
@@ -362,13 +362,13 @@ final class ProductImage extends Controller
 			return $r;
 		}
 
-		return $this->checkPermissionProduct($sku, self::IBLOCK_ELEMENT_EDIT, 200040300020);
+		return $this->checkPermissionProduct($product, self::IBLOCK_ELEMENT_EDIT, 200040300020);
 	}
 
-	private function checkPermissionProduct(BaseSku $sku, string $permission, int $errorCode): Result
+	private function checkPermissionProduct(BaseEntity $product, string $permission, int $errorCode): Result
 	{
 		$r = new Result();
-		if(!\CIBlockElementRights::UserHasRightTo($sku->getIblockId(), $sku->getId(), $permission))
+		if(!\CIBlockElementRights::UserHasRightTo($product->getIblockId(), $product->getId(), $permission))
 		{
 			$r->addError(new Error('Access Denied', $errorCode));
 		}

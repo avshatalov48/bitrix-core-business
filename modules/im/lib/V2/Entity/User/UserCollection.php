@@ -4,6 +4,8 @@ namespace Bitrix\Im\V2\Entity\User;
 
 use Bitrix\Im\Model\StatusTable;
 use Bitrix\Im\V2\Entity\EntityCollection;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\UserTable;
 
 /**
@@ -42,10 +44,17 @@ class UserCollection extends EntityCollection
 			return;
 		}
 
-		$select = ['USER_ID', 'STATUS', 'IDLE', 'MOBILE_LAST_DATE', 'LAST_ACTIVITY_DATE' => 'USER.LAST_ACTIVITY_DATE'];
-		$statusesData = StatusTable::query()
-			->setSelect($select)
-			->whereIn('USER_ID', $idsUsersWithoutOnlineData)
+		$statusesData = UserTable::query()
+			->setSelect(User::ONLINE_DATA_SELECTED_FIELDS)
+			->registerRuntimeField(
+				new Reference(
+					'STATUS',
+					StatusTable::class,
+					Join::on('this.ID', 'ref.USER_ID'),
+					['join_type' => Join::TYPE_LEFT]
+				)
+			)
+			->whereIn('ID', $idsUsersWithoutOnlineData)
 			->fetchAll() ?: []
 		;
 

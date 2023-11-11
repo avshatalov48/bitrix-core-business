@@ -455,7 +455,7 @@ BX.TileGrid.Grid.prototype =
 
 	getContainerWidth: function()
 	{
-		this.containerWidth = this.renderTo.offsetWidth;
+		this.containerWidth = this.renderTo.offsetWidth || this.containerWidth;
 		return this.containerWidth
 	},
 

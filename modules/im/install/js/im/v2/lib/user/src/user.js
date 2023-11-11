@@ -1,7 +1,7 @@
-import {Type} from 'main.core';
+import { Type } from 'main.core';
 
-import {Core} from 'im.v2.application.core';
-import {DialogType} from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
+import { DialogType, UserRole } from 'im.v2.const';
 
 export class UserManager
 {
@@ -19,13 +19,14 @@ export class UserManager
 			avatar: user.avatar,
 			color: user.color,
 			name: user.name,
-			type: DialogType.user
+			type: DialogType.user,
+			role: UserRole.member,
 		};
 	}
 
 	setUsersToModel(rawUsers: Object[]): Promise
 	{
-		const {users, dialogues} = this.#prepareUsersForStore(rawUsers);
+		const { users, dialogues } = this.#prepareUsersForStore(rawUsers);
 
 		const usersPromise = this.store.dispatch('users/set', users);
 		const dialoguesPromise = this.store.dispatch('dialogues/set', dialogues);
@@ -35,7 +36,7 @@ export class UserManager
 
 	addUsersToModel(rawUsers: Object[]): Promise
 	{
-		const {users, dialogues} = this.#prepareUsersForStore(rawUsers);
+		const { users, dialogues } = this.#prepareUsersForStore(rawUsers);
 
 		const usersPromise = this.store.dispatch('users/add', users);
 		const dialoguesPromise = this.store.dispatch('dialogues/add', dialogues);
@@ -51,10 +52,10 @@ export class UserManager
 		}
 
 		const dialogues = [];
-		users.forEach(user => {
+		users.forEach((user) => {
 			dialogues.push(UserManager.getDialogForUser(user));
 		});
 
-		return {users, dialogues};
+		return { users, dialogues };
 	}
 }

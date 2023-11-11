@@ -236,60 +236,60 @@ return array(
 			array (
 				'CODE' => '34.3.four_cols_countdown',
 				'SORT' => '2000',
-				'CONTENT' => '<section class="landing-block landing-semantic-background-color g-pt-60 g-pb-60 g-bg-primary">
+				'CONTENT' => '<section class="landing-block g-pt-60 g-pb-60 g-bg-primary">
 	<div class="container">
 		<div class="row landing-block-inner">
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--lg">
-					<span class="landing-block-node-card-icon-container m-auto landing-semantic-color-primary g-color-white-opacity-0_6 u-icon-v1 u-icon-size--lg g-mb-15">
+					<span class="landing-block-node-card-icon-container m-auto g-color-white-opacity-0_6 u-icon-v1 u-icon-size--lg g-mb-15">
 						<i class="landing-block-node-card-icon icon-badge"></i>
 					</span>
-				<h3 class="landing-block-node-card-number landing-semantic-subtitle-big g-font-size-35 g-color-white mb-0">10</h3>
-				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
+				<h3 class="landing-block-node-card-number g-font-size-35 g-color-white mb-0">10</h3>
+				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Years
 				</div>
-				<div class="landing-block-node-card-text landing-semantic-text-small g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text g-color-white-opacity-0_6 mb-0">
 					<p>Sed feugiat porttitor nunc Etiam
 						gravida ex justo ac rhoncus purus tristique ut.
 					</p>
 				</div>
 			</div>
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--lg">
-					<span class="landing-block-node-card-icon-container m-auto landing-semantic-color-primary g-color-white-opacity-0_6 u-icon-v1 u-icon-size--lg g-mb-15">
+					<span class="landing-block-node-card-icon-container m-auto g-color-white-opacity-0_6 u-icon-v1 u-icon-size--lg g-mb-15">
 						<i class="landing-block-node-card-icon icon-picture"></i>
 					</span>
-				<h3 class="landing-block-node-card-number landing-semantic-subtitle-big g-font-size-35 g-color-white mb-0">99000</h3>
-				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
+				<h3 class="landing-block-node-card-number g-font-size-35 g-color-white mb-0">99000</h3>
+				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Photos
 				</div>
-				<div class="landing-block-node-card-text landing-semantic-text-small g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text g-color-white-opacity-0_6 mb-0">
 					<p>Ivitae blandit massa luctus fermentum
 						lorem quis elit maximus, vitae
 					</p>
 				</div>
 			</div>
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--md">
-					<span class="landing-block-node-card-icon-container m-auto landing-semantic-color-primary g-color-white-opacity-0_6 u-icon-v1 u-icon-size--lg g-mb-15">
+					<span class="landing-block-node-card-icon-container m-auto g-color-white-opacity-0_6 u-icon-v1 u-icon-size--lg g-mb-15">
 						<i class="landing-block-node-card-icon icon-camera"></i>
 					</span>
-				<h3 class="landing-block-node-card-number landing-semantic-subtitle-big g-font-size-35 g-color-white mb-0">20</h3>
-				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
+				<h3 class="landing-block-node-card-number g-font-size-35 g-color-white mb-0">20</h3>
+				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Photographers
 				</div>
-				<div class="landing-block-node-card-text landing-semantic-text-small g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text g-color-white-opacity-0_6 mb-0">
 					<p>Curabitur eget tortor sed urna
 						faucibus iaculis id et nulla sed fringilla quam
 					</p>
 				</div>
 			</div>
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center">
-					<span class="landing-block-node-card-icon-container m-auto landing-semantic-color-primary g-color-white-opacity-0_6 u-icon-v1 u-icon-size--lg g-mb-15">
+					<span class="landing-block-node-card-icon-container m-auto g-color-white-opacity-0_6 u-icon-v1 u-icon-size--lg g-mb-15">
 						<i class="landing-block-node-card-icon icon-heart"></i>
 					</span>
-				<h3 class="landing-block-node-card-number landing-semantic-subtitle-big g-font-size-35 g-color-white mb-0">238</h3>
-				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
+				<h3 class="landing-block-node-card-number g-font-size-35 g-color-white mb-0">238</h3>
+				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Weddings
 				</div>
-				<div class="landing-block-node-card-text landing-semantic-text-small g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text g-color-white-opacity-0_6 mb-0">
 					<p>Duis dui turpis, consectetur non
 						ultrices vitae, lacinia aliquam sapien
 					</p>
@@ -889,16 +889,16 @@ return array(
 			array (
 				'CODE' => '33.1.form_1_transparent_black_left_text',
 				'SORT' => '9500',
-				'CONTENT' => '<section class="landing-block landing-block-node-bgimg landing-semantic-color-overlay g-pos-rel g-pt-20 g-pb-60 g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-cover g-bg-primary-opacity-0_4--after"
+				'CONTENT' => '<section class="landing-block landing-block-node-bgimg g-pos-rel g-pt-20 g-pb-60 g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-cover g-bg-primary-opacity-0_4--after"
 	style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/975x650/img1.jpg);">
 
 	<div class="container g-z-index-1 g-pos-rel">
 		<div class="row align-items-center">
 
 			<div class="col-md-4 g-mb-60">
-				<h2 class="landing-block-node-main-title landing-semantic-title-medium js-animation fadeInUp h1 g-color-white mb-4 font-italic">Contact Us</h2>
+				<h2 class="landing-block-node-main-title js-animation fadeInUp h1 g-color-white mb-4 font-italic">Contact Us</h2>
 
-				<div class="landing-block-node-text landing-semantic-text-medium js-animation fadeInUp g-line-height-1_5 text-left g-mb-40 g-color-white-opacity-0_6">
+				<div class="landing-block-node-text js-animation fadeInUp g-line-height-1_5 text-left g-mb-40 g-color-white-opacity-0_6">
 					<p>
 						Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor.
 						Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum,
@@ -906,7 +906,7 @@ return array(
 					</p>
 				</div>
 
-				<h4 class="landing-block-node-title landing-semantic-subtitle-medium g-color-white mb-4">Contact Info</h4>
+				<h4 class="landing-block-node-title g-color-white mb-4">Contact Info</h4>
 
 				<div class="landing-block-node-card-contact-container">
 					<!-- Icon Block -->
@@ -918,7 +918,7 @@ return array(
 								</span>
 							</div>
 							<div class="media-body">
-								<div class="landing-block-node-contact-text landing-semantic-text-medium g-color-white-opacity-0_6 mb-0">5B Streat, City
+								<div class="landing-block-node-contact-text g-color-white-opacity-0_6 mb-0">5B Streat, City
 									50987 New Town US
 								</div>
 							</div>
@@ -935,7 +935,7 @@ return array(
 								</span>
 							</div>
 							<div class="media-body">
-								<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
+								<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 							</div>
 						</div>
 					</div>
@@ -949,7 +949,7 @@ return array(
 									<i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
+							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->
@@ -962,7 +962,7 @@ return array(
 									<i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
+							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->
@@ -975,7 +975,7 @@ return array(
 									<i class="landing-block-card-contact-icon icon-communication-062 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="mailto:#crmEmail1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmEmailTitle1</a>
+							<a href="mailto:#crmEmail1" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">#crmEmailTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->

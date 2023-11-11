@@ -9,18 +9,18 @@ const isValidFileType = (file: File, fileTypes: string[]): boolean => {
 	const mimeType = file.type;
 	const baseMimeType = mimeType.replace(/\/.*$/, '');
 
-	for (let i = 0; i < fileTypes.length; i++)
+	for (const fileType of fileTypes)
 	{
-		if (!Type.isStringFilled(fileTypes[i]))
+		if (!Type.isStringFilled(fileType))
 		{
 			continue;
 		}
 
-		const type = fileTypes[i].trim().toLowerCase();
+		const type = fileType.trim().toLowerCase();
 
 		if (type.charAt(0) === '.') // extension case
 		{
-			if (file.name.toLowerCase().indexOf(type, file.name.length - type.length) !== -1)
+			if (file.name.toLowerCase().includes(type, file.name.length - type.length))
 			{
 				return true;
 			}

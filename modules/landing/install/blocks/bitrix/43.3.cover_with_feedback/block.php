@@ -24,7 +24,7 @@
 					<!-- Testimonial Block -->
 					<div class="landing-block-node-card-container js-animation fadeIn media d-block d-md-flex">
 						<div class="landing-block-img-container align-self-center g-mb-30 g-mb-0--md g-pr-30--sm">
-							<img class="landing-block-node-card-photo img-fluid g-rounded-50x g-width-120 g-height-120 g-object-fit-cover img-bordered g-brd-white mx-auto"
+							<img class="landing-block-node-card-photo g-rounded-50x g-width-120 g-height-120 g-object-fit-cover img-bordered g-brd-white mx-auto"
 								 src="https://cdn.bitrix24.site/bitrix/images/landing/business/120x120/img11.jpg" alt="">
 						</div>
 
@@ -42,7 +42,7 @@
 					<!-- Testimonial Block -->
 					<div class="landing-block-node-card-container js-animation fadeIn media d-block d-md-flex">
 						<div class="landing-block-img-container align-self-center g-mb-30 g-mb-0--md g-pr-30--sm">
-							<img class="landing-block-node-card-photo img-fluid g-rounded-50x g-width-120 g-height-120 g-object-fit-cover img-bordered g-brd-white mx-auto"
+							<img class="landing-block-node-card-photo g-rounded-50x g-width-120 g-height-120 g-object-fit-cover img-bordered g-brd-white mx-auto"
 								 src="https://cdn.bitrix24.site/bitrix/images/landing/business/120x120/img12.jpg" alt="">
 						</div>
 
@@ -60,7 +60,7 @@
 					<!-- Testimonial Block -->
 					<div class="landing-block-node-card-container js-animation fadeIn media d-block d-md-flex">
 						<div class="landing-block-img-container align-self-center g-mb-30 g-mb-0--md g-pr-30--sm">
-							<img class="landing-block-node-card-photo img-fluid g-rounded-50x g-width-120 g-height-120 g-object-fit-cover img-bordered g-brd-white mx-auto"
+							<img class="landing-block-node-card-photo g-rounded-50x g-width-120 g-height-120 g-object-fit-cover img-bordered g-brd-white mx-auto"
 								 src="https://cdn.bitrix24.site/bitrix/images/landing/business/120x120/img13.jpg" alt="">
 						</div>
 

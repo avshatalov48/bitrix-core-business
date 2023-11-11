@@ -23,7 +23,7 @@ class SqlExpression
 	/** @var array */
 	protected $args = array();
 
-	protected $pattern = '/([^\\\\]|^)(\?[#sif]?)/';
+	protected $pattern = '/([^\\\\]|^)(\?[#sifv]?)/';
 
 	protected $i;
 
@@ -117,6 +117,10 @@ class SqlExpression
 			elseif ($ph == '?#')
 			{
 				$value = $sqlHelper->quote($value);
+			}
+			elseif ($ph == '?v')
+			{
+				$value = $sqlHelper->values($value);
 			}
 			elseif ($ph == '?i')
 			{

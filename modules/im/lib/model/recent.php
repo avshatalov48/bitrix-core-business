@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Im\Model;
 
+use Bitrix\Im\V2\Common\UpdateByFilterTrait;
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
@@ -34,6 +35,7 @@ Loc::loadMessages(__FILE__);
 
 class RecentTable extends Main\Entity\DataManager
 {
+	use UpdateByFilterTrait;
 	/**
 	 * Returns DB table name for entity.
 	 *

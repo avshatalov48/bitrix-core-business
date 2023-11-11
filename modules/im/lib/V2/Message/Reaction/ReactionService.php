@@ -103,10 +103,12 @@ class ReactionService
 
 	private function sendNotification(ReactionItem $reaction): void
 	{
+		$authorId = $this->message->getAuthorId();
 		if (
-			$this->message->getAuthorId() === 0
-			|| $this->message->getAuthorId() === $this->getContext()->getUserId()
+			$authorId === 0
+			|| $authorId === $this->getContext()->getUserId()
 			|| Chat::getInstance($reaction->getChatId())->getEntityType() === 'LIVECHAT'
+			|| !Chat::getInstance($reaction->getChatId())->hasAccess($authorId)
 		)
 		{
 			return;

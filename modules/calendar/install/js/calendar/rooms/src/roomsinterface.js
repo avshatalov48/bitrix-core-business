@@ -13,6 +13,7 @@ export class RoomsInterface extends SectionInterface
 	CATEGORY_ROOMS_SHOWN_ALL = 0;
 	CATEGORY_ROOMS_SHOWN_SOME = 1;
 	CATEGORY_ROOMS_SHOWN_NONE = 2;
+	HELP_DESK_CODE = 14327694;
 
 	constructor({ calendarContext, readonly, roomsManager, categoryManager, isConfigureList = false })
 	{
@@ -187,11 +188,15 @@ export class RoomsInterface extends SectionInterface
 	renderTitleWrap()
 	{
 		return Tag.render`
-				<div class="calendar-list-slider-title-container">
-					<div class="calendar-list-slider-title">${Loc.getMessage('EC_SECTION_ROOMS')}</div>
+			<div class="calendar-list-slider-title-container">
+				<div class="calendar-list-slider-title">
+					${Loc.getMessage('EC_SECTION_ROOMS')}
+					<span onclick="${this.openHelpDesk.bind(this)}" class="ui-hint" title="${Loc.getMessage('EC_CALENDAR_HOW_DOES_IT_WORK')}">
+						<span class="ui-hint-icon"></span>
+					</span>
 				</div>
-			`
-		;
+			</div>
+		`;
 	}
 
 	renderAddButton()
@@ -1169,6 +1174,11 @@ export class RoomsInterface extends SectionInterface
 	getConfirmRoomInterfaceContent(text)
 	{
 		return Tag.render`<div class="calendar-list-slider-messagebox-text">${text}</div>`;
+	}
+
+	openHelpDesk()
+	{
+		top.BX.Helper.show('redirect=detail&code=' + this.HELP_DESK_CODE);
 	}
 
 	keyHandler(e)

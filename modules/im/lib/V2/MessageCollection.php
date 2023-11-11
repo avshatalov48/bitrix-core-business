@@ -538,7 +538,7 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 			$query->where('CHAT_ID', $filter['CHAT_ID']);
 		}
 
-		if (isset($filter['SEARCH_MESSAGE']))
+		if (isset($filter['SEARCH_MESSAGE']) && mb_strlen($filter['SEARCH_MESSAGE']) > 2)
 		{
 			$query->whereLike('MESSAGE', "%{$filter['SEARCH_MESSAGE']}%");
 		}

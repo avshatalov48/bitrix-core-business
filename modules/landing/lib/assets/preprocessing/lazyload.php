@@ -36,12 +36,12 @@ class Lazyload
 
 	protected function parse(): void
 	{
-		if(!$this->content || !$this->manifest['nodes'])
+		if (!$this->content || !$this->manifest['nodes'])
 		{
 			return;
 		}
 		// tmp skip dynamic
-		if($this->skipDynamic && !empty($this->block->getDynamicParams()))
+		if ($this->skipDynamic && !empty($this->block->getDynamicParams()))
 		{
 			return;
 		}
@@ -49,33 +49,39 @@ class Lazyload
 		$changed = false;
 		foreach ($this->manifest['nodes'] as $selector => $node)
 		{
+			if ($node['type'] === 'img')
+			{
+				$node = Node\Img::changeNodeType($node, $this->block);
+			}
+
 			if ($node['type'] === 'img' || $node['type'] === 'styleimg')
 			{
 				$domElements = Node\Style::getNodesBySelector($this->block, $selector);
-			}
-			if ($node['type'] === 'img')
-			{
-				foreach ($domElements as $domElement)
+
+				if ($node['type'] === 'img')
 				{
-					if ($domElement->getTagName() === 'IMG')
+					foreach ($domElements as $domElement)
 					{
-						$this->parseImgTag($domElement, $selector);
-					}
-					else
-					{
-						$this->parseBg($domElement, $selector);
-					}
-					$changed = true;
-				}
-			}
-			elseif ($node['type'] === 'styleimg')
-			{
-				foreach ($domElements as $domElement)
-				{
-					if ($domElement->getTagName() !== 'IMG')
-					{
-						$this->parseStyleImg($domElement, $selector);
+						if ($domElement->getTagName() === 'IMG')
+						{
+							$this->parseImgTag($domElement, $selector);
+						}
+						else
+						{
+							$this->parseBg($domElement, $selector);
+						}
 						$changed = true;
+					}
+				}
+				elseif ($node['type'] === 'styleimg')
+				{
+					foreach ($domElements as $domElement)
+					{
+						if ($domElement->getTagName() !== 'IMG')
+						{
+							$this->parseStyleImg($domElement, $selector);
+							$changed = true;
+						}
 					}
 				}
 			}

@@ -151,8 +151,16 @@ class Handler extends Http\Handler
 						// all headers received
 						$this->log("\n<<<RESPONSE\n" . $this->responseHeaders . "\n", Web\HttpDebug::RESPONSE_HEADERS);
 
-						// build the response for the next stage
-						$this->response = $this->responseBuilder->createFromString($this->responseHeaders);
+						try
+						{
+							// build the response for the next stage
+							$this->response = $this->responseBuilder->createFromString($this->responseHeaders);
+						}
+						catch (\InvalidArgumentException $e)
+						{
+//							throw new Http\NetworkException($request, 'Incorrect response header: ' . $e->getMessage());
+							throw new \InvalidArgumentException($e->getMessage() . ' ' . $request->getUri());
+						}
 
 						$fetchBody = $this->waitResponse;
 

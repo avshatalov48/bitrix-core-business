@@ -693,8 +693,17 @@ class CSmile
 					$csvFile->SetFirstHeader(false);
 					while($smile = $csvFile->Fetch())
 					{
-						if (defined('BX_UTF') && BX_UTF && $res["LID"] == 'ru')
-							$smile[1] = \Bitrix\Main\Text\Encoding::convertEncoding($smile[1], 'windows-1251', 'utf-8');
+						if (defined('BX_UTF') && BX_UTF)
+						{
+							if ($res["LID"] == 'ru')
+							{
+								$smile[1] = \Bitrix\Main\Text\Encoding::convertEncoding($smile[1], 'windows-1251', 'utf-8');
+							}
+							elseif ($res["LID"] == 'de')
+							{
+								$smile[1] = \Bitrix\Main\Text\Encoding::convertEncoding($smile[1], 'iso8859-15', 'utf-8');
+							}
+						}
 
 						$arLang[$smile[0]][$res["LID"]] = $smile[1];
 					}

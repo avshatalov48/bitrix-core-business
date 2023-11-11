@@ -109,11 +109,11 @@ export class InterfaceTemplate extends EventEmitter
 		`;
 	}
 
-	showHelp()
+	showHelp(event)
 	{
-		if (BX.Helper)
+		if (top.BX.Helper)
 		{
-			BX.Helper.show("redirect=detail&code=" + this.helpdeskCode);
+			top.BX.Helper.show("redirect=detail&code=" + this.helpdeskCode);
 			event.preventDefault();
 		}
 	}

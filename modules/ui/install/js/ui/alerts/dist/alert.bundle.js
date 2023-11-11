@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
@@ -8,7 +9,6 @@ this.BX = this.BX || {};
 	var AlertColor = function AlertColor() {
 	  babelHelpers.classCallCheck(this, AlertColor);
 	};
-
 	babelHelpers.defineProperty(AlertColor, "DEFAULT", 'ui-alert-default');
 	babelHelpers.defineProperty(AlertColor, "DANGER", 'ui-alert-danger');
 	babelHelpers.defineProperty(AlertColor, "SUCCESS", 'ui-alert-success');
@@ -22,7 +22,6 @@ this.BX = this.BX || {};
 	var AlertSize = function AlertSize() {
 	  babelHelpers.classCallCheck(this, AlertSize);
 	};
-
 	babelHelpers.defineProperty(AlertSize, "MD", 'ui-alert-md');
 	babelHelpers.defineProperty(AlertSize, "XS", 'ui-alert-xs');
 
@@ -32,7 +31,6 @@ this.BX = this.BX || {};
 	var AlertIcon = function AlertIcon() {
 	  babelHelpers.classCallCheck(this, AlertIcon);
 	};
-
 	babelHelpers.defineProperty(AlertIcon, "NONE", '');
 	babelHelpers.defineProperty(AlertIcon, "INFO", 'ui-alert-icon-info');
 	babelHelpers.defineProperty(AlertIcon, "WARNING", 'ui-alert-icon-warning');
@@ -40,7 +38,6 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(AlertIcon, "FORBIDDEN", 'ui-alert-icon-forbidden');
 
 	var _templateObject;
-
 	var Alert = /*#__PURE__*/function () {
 	  function Alert(options) {
 	    babelHelpers.classCallCheck(this, Alert);
@@ -59,9 +56,9 @@ this.BX = this.BX || {};
 	    this.setColor(this.color);
 	    this.setCloseBtn(this.closeBtn);
 	    this.setCustomClass(this.customClass);
-	  } //region COLOR
+	  }
 
-
+	  //region COLOR
 	  babelHelpers.createClass(Alert, [{
 	    key: "setColor",
 	    value: function setColor(color) {
@@ -74,7 +71,6 @@ this.BX = this.BX || {};
 	      return this.color;
 	    } // endregion
 	    //region SIZE
-
 	  }, {
 	    key: "setSize",
 	    value: function setSize(size) {
@@ -87,7 +83,6 @@ this.BX = this.BX || {};
 	      return this.size;
 	    } // endregion
 	    //region ICON
-
 	  }, {
 	    key: "setIcon",
 	    value: function setIcon(icon) {
@@ -100,7 +95,6 @@ this.BX = this.BX || {};
 	      return this.icon;
 	    } // endregion
 	    //region TEXT
-
 	  }, {
 	    key: "setText",
 	    value: function setText(text) {
@@ -125,11 +119,9 @@ this.BX = this.BX || {};
 	          html: this.text
 	        });
 	      }
-
 	      return this.textContainer;
 	    } // endregion
 	    // region CLOSE BTN
-
 	  }, {
 	    key: "setCloseBtn",
 	    value: function setCloseBtn(closeBtn) {
@@ -141,7 +133,6 @@ this.BX = this.BX || {};
 	      if (this.closeBtn != true) {
 	        return;
 	      }
-
 	      if (!this.closeNode && this.closeBtn === true) {
 	        this.closeNode = main_core.Dom.create("span", {
 	          props: {
@@ -152,7 +143,6 @@ this.BX = this.BX || {};
 	          }
 	        });
 	      }
-
 	      return this.closeNode;
 	    }
 	  }, {
@@ -165,7 +155,6 @@ this.BX = this.BX || {};
 	      }
 	    } // endregion
 	    // region Custom HTML
-
 	  }, {
 	    key: "setBeforeMessageHtml",
 	    value: function setBeforeMessageHtml(element) {
@@ -191,7 +180,6 @@ this.BX = this.BX || {};
 	      return this.afterMessageHtml;
 	    } //endregion
 	    //region CUSTOM CLASS
-
 	  }, {
 	    key: "setCustomClass",
 	    value: function setCustomClass(customClass) {
@@ -204,28 +192,22 @@ this.BX = this.BX || {};
 	      return this.customClass;
 	    } // endregion
 	    //region CLASS LIST
-
 	  }, {
 	    key: "setClassList",
 	    value: function setClassList() {
 	      this.classList = "ui-alert";
-
 	      if (typeof this.getColor() != "undefined") {
 	        this.classList = this.classList + " " + this.color;
 	      }
-
 	      if (typeof this.getSize() != "undefined") {
 	        this.classList = this.classList + " " + this.size;
 	      }
-
 	      if (typeof this.getIcon() != "undefined") {
 	        this.classList = this.classList + " " + this.icon;
 	      }
-
 	      if (typeof this.getCustomClass() != "undefined") {
 	        this.classList = this.classList + " " + this.customClass;
 	      }
-
 	      this.updateClassList();
 	    }
 	  }, {
@@ -239,11 +221,9 @@ this.BX = this.BX || {};
 	      if (!this.container) {
 	        this.getContainer();
 	      }
-
 	      this.container.setAttribute("class", this.classList);
 	    } // endregion
 	    //region ANIMATION
-
 	  }, {
 	    key: "animateOpening",
 	    value: function animateOpening() {
@@ -282,7 +262,6 @@ this.BX = this.BX || {};
 	        main_core.Dom.remove(this.container);
 	      }.bind(this), 260);
 	    } //endregion
-
 	  }, {
 	    key: "show",
 	    value: function show() {
@@ -297,23 +276,18 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      this.container = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"])), this.getClassList(), this.getTextContainer());
-
 	      if (this.animated === true) {
 	        this.animateOpening();
 	      }
-
 	      if (this.closeBtn === true) {
 	        main_core.Dom.append(this.getCloseBtn(), this.container);
 	      }
-
 	      if (main_core.Type.isElementNode(this.beforeMessageHtml)) {
 	        main_core.Dom.prepend(this.getBeforeMessageHtml(), this.getTextContainer());
 	      }
-
 	      if (main_core.Type.isElementNode(this.afterMessageHtml)) {
 	        main_core.Dom.append(this.getAfterMessageHtml(), this.getTextContainer());
 	      }
-
 	      return this.container;
 	    }
 	  }, {
@@ -327,7 +301,6 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isDomNode(node)) {
 	        return node.appendChild(this.getContainer());
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -339,19 +312,16 @@ this.BX = this.BX || {};
 	      this.textAfterContainer = null;
 	      this.textBeforeContainer = null;
 	      this.bar = null;
-
 	      for (var property in this) {
 	        if (this.hasOwnProperty(property)) {
 	          delete this[property];
 	        }
 	      }
-
 	      Object.setPrototypeOf(this, null);
 	    }
 	  }]);
 	  return Alert;
 	}();
-
 	babelHelpers.defineProperty(Alert, "Color", AlertColor);
 	babelHelpers.defineProperty(Alert, "Size", AlertSize);
 	babelHelpers.defineProperty(Alert, "Icon", AlertIcon);

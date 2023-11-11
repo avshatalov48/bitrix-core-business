@@ -13,7 +13,9 @@ export default class Jpeg
 		return new Promise((resolve, reject) => {
 			if (file.size < 2)
 			{
-				return reject(new Error('JPEG signature not found.'));
+				reject(new Error('JPEG signature not found.'));
+
+				return;
 			}
 
 			getArrayBuffer(file)
@@ -21,7 +23,9 @@ export default class Jpeg
 					const view = new DataView(buffer);
 					if (view.getUint8(0) !== 0xFF || view.getUint8(1) !== 0xD8)
 					{
-						return reject(new Error('JPEG signature not found.'));
+						reject(new Error('JPEG signature not found.'));
+
+						return;
 					}
 
 					let offset = 2;
@@ -30,16 +34,20 @@ export default class Jpeg
 					{
 						if (view.byteLength - offset < 2)
 						{
-							return reject(new Error('JPEG signature not found.'));
+							reject(new Error('JPEG signature not found.'));
+
+							return;
 						}
 
 						if (view.getUint8(offset++) !== 0xFF)
 						{
-							return reject(new Error('JPEG signature not found.'));
+							reject(new Error('JPEG signature not found.'));
+
+							return;
 						}
 
 						let code = view.getUint8(offset++);
-						let length;
+						let length = 0;
 
 						// skip padding bytes
 						while (code === 0xFF)
@@ -47,16 +55,18 @@ export default class Jpeg
 							code = view.getUint8(offset++);
 						}
 
-						if ((0xD0 <= code && code <= 0xD9) || code === 0x01)
+						if ((code >= 0xD0 && code <= 0xD9) || code === 0x01)
 						{
 							length = 0;
 						}
-						else if (0xC0 <= code && code <= 0xFE)
+						else if (code >= 0xC0 && code <= 0xFE)
 						{
 							// the rest of the unreserved markers
 							if (view.byteLength - offset < 2)
 							{
-								return reject(new Error('JPEG signature not found.'));
+								reject(new Error('JPEG signature not found.'));
+
+								return;
 							}
 
 							length = view.getUint16(offset) - 2;
@@ -64,12 +74,16 @@ export default class Jpeg
 						}
 						else
 						{
-							return reject(new Error('JPEG unknown markers.'));
+							reject(new Error('JPEG unknown markers.'));
+
+							return;
 						}
 
 						if (code === 0xD9 /* EOI */ || code === 0xDA /* SOS */)
 						{
-							return reject(new Error('JPEG end of the data stream.'));
+							reject(new Error('JPEG end of the data stream.'));
+
+							return;
 						}
 
 						// try to get orientation from Exif segment
@@ -81,13 +95,15 @@ export default class Jpeg
 
 						if (
 							length >= 5
-							&& (0xC0 <= code && code <= 0xCF)
+							&& (code >= 0xC0 && code <= 0xCF)
 							&& code !== 0xC4 && code !== 0xC8 && code !== 0xCC
 						)
 						{
 							if (view.byteLength - offset < length)
 							{
-								return reject(new Error('JPEG size not found.'));
+								reject(new Error('JPEG size not found.'));
+
+								return;
 							}
 
 							let width = view.getUint16(offset + 3);
@@ -97,17 +113,19 @@ export default class Jpeg
 								[width, height] = [height, width];
 							}
 
-							return resolve({
+							resolve({
 								width,
 								height,
 								orientation,
 							});
+
+							return;
 						}
 
 						offset += length;
 					}
 				})
-				.catch(error => {
+				.catch((error) => {
 					reject(error);
 				})
 			;
@@ -116,11 +134,11 @@ export default class Jpeg
 }
 
 const Marker = {
-	BIG_ENDIAN: 0x4d4d,
+	BIG_ENDIAN: 0x4D4D,
 	LITTLE_ENDIAN: 0x4949,
 };
 
-const getOrientation = (exifBlock: DataView) => {
+const getOrientation = (exifBlock: DataView): number => {
 	const byteAlign = exifBlock.getUint16(0);
 	const isBigEndian = byteAlign === Marker.BIG_ENDIAN;
 	const isLittleEndian = byteAlign === Marker.LITTLE_ENDIAN;
@@ -133,8 +151,7 @@ const getOrientation = (exifBlock: DataView) => {
 	return -1;
 };
 
-const extractOrientation = (exifBlock: DataView, littleEndian: boolean = false) => {
-
+const extractOrientation = (exifBlock: DataView, littleEndian: boolean = false): number => {
 	const offset = 8; // idf offset
 	const idfDirectoryEntries = exifBlock.getUint16(offset, littleEndian);
 
@@ -158,7 +175,7 @@ const extractOrientation = (exifBlock: DataView, littleEndian: boolean = false) 
 		// 274 is the `orientation` tag ID
 		if (tagNumber === 274)
 		{
-			const dataFormat = block.getUint16(2, littleEndian)
+			const dataFormat = block.getUint16(2, littleEndian);
 			if (dataFormat !== 3)
 			{
 				return -1;
@@ -170,7 +187,9 @@ const extractOrientation = (exifBlock: DataView, littleEndian: boolean = false) 
 				return -1;
 			}
 
-			return block.getUint16(8, littleEndian)
+			return block.getUint16(8, littleEndian);
 		}
 	}
+
+	return -1;
 };

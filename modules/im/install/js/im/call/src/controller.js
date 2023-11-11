@@ -15,6 +15,7 @@ import {Sidebar} from './sidebar';
 import {WebScreenSharePopup} from './web_screenshare_popup';
 import {FloatingScreenShare} from './floating_screenshare';
 import {CallEngine, UserState, Provider, CallState, CallEvent} from './engine/engine';
+import {BitrixCall} from './engine/bitrix_call'
 import {VoximplantCall} from './engine/voximplant_call'
 import {PlainCall} from './engine/plain_call';
 import {SimpleVAD} from './engine/simple_vad';
@@ -108,7 +109,8 @@ type MessengerFacade = {
 
 export class CallController extends EventEmitter
 {
-	currentCall: PlainCall | VoximplantCall | null
+	currentCall: BitrixCall | PlainCall | VoximplantCall | null
+	currentCallIsNew: false
 	callNotification: ?IncomingNotification
 	floatingScreenShareWindow: ?FloatingScreenShare
 	callView: ?View
@@ -173,6 +175,7 @@ export class CallController extends EventEmitter
 		this._onCallLocalCameraFlipInDesktopHandler = this._onCallLocalCameraFlipInDesktop.bind(this);
 		this._onCallRemoteMediaReceivedHandler = this._onCallRemoteMediaReceived.bind(this);
 		this._onCallRemoteMediaStoppedHandler = this._onCallRemoteMediaStopped.bind(this);
+		this._onCallBadNetworkIndicatorHandler = this._onCallBadNetworkIndicator.bind(this);
 		this._onCallUserVoiceStartedHandler = this._onCallUserVoiceStarted.bind(this);
 		this._onCallUserVoiceStoppedHandler = this._onCallUserVoiceStopped.bind(this);
 		this._onCallUserScreenStateHandler = this._onCallUserScreenState.bind(this);
@@ -190,6 +193,8 @@ export class CallController extends EventEmitter
 		this._onTransferRoomSpeakerHandler = this._onTransferRoomSpeaker.bind(this);
 		this._onCallLeaveHandler = this._onCallLeave.bind(this);
 		this._onCallJoinHandler = this._onCallJoin.bind(this);
+		// todo: remove after adding new provider to mobile apps
+		this._onCallUserFromWebHandler = this._onCallUserFromWeb.bind(this);
 
 		this._onBeforeUnloadHandler = this._onBeforeUnload.bind(this);
 		this._onImTabChangeHandler = this._onImTabChange.bind(this);
@@ -410,7 +415,7 @@ export class CallController extends EventEmitter
 	onIncomingCall(e)
 	{
 		console.warn("incoming.call", e);
-		/** @var {PlainCall|VoximplantCall} newCall */
+		/** @var {BitrixCall|PlainCall|VoximplantCall} newCall */
 		const newCall = e.call;
 		const isCurrentCallActive = this.currentCall && (this.callView || this.callNotification);
 
@@ -536,6 +541,7 @@ export class CallController extends EventEmitter
 		this.currentCall.addEventListener(CallEvent.onLocalMediaStopped, this._onCallLocalMediaStoppedHandler);
 		this.currentCall.addEventListener(CallEvent.onRemoteMediaReceived, this._onCallRemoteMediaReceivedHandler);
 		this.currentCall.addEventListener(CallEvent.onRemoteMediaStopped, this._onCallRemoteMediaStoppedHandler);
+		this.currentCall.addEventListener(CallEvent.onBadNetworkIndicator, this._onCallBadNetworkIndicatorHandler);
 		this.currentCall.addEventListener(CallEvent.onUserVoiceStarted, this._onCallUserVoiceStartedHandler);
 		this.currentCall.addEventListener(CallEvent.onUserVoiceStopped, this._onCallUserVoiceStoppedHandler);
 		this.currentCall.addEventListener(CallEvent.onCallFailure, this._onCallFailureHandler);
@@ -550,6 +556,8 @@ export class CallController extends EventEmitter
 		this.currentCall.addEventListener(CallEvent.onTransferRoomSpeaker, this._onTransferRoomSpeakerHandler);
 		this.currentCall.addEventListener(CallEvent.onJoin, this._onCallJoinHandler);
 		this.currentCall.addEventListener(CallEvent.onLeave, this._onCallLeaveHandler);
+		// todo: remove after adding new provider to mobile apps
+		this.currentCall.addEventListener('onUserFromWeb', this._onCallUserFromWebHandler);
 	}
 
 	removeCallEvents()
@@ -567,6 +575,7 @@ export class CallController extends EventEmitter
 		this.currentCall.removeEventListener(CallEvent.onLocalMediaStopped, this._onCallLocalMediaStoppedHandler);
 		this.currentCall.removeEventListener(CallEvent.onRemoteMediaReceived, this._onCallRemoteMediaReceivedHandler);
 		this.currentCall.removeEventListener(CallEvent.onRemoteMediaStopped, this._onCallRemoteMediaStoppedHandler);
+		this.currentCall.removeEventListener(CallEvent.onBadNetworkIndicator, this._onCallBadNetworkIndicatorHandler);
 		this.currentCall.removeEventListener(CallEvent.onUserVoiceStarted, this._onCallUserVoiceStartedHandler);
 		this.currentCall.removeEventListener(CallEvent.onUserVoiceStopped, this._onCallUserVoiceStoppedHandler);
 		this.currentCall.removeEventListener(CallEvent.onCallFailure, this._onCallFailureHandler);
@@ -594,6 +603,7 @@ export class CallController extends EventEmitter
 		this.callView.setCallback(View.Event.onChangeFaceImprove, this._onCallViewChangeFaceImprove.bind(this));
 		this.callView.setCallback(View.Event.onOpenAdvancedSettings, this._onCallViewOpenAdvancedSettings.bind(this));
 		this.callView.setCallback(View.Event.onReplaceSpeaker, this._onCallViewReplaceSpeaker.bind(this));
+		this.callView.setCallback(View.Event.onHasMainStream, this._onCallViewHasMainStream.bind(this));
 	}
 
 	updateCallViewUsers(callId, userList)
@@ -985,9 +995,13 @@ export class CallController extends EventEmitter
 		}
 
 		let provider = Provider.Plain;
-		if (Util.isCallServerAllowed() && dialogId.toString().startsWith("chat"))
+		if (dialogId.toString().startsWith("chat"))
 		{
-			provider = Provider.Voximplant;
+			provider = Util.isBitrixCallServerAllowed()
+				? Provider.Bitrix
+				: (Util.isVoximplantCallServerAllowed()
+					? Provider.Voximplant
+					: provider);
 		}
 
 		const debug1 = +(new Date());
@@ -1043,6 +1057,7 @@ export class CallController extends EventEmitter
 			{
 				const debug2 = +(new Date());
 				this.currentCall = e.call;
+				this.currentCallIsNew = e.isNew;
 
 				this.log("Call creation time: " + (debug2 - debug1) / 1000 + " seconds");
 
@@ -1074,7 +1089,7 @@ export class CallController extends EventEmitter
 				this.showDocumentPromo();
 				this.showMaskPromo();
 
-				if (e.isNew)
+				if (this.currentCallIsNew)
 				{
 					this.log("Inviting users");
 					this.currentCall.inviteUsers();
@@ -1228,7 +1243,7 @@ export class CallController extends EventEmitter
 
 	hasActiveCall()
 	{
-		return (this.currentCall && this.currentCall.isAnyoneParticipating()) || (this.callView);
+		return !!((this.currentCall && this.currentCall.isAnyoneParticipating()) || (this.callView));
 	}
 
 	hasVisibleCall()
@@ -2041,7 +2056,7 @@ export class CallController extends EventEmitter
 	{
 		if (DesktopApi.isDesktop())
 		{
-			DesktopApi.showWindow();
+			DesktopApi.activateWindow();
 		}
 
 		if (!this.isUserAgentSupported())
@@ -2188,7 +2203,7 @@ export class CallController extends EventEmitter
 		}
 		if (DesktopApi.isDesktop())
 		{
-			DesktopApi.closeWindowByName('callBackground');
+			DesktopApi.closeWindow(DesktopApi.findWindow('callBackground'));
 		}
 		this.closePromo();
 
@@ -2631,6 +2646,14 @@ export class CallController extends EventEmitter
 		Hardware.defaultSpeaker = e.deviceId;
 	}
 
+	_onCallViewHasMainStream(e)
+	{
+		if (this.currentCall && this.currentCall instanceof BitrixCall)
+		{
+			this.currentCall.setMainStream(e.userId);
+		}
+	}
+
 	_onCallViewChangeHdVideo(e)
 	{
 		Hardware.preferHdQuality = e.allowHdVideo;
@@ -2728,7 +2751,7 @@ export class CallController extends EventEmitter
 		}
 		if (DesktopApi.isDesktop())
 		{
-			DesktopApi.closeWindowByName('callBackground');
+			DesktopApi.closeWindow(DesktopApi.findWindow('callBackground'));
 		}
 		this.closePromo();
 
@@ -2967,6 +2990,14 @@ export class CallController extends EventEmitter
 		}
 	}
 
+	_onCallBadNetworkIndicator(e)
+	{
+		if (this.callView)
+		{
+			this.callView.setBadNetworkIndicator(e.userId, e.badNetworkIndicator);
+		}
+	}
+
 	_onCallUserVoiceStarted(e)
 	{
 		if (e.local)
@@ -3130,7 +3161,6 @@ export class CallController extends EventEmitter
 	_onCallFailure(e)
 	{
 		const errorCode = e.code || e.name || e.error;
-		console.error("Call failure: ", e);
 
 		let errorMessage;
 
@@ -3198,8 +3228,15 @@ export class CallController extends EventEmitter
 		{
 			this.removeVideoStrategy();
 			this.removeCallEvents();
+
+			if (this.currentCallIsNew)
+			{
+				CallEngine.getRestClient().callMethod('im.call.interrupt', {callId: this.currentCall.id});
+			}
+
 			this.currentCall.destroy();
 			this.currentCall = null;
+			this.currentCallIsNew = false;
 		}
 	}
 
@@ -3427,7 +3464,7 @@ export class CallController extends EventEmitter
 
 		if (DesktopApi.isDesktop())
 		{
-			DesktopApi.closeWindowByName('callBackground');
+			DesktopApi.closeWindow(DesktopApi.findWindow('callBackground'));
 		}
 
 		this.closePromo();
@@ -3440,6 +3477,20 @@ export class CallController extends EventEmitter
 		this.emit(Events.onCallLeft, {
 			callDetails: callDetails
 		})
+	}
+
+	// todo: remove after adding new provider to mobile apps
+	_onCallUserFromWeb(event)
+	{
+		if (this.callView)
+		{
+			this.callView.addUser(event.userId, UserState.Connected);
+			this.callView.updateUserData({
+				[event.userId]: {
+					name: event.name,
+				}
+			});
+		}
 	}
 
 	#getCallDetail(call)
@@ -3670,7 +3721,7 @@ export class CallController extends EventEmitter
 
 	_onFloatingVideoMainAreaClick()
 	{
-		DesktopApi.showWindow();
+		DesktopApi.activateWindow();
 		DesktopApi.changeTab("im");
 
 		if (!this.currentCall)
@@ -3710,7 +3761,7 @@ export class CallController extends EventEmitter
 
 	_onFloatingScreenShareBackToCallClick()
 	{
-		DesktopApi.showWindow();
+		DesktopApi.activateWindow();
 		DesktopApi.changeTab("im");
 		if (this.floatingScreenShareWindow)
 		{
@@ -3720,7 +3771,7 @@ export class CallController extends EventEmitter
 
 	_onFloatingScreenShareStopClick()
 	{
-		DesktopApi.showWindow();
+		DesktopApi.activateWindow();
 		DesktopApi.changeTab("im");
 
 		this.currentCall.stopScreenSharing();
@@ -4058,8 +4109,11 @@ export class CallController extends EventEmitter
 					this._onCallViewToggleMuteButtonClick({
 						muted: false
 					});
-					this.mutePopup.destroy();
-					this.mutePopup = null;
+					if (this.mutePopup)
+					{
+						this.mutePopup.destroy();
+						this.mutePopup = null;
+					}
 				}
 			}
 		})

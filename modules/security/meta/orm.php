@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Security\Mfa\RecoveryCodesTable:security/lib/mfa/recoverycodes.php:ec751d7e49c13541d88294907ccee999 */
+/* ORMENTITYANNOTATION:Bitrix\Security\Mfa\RecoveryCodesTable:security/lib/mfa/recoverycodes.php */
 namespace Bitrix\Security\Mfa {
 	/**
 	 * EO_RecoveryCodes
@@ -156,6 +156,8 @@ namespace Bitrix\Security\Mfa {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_RecoveryCodes_Collection merge(?EO_RecoveryCodes_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_RecoveryCodes_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Security\Mfa\RecoveryCodesTable */
@@ -189,7 +191,7 @@ namespace Bitrix\Security\Mfa {
 	 */
 	class EO_RecoveryCodes_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Security\Mfa\UserTable:security/lib/mfa/user.php:eb52488e371d1a24bf3abae3fa0495c7 */
+/* ORMENTITYANNOTATION:Bitrix\Security\Mfa\UserTable:security/lib/mfa/user.php */
 namespace Bitrix\Security\Mfa {
 	/**
 	 * EO_User
@@ -381,6 +383,8 @@ namespace Bitrix\Security\Mfa {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_User_Collection merge(?EO_User_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_User_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Security\Mfa\UserTable */
@@ -414,7 +418,7 @@ namespace Bitrix\Security\Mfa {
 	 */
 	class EO_User_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Security\SessionTable:security/lib/session.php:57c9ecedf0655849d0280cc1d4410ce8 */
+/* ORMENTITYANNOTATION:Bitrix\Security\SessionTable:security/lib/session.php */
 namespace Bitrix\Security {
 	/**
 	 * EO_Session
@@ -521,6 +525,8 @@ namespace Bitrix\Security {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Session_Collection merge(?EO_Session_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Session_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Security\SessionTable */
@@ -553,4 +559,206 @@ namespace Bitrix\Security {
 	 * @method \Bitrix\Security\EO_Session_Collection wakeUpCollection($rows)
 	 */
 	class EO_Session_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Security\XScanResultTable:security/lib/xscanresulttable.php */
+namespace Bitrix\Security {
+	/**
+	 * XScanResult
+	 * @see \Bitrix\Security\XScanResultTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Security\XScanResult setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getType()
+	 * @method \Bitrix\Security\XScanResult setType(\string|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method bool hasType()
+	 * @method bool isTypeFilled()
+	 * @method bool isTypeChanged()
+	 * @method \string remindActualType()
+	 * @method \string requireType()
+	 * @method \Bitrix\Security\XScanResult resetType()
+	 * @method \Bitrix\Security\XScanResult unsetType()
+	 * @method \string fillType()
+	 * @method \string getSrc()
+	 * @method \Bitrix\Security\XScanResult setSrc(\string|\Bitrix\Main\DB\SqlExpression $src)
+	 * @method bool hasSrc()
+	 * @method bool isSrcFilled()
+	 * @method bool isSrcChanged()
+	 * @method \string remindActualSrc()
+	 * @method \string requireSrc()
+	 * @method \Bitrix\Security\XScanResult resetSrc()
+	 * @method \Bitrix\Security\XScanResult unsetSrc()
+	 * @method \string fillSrc()
+	 * @method \string getMessage()
+	 * @method \Bitrix\Security\XScanResult setMessage(\string|\Bitrix\Main\DB\SqlExpression $message)
+	 * @method bool hasMessage()
+	 * @method bool isMessageFilled()
+	 * @method bool isMessageChanged()
+	 * @method \string remindActualMessage()
+	 * @method \string requireMessage()
+	 * @method \Bitrix\Security\XScanResult resetMessage()
+	 * @method \Bitrix\Security\XScanResult unsetMessage()
+	 * @method \string fillMessage()
+	 * @method \float getScore()
+	 * @method \Bitrix\Security\XScanResult setScore(\float|\Bitrix\Main\DB\SqlExpression $score)
+	 * @method bool hasScore()
+	 * @method bool isScoreFilled()
+	 * @method bool isScoreChanged()
+	 * @method \float remindActualScore()
+	 * @method \float requireScore()
+	 * @method \Bitrix\Security\XScanResult resetScore()
+	 * @method \Bitrix\Security\XScanResult unsetScore()
+	 * @method \float fillScore()
+	 * @method \Bitrix\Main\Type\DateTime getCtime()
+	 * @method \Bitrix\Security\XScanResult setCtime(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $ctime)
+	 * @method bool hasCtime()
+	 * @method bool isCtimeFilled()
+	 * @method bool isCtimeChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualCtime()
+	 * @method \Bitrix\Main\Type\DateTime requireCtime()
+	 * @method \Bitrix\Security\XScanResult resetCtime()
+	 * @method \Bitrix\Security\XScanResult unsetCtime()
+	 * @method \Bitrix\Main\Type\DateTime fillCtime()
+	 * @method \Bitrix\Main\Type\DateTime getMtime()
+	 * @method \Bitrix\Security\XScanResult setMtime(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $mtime)
+	 * @method bool hasMtime()
+	 * @method bool isMtimeFilled()
+	 * @method bool isMtimeChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualMtime()
+	 * @method \Bitrix\Main\Type\DateTime requireMtime()
+	 * @method \Bitrix\Security\XScanResult resetMtime()
+	 * @method \Bitrix\Security\XScanResult unsetMtime()
+	 * @method \Bitrix\Main\Type\DateTime fillMtime()
+	 * @method \string getTags()
+	 * @method \Bitrix\Security\XScanResult setTags(\string|\Bitrix\Main\DB\SqlExpression $tags)
+	 * @method bool hasTags()
+	 * @method bool isTagsFilled()
+	 * @method bool isTagsChanged()
+	 * @method \string remindActualTags()
+	 * @method \string requireTags()
+	 * @method \Bitrix\Security\XScanResult resetTags()
+	 * @method \Bitrix\Security\XScanResult unsetTags()
+	 * @method \string fillTags()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Security\XScanResult set($fieldName, $value)
+	 * @method \Bitrix\Security\XScanResult reset($fieldName)
+	 * @method \Bitrix\Security\XScanResult unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Security\XScanResult wakeUp($data)
+	 */
+	class EO_XScanResult {
+		/* @var \Bitrix\Security\XScanResultTable */
+		static public $dataClass = '\Bitrix\Security\XScanResultTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Security {
+	/**
+	 * XScanResults
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getTypeList()
+	 * @method \string[] fillType()
+	 * @method \string[] getSrcList()
+	 * @method \string[] fillSrc()
+	 * @method \string[] getMessageList()
+	 * @method \string[] fillMessage()
+	 * @method \float[] getScoreList()
+	 * @method \float[] fillScore()
+	 * @method \Bitrix\Main\Type\DateTime[] getCtimeList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillCtime()
+	 * @method \Bitrix\Main\Type\DateTime[] getMtimeList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillMtime()
+	 * @method \string[] getTagsList()
+	 * @method \string[] fillTags()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Security\XScanResult $object)
+	 * @method bool has(\Bitrix\Security\XScanResult $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Security\XScanResult getByPrimary($primary)
+	 * @method \Bitrix\Security\XScanResult[] getAll()
+	 * @method bool remove(\Bitrix\Security\XScanResult $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Security\XScanResults wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Security\XScanResult current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method XScanResults merge(?XScanResults $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_XScanResult_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Security\XScanResultTable */
+		static public $dataClass = '\Bitrix\Security\XScanResultTable';
+	}
+}
+namespace Bitrix\Security {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_XScanResult_Result exec()
+	 * @method \Bitrix\Security\XScanResult fetchObject()
+	 * @method \Bitrix\Security\XScanResults fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_XScanResult_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Security\XScanResult fetchObject()
+	 * @method \Bitrix\Security\XScanResults fetchCollection()
+	 */
+	class EO_XScanResult_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Security\XScanResult createObject($setDefaultValues = true)
+	 * @method \Bitrix\Security\XScanResults createCollection()
+	 * @method \Bitrix\Security\XScanResult wakeUpObject($row)
+	 * @method \Bitrix\Security\XScanResults wakeUpCollection($rows)
+	 */
+	class EO_XScanResult_Entity extends \Bitrix\Main\ORM\Entity {}
 }

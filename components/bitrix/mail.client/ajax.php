@@ -7,6 +7,7 @@ use Bitrix\Mail\Helper\MessageFolder;
 use Bitrix\Mail\ImapCommands\MailsFlagsManager;
 use Bitrix\Mail\ImapCommands\MailsFoldersManager;
 use Bitrix\Mail\Integration\Calendar\ICal\ICalMailManager;
+use Bitrix\Mail\Internals\MessageAccessTable;
 use Bitrix\Mail\MailMessageTable;
 use Bitrix\Main;
 use Bitrix\Main\Context;
@@ -1048,34 +1049,25 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		}
 
 		$message = Mail\MailMessageTable::getList(array(
-			'runtime' => array(
-				new Main\Entity\ReferenceField(
-					'MESSAGE_ACCESS',
-					Mail\Internals\MessageAccessTable::class,
-					array(
-						'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
-						'=this.ID' => 'ref.MESSAGE_ID',
-					)
-				),
-			),
 			'select' => array(
 				'*',
 				'MAILBOX_EMAIL' => 'MAILBOX.EMAIL',
 				'MAILBOX_NAME' => 'MAILBOX.NAME',
 				'MAILBOX_LOGIN' => 'MAILBOX.LOGIN',
-				new Main\Entity\ExpressionField(
-					'BIND',
-					'GROUP_CONCAT(%s)',
-					'MESSAGE_ACCESS.ENTITY_ID'
-				),
 			),
 			'filter' => array(
 				'=ID' => $messageId,
-				'=MESSAGE_ACCESS.ENTITY_TYPE' => 'CRM_ACTIVITY',
 			),
 		))->fetch();
 
 		if (empty($message))
+		{
+			$this->errorCollection[] = new Main\Error(Loc::getMessage('MAIL_CLIENT_ELEMENT_NOT_FOUND'));
+			return;
+		}
+
+		$crmEntityIds = $this->getBindCrmEntityIds($message['MAILBOX_ID'], $messageId);
+		if (empty($crmEntityIds))
 		{
 			$this->errorCollection[] = new Main\Error(Loc::getMessage('MAIL_CLIENT_ELEMENT_NOT_FOUND'));
 			return;
@@ -1108,7 +1100,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			}
 		}
 
-		foreach (explode(',', $message['BIND']) as $item)
+		foreach ($crmEntityIds as $item)
 		{
 			\CCrmActivity::delete($item);
 		}
@@ -1185,6 +1177,27 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 				'CODE' => $lastRcpt,
 			));
 		}
+	}
+
+	/**
+	 * Get mail crm activity entity ids
+	 *
+	 * @param int $mailboxId Mailbox ID
+	 * @param int $messageId Message ID
+	 *
+	 * @return array|int[]
+	 */
+	private function getBindCrmEntityIds(int $mailboxId, int $messageId): array
+	{
+		$binds = MessageAccessTable::query()
+			->where('MAILBOX_ID', $mailboxId)
+			->where('MESSAGE_ID', $messageId)
+			->where('ENTITY_TYPE', 'CRM_ACTIVITY')
+			->setDistinct()
+			->addSelect('ENTITY_ID')
+			->fetchAll();
+
+		return array_column($binds, 'ENTITY_ID');
 	}
 
 	public function icalAction()

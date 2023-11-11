@@ -8,6 +8,8 @@ import { Logger } from 'im.v2.lib.logger';
 import { NotifierManager } from 'im.v2.lib.notifier';
 import { MarketManager } from 'im.v2.lib.market';
 import { DesktopManager } from 'im.v2.lib.desktop';
+import { PromoManager } from 'im.v2.lib.promo';
+import { PermissionManager } from 'im.v2.lib.permission';
 
 export class InitManager
 {
@@ -23,12 +25,13 @@ export class InitManager
 		this.#initLogger();
 		Logger.warn('InitManager: start');
 		this.#initCurrentUser();
-		this.#initChatRestrictions();
-		this.#initCounters();
-		this.#initMarket();
 		this.#initSettings();
-		this.#initPhoneManager();
 
+		CounterManager.init();
+		PermissionManager.init();
+		PromoManager.init();
+		MarketManager.init();
+		PhoneManager.init();
 		CallManager.init();
 		SmileManager.init();
 		NotifierManager.init();
@@ -59,41 +62,6 @@ export class InitManager
 		Logger.setConfig(loggerConfig);
 	}
 
-	static #initChatRestrictions()
-	{
-		const { chatOptions } = Core.getApplicationData();
-		if (!chatOptions)
-		{
-			return;
-		}
-
-		Core.getStore().dispatch('dialogues/setChatOptions', chatOptions);
-	}
-
-	static #initCounters()
-	{
-		const { counters } = Core.getApplicationData();
-		if (!counters)
-		{
-			return;
-		}
-
-		Logger.warn('InitManager: counters', counters);
-		CounterManager.init(counters);
-	}
-
-	static #initMarket()
-	{
-		const { marketApps } = Core.getApplicationData();
-		if (!marketApps)
-		{
-			return;
-		}
-
-		Logger.warn('InitManager: marketApps', marketApps);
-		MarketManager.init(marketApps);
-	}
-
 	static #initSettings()
 	{
 		const { settings } = Core.getApplicationData();
@@ -104,17 +72,5 @@ export class InitManager
 
 		Logger.warn('InitManager: settings', settings);
 		Core.getStore().dispatch('application/settings/set', settings);
-	}
-
-	static #initPhoneManager()
-	{
-		const { phoneSettings } = Core.getApplicationData();
-		if (!phoneSettings)
-		{
-			return;
-		}
-
-		Logger.warn('InitManager: phone', phoneSettings);
-		PhoneManager.init(phoneSettings);
 	}
 }

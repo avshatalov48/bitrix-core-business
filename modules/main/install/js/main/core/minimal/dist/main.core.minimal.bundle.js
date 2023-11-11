@@ -9269,8 +9269,8 @@ window._main_polyfill_core = true;
 	      var value = source[property];
 	      var preparedProperty = property;
 	      if (Type.isArray(value)) {
-	        while (property.length > 2 && property.lastIndexOf('[]') === property.length - 2) {
-	          preparedProperty = property.substring(0, property.length - 2);
+	        while (preparedProperty.length > 2 && preparedProperty.lastIndexOf('[]') === preparedProperty.length - 2) {
+	          preparedProperty = preparedProperty.substring(0, preparedProperty.length - 2);
 	        }
 	      }
 	      var key = pre ? "".concat(pre, "[").concat(preparedProperty, "]") : preparedProperty;
@@ -10560,6 +10560,7 @@ window._main_polyfill_core = true;
 	var Cache = function Cache() {
 	  babelHelpers.classCallCheck(this, Cache);
 	};
+	babelHelpers.defineProperty(Cache, "BaseCache", BaseCache);
 	babelHelpers.defineProperty(Cache, "MemoryCache", MemoryCache);
 	babelHelpers.defineProperty(Cache, "LocalStorageCache", LocalStorageCache);
 

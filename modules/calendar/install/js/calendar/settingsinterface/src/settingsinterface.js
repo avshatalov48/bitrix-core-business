@@ -1,5 +1,5 @@
 import { Util } from 'calendar.util';
-import {EmailSelectorControl} from 'calendar.controls';
+import {EmailSelectorControl, DateTimeControl} from 'calendar.controls';
 import { Type, Event, Loc, Tag, Dom, Text, Runtime } from 'main.core';
 import { Dialog as EntitySelectorDialog } from 'ui.entity-selector';
 import { EventEmitter } from 'main.core.events';
@@ -21,6 +21,8 @@ export class SettingsInterface
 	SLIDER_WIDTH: number = 500;
 	SLIDER_DURATION: number = 80;
 	DOM: any = {};
+	HELP_DESK_CODE = 7218351;
+	HELP_DESK_CODE_LOCATION = 14326208;
 
 	constructor(options: SettingsInterfaceOptions)
 	{
@@ -73,14 +75,7 @@ export class SettingsInterface
 	{
 		if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId)
 		{
-			if (this.denyClose)
-			{
-				event.denyAction();
-			}
-			else
-			{
-				BX.removeCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
-			}
+			BX.removeCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
 		}
 	}
 
@@ -170,6 +165,10 @@ export class SettingsInterface
 			this.DOM.timezoneSelect = this.DOM.content.querySelector('[data-role="set_tz_sel"]');
 			this.DOM.sendFromEmailSelect = this.DOM.content.querySelector('[data-role="send_from_email"]');
 
+			// this.DOM.enableLunchTime = this.DOM.content.querySelector('[data-role="enable_lunch_time"]');
+			// this.DOM.lunchTimeSettingContainer = this.DOM.content.querySelector('#ec_lunch_time');
+			// this.lunchTimeControl = this.initLunchTimeControl(this.DOM.lunchTimeSettingContainer);
+
 			if (this.BX.Type.isElementNode(this.DOM.sendFromEmailSelect))
 			{
 				this.emailSelectorControl = new EmailSelectorControl({
@@ -238,6 +237,11 @@ export class SettingsInterface
 			else if(Type.isElementNode(this.DOM.accessHelpIcon))
 			{
 				this.DOM.accessHelpIcon.remove();
+				Dom.replace(this.DOM.accessMessageWrap, Tag.render`
+					<span onclick="${() => this.openHelpDesk(this.HELP_DESK_CODE)}" class="ui-hint" title="${Loc.getMessage('EC_CALENDAR_HOW_DOES_IT_WORK')}">
+						<span class="ui-hint-icon"></span>
+					</span>
+				`);
 			}
 			if (Type.isElementNode(this.DOM.accessOuterWrap))
 			{
@@ -251,7 +255,7 @@ export class SettingsInterface
 		const moreMessageButton = Tag.render`
 			<a class="ui-btn ui-btn-primary">${Loc.getMessage('EC_LOCATION_SETTINGS_MORE_INFO')}</a>
 		`;
-		Event.bind(moreMessageButton, 'click', this.openHelpDesk);
+		Event.bind(moreMessageButton, 'click', () => this.openHelpDesk(this.HELP_DESK_CODE_LOCATION));
 		const header = "";
 		const description = Loc.getMessage('EC_LOCATION_SETTINGS_MESSAGE_DESCRIPTION')
 
@@ -277,6 +281,67 @@ export class SettingsInterface
 			}
 		}
 	}
+
+	// initLunchTimeControl(container)
+	// {
+	// 	Event.bind(this.DOM.enableLunchTime, 'change', () => {
+	// 		this.updateEnabledLunchTime();
+	// 	});
+	//
+	// 	const lunchTimeContainer = Tag.render`<div class="calendar-field-container calendar-field-container-datetime"></div>`;
+	// 	container.append(lunchTimeContainer);
+	//
+	// 	const lunchTimeControl = new DateTimeControl(null, {
+	// 		showTimezone: false,
+	// 		outerWrap: lunchTimeContainer,
+	// 		inlineEditMode: true
+	// 	});
+	// 	lunchTimeControl.DOM.fromDate.style.display = 'none';
+	// 	lunchTimeControl.DOM.toDate.style.display = 'none';
+	// 	lunchTimeControl.DOM.outerWrap.querySelector('.calendar-event-full-day').style.display = 'none';
+	// 	lunchTimeControl.setValue({
+	// 		from: new Date(),
+	// 		to: new Date(),
+	// 		fullDay: false,
+	// 		timezoneFrom: '',
+	// 		timezoneTo: '',
+	// 	});
+	// 	lunchTimeControl.setInlineEditMode('edit');
+	// 	lunchTimeControl.setViewMode(false);
+	//
+	// 	return lunchTimeControl;
+	// }
+	//
+	// setLunchTimeValue()
+	// {
+	// 	const settingEnableLunchTime = this.calendarContext.util.getUserOption('enableLunchTime', 'N') === 'Y';
+	// 	const settingLunchStart = this.calendarContext.util.getUserOption('lunchStart', '13:00');
+	// 	const settingLunchEnd = this.calendarContext.util.getUserOption('lunchEnd', '14:00');
+	//
+	// 	this.DOM.enableLunchTime.checked = settingEnableLunchTime;
+	// 	this.updateEnabledLunchTime();
+	//
+	// 	const date = new Date().toDateString();
+	// 	const lunchStart = new Date(`${date} ${settingLunchStart}`);
+	// 	const lunchEnd = new Date(`${date} ${settingLunchEnd}`);
+	//
+	// 	this.lunchTimeControl.setValue({
+	// 		from: lunchStart,
+	// 		to: lunchEnd,
+	// 	});
+	// }
+	//
+	// updateEnabledLunchTime()
+	// {
+	// 	if (this.DOM.enableLunchTime.checked)
+	// 	{
+	// 		Dom.removeClass(this.DOM.lunchTimeSettingContainer, '--disabled');
+	// 	}
+	// 	else
+	// 	{
+	// 		Dom.addClass(this.DOM.lunchTimeSettingContainer, '--disabled');
+	// 	}
+	// }
 
 	onClickHint()
 	{
@@ -327,6 +392,8 @@ export class SettingsInterface
 					this.DOM.crmSelect.options.add(new Option(section.name, section.id, selected, selected));
 				}
 			}
+
+			// this.setLunchTimeValue();
 		}
 
 		if(this.DOM.showDeclined)
@@ -465,6 +532,11 @@ export class SettingsInterface
 		{
 			userSettings.sendFromEmail = this.emailSelectorControl.getValue();
 		}
+
+		// const lunchTime = this.lunchTimeControl.getValue();
+		// userSettings.enableLunchTime = this.DOM.enableLunchTime.checked ? 'Y' : 'N';
+		// userSettings.lunchStart = Util.formatTime(lunchTime.from);
+		// userSettings.lunchEnd = Util.formatTime(lunchTime.to);
 
 		const data = {
 			type: this.calendarContext.util.config.type,
@@ -652,7 +724,7 @@ export class SettingsInterface
 				);
 			const titleNode = Dom.adjust(rowNode.insertCell(-1), {
 					props : {className: 'calendar-section-slider-access-table-cell'},
-					html: '<span class="calendar-section-slider-access-title">' + Text.encode(title) + ':</span>'});
+					html: `<span class="calendar-section-slider-access-title" title="${Text.encode(title)}">${Text.encode(title)}:</span>`});
 			const valueCell = Dom.adjust(rowNode.insertCell(-1), {
 					props : {className: 'calendar-section-slider-access-table-cell'},
 					attrs: {'data-bx-calendar-access-selector': code}
@@ -707,11 +779,14 @@ export class SettingsInterface
 		if (
 			this.accessPopupMenu
 			&& this.accessPopupMenu.popupWindow
+			&& this.accessPopupMenu.popupWindow.getContentContainer()?.offsetWidth > 0
 			&& this.accessPopupMenu.popupWindow.isShown()
 		)
 		{
 			return this.accessPopupMenu.close();
 		}
+
+		this.accessPopupMenu?.destroy();
 
 		const _this = this;
 		const menuItems = [];
@@ -747,21 +822,18 @@ export class SettingsInterface
 				offsetLeft: 0,
 				angle: true,
 				cacheable: false,
-				events:
-				{
-					onPopupClose : this.allowSliderClose.bind(this)
-				}
 			}
 		);
 
 		this.accessPopupMenu.show();
-		this.denySliderClose();
 	}
 
-	openHelpDesk()
+	openHelpDesk(helpDeskCode)
 	{
-		let helpDeskCode = 14326208;
-		top.BX.Helper.show('redirect=detail&code=' + helpDeskCode);
+		if (top.BX.Helper)
+		{
+			top.BX.Helper.show('redirect=detail&code=' + helpDeskCode);
+		}
 	}
 
 	showMessage()

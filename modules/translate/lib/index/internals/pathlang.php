@@ -39,7 +39,7 @@ class PathLangTable extends DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_translate_path_lang';
 	}
@@ -49,28 +49,28 @@ class PathLangTable extends DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
-		return array(
-			'ID' => array(
+		return [
+			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-			),
-			'PATH' => array(
+			],
+			'PATH' => [
 				'data_type' => 'string',
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * Drops index.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
 	 * @return void
 	 */
-	public static function purge(Translate\Filter $filter = null)
+	public static function purge(?Translate\Filter $filter = null): void
 	{
 		$relPath = isset($filter, $filter->path) ? $filter->path : '';
 
@@ -78,7 +78,7 @@ class PathLangTable extends DataManager
 		{
 			$relPath = rtrim($relPath, '/');
 
-			static::bulkDelete(array('=%PATH' => $relPath .'%'));
+			static::bulkDelete(['=%PATH' => $relPath .'%']);
 		}
 		else
 		{

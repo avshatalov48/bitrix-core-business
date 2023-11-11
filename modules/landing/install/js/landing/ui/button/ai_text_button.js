@@ -61,7 +61,7 @@
 
 			// picker instance
 
-			if (true || !this.aiTextPicker)
+			if (!this.aiTextPicker)
 			{
 				const siteId = BX.Landing.Main.getInstance()["options"]["site_id"];
 				const picker = top.BX.AI ? top.BX.AI.Picker : BX.AI.Picker;
@@ -80,7 +80,7 @@
 				this.aiTextPicker.setLangSpace(BX.AI.Picker.LangSpace.text)
 			}
 
-			//this.aiTextPicker.setSelectCallback(this.onSelect);
+			this.aiTextPicker.setSelectCallback(this.onSelect);
 			this.aiTextPicker.setEngineParameters(engineParameters);
 
 			this.aiTextPicker.text();

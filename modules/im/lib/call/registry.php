@@ -3,6 +3,7 @@
 namespace Bitrix\Im\Call;
 
 use Bitrix\Im\Model\CallTable;
+use Bitrix\Im\V2\Call\CallFactory;
 
 class Registry
 {
@@ -12,18 +13,18 @@ class Registry
 	/**
 	 *
 	 * @param int $id Id of the call
-	 * @return Call|false
+	 * @return Call|null
 	 */
-	public static function getCallWithId($id)
+	public static function getCallWithId(int $id): ?Call
 	{
 		if(static::$calls[$id])
 			return static::$calls[$id];
 
 		$row = CallTable::getRowById($id);
 		if(!$row)
-			return false;
+			return null;
 
-		static::$calls[$id] = Call::createWithArray($row);
+		static::$calls[$id] = CallFactory::createWithArray($row['PROVIDER'], $row);
 		return static::$calls[$id];
 	}
 

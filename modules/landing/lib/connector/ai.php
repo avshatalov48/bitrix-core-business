@@ -28,7 +28,7 @@ class Ai
 			return false;
 		}
 
-		$engine = Engine::getByCategory('image', new Context('landing', ''));
+		$engine = Engine::getByCategory('image', Context::getFake());
 		if (!$engine)
 		{
 			return false;
@@ -48,7 +48,7 @@ class Ai
 			return false;
 		}
 
-		$engine = Engine::getByCategory('text', new Context('landing', ''));
+		$engine = Engine::getByCategory('text', Context::getFake());
 		if (!$engine)
 		{
 			return false;
@@ -68,8 +68,8 @@ class Ai
 			return false;
 		}
 
-		return Engine::getByCategory('text', new Context('landing', ''))
-				|| Engine::getByCategory('image', new Context('landing', ''));
+		return Engine::getByCategory('text', Context::getFake())
+				|| Engine::getByCategory('image', Context::getFake());
 	}
 
 	/**
@@ -81,7 +81,7 @@ class Ai
 		$result = new Entity\EventResult;
 		$items = [];
 
-		if (Engine::getByCategory('image', new Context('landing', '')))
+		if (Engine::getByCategory('image', Context::getFake()))
 		{
 			$items[self::TUNING_CODE_IMAGE] = [
 				'header' => 'ImageAssistant AI',
@@ -91,7 +91,7 @@ class Ai
 			];
 		}
 
-		if (Engine::getByCategory('text', new Context('landing', '')))
+		if (Engine::getByCategory('text', Context::getFake()))
 		{
 			$items[self::TUNING_CODE_TEXT] = [
 				'header' => 'TextAssistant AI',

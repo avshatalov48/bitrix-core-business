@@ -4,8 +4,10 @@ namespace Bitrix\Im\Model;
 use Bitrix\Im\Internals\ChatIndex;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Main\Entity;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Event;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Search\MapBuilder;
 
 Loc::loadMessages(__FILE__);
@@ -190,11 +192,11 @@ class ChatTable extends Entity\DataManager
 			),
 			'MANAGE_USERS' => array(
 				'data_type' => 'string',
-				'default_value' => Chat::MANAGE_RIGHTS_ALL,
+				'default_value' => Chat::MANAGE_RIGHTS_MEMBER,
 			),
 			'MANAGE_UI' => array(
 				'data_type' => 'string',
-				'default_value' => Chat::MANAGE_RIGHTS_ALL,
+				'default_value' => Chat::MANAGE_RIGHTS_MEMBER,
 			),
 			'MANAGE_SETTINGS' => array(
 				'data_type' => 'string',
@@ -202,7 +204,7 @@ class ChatTable extends Entity\DataManager
 			),
 			'CAN_POST' => array(
 				'data_type' => 'string',
-				'default_value' => Chat::MANAGE_RIGHTS_ALL,
+				'default_value' => Chat::MANAGE_RIGHTS_MEMBER,
 			),
 			'INDEX' => array(
 				'data_type' => 'Bitrix\Im\Model\ChatIndex',
@@ -288,6 +290,16 @@ class ChatTable extends Entity\DataManager
 		$record = static::getRecordChatData($index->getChatId());
 		if(!is_array($record))
 		{
+			return;
+		}
+
+		if ($record['TYPE'] === Chat::IM_TYPE_OPEN_LINE)
+		{
+			if (Loader::includeModule('imopenlines'))
+			{
+				\Bitrix\ImOpenLines\Model\ChatIndexTable::updateIndex($index->getChatId(), $record['TITLE'] ?? null);
+			}
+
 			return;
 		}
 
@@ -407,7 +419,12 @@ class ChatTable extends Entity\DataManager
 			self::query()
 				->setSelect(['*'])
 				->where('ID', $id)
-				->whereNot('ENTITY_TYPE', 'LIVECHAT')
+				->where(
+					Query::filter()
+						->logic('or')
+						->whereNot('ENTITY_TYPE', 'LIVECHAT')
+						->whereNull('ENTITY_TYPE')
+				)
 				->whereNotIn('TYPE', [\Bitrix\Im\Chat::TYPE_SYSTEM, \Bitrix\Im\Chat::TYPE_PRIVATE])
 				->fetch()
 			;

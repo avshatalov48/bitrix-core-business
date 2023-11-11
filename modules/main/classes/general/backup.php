@@ -439,10 +439,9 @@ class CBackup
 	public static function QueryUnbuffered($q)
 	{
 		global $DB;
-		if (defined('BX_USE_MYSQLI') && BX_USE_MYSQLI === true)
-			$DB->result = mysqli_query($DB->db_Conn, $q, MYSQLI_USE_RESULT);
-		else
-			$DB->result = mysql_unbuffered_query($q, $DB->db_Conn);
+
+		$DB->result = mysqli_query($DB->db_Conn, $q, MYSQLI_USE_RESULT);
+
 		$rsSource = new CDBResult($DB->result);
 		$rsSource->DB = $DB;
 		return $rsSource;
@@ -451,10 +450,8 @@ class CBackup
 	public static function FreeResult()
 	{
 		global $DB;
-		if (defined('BX_USE_MYSQLI') && BX_USE_MYSQLI === true)
-			mysqli_free_result($DB->result);
-		else
-			mysql_free_result($DB->result);
+
+		mysqli_free_result($DB->result);
 	}
 
 	public function file_put_contents_ex($strDumpFile, $str)

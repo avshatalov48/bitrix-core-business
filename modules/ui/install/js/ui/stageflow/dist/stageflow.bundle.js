@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core,main_popup) {
 	'use strict';
@@ -6,14 +7,14 @@ this.BX = this.BX || {};
 	var Stage = /*#__PURE__*/function () {
 	  function Stage(_ref) {
 	    var id = _ref.id,
-	        name = _ref.name,
-	        color = _ref.color,
-	        backgroundColor = _ref.backgroundColor,
-	        isFilled = _ref.isFilled,
-	        events = _ref.events,
-	        isSuccess = _ref.isSuccess,
-	        isFail = _ref.isFail,
-	        fillingColor = _ref.fillingColor;
+	      name = _ref.name,
+	      color = _ref.color,
+	      backgroundColor = _ref.backgroundColor,
+	      isFilled = _ref.isFilled,
+	      events = _ref.events,
+	      isSuccess = _ref.isSuccess,
+	      isFail = _ref.isFail,
+	      fillingColor = _ref.fillingColor;
 	    babelHelpers.classCallCheck(this, Stage);
 	    babelHelpers.defineProperty(this, "backgroundImage", "url('data:image/svg+xml;charset=UTF-8,%3csvg width=%27295%27 height=%2732%27 viewBox=%270 0 295 32%27 fill=%27none%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3cmask id=%27mask0_2_11%27 style=%27mask-type:alpha%27 maskUnits=%27userSpaceOnUse%27 x=%270%27 y=%270%27 width=%27295%27 height=%2732%27%3e%3cpath fill=%27#COLOR2#%27 d=%27M0 2.9961C0 1.3414 1.33554 0 2.99805 0L285.905 7.15256e-07C287.561 7.15256e-07 289.366 1.25757 289.937 2.80757L295 16.5505L290.007 29.2022C289.397 30.7474 287.567 32 285.905 32H2.99805C1.34227 32 0 30.6657 0 29.0039V2.9961Z%27/%3e%3c/mask%3e%3cg mask=%27url(%23mask0_2_11)%27%3e%3cpath fill=%27#COLOR2#%27 d=%27M0 2.9961C0 1.3414 1.33554 0 2.99805 0L285.905 7.15256e-07C287.561 7.15256e-07 289.366 1.25757 289.937 2.80757L295 16.5505L290.007 29.2022C289.397 30.7474 287.567 32 285.905 32H2.99805C1.34227 32 0 30.6657 0 29.0039V2.9961Z%27/%3e%3cpath d=%27M0 30H295V32H0V30Z%27 fill=%27#COLOR1#%27/%3e%3c/g%3e%3c/svg%3e') 3 10 3 3 fill repeat");
 	    this.id = id;
@@ -26,7 +27,6 @@ this.BX = this.BX || {};
 	    this.fail = isFail;
 	    this.fillingColor = fillingColor;
 	  }
-
 	  babelHelpers.createClass(Stage, [{
 	    key: "getId",
 	    value: function getId() {
@@ -41,11 +41,9 @@ this.BX = this.BX || {};
 	    key: "setName",
 	    value: function setName(name) {
 	      this.name = name;
-
 	      if (this.textNode) {
 	        this.textNode.innerText = this.name;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -83,7 +81,6 @@ this.BX = this.BX || {};
 	        this.textNode = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div style=\"border-image: ", ";\" class=\"ui-stageflow-stage-item-text\">", "</div>"])), this.getBackgroundImage(), main_core.Text.encode(this.getName()));
 	        this.node = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div \n\t\t\t\t\tclass=\"ui-stageflow-stage\" \n\t\t\t\t\tdata-stage-id=\"", "\" \n\t\t\t\t\tonmouseenter=\"", "\" \n\t\t\t\t\tonmouseleave=\"", "\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t>\n\t\t\t\t<div class=\"ui-stageflow-stage-item\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>"])), this.getId(), this.onMouseEnter.bind(this), this.onMouseLeave.bind(this), this.onClick.bind(this), this.textNode);
 	      }
-
 	      this.textNode.style.color = Stage.calculateTextColor('#' + (this.isFilled ? this.color : this.backgroundColor));
 	      return this.node;
 	    }
@@ -92,7 +89,6 @@ this.BX = this.BX || {};
 	    value: function getBackgroundImage() {
 	      var color = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 	      var isFilled = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
 	      if (!color) {
 	        if (this.isFilled && this.fillingColor) {
 	          color = this.fillingColor;
@@ -100,19 +96,15 @@ this.BX = this.BX || {};
 	          color = this.getColor();
 	        }
 	      }
-
 	      if (main_core.Type.isNull(isFilled)) {
 	        isFilled = this.isFilled;
 	      }
-
 	      var image = this.backgroundImage.replaceAll('#COLOR1#', encodeURIComponent('#' + color));
-
 	      if (isFilled) {
 	        image = image.replaceAll('#COLOR2#', encodeURIComponent('#' + color));
 	      } else {
 	        image = image.replaceAll('#COLOR2#', encodeURIComponent('#' + this.backgroundColor));
 	      }
-
 	      return image;
 	    }
 	  }, {
@@ -152,6 +144,26 @@ this.BX = this.BX || {};
 	        this.textNode.style.color = Stage.calculateTextColor('#' + (this.isFilled ? this.fillingColor : this.backgroundColor));
 	      }
 	    }
+	  }, {
+	    key: "getMinWidthForFullNameVisibility",
+	    value: function getMinWidthForFullNameVisibility() {
+	      if (!this.textNode) {
+	        return 0;
+	      }
+	      var _this$textNode = this.textNode,
+	        clientWidth = _this$textNode.clientWidth,
+	        offsetWidth = _this$textNode.offsetWidth,
+	        scrollWidth = _this$textNode.scrollWidth;
+	      return scrollWidth + (offsetWidth - clientWidth) + 2;
+	    }
+	  }, {
+	    key: "isNameCropped",
+	    value: function isNameCropped() {
+	      if (!this.textNode) {
+	        return false;
+	      }
+	      return this.textNode.offsetWidth < this.textNode.scrollWidth;
+	    }
 	  }], [{
 	    key: "create",
 	    value: function create(data) {
@@ -160,27 +172,22 @@ this.BX = this.BX || {};
 	        data.name = data.name.toString();
 	        data.color = data.color.toString();
 	        data.backgroundColor = data.backgroundColor.toString();
-
 	        if (!main_core.Type.isPlainObject(data.events)) {
 	          data.events = {};
 	        }
-
 	        if (!main_core.Type.isBoolean(data.isFilled)) {
 	          data.isFilled = false;
 	        }
-
 	        if (data.id > 0) {
 	          return new Stage(data);
 	        }
 	      }
-
 	      return null;
 	    }
 	  }, {
 	    key: "calculateTextColor",
 	    value: function calculateTextColor(baseColor) {
 	      var r, g, b;
-
 	      if (baseColor.length > 7 && baseColor.indexOf('(') >= 0 && baseColor.indexOf(')') >= 0) {
 	        var hexComponent = baseColor.split("(")[1].split(")")[0];
 	        hexComponent = hexComponent.split(",");
@@ -190,18 +197,15 @@ this.BX = this.BX || {};
 	      } else {
 	        if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(baseColor)) {
 	          var c = baseColor.substring(1).split('');
-
 	          if (c.length === 3) {
 	            c = [c[0], c[0], c[1], c[1], c[2], c[2]];
 	          }
-
 	          c = '0x' + c.join('');
 	          r = c >> 16 & 255;
 	          g = c >> 8 & 255;
 	          b = c & 255;
 	        }
 	      }
-
 	      var y = 0.21 * r + 0.72 * g + 0.07 * b;
 	      return y < 145 ? "#fff" : "#333";
 	    }
@@ -210,15 +214,10 @@ this.BX = this.BX || {};
 	}();
 
 	var _templateObject$1, _templateObject2$1, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
-
 	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var semanticSelectorPopupId = 'ui-stageflow-select-semantic-popup';
 	var finalStageSelectorPopupId = 'ui-stageflow-select-final-stage-popup';
@@ -236,40 +235,31 @@ this.BX = this.BX || {};
 	var Chart = /*#__PURE__*/function () {
 	  function Chart(params) {
 	    var _this = this;
-
 	    var stages = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 	    babelHelpers.classCallCheck(this, Chart);
 	    babelHelpers.defineProperty(this, "currentStage", 0);
 	    babelHelpers.defineProperty(this, "isActive", false);
 	    this.labels = defaultFinalStageLabels;
-
 	    if (main_core.Type.isPlainObject(params)) {
 	      if (main_core.Type.isString(params.backgroundColor) && params.backgroundColor.length === 6) {
 	        this.backgroundColor = params.backgroundColor;
 	      }
-
 	      if (params.currentStage) {
 	        this.currentStage = main_core.Text.toInteger(params.currentStage);
 	      }
-
 	      if (main_core.Type.isBoolean(params.isActive)) {
 	        this.isActive = params.isActive;
 	      }
-
 	      if (main_core.Type.isFunction(params.onStageChange)) {
 	        this.onStageChange = params.onStageChange;
 	      }
-
 	      if (main_core.Type.isPlainObject(params.labels)) {
 	        this.labels = _objectSpread(_objectSpread({}, this.labels), params.labels);
 	      }
 	    }
-
 	    FinalStageDefaultData.name = this.labels.finalStageName;
-
 	    if (main_core.Type.isArray(stages)) {
 	      var fillingColor = null;
-
 	      if (this.currentStage > 0) {
 	        stages.forEach(function (data) {
 	          if (main_core.Text.toInteger(data.id) === main_core.Text.toInteger(_this.currentStage)) {
@@ -277,28 +267,22 @@ this.BX = this.BX || {};
 	          }
 	        });
 	      }
-
 	      this.fillStages(stages, fillingColor);
 	    }
-
 	    if (!this.currentStage && this.stages.length > 0) {
 	      this.currentStage = this.stages.keys().next().value;
 	    }
 	  }
-
 	  babelHelpers.createClass(Chart, [{
 	    key: "setCurrentStageId",
 	    value: function setCurrentStageId(stageId) {
 	      stageId = main_core.Text.toInteger(stageId);
 	      var currentStage = this.getStageById(stageId);
-
 	      if (!currentStage) {
 	        return;
 	      }
-
 	      this.currentStage = stageId;
 	      var finalStage = this.getFinalStage();
-
 	      if (finalStage) {
 	        if (currentStage.isFinal()) {
 	          finalStage.setColor(currentStage.getColor()).setName(currentStage.getName());
@@ -306,7 +290,6 @@ this.BX = this.BX || {};
 	          finalStage.setColor(FinalStageDefaultData.color).setName(FinalStageDefaultData.name);
 	        }
 	      }
-
 	      this.stages.forEach(function (stage) {
 	        if (!stage.isFinal()) {
 	          stage.fillingColor = currentStage.getColor();
@@ -319,7 +302,6 @@ this.BX = this.BX || {};
 	    key: "fillStages",
 	    value: function fillStages(stages, fillingColor) {
 	      var _this2 = this;
-
 	      var isFilled = this.currentStage > 0;
 	      var finalStageOptions = {};
 	      this.stages = new Map();
@@ -333,18 +315,14 @@ this.BX = this.BX || {};
 	          onClick: _this2.onStageClick.bind(_this2)
 	        };
 	        var stage = Stage.create(data);
-
 	        if (stage) {
 	          _this2.stages.set(stage.getId(), stage);
 	        }
-
 	        if (stage.isSuccess()) {
 	          FinalStageDefaultData.color = stage.getColor();
 	        }
-
 	        if (stage.isFinal()) {
 	          finalStageOptions.isFilled = isFilled;
-
 	          if (stage.getId() === _this2.currentStage) {
 	            finalStageOptions.name = stage.getName();
 	            finalStageOptions.color = stage.getColor();
@@ -353,11 +331,9 @@ this.BX = this.BX || {};
 	          isFilled = false;
 	        }
 	      });
-
 	      if (this.getFailStages().length <= 0) {
 	        FinalStageDefaultData.name = finalStageOptions.name = this.getSuccessStage().getName();
 	      }
-
 	      this.addFinalStage(finalStageOptions);
 	    }
 	  }, {
@@ -428,7 +404,6 @@ this.BX = this.BX || {};
 	        if (stage.isFinal()) {
 	          return;
 	        }
-
 	        container.appendChild(stage.render());
 	      });
 	      this.addBackLightUpToStage();
@@ -441,7 +416,6 @@ this.BX = this.BX || {};
 	        main_core.Dom.clean(this.container);
 	        return this.container;
 	      }
-
 	      this.container = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-stageflow-container\"></div>"])));
 	      return this.container;
 	    }
@@ -451,18 +425,15 @@ this.BX = this.BX || {};
 	      if (!this.isActive) {
 	        return;
 	      }
-
+	      this.hoverStageId = stage.getId();
 	      var _iterator = _createForOfIteratorHelper(this.stages),
-	          _step;
-
+	        _step;
 	      try {
 	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
 	          var _step$value = babelHelpers.slicedToArray(_step.value, 2),
-	              id = _step$value[0],
-	              currentStage = _step$value[1];
-
+	            id = _step$value[0],
+	            currentStage = _step$value[1];
 	          currentStage.addBackLight(stage.getColor());
-
 	          if (id === stage.getId()) {
 	            break;
 	          }
@@ -472,6 +443,7 @@ this.BX = this.BX || {};
 	      } finally {
 	        _iterator.f();
 	      }
+	      this.increaseStageWidthForNameVisibility(stage);
 	    }
 	  }, {
 	    key: "onStageMouseLeave",
@@ -479,18 +451,18 @@ this.BX = this.BX || {};
 	      if (!this.isActive) {
 	        return;
 	      }
-
+	      main_core.Dom.style(stage.node, {
+	        flexBasis: null,
+	        flexGrow: null
+	      });
 	      var _iterator2 = _createForOfIteratorHelper(this.stages),
-	          _step2;
-
+	        _step2;
 	      try {
 	        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
 	          var _step2$value = babelHelpers.slicedToArray(_step2.value, 2),
-	              id = _step2$value[0],
-	              currentStage = _step2$value[1];
-
+	            id = _step2$value[0],
+	            currentStage = _step2$value[1];
 	          currentStage.removeBackLight();
-
 	          if (id === stage.getId()) {
 	            break;
 	          }
@@ -507,13 +479,10 @@ this.BX = this.BX || {};
 	      if (!this.isActive) {
 	        return;
 	      }
-
 	      if (stage.getId() !== this.currentStage && main_core.Type.isFunction(this.onStageChange)) {
 	        this.onStageChange(stage);
 	      }
-
 	      var popup = this.getSemanticSelectorPopup();
-
 	      if (popup.isShown()) {
 	        popup.close();
 	      }
@@ -524,7 +493,6 @@ this.BX = this.BX || {};
 	      if (!this.isActive) {
 	        return;
 	      }
-
 	      if (this.getFailStages().length <= 0) {
 	        this.onStageClick(this.getSuccessStage());
 	      } else {
@@ -532,10 +500,8 @@ this.BX = this.BX || {};
 	        popup.show();
 	        var currentStage = this.getStageById(this.currentStage);
 	        this.isActive = false;
-
 	        if (!currentStage.isFinal()) {
 	          var finalStage = this.getStageById(FinalStageDefaultData.id);
-
 	          if (finalStage) {
 	            this.addBackLightUpToStage(finalStage.getId(), finalStage.getColor());
 	          }
@@ -547,27 +513,21 @@ this.BX = this.BX || {};
 	    value: function addBackLightUpToStage() {
 	      var stageId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 	      var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
 	      if (!stageId) {
 	        stageId = this.currentStage;
 	      }
-
 	      var currentStage = this.getStageById(stageId);
-
 	      if (currentStage && !color) {
 	        color = currentStage.getColor();
 	      }
-
 	      var isFilled = !!stageId;
 	      this.stages.forEach(function (stage) {
 	        stage.isFilled = isFilled;
-
 	        if (stage.isFilled) {
 	          stage.addBackLight(color ? color : stage.getColor());
 	        } else {
 	          stage.removeBackLight();
 	        }
-
 	        if (!stage.isFinal() && isFilled && stage.getId() === stageId) {
 	          isFilled = false;
 	        }
@@ -577,9 +537,7 @@ this.BX = this.BX || {};
 	    key: "getSemanticSelectorPopup",
 	    value: function getSemanticSelectorPopup() {
 	      var _this3 = this;
-
 	      var popup = main_popup.PopupManager.getPopupById(semanticSelectorPopupId);
-
 	      if (!popup) {
 	        var failSemanticText = this.getFailStageName();
 	        popup = main_popup.PopupManager.create({
@@ -594,7 +552,6 @@ this.BX = this.BX || {};
 	            text: this.getSuccessStage().getName(),
 	            onclick: function onclick() {
 	              _this3.isActive = true;
-
 	              _this3.onStageClick(_this3.getSuccessStage());
 	            }
 	          }), failSemanticText ? new BX.UI.Button({
@@ -602,9 +559,7 @@ this.BX = this.BX || {};
 	            text: failSemanticText,
 	            onclick: function onclick() {
 	              popup.close();
-
 	              var finalStagePopup = _this3.getFinalStageSelectorPopup();
-
 	              finalStagePopup.show();
 	              _this3.isActive = false;
 	            }
@@ -612,28 +567,23 @@ this.BX = this.BX || {};
 	          events: {
 	            onClose: function onClose() {
 	              _this3.setCurrentStageId(_this3.currentStage);
-
 	              _this3.isActive = true;
 	            }
 	          }
 	        });
 	      }
-
 	      return popup;
 	    }
 	  }, {
 	    key: "getFinalStageSemanticSelector",
 	    value: function getFinalStageSemanticSelector() {
 	      var isSuccess = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-
 	      if (!this.finalStageSemanticSelector) {
 	        this.finalStageSemanticSelector = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-stageflow-stage-selector-option ui-stageflow-stage-selector-option-fail\" onclick=\"", "\"></div>"])), this.onSemanticSelectorClick.bind(this));
 	      }
-
 	      if (main_core.Type.isBoolean(isSuccess)) {
 	        var realFinalStage = null;
 	        var failStageName = this.getFailStageName();
-
 	        if (isSuccess || !failStageName) {
 	          this.finalStageSemanticSelector.classList.add('ui-stageflow-stage-selector-option-success');
 	          this.finalStageSemanticSelector.classList.remove('ui-stageflow-stage-selector-option-fail');
@@ -645,30 +595,23 @@ this.BX = this.BX || {};
 	          this.finalStageSemanticSelector.innerText = failStageName;
 	          realFinalStage = this.getFirstFailStage();
 	        }
-
 	        var finalStage = this.getFinalStage();
-
 	        if (finalStage && realFinalStage) {
 	          finalStage.setColor(realFinalStage.getColor()).setName(realFinalStage.getName());
 	        }
-
 	        this.addBackLightUpToStage(finalStage.getId(), finalStage.getColor());
 	      }
-
 	      return this.finalStageSemanticSelector;
 	    }
 	  }, {
 	    key: "getFinalStageSelectorPopup",
 	    value: function getFinalStageSelectorPopup() {
 	      var _this4 = this;
-
 	      var isSuccess = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 	      var titleBar = {};
 	      var content = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-stageflow-final-fail-stage-list-wrapper\"></div>"])));
-
 	      if (!isSuccess) {
 	        var failStages = this.getFailStages();
-
 	        if (failStages.length > 1) {
 	          var isChecked = true;
 	          failStages.forEach(function (stage) {
@@ -677,10 +620,8 @@ this.BX = this.BX || {};
 	          });
 	        }
 	      }
-
 	      titleBar.content = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-stageflow-stage-selector-block\">\n\t\t\t<span>", " </span>\n\t\t\t", "\n\t\t</div>"])), this.labels.finalStageSelectorTitle, this.getFinalStageSemanticSelector(isSuccess));
 	      var popup = main_popup.PopupManager.getPopupById(finalStageSelectorPopupId);
-
 	      if (!popup) {
 	        popup = main_popup.PopupManager.create({
 	          id: finalStageSelectorPopupId,
@@ -692,9 +633,7 @@ this.BX = this.BX || {};
 	          buttons: [new BX.UI.SaveButton({
 	            onclick: function onclick() {
 	              popup.close();
-
 	              var stage = _this4.getSelectedFinalStage();
-
 	              if (stage) {
 	                _this4.onStageClick(stage);
 	              }
@@ -707,13 +646,11 @@ this.BX = this.BX || {};
 	          events: {
 	            onClose: function onClose() {
 	              _this4.setCurrentStageId(_this4.currentStage);
-
 	              _this4.isActive = true;
 	            }
 	          }
 	        });
 	      }
-
 	      popup.setContent(content);
 	      popup.setTitleBar(titleBar);
 	      return popup;
@@ -722,7 +659,6 @@ this.BX = this.BX || {};
 	    key: "onSemanticSelectorClick",
 	    value: function onSemanticSelectorClick() {
 	      var _this5 = this;
-
 	      var failStageName = this.getFailStageName();
 	      var menu = main_popup.MenuManager.create({
 	        id: 'ui-stageflow-final-stage-semantic-selector',
@@ -731,14 +667,12 @@ this.BX = this.BX || {};
 	          text: this.getSuccessStage().getName(),
 	          onclick: function onclick() {
 	            _this5.getFinalStageSelectorPopup(true);
-
 	            menu.close();
 	          }
 	        }, failStageName ? {
 	          text: failStageName,
 	          onclick: function onclick() {
 	            _this5.getFinalStageSelectorPopup(false);
-
 	            menu.close();
 	          }
 	        } : null]
@@ -749,28 +683,22 @@ this.BX = this.BX || {};
 	    key: "getSelectedFinalStage",
 	    value: function getSelectedFinalStage() {
 	      var finalStageSemanticSelector = this.getFinalStageSemanticSelector();
-
 	      if (finalStageSemanticSelector.classList.contains('ui-stageflow-stage-selector-option-success')) {
 	        return this.getSuccessStage();
 	      } else {
 	        var failStages = this.getFailStages();
-
 	        if (failStages.length > 1) {
 	          var finalStageSelectorPopupContainer = document.getElementById(finalStageSelectorPopupId);
-
 	          if (finalStageSelectorPopupContainer) {
 	            var selectedInput = finalStageSelectorPopupContainer.querySelector('input:checked');
-
 	            if (selectedInput) {
 	              var failStage = this.getStageById(main_core.Text.toInteger(selectedInput.dataset.stageId));
-
 	              if (failStage) {
 	                return failStage;
 	              }
 	            }
 	          }
 	        }
-
 	        return this.getFirstFailStage();
 	      }
 	    }
@@ -778,7 +706,6 @@ this.BX = this.BX || {};
 	    key: "getFailStageName",
 	    value: function getFailStageName() {
 	      var failStagesLength = this.getFailStages().length;
-
 	      if (failStagesLength <= 0) {
 	        return null;
 	      } else if (failStagesLength === 1) {
@@ -786,6 +713,17 @@ this.BX = this.BX || {};
 	      } else {
 	        return this.labels.finalStagePopupFail;
 	      }
+	    }
+	  }, {
+	    key: "increaseStageWidthForNameVisibility",
+	    value: function increaseStageWidthForNameVisibility(stage) {
+	      if (!stage.isNameCropped()) {
+	        return;
+	      }
+	      main_core.Dom.style(stage.node, {
+	        flexGrow: 0,
+	        flexBasis: "".concat(stage.getMinWidthForFullNameVisibility(), "px")
+	      });
 	    }
 	  }]);
 	  return Chart;

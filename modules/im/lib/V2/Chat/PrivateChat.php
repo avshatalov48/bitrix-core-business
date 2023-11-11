@@ -30,6 +30,8 @@ use Bitrix\Main\Type\DateTime;
 
 class PrivateChat extends Chat implements PopupDataAggregatable
 {
+	protected const EXTRANET_CAN_SEE_HISTORY = true;
+
 	protected function getDefaultType(): string
 	{
 		return self::IM_TYPE_PRIVATE;
@@ -47,6 +49,26 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 	public function allowMention(): bool
 	{
 		return false;
+	}
+
+	public function setManageSettings(string $manageSettings): Chat
+	{
+		return $this;
+	}
+
+	public function setManageUsers(string $manageUsers): Chat
+	{
+		return $this;
+	}
+
+	public function setManageUI(string $manageUI): Chat
+	{
+		return $this;
+	}
+
+	public function setCanPost(string $canPost): Chat
+	{
+		return $this;
 	}
 
 	public function getDialogId(): ?string
@@ -163,6 +185,11 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 				'#CHAT_MEMBER_NAME_2#' => $this->getCompanion()->getName(),
 			]
 		);
+	}
+
+	public function addUsers(array $userIds, array $managerIds = [], ?bool $hideHistory = null, bool $withMessage = true, bool $skipRecent = false): Chat
+	{
+		return $this;
 	}
 
 	protected function sendPushReadSelf(MessageCollection $messages, int $lastId, int $counter): void
@@ -623,7 +650,7 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 			]);
 		}
 
-		$chat = new PrivateChat($params);
+		$chat = new static($params);
 		$chat->save();
 
 		if ($chat->getChatId() <= 0)
@@ -671,8 +698,6 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 			\Bitrix\Im\Bot::onJoinChat($params['TO_USER_ID'], $botJoinFields);
 		}
 
-		$chat->updateIndex();
-
 		return $result->setResult([
 			'CHAT_ID' => $chat->getChatId(),
 			'CHAT' => $chat,
@@ -709,6 +734,16 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		$result->setResult($params);
 
 		return $result;
+	}
+
+	protected function addIndex(): Chat
+	{
+		return $this;
+	}
+
+	protected function updateIndex(): Chat
+	{
+		return $this;
 	}
 
 	public function getPopupData(array $excludedList = []): PopupData

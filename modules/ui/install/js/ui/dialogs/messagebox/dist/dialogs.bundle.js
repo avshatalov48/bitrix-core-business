@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core,main_popup) {
@@ -9,7 +10,6 @@ this.BX.UI = this.BX.UI || {};
 	var MessageBoxButtons = function MessageBoxButtons() {
 	  babelHelpers.classCallCheck(this, MessageBoxButtons);
 	};
-
 	babelHelpers.defineProperty(MessageBoxButtons, "NONE", "none");
 	babelHelpers.defineProperty(MessageBoxButtons, "OK", "ok");
 	babelHelpers.defineProperty(MessageBoxButtons, "CANCEL", "cancel");
@@ -21,14 +21,14 @@ this.BX.UI = this.BX.UI || {};
 	babelHelpers.defineProperty(MessageBoxButtons, "YES_NO_CANCEL", "yes_no_cancel");
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	/**
 	 * @namespace {BX.UI.Dialogs}
 	 */
-
 	var MessageBox = /*#__PURE__*/function () {
 	  /** @var {Popup} */
+
 	  function MessageBox() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, MessageBox);
@@ -57,19 +57,16 @@ this.BX.UI = this.BX.UI || {};
 	    this.setCancelCallback(options.onCancel);
 	    this.setYesCallback(options.onYes);
 	    this.setNoCallback(options.onNo);
-
 	    if (main_core.Type.isBoolean(options.mediumButtonSize)) {
 	      this.mediumButtonSize = options.mediumButtonSize;
 	    } else if (this.getTitle() !== null) {
 	      this.mediumButtonSize = true;
 	    }
-
 	    if (this.isMediumButtonSize()) {
 	      this.minWidth = 400;
 	      this.minHeight = 200;
 	      this.maxWidth = 500;
 	    }
-
 	    this.minWidth = main_core.Type.isNumber(options.minWidth) ? options.minWidth : this.minWidth;
 	    this.minHeight = main_core.Type.isNumber(options.minHeight) ? options.minHeight : this.minHeight;
 	    this.maxWidth = main_core.Type.isNumber(options.maxWidth) ? options.maxWidth : this.maxWidth;
@@ -79,6 +76,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.setNoCaption(options.noCaption);
 	    this.setButtons(options.buttons);
 	  }
+
 	  /**
 	   * @param {string} message
 	   * @param args
@@ -90,15 +88,12 @@ this.BX.UI = this.BX.UI || {};
 	   * BX.UI.Dialogs.MessageBox.alert('Message', 'Title', (messageBox, button, event) => {});
 	   * BX.UI.Dialogs.MessageBox.alert('Message', 'Title', (messageBox, button, event) => {}, 'Proceed');
 	   */
-
-
 	  babelHelpers.createClass(MessageBox, [{
 	    key: "show",
 	    value: function show() {
 	      if (this.getPopupWindow().isDestroyed()) {
 	        this.popupWindow = null;
 	      }
-
 	      this.getPopupWindow().show();
 	    }
 	  }, {
@@ -110,7 +105,6 @@ this.BX.UI = this.BX.UI || {};
 	     *
 	     * @returns {PopupWindow}
 	     */
-
 	  }, {
 	    key: "getPopupWindow",
 	    value: function getPopupWindow() {
@@ -133,7 +127,6 @@ this.BX.UI = this.BX.UI || {};
 	          buttons: this.getButtons()
 	        }, this.popupOptions));
 	      }
-
 	      return this.popupWindow;
 	    }
 	  }, {
@@ -141,7 +134,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setMessage(message) {
 	      if (main_core.Type.isString(message) || main_core.Type.isDomNode(message)) {
 	        this.message = message;
-
 	        if (this.popupWindow !== null) {
 	          this.popupWindow.setContent(message);
 	        }
@@ -151,7 +143,6 @@ this.BX.UI = this.BX.UI || {};
 	     *
 	     * @returns {?string|Element|Node}
 	     */
-
 	  }, {
 	    key: "getMessage",
 	    value: function getMessage() {
@@ -162,7 +153,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setTitle(title) {
 	      if (main_core.Type.isString(title)) {
 	        this.title = title;
-
 	        if (this.popupWindow !== null) {
 	          this.popupWindow.setTitleBar(title);
 	        }
@@ -172,7 +162,6 @@ this.BX.UI = this.BX.UI || {};
 	     *
 	     * @returns {?string}
 	     */
-
 	  }, {
 	    key: "getTitle",
 	    value: function getTitle() {
@@ -182,7 +171,6 @@ this.BX.UI = this.BX.UI || {};
 	     *
 	     * @param {string|BX.UI.Button[]} buttons
 	     */
-
 	  }, {
 	    key: "setButtons",
 	    value: function setButtons(buttons) {
@@ -191,7 +179,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (main_core.Type.isString(buttons)) {
 	        this.buttons = this.getButtonsLayout(buttons);
 	      }
-
 	      if (this.popupWindow !== null) {
 	        this.popupWindow.setButtons(this.buttons);
 	      }
@@ -200,7 +187,6 @@ this.BX.UI = this.BX.UI || {};
 	     *
 	     * @returns {BX.UI.Button[]}
 	     */
-
 	  }, {
 	    key: "getButtons",
 	    value: function getButtons() {
@@ -266,7 +252,6 @@ this.BX.UI = this.BX.UI || {};
 	     *
 	     * @returns {boolean}
 	     */
-
 	  }, {
 	    key: "isMediumButtonSize",
 	    value: function isMediumButtonSize() {
@@ -276,12 +261,10 @@ this.BX.UI = this.BX.UI || {};
 	     *
 	     * @returns {BX.UI.Button}
 	     */
-
 	  }, {
 	    key: "getOkButton",
 	    value: function getOkButton() {
 	      var _this = this;
-
 	      return this.cache.remember('okBtn', function () {
 	        return new BX.UI.Button({
 	          id: MessageBoxButtons.OK,
@@ -298,12 +281,10 @@ this.BX.UI = this.BX.UI || {};
 	     *
 	     * @returns {BX.UI.Button}
 	     */
-
 	  }, {
 	    key: "getCancelButton",
 	    value: function getCancelButton() {
 	      var _this2 = this;
-
 	      return this.cache.remember('cancelBtn', function () {
 	        return new BX.UI.CancelButton({
 	          id: MessageBoxButtons.CANCEL,
@@ -319,12 +300,10 @@ this.BX.UI = this.BX.UI || {};
 	     *
 	     * @returns {BX.UI.Button}
 	     */
-
 	  }, {
 	    key: "getYesButton",
 	    value: function getYesButton() {
 	      var _this3 = this;
-
 	      return this.cache.remember('yesBtn', function () {
 	        return new BX.UI.Button({
 	          id: MessageBoxButtons.YES,
@@ -341,12 +320,10 @@ this.BX.UI = this.BX.UI || {};
 	     *
 	     * @returns {BX.UI.Button}
 	     */
-
 	  }, {
 	    key: "getNoButton",
 	    value: function getNoButton() {
 	      var _this4 = this;
-
 	      return this.cache.remember('noBtn', function () {
 	        return new BX.UI.Button({
 	          id: MessageBoxButtons.NO,
@@ -364,35 +341,26 @@ this.BX.UI = this.BX.UI || {};
 	     * @param buttons
 	     * @returns {BX.UI.Button[]}
 	     */
-
 	  }, {
 	    key: "getButtonsLayout",
 	    value: function getButtonsLayout(buttons) {
 	      switch (buttons) {
 	        case MessageBoxButtons.OK:
 	          return [this.getOkButton()];
-
 	        case MessageBoxButtons.CANCEL:
 	          return [this.getCancelButton()];
-
 	        case MessageBoxButtons.YES:
 	          return [this.getYesButton()];
-
 	        case MessageBoxButtons.NO:
 	          return [this.getNoButton()];
-
 	        case MessageBoxButtons.OK_CANCEL:
 	          return [this.getOkButton(), this.getCancelButton()];
-
 	        case MessageBoxButtons.YES_NO:
 	          return [this.getYesButton(), this.getNoButton()];
-
 	        case MessageBoxButtons.YES_CANCEL:
 	          return [this.getYesButton(), this.getCancelButton()];
-
 	        case MessageBoxButtons.YES_NO_CANCEL:
 	          return [this.getYesButton(), this.getNoButton(), this.getCancelButton()];
-
 	        default:
 	          return [];
 	      }
@@ -402,28 +370,22 @@ this.BX.UI = this.BX.UI || {};
 	     * @param {BX.UI.Button} button
 	     * @param event
 	     */
-
 	  }, {
 	    key: "handleButtonClick",
 	    value: function handleButtonClick(button, event) {
 	      var _this5 = this;
-
 	      if (button.isDisabled()) {
 	        return;
 	      }
-
 	      button.setDisabled(); // prevent a double click
 
 	      var fn = this["".concat(button.getId(), "Callback")];
-
 	      if (!fn) {
 	        button.setDisabled(false);
 	        this.close();
 	        return;
 	      }
-
 	      var result = fn(this, button, event);
-
 	      if (result === true) {
 	        button.setDisabled(false);
 	        this.close();
@@ -433,7 +395,6 @@ this.BX.UI = this.BX.UI || {};
 	        button.setWaiting();
 	        result.then(function (result) {
 	          button.setWaiting(false);
-
 	          _this5.close();
 	        }, function (reason) {
 	          button.setWaiting(false);
@@ -446,11 +407,9 @@ this.BX.UI = this.BX.UI || {};
 	      var title = null;
 	      var okCallback = null;
 	      var okCaption = null;
-
 	      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 	        args[_key - 1] = arguments[_key];
 	      }
-
 	      if (args.length) {
 	        if (main_core.Type.isString(args[0])) {
 	          title = args[0];
@@ -461,7 +420,6 @@ this.BX.UI = this.BX.UI || {};
 	          okCaption = args[1];
 	        }
 	      }
-
 	      this.show({
 	        message: message,
 	        title: title,
@@ -484,7 +442,6 @@ this.BX.UI = this.BX.UI || {};
 	     * BX.UI.Dialogs.MessageBox.confirm('Message', 'Title', () => {});
 	     * BX.UI.Dialogs.MessageBox.confirm('Message', 'Title', () => {}, 'Proceed', () => {});
 	     */
-
 	  }, {
 	    key: "confirm",
 	    value: function confirm(message) {
@@ -492,11 +449,9 @@ this.BX.UI = this.BX.UI || {};
 	      var okCallback = null;
 	      var okCaption = null;
 	      var cancelCallback = null;
-
 	      for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
 	        args[_key2 - 1] = arguments[_key2];
 	      }
-
 	      if (args.length) {
 	        if (main_core.Type.isString(args[0])) {
 	          title = args[0];
@@ -509,7 +464,6 @@ this.BX.UI = this.BX.UI || {};
 	          cancelCallback = args[2];
 	        }
 	      }
-
 	      this.show({
 	        message: message,
 	        title: title,

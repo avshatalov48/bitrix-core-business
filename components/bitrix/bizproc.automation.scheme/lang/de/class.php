@@ -1,5 +1,5 @@
 <?php
-$MESS["BIZPROC_AUTOMATION_SCHEME_MODULE_NOT_INSTALLED"] = "Das Modul Workflows ist nicht installiert.";
+$MESS["BIZPROC_AUTOMATION_SCHEME_MODULE_NOT_INSTALLED_MSGVER_1"] = "Das Modul Workflows ist nicht installiert.";
 $MESS["BIZPROC_AUTOMATION_SCHEME_RIGHTS_ERROR"] = "Sie haben nicht genügend Rechte.";
 $MESS["BIZPROC_AUTOMATION_SCHEME_SCHEME_ERROR"] = "Die Funktion zum Kopieren der Automatisierungsregel ist für diesen Dokumenttyp nicht verfügbar.";
 $MESS["BIZPROC_AUTOMATION_SCHEME_SCHEME_ERROR_1"] = "Automatisierungsregeln und/oder Trigger können nicht kopiert werden.";

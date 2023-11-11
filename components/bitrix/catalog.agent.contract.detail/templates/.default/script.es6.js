@@ -1,9 +1,9 @@
-import {Reflection} from "main.core";
-import {ProductSetFieldFactory} from "catalog.entity-editor.field.productset";
-import {SectionSetFieldFactory} from "catalog.entity-editor.field.sectionset";
-import {ContractorFieldFactory} from "catalog.entity-editor.field.contractor";
-import {ModelFactory} from "catalog.agent-contract"
-import {ControllersFactory} from "catalog.agent-contract";
+import { Reflection } from 'main.core';
+import { ProductSetFieldFactory } from 'catalog.entity-editor.field.productset';
+import { SectionSetFieldFactory } from 'catalog.entity-editor.field.sectionset';
+import { ContractorFieldFactory } from 'catalog.entity-editor.field.contractor';
+import { ModelFactory } from 'catalog.agent-contract';
+import { ControllersFactory } from 'catalog.agent-contract';
 
 const namespace = Reflection.namespace('BX.Catalog.Agent.ContractorComponent');
 
@@ -27,4 +27,4 @@ class Detail
 	}
 }
 
-namespace.Detail = Detail
+namespace.Detail = Detail;

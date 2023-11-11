@@ -52,15 +52,17 @@ class Reaction extends BaseController
 	 */
 	public function tailAction(Message $message, array $filter = [], array $order = [], int $limit = 50): ?array
 	{
-		$reaction = $filter['reaction'] ?? '';
-		$reaction = mb_strtoupper($reaction);
-		$validateResult = Message\Reaction\ReactionItem::validateReaction($reaction);
-
-		if (!$validateResult->isSuccess())
+		$reaction = $filter['reaction'] ?? null;
+		if ($reaction !== null) //todo: add index b_im_reaction (MESSAGE_ID)
 		{
-			$this->addErrors($validateResult->getErrors());
+			$reaction = mb_strtoupper($reaction);
+			$validateResult = Message\Reaction\ReactionItem::validateReaction($reaction);
+			if (!$validateResult->isSuccess())
+			{
+				$this->addErrors($validateResult->getErrors());
 
-			return null;
+				return null;
+			}
 		}
 
 		$reactionFilter = [

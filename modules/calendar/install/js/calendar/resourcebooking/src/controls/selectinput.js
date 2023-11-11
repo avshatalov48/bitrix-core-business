@@ -150,7 +150,7 @@ export class SelectInput extends Event.EventEmitter
 
 		this.popupMenu.popupWindow.setMaxWidth(300);
 
-		let menuContainer = this.popupMenu.layout.menuContainer;
+		let menuContainer = this.popupMenu.getPopupWindow().getContentContainer();
 		Dom.addClass(this.popupMenu.layout.menuContainer, 'calendar-resourcebook-select-popup');
 		this.popupMenu.show();
 

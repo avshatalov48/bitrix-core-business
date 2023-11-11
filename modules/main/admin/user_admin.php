@@ -17,7 +17,6 @@
  */
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 define("HELP_FILE", "users/user_admin.php");
 $entity_id = "USER";
 
@@ -148,21 +147,20 @@ $lAdmin->AddFilter($filterFields, $arFilter);
 
 $USER_FIELD_MANAGER->AdminListAddFilterV2($entity_id, $arFilter, $sTableID, $filterFields);
 
-$arUserSubordinateGroups = array();
-if(!$USER->CanDoOperation('edit_all_users') && !$USER->CanDoOperation('view_all_users'))
+$arUserSubordinateGroups = [];
+if (!$USER->CanDoOperation('edit_all_users'))
 {
-	$arUserGroups = CUser::GetUserGroup($USER->GetID());
-	for ($j = 0, $len = count($arUserGroups); $j < $len; $j++)
+	$arUserSubordinateGroups = CUser::GetSubordinateGroups();
+
+	if (!$USER->CanDoOperation('view_all_users'))
 	{
-		$arSubordinateGroups = CGroup::GetSubordinateGroups($arUserGroups[$j]);
-		$arUserSubordinateGroups = array_merge ($arUserSubordinateGroups, $arSubordinateGroups);
+		$arFilter["CHECK_SUBORDINATE"] = $arUserSubordinateGroups;
+
+		if ($USER->CanDoOperation('edit_own_profile'))
+		{
+			$arFilter["CHECK_SUBORDINATE_AND_OWN"] = $USER->GetID();
+		}
 	}
-	$arUserSubordinateGroups = array_unique($arUserSubordinateGroups);
-
-	$arFilter["CHECK_SUBORDINATE"] = $arUserSubordinateGroups;
-
-	if($USER->CanDoOperation('edit_own_profile'))
-		$arFilter["CHECK_SUBORDINATE_AND_OWN"] = $USER->GetID();
 }
 
 if (!$USER->CanDoOperation('edit_php'))

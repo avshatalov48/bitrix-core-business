@@ -58,7 +58,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 						value="<?=htmlspecialcharsbx($field['value']) ?>">
 					<span class="main-mail-form-field-spacer-25"></span>
 					<span class="main-mail-form-field-title main-mail-form-field-value-menu"><?
-						echo htmlspecialcharsbx($field['list'][$field['value']] ?: $field['placeholder']);
+						echo htmlspecialcharsbx(!empty($field['list'][$field['value']]) ? $field['list'][$field['value']] : $field['placeholder']);
 					?></span>
 				</td>
 				<?
@@ -422,6 +422,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 						'FIELD_NAME'   => $arParams['FILES']['name'].'[]',
 						'VALUE'        => $arParams['FILES']['value'],
 						'HIDE_CHECKBOX_ALLOW_EDIT' => 'Y',
+						'HIDE_CHECKBOX_PHOTO_TEMPLATE' => 'Y',
 					),
 				),
 				'LHE' => array(
@@ -521,7 +522,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 				}
 				?>
 			</div>
-			<div><?=$arParams['~FOOTER'] ?></div>
+			<div><?=($arParams['~FOOTER'] ?? '')?></div>
 		</div>
 	</div>
 

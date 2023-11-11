@@ -90,7 +90,7 @@ abstract class Connector
 	}
 
 	/**
-	 * @return Application|\Bitrix\Main\HttpApplication|\CAllMain|\CMain
+	 * @return Application|\Bitrix\Main\HttpApplication|\CMain
 	 */
 	protected function getApplication()
 	{
@@ -99,7 +99,7 @@ abstract class Connector
 	}
 
 	/**
-	 * @return array|bool|\CAllUser|\CUser
+	 * @return array|bool|\CUser
 	 */
 	protected function getUser()
 	{

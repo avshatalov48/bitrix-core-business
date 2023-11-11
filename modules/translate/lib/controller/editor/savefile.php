@@ -23,7 +23,7 @@ class SaveFile
 		Loc::loadLanguageFile(__DIR__. '/operation.php');
 		Loc::loadLanguageFile(__FILE__);
 
-		$result = array();
+		$result = [];
 		if (empty($file))
 		{
 			$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_FILE_PATH_ERROR')));
@@ -36,9 +36,9 @@ class SaveFile
 			return $result;
 		}
 		$file = $normalized;
-		if (!Translate\IO\Path::isLangDir($file, true) || (\mb_substr($file, -4) !== '.php'))
+		if (!Translate\IO\Path::isLangDir($file, true) || !Translate\IO\Path::isPhpFile($file))
 		{
-			$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_ERROR_FILE_NOT_LANG', array('#FILE#' => $file))));
+			$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_ERROR_FILE_NOT_LANG', ['#FILE#' => $file])));
 			return $result;
 		}
 		if (!Translate\Permission::isAllowPath($file))
@@ -49,7 +49,7 @@ class SaveFile
 
 		$request = $this->controller->getRequest();
 
-		$phraseIdsToDrop = $languagesToDrop = $phraseIdsToUpdate = $languagesToUpdate = array();
+		$phraseIdsToDrop = $languagesToDrop = $phraseIdsToUpdate = $languagesToUpdate = [];
 
 		$enabledLanguagesList = Translate\Config::getEnabledLanguages();
 
@@ -269,7 +269,7 @@ class SaveFile
 	{
 		return
 			(!empty($prefix) ? $prefix. '_' : '').
-			\str_replace(['.', '-'], '_', $phraseId).
+			\str_replace(['.', '-', ' '], '_', $phraseId).
 			(!empty($suffix) ? '_'.$suffix : '')
 		;
 	}

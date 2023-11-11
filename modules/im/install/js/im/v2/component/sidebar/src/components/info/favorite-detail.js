@@ -1,30 +1,33 @@
-import type {ImModelSidebarFavoriteItem} from 'im.v2.model';
-import {SidebarDetailBlock} from 'im.v2.const';
-import {FavoriteMenu} from '../../classes/context-menu/favorite/favorite-menu';
-import {SidebarCollectionFormatter} from '../../classes/sidebar-collection-formatter';
-import {SidebarDetail} from '../detail';
-import {FavoriteItem} from './favorite-item';
-import {DateGroup} from '../date-group';
-import {DetailEmptyState} from '../detail-empty-state';
+import { SidebarDetailBlock } from 'im.v2.const';
+
+import { FavoriteMenu } from '../../classes/context-menu/favorite/favorite-menu';
+import { SidebarCollectionFormatter } from '../../classes/sidebar-collection-formatter';
+import { SidebarDetail } from '../detail';
+import { FavoriteItem } from './favorite-item';
+import { DateGroup } from '../date-group';
+import { DetailEmptyState } from '../detail-empty-state';
+
 import '../../css/info/favorite-detail.css';
+
+import type { ImModelSidebarFavoriteItem } from 'im.v2.model';
 
 // @vue/component
 export const FavoriteDetail = {
 	name: 'FavoriteDetail',
-	components: {FavoriteItem, DateGroup, DetailEmptyState, SidebarDetail},
+	components: { FavoriteItem, DateGroup, DetailEmptyState, SidebarDetail },
 	props: {
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		chatId: {
 			type: Number,
-			required: true
+			required: true,
 		},
 		service: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	computed:
 	{
@@ -37,10 +40,10 @@ export const FavoriteDetail = {
 		{
 			return this.collectionFormatter.format(this.favorites);
 		},
-		isEmptyState()
+		isEmptyState(): boolean
 		{
 			return this.formattedCollection.length === 0;
-		}
+		},
 	},
 	created()
 	{
@@ -68,7 +71,7 @@ export const FavoriteDetail = {
 		onScroll()
 		{
 			this.contextMenu.destroy();
-		}
+		},
 	},
 	template: `
 		<SidebarDetail
@@ -79,7 +82,7 @@ export const FavoriteDetail = {
 			v-slot="slotProps"
 			class="bx-im-sidebar-favorite-detail__scope bx-im-sidebar-favorite-detail__container"
 		>
-			<template v-for="dateGroup in formattedCollection">
+			<div v-for="dateGroup in formattedCollection" class="bx-im-sidebar-favorite-detail__date-group_container">
 				<DateGroup :dateText="dateGroup.dateGroupTitle" />
 				<FavoriteItem 
 					v-for="favorite in dateGroup.items" 
@@ -88,12 +91,12 @@ export const FavoriteDetail = {
 					:dialogId="dialogId"
 					@contextMenuClick="onContextMenuClick" 
 				/>
-			</template>
+			</div>
 			<DetailEmptyState
 				v-if="!slotProps.isLoading && isEmptyState"
 				:title="$Bitrix.Loc.getMessage('IM_SIDEBAR_FAVORITES_EMPTY')"
 				:iconType="SidebarDetailBlock.favorite"
 			/>
 		</SidebarDetail>
-	`
+	`,
 };

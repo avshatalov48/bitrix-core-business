@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TRANS_CHAIN_FOLDER"] = "Click to go to the folder";
 $MESS["TRANS_CHAIN_FOLDER_ROOT"] = "Click to go to the root folder";
 $MESS["TRANS_DELETE"] = "Delete:";
@@ -25,12 +25,17 @@ $MESS["TR_EXPORT_CSV_DLG_CANCELED"] = "Export has been canceled.";
 $MESS["TR_EXPORT_CSV_DLG_COMPLETED"] = "Messages have been exported.";
 $MESS["TR_EXPORT_CSV_DLG_SUMMARY"] = "This will export localization messages to CSV file. This operation may take some time.";
 $MESS["TR_EXPORT_CSV_DLG_TITLE"] = "Export messages to CSV";
+$MESS["TR_EXPORT_CSV_PARAM_APPEND_SAMPLES"] = "Try and find existing messages in translation database";
 $MESS["TR_EXPORT_CSV_PARAM_CONVERT_UTF8"] = "Convert to UTF-8";
 $MESS["TR_EXPORT_CSV_PARAM_LANGUAGES"] = "Select languages to export";
 $MESS["TR_EXPORT_CSV_PARAM_LANGUAGES_ALL"] = "All";
+$MESS["TR_EXPORT_CSV_PARAM_SAMPLES_COUNT"] = "Maximum found translations per message";
+$MESS["TR_EXPORT_CSV_PARAM_SAMPLES_RESTRICTION"] = "Search for existing translations in selected folders only";
 $MESS["TR_EXPORT_CSV_PARAM_UNTRANSLATED"] = "Export untranslated messages only";
-$MESS["TR_EXPORT_DLG_CLEAR"] = "Delete export file";
+$MESS["TR_EXPORT_DLG_CLEAR"] = "Delete exported file";
+$MESS["TR_EXPORT_DLG_CLEAR_MULTI"] = "Delete exported files";
 $MESS["TR_EXPORT_DLG_DOWNLOAD"] = "Download export file";
+$MESS["TR_EXPORT_DLG_DOWNLOAD_MULTI"] = "Download exported files";
 $MESS["TR_FILENAME"] = "File name:";
 $MESS["TR_FILEPATH"] = "Full path:";
 $MESS["TR_FILE_EDIT"] = "Edit PHP Code";
@@ -40,4 +45,3 @@ $MESS["TR_PHRASE_COUNT"] = "Message count:";
 $MESS["TR_TOTAL_MESSAGES"] = "Total messages:";
 $MESS["TR_TRANSLATION_FILE_OK"] = "Localization file found";
 $MESS["TR_UNCOMPATIBLE_ENCODING"] = "The current page encoding is not compatible with the localization encoding. Cannot edit the message. Some characters may show incorrectly.";
-?>

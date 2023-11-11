@@ -111,16 +111,6 @@ class StringType extends Base
 					$value = null;
 				}
 				break;
-			case FieldType::TIME:
-				$value = trim((string)$value);
-
-				$value =
-					Bizproc\BaseType\Value\Time::isCorrect($value)
-						? (string)(new Bizproc\BaseType\Value\Time($value))
-						: null
-				;
-
-				break;
 			default:
 				$value = null;
 		}

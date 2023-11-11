@@ -18,7 +18,7 @@ import convertCanvasToBlob from './convert-canvas-to-blob';
 
 let canCreateImageBitmap = (
 	'createImageBitmap' in window
-	&& typeof ImageBitmap !== 'undefined'
+	&& !Type.isUndefined(window.ImageBitmap)
 	&& ImageBitmap.prototype
 	&& ImageBitmap.prototype.close
 );
@@ -26,7 +26,7 @@ let canCreateImageBitmap = (
 if (canCreateImageBitmap && Browser.isSafari())
 {
 	const ua = navigator.userAgent.toLowerCase();
-	const regex = new RegExp('version\\/([0-9.]+)', 'i');
+	const regex = /version\/([\d.]+)/i;
 	const result = regex.exec(ua);
 	if (result && result[1] && result[1] < '16.4')
 	{
@@ -41,7 +41,9 @@ const sharpenSource = sharpen.toString();
 const shouldSharpenSource = shouldSharpen.toString();
 const canUseOffscreenCanvas: boolean = canCreateImageBitmap && !Type.isUndefined(window.OffscreenCanvas);
 
+// eslint-disable-next-line max-lines-per-function
 const resizeImage = (source: Blob | File, options: ResizeImageOptions): Promise<ResizeImageResult> => {
+	// eslint-disable-next-line max-lines-per-function
 	return new Promise((resolve, reject) => {
 		if (canUseOffscreenCanvas)
 		{
@@ -62,7 +64,7 @@ const resizeImage = (source: Blob | File, options: ResizeImageOptions): Promise<
 					resizeWorker.terminate();
 					if (message)
 					{
-						const { blob, bitmap, targetWidth, targetHeight, useOriginalSize } = message;
+						const { bitmap, targetWidth, targetHeight, useOriginalSize } = message;
 						if (useOriginalSize)
 						{
 							resolve({
@@ -96,6 +98,10 @@ const resizeImage = (source: Blob | File, options: ResizeImageOptions): Promise<
 									width: targetWidth,
 									height: targetHeight,
 								});
+							}).catch((error) => {
+								// eslint-disable-next-line no-console
+								console.log('Uploader: convertCanvasToBlob error', error);
+								loadImageDataFallback();
 							}).finally(() => {
 								canvas.width = 0;
 								canvas.height = 0;
@@ -129,7 +135,8 @@ const resizeImage = (source: Blob | File, options: ResizeImageOptions): Promise<
 		else if (canCreateImageBitmap)
 		{
 			const bitmapWorker = createWorker(BitmapWorker);
-			bitmapWorker.post({ file: source },
+			bitmapWorker.post(
+				{ file: source },
 				(imageBitmap: ImageBitmap): void => {
 					bitmapWorker.terminate();
 					if (imageBitmap)
@@ -140,7 +147,7 @@ const resizeImage = (source: Blob | File, options: ResizeImageOptions): Promise<
 					{
 						loadImageDataFallback();
 					}
-				}
+				},
 			);
 		}
 		else
@@ -168,7 +175,7 @@ const resizeImage = (source: Blob | File, options: ResizeImageOptions): Promise<
 			else
 			{
 				const mimeType: string = getCanvasToBlobType(source, options);
-				createImagePreview(imageData, Object.assign({}, options, { mimeType }))
+				createImagePreview(imageData, { ...options, mimeType })
 					.then(({ blob, width, height }): void => {
 						let preview: Blob = blob;
 						if (Type.isFile(source))
@@ -196,12 +203,13 @@ const resizeImage = (source: Blob | File, options: ResizeImageOptions): Promise<
 
 		function loadImageDataFallback(): void
 		{
+			// eslint-disable-next-line no-console
 			console.log('Uploader: resize image fallback');
 			loadImage(source)
 				.then(({ image }) => {
 					handleImageLoad(image);
 				})
-				.catch(error => {
+				.catch((error) => {
 					reject(error);
 				})
 			;

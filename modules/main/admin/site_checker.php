@@ -257,7 +257,6 @@ if(isset($_REQUEST['test_start']) && $_REQUEST['test_start'])
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 IncludeModuleLangFile(__FILE__);
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/prolog.php");
 define("HELP_FILE", "utilities/site_checker.php");
 //error_reporting(E_ALL &~E_NOTICE);
 

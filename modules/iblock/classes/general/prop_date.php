@@ -19,6 +19,7 @@ class CIBlockPropertyDate extends CIBlockPropertyDateTime
 			//optional handlers
 			"GetPublicViewHTML" => [__CLASS__, "GetPublicViewHTML"],
 			"GetPublicEditHTML" => [__CLASS__, "GetPublicEditHTML"],
+			"GetPublicEditHTMLMulty" => [__CLASS__, "GetPublicEditHTMLMulty"],
 			"GetAdminListViewHTML" => [__CLASS__, "GetAdminListViewHTML"],
 			"GetPropertyFieldHtml" => [__CLASS__, "GetPropertyFieldHtml"],
 			"CheckFields" => [__CLASS__, "CheckFields"],
@@ -89,35 +90,60 @@ class CIBlockPropertyDate extends CIBlockPropertyDateTime
 
 	public static function GetPublicEditHTML($arProperty, $value, $strHTMLControlName)
 	{
-		/** @var CMain $APPLICATION*/
+		/** @var CMain $APPLICATION */
 		global $APPLICATION;
 
-		$s = '<input type="text" name="'.htmlspecialcharsbx($strHTMLControlName["VALUE"]).'" size="25" value="'.htmlspecialcharsbx($value["VALUE"]).'" />';
 		ob_start();
 		$APPLICATION->IncludeComponent(
-			'bitrix:main.calendar',
-			'',
-			array(
-				'FORM_NAME' => $strHTMLControlName["FORM_NAME"],
-				'INPUT_NAME' => $strHTMLControlName["VALUE"],
-				'INPUT_VALUE' => $value["VALUE"],
-				'SHOW_TIME' => "N",
-			),
+			'bitrix:iblock.property.field.public.edit',
+			'date',
+			[
+				'NAME' => $strHTMLControlName['VALUE'],
+				'VALUE' => static::prepareMultiValue($value),
+				'PROPERTY' => $arProperty,
+				'SHOW_TIME' => 'N',
+			],
 			null,
-			array('HIDE_ICONS' => 'Y')
+			[
+				'HIDE_ICONS' => 'Y',
+			]
 		);
-		$s .= ob_get_contents();
+		$result = ob_get_contents();
 		ob_end_clean();
-		return  $s;
+
+		return $result;
+	}
+
+	public static function GetPublicEditHTMLMulty($arProperty, $value, $strHTMLControlName): string
+	{
+		/** @var CMain $APPLICATION */
+		global $APPLICATION;
+
+		ob_start();
+		$APPLICATION->IncludeComponent(
+			'bitrix:iblock.property.field.public.edit',
+			'date',
+			[
+				'NAME' => $strHTMLControlName['VALUE'],
+				'VALUE' => static::prepareMultiValue($value),
+				'PROPERTY' => $arProperty,
+				'SHOW_TIME' => 'N',
+			],
+			null,
+			[
+				'HIDE_ICONS' => 'Y',
+			]
+		);
+		$result = ob_get_contents();
+		ob_end_clean();
+
+		return $result;
+
 	}
 
 	public static function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName)
 	{
-		return  CAdminCalendar::CalendarDate($strHTMLControlName["VALUE"], $value["VALUE"], 20, false).
-		($arProperty["WITH_DESCRIPTION"]=="Y" && '' != trim($strHTMLControlName["DESCRIPTION"]) ?
-			'&nbsp;<input type="text" size="20" name="'.$strHTMLControlName["DESCRIPTION"].'" value="'.htmlspecialcharsbx($value["DESCRIPTION"]).'">'
-			:''
-		);
+		return static::getPropertyFormField($arProperty, $value, $strHTMLControlName, false);
 	}
 
 	/**

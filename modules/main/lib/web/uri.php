@@ -4,31 +4,32 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 namespace Bitrix\Main\Web;
 
 use Bitrix\Main;
 use Bitrix\Main\Text\Encoding;
+use Psr\Http\Message\UriInterface;
 
-class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
+class Uri implements \JsonSerializable, UriInterface
 {
-	protected $scheme;
-	protected $host;
-	protected $port;
-	protected $user;
-	protected $pass;
-	protected $path;
-	protected $query;
-	protected $fragment;
+	protected $scheme = '';
+	protected $host = '';
+	protected $port = null;
+	protected $user = '';
+	protected $pass = '';
+	protected $path = '';
+	protected $query = '';
+	protected $fragment = '';
 
 	/**
 	 * @param string $url
 	 */
 	public function __construct($url)
 	{
-		if (strpos($url, '/') === 0)
+		if (str_starts_with($url, '/'))
 		{
 			//we don't support "current scheme" e.g. "//host/path"
 			$url = '/' . ltrim($url, '/');
@@ -102,7 +103,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getFragment()
+	public function getFragment(): string
 	{
 		return $this->fragment;
 	}
@@ -110,7 +111,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getHost()
+	public function getHost(): string
 	{
 		return $this->host;
 	}
@@ -149,7 +150,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getPath()
+	public function getPath(): string
 	{
 		// TODO: make it work as described
 		return $this->path;
@@ -192,7 +193,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getPort()
+	public function getPort(): ?int
 	{
 		if ($this->port === null)
 		{
@@ -212,16 +213,15 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getQuery()
+	public function getQuery(): string
 	{
 		return $this->query;
 	}
 
 	/**
-	 * Returns the scheme.
-	 * @return string
+	 * @inheritdoc
 	 */
-	public function getScheme()
+	public function getScheme(): string
 	{
 		return $this->scheme;
 	}
@@ -331,7 +331,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->getUri();
 	}
@@ -339,12 +339,11 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * Specify data which should be serialized to JSON
 	 * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
-	 * @return mixed data which can be serialized by <b>json_encode</b>,
+	 * @return string data which can be serialized by <b>json_encode</b>,
 	 * which is a value of any type other than a resource.
 	 * @since 5.4.0
 	 */
-	#[\ReturnTypeWillChange]
-	public function jsonSerialize()
+	public function jsonSerialize(): string
 	{
 		return $this->getUri();
 	}
@@ -461,7 +460,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getAuthority()
+	public function getAuthority(): string
 	{
 		$authority = '';
 
@@ -492,7 +491,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getUserInfo()
+	public function getUserInfo(): string
 	{
 		$user = $this->getUser();
 
@@ -508,7 +507,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withScheme($scheme)
+	public function withScheme(string $scheme): UriInterface
 	{
 		$new = clone $this;
 		$new->scheme = $scheme;
@@ -519,7 +518,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withUserInfo($user, $password = null)
+	public function withUserInfo(string $user, ?string $password = null): UriInterface
 	{
 		$new = clone $this;
 		$new
@@ -533,7 +532,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withHost($host)
+	public function withHost(string $host): UriInterface
 	{
 		$new = clone $this;
 		$new->setHost($host);
@@ -544,7 +543,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withPort($port)
+	public function withPort(?int $port): UriInterface
 	{
 		$new = clone $this;
 		$new->port = $port;
@@ -555,7 +554,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withPath($path)
+	public function withPath(string $path): UriInterface
 	{
 		$new = clone $this;
 		$new->setPath($path);
@@ -566,7 +565,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withQuery($query)
+	public function withQuery(string $query): UriInterface
 	{
 		$new = clone $this;
 		$new->query = $query;
@@ -577,7 +576,7 @@ class Uri implements \JsonSerializable, \Psr\Http\Message\UriInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withFragment($fragment)
+	public function withFragment(string $fragment): UriInterface
 	{
 		$new = clone $this;
 		$new->fragment = $fragment;

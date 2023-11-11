@@ -134,7 +134,7 @@ class CAdminCalendar
 	 * @param string $periodValue
 	 * @return string
 	 */
-	private static function GetPeriodHtml($sFromName, $sToName, $sFromVal="", $sToVal="", $bSelectShow=false, $size = 10, $bTime=false, $arPeriod, $periodValue = '')
+	private static function GetPeriodHtml($sFromName, $sToName, $sFromVal, $sToVal, $bSelectShow, $size, $bTime, $arPeriod, $periodValue = '')
 	{
 		$size = (int)$size;
 

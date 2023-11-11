@@ -1570,7 +1570,7 @@ if($lAdmin->EditAction())
 				$arFields["PREVIEW_PICTURE"] = CIBlock::makeFileArray(
 					$arFields["PREVIEW_PICTURE"],
 					$arFields["PREVIEW_PICTURE"] === "null",
-					$_REQUEST["FIELDS_descr"][$ID]["PREVIEW_PICTURE"]
+					$_REQUEST["FIELDS_descr"][$ID]["PREVIEW_PICTURE"] ?? null
 				);
 			}
 
@@ -1579,7 +1579,7 @@ if($lAdmin->EditAction())
 				$arFields["DETAIL_PICTURE"] = CIBlock::makeFileArray(
 					$arFields["DETAIL_PICTURE"],
 					$arFields["DETAIL_PICTURE"] === "null",
-					$_REQUEST["FIELDS_descr"][$ID]["DETAIL_PICTURE"]
+					$_REQUEST["FIELDS_descr"][$ID]["DETAIL_PICTURE"] ?? null
 				);
 			}
 
@@ -5353,10 +5353,10 @@ $lAdmin->DisplayFilter($filterFields);
 $lAdmin->DisplayList();
 if($bWorkFlow || $bBizproc):
 	echo BeginNote();?>
-	<span class="adm-lamp adm-lamp-green"></span> - <?echo GetMessage("IBLOCK_GREEN_ALT")?><br>
-	<span class="adm-lamp adm-lamp-yellow"></span> - <?echo GetMessage("IBLOCK_YELLOW_ALT")?><br>
-	<span class="adm-lamp adm-lamp-red"></span> - <?echo GetMessage("IBLOCK_RED_ALT")?><br>
-	<?echo EndNote();
+	<span class="adm-lamp adm-lamp-green"></span> - <?= GetMessage("IBLOCK_GREEN_ALT")?><br>
+	<span class="adm-lamp adm-lamp-yellow"></span> - <?= GetMessage("IBLOCK_YELLOW_ALT")?><br>
+	<span class="adm-lamp adm-lamp-red"></span> - <?= GetMessage("IBLOCK_RED_ALT")?><br>
+	<?= EndNote();
 endif;
 
 $urlBuilder->showDetailPageSlider();

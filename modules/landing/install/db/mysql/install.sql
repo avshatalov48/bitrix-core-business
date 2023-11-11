@@ -44,7 +44,6 @@ create table if not exists b_landing_block
 	PARENT_ID int(18) default null,
 	LID int(18) not null,
 	CODE varchar(255) not null,
-	CODE_ORIGINAL varchar(255) default null,
 	TPL_CODE varchar(255) default null,
 	XML_ID varchar(255) default null,
 	INITIATOR_APP_CODE varchar(255) not null,
@@ -503,4 +502,14 @@ create table if not exists b_landing_history
     DATE_CREATE timestamp not null,
     PRIMARY KEY(ID),
     INDEX IX_B_LAND_HISTORY_ENTITY (ENTITY_ID, ENTITY_TYPE)
+);
+
+create table if not exists b_landing_history_step
+(
+    ID int(18) not null auto_increment,
+    ENTITY_TYPE char(1) not null default 'L',
+    ENTITY_ID int(18) not null,
+    STEP int(18) not null,
+    PRIMARY KEY(ID),
+    INDEX IX_HISTORY_STEP (ENTITY_ID, ENTITY_TYPE)
 );

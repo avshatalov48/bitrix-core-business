@@ -263,6 +263,7 @@ $MESS["IM_M_OLD_REVISION_DESKTOP_REFRESH"] = "Restart";
 $MESS["IM_M_OLD_REVISION_DESKTOP_TIME"] = "#REFRESH_TIME# min.";
 $MESS["IM_M_OPEN_CHAT"] = "Open chat";
 $MESS["IM_M_OPEN_CHAT_IN_DESKTOP"] = "Always open chats in Bitrix24 desktop application";
+$MESS["IM_M_OPEN_CHAT_TAB"] = "Open in a new tab";
 $MESS["IM_M_OPEN_HISTORY"] = "Message history";
 $MESS["IM_M_OPEN_HISTORY_2"] = "Message history";
 $MESS["IM_M_OPEN_PROFILE"] = "User profile";

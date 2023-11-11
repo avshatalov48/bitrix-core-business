@@ -2161,7 +2161,7 @@ class Asset
 			include($infoFile);
 
 			/** @var array $filesInfo - information about files in set */
-			$result['FILES_INFO'] = $filesInfo;
+			$result['FILES_INFO'] = is_array($filesInfo) ? $filesInfo : [];
 			$result['FILE_EXIST'] = true;
 			if ($unique)
 			{

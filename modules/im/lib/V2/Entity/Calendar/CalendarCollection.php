@@ -32,6 +32,11 @@ class CalendarCollection extends EntityCollection
 		$context = $context ?? Locator::getContext();
 		$checkPermissions = false;
 
+		if (empty($ids))
+		{
+			return (new static())->setContext($context);
+		}
+
 		$calendarGetList = CCalendarEvent::GetList([
 			'arFilter' => [
 				'ID' => $ids,

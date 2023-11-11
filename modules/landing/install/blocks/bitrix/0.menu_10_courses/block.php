@@ -1,4 +1,4 @@
-<header class="landing-block landing-semantic-background-color g-bg-white u-header u-header--sticky u-header--float g-z-index-9999">
+<header class="landing-block g-bg-white u-header u-header--sticky u-header--float g-z-index-9999">
 	<div class="u-header__section u-header__section--light u-shadow-v27 g-transition-0_3 g-py-17"
 		 data-header-fix-moment-exclude="g-py-17"
 		 data-header-fix-moment-classes="g-py-12">
@@ -16,41 +16,41 @@
 					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav col-lg-10 text-uppercase g-font-weight-700 g-font-size-12 g-pt-20 g-pt-0--lg g-mb-20 g-mb-0--lg ml-auto g-mr-20">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-3--lg g-mb-5 g-mb-0--lg">
 							<a href="#home"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link">Home</a>
+							   class="landing-block-node-menu-list-item-link nav-link">Home</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-3--lg g-mb-5 g-mb-0--lg">
 							<a href="#about"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link">About</a>
+							   class="landing-block-node-menu-list-item-link nav-link">About</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-3--lg g-mb-5 g-mb-0--lg">
 							<a href="#ourCourses"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link">Our
+							   class="landing-block-node-menu-list-item-link nav-link">Our
 								courses</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-3--lg g-mb-5 g-mb-0--lg">
 							<a href="#ourNumbers"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link">Our
+							   class="landing-block-node-menu-list-item-link nav-link">Our
 								numbers</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-3--lg g-mb-5 g-mb-0--lg">
 							<a href="#gallery"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link">Gallery</a>
+							   class="landing-block-node-menu-list-item-link nav-link">Gallery</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-3--lg g-mb-5 g-mb-0--lg">
 							<a href="#offers"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link">Offers</a>
+							   class="landing-block-node-menu-list-item-link nav-link">Offers</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-3--lg g-mb-5 g-mb-0--lg">
 							<a href="#partners"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link">Partners</a>
+							   class="landing-block-node-menu-list-item-link nav-link">Partners</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-3--lg g-mb-5 g-mb-0--lg">
 							<a href="#blog"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link">Blog</a>
+							   class="landing-block-node-menu-list-item-link nav-link">Blog</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-3--lg g-mb-5 g-mb-0--lg">
 							<a href="#contact"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link">Contact</a>
+							   class="landing-block-node-menu-list-item-link nav-link">Contact</a>
 						</li>
 					</ul>
 

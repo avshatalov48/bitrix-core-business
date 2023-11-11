@@ -5,15 +5,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	'use strict';
 
 	let _ = t => t,
-	    _t,
-	    _t2;
+	  _t,
+	  _t2;
 	class LinkUrl extends landing_ui_field_textfield.Text {
 	  constructor(data) {
 	    super(data);
+
 	    /**
 	     * Href value matchers
 	     */
-
 	    this.matchers = {
 	      catalogElement: new RegExp("^(product:)?#catalogElement([0-9]+)"),
 	      catalogSection: new RegExp("^(product:)?#catalogSection([0-9]+)"),
@@ -46,12 +46,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.disallowType = main_core.Type.isBoolean(data.disallowType) ? data.disallowType : false;
 	    this.iblocks = main_core.Type.isArray(data.iblocks) ? data.iblocks : null;
 	    this.allowedTypes = main_core.Type.isArray(data.allowedTypes) ? data.allowedTypes : [LinkUrl.TYPE_BLOCK, LinkUrl.TYPE_PAGE];
-
 	    if (this.allowedTypes.length === 1) {
 	      this.constantType = this.allowedTypes[0];
 	      this.constantTypeData = data.typeData;
 	    }
-
 	    this.allowedCatalogEntityTypes = main_core.Type.isArray(data.allowedCatalogEntityTypes) ? data.allowedCatalogEntityTypes : null;
 	    this.onInitHandler = main_core.Type.isFunction(data.onInit) ? data.onInit : function () {};
 	    this.onNewPageHandler = main_core.Type.isFunction(data.onNewPage) ? data.onNewPage : function () {};
@@ -75,41 +73,32 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.gridRightCell = this.grid.querySelector("[class*=\"right\"]");
 	    main_core.Dom.remove(this.hrefTypeSwithcer.header);
 	    main_core.Dom.append(this.hrefTypeSwithcer.layout, this.gridLeftCell);
-
 	    if (this.getHrefStringType() === LinkUrl.TYPE_HREF_START) {
 	      this.gridCenterCell.hidden = true;
 	      this.gridRightCell.hidden = true;
 	    }
-
 	    main_core.Dom.append(this.input, this.gridCenterCell);
 	    main_core.Dom.append(this.grid, this.layout);
-
 	    if (data.settingMode) {
 	      main_core.Dom.addClass(this.gridCenterCell, "setting-mode");
 	    }
-
 	    if (!main_core.Type.isUndefined(this.constantType)) {
 	      this.rightData = this.getRightData();
-
 	      if (this.rightData.button) {
 	        const button = this.createCenterCellButton(this.rightData.button);
 	        main_core.Dom.append(button.layout, this.gridCenterCell);
 	      }
-
 	      this.contentEditable = false;
 	    }
-
 	    this.hrefTypeSwithcer.subscribe('onChange', () => {
 	      this.rightData = this.getRightData();
 	      this.input.hidden = this.rightData.hideInput === true;
 	      this.gridCenterCell.hidden = false;
 	      this.gridRightCell.hidden = false;
 	      let button;
-
 	      if (this.rightData.button) {
 	        button = this.createCenterCellButton(this.rightData.button);
 	      }
-
 	      this.emit('buildCenter', {
 	        button: button
 	      });
@@ -117,18 +106,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        hrefStringType: this.getHrefStringType(),
 	        right: this.rightData
 	      });
-
 	      if (this.hrefTypeSwithcer.getValue() === LinkUrl.DELETE_TYPE_HREF) {
 	        this.deleteTypeHref();
-	      } //clear input when type is changed
+	      }
 
-
+	      //clear input when type is changed
 	      if (this.hrefTypeSwithcerValue !== this.hrefTypeSwithcer.getValue()) {
 	        this.input.innerHTML = '';
 	        this.setValue("");
 	        this.hrefTypeSwithcerValue = this.hrefTypeSwithcer.getValue();
 	      }
-
 	      const typeData = this.getTypeData(this.hrefTypeSwithcer.getValue());
 	      this.setEditPrevented(false);
 	      this.contentEditable = typeData.contentEditable;
@@ -138,37 +125,31 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.setHrefTypeSwitcherValue(type);
 	    this.removeHrefTypeFromHrefString();
 	    this.makeDisplayedHrefValue();
-
 	    if (!main_core.Type.isUndefined(this.constantType)) {
 	      if (this.content === '') {
 	        this.input.innerText = '';
 	        main_core.Dom.addClass(this.input, "landing-ui-field-input-empty");
 	      }
 	    }
-
 	    if (this.disallowType) {
 	      main_core.Dom.addClass(this.gridLeftCell, "grid-dissallow");
 	    }
 	  }
+
 	  /**
 	   * Sets iblocks list
 	   * @param {{name: string, value: int|string}[]} iblocks
 	   */
-
-
 	  setIblocks(iblocks) {
 	    this.iblocks = main_core.Type.isArray(iblocks) ? iblocks : null;
 	  }
-
 	  createCenterCellButton(data) {
 	    let actionClick;
-
 	    if (data.hasOwnProperty('action')) {
 	      actionClick = this.onListShow.bind(this, data.action);
 	    } else {
 	      actionClick = data.onclick;
 	    }
-
 	    const buttonClasses = `landing-ui-button-grid-center-cell ${data.className || ''}`;
 	    return new BX.Landing.UI.Button.BaseButton("center_cell_button", {
 	      className: buttonClasses,
@@ -176,136 +157,109 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      onClick: actionClick
 	    });
 	  }
+
 	  /**
 	   * Makes displayed value placeholder
 	   */
-
-
 	  makeDisplayedHrefValue() {
 	    const hrefValue = this.getValue();
 	    let placeholderType = this.getPlaceholderType();
-
 	    if (!main_core.Type.isUndefined(this.constantType)) {
 	      placeholderType = this.constantType;
 	    }
-
 	    let valuePromise;
-
 	    switch (placeholderType) {
 	      case LinkUrl.TYPE_BLOCK:
 	        valuePromise = this.getBlockData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_PAGE:
 	      case LinkUrl.TYPE_HREF_PAGE:
 	        valuePromise = this.getPageData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_CRM_FORM:
 	        valuePromise = this.getCrmFormData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_CRM_PHONE:
 	        valuePromise = this.getCrmPhoneData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_CATALOG_ELEMENT:
 	        valuePromise = this.getCatalogElementData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_CATALOG_SECTION:
 	        valuePromise = this.getCatalogSectionData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_DISK_FILE:
 	        valuePromise = this.getDiskFileData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_USER:
 	        valuePromise = this.getUserData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_SYSTEM:
 	        valuePromise = this.getSystemPage(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_CATALOG:
 	        valuePromise = this.getCatalog(hrefValue);
 	        break;
 	    }
-
 	    if (valuePromise) {
 	      valuePromise.then(BX.Landing.Utils.proxy(this.createPlaceholder, this)).then(function (data) {
 	        this.setValue(data, true);
-
 	        if (!this.inited) {
 	          this.inited = true;
 	          this.onInitHandler();
 	        }
-
 	        return data;
 	      }.bind(this)).catch(function () {});
 	    }
 	  }
+
 	  /**
 	   * Gets placeholder data
 	   * @param {string} [hrefValue]
 	   * @return {Promise<Object>}
 	   */
-
-
 	  getPlaceholderData(hrefValue) {
 	    hrefValue = hrefValue || this.getValue();
 	    const placeholderType = this.getPlaceholderType(hrefValue);
 	    let valuePromise = Promise.resolve({});
-
 	    switch (placeholderType) {
 	      case LinkUrl.TYPE_BLOCK:
 	        valuePromise = this.getBlockData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_PAGE:
 	        valuePromise = this.getPageData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_CATALOG_ELEMENT:
 	        valuePromise = this.getCatalogElementData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_CATALOG_SECTION:
 	        valuePromise = this.getCatalogSectionData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_DISK_FILE:
 	        valuePromise = this.getDiskFileData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_USER:
 	        valuePromise = this.getUserData(hrefValue);
 	        break;
-
 	      case LinkUrl.TYPE_SYSTEM:
 	        valuePromise = this.getSystemPage(hrefValue);
 	        break;
 	    }
-
 	    return valuePromise;
 	  }
+
 	  /**
 	   * Removes type prefix from href value
 	   */
-
-
 	  removeHrefTypeFromHrefString() {
 	    const clearHref = this.getValue().replace(new RegExp(this.getHrefStringType(), "g"), "");
 	    this.setValue(clearHref, true);
 	  }
+
 	  /**
 	   * Sets type switcher value
 	   * @param type
 	   */
-
-
 	  setHrefTypeSwitcherValue(type) {
 	    if (type === LinkUrl.TYPE_HREF_START) {
 	      this.gridCenterCell.hidden = true;
@@ -315,26 +269,21 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.gridCenterCell.hidden = false;
 	      this.gridRightCell.hidden = false;
 	    }
-
 	    this.hrefTypeSwithcer.setValue(type);
 	  }
+
 	  /**
 	   * Gets selected href type (From type switcher)
 	   * @return {string}
 	   */
-
-
 	  getSelectedHrefType() {
 	    return this.hrefTypeSwithcer.getValue();
 	  }
-
 	  getRightData() {
 	    let type = this.hrefTypeSwithcer.getValue();
-
 	    if (!main_core.Type.isUndefined(this.constantType)) {
 	      type = this.constantType;
 	    }
-
 	    const data = this.getTypeData(type);
 	    const title = this.getRightTitle(data);
 	    const items = this.getRightItems(data);
@@ -349,31 +298,24 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      idPopup
 	    };
 	  }
-
 	  getRightTitle(data) {
 	    return data.title;
 	  }
-
 	  getRightItems(data) {
 	    return data.items;
 	  }
-
 	  getRightHideInput(data) {
 	    return data.hideInput;
 	  }
-
 	  getRightButton(data) {
 	    return data.button;
 	  }
-
 	  getTypeData(type) {
 	    if (!main_core.Type.isUndefined(this.constantTypeData)) {
 	      return this.constantTypeData;
 	    }
-
 	    const data = {};
 	    const buttonClasses = 'fa fa-chevron-right';
-
 	    switch (type) {
 	      case LinkUrl.TYPE_HREF_PAGE:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_PAGE");
@@ -390,7 +332,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        data.hideInput = false;
 	        data.contentEditable = false;
 	        break;
-
 	      case LinkUrl.TYPE_HREF_BLOCK:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_BLOCK");
 	        data.items = {
@@ -406,7 +347,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        data.hideInput = false;
 	        data.contentEditable = false;
 	        break;
-
 	      case LinkUrl.TYPE_HREF_CRM_FORM:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_CRM_FORM");
 	        data.button = {
@@ -417,7 +357,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        data.hideInput = false;
 	        data.contentEditable = false;
 	        break;
-
 	      case LinkUrl.TYPE_HREF_PRODUCT:
 	      case LinkUrl.TYPE_CATALOG:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_PRODUCT");
@@ -429,7 +368,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        data.hideInput = false;
 	        data.contentEditable = false;
 	        break;
-
 	      case LinkUrl.TYPE_HREF_TEL:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_TEL");
 	        data.items = {
@@ -444,21 +382,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        data.hideInput = false;
 	        data.needValidate = 'phone';
 	        break;
-
 	      case LinkUrl.TYPE_HREF_SMS:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_SMS");
 	        data.hideInput = false;
 	        data.needValidate = 'phone';
 	        data.contentEditable = true;
 	        break;
-
 	      case LinkUrl.TYPE_HREF_SKYPE:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_SKYPE");
 	        data.hideInput = false;
 	        data.needValidate = 'skype';
 	        data.contentEditable = true;
 	        break;
-
 	      case LinkUrl.TYPE_HREF_MAILTO:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_MAILTO");
 	        data.items = {
@@ -468,7 +403,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        data.needValidate = 'mail';
 	        data.contentEditable = true;
 	        break;
-
 	      case LinkUrl.TYPE_HREF_LINK:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_LINK");
 	        data.items = {
@@ -479,7 +413,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        data.hideInput = false;
 	        data.contentEditable = true;
 	        break;
-
 	      case LinkUrl.TYPE_HREF_FILE:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_FILE");
 	        data.items = {
@@ -493,7 +426,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        data.hideInput = false;
 	        data.contentEditable = false;
 	        break;
-
 	      case LinkUrl.TYPE_HREF_USER:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_USER");
 	        data.button = {
@@ -505,260 +437,204 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        data.contentEditable = false;
 	        break;
 	    }
-
 	    return data;
 	  }
+
 	  /**
 	   * Get link type
 	   * @return {string}
 	   */
-
-
 	  getHrefStringType() {
 	    const segment = this.getValueText();
 	    let type = LinkUrl.TYPE_HREF_START;
-
 	    if (!main_core.Type.isUndefined(this.constantType)) {
 	      return this.constantType;
 	    }
-
 	    const foundHrefStringType = this.matchHrefStringType(segment);
-
 	    if (foundHrefStringType !== null) {
 	      return foundHrefStringType;
-	    } //for blocks with default href="#"
+	    }
 
-
+	    //for blocks with default href="#"
 	    if (segment === '#') {
 	      return type;
 	    }
-
 	    const setHrefTypes = [LinkUrl.TYPE_HREF_START, LinkUrl.TYPE_HREF_PAGE, LinkUrl.TYPE_HREF_BLOCK, LinkUrl.TYPE_HREF_CRM_FORM, LinkUrl.TYPE_HREF_PRODUCT, LinkUrl.TYPE_HREF_TEL, LinkUrl.TYPE_HREF_SMS, LinkUrl.TYPE_HREF_MAILTO, LinkUrl.TYPE_HREF_SKYPE, LinkUrl.TYPE_HREF_FILE, LinkUrl.TYPE_HREF_USER];
 	    const isFindHrefType = setHrefTypes.some(function (hrefType) {
 	      return segment.includes(hrefType);
 	    });
-
 	    if (segment !== '' && segment !== '#' && !isFindHrefType) {
 	      return LinkUrl.TYPE_HREF_LINK;
 	    }
-
 	    const segmentType = BX.Landing.Utils.join(segment.split(":")[0], ":");
-
 	    if (segment.length !== segmentType.length) {
 	      switch (segmentType) {
 	        case LinkUrl.TYPE_HREF_PAGE:
 	          type = LinkUrl.TYPE_HREF_PAGE;
 	          break;
-
 	        case LinkUrl.TYPE_HREF_BLOCK:
 	          type = LinkUrl.TYPE_HREF_BLOCK;
 	          break;
-
 	        case LinkUrl.TYPE_HREF_CRM_FORM:
 	          type = LinkUrl.TYPE_HREF_CRM_FORM;
 	          break;
-
 	        case LinkUrl.TYPE_HREF_PRODUCT:
 	          type = LinkUrl.TYPE_HREF_PRODUCT;
 	          break;
-
 	        case LinkUrl.TYPE_HREF_TEL:
 	          type = LinkUrl.TYPE_HREF_TEL;
 	          break;
-
 	        case LinkUrl.TYPE_HREF_SMS:
 	          type = LinkUrl.TYPE_HREF_SMS;
 	          break;
-
 	        case LinkUrl.TYPE_HREF_SKYPE:
 	          type = LinkUrl.TYPE_HREF_SKYPE;
 	          break;
-
 	        case LinkUrl.TYPE_HREF_MAILTO:
 	          type = LinkUrl.TYPE_HREF_MAILTO;
 	          break;
-
 	        case LinkUrl.TYPE_HREF_LINK:
 	          type = LinkUrl.TYPE_HREF_LINK;
 	          break;
-
 	        case LinkUrl.TYPE_HREF_FILE:
 	          type = LinkUrl.TYPE_HREF_FILE;
 	          break;
-
 	        case LinkUrl.TYPE_HREF_USER:
 	          type = LinkUrl.TYPE_HREF_USER;
 	          break;
 	      }
 	    }
-
 	    return type;
 	  }
+
 	  /**
 	   * Match type href for old values
 	   * @param {string} value
 	   */
-
-
 	  matchHrefStringType(value) {
 	    if (this.matchers.catalogElement.test(value)) {
 	      return LinkUrl.TYPE_HREF_PRODUCT;
 	    }
-
 	    if (this.matchers.catalogSection.test(value)) {
 	      return LinkUrl.TYPE_HREF_PRODUCT;
 	    }
-
 	    if (this.matchers.block.test(value)) {
 	      return LinkUrl.TYPE_HREF_BLOCK;
 	    }
-
 	    if (this.matchers.pageOld.test(value)) {
 	      return LinkUrl.TYPE_HREF_PAGE;
 	    }
-
 	    if (this.matchers.crmForm.test(value)) {
 	      return LinkUrl.TYPE_HREF_CRM_FORM;
 	    }
-
 	    if (this.matchers.crmPhone.test(value)) {
 	      return LinkUrl.TYPE_HREF_TEL;
 	    }
-
 	    if (this.matchers.diskFile.test(value)) {
 	      return LinkUrl.TYPE_HREF_FILE;
 	    }
-
 	    return null;
 	  }
+
 	  /**
 	   * Sets placeholder by href type
 	   * @param {string} type
 	   */
-
-
 	  setHrefPlaceholderByType(type) {
 	    let placeholder = this.placeholder;
-
 	    switch (type) {
 	      case LinkUrl.TYPE_HREF_PAGE:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_BUTTON_PAGE");
 	        break;
-
 	      case LinkUrl.TYPE_HREF_BLOCK:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_BUTTON_BLOCK");
 	        break;
-
 	      case LinkUrl.TYPE_HREF_CRM_FORM:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_BUTTON_CRM");
 	        break;
-
 	      case LinkUrl.TYPE_HREF_LINK:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_PLACEHOLDER_URL");
 	        break;
-
 	      case LinkUrl.TYPE_HREF_TEL:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_PLACEHOLDER_PHONE");
 	        break;
-
 	      case LinkUrl.TYPE_HREF_SKYPE:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_PLACEHOLDER_SKYPE");
 	        break;
-
 	      case LinkUrl.TYPE_HREF_SMS:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_PLACEHOLDER_PHONE");
 	        break;
-
 	      case LinkUrl.TYPE_HREF_MAILTO:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_PLACEHOLDER_EMAIL");
 	        break;
-
 	      case LinkUrl.TYPE_HREF_FILE:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_BUTTON_FILE");
 	        break;
-
 	      case LinkUrl.TYPE_HREF_USER:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_BUTTON_USER");
 	        break;
-
 	      case LinkUrl.TYPE_HREF_PRODUCT:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_BUTTON_PRODUCT");
 	        break;
-
 	      case LinkUrl.TYPE_CATALOG:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_BUTTON_CATALOG");
 	        break;
-
 	      case LinkUrl.TYPE_PAGE:
 	        placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_URL_BUTTON_PAGE_SHORT");
 	        break;
 	    }
-
 	    main_core.Dom.attr(this.input, "data-placeholder", placeholder);
 	  }
+
 	  /**
 	   * Gets placeholder type
 	   * @param {string} [hrefValue]
 	   * @return {string}
 	   */
-
-
 	  getPlaceholderType(hrefValue) {
 	    hrefValue = hrefValue || this.getValue();
-
 	    if (this.matchers.block.test(hrefValue)) {
 	      return LinkUrl.TYPE_BLOCK;
 	    }
-
 	    if (this.matchers.page.test(hrefValue)) {
 	      return LinkUrl.TYPE_PAGE;
 	    }
-
 	    if (this.matchers.crmForm.test(hrefValue)) {
 	      return LinkUrl.TYPE_CRM_FORM;
 	    }
-
 	    if (this.matchers.crmPhone.test(hrefValue)) {
 	      return LinkUrl.TYPE_CRM_PHONE;
 	    }
-
 	    if (this.matchers.catalogElement.test(hrefValue)) {
 	      return LinkUrl.TYPE_CATALOG_ELEMENT;
 	    }
-
 	    if (this.matchers.catalogSection.test(hrefValue)) {
 	      return LinkUrl.TYPE_CATALOG_SECTION;
 	    }
-
 	    if (this.matchers.diskFile.test(hrefValue)) {
 	      return LinkUrl.TYPE_DISK_FILE;
 	    }
-
 	    if (this.matchers.user.test(hrefValue)) {
 	      return LinkUrl.TYPE_USER;
 	    }
-
 	    if (this.matchers.system.test(hrefValue)) {
 	      return LinkUrl.TYPE_SYSTEM;
 	    }
-
 	    return LinkUrl.TYPE_HREF_LINK;
 	  }
+
 	  /**
 	   * Checks that this field contains url placeholder
 	   * @return {boolean}
 	   */
-
-
 	  containsPlaceholder() {
 	    return this.input.innerHTML.indexOf("span") !== -1;
 	  }
+
 	  /**
 	   * Creates field grid layout
 	   * @return {Element}
 	   */
-
-
 	  createGridLayout() {
 	    return main_core.Tag.render(_t || (_t = _`
 			<div class=\"landing-ui-field-link-url-grid --landing-ui-field-link-url__scope\">
@@ -768,16 +644,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>
 			`));
 	  }
-
 	  onSelectHrefButtonClick() {
 	    this.popupActions.show();
 	  }
+
 	  /**
 	   * Creates type switcher dropdown
 	   * @return {BX.Landing.UI.Field.Dropdown}
 	   */
-
-
 	  createTypeSwitcher() {
 	    //type = PAGE || STORE || KNOWLEDGE
 	    const type = BX.Landing.Env.getInstance().getType();
@@ -847,7 +721,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        setItems.push(item);
 	      }
 	    });
-
 	    if (!main_core.Type.isUndefined(this.constantType)) {
 	      if (this.constantType === LinkUrl.TYPE_CATALOG) {
 	        setItems = [{
@@ -855,7 +728,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          value: this.constantType
 	        }];
 	      }
-
 	      if (this.constantType === LinkUrl.TYPE_PAGE) {
 	        setItems = [{
 	          name: BX.Landing.Loc.getMessage("LANDING_LINK_URL_ACTION_SELECT_PAGE"),
@@ -863,7 +735,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }];
 	      }
 	    }
-
 	    return new BX.Landing.UI.Field.Dropdown({
 	      items: setItems,
 	      onValueChange: this.onTypeChange,
@@ -872,24 +743,21 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      classForTextNode: 'landing-ui-field-input-text'
 	    });
 	  }
+
 	  /**
 	   * Handles link type change event
 	   * @param {BX.Landing.UI.Field.Dropdown} field
 	   */
-
-
 	  onTypeChange(field) {
 	    const type = field.getValue();
-
 	    this.setHrefPlaceholderByType(type);
 	  }
+
 	  /**
 	   * Gets block data
 	   * @param {string} block - (#block123)
 	   * @return {Promise<T>}
 	   */
-
-
 	  getBlockData(block) {
 	    const blockId = block.match(/\d+/)[0];
 	    return BX.Landing.Backend.getInstance().getBlock({
@@ -898,15 +766,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return result.type = "block", result;
 	    });
 	  }
+
 	  /**
 	   * Gets page data
 	   * @param {string} page - (#landing123)
 	   */
-
-
 	  getPageData(page) {
 	    const match = page.match(/\d+/);
-
 	    if (match !== null) {
 	      const pageId = match[0];
 	      return BX.Landing.Backend.getInstance().getLanding({
@@ -925,7 +791,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            return null;
 	          }
 	        }
-
 	        return {
 	          type: "landing",
 	          id: landing.ID,
@@ -935,14 +800,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }.bind(this));
 	    }
 	  }
-
 	  getCrmFormData(value) {
 	    const formId = value.match(/\d+/)[0];
 	    return BX.Landing.Backend.getInstance().action("Form::getList").then(function (result) {
 	      const form = result.find(function (item) {
 	        return String(item.ID) === String(formId);
 	      });
-
 	      if (form) {
 	        return {
 	          type: "crmFormPopup",
@@ -950,18 +813,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          name: form.NAME
 	        };
 	      }
-
 	      return null;
 	    }.bind(this));
 	  }
-
 	  getCrmPhoneData(value) {
 	    return new Promise(function (resolve) {
 	      const phoneId = value.replace('tel:', '').replace('#crmPhone', '');
 	      const item = BX.Landing.Env.getInstance().getOptions().references.find(function (item) {
 	        return String(item.value) === String(phoneId);
 	      });
-
 	      if (item) {
 	        resolve({
 	          type: "crmPhone",
@@ -973,17 +833,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    }.bind(this));
 	  }
+
 	  /**
 	   * Gets system page data
 	   * @param {string} page - (#system_([a-z]))
 	   */
-
-
 	  getSystemPage(page) {
 	    return this.cache.remember(page, function () {
 	      const systemCode = this.content.replace("#system_", "");
 	      const systemPages = BX.Landing.Main.getInstance().options.syspages;
-
 	      if (systemCode in systemPages) {
 	        return Promise.resolve({
 	          type: "system",
@@ -991,104 +849,86 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          name: systemPages[systemCode].name
 	        });
 	      }
-
 	      return Promise.reject();
 	    }.bind(this));
 	  }
+
 	  /**
 	   * Gets catalog element data
 	   * @param {string} element
 	   */
-
-
 	  getCatalogElementData(element) {
 	    return this.cache.remember(element, function () {
 	      let elementId = element.match(this.matchers.catalogElement)[2];
-
 	      if (!main_core.Type.isString(elementId)) {
 	        elementId = element.match(this.matchers.catalogElement)[1];
 	      }
-
 	      const requestBody = {
 	        elementId: elementId
 	      };
 	      return BX.Landing.Backend.getInstance().action("Utils::getCatalogElement", requestBody);
 	    }.bind(this));
 	  }
+
 	  /**
 	   * Gets catalog section data
 	   * @param {string} section
 	   */
-
-
 	  getCatalogSectionData(section) {
 	    return this.cache.remember(section, function () {
 	      let sectionId = section.match(this.matchers.catalogSection)[2];
-
 	      if (!main_core.Type.isString(sectionId)) {
 	        sectionId = element.match(this.matchers.catalogSection)[1];
 	      }
-
 	      const requestBody = {
 	        sectionId: sectionId
 	      };
 	      return BX.Landing.Backend.getInstance().action("Utils::getCatalogSection", requestBody);
 	    }.bind(this));
 	  }
-
 	  getCatalog(section) {
 	    if (section === '={$sectionId}' || section === 'selectActions:') {
 	      return null;
 	    }
-
 	    return this.cache.remember(section, function () {
 	      let matchRes;
 	      let id;
 	      let type;
 	      matchRes = section.match(this.matchers.catalog);
-
 	      if (matchRes === null) {
 	        matchRes = section.match(this.matchers.element);
-
 	        if (matchRes !== null) {
 	          type = 'Element';
 	        }
 	      } else {
 	        type = 'Section';
 	      }
-
 	      if (matchRes) {
 	        id = matchRes[1];
 	      }
-
 	      let requestBody = null;
-
 	      if (type === 'Section') {
 	        requestBody = {
 	          sectionId: id
 	        };
 	      }
-
 	      if (type === 'Element') {
 	        requestBody = {
 	          elementId: id
 	        };
 	      }
-
 	      if (requestBody === null) {
 	        return null;
 	      }
-
 	      const action = 'Utils::getCatalog' + type;
 	      return BX.Landing.Backend.getInstance().action(action, requestBody);
 	    }.bind(this));
 	  }
+
 	  /**
 	   * Gets disk file data.
 	   * @param {string} diskFile
 	   */
-
-
 	  getDiskFileData(diskFile) {
 	    return this.cache.remember(diskFile, function () {
 	      const fileId = diskFile.replace("file:", "").replace("#diskFile", "");
@@ -1102,17 +942,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            name: result.NAME
 	          };
 	        }
-
 	        return null;
 	      }.bind(this));
 	    }.bind(this));
 	  }
+
 	  /**
 	   * Gets user data.
 	   * @param {string} userData
 	   */
-
-
 	  getUserData(userData) {
 	    const userId = userData.replace("user:", "").replace("#user", "");
 	    return new Promise(function (resolve) {
@@ -1134,7 +972,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    }.bind(this));
 	  }
-
 	  deleteTypeHref() {
 	    this.gridCenterCell.hidden = true;
 	    this.gridRightCell.hidden = true;
@@ -1142,34 +979,27 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.setHrefPlaceholderByType(LinkUrl.TYPE_HREF_START);
 	    this.emit('deleteAction');
 	  }
-
 	  onSelectButtonClick() {
 	    if (this.allowedTypes.length === 1) {
 	      this.onListShow(this.allowedTypes[0]);
 	    }
 	  }
-
 	  onListShow(options, type) {
 	    if (this.popup) {
 	      this.popup.close();
 	    }
-
 	    if (type === LinkUrl.TYPE_CATALOG_SECTION || type === LinkUrl.TYPE_CATALOG) {
 	      let iblocks = this.iblocks;
-
 	      if (!main_core.Type.isArray(iblocks)) {
 	        iblocks = BX.Landing.Main.getInstance().options.iblocks;
 	      }
-
 	      void BX.Landing.UI.Panel.Catalog.getInstance().show(iblocks, this.allowedCatalogEntityTypes).then(this.onListItemClick);
 	      return;
 	    }
-
 	    options.enableAreas = this.enableAreas;
 	    options.dynamicMode = true;
 	    options.currentPageOnly = this.currentPageOnly;
 	    options.panelTitle = this.panelTitle;
-
 	    if (this.detailPageMode) {
 	      options.source = this.sourceField.getValue().source;
 	      void BX.Landing.UI.Panel.DetailPage.getInstance().show(options).then(this.onListItemClick);
@@ -1178,12 +1008,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      void panel.show(type, options).then(this.onListItemClick);
 	    }
 	  }
-
 	  onDiskFileShow() {
 	    if (this.popup) {
 	      this.popup.close();
 	    }
-
 	    parent.BX.Landing.Connector.Disk.openDialog({
 	      onSelect: fileId => {
 	        this.getDiskFileData("#diskFile" + fileId).then(function (data) {
@@ -1193,7 +1021,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    });
 	  }
-
 	  onUserListShow() {
 	    this.dialog = new ui_entitySelector.Dialog({
 	      targetNode: this.input,
@@ -1214,7 +1041,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    this.dialog.show();
 	  }
-
 	  onSelectUser() {
 	    const selectedItem = this.dialog.getSelectedItems()[0];
 	    const item = {
@@ -1226,52 +1052,45 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    BX.Landing.Utils.fireEvent(this.layout, "input");
 	    this.setHrefTypeSwitcherValue(item.type + ':');
 	  }
+
 	  /**
 	   * Checks that edit mode is prevented
 	   * @return {boolean}
 	   */
-
-
 	  isEditPrevented() {
 	    if (!main_core.Type.isBoolean(this.editPrevented)) {
 	      this.editPrevented = this.containsPlaceholder();
 	    }
-
 	    return this.editPrevented;
 	  }
+
 	  /**
 	   * Sets edit prevented value
 	   * @param {boolean} value
 	   */
-
-
 	  setEditPrevented(value) {
 	    this.editPrevented = value;
 	  }
+
 	  /**
 	   * Enables edit
 	   */
-
-
 	  enableEdit() {
 	    if (!this.isEditPrevented()) {
 	      BX.Landing.UI.Field.Text.prototype.enableEdit.apply(this);
 	    }
 	  }
+
 	  /**
 	   * Creates internal url placeholder
 	   * @param {{[type]: string, [id]: string|number, name: string, [url]: string, [image]: string, [subType]: string, [chain]: string[]}} options
 	   * @returns {Element}
 	   */
-
-
 	  createPlaceholder(options) {
 	    main_core.Dom.addClass(this.gridCenterCell, "--not-empty");
-
 	    if (main_core.Type.isString(options)) {
 	      return options;
 	    }
-
 	    const placeholder = main_core.Tag.render(_t2 || (_t2 = _`
 			<span class=\"landing-ui-field-url-placeholder\">
 				<span class=\"landing-ui-field-url-placeholder-preview\"></span>
@@ -1283,7 +1102,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 		`), BX.Landing.Utils.encodeDataValue(options.name));
 	    const placeholderRemove = placeholder.querySelector("[class*=\"delete\"]");
 	    main_core.Event.bind(placeholderRemove, "click", this.onPlaceholderRemoveClick.bind(this));
-
 	    if (options.type === LinkUrl.TYPE_CATALOG) {
 	      options.chain.push(options.name);
 	      const title = BX.Landing.Utils.join(options.name, "\n", options.chain.join(' / '));
@@ -1298,7 +1116,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      placeholder.setAttribute("title", title);
 	      return placeholder;
 	    }
-
 	    BX.Landing.Utils.attr(placeholder, {
 	      "data-placeholder": BX.Landing.Utils.join("#", options.type, options.id),
 	      "data-url": BX.Landing.Utils.join("#", options.type, options.id)
@@ -1306,12 +1123,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    placeholder.setAttribute("title", options.name);
 	    return placeholder;
 	  }
+
 	  /**
 	   * Handles click event on placeholder remove button
 	   * @param event
 	   */
-
-
 	  onPlaceholderRemoveClick(event) {
 	    main_core.Dom.removeClass(this.gridCenterCell, "--not-empty");
 	    this.setEditPrevented(false);
@@ -1321,26 +1137,22 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    BX.Landing.Utils.fireEvent(this.layout, "input");
 	    this.onInputHandler(this.input.innerText);
 	  }
+
 	  /**
 	   * Handles click event on catalog panel item
 	   * @param {object} item
 	   */
-
-
 	  onListItemClick(item) {
 	    let resultPromise = Promise.resolve(item);
-
 	    if (item.type === "block") {
 	      resultPromise = this.getBlockData("#block" + item.id);
 	    }
-
 	    resultPromise.then(function (item) {
 	      this.setValue(this.createPlaceholder(item));
 	      BX.Landing.Utils.fireEvent(this.layout, "input");
 	      this.setHrefTypeSwitcherValue(item.type + ':');
 	    }.bind(this));
 	  }
-
 	  getNewLabel() {
 	    if (!this.newLabel) {
 	      this.newLabel = main_core.Dom.create({
@@ -1351,10 +1163,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        text: BX.Landing.Loc.getMessage('LANDING_LINK_NEW_PAGE_LABEL')
 	      });
 	    }
-
 	    return this.newLabel;
 	  }
-
 	  showNewLabel() {
 	    BX.Dom.style(this.gridCenterCell, {
 	      position: 'relative',
@@ -1362,18 +1172,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    BX.Dom.append(this.getNewLabel(), this.gridCenterCell);
 	  }
-
 	  hideNewLabel() {
 	    BX.Dom.style(this.gridCenterCell, 'overflow', null);
 	    BX.Dom.remove(this.getNewLabel());
 	  }
+
 	  /**
 	   * Sets value
 	   * @param {object|string} value
 	   * @param {boolean} [preventEvent] - Prevents onChange event
 	   */
-
-
 	  setValue(value, preventEvent) {
 	    if (main_core.Type.isObject(value) && !main_core.Type.isNil(value)) {
 	      this.disableEdit();
@@ -1383,13 +1191,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      const dataSet = value['dataset'];
 	      this.value = dataSet.placeholder;
 	      this.dynamic = dataSet.dynamic;
-
 	      if (this.value === '#landing0') {
 	        this.showNewLabel();
 	      } else {
 	        this.hideNewLabel();
 	      }
-
 	      if (!preventEvent) {
 	        this.onInputHandler(this.input.innerText);
 	      }
@@ -1400,7 +1206,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.dynamic = null;
 	      this.hideNewLabel();
 	    }
-
 	    if (!preventEvent) {
 	      if (main_core.Type.isString(this.value)) {
 	        this.getPlaceholderData(this.value).then(function (data) {
@@ -1408,78 +1213,64 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }.bind(this)).catch(function () {});
 	        return;
 	      }
-
 	      this.onValueChangeHandler(null);
 	    }
 	  }
+
 	  /**
 	   * Gets dynamic data
 	   * @return {?object}
 	   */
-
-
 	  getDynamic() {
 	    return this.dynamic;
 	  }
+
 	  /**
 	   * Gets value
 	   * @return {string}
 	   */
-
-
 	  getValue() {
 	    let valueText = this.value ? this.value : this.input.innerText;
 	    const selectedHrefType = this.getSelectedHrefType();
 	    this.validateValue(valueText);
 	    this.prepareInputField(this.hrefTypeSwithcer.getValue(), valueText);
-
 	    if (valueText === '') {
 	      if (selectedHrefType === 'catalog') {
 	        return '';
 	      }
-
 	      return LinkUrl.TYPE_HREF_START;
 	    }
-
 	    if (selectedHrefType === LinkUrl.TYPE_HREF_SKYPE && !valueText.includes(this.typePostfix.skype)) {
 	      valueText = valueText + this.typePostfix.skype;
 	    }
-
 	    if (valueText.startsWith(selectedHrefType)) {
 	      return valueText;
 	    }
-
 	    if (!main_core.Type.isUndefined(this.constantType)) {
 	      if (this.constantType === LinkUrl.TYPE_CATALOG) {
 	        if (this.matchers.catalogElement.test(valueText) || this.matchers.catalogSection.test(valueText) || this.matchers.catalog.test(valueText) || this.matchers.element.test(valueText)) {
 	          return valueText;
 	        }
-
 	        return '';
 	      }
-
 	      if (this.constantType === LinkUrl.TYPE_PAGE) {
 	        return LinkUrl.TYPE_HREF_PAGE + valueText;
 	      }
 	    }
-
 	    return selectedHrefType + valueText;
 	  }
+
 	  /**
 	   * Gets value text
 	   * @return {string}
 	   */
-
-
 	  getValueText() {
 	    return this.value ? this.value : this.input.innerText;
 	  }
-
 	  validateValue(value) {
 	    if (value.indexOf(':') !== -1) {
 	      value = value.slice(value.indexOf(':') + 1);
 	    }
-
 	    const setRegs = [];
 	    setRegs['phoneExtended'] = /(^[\d+][\d-]{4,14}\d$)|#crmPhone\d+/;
 	    setRegs['phone'] = /^[\d+][\d-]{4,14}\d$/;
@@ -1488,32 +1279,25 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    const type = this.hrefTypeSwithcer.getValue();
 	    const data = this.getTypeData(type);
 	    let readyToSave = true;
-
 	    if (data.needValidate) {
 	      let reg;
-
 	      switch (type) {
 	        case LinkUrl.TYPE_HREF_TEL:
 	          reg = setRegs['phoneExtended'];
 	          break;
-
 	        case LinkUrl.TYPE_HREF_SMS:
 	          reg = setRegs['phone'];
 	          break;
-
 	        case LinkUrl.TYPE_HREF_MAILTO:
 	          reg = setRegs['mail'];
 	          break;
-
 	        case LinkUrl.TYPE_HREF_SKYPE:
 	          reg = setRegs['skype'];
 	          break;
 	      }
-
 	      if (reg) {
 	        if (value.length > 0) {
 	          const isValid = reg.test(value);
-
 	          if (isValid) {
 	            main_core.Dom.removeClass(this.gridCenterCell, "--validate-incorrect");
 	            main_core.Dom.addClass(this.gridCenterCell, "--validate-correct");
@@ -1531,35 +1315,28 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.removeClass(this.gridCenterCell, "--validate-correct");
 	      main_core.Dom.removeClass(this.gridCenterCell, "--validate-incorrect");
 	    }
-
 	    this.emit('readyToSave', {
 	      readyToSave: readyToSave
 	    });
 	  }
-
 	  prepareInputField(hrefType, inputValue) {
 	    //if empty field
 	    const allowedHrefTypes = [LinkUrl.TYPE_HREF_PAGE, LinkUrl.TYPE_HREF_BLOCK, LinkUrl.TYPE_HREF_CRM_FORM, LinkUrl.TYPE_HREF_FILE, LinkUrl.TYPE_HREF_USER, LinkUrl.TYPE_HREF_PRODUCT, LinkUrl.TYPE_CATALOG, LinkUrl.TYPE_PAGE];
-
 	    if (inputValue === '' && allowedHrefTypes.includes(hrefType)) {
 	      main_core.Dom.addClass(this.input, "landing-ui-field-input-empty");
 	    } else {
 	      main_core.Dom.removeClass(this.input, "landing-ui-field-input-empty");
 	    }
 	  }
-
 	  getInputInnerText(value) {
 	    return this.prepareInputInnerText(value.toString().trim());
 	  }
-
 	  prepareInputInnerText(value) {
 	    if (this.getSelectedHrefType() === LinkUrl.TYPE_HREF_SKYPE && value.includes(this.typePostfix.skype)) {
 	      value = value.replace(this.typePostfix.skype, '');
 	    }
-
 	    return value;
 	  }
-
 	}
 	LinkUrl.TYPE_BLOCK = "block";
 	LinkUrl.TYPE_PAGE = "landing";

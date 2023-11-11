@@ -61,9 +61,6 @@ class BlockTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CODE'),
 				'required' => true
 			)),
-			'CODE_ORIGINAL' => new Entity\StringField('CODE_ORIGINAL', array(
-				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CODE_ORIGINAL'),
-			)),
 			'TPL_CODE' => new Entity\StringField('TPL_CODE', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_TPL_CODE'),
 			)),
@@ -124,7 +121,7 @@ class BlockTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_FAVORITE_META')
 			)))->configureSerializationPhp(),
 			'HISTORY_STEP_DESIGNER' => new Entity\IntegerField('HISTORY_STEP_DESIGNER', array(
-				'title' => Loc::getMessage('LANDING_TABLE_FIELD_HISTORY_STEP_DESIGNER')
+				'title' => 'History step for design block'
 			)),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),

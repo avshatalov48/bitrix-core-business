@@ -9,6 +9,7 @@ $MESS["MPF_DESTINATION_2"] = "Добавить еще";
 $MESS["MPF_DESTINATION_3"] = "Всем сотрудникам";
 $MESS["MPF_DESTINATION_4"] = "Всем пользователям";
 $MESS["MPF_FILE_TITLE"] = "Загрузить файл";
+$MESS["MPF_COPILOT"] = "CoPilot";
 $MESS["MPF_FILE"] = "Файл";
 $MESS["MPF_MENTION"] = "Отметить человека";
 $MESS["MPF_QUOTE"] = "Цитата";

@@ -10,8 +10,6 @@ use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\Util;
 use Bitrix\Crm;
-use Bitrix\Crm\Integration\NotificationsManager;
-use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
@@ -500,16 +498,16 @@ class SharingEventManager
 	 */
 	private function checkUserAccessibility(): bool
 	{
-		$timezone = $this->event->getStartTimeZone()->getTimeZone()->getName();
 		$userId = $this->ownerId;
-		$fromTs = \CCalendar::Timestamp((string)$this->event->getStart(), false);
-		$toTs = \CCalendar::Timestamp((string)$this->event->getEnd(), false);
+		$start = new DateTime($this->event->getStart()->toString());
+		$end = new DateTime($this->event->getEnd()->toString());
+		$fromTs = Util::getDateTimestampUtc($start, $this->event->getStartTimeZone());
+		$toTs = Util::getDateTimestampUtc($end, $this->event->getEndTimeZone());
 
 		return (new SharingAccessibilityManager([
 			'userId' => $userId,
 			'timestampFrom' => $fromTs,
 			'timestampTo' => $toTs,
-			'timezone' => $timezone
 		]))->checkUserAccessibility();
 	}
 

@@ -512,10 +512,6 @@ input.pagetitle-item {
 	align-items: center;
 }
 
-.catalog-title-buttons-wrapper .ui-label-inner {
-	font-weight: var(--ui-font-weight-bold, 700);
-}
-
 .catalog-store-card-left {
 	float: left;
 	box-sizing: border-box;

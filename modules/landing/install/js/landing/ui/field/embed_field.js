@@ -84,8 +84,8 @@
 				source: this.input.innerText,
 				ratio:
 					(this.mediaService && this.mediaService.isVertical)
-						? BX.Landing.Block.Node.Embed.DEFAULT_RATIO_V
-						: BX.Landing.Block.Node.Embed.DEFAULT_RATIO_H
+						? BX.Landing.Node.Embed.DEFAULT_RATIO_V
+						: BX.Landing.Node.Embed.DEFAULT_RATIO_H
 				,
 			};
 		},

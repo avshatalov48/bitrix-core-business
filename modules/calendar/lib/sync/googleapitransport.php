@@ -16,6 +16,7 @@ use CSocServGoogleProxyOAuth;
 use Exception;
 
 /**
+ * @deprecated
  * Class GoogleApiTransport
  *
  * @package Bitrix\Calendar\Sync

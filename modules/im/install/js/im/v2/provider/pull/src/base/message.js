@@ -1,14 +1,14 @@
-import {EventEmitter} from 'main.core.events';
-import {Store} from 'ui.vue3.vuex';
+import { EventEmitter } from 'main.core.events';
+import { Store } from 'ui.vue3.vuex';
 
-import {Core} from 'im.v2.application.core';
-import {Logger} from 'im.v2.lib.logger';
-import {UserManager} from 'im.v2.lib.user';
-import {UuidManager} from 'im.v2.lib.uuid';
-import {EventType, DialogScrollThreshold} from 'im.v2.const';
-import {MessageService} from 'im.v2.provider.service';
+import { Core } from 'im.v2.application.core';
+import { Logger } from 'im.v2.lib.logger';
+import { UserManager } from 'im.v2.lib.user';
+import { UuidManager } from 'im.v2.lib.uuid';
+import { EventType, DialogScrollThreshold, UserRole } from 'im.v2.const';
+import { MessageService } from 'im.v2.provider.service';
 
-import type {ImModelDialog, ImModelMessage} from 'im.v2.model';
+import type { ImModelDialog, ImModelMessage } from 'im.v2.model';
 
 import type {
 	MessageAddParams,
@@ -20,9 +20,9 @@ import type {
 	PinAddParams,
 	PinDeleteParams,
 	AddReactionParams,
-	DeleteReactionParams
+	DeleteReactionParams,
 } from '../types/message';
-import type {PullExtraParams, RawFile, RawUser, RawMessage} from '../types/common';
+import type { PullExtraParams, RawFile, RawUser, RawMessage } from '../types/common';
 
 export class MessagePullHandler
 {
@@ -41,11 +41,11 @@ export class MessagePullHandler
 		this.#setFiles(params);
 
 		const messageWithTemplateId = this.#store.getters['messages/isInChatCollection']({
-			messageId: params.message.templateId
+			messageId: params.message.templateId,
 		});
 
 		const messageWithRealId = this.#store.getters['messages/isInChatCollection']({
-			messageId: params.message.id
+			messageId: params.message.id,
 		});
 
 		// update message with parsed link info
@@ -54,7 +54,7 @@ export class MessagePullHandler
 			Logger.warn('New message pull handler: we already have this message', params.message);
 			this.#store.dispatch('messages/update', {
 				id: params.message.id,
-				fields: params.message
+				fields: params.message,
 			});
 			this.#sendScrollEvent(params.chatId);
 		}
@@ -63,7 +63,7 @@ export class MessagePullHandler
 			Logger.warn('New message pull handler: we already have the TEMPORARY message', params.message);
 			this.#store.dispatch('messages/updateWithId', {
 				id: params.message.templateId,
-				fields: params.message
+				fields: params.message,
 			});
 		}
 		// it's an opponent message or our own message from somewhere else
@@ -93,8 +93,8 @@ export class MessagePullHandler
 			id: params.id,
 			fields: {
 				text: params.text,
-				params: params.params
-			}
+				params: params.params,
+			},
 		});
 		this.#sendScrollEvent(params.chatId);
 	}
@@ -109,8 +109,12 @@ export class MessagePullHandler
 		this.#store.dispatch('messages/update', {
 			id: params.id,
 			fields: {
-				params: params.params,
-			}
+				text: '',
+				isDeleted: true,
+				files: [],
+				attach: [],
+				replyId: 0,
+			},
 		});
 	}
 
@@ -165,7 +169,7 @@ export class MessagePullHandler
 	handleDeleteReaction(params: DeleteReactionParams)
 	{
 		Logger.warn('MessagePullHandler: handleDeleteReaction', params);
-		const {actualReactions: {reaction: actualReactionsState}} = params;
+		const { actualReactions: { reaction: actualReactionsState } } = params;
 		this.#store.dispatch('messages/reactions/set', [actualReactionsState]);
 	}
 
@@ -176,7 +180,7 @@ export class MessagePullHandler
 		this.#store.dispatch('messages/update', {
 			id: params.id,
 			chatId: params.chatId,
-			fields: {params: params.params}
+			fields: { params: params.params },
 		});
 	}
 
@@ -194,15 +198,18 @@ export class MessagePullHandler
 
 		this.#store.dispatch('messages/readMessages', {
 			chatId: params.chatId,
-			messageIds: params.viewedMessages
+			messageIds: params.viewedMessages,
 		}).then(() => {
 			this.#store.dispatch('dialogues/update', {
 				dialogId: params.dialogId,
 				fields: {
 					counter: params.counter,
-					lastId: params.lastId
-				}
+					lastId: params.lastId,
+				},
 			});
+		}).catch((error) => {
+			// eslint-disable-next-line no-console
+			console.error('MessagePullHandler: error handling readMessage', error);
 		});
 	}
 
@@ -218,7 +225,7 @@ export class MessagePullHandler
 		Logger.warn('MessagePullHandler: handlePinAdd', params);
 		this.#setFiles(params);
 		this.#setUsers(params);
-		this.#store.dispatch('messages/store', params.pin.message);
+		this.#store.dispatch('messages/store', params.additionalMessages);
 		this.#store.dispatch('messages/pin/add', {
 			chatId: params.pin.chatId,
 			messageId: params.pin.messageId,
@@ -234,7 +241,7 @@ export class MessagePullHandler
 		Logger.warn('MessagePullHandler: handlePinDelete', params);
 		this.#store.dispatch('messages/pin/delete', {
 			chatId: params.chatId,
-			messageId: params.messageId
+			messageId: params.messageId,
 		});
 	}
 
@@ -246,7 +253,13 @@ export class MessagePullHandler
 			return;
 		}
 
-		const chatToAdd = {...params.chat[params.chatId], dialogId: params.dialogId};
+		const chatToAdd = { ...params.chat[params.chatId], dialogId: params.dialogId };
+		const dialogExists = Boolean(this.#getDialog(params.dialogId));
+		const messageWithoutNotification = !params.notify || params.message?.params?.NOTIFY === 'N';
+		if (!dialogExists && !messageWithoutNotification && !chatToAdd.role)
+		{
+			chatToAdd.role = UserRole.member;
+		}
 		this.#store.dispatch('dialogues/set', chatToAdd);
 	}
 
@@ -271,13 +284,13 @@ export class MessagePullHandler
 		const files = Object.values(params.files);
 		files.forEach((file: RawFile) => {
 			const templateFileIdExists = this.#store.getters['files/isInCollection']({
-				fileId: params.message?.templateFileId
+				fileId: params.message?.templateFileId,
 			});
 			if (templateFileIdExists)
 			{
 				this.#store.dispatch('files/updateWithId', {
 					id: params.message?.templateFileId,
-					fields: file
+					fields: file,
 				});
 			}
 			else
@@ -299,8 +312,9 @@ export class MessagePullHandler
 		const unreadMessages: ImModelMessage[] = this.#store.getters['messages/getChatUnreadMessages'](params.chatId);
 		if (!chatIsOpened && unreadMessages.length > MessageService.getMessageRequestLimit())
 		{
-			const messageService = new MessageService({chatId: params.chatId});
+			const messageService = new MessageService({ chatId: params.chatId });
 			messageService.reloadMessageList();
+
 			return;
 		}
 
@@ -310,17 +324,17 @@ export class MessagePullHandler
 
 	#addMessageToModel(message)
 	{
-		const newMessage = {...message};
-		if (message.senderId !== Core.getUserId())
+		const newMessage = { ...message };
+		if (message.senderId === Core.getUserId())
+		{
+			newMessage.unread = false;
+		}
+		else
 		{
 			newMessage.unread = true;
 			newMessage.viewed = false;
 		}
-		else
-		{
-			newMessage.unread = false;
-		}
-		this.#store.dispatch('messages/setChatCollection', {messages: [newMessage]});
+		this.#store.dispatch('messages/setChatCollection', { messages: [newMessage] });
 	}
 
 	#updateDialog(params)
@@ -332,26 +346,26 @@ export class MessagePullHandler
 		{
 			dialogFieldsToUpdate.lastMessageId = params.message.id;
 		}
+
 		if (params.message.senderId === Core.getUserId() && params.message.id > dialog.lastReadId)
 		{
 			dialogFieldsToUpdate.lastId = params.message.id;
 		}
-		else
-		{
-			dialogFieldsToUpdate.counter = params.counter;
-		}
+
+		dialogFieldsToUpdate.counter = params.counter;
+
 		this.#store.dispatch('dialogues/update', {
 			dialogId: params.dialogId,
-			fields: dialogFieldsToUpdate
+			fields: dialogFieldsToUpdate,
 		});
 		this.#store.dispatch('dialogues/clearLastMessageViews', {
-			dialogId: params.dialogId
+			dialogId: params.dialogId,
 		});
 	}
 
 	#updateMessageViewedByOthers(params: ReadMessageOpponentParams)
 	{
-		this.#store.dispatch('messages/setViewedByOthers', {ids: params.viewedMessages});
+		this.#store.dispatch('messages/setViewedByOthers', { ids: params.viewedMessages });
 	}
 
 	#updateChatLastMessageViews(params: ReadMessageOpponentParams)
@@ -368,11 +382,11 @@ export class MessagePullHandler
 			return;
 		}
 
-		const hasFirstViewer = !!dialog.lastMessageViews.firstViewer;
+		const hasFirstViewer = Boolean(dialog.lastMessageViews.firstViewer);
 		if (hasFirstViewer)
 		{
 			this.#store.dispatch('dialogues/incrementLastMessageViews', {
-				dialogId: params.dialogId
+				dialogId: params.dialogId,
 			});
 
 			return;
@@ -384,14 +398,14 @@ export class MessagePullHandler
 				userId: params.userId,
 				userName: params.userName,
 				date: params.date,
-				messageId: dialog.lastMessageId
-			}
+				messageId: dialog.lastMessageId,
+			},
 		});
 	}
 
 	#sendScrollEvent(chatId: number)
 	{
-		EventEmitter.emit(EventType.dialog.scrollToBottom, {chatId, threshold: DialogScrollThreshold.nearTheBottom});
+		EventEmitter.emit(EventType.dialog.scrollToBottom, { chatId, threshold: DialogScrollThreshold.nearTheBottom });
 	}
 
 	#getDialog(dialogId: string, temporary: boolean = false): ?ImModelDialog

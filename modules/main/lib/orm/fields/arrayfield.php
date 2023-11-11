@@ -217,7 +217,7 @@ class ArrayField extends ScalarField
 	 */
 	public function getGetterTypeHint()
 	{
-		return 'array';
+		return $this->getNullableTypeHint('array');
 	}
 
 	/**
@@ -225,6 +225,6 @@ class ArrayField extends ScalarField
 	 */
 	public function getSetterTypeHint()
 	{
-		return 'array';
+		return $this->getNullableTypeHint('array');
 	}
 }

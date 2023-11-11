@@ -14,6 +14,7 @@ use COption;
 class Util
 {
 	public const USER_SELECTOR_CONTEXT = "CALENDAR";
+	public const USER_FIELD_ENTITY_ID = 'CALENDAR_EVENT';
 	public const LIMIT_NUMBER_BANNER_IMPRESSIONS = 3;
 	public const DATETIME_PHP_FORMAT = 'Y-m-d H:i:sP';
 	public const VERSION_DIFFERENCE = 1;
@@ -701,5 +702,66 @@ class Util
 		);
 
 		return $date->getTimestamp();
+	}
+
+	public static function formatDateTimeTimestamp(int $timestamp, string $timezoneName): string
+	{
+		$timezone = new \DateTimeZone($timezoneName);
+		$dateTimeFormat = Date::convertFormatToPhp(FORMAT_DATETIME);
+
+		return (new \DateTime('now', $timezone))
+			->setTimestamp($timestamp)
+			->format($dateTimeFormat)
+		;
+	}
+
+	public static function formatDateTimeTimestampUTC(int $timestamp): string
+	{
+		$dateTimeFormat = Date::convertFormatToPhp(FORMAT_DATETIME);
+
+		return gmdate($dateTimeFormat, $timestamp);
+	}
+
+	public static function formatDateTimestampUTC(int $timestamp): string
+	{
+		$dateFormat = Date::convertFormatToPhp(FORMAT_DATE);
+
+		return gmdate($dateFormat, $timestamp);
+	}
+
+	public static function getTimezoneOffsetUTC(string $timezoneName): int
+	{
+		$utc = new \DateTimeZone('UTC');
+
+		return (new \DateTimeZone($timezoneName))->getOffset(new \DateTime('now', $utc));
+	}
+
+	public static function getDateTimestampUtc(DateTime $date, ?string $eventTimezone = null): int
+	{
+		$dateTimezone = $date->getTimeZone()->getName();
+		$dateTimestampUTC = $date->getTimestamp() + \CCalendar::GetTimezoneOffset($dateTimezone);
+		$eventOffsetUTC = \CCalendar::GetTimezoneOffset($eventTimezone);
+
+		return $dateTimestampUTC - $eventOffsetUTC;
+	}
+
+	public static function formatEventDateTime(DateTime $dateTime): string
+	{
+		$culture = Main\Application::getInstance()->getContext()->getCulture();
+		$dayMonthFormat = Main\Type\Date::convertFormatToPhp($culture->getDateFormat());
+		$timeFormat = $culture->get('SHORT_TIME_FORMAT');
+
+		$eventDate = FormatDate($dayMonthFormat, $dateTime->getTimestamp());
+		$eventTime = FormatDate($timeFormat, $dateTime->getTimestamp());
+
+		return "$eventDate $eventTime";
+	}
+
+	public static function formatEventDate(DateTime $dateTime): string
+	{
+		$culture = Main\Application::getInstance()->getContext()->getCulture();
+		$dayMonthFormat = Main\Type\Date::convertFormatToPhp($culture->getDateFormat());
+
+		return FormatDate($dayMonthFormat, $dateTime->getTimestamp());
 	}
 }

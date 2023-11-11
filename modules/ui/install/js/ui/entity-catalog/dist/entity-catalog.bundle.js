@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_vue3,ui_vue3_components_hint,ui_feedback_form,ui_icons,ui_advice,item,button,ui_vue3_pinia,group,main_popup,main_core_events,main_core,group$1) {
 	'use strict';

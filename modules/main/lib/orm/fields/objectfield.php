@@ -177,9 +177,21 @@ class ObjectField extends ScalarField
 	 */
 	public function getGetterTypeHint()
 	{
-		return !empty($this->objectClasses)
-			? join('|', $this->objectClasses)
-			: 'mixed';
+		$type = 'mixed';
+
+		if (!empty($this->objectClasses))
+		{
+			$types =  $this->objectClasses;
+
+			if ($this->is_nullable)
+			{
+				$types[] = 'null';
+			}
+
+			$type =  join('|', $types);
+		}
+
+		return $type;
 	}
 
 	/**
@@ -187,8 +199,20 @@ class ObjectField extends ScalarField
 	 */
 	public function getSetterTypeHint()
 	{
-		return !empty($this->objectClasses)
-			? join('|', $this->objectClasses)
-			: 'mixed';
+		$type = 'mixed';
+
+		if (!empty($this->objectClasses))
+		{
+			$types =  $this->objectClasses;
+
+			if ($this->is_nullable)
+			{
+				$types[] = 'null';
+			}
+
+			$type =  join('|', $types);
+		}
+
+		return $type;
 	}
 }

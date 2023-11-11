@@ -1,4 +1,5 @@
 import { BaseEvent } from 'main.core.events';
+import { getFilesFromDataTransfer } from 'ui.uploader.core';
 import { runAction } from 'im.v2.lib.rest';
 
 import { Core } from 'im.v2.application.core';
@@ -7,9 +8,12 @@ import { Utils } from 'im.v2.lib.utils';
 import { Logger } from 'im.v2.lib.logger';
 
 import { UploaderWrapper } from './classes/uploading/uploader-wrapper';
+import { SendingService } from './registry';
 
 import type { ImModelDialog, ImModelUser } from 'im.v2.model';
-import type { UploaderFile } from 'ui.uploader.core';
+import type { UploaderFile, UploaderError } from 'ui.uploader.core';
+import type { Store } from 'ui.vue3.vuex';
+import type { RestClient } from 'rest.client';
 
 export type FileFromDisk = {
 	id: string;
@@ -30,7 +34,8 @@ export type MessageWithFile = {
 	file: FileFromDisk | File,
 	dialogId: string,
 	chatId?: number,
-	uploaderId: string
+	uploaderId: string,
+	sendAsFile: boolean,
 }
 
 type FileCommitParams = {
@@ -46,16 +51,27 @@ type FileCommitParams = {
 type UploadFilesParams = {
 	files: File[],
 	dialogId: string,
-	autoUpload: boolean
+	autoUpload: boolean,
+	sendAsFile: boolean
 }
 
 export class UploadingService
 {
-	#store;
-	#restClient;
+	#store: Store;
+	#restClient: RestClient;
 	#isRequestingDiskFolderId: boolean = false;
 	#diskFolderIdRequestPromise: { [string]: Promise } = {};
 	#uploaderWrapper: UploaderWrapper;
+	#sendingService: SendingService;
+	#uploaderFilesRegistry: {
+		[uploaderId: string]: {
+			autoUpload: boolean,
+			wasSent: boolean,
+			text: string,
+			dialogId: string,
+			filesPreviewStatus: { [string]: boolean }
+		}
+	} = {};
 
 	static instance = null;
 
@@ -73,13 +89,13 @@ export class UploadingService
 	{
 		this.#store = Core.getStore();
 		this.#restClient = Core.getRestClient();
-
+		this.#sendingService = SendingService.getInstance();
 		this.#initUploader();
 	}
 
-	uploadFiles(params: UploadFilesParams): Promise<{files: UploaderFile[], uploaderId: string}>
+	#createUploader(params: { dialogId: string, autoUpload: boolean }): Promise<string>
 	{
-		const { files, dialogId, autoUpload } = params;
+		const { dialogId, autoUpload } = params;
 
 		const uploaderId = Utils.text.getUuidV4();
 
@@ -90,13 +106,57 @@ export class UploadingService
 				autoUpload,
 			});
 
+			return uploaderId;
+		});
+	}
+
+	addFilesFromClipboard(clipboardData: DataTransfer, dialogId): Promise<{files: UploaderFile[], uploaderId: string}>
+	{
+		return getFilesFromDataTransfer(clipboardData).then((files: File[]) => {
+			const imagesOnly = files.filter((file) => Utils.file.isImage(file.name));
+			if (imagesOnly.length === 0)
+			{
+				return {
+					files: [],
+					uploaderId: '',
+				};
+			}
+
+			return this.addFiles({
+				files: imagesOnly,
+				dialogId,
+				autoUpload: false,
+			});
+		});
+	}
+
+	addFilesFromInput(files: File[], dialogId: string, sendAsFile: boolean)
+	{
+		if (files.length === 0)
+		{
+			return;
+		}
+
+		this.addFiles({ files, dialogId, autoUpload: true, sendAsFile }).then(({ uploaderId }) => {
+			this.#tryToSendMessages(uploaderId);
+		}).catch((error) => {
+			Logger.error('SendingService: sendFilesFromInput error', error);
+		});
+	}
+
+	addFiles(params: UploadFilesParams): Promise<{files: UploaderFile[], uploaderId: string}>
+	{
+		const { files, dialogId, autoUpload, sendAsFile = false } = params;
+
+		return this.#createUploader({ dialogId, autoUpload }).then((uploaderId: string) => {
 			const filesForUploader = [];
 			files.forEach((file) => {
-				const messageWithFile = this.#prepareMessageWithFile(file, dialogId, uploaderId);
+				const messageWithFile = this.#prepareMessageWithFile(file, dialogId, uploaderId, sendAsFile);
 				filesForUploader.push(messageWithFile);
 			});
 
 			const addedFiles = this.#uploaderWrapper.addFiles(filesForUploader);
+			this.#registerFiles(uploaderId, addedFiles, dialogId, autoUpload);
 
 			return {
 				files: addedFiles,
@@ -112,12 +172,35 @@ export class UploadingService
 
 	start(uploaderId: string)
 	{
+		this.#uploaderFilesRegistry[uploaderId].autoUpload = true;
 		this.#uploaderWrapper.start(uploaderId);
 	}
 
-	uploadFileFromDisk(messageWithFile: MessageWithFile): Promise
+	uploadFileFromDisk(files, dialogId)
 	{
-		return this.#addFileFromDiskToModel(messageWithFile);
+		Object.values(files).forEach((file) => {
+			const messageWithFile = this.#prepareFileFromDisk(file, dialogId);
+
+			this.#addFileFromDiskToModel(messageWithFile).then(() => {
+				const message = {
+					tempMessageId: messageWithFile.tempMessageId,
+					fileId: messageWithFile.tempFileId,
+					dialogId: messageWithFile.dialogId,
+				};
+
+				return this.#sendingService.sendMessage(message);
+			}).then(() => {
+				this.commitFile({
+					chatId: messageWithFile.chatId,
+					temporaryFileId: messageWithFile.tempFileId,
+					tempMessageId: messageWithFile.tempMessageId,
+					realFileId: messageWithFile.file.id.slice(1),
+					fromDisk: true,
+				});
+			}).catch((error) => {
+				console.error('SendingService: sendFilesFromDisk error:', error);
+			});
+		});
 	}
 
 	#addFileFromDiskToModel(messageWithFile: MessageWithFile): Promise
@@ -145,8 +228,10 @@ export class UploadingService
 		});
 
 		this.#uploaderWrapper.subscribe(UploaderWrapper.events.onFileAdd, (event: BaseEvent) => {
-			const { file } = event.getData();
+			const { file, uploaderId } = event.getData();
 			this.#updateFilePreviewInStore(file);
+			this.#setReadyFilePreview(uploaderId, file.getId());
+			this.#tryToSendMessages(uploaderId);
 		});
 		this.#uploaderWrapper.subscribe(UploaderWrapper.events.onFileUploadStart, (event: BaseEvent) => {
 			const { file } = event.getData();
@@ -161,22 +246,25 @@ export class UploadingService
 		this.#uploaderWrapper.subscribe(UploaderWrapper.events.onFileUploadComplete, (event: BaseEvent) => {
 			const { file }: {file: UploaderFile} = event.getData();
 			this.#updateFileProgress(file.getId(), file.getProgress(), FileStatus.wait);
-			this.#uploadPreview(file);
-
-			this.commitFile({
-				realFileId: file.getServerFileId(),
-				temporaryFileId: file.getId(),
-				chatId: file.getCustomData('chatId'),
-				tempMessageId: file.getCustomData('tempMessageId'),
-				messageText: file.getCustomData('messageText') ?? '',
-				sendAsFile: file.getCustomData('sendAsFile'),
-				fromDisk: false,
+			this.#uploadPreview(file).then(() => {
+				this.commitFile({
+					realFileId: file.getServerFileId(),
+					temporaryFileId: file.getId(),
+					chatId: file.getCustomData('chatId'),
+					tempMessageId: file.getCustomData('tempMessageId'),
+					messageText: file.getCustomData('messageText') ?? '',
+					sendAsFile: file.getCustomData('sendAsFile'),
+					fromDisk: false,
+				});
+			}).catch((error) => {
+				Logger.warn('UploadingService: upload preview error', error);
 			});
 		});
 		this.#uploaderWrapper.subscribe(UploaderWrapper.events.onFileUploadError, (event: BaseEvent) => {
 			const { file, error } = event.getData();
 			this.#updateFileProgress(file.getId(), 0, FileStatus.error);
-			Logger.error('FilesService: upload error', error);
+			this.#showError(error);
+			Logger.error('UploadingService: upload error', error);
 		});
 		this.#uploaderWrapper.subscribe(UploaderWrapper.events.onFileUploadCancel, (event: BaseEvent) => {
 			const { tempMessageId, tempFileId } = event.getData();
@@ -250,25 +338,35 @@ export class UploadingService
 		});
 	}
 
-	#uploadPreview(file: UploaderFile)
+	#uploadPreview(file: UploaderFile): Promise
 	{
+		if (
+			this.#getFileType(file.getBinary()) === FileType.file
+			|| file.getExtension() === 'gif'
+		)
+		{
+			return Promise.resolve();
+		}
+
 		const id = file.getServerFileId().toString().slice(1);
 		const previewFile = file.getClientPreview();
 		if (!previewFile)
 		{
-			return;
+			file.setCustomData('sendAsFile', true);
+
+			return Promise.resolve();
 		}
 
 		const formData = new FormData();
 		formData.append('id', id);
 		formData.append('previewFile', previewFile, `preview_${file.getName()}.jpg`);
 
-		runAction(RestMethod.imDiskFilePreviewUpload, { data: formData }).catch((error) => {
+		return runAction(RestMethod.imDiskFilePreviewUpload, { data: formData }).catch((error) => {
 			Logger.error('imDiskFilePreviewUpload request error', error);
 		});
 	}
 
-	#prepareMessageWithFile(file: File, dialogId: string, uploaderId): MessageWithFile
+	#prepareMessageWithFile(file: File, dialogId: string, uploaderId, sendAsFile: boolean): MessageWithFile
 	{
 		const tempMessageId = Utils.text.getUuidV4();
 		const tempFileId = Utils.text.getUuidV4();
@@ -281,6 +379,7 @@ export class UploadingService
 			dialogId,
 			chatId,
 			uploaderId,
+			sendAsFile: sendAsFile && this.#getFileType(file) !== FileType.file,
 		};
 	}
 
@@ -345,6 +444,11 @@ export class UploadingService
 
 	#preparePreview(file: UploaderFile): { image: { width: number, height: number }, urlPreview: Blob }
 	{
+		if (file.getCustomData('sendAsFile'))
+		{
+			return {};
+		}
+
 		const preview = {
 			blob: file.getPreviewUrl(),
 			width: file.getPreviewWidth(),
@@ -360,6 +464,11 @@ export class UploadingService
 			};
 
 			previewData.urlPreview = preview.blob;
+		}
+
+		if (file.getClientPreview())
+		{
+			previewData.urlShow = URL.createObjectURL(file.getBinary());
 		}
 
 		return previewData;
@@ -405,6 +514,149 @@ export class UploadingService
 	#getChatId(dialogId: string): ?number
 	{
 		return this.#getDialog(dialogId)?.chatId;
+	}
+
+	#registerFiles(uploaderId: string, files: UploaderFile[], dialogId: string, autoUpload: boolean)
+	{
+		if (!this.#uploaderFilesRegistry[uploaderId])
+		{
+			this.#uploaderFilesRegistry[uploaderId] = {
+				filesPreviewStatus: {},
+				dialogId,
+				text: '',
+				autoUpload,
+			};
+		}
+
+		files.forEach((file) => {
+			const fileId = file.getId();
+			if (!this.#uploaderFilesRegistry[uploaderId].filesPreviewStatus)
+			{
+				this.#uploaderFilesRegistry[uploaderId].filesPreviewStatus = {};
+			}
+
+			this.#uploaderFilesRegistry[uploaderId].filesPreviewStatus[fileId] = false;
+		});
+	}
+
+	#setReadyFilePreview(uploaderId: string, fileId: string)
+	{
+		this.#uploaderFilesRegistry[uploaderId].filesPreviewStatus[fileId] = true;
+	}
+
+	#setMessagesText(uploaderId: string, text: string)
+	{
+		this.#uploaderFilesRegistry[uploaderId].text = text;
+	}
+
+	#setAutoUpload(uploaderId: string, autoUploadFlag: boolean)
+	{
+		this.#uploaderFilesRegistry[uploaderId].autoUpload = autoUploadFlag;
+	}
+
+	sendSeparateMessagesWithFiles(params: { uploaderId: string, text: string})
+	{
+		const { uploaderId, text } = params;
+
+		this.#setMessagesText(uploaderId, text);
+		this.#setAutoUpload(uploaderId, true);
+		this.#tryToSendMessages(uploaderId);
+	}
+
+	#createMessagesFromFiles(uploaderId): []
+	{
+		const messagesToSend = [];
+
+		const files = this.getFiles(uploaderId);
+		const text = this.#uploaderFilesRegistry[uploaderId].text;
+		const dialogId = this.#uploaderFilesRegistry[uploaderId].dialogId;
+		const hasText = text.length > 0;
+
+		// if we have more than one file and text, we need to send text message first
+		if (files.length > 1 && hasText)
+		{
+			messagesToSend.push({ dialogId, text });
+		}
+
+		files.forEach((file) => {
+			if (file.getError())
+			{
+				return;
+			}
+
+			const messageId = Utils.text.getUuidV4();
+
+			file.setCustomData('messageId', messageId);
+			if (files.length === 1 && hasText)
+			{
+				file.setCustomData('messageText', text);
+			}
+
+			messagesToSend.push({
+				fileId: file.getId(),
+				tempMessageId: file.getCustomData('tempMessageId'),
+				dialogId,
+				text: file.getCustomData('messageText') ?? '',
+			});
+		});
+
+		return messagesToSend;
+	}
+
+	#readyToAddMessages(uploaderId): boolean
+	{
+		if (
+			!this.#uploaderFilesRegistry[uploaderId]
+			|| !this.#uploaderFilesRegistry[uploaderId].autoUpload
+			|| this.#uploaderFilesRegistry[uploaderId].wasSent
+		)
+		{
+			return false;
+		}
+
+		const { filesPreviewStatus } = this.#uploaderFilesRegistry[uploaderId];
+
+		return Object.values(filesPreviewStatus).every((flag) => flag === true);
+	}
+
+	#tryToSendMessages(uploaderId: string)
+	{
+		if (!this.#readyToAddMessages(uploaderId))
+		{
+			return;
+		}
+
+		this.#uploaderFilesRegistry[uploaderId].wasSent = true;
+		const messagesToSend = this.#createMessagesFromFiles(uploaderId);
+		messagesToSend.forEach((message) => {
+			this.#sendingService.sendMessage(message);
+		});
+		this.start(uploaderId);
+	}
+
+	#prepareFileFromDisk(file: FileFromDisk, dialogId: string): MessageWithFile
+	{
+		const tempMessageId = Utils.text.getUuidV4();
+		const realFileId = file.id.slice(1); // 'n123' => '123'
+		const tempFileId = `${tempMessageId}|${realFileId}`;
+
+		return {
+			tempMessageId,
+			tempFileId,
+			dialogId,
+			file,
+			chatId: this.#getDialog(dialogId).chatId,
+		};
+	}
+
+	#showError(error: UploaderError)
+	{
+		if (error.getCode() === 'MAX_FILE_SIZE_EXCEEDED')
+		{
+			BX.UI.Notification.Center.notify({
+				content: `${error.getMessage()}<br>${error.getDescription()}`,
+			});
+		}
 	}
 
 	destroy()

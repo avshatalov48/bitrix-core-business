@@ -140,11 +140,11 @@ final class Config
 	 */
 	public static function getAliasEncoding(string $encoding): ?string 
 	{
-		static $aliasEncoding = array(
+		static $aliasEncoding = [
 			'windows-1250' => 'iso-8859-2',
 			'windows-1252' => 'iso-8859-1',
-		);
-		if(isset($aliasEncoding[$encoding]))
+		];
+		if (isset($aliasEncoding[$encoding]))
 		{
 			return $aliasEncoding[$encoding];
 		}
@@ -202,7 +202,7 @@ final class Config
 			]);
 			while ($row = $iterator->fetch())
 			{
-				$languages[] = $row['ID'];
+				$languages[] = mb_strtolower($row['ID']);
 			}
 		}
 
@@ -228,7 +228,7 @@ final class Config
 			]);
 			while ($row = $iterator->fetch())
 			{
-				$languages[] = $row['ID'];
+				$languages[] = mb_strtolower($row['ID']);
 			}
 		}
 
@@ -242,7 +242,7 @@ final class Config
 	 *
 	 * @return array
 	 */
-	public static function getLanguagesTitle($languageIds): array 
+	public static function getLanguagesTitle(array $languageIds): array
 	{
 		static $cache = [];
 		
@@ -254,7 +254,7 @@ final class Config
 			$iterator = Main\Localization\LanguageTable::getList([
 				'select' => ['ID', 'NAME'],
 				'filter' => [
-					'ID' => $languageIds,
+					'=ID' => $languageIds,
 					'=ACTIVE' => 'Y'
 				],
 				'order' => ['SORT' => 'ASC'],
@@ -262,7 +262,7 @@ final class Config
 			]);
 			while ($row = $iterator->fetch())
 			{
-				$cache[$cacheId][$row['ID']] = $row['NAME'];
+				$cache[$cacheId][mb_strtolower($row['ID'])] = $row['NAME'];
 			}
 		}
 

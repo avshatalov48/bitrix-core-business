@@ -327,6 +327,31 @@
 	overflow: hidden;
 }
 
+.bx-messenger-videocall-preview {
+	position: absolute;
+	bottom: 1%;
+	right: 1%;
+	width: 12%;
+}
+
+.bx-messenger-videocall-preview-container {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	padding-top:100%;
+	border-radius: 50%;
+	overflow: hidden;
+}
+
+.bx-messenger-videocall-preview-video {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
 .bx-messenger-videocall-video-block .bx-messenger-videocall-video {
 	object-fit: cover;
 }
@@ -726,7 +751,7 @@
 	border: 1px solid rgba(151, 151, 151, .4);
 	border-radius: 50%;
 	background: rgba(255, 255, 255, .6) url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2215%22%20height%3D%2215%22%20viewBox%3D%220%200%2015%2015%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%220.491295%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M9%200H6V6H0V9H6V15H9V9H15V6H9V0Z%22%20fill%3D%22%23333333%22/%3E%0A%3C/svg%3E%0A)
-				no-repeat center;
+	no-repeat center;
 	box-sizing: border-box;
 	cursor: pointer;
 	transition: all .2s linear;
@@ -1003,7 +1028,7 @@
 	color: rgba(255, 255, 255, .7);
 	border: 2px solid #3B414A;
 	right: -11px;
-    border-radius: 15px;
+	border-radius: 15px;
 	top: -7px;
 }
 .calm-counter .bx-messenger-videocall-panel-item-counter[data-counter-type="dozens"] {
@@ -1197,13 +1222,13 @@
 }
 
 .bx-messenger-videocall-fullscreen-mobile .bx-messenger-videocall-panel-icon-users {
-    background-position: center;
-    background-size: 24px;
+	background-position: center;
+	background-size: 24px;
 }
 
 .bx-messenger-videocall-panel-icon-users {
 	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2222%22%20height%3D%2219%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M10.382%202.742a9%209%200%20010%202.636s.74-.086.246%201.345c0%200-.272%201.03-.69.797%200%200%20.069%201.302-.59%201.523%200%200%20.038.548.046.703l.002.038.55.085s-.016.578.093.64a5.8%205.8%200%20001.628.741c1.708.441%202.573%201.198%202.573%201.86%200%200%20.755%202.842%201.069%204.557-2.043.665-4.407%201.046-6.927%201.046-3.136%200-6.031-.59-8.365-1.585.246-1.26.573-2.912.726-3.516.26-1.03%201.721-1.796%203.065-2.384.695-.304.845-.487%201.546-.799a2.36%202.36%200%2000.047-.383v-.193l.595-.072s.078.145-.047-.706c0%200-.669-.178-.7-1.534%200%200-.502.17-.532-.65-.02-.523-.397-.981.064-1.365l.103-.076-.314-.85s-.33-3.293%201.118-3.025c-.587-.946%204.365-1.733%204.694%201.167zm5.33-1.248a3.463%203.463%200%20011.71.607c.342.275.6.64.747%201.052.204.829.356%201.669.453%202.516.043.456.122.908.235%201.352.17.48.376.946.616%201.395a3.629%203.629%200%2001-.718-.695s.133.487.16.559c.073.109.138.223.194.341-.03%200-.302.125-.379.16l-.02.01-1.412.441.02.67c.267.106.503.28.683.504.085.215.22.407.395.56.34.118.669.27.98.45.473.263.991.433%201.527.5.541.09.882.962.882.962l.124%202.47c-1.546.519-3.36.932-5.358%201.21l-.529-.001c-.045-.631-.825-3.433-.846-3.586-.031-.855-.784-1.62-2.07-2.141.097-.132.18-.273.249-.422.144-.179.323-.326.526-.432l.157-.072.02-.67-1.412-.44s-.363-.17-.4-.17c.042-.104.095-.202.157-.294.027-.072.198-.61.198-.61-.155.199-.329.38-.52.542l-.197.154.178-.33a8.85%208.85%200%2000.313-.682l.135-.351c.112-.455.187-.917.224-1.383.097-.848.248-1.688.453-2.516.146-.413.405-.778.746-1.053a3.459%203.459%200%20011.479-.581l.228-.026h.072z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
-    background-position: 17px 8px;
+	background-position: 17px 8px;
 	background-size: 20px;
 }
 
@@ -1368,6 +1393,25 @@
 
 .bx-messenger-videocall-user-add:hover > .bx-messenger-videocall-user-add-inner {
 	opacity: .9;
+}
+
+.bx-messenger-videocall-user-bad-network-indicator {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 11;
+	width: 28px;
+	height: 28px;
+	display: none;
+	background-color: #FF5752;
+	background-image: url("data:image/svg+xml,%0A%3Csvg width='28' height='28' viewBox='0 0 28 28' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M22.5435 10.3939C22.8537 10.7102 22.8273 11.2158 22.5073 11.522C22.1616 11.8528 21.6109 11.8223 21.2711 11.4855C19.3977 9.62885 16.8393 8.48529 14.0187 8.48529C13.4957 8.48529 12.9817 8.5246 12.4794 8.60049L11.0399 7.16098C11.9881 6.91714 12.9811 6.7876 14.0037 6.7876C17.3395 6.7876 20.3592 8.16597 22.5435 10.3939ZM9.24711 7.7791C7.82207 8.40213 6.53854 9.2966 5.45926 10.3986C5.14575 10.7188 5.17271 11.23 5.49646 11.5398C5.84727 11.8755 6.4064 11.8436 6.75055 11.5011C7.82039 10.4364 9.11491 9.60474 10.5549 9.0869L9.24711 7.7791ZM12.1799 10.7119C10.6114 11.051 9.1985 11.8185 8.06479 12.8886C7.73929 13.1958 7.76322 13.7088 8.08661 14.0182C8.43001 14.3468 8.97557 14.318 9.32913 14.0004C10.4985 12.9499 12.0108 12.286 13.6732 12.2052L12.1799 10.7119ZM14.4059 10.527L16.5504 12.6715C17.3412 12.9797 18.0639 13.428 18.6894 13.9866C19.039 14.2989 19.5769 14.326 19.9156 14.0019C20.2361 13.6952 20.2593 13.1868 19.9365 12.8827C18.4699 11.5012 16.5374 10.6253 14.4059 10.527ZM16.1854 14.7174L17.4414 15.9734C17.4838 16.2505 17.391 16.5431 17.1695 16.7429C16.8237 17.0547 16.2951 17.022 15.9889 16.6698C15.9698 16.6525 15.9501 16.6343 15.9296 16.6154C15.6476 16.3543 15.219 15.9574 13.9928 15.9574C13.1917 15.9574 12.5502 16.1885 11.9506 16.7192C11.6176 17.0452 11.0882 17.0345 10.7681 16.6954C10.448 16.3563 10.4585 15.8172 10.7915 15.4912C11.0059 15.2814 11.3458 14.9518 11.8786 14.6899C12.4138 14.4269 13.0948 14.2541 13.9928 14.2541C14.9494 14.2541 15.6575 14.4503 16.1854 14.7174ZM16.0424 19.7207C16.0424 18.6148 15.1459 17.7183 14.0399 17.7183C12.934 17.7183 12.0375 18.6148 12.0375 19.7207C12.0375 20.8266 12.934 21.7231 14.0399 21.7231C15.1459 21.7231 16.0424 20.8266 16.0424 19.7207Z' fill='white'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M8.06032 6.5743L20.5515 19.0664C20.8794 19.3943 20.8794 19.926 20.5515 20.2539C20.2236 20.5818 19.6919 20.5818 19.364 20.2539L6.87288 7.76173C6.54498 7.43383 6.54498 6.9022 6.87288 6.5743C7.20078 6.24639 7.73242 6.24639 8.06032 6.5743Z' fill='white'/%3E%3C/svg%3E%0A");
+	background-repeat: no-repeat;
+	background-position: center;
+	border-radius: 50%;
+}
+
+.bx-messenger-videocall-user-bad-network-indicator-visible {
+	display: block;
 }
 
 .bx-messenger-videocall-user-inner {
@@ -1581,65 +1625,65 @@
 }
 
 .bx-messenger-videocall-user-introduce-yourself-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    height: 27px;
-    padding: 4px 10px;
-    margin-bottom: 7px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	height: 27px;
+	padding: 4px 10px;
+	margin-bottom: 7px;
 }
 
 .bx-messenger-videocall-user-introduce-yourself-container:before {
-    box-sizing: border-box;
-    z-index: -1;
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 27px;
-    background: #2FC6F6;
-    border: 2px solid #FFF;
-    border-radius: 13px;
-    animation-name: introduce-yourself-animation;
-    animation-duration: 2000ms;
-    transform-origin: center;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
+	box-sizing: border-box;
+	z-index: -1;
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 27px;
+	background: #2FC6F6;
+	border: 2px solid #FFF;
+	border-radius: 13px;
+	animation-name: introduce-yourself-animation;
+	animation-duration: 2000ms;
+	transform-origin: center;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
 }
 
 .bx-messenger-videocall-user-introduce-yourself-text {
-    display: flex;
-    align-items: center;
-    font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	display: flex;
+	align-items: center;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-bold, 700);
-    line-height: 14px;
-    color: #FFF;
+	line-height: 14px;
+	color: #FFF;
 }
 
 .bx-messenger-videocall-user-list-small .bx-messenger-videocall-user-introduce-yourself-container {
-    height: 18px;
-    padding: 2px 8px;
+	height: 18px;
+	padding: 2px 8px;
 }
 
 .bx-messenger-videocall-user-list-small .bx-messenger-videocall-user-introduce-yourself-container:before {
-    height: 18px;
-    width: 100%;
+	height: 18px;
+	width: 100%;
 }
 
 .bx-messenger-videocall-user-list-small .bx-messenger-videocall-user-introduce-yourself-text {
-    font: 10px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font: 10px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 @keyframes introduce-yourself-animation {
-    0% { transform: scale(1); }
-    10% { transform: scale(1.08); }
-    20% { transform: scale(1); }
-    30% { transform: scale(1.08); }
-    40% { transform: scale(1); }
-    100% { transform: scale(1); }
+	0% { transform: scale(1); }
+	10% { transform: scale(1.08); }
+	20% { transform: scale(1); }
+	30% { transform: scale(1.08); }
+	40% { transform: scale(1); }
+	100% { transform: scale(1); }
 }
 
 .bx-messenger-videocall-user-change-name-icon.hidden,
@@ -2757,7 +2801,7 @@
 	color: #fff;
 	margin-left: 11px;
 	padding: 2px 8px 2px 3px;
-    box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 .bx-messenger-videocall-top-recordstatus.record-status-started {
@@ -2780,12 +2824,12 @@
 	margin: 0 6px 1px 2px;
 }
 .bx-messenger-videocall-top-recordstatus-separator {
-display: inline-block;
-    vertical-align: top;
-    border-left: 1px solid #fff;
-    height: 12px;
-    margin: 4px 3px 0 3px;
-    opacity: 0.3;
+	display: inline-block;
+	vertical-align: top;
+	border-left: 1px solid #fff;
+	height: 12px;
+	margin: 4px 3px 0 3px;
+	opacity: 0.3;
 }
 .bx-messenger-videocall-top-recordstatus-button {
 	display: inline-block;
@@ -3461,70 +3505,70 @@ display: inline-block;
 
 /* region: web-screenshare */
 .bx-call-view-popup-web-screenshare {
-    margin-top: 22px;
-    border-radius: 27px;
-    color: #FFF;
-    background: #12B1E3;
+	margin-top: 22px;
+	border-radius: 27px;
+	color: #FFF;
+	background: #12B1E3;
 }
 
 .bx-call-view-popup-web-screenshare .popup-window-angly:before {
-    background: #12B1E3;
+	background: #12B1E3;
 }
 
 .bx-call-view-popup-web-screenshare .popup-window-content {
-    display: flex;
-    align-items: center;
-    width: 100%;
+	display: flex;
+	align-items: center;
+	width: 100%;
 }
 
 .bx-call-view-popup-web-screenshare-left,
 .bx-call-view-popup-web-screenshare-right {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .bx-call-view-popup-web-screenshare-body {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 14px;
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0 14px;
 }
 
 .bx-call-view-popup-web-screenshare-icon-screen {
-    width: 14px;
-    height: 12px;
-    background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2215%22%20height%3D%2213%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6.875%200v1.772H1.933v7.249h10.2l-.001-1.413h1.934v2.402c0%20.432-.35.783-.783.783H9.725l.607.66c.05.054.083.12.096.192l.007.072a.391.391%200%2001-.32.385l-.071.006H4.178a.391.391%200%2001-.348-.57l.038-.06.529-.686H.783A.783.783%200%20010%2010.01V.783C0%20.351.35.001.783.001L6.875%200zm6.408%200c.433%200%20.783.35.783.783V5.42h-1.803V2.827L9.502%205.59a.783.783%200%2011-1.107-1.107l2.761-2.761.059-.053H8.989V0h4.294z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E");
-    background-position: center;
-    background-repeat: no-repeat;
-    margin-right: 11px;
+	width: 14px;
+	height: 12px;
+	background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2215%22%20height%3D%2213%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6.875%200v1.772H1.933v7.249h10.2l-.001-1.413h1.934v2.402c0%20.432-.35.783-.783.783H9.725l.607.66c.05.054.083.12.096.192l.007.072a.391.391%200%2001-.32.385l-.071.006H4.178a.391.391%200%2001-.348-.57l.038-.06.529-.686H.783A.783.783%200%20010%2010.01V.783C0%20.351.35.001.783.001L6.875%200zm6.408%200c.433%200%20.783.35.783.783V5.42h-1.803V2.827L9.502%205.59a.783.783%200%2011-1.107-1.107l2.761-2.761.059-.053H8.989V0h4.294z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E");
+	background-position: center;
+	background-repeat: no-repeat;
+	margin-right: 11px;
 }
 
 .bx-call-view-popup-web-screenshare-text {
-    font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-semi-bold, 600);
-    /*margin-right: 15px;*/
-    line-height: 26px;
+	/*margin-right: 15px;*/
+	line-height: 26px;
 }
 
 .bx-call-view-popup-web-screenshare-stop {
-    background: #12B1E3;
-    border: 1px solid #c6cdd3;
+	background: #12B1E3;
+	border: 1px solid #c6cdd3;
 }
 
 .bx-call-view-popup-web-screenshare-stop:hover {
-   background: #3EDDFF;
+	background: #3EDDFF;
 }
 
 .bx-call-view-popup-web-screenshare-close {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    padding: 9px;
-    margin-left: 8px;
-    background: url("data:image/svg+xml,%3Csvg%20width%3D%228%22%20height%3D%228%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%204l3%203-1%201-3-3-3%203-1-1%203-3-3-3%201-1%203%203%203-3%201%201z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E") no-repeat center;
-    opacity: 0.35;
-    cursor: pointer;
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	padding: 9px;
+	margin-left: 8px;
+	background: url("data:image/svg+xml,%3Csvg%20width%3D%228%22%20height%3D%228%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%204l3%203-1%201-3-3-3%203-1-1%203-3-3-3%201-1%203%203%203-3%201%201z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E") no-repeat center;
+	opacity: 0.35;
+	cursor: pointer;
 }
 /* endregion: web-screenshare */
 

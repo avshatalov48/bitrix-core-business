@@ -72,7 +72,7 @@ export class UsersModel extends BuilderModel
 			{
 				userId = Number.parseInt(userId, 10);
 
-				if (userId <= 0)
+				if (!Type.isNumber(userId))
 				{
 					if (getTemporary)
 					{

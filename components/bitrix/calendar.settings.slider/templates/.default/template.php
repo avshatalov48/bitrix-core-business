@@ -143,6 +143,20 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 					</div>
 				</div>
 
+<!--				<div class="calendar-settings-control calendar-settings-checkbox">-->
+<!--					<div class="calendar-field-container calendar-field-container-checkbox">-->
+<!--						<div class="calendar-field-block">-->
+<!--							<label type="text" class="calendar-field-checkbox-label">-->
+<!--								<input data-role="enable_lunch_time" type="checkbox" class="calendar-field-checkbox">-->
+<!--								--><?php //=Loc::getMessage('EC_LUNCH_TIME_ENABLE')?>
+<!--							</label>-->
+<!--						</div>-->
+<!--					</div>-->
+<!--				</div>-->
+<!--				<div class="calendar-settings-control calendar-add-popup-wrap --disabled" id="ec_lunch_time">-->
+<!--					<div class="calendar-settings-control-name">--><?php //= Loc::getMessage("EC_LUNCH_TIME")?><!--</div>-->
+<!--				</div>-->
+
 				<?endif; //if($isPersonal)?>
 
 				<?if ($showGeneralSettings):?>

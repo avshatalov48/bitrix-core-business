@@ -32,7 +32,8 @@ export const SocialVideo = {
 		containerClass: { default: null },
 		containerStyle: { default: null },
 		elementStyle: { default: null },
-		showControls: { default: true }
+		showControls: { default: true },
+		playCallback: { default: null },
 	},
 	data()
 	{
@@ -183,6 +184,13 @@ export const SocialVideo = {
 		},
 		play(event)
 		{
+			if (this.playCallback)
+			{
+				this.playCallback();
+
+				return;
+			}
+
 			if (!this.loaded)
 			{
 				this.loadFile(true);

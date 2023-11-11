@@ -352,6 +352,10 @@
 	--im-button_icon: url('./images/call.svg');
 }
 
+.bx-im-button__container .bx-im-button__icon.--camera {
+	--im-button_icon: url('./images/camera.svg');
+}
+
 .bx-im-button__container .bx-im-button__icon.--end-call {
 	--im-button_icon: url('./images/end-call.svg');
 	background-image: var(--im-button_icon);

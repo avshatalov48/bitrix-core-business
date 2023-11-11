@@ -6,6 +6,7 @@ use Bitrix\Catalog\Component\UseStore;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Controller\Product\SkuDeferredCalculations;
 use Bitrix\Catalog\Model\Event;
+use Bitrix\Iblock;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
@@ -612,33 +613,34 @@ class Product extends Controller implements EventBindInterface
 	{
 		$fields = $propertyValues;
 
-		if($id>0 && $iblockId>0)
+		if ($id > 0 && $iblockId > 0 && !empty($propertyValues))
 		{
-			if(count($propertyValues)>0)
+			$r = \CIBlockElement::GetProperty(
+				$iblockId,
+				$id,
+				'SORT',
+				'ASC',
+				[
+					'CHECK_PERMISSIONS' => 'N',
+				]
+			);
+			while ($property = $r->Fetch())
 			{
-				$r = \CIBlockElement::GetProperty(
-					$iblockId,
-					$id,
-					'sort', 'asc',
-					array('CHECK_PERMISSIONS' => 'N')
-				);
-				while($property = $r->Fetch())
+				if (
+					$property['PROPERTY_TYPE'] !== Iblock\PropertyTable::TYPE_FILE
+					&& !array_key_exists($property['ID'], $propertyValues)
+				)
 				{
-					if($property['PROPERTY_TYPE'] !== 'F' && !array_key_exists($property['ID'], $propertyValues))
-					{
-						if (!array_key_exists($property['ID'], $fields))
-						{
-							$fields[$property['ID']] = [];
-						}
+					$fields[$property['ID']] ??= [];
 
-						$fields[$property['ID']][] = [
-							'VALUE_ID' => $property['PROPERTY_VALUE_ID'],
-							'VALUE' => $property['VALUE'],
-							'DESCRIPTION' => $property['DESCRIPTION']
-						];
-					}
+					$fields[$property['ID']][] = [
+						'VALUE_ID' => $property['PROPERTY_VALUE_ID'],
+						'VALUE' => $property['VALUE'],
+						'DESCRIPTION' => $property['DESCRIPTION'],
+					];
 				}
 			}
+			unset($property, $r);
 		}
 
 		return $fields;
@@ -696,35 +698,45 @@ class Product extends Controller implements EventBindInterface
 	{
 		$r = new Result();
 
-		if(isset($fields['SECTION_ID']))
+		if (isset($fields['SECTION_ID']))
 		{
 			$section = \CIBlockSection::GetByID($fields['SECTION_ID'])->Fetch();
-			if(isset($section['ID']) == false)
+			if (!isset($section['ID']))
+			{
 				$r->addError(new Error('Section is not exists'));
+			}
 		}
-		if(isset($fields['MODIFIED_BY']))
+		if (isset($fields['MODIFIED_BY']))
 		{
 			$user = \CUser::GetByID($fields['MODIFIED_BY'])->Fetch();
-			if(isset($user['ID']) == false)
+			if (!isset($user['ID']))
+			{
 				$r->addError(new Error('User modifiedBy is not exists'));
+			}
 		}
-		if(isset($fields['CREATED_BY']))
+		if (isset($fields['CREATED_BY']))
 		{
 			$user = \CUser::GetByID($fields['CREATED_BY'])->Fetch();
-			if(isset($user['ID']) == false)
+			if (!isset($user['ID']))
+			{
 				$r->addError(new Error('User createdBy is not exists'));
+			}
 		}
-		if(isset($fields['PURCHASING_CURRENCY']))
+		if (isset($fields['PURCHASING_CURRENCY']))
 		{
 			$currency = \CCurrency::GetByID($fields['PURCHASING_CURRENCY']);
-			if(isset($currency['CURRENCY']) == false)
+			if (!isset($currency['CURRENCY']))
+			{
 				$r->addError(new Error('Currency purchasingCurrency is not exists'));
+			}
 		}
-		if(isset($fields['VAT_ID']))
+		if (isset($fields['VAT_ID']))
 		{
 			$user = \CCatalogVat::GetByID($fields['VAT_ID'])->Fetch();
-			if(isset($user['ID']) == false)
+			if (!isset($user['ID']))
+			{
 				$r->addError(new Error('VAT vatId is not exists'));
+			}
 		}
 
 		return $r;
@@ -764,7 +776,7 @@ class Product extends Controller implements EventBindInterface
 
 					if (isset($fields['PROPERTY_VALUE_ID']))
 					{
-						if ($fields['PROPERTY_TYPE'] === 'L')
+						if ($fields['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_LIST)
 						{
 							if ($fields['MULTIPLE'] === 'Y')
 							{
@@ -774,7 +786,8 @@ class Product extends Controller implements EventBindInterface
 									{
 										$value[] = [
 											'VALUE' => $fields['VALUE_ENUM_ID'][$i],
-											'VALUE_ID' => $fields['PROPERTY_VALUE_ID'][$i]
+											'VALUE_ENUM' => $fields['VALUE_ENUM'][$i],
+											'VALUE_ID' => $fields['PROPERTY_VALUE_ID'][$i],
 										];
 									}
 								}
@@ -783,6 +796,7 @@ class Product extends Controller implements EventBindInterface
 							{
 								$value = [
 									'VALUE' => $fields['VALUE_ENUM_ID'],
+									'VALUE_ENUM' => $fields['VALUE_ENUM'],
 									'VALUE_ID' => $fields['PROPERTY_VALUE_ID']
 								];
 							}
@@ -967,6 +981,19 @@ class Product extends Controller implements EventBindInterface
 	//endregion checkPermissionController
 
 	//region checkPermissionIBlock
+	protected function existsIblock(int $iblockId): Result
+	{
+		$result = new Result();
+
+		$arIBlock = \CIBlock::GetArrayByID($iblockId, 'NAME');
+		if (empty($arIBlock))
+		{
+			$result->addError(new Error('Iblock Not Found', 200040300000));
+		}
+
+		return $result;
+	}
+
 	protected function checkPermissionAdd(int $iblockId): Result
 	{
 		$result = new Result();
@@ -1025,55 +1052,55 @@ class Product extends Controller implements EventBindInterface
 		return $result;
 	}
 
-
-	protected function checkPermissionIBlockElementUpdate(int $elementId)
+	protected function checkPermissionIBlockElementUpdate(int $elementId): Result
 	{
 		$iblockId = \CIBlockElement::GetIBlockByID($elementId);
+
 		return $this->checkPermissionIBlockElementModify($iblockId, $elementId);
 	}
 
-	protected function checkPermissionIBlockModify($iblockId)
+	protected function checkPermissionIBlockModify($iblockId): Result
 	{
-		$r = new Result();
+		$iblockId = (int)$iblockId;
 
-		$arIBlock = \CIBlock::GetArrayByID($iblockId);
-		if($arIBlock)
-			$bBadBlock = !\CIBlockRights::UserHasRightTo($iblockId, $iblockId, self::IBLOCK_EDIT);
-		else
-			$bBadBlock = true;
+		$r = $this->existsIblock($iblockId);
+		if (!$r->isSuccess())
+		{
+			return $r;
+		}
 
-		if($bBadBlock)
+		if (!\CIBlockRights::UserHasRightTo($iblockId, $iblockId, self::IBLOCK_EDIT))
 		{
 			$r->addError(new Error('Access Denied', 200040300040));
 		}
+
 		return $r;
 	}
 
-	protected function checkPermissionIBlockElementModify($iblockId, $elementId)
+	protected function checkPermissionIBlockElementModify($iblockId, $elementId): Result
 	{
-		$r = new Result();
+		$iblockId = (int)$iblockId;
 
-		$arIBlock = \CIBlock::GetArrayByID($iblockId);
-		if($arIBlock)
+		$r = $this->existsIblock($iblockId);
+		if (!$r->isSuccess())
 		{
-			if ($elementId > 0)
-			{
-				$bBadBlock = !\CIBlockElementRights::UserHasRightTo($iblockId, $elementId, self::IBLOCK_ELEMENT_EDIT); //access edit
-			}
-			else
-			{
-				$bBadBlock = !\CIBlockRights::UserHasRightTo($iblockId, $iblockId, self::IBLOCK_ELEMENT_EDIT);
-			}
+			return $r;
+		}
+
+		if ($elementId > 0)
+		{
+			$bBadBlock = !\CIBlockElementRights::UserHasRightTo($iblockId, $elementId, self::IBLOCK_ELEMENT_EDIT); //access edit
 		}
 		else
 		{
-			$bBadBlock = true;
+			$bBadBlock = !\CIBlockRights::UserHasRightTo($iblockId, $iblockId, self::IBLOCK_ELEMENT_EDIT);
 		}
 
 		if($bBadBlock)
 		{
 			$r->addError(new Error('Access Denied', 200040300043));
 		}
+
 		return $r;
 	}
 
@@ -1105,91 +1132,101 @@ class Product extends Controller implements EventBindInterface
 
 	protected function checkPermissionIBlockElementDelete(int $elementId): Result
 	{
-		$r = new Result();
+		$iblockId = (int)\CIBlockElement::GetIBlockByID($elementId);
 
-		$iblockId = \CIBlockElement::GetIBlockByID($elementId);
-		$arIBlock = \CIBlock::GetArrayByID($iblockId);
-		if($arIBlock)
-			$bBadBlock = !\CIBlockElementRights::UserHasRightTo($iblockId, $elementId, self::IBLOCK_ELEMENT_DELETE); //access delete
-		else
-			$bBadBlock = true;
+		$r = $this->existsIblock($iblockId);
+		if (!$r->isSuccess())
+		{
+			return $r;
+		}
 
-		if($bBadBlock)
+		if (!\CIBlockElementRights::UserHasRightTo($iblockId, $elementId, self::IBLOCK_ELEMENT_DELETE)) //access delete
 		{
 			$r->addError(new Error('Access Denied', 200040300040));
 		}
+
 		return $r;
 	}
 
-	protected function checkPermissionIBlockElementGet($elementId)
+	protected function checkPermissionIBlockElementGet($elementId): Result
 	{
-		$r = new Result();
+		$iblockId = (int)\CIBlockElement::GetIBlockByID($elementId);
+		$r = $this->existsIblock($iblockId);
+		if (!$r->isSuccess())
+		{
+			return $r;
+		}
 
-		$iblockId = \CIBlockElement::GetIBlockByID($elementId);
-		$arIBlock = \CIBlock::GetArrayByID($iblockId);
-		if($arIBlock)
-			$bBadBlock = !\CIBlockElementRights::UserHasRightTo($iblockId, $elementId, self::IBLOCK_ELEMENT_READ); //access read
-		else
-			$bBadBlock = true;
-
-		if($bBadBlock)
+		if (!\CIBlockElementRights::UserHasRightTo($iblockId, $elementId, self::IBLOCK_ELEMENT_READ)) //access read
 		{
 			$r->addError(new Error('Access Denied', 200040300040));
 		}
+
 		return $r;
 	}
 
-	protected function checkPermissionIBlockElementList($iblockId)
+	protected function checkPermissionIBlockElementList($iblockId): Result
 	{
-		$r = new Result();
+		$iblockId = (int)$iblockId;
+		$r = $this->existsIblock($iblockId);
+		if (!$r->isSuccess())
+		{
+			return $r;
+		}
 
-		$arIBlock = \CIBlock::GetArrayByID($iblockId);
-		if($arIBlock)
-			$bBadBlock = !\CIBlockRights::UserHasRightTo($iblockId, $iblockId, self::IBLOCK_READ);
-		else
-			$bBadBlock = true;
-
-		if($bBadBlock)
+		if (!\CIBlockRights::UserHasRightTo($iblockId, $iblockId, self::IBLOCK_READ))
 		{
 			$r->addError(new Error('Access Denied', 200040300030));
 		}
+
 		return $r;
 	}
 
-	protected function checkPermissionIBlockElementSectionBindModify($iblockId, $iblockSectionId)
+	protected function checkPermissionIBlockElementSectionBindModify($iblockId, $iblockSectionId): Result
 	{
-		$r = new Result();
+		$iblockId = (int)$iblockId;
+		$r = $this->existsIblock($iblockId);
+		if (!$r->isSuccess())
+		{
+			return $r;
+		}
 
-		$arIBlock = \CIBlock::GetArrayByID($iblockId);
-		if($arIBlock)
-			$bBadBlock = !\CIBlockSectionRights::UserHasRightTo($iblockId, $iblockSectionId, self::IBLOCK_ELEMENT_SECTION_BIND); //access update
-		else
-			$bBadBlock = true;
-
-		if($bBadBlock)
+		if (!\CIBlockSectionRights::UserHasRightTo(
+			$iblockId,
+			$iblockSectionId,
+			self::IBLOCK_ELEMENT_SECTION_BIND
+		)) //access update
 		{
 			$r->addError(new Error('Access Denied', 200040300050));
 		}
+
 		return $r;
 	}
 
-	protected function checkPermissionIBlockElementSectionBindUpdate($iblockSectionId)
+	protected function checkPermissionIBlockElementSectionBindUpdate($iblockSectionId): Result
 	{
 		$iblockId = $this->getIBlockBySectionId($iblockSectionId);
+
 		return $this->checkPermissionIBlockElementSectionBindModify($iblockId, $iblockSectionId);
 	}
 
-	protected function getIBlockBySectionId($id)
+	protected function getIBlockBySectionId($id): int
 	{
-		$iblockId = 0;
+		$section = \CIBlockSection::GetList(
+			[],
+			[
+				'ID' => (int)$id,
+			],
+			false,
+			[
+				'ID',
+				'IBLOCK_ID',
+			]
+		);
+		$res = $section->Fetch();
+		unset($section);
 
-		$section = \CIBlockSection::GetByID($id);
-		if ($res = $section->GetNext())
-		{
-			$iblockId = $res["IBLOCK_ID"];
-		}
-
-		return $iblockId;
+		return (int)($res['IBLOCK_ID'] ?? 0);
 	}
 	//endregion
 

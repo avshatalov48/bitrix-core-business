@@ -24,4 +24,3 @@ if (!defined('START_EXEC_PROLOG_BEFORE_2'))
 {
 	define("START_EXEC_PROLOG_BEFORE_2", microtime(true));
 }
-

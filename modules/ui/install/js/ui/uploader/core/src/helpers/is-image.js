@@ -1,5 +1,5 @@
-const isImage = (blob: Blob) => {
-	return /^image\/[a-z0-9.-]+$/i.test(blob.type);
+const isImage = (blob: Blob): boolean => {
+	return /^image\/[\d.a-z-]+$/i.test(blob.type);
 };
 
 export default isImage;

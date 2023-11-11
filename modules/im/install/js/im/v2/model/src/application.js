@@ -1,21 +1,23 @@
-import {Type} from 'main.core';
-import {EventEmitter} from 'main.core.events';
-import {BuilderModel} from 'ui.vue3.vuex';
+import { Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { BuilderModel } from 'ui.vue3.vuex';
 
-import {Layout, EventType} from 'im.v2.const';
+import { Layout, EventType } from 'im.v2.const';
 
-import {SettingsModel} from './application/settings';
+import { SettingsModel } from './application/settings';
+
+import type { ActionTree, GetterTree, MutationTree } from 'ui.vue3.vuex';
 
 export class ApplicationModel extends BuilderModel
 {
-	getName()
+	getName(): string
 	{
 		return 'application';
 	}
 
 	getNestedModules(): { [moduleName: string]: BuilderModel }
 	{
-		return {settings: SettingsModel};
+		return { settings: SettingsModel };
 	}
 
 	getState()
@@ -25,73 +27,78 @@ export class ApplicationModel extends BuilderModel
 			{
 				name: Layout.chat.name,
 				entityId: '',
-				contextId: 0
-			}
+				contextId: 0,
+			},
 		};
 	}
 
-	getGetters()
+	getGetters(): GetterTree
 	{
 		return {
-			getLayout: state =>
-			{
+			/** @function application/getLayout */
+			getLayout: (state) => {
 				return state.layout;
 			},
-			isChatOpen: state => (dialogId: string): boolean =>
-			{
-				if (!state.layout.name === Layout.chat.name)
+			/** @function application/isChatOpen */
+			isChatOpen: (state) => (dialogId: string): boolean => {
+				if (state.layout.name !== Layout.chat.name)
 				{
 					return false;
 				}
 
 				return state.layout.entityId === dialogId.toString();
 			},
-			areNotificationsOpen: state =>
-			{
-				return state.layout.name === Layout.notification.name;
-			}
-		};
-	}
-
-	getActions()
-	{
-		return {
-			setLayout: (store, payload: {layoutName: string, entityId?: string, contextId?: number}) =>
-			{
-				const {layoutName, entityId = '', contextId = 0} = payload;
-				if (!Type.isStringFilled(layoutName))
+			isLinesChatOpen: (state) => (dialogId: string): boolean => {
+				if (state.layout.name !== Layout.openlines.name)
 				{
 					return false;
 				}
 
-				const previousLayout = {...store.state.layout};
+				return state.layout.entityId === dialogId.toString();
+			},
+			/** @function application/areNotificationsOpen */
+			areNotificationsOpen: (state) => {
+				return state.layout.name === Layout.notification.name;
+			},
+		};
+	}
+
+	getActions(): ActionTree
+	{
+		return {
+			/** @function application/setLayout */
+			setLayout: (store, payload: {layoutName: string, entityId?: string, contextId?: number}) => {
+				const { layoutName, entityId = '', contextId = 0 } = payload;
+				if (!Type.isStringFilled(layoutName))
+				{
+					return;
+				}
+
+				const previousLayout = { ...store.state.layout };
 				const newLayout = {
 					name: this.validateLayout(layoutName),
 					entityId: this.validateLayoutEntityId(layoutName, entityId),
-					contextId: contextId
+					contextId,
 				};
-				store.commit('update', {
-					layout: newLayout
+				store.commit('updateLayout', {
+					layout: newLayout,
 				});
 
 				EventEmitter.emit(EventType.layout.onLayoutChange, {
 					from: previousLayout,
-					to: newLayout
+					to: newLayout,
 				});
-			}
+			},
 		};
 	}
 
-	getMutations()
+	/* eslint-disable no-param-reassign */
+	getMutations(): MutationTree
 	{
 		return {
-			update: (state, payload) => {
-				Object.keys(payload).forEach((group) => {
-					Object.entries(payload[group]).forEach(([key, value]) => {
-						state[group][key] = value;
-					});
-				});
-			}
+			updateLayout: (state, payload) => {
+				state.layout = { ...state.layout, ...payload.layout };
+			},
 		};
 	}
 

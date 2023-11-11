@@ -1,0 +1,45 @@
+.bx-im-dialog-chat__quote-button {
+	position: fixed;
+	cursor: pointer;
+	opacity: 0.95;
+	z-index: 100;
+	transition: opacity .1s ease-out, transform .1s ease-out;
+}
+
+.bx-im-dialog-chat__quote-icon {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background: url(./images/quote-cloud.svg) no-repeat center;
+	background-position-y: -15px;
+	transition: .1s opacity linear;
+}
+
+.bx-im-dialog-chat__quote-button:before {
+	content: '';
+	display: block;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 66%;
+	height: 74%;
+	box-shadow: 0 1px 10px 6px rgba(0, 0, 0, 0.09);
+	border-radius: 50%;
+	z-index: -1;
+}
+
+.bx-im-dialog-chat__quote-icon.--hover {
+	opacity: 0;
+	background: url(./images/quote-cloud--hover.svg) no-repeat center;
+	background-position-y: -15px;
+}
+.bx-im-dialog-chat__quote-button:hover .bx-im-dialog-chat__quote-icon.--hover {
+	opacity: 1;
+}
+
+.bx-im-dialog-chat__quote-button.fade-up-enter-active, .bx-im-dialog-chat__quote-button.fade-up-leave-to {
+	opacity: 0;
+	transform: translateY(10px);
+}

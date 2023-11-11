@@ -1,0 +1,55 @@
+.bx-im-mention-item__scope {
+	--im-mention-item__background-color_container: var(--im-color-palette-white-base);
+	--im-mention-item__background-color_hover-container: var(--ui-color-palette-gray-03, #f5f7f8);
+	--im-mention-item__color_name: var(--im-color-palette-black-base);
+	--im-mention-item__color_position: var(--im-color-palette-gray-60);
+	--im-mention-item__color_highlight: var(--im-color-palette-black-solid);
+	--im-mention-item__background-color_highlight: #faf16d;
+}
+
+.bx-im-mention-item__container {
+	display: flex;
+	gap: 12px;
+	height: 40px;
+	border-radius: 6px;
+	transition: background .3s;
+	background-color: var(--im-mention-item__background-color_container);
+	cursor: pointer;
+	flex-shrink: 0;
+	position: relative;
+	padding: 4px;
+}
+
+.bx-im-mention-item__container:hover {
+	background-color: var(--im-mention-item__background-color_hover-container);
+}
+
+.bx-im-mention-item__avatar-container {
+	padding: 11px 0 0 10px;
+}
+
+.bx-im-mention-item__content-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	min-width: 0;
+	flex: 1;
+}
+
+.bx-im-mention-item__title .bx-im-chat-title__text {
+	--im-chat-title__font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+}
+
+.bx-im-mention-item__position {
+	font: var(--im-font-size-xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-normal);
+	color: var(--im-mention-item__color_position);
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.bx-im-mention-item__content-container .--highlight {
+	color: var(--im-mention-item__color_highlight);
+	background-color: var(--im-mention-item__background-color_highlight);
+}

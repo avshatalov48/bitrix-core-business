@@ -266,37 +266,40 @@ class CIBlock extends CAllIBlock
 	public function _Add($ID)
 	{
 		global $DB;
-		$err_mess = "FILE: ".__FILE__."<br>LINE: ";
-		$ID = intval($ID);
+		$err_mess = 'FILE: ' . __FILE__ . '<br>LINE: ';
+		$ID = (int)$ID;
 
-		if(defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
+		if (defined('MYSQL_TABLE_TYPE') && MYSQL_TABLE_TYPE !== '')
 		{
-			$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
+			$DB->Query("SET storage_engine = '" . MYSQL_TABLE_TYPE . "'", true);
 		}
-		$strSql = "
-			CREATE TABLE IF NOT EXISTS b_iblock_element_prop_s".$ID." (
-				IBLOCK_ELEMENT_ID 	int(11) not null REFERENCES b_iblock_element(ID),
+		$strSql = '
+			CREATE TABLE IF NOT EXISTS b_iblock_element_prop_s' . $ID . ' (
+				IBLOCK_ELEMENT_ID int(11) not null,
 				primary key (IBLOCK_ELEMENT_ID)
 			)
-		";
+		';
 		$rs = $DB->DDL($strSql, false, $err_mess.__LINE__);
-		$strSql = "
-			CREATE TABLE IF NOT EXISTS b_iblock_element_prop_m".$ID." (
-				ID			int(11) not null auto_increment,
-				IBLOCK_ELEMENT_ID 	int(11) not null REFERENCES b_iblock_element(ID),
-				IBLOCK_PROPERTY_ID	int(11) not null REFERENCES b_iblock_property(ID),
-				VALUE			text	not null,
-				VALUE_ENUM 		int(11),
-				VALUE_NUM 		numeric(18,4),
-				DESCRIPTION 		VARCHAR(255) NULL,
+		$strSql = '
+			CREATE TABLE IF NOT EXISTS b_iblock_element_prop_m' . $ID . ' (
+				ID int(11) not null auto_increment,
+				IBLOCK_ELEMENT_ID int(11) not null,
+				IBLOCK_PROPERTY_ID int(11) not null,
+				VALUE text not null,
+				VALUE_ENUM int(11),
+				VALUE_NUM numeric(18,4),
+				DESCRIPTION VARCHAR(255) NULL,
 				PRIMARY KEY (ID),
-				INDEX ix_iblock_elem_prop_m".$ID."_1(IBLOCK_ELEMENT_ID,IBLOCK_PROPERTY_ID),
-				INDEX ix_iblock_elem_prop_m".$ID."_2(IBLOCK_PROPERTY_ID),
-				INDEX ix_iblock_elem_prop_m".$ID."_3(VALUE_ENUM,IBLOCK_PROPERTY_ID)
+				INDEX ix_iblock_elem_prop_m' . $ID . '_1(IBLOCK_ELEMENT_ID,IBLOCK_PROPERTY_ID),
+				INDEX ix_iblock_elem_prop_m' . $ID . '_2(IBLOCK_PROPERTY_ID),
+				INDEX ix_iblock_elem_prop_m' . $ID . '_3(VALUE_ENUM,IBLOCK_PROPERTY_ID)
 			)
-		";
-		if($rs)
-			$rs = $DB->DDL($strSql, false, $err_mess.__LINE__);
+		';
+		if ($rs)
+		{
+			$rs = $DB->DDL($strSql, false, $err_mess . __LINE__);
+		}
+
 		return $rs;
 	}
 

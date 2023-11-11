@@ -78,8 +78,8 @@ class NumeratorSequenceTable extends DataManager
 			$query = 'UPDATE ' . $helper->quote(static::getTableName())
 					 . ' SET ' . $update[0]
 					 . ' WHERE NUMERATOR_ID = ' . intval($numeratorId)
-					 . " AND `KEY` = " . $helper->convertToDbString(md5($numberHash))
-					 . " AND NEXT_NUMBER = " . intval($whereNextNumber) . ";";
+					 . ' AND ' . $helper->quote('KEY') . ' = ' . $helper->convertToDbString(md5($numberHash))
+					 . ' AND NEXT_NUMBER = ' . intval($whereNextNumber);
 			$conn->query($query);
 
 			return $conn->getAffectedRowsCount();

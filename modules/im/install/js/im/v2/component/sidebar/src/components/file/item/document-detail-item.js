@@ -1,18 +1,19 @@
-import {ImModelSidebarFileItem, ImModelFile} from 'im.v2.model';
-import {Utils} from 'im.v2.lib.utils';
-import {Avatar, AvatarSize, ChatTitle} from 'im.v2.component.elements';
-import '../../../css/file/document-detail-item.css';
 import 'ui.icons';
+import { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
+import { Utils } from 'im.v2.lib.utils';
+import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+
+import '../../../css/file/document-detail-item.css';
 
 // @vue/component
 export const DocumentDetailItem = {
 	name: 'DocumentDetailItem',
-	components: {Avatar, ChatTitle},
+	components: { Avatar, ChatTitle },
 	props: {
 		fileItem: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['contextMenuClick'],
 	data() {
@@ -37,7 +38,7 @@ export const DocumentDetailItem = {
 		},
 		fileShortName(): string
 		{
-			const NAME_MAX_LENGTH = 21;
+			const NAME_MAX_LENGTH = 15;
 
 			return Utils.file.getShortFileName(this.file.name, NAME_MAX_LENGTH);
 		},
@@ -56,7 +57,7 @@ export const DocumentDetailItem = {
 		authorId(): number
 		{
 			return this.sidebarFileItem.authorId;
-		}
+		},
 	},
 	methods:
 	{
@@ -77,7 +78,7 @@ export const DocumentDetailItem = {
 				file: this.file,
 				messageId: this.sidebarFileItem.messageId,
 			}, event.currentTarget);
-		}
+		},
 	},
 	template: `
 		<div 
@@ -116,5 +117,5 @@ export const DocumentDetailItem = {
 				@click="onContextMenuClick"
 			></button>
 		</div>
-	`
+	`,
 };

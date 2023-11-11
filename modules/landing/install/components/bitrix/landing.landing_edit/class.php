@@ -5,7 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use \Bitrix\Landing\Hook;
-use Bitrix\Landing\Hook\Page\Theme;
+use \Bitrix\Landing\Hook\Page\Theme;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Folder;
 use \Bitrix\Landing\Manager;
@@ -374,6 +374,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 				$this->arResult['CURRENT_THEME'] = self::DEFAULT_SITE_COLOR;
 			}
 			$this->arResult['CURRENT_THEME'] = self::checkCurrentTheme($this->arResult['CURRENT_THEME']);
+			$this->arResult['IS_AREA'] = TemplateRef::landingIsArea($this->id);
 		}
 
 		// callback for update landing
@@ -450,7 +451,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 		{
 			$value = $colors[$params['theme']]['color'] ?? '';
 		}
-		if ($value && $params['value'][0] !== '#')
+		if ($value && $params['value'] && $params['value'][0] !== '#')
 		{
 			$value = '#'.$params['value'];
 		}

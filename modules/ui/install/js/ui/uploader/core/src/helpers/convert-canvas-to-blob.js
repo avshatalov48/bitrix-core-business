@@ -11,6 +11,8 @@ const convertCanvasToBlob = (canvas: HTMLCanvasElement, type: string, quality: n
 		{
 			canvas.convertToBlob({ type, quality }).then((blob: Blob) => {
 				resolve(blob);
+			}).catch((error) => {
+				reject(error);
 			});
 		}
 		else if (hasToBlobSupport)

@@ -23,6 +23,7 @@ class ActionDictionary
 	public const ACTION_CATALOG_READ = 'catalog_read';
 	/**
 	 * The right to access the catalog (without access the module settings).
+	 * Used only in legacy.
 	 */
 	public const ACTION_CATALOG_VIEW = 'catalog_view';
 	public const ACTION_STORE_VIEW = 'catalog_store';
@@ -51,6 +52,9 @@ class ActionDictionary
 	public const ACTION_PRODUCT_CARD_EDIT = 'catalog_product_card_edit';
 	public const ACTION_PRODUCT_CARD_SETTINGS_FOR_USERS_SET = 'catalog_product_card_settings_for_users_set';
 	public const ACTION_STORE_DOCUMENT_CARD_EDIT = 'catalog_document_card_edit';
+	/**
+	 * @deprecated use `ACTION_CATALOG_READ` instead.
+	 */
 	public const ACTION_PRODUCT_VIEW = 'catalog_product_view';
 	public const ACTION_PRODUCT_ADD = 'catalog_product_add';
 	public const ACTION_PRODUCT_EDIT = 'catalog_product_edit';

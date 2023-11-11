@@ -229,7 +229,7 @@ abstract class ScalarField extends Field implements IStorable, ITypeHintable
 			$value = $value->compile();
 		}
 
-		return (strval($value) === '');
+		return ((string)$value === '');
 	}
 
 	/**
@@ -237,7 +237,7 @@ abstract class ScalarField extends Field implements IStorable, ITypeHintable
 	 */
 	public function getGetterTypeHint()
 	{
-		return '\\string';
+		return $this->getNullableTypeHint('\\string');
 	}
 
 	/**
@@ -245,6 +245,15 @@ abstract class ScalarField extends Field implements IStorable, ITypeHintable
 	 */
 	public function getSetterTypeHint()
 	{
-		return '\\string';
+		return $this->getNullableTypeHint('\\string');
+	}
+
+	/**
+	 * @param string $type
+	 * @return string
+	 */
+	protected function getNullableTypeHint(string $type): string
+	{
+		return $this->is_nullable ? '?' . $type : $type;
 	}
 }

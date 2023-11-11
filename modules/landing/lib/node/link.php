@@ -12,7 +12,7 @@ class Link extends \Bitrix\Landing\Node
 	 */
 	public static function getHandlerJS()
 	{
-		return 'BX.Landing.Block.Node.Link';
+		return 'BX.Landing.Node.Link';
 	}
 
 	/**

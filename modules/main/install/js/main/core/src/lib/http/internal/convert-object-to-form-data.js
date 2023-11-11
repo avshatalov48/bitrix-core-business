@@ -42,9 +42,9 @@ export default function objectToFormData(
 
 			if (Type.isArray(value))
 			{
-				while (property.length > 2 && property.lastIndexOf('[]') === property.length - 2)
+				while (preparedProperty.length > 2 && preparedProperty.lastIndexOf('[]') === preparedProperty.length - 2)
 				{
-					preparedProperty = property.substring(0, property.length - 2);
+					preparedProperty = preparedProperty.substring(0, preparedProperty.length - 2);
 				}
 			}
 

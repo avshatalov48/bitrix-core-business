@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Highloadblock\HighloadBlockTable:highloadblock/lib/highloadblocktable.php:baf2e5b8f397e6eeee9e131509489509 */
+/* ORMENTITYANNOTATION:Bitrix\Highloadblock\HighloadBlockTable:highloadblock\lib\highloadblocktable.php */
 namespace Bitrix\Highloadblock {
 	/**
 	 * HighloadBlock
@@ -129,6 +129,8 @@ namespace Bitrix\Highloadblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_HighloadBlock_Collection merge(?EO_HighloadBlock_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_HighloadBlock_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Highloadblock\HighloadBlockTable */
@@ -162,7 +164,7 @@ namespace Bitrix\Highloadblock {
 	 */
 	class EO_HighloadBlock_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Highloadblock\HighloadBlockLangTable:highloadblock/lib/highloadblocklangtable.php:2f073c3080e1068c38ee1de22f5f9d9e */
+/* ORMENTITYANNOTATION:Bitrix\Highloadblock\HighloadBlockLangTable:highloadblock\lib\highloadblocklangtable.php */
 namespace Bitrix\Highloadblock {
 	/**
 	 * EO_HighloadBlockLang
@@ -181,11 +183,6 @@ namespace Bitrix\Highloadblock {
 	 * @method bool hasLid()
 	 * @method bool isLidFilled()
 	 * @method bool isLidChanged()
-	 * @method \string remindActualLid()
-	 * @method \string requireLid()
-	 * @method \Bitrix\Highloadblock\EO_HighloadBlockLang resetLid()
-	 * @method \Bitrix\Highloadblock\EO_HighloadBlockLang unsetLid()
-	 * @method \string fillLid()
 	 * @method \string getName()
 	 * @method \Bitrix\Highloadblock\EO_HighloadBlockLang setName(\string|\Bitrix\Main\DB\SqlExpression $name)
 	 * @method bool hasName()
@@ -241,7 +238,6 @@ namespace Bitrix\Highloadblock {
 	 *
 	 * @method \int[] getIdList()
 	 * @method \string[] getLidList()
-	 * @method \string[] fillLid()
 	 * @method \string[] getNameList()
 	 * @method \string[] fillName()
 	 *
@@ -269,6 +265,8 @@ namespace Bitrix\Highloadblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_HighloadBlockLang_Collection merge(?EO_HighloadBlockLang_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_HighloadBlockLang_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Highloadblock\HighloadBlockLangTable */
@@ -302,7 +300,7 @@ namespace Bitrix\Highloadblock {
 	 */
 	class EO_HighloadBlockLang_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Highloadblock\HighloadBlockRightsTable:highloadblock/lib/highloadblockrightstable.php:7e279df6c761d8959ac7021580868751 */
+/* ORMENTITYANNOTATION:Bitrix\Highloadblock\HighloadBlockRightsTable:highloadblock\lib\highloadblockrightstable.php */
 namespace Bitrix\Highloadblock {
 	/**
 	 * EO_HighloadBlockRights
@@ -447,6 +445,8 @@ namespace Bitrix\Highloadblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_HighloadBlockRights_Collection merge(?EO_HighloadBlockRights_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_HighloadBlockRights_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Highloadblock\HighloadBlockRightsTable */

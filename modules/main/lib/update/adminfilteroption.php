@@ -69,7 +69,7 @@ class AdminFilterOption extends Stepper
 
 		foreach ($listFilter as $filterId => $filter)
 		{
-			$queryObject = $connection->query("SELECT * FROM `b_filters` WHERE `FILTER_ID` = '".$sqlHelper->forSql(
+			$queryObject = $connection->query("SELECT * FROM b_filters WHERE FILTER_ID = '".$sqlHelper->forSql(
 				$filterId)."' ORDER BY ID ASC LIMIT ".$this->limit." OFFSET ".$filter["offset"]);
 			$selectedRowsCount = $queryObject->getSelectedRowsCount();
 			while ($oldFilter = $queryObject->fetch())
@@ -96,10 +96,10 @@ class AdminFilterOption extends Stepper
 				}
 
 				$queryOptionCurrentFilter = $connection->query(
-					"SELECT * FROM `b_user_option` WHERE 
-					`CATEGORY` = 'main.ui.filter' AND 
-					`USER_ID` = '".$sqlHelper->forSql($oldFilter["USER_ID"])."' AND 
-					`NAME` = '".$sqlHelper->forSql($filter["tableId"])."'"
+					"SELECT * FROM b_user_option WHERE 
+					CATEGORY = 'main.ui.filter' AND 
+					USER_ID = '".$sqlHelper->forSql($oldFilter["USER_ID"])."' AND 
+					NAME = '".$sqlHelper->forSql($filter["tableId"])."'"
 				);
 				if ($optionCurrentFilter = $queryOptionCurrentFilter->fetch())
 				{
@@ -124,9 +124,9 @@ class AdminFilterOption extends Stepper
 							$optionCurrentFilterValue["update_default_presets"] = true;
 
 							$connection->query(
-								"UPDATE `b_user_option` SET 
-								`VALUE` = '" . $sqlHelper->forSql(serialize($optionCurrentFilterValue)) . "' WHERE 
-								`ID` = '" . $sqlHelper->forSql($optionCurrentFilter["ID"]) . "'"
+								"UPDATE b_user_option SET 
+								VALUE = '" . $sqlHelper->forSql(serialize($optionCurrentFilterValue)) . "' WHERE 
+								ID = '" . $sqlHelper->forSql($optionCurrentFilter["ID"]) . "'"
 							);
 						}
 					}
@@ -138,8 +138,8 @@ class AdminFilterOption extends Stepper
 					$optionNewFilter["update_default_presets"] = true;
 
 					$connection->query(
-						"INSERT INTO `b_user_option` 
-						(`ID`, `USER_ID`, `CATEGORY`, `NAME`, `VALUE`, `COMMON`) VALUES 
+						"INSERT INTO b_user_option 
+						(ID, USER_ID, CATEGORY, NAME, VALUE, COMMON) VALUES 
 						(NULL, '".$sqlHelper->forSql($oldFilter["USER_ID"])."', 'main.ui.filter', '".
 						$sqlHelper->forSql($filter["tableId"])."', '".$sqlHelper->forSql(serialize($optionNewFilter)).
 						"', '".$sqlHelper->forSql($oldFilter["COMMON"])."')"

@@ -410,30 +410,38 @@
 		 */
 		getValue: function(isNeedComputed)
 		{
-			const node = this.getNode().length ? this.getNode()[0] : null;
+			const node = this.getNode()[0] || null;
 			const style = {};
 			if (node)
 			{
 				let isAllInlineProps = false;
-				if (this.inlineProperties.length)
+				let propValue = null;
+				if (this.inlineProperties.length > 0)
 				{
 					isAllInlineProps = true;
 					const styleObj = node.style;
-					this.inlineProperties.forEach(prop => {
-						style[prop] = styleObj.getPropertyValue(prop).trim() || null;
-						if (prop === 'background-image' && !!style[prop])
+					this.inlineProperties.forEach((prop) => {
+						propValue = styleObj.getPropertyValue(prop).trim() || null;
+						if (propValue !== null || prop === 'background-image')
 						{
-							style[prop] = style[prop].replaceAll('"', '\'');
+							style[prop] = propValue;
+							if (prop === 'background-image' && Boolean(style[prop]))
+							{
+								style[prop] = style[prop].replaceAll('"', '\'');
+							}
+							isAllInlineProps = isAllInlineProps && Boolean(style[prop]);
 						}
-						isAllInlineProps = isAllInlineProps && !!style[prop];
 					});
 				}
-				if (!!isNeedComputed && this.computedProperties.length && !isAllInlineProps)
+
+				if (Boolean(isNeedComputed) && this.computedProperties.length > 0 && !isAllInlineProps)
 				{
-					this.computedProperties.forEach(prop => {
-						style[prop] =
-							getComputedStyle(node, this.pseudoElement).getPropertyValue(prop)
-							|| null;
+					this.computedProperties.forEach((prop) => {
+						propValue = getComputedStyle(node, this.pseudoElement).getPropertyValue(prop) || null;
+						if (propValue !== null)
+						{
+							style[prop] = propValue;
+						}
 					});
 				}
 			}
@@ -441,7 +449,7 @@
 			return {
 				classList: node ? this.sanitizeClassList(slice(node.classList)) : [],
 				affect: this.affects.toArray(),
-				style: style,
+				style,
 			};
 		},
 

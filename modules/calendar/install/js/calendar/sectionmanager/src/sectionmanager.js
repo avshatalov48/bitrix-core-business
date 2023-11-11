@@ -124,6 +124,11 @@ export class SectionManager
 			this.reloadDataDebounce();
 			Util.getBX().Event.EventEmitter.emit('BX.Calendar:doRefresh');
 		}
+		else if (params.command === 'hidden_sections_updated')
+		{
+			this.setHiddenSections(params.hiddenSections);
+			this.reloadDataDebounce();
+		}
 		else
 		{
 			this.reloadDataDebounce();

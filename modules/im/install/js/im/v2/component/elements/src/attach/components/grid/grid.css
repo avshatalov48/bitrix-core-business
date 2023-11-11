@@ -48,6 +48,11 @@
 	text-align: left;
 	min-width: 50px;
 }
+
+.bx-im-attach-grid__value {
+	word-break: break-word;
+}
+
 .bx-im-attach-grid__item.--row table .bx-im-attach-grid__value {
 	vertical-align: top;
 	line-height: 21px;

@@ -65,9 +65,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Element_Query query()
- * @method static EO_Element_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Element_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Element_Result getById($id)
- * @method static EO_Element_Result getList(array $parameters = array())
+ * @method static EO_Element_Result getList(array $parameters = [])
  * @method static EO_Element_Entity getEntity()
  * @method static \Bitrix\Iblock\EO_Element createObject($setDefaultValues = true)
  * @method static \Bitrix\Iblock\EO_Element_Collection createCollection()

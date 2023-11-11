@@ -1,7 +1,7 @@
 import getArrayBuffer from '../../get-array-buffer';
 import type { ImageSize } from '../image-size-type';
 
-const BMP_SIGNATURE = 0x424d; // BM
+const BMP_SIGNATURE = 0x424D; // BM
 
 export default class Bmp
 {
@@ -10,16 +10,20 @@ export default class Bmp
 		return new Promise((resolve, reject) => {
 			if (file.size < 26)
 			{
-				return reject(new Error('BMP signature not found.'));
+				reject(new Error('BMP signature not found.'));
+
+				return;
 			}
 
 			const blob = file.slice(0, 26);
 			getArrayBuffer(blob)
-				.then((buffer: ArrayBuffer) => {
+				.then((buffer: ArrayBuffer): void => {
 					const view = new DataView(buffer);
 					if (!view.getUint16(0) === BMP_SIGNATURE)
 					{
-						return reject(new Error('BMP signature not found.'));
+						reject(new Error('BMP signature not found.'));
+
+						return;
 					}
 
 					resolve({
@@ -27,7 +31,7 @@ export default class Bmp
 						height: Math.abs(view.getInt32(22, true)),
 					});
 				})
-				.catch(error => {
+				.catch((error): void => {
 					reject(error);
 				})
 			;

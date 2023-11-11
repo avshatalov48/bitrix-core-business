@@ -7,20 +7,24 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 	<div class="bx-messenger-box-hello"><?=GetMessage('IM_MESSENGER_EMPTY_PAGE');?></div>
 </div>
 <script type="text/javascript">
+BX.Messenger.Public.disableDesktopRedirect();
+
+<?if (
+	!isset($_GET['IM_SETTINGS'])
+	&& !isset($_GET['IM_HISTORY'])
+	&& !isset($_GET['IM_NOTIFY'])
+	&& !isset($_GET['IM_DIALOG'])
+	&& !isset($_GET['IM_LINES'])
+):?>
 	BX.addCustomEvent('onImInitBefore', function(im){
 		im.fullScreen = true;
 	});
-	<?if (!isset($_GET['IM_SETTINGS']) && !isset($_GET['IM_HISTORY']) && !isset($_GET['IM_NOTIFY'])):?>
 	BX.addCustomEvent('onImInit', function(im){
-		im.openMessenger();
+		im.messenger.openMessenger();
 	});
-	<?endif;?>
 
-	<? if (isset($arResult['MESSENGER_V2']) && $arResult['MESSENGER_V2'] === 'Y'): ?>
-		<?if (isset($_GET['IM_NOTIFY'])):?>
-			BX.Messenger.v2.Lib.MessengerSlider.getInstance().openNotifications();
-		<?else:?>
-			BX.Messenger.v2.Lib.MessengerSlider.getInstance().openChat('<?=(isset($_GET['IM_DIALOG'])? CUtil::JSEscape($_GET['IM_DIALOG']): '')?>');
-		<?endif;?>
-	<? endif; ?>
+	<?if (isset($arResult['MESSENGER_V2']) && $arResult['MESSENGER_V2'] === 'Y'):?>
+		BX.Messenger.Public.openChat();
+	<?endif;?>
+<?endif;?>
 </script>

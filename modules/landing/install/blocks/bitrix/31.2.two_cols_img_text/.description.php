@@ -46,7 +46,7 @@ return array(
 			'type' => array('button', 'animation'),
 		),
 		'.landing-block-node-button-container' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_31.1.TWO_COLS_TEXT_IMG_NODES_LANDINGBLOCKNODEBUTTON'),
+			'name' => Loc::getMessage('LANDING_BLOCK_31_2_BUTTON_AREA'),
 			'type' => array('text-align'),
 		),
 		'.landing-block-node-img' => array(

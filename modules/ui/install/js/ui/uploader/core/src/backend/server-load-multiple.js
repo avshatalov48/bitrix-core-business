@@ -80,6 +80,7 @@ export function abort(controller: ServerLoadController, file: UploaderFile): voi
 
 function loadInternal(): void
 {
+	// eslint-disable-next-line no-invalid-this,unicorn/no-this-assignment
 	const server: Server = this;
 	const queue: Queue = pendingQueues.get(server);
 	if (!queue)
@@ -103,29 +104,29 @@ function loadInternal(): void
 
 	const controllerOptions = server.getControllerOptions();
 	Ajax.runAction('ui.fileuploader.load', {
-			data: {
-				fileIds: fileIds,
-			},
-			getParameters: {
-				controller: server.getController(),
-				controllerOptions: controllerOptions ? JSON.stringify(controllerOptions) : null,
-			},
-			onrequeststart: (xhr): void => {
-				queue.xhr = xhr;
-			},
-			onprogress: (event: ProgressEvent): void => {
-				if (event.lengthComputable)
-				{
-					const progress: number = event.total > 0 ? Math.floor(event.loaded / event.total * 100) : 100;
+		data: {
+			fileIds,
+		},
+		getParameters: {
+			controller: server.getController(),
+			controllerOptions: controllerOptions ? JSON.stringify(controllerOptions) : null,
+		},
+		onrequeststart: (xhr): void => {
+			queue.xhr = xhr;
+		},
+		onprogress: (event: ProgressEvent): void => {
+			if (event.lengthComputable)
+			{
+				const progress: number = event.total > 0 ? Math.floor(event.loaded / event.total * 100) : 100;
 
-					queue.tasks.forEach((task: QueueTask): void => {
-						const { controller, file } = task;
-						controller.emit('onProgress', { progress });
-					});
-				}
-			},
-		})
-		.then(response => {
+				queue.tasks.forEach((task: QueueTask): void => {
+					const { controller } = task;
+					controller.emit('onProgress', { progress });
+				});
+			}
+		},
+	})
+		.then((response) => {
 			if (response.data?.files)
 			{
 				const fileResults = {};
@@ -162,7 +163,7 @@ function loadInternal(): void
 				});
 			}
 		})
-		.catch(response => {
+		.catch((response) => {
 			const error: ?UploaderError = queue.aborted ? null : UploaderError.createFromAjaxErrors(response.errors);
 			queue.tasks.forEach((task: QueueTask): void => {
 				const { controller, file } = task;

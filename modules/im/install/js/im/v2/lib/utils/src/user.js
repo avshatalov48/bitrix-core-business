@@ -151,14 +151,4 @@ export const UserUtil = {
 
 		return path.replace('#user_id#', userId);
 	},
-
-	getMentionBbCode(userId: number | string, name: string): string
-	{
-		if (Type.isString(userId))
-		{
-			userId = Number.parseInt(userId, 10);
-		}
-
-		return `[USER=${userId}]${name}[/USER]`;
-	}
 };

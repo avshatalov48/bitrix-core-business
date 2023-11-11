@@ -1,37 +1,30 @@
-import {Type} from 'main.core';
+import { lifecycleFunctions } from './functions/lifecycle';
+import { versionFunctions } from './functions/version';
+import { eventFunctions } from './functions/event';
+import { windowFunctions } from './functions/window';
+import { iconFunctions } from './functions/icon';
+import { settingsFunctions } from './functions/settings';
+import { commonFunctions } from './functions/common';
+import { legacyFunctions } from './functions/legacy';
+import { notificationFunctions } from './functions/notifications';
+import { loggerFunctions } from './functions/logger';
+import { callMaskFunctions } from './functions/call/mask';
+import { callBackgroundFunctions } from './functions/call/background';
 
-import {versionFunctions} from './functions/version';
-import {eventFunctions} from './functions/event';
-import {windowFunctions} from './functions/window';
-import {iconFunctions} from './functions/icon';
-import {settingsFunctions} from './functions/settings';
-import {legacyFunctions} from './functions/legacy';
+export { DesktopFeature } from './features';
+export { DesktopSettingsKey } from './functions/settings';
 
 export const DesktopApi = {
-	isDesktop(): boolean
-	{
-		return Type.isObject(window.BXDesktopSystem);
-	},
-	isTwoWindowMode(): boolean
-	{
-		return !!BXDesktopSystem?.IsTwoWindowsMode();
-	},
-	isChatWindow(): boolean
-	{
-		return location.href.includes('desktop_app');
-	},
-	exit()
-	{
-		BXDesktopSystem?.Shutdown();
-	},
-	log(fileName: string, text: string)
-	{
-		BXDesktopSystem?.Log(fileName, text);
-	},
+	...lifecycleFunctions,
+	...commonFunctions,
 	...versionFunctions,
 	...eventFunctions,
 	...windowFunctions,
 	...iconFunctions,
+	...notificationFunctions,
 	...settingsFunctions,
-	...legacyFunctions
+	...legacyFunctions,
+	...callBackgroundFunctions,
+	...callMaskFunctions,
+	...loggerFunctions,
 };

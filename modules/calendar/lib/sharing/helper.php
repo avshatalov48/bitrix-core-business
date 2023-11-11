@@ -379,11 +379,7 @@ class Helper
 	 */
 	public static function getEventTimestampUTC(DateTime $date, ?string $eventTimezone = null): int
 	{
-		$dateTimezone = $date->getTimeZone()->getName();
-		$dateTimestampUTC = $date->getTimestamp() + \CCalendar::GetTimezoneOffset($dateTimezone);
-		$eventOffsetUTC = \CCalendar::GetTimezoneOffset($eventTimezone);
-
-		return $dateTimestampUTC - $eventOffsetUTC;
+		return \Bitrix\Calendar\Util::getDateTimestampUtc($date, $eventTimezone);
 	}
 
 	/**

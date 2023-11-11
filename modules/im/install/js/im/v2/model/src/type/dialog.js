@@ -1,9 +1,12 @@
-import {DialogType} from 'im.v2.const';
+import { DialogType, UserRole, ChatActionGroup } from 'im.v2.const';
 
 type WritingListItem = {
 	userId: number,
 	userName: string
 };
+
+type ActionGroupItem = $Keys<typeof ChatActionGroup>;
+type RoleItem = $Keys<typeof UserRole>;
 
 export type Dialog = {
 	dialogId: string,
@@ -46,5 +49,7 @@ export type Dialog = {
 	loading: boolean,
 	hasPrevPage: boolean,
 	hasNextPage: boolean,
-	diskFolderId: number
+	diskFolderId: number,
+	role: RoleItem,
+	permissions: Object<ActionGroupItem, RoleItem>
 };

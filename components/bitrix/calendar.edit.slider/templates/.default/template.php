@@ -86,12 +86,7 @@ $arParams['UF'] = $UF;
 					<input id="<?=$id?>_event_current_date_from" type="hidden" name="current_date_from" value="0"/>
 					<input id="<?=$id?>_event_rec_edit_mode" type="hidden" name="rec_edit_mode" value="0"/>
 					<input id="<?=$id?>_exclude_users" type="hidden" name="exclude_users" value=""/>
-					<!--
-					<input id="<?=$id?>_location_old" type="hidden" name="location_old" value=""/>
-					<input id="<?=$id?>_location_new" type="hidden" name="location_new" value=""/>
-					<input name="time_from_real" type="hidden" id="<?=$id?>_time_from_real" value="">
-					<input name="time_to_real" type="hidden" id="<?=$id?>_time_to_real" value="">
-					-->
+					<input id="<?=$id?>_do_check_occupancy" type="hidden" name="doCheckOccupancy" value="Y"/>
 
 					<div class="calendar-info pinned">
 						<div class="calendar-info-panel">
@@ -99,7 +94,10 @@ $arParams['UF'] = $UF;
 								<input name="importance" type="checkbox" id="<?=$id?>_important" value="high">
 								<label for="<?=$id?>_important"><?= Loc::getMessage('EC_EDIT_SLIDER_IMPORTANT_EVENT')?></label>
 							</div>
-							<div class="calendar-info-panel-title"><input name="name" id="<?=$id?>_entry_name" type="text" placeholder="<?= Loc::getMessage('EC_EDIT_SLIDER_NAME_PLACEHOLDER')?>"></div>
+							<div class="calendar-info-panel-title">
+								<input name="name" id="<?=$id?>_entry_name" type="text" placeholder="<?= Loc::getMessage('EC_EDIT_SLIDER_NAME_PLACEHOLDER')?>">
+								<div class="calendar-field-title-fade --edit-form" id="<?=$id?>_input_fade"></div>
+							</div>
 						</div>
 
 						<div data-bx-block-placeholer="description" class="calendar-field-placeholder calendar-info-panel-description">
@@ -185,7 +183,7 @@ $arParams['UF'] = $UF;
 										</span>
 										<span class="calendar-event-time">
 											<span class="calendar-field-container calendar-field-container-select">
-												<span class="calendar-field-block">
+												<span class="calendar-field-block calendar-field-select calendar-field">
 													<?CClock::Show(array(
 														'inputId' => $id.'_time_from',
 														'inputName' => 'time_from',
@@ -210,7 +208,7 @@ $arParams['UF'] = $UF;
 										</span>
 										<span class="calendar-event-time">
 											<span class="calendar-field-container calendar-field-container-select">
-												<span class="calendar-field-block">
+												<span class="calendar-field-block calendar-field-select calendar-field">
 													<?CClock::Show(array(
 														'inputId' => $id.'_time_to',
 														'inputName' => 'time_to',
@@ -487,7 +485,7 @@ $arParams['UF'] = $UF;
 							ob_start();
 						}?>
 						<div class="calendar-options-item calendar-options-item-border calendar-event-location">
-							<div class="calendar-options-item-column-left">
+							<div class="calendar-options-item-column-left calendar-options-item-column-left-location">
 								<div class="calendar-options-item-name js-calendar-field-name"><?= Loc::getMessage('EC_EDIT_SLIDER_LOCATION_COLUMN')?></div>
 							</div>
 							<div class="calendar-options-item-column-right">
@@ -514,33 +512,6 @@ $arParams['UF'] = $UF;
 							<div class="calendar-options-item-column-right">
 								<div id="tag-selector-654"></div>
 								<div class="calendar-attendees-selector-wrap"></div>
-								<div>
-									<?
-//									$APPLICATION->IncludeComponent(
-//										"bitrix:main.user.selector",
-//										"",
-//										[
-//											"ID" => $id.'_destination',
-//											"LIST" => $selectedUserCodes,
-//											"LAZYLOAD" => "Y",
-//											"INPUT_NAME" => 'EVENT_DESTINATION[]',
-//											"USE_SYMBOLIC_ID" => true,
-//											"API_VERSION" => 3,
-//											"SELECTOR_OPTIONS" => [
-//												'lazyLoad' => 'Y',
-//												'context' => \Bitrix\Calendar\Util::getUserSelectorContext(),
-//												'contextCode' => '',
-//												'enableSonetgroups' => 'Y',
-//												'departmentSelectDisable' => 'N',
-//												'showVacations' => 'Y',
-//												'enableAll' => 'Y',
-//												'allowSearchEmailUsers' => 'Y',
-//												'allowEmailInvitation' => 'Y'
-//											]
-//										]
-//									);
-									?>
-								</div>
 							</div>
 						</div>
 						<!--endregion-->
@@ -763,7 +734,7 @@ $arParams['UF'] = $UF;
 									if(!$field["pinned"] && !$field['hidden'])
 									{
 										?>
-										<span class="calendar-additional-alt-promo-text"><?= $field["title"]?></span>
+										<span data-bx-field-id="<?= $fieldId?>" class="calendar-additional-alt-promo-text"><?= $field["title"]?></span>
 										<?
 									}
 								}?>

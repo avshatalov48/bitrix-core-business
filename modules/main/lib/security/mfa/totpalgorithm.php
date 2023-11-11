@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Security\Mfa;
 
 use Bitrix\Main\Config\Option;
@@ -12,17 +13,24 @@ class TotpAlgorithm extends OtpAlgorithm
 {
 	const SYNC_WINDOW = 180;
 	protected static $type = 'totp';
-
 	protected $interval = 30;
+	protected int $startTimestamp = 0;
 	// ToDo: option here! May be just merge with HOTP window?
 	protected $window = 2;
 	protected $requireTwoCode = false;
 
-	public function __construct()
+	public function __construct(array $initParams = [])
 	{
-		$interval = (int) Option::get('security', 'totp_interval');
+		if (isset($initParams['startTimestamp']) && (int)$initParams['startTimestamp'] > 0)
+		{
+			$this->startTimestamp = (int)$initParams['startTimestamp'];
+		}
+
+		$interval = (int)Option::get('security', 'totp_interval');
 		if ($interval && $interval > 0)
+		{
 			$this->interval = $interval;
+		}
 	}
 
 	/**
@@ -30,26 +38,32 @@ class TotpAlgorithm extends OtpAlgorithm
 	 */
 	public function verify($input, $params = null, $time = null)
 	{
-		$input = (string) $input;
+		$input = (string)$input;
 
-		if($params === null)
+		if ($params === null)
 		{
 			$params = '0:0';
 		}
 
 		if (!preg_match('#^\d+$#D', $input))
+		{
 			throw new ArgumentOutOfRangeException('input', 'string with numbers');
+		}
 
-		list($userOffset, $lastTimeCode) = explode(':', $params);
-		$userOffset = (int) $userOffset;
-		$lastTimeCode = (int) $lastTimeCode;
+		[$userOffset, $lastTimeCode] = explode(':', $params);
+		$userOffset = (int)$userOffset;
+		$lastTimeCode = (int)$lastTimeCode;
 
 		if ($time === null)
+		{
 			$timeCode = $this->timecode(time());
+		}
 		else
-			$timeCode = $this->timecode((int) $time);
+		{
+			$timeCode = $this->timecode((int)$time);
+		}
 
-		$checkOffsets = array();
+		$checkOffsets = [];
 		// First of all we must check input for provided offset
 		$checkOffsets[] = $userOffset;
 		if ($userOffset)
@@ -71,12 +85,14 @@ class TotpAlgorithm extends OtpAlgorithm
 		$resultOffset = 0;
 		$resultTimeCode = 0;
 
-		foreach($checkOffsets as $offset)
+		foreach ($checkOffsets as $offset)
 		{
 			$code = $timeCode + $offset;
 			// Disallow authorization in the past. Must prevent replay attacks.
 			if ($lastTimeCode && $code <= $lastTimeCode)
+			{
 				continue;
+			}
 
 			if ($this->isStringsEqual($input, $this->generateOTP($code)))
 			{
@@ -89,18 +105,18 @@ class TotpAlgorithm extends OtpAlgorithm
 
 		if ($isSuccess === true)
 		{
-			return array(true, sprintf('%d:%d', $resultOffset, $resultTimeCode));
+			return [true, sprintf('%d:%d', $resultOffset, $resultTimeCode)];
 		}
 
-		return array(false, null);
+		return [false, null];
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function generateUri($label, array $opts = array())
+	public function generateUri($label, array $opts = [])
 	{
-		$opts += array('period' => $this->getInterval());
+		$opts += ['period' => $this->getInterval()];
 		return parent::generateUri($label, $opts);
 	}
 
@@ -112,7 +128,9 @@ class TotpAlgorithm extends OtpAlgorithm
 	 */
 	public function timecode($timestamp)
 	{
-		return (int) ( (((int) $timestamp * 1000) / ($this->getInterval() * 1000)));
+		// https://datatracker.ietf.org/doc/html/rfc6238
+		// T = (Current Unix time - T0) / X
+		return (int)((((int)$timestamp - $this->startTimestamp) * 1000) / ($this->getInterval() * 1000));
 	}
 
 	/**
@@ -124,6 +142,7 @@ class TotpAlgorithm extends OtpAlgorithm
 		$this->interval = (int)$interval;
 		return $this;
 	}
+
 	/**
 	 * Return used interval in counter generation
 	 *
@@ -153,15 +172,15 @@ class TotpAlgorithm extends OtpAlgorithm
 		$this->window = 0;
 
 		// Before detect clock drift we must check current time :-)
-		list($isSuccess,) = $this->verify($inputA, $offset);
+		[$isSuccess,] = $this->verify($inputA, $offset);
 
 		if (!$isSuccess)
 		{
 			// Otherwise try to calculate resynchronization
 			$offset = -self::SYNC_WINDOW;
-			for($i = $offset; $i < self::SYNC_WINDOW; $i++)
+			for ($i = $offset; $i < self::SYNC_WINDOW; $i++)
 			{
-				list($isSuccess,) = $this->verify($inputA, $offset);
+				[$isSuccess,] = $this->verify($inputA, $offset);
 				if ($isSuccess)
 				{
 					break;
@@ -171,7 +190,9 @@ class TotpAlgorithm extends OtpAlgorithm
 		}
 
 		if ($offset === self::SYNC_WINDOW)
+		{
 			throw new OtpException('Cannot synchronize this secret key with the provided password values.');
+		}
 
 		return sprintf('%d:%d', $offset, 0);
 	}

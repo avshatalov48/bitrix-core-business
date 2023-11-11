@@ -21,23 +21,27 @@ export class Condition
 
 		if (Type.isPlainObject(params))
 		{
-			if (params['object'])
+			if (params.object)
 			{
-				this.setObject(params['object']);
+				this.setObject(params.object);
 			}
-			if (params['field'])
+
+			if (params.field)
 			{
-				this.setField(params['field']);
+				this.setField(params.field);
 			}
-			if (params['operator'])
+
+			if (params.operator)
 			{
-				this.setOperator(params['operator']);
+				this.setOperator(params.operator);
 			}
+
 			if ('value' in params)
 			{
-				this.setValue(params['value']);
+				this.setValue(params.value);
 			}
 		}
+
 		if (group)
 		{
 			this.parentGroup = group;
@@ -85,12 +89,7 @@ export class Condition
 
 	setOperator(operator)
 	{
-		if (!operator)
-		{
-			operator = Operator.EQUAL;
-		}
-
-		this.#operator = operator;
+		this.#operator = operator ?? Operator.EQUAL;
 	}
 
 	get operator(): string
@@ -122,7 +121,7 @@ export class Condition
 			object: this.#object,
 			field: this.#field,
 			operator: this.#operator,
-			value: this.#value
-		}
+			value: this.#value,
+		};
 	}
 }

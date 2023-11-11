@@ -1,21 +1,24 @@
-import {Avatar, AvatarSize, ChatTitle} from 'im.v2.component.elements';
-import type {ImModelUser} from 'im.v2.model';
+import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { Utils } from 'im.v2.lib.utils';
+
+import type { ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const DetailUser = {
 	name: 'DetailUser',
-	components: {Avatar, ChatTitle},
+	components: { Avatar, ChatTitle },
 	props: {
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		isModerator: {
 			type: Boolean,
-			default: false
-		}
+			default: false,
+		},
 	},
-	data() {
+	data(): {showContextButton: boolean}
+	{
 		return {
 			showContextButton: false,
 		};
@@ -31,6 +34,10 @@ export const DetailUser = {
 		{
 			return this.$store.getters['users/get'](this.dialogId, true);
 		},
+		userLink(): string
+		{
+			return Utils.user.getProfileLink(this.dialogId);
+		},
 	},
 	methods:
 	{
@@ -40,7 +47,7 @@ export const DetailUser = {
 				userDialogId: this.dialogId,
 				target: event.currentTarget,
 			});
-		}
+		},
 	},
 	template: `
 		<div
@@ -54,7 +61,9 @@ export const DetailUser = {
 			</div>
 			<div class="bx-im-sidebar-main-detail__user-info-container">
 				<div class="bx-im-sidebar-main-detail__user-title-container">
-					<ChatTitle :dialogId="dialogId" class="bx-im-sidebar-main-detail__user-title-text" />
+					<a :href="userLink" target="_blank" class="bx-im-sidebar-main-detail__user-title-link">
+						<ChatTitle :dialogId="dialogId" />
+					</a>
 					<div
 						v-if="showContextButton"
 						class="bx-im-sidebar-main-detail__context-menu-icon bx-im-messenger__context-menu-icon"
@@ -66,5 +75,5 @@ export const DetailUser = {
 				</div>
 			</div>
 		</div>	
-	`
+	`,
 };

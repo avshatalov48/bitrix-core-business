@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core) {
@@ -9,15 +10,12 @@ this.BX.UI = this.BX.UI || {};
 	    this.progress = false;
 	    this.deleted = false;
 	    this.setData(data);
-
 	    if (main_core.Type.isPlainObject(params)) {
 	      if (main_core.Type.isString(params.languageId)) {
 	        this.setLanguageId(params.languageId);
 	      }
-
 	      this.moduleId = params.moduleId;
 	    }
-
 	    this.actions = {
 	      get: 'main.userFieldConfig.get',
 	      add: 'main.userFieldConfig.add',
@@ -25,35 +23,28 @@ this.BX.UI = this.BX.UI || {};
 	      "delete": 'main.userFieldConfig.delete'
 	    };
 	  }
-
 	  babelHelpers.createClass(UserField, [{
 	    key: "load",
 	    value: function load() {
 	      var _this = this;
-
 	      return new Promise(function (resolve, reject) {
 	        var errors = [];
-
 	        if (_this.progress) {
 	          errors.push('Another action is in progress');
 	          reject(errors);
 	          return;
 	        }
-
 	        if (!_this.isSaved()) {
 	          errors.push('Cant load UserField without id');
 	          reject(errors);
 	          return;
 	        }
-
 	        var action = _this.actions.get;
-
 	        if (!main_core.Type.isString(action) || action.length <= 0) {
 	          errors.push('UserField load action is not specified');
 	          reject(errors);
 	          return;
 	        }
-
 	        _this.progress = true;
 	        main_core.ajax.runAction(action, {
 	          data: {
@@ -62,9 +53,7 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        }).then(function (response) {
 	          _this.progress = false;
-
 	          _this.setData(response.data.field);
-
 	          resolve(response);
 	        })["catch"](function (response) {
 	          _this.progress = false;
@@ -80,19 +69,15 @@ this.BX.UI = this.BX.UI || {};
 	    key: "save",
 	    value: function save() {
 	      var _this2 = this;
-
 	      return new Promise(function (resolve, reject) {
 	        var errors = [];
-
 	        if (_this2.progress) {
 	          errors.push('Another action is in progress');
 	          reject(errors);
 	          return;
 	        }
-
 	        var action;
 	        var data;
-
 	        if (_this2.isSaved()) {
 	          action = _this2.actions.update;
 	          data = {
@@ -107,27 +92,22 @@ this.BX.UI = this.BX.UI || {};
 	            moduleId: _this2.moduleId
 	          };
 	        }
-
 	        if (!main_core.Type.isString(action) || action.length <= 0) {
 	          errors.push('UserField action is not specified');
 	          reject(errors);
 	          return;
 	        }
-
 	        _this2.progress = true;
 	        main_core.ajax.runAction(action, {
 	          data: data
 	        }).then(function (response) {
 	          _this2.progress = false;
-
 	          _this2.setData(response.data.field);
-
 	          resolve(response);
 	        })["catch"](function (response) {
 	          _this2.progress = false;
 	          response.errors.forEach(function (_ref2) {
 	            var message = _ref2.message;
-
 	            if (main_core.Type.isPlainObject(message) && message.text) {
 	              errors.push(message.text);
 	            } else {
@@ -142,30 +122,24 @@ this.BX.UI = this.BX.UI || {};
 	    key: "delete",
 	    value: function _delete() {
 	      var _this3 = this;
-
 	      return new Promise(function (resolve, reject) {
 	        var errors = [];
-
 	        if (_this3.progress) {
 	          errors.push('Another action is in progress');
 	          reject(errors);
 	          return;
 	        }
-
 	        if (!_this3.isSaved()) {
 	          errors.push('Cant delete UserField without id');
 	          reject(errors);
 	          return;
 	        }
-
 	        var action = _this3.actions["delete"];
-
 	        if (!main_core.Type.isString(action) || action.length <= 0) {
 	          errors.push('UserField action is not specified');
 	          reject(errors);
 	          return;
 	        }
-
 	        _this3.progress = true;
 	        main_core.ajax.runAction(action, {
 	          data: {
@@ -204,7 +178,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.languageId) {
 	        return main_core.Loc.getMessage('LANGUAGE_ID');
 	      }
-
 	      return this.languageId;
 	    }
 	  }, {
@@ -240,7 +213,6 @@ this.BX.UI = this.BX.UI || {};
 	        console.error('Changing name is not available on saved UserField');
 	        return this;
 	      }
-
 	      this.data.fieldName = name;
 	      return this;
 	    }
@@ -261,7 +233,6 @@ this.BX.UI = this.BX.UI || {};
 	        console.error('Changing userTypeId is not available on saved UserField');
 	        return this;
 	      }
-
 	      this.data.userTypeId = userTypeId;
 	      return this;
 	    }
@@ -271,7 +242,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isArray(this.data["enum"])) {
 	        this.data["enum"] = [];
 	      }
-
 	      return this.data["enum"];
 	    }
 	  }, {
@@ -286,13 +256,11 @@ this.BX.UI = this.BX.UI || {};
 	      var titleFieldNames = UserField.getTitleFieldNames();
 	      var titleFieldsCount = titleFieldNames.length;
 	      var languageId = this.getLanguageId();
-
 	      for (var index = 0; index < titleFieldsCount; index++) {
 	        if (this.data[titleFieldNames[index]] && main_core.Type.isString(this.data[titleFieldNames[index]][languageId]) && this.data[titleFieldNames[index]][languageId].length > 0) {
 	          return this.data[titleFieldNames[index]][languageId];
 	        }
 	      }
-
 	      return this.getName();
 	    }
 	  }, {
@@ -302,22 +270,17 @@ this.BX.UI = this.BX.UI || {};
 	        if (!languageId) {
 	          languageId = this.getLanguageId();
 	        }
-
 	        if (!this.data['editFormLabel']) {
 	          this.data['editFormLabel'] = {};
 	        }
-
 	        this.data['editFormLabel'][languageId] = title;
-
 	        if (this.getUserTypeId() === 'boolean') {
 	          if (!this.data.settings) {
 	            this.data.settings = {};
 	          }
-
 	          this.data.settings.LABEL_CHECKBOX = title;
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -342,7 +305,6 @@ this.BX.UI = this.BX.UI || {};
 	        console.error('Changing multiple is not available on saved UserField');
 	        return this;
 	      }
-
 	      this.data.multiple = main_core.Text.toBoolean(isMultiple) === true ? 'Y' : 'N';
 	      return this;
 	    }

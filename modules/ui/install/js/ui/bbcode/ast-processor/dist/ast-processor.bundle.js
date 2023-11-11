@@ -53,7 +53,20 @@ this.BX.UI = this.BX.UI || {};
 	    if (node && node.constructor.name === selector.nodeName) {
 	      if (selector.props.length > 0) {
 	        return selector.props.every(([key, value]) => {
-	          return node[key] === value;
+	          const propValue = (() => {
+	            const name = `${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+	            if (main_core.Type.isFunction(node[`get${name}`])) {
+	              return node[`get${name}`]();
+	            }
+	            if (main_core.Type.isFunction(node[`is${name}`])) {
+	              return node[`is${name}`]();
+	            }
+	            return null;
+	          })();
+	          if (['true', 'false'].includes(value)) {
+	            return propValue === (value === 'true');
+	          }
+	          return propValue === value;
 	        });
 	      }
 	      return true;

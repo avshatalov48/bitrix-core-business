@@ -2,6 +2,7 @@
 
 namespace Bitrix\Calendar\Sync\Office365;
 
+use Bitrix\Bizproc\Error;
 use Bitrix\Calendar;
 use Bitrix\Calendar\Sync\Exceptions\GoneException;
 use Bitrix\Main;
@@ -76,32 +77,48 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		$result = new Result();
 		$internalDto = $this->getEventConverter()->eventToDto($event);
 
-		$dto = $this->getService()->createEvent($internalDto, $context->getSectionConnection()->getVendorSectionId());
-		if ($dto)
+		try
 		{
-			if ($event->getExcludedDateCollection() && $event->getExcludedDateCollection()->count())
+			$dto = $this->getService()->createEvent($internalDto, $context->getSectionConnection()->getVendorSectionId());
+			if ($dto)
 			{
-				$context->add('sync', 'masterEventId', $dto->id);
-				/** @var Main\Type\DateTime $item */
-				foreach ($event->getExcludedDateCollection() as $item)
+				if ($event->getExcludedDateCollection() && $event->getExcludedDateCollection()->count())
 				{
-					$context->add('sync', 'excludeDate', $item);
-					$this->deleteInstance($event, $context);
+					$context->add('sync', 'masterEventId', $dto->id);
+					/** @var Main\Type\DateTime $item */
+					foreach ($event->getExcludedDateCollection() as $item)
+					{
+						$context->add('sync', 'excludeDate', $item);
+						$this->deleteInstance($event, $context);
+					}
 				}
-			}
 
-			if (!empty($dto->id))
-			{
-				$result->setData($this->prepareResultData($dto));
+				if (!empty($dto->id))
+				{
+					$result->setData($this->prepareResultData($dto));
+				}
+				else
+				{
+					$result->addError(new Main\Error('Error of create a series master event'));
+				}
 			}
 			else
 			{
-				$result->addError(new Main\Error('Error of create a series master event'));
+				$result->addError(new Main\Error('Error of create event'));
 			}
 		}
-		else
+		catch (ApiException $exception)
 		{
-			$result->addError(new Main\Error('Error of create event'));
+			if ((int)$exception->getCode() !== 400)
+			{
+				throw $exception;
+			}
+
+			$result->addError(new Main\Error($exception->getMessage(), $exception->getCode()));
+		}
+		catch (AuthException $exception)
+		{
+			$result->addError(new Main\Error($exception->getMessage(), $exception->getCode()));
 		}
 
 		return $result;
@@ -125,10 +142,26 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		$internalDto = $this->getEventConverter()->eventToDto($event);
 		$this->enrichVendorData($internalDto, $context->getEventConnection());
 
-		$dto = $this->getService()->updateEvent($context->getEventConnection()->getVendorEventId(), $internalDto);
-		if ($dto)
+		try
 		{
-			$result->setData($this->prepareResultData($dto));
+			$dto = $this->getService()->updateEvent($context->getEventConnection()->getVendorEventId(), $internalDto);
+			if ($dto)
+			{
+				$result->setData($this->prepareResultData($dto));
+			}
+		}
+		catch (ApiException $exception)
+		{
+			if ((int)$exception->getCode() !== 400)
+			{
+				throw $exception;
+			}
+
+			$result->addError(new Main\Error($exception->getMessage(), $exception->getCode()));
+		}
+		catch (AuthException $exception)
+		{
+			$result->addError(new Main\Error($exception->getMessage(), $exception->getCode()));
 		}
 
 		return $result;
@@ -226,24 +259,40 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		$result = new Result();
 		$masterLink = $context->getEventConnection();
 
-		if ($masterLink && $instance = $this->getInstanceForDay($masterLink->getVendorEventId(), $event->getStart()->getDate()))
+		try
 		{
-			$dto = $this->getService()->updateEvent(
-				$instance->id,
-				$this->getEventConverter()->eventToDto($event),
-			);
-			if ($dto && !empty($dto->id))
+			if ($masterLink && $instance = $this->getInstanceForDay($masterLink->getVendorEventId(), $event->getStart()->getDate()))
 			{
-				$result->setData($this->prepareResultData($dto));
+				$dto = $this->getService()->updateEvent(
+					$instance->id,
+					$this->getEventConverter()->eventToDto($event),
+				);
+				if ($dto && !empty($dto->id))
+				{
+					$result->setData($this->prepareResultData($dto));
+				}
+				else
+				{
+					$result->addError(new Main\Error("Error of create instance.", 404));
+				}
 			}
 			else
 			{
-				$result->addError(new Main\Error("Error of create instance.", 404));
+				$result->addError(new Main\Error("Instances for event not found", 404));
 			}
 		}
-		else
+		catch (ApiException $exception)
 		{
-			$result->addError(new Main\Error("Instances for event not found", 404));
+			if ((int)$exception->getCode() !== 400 && (int)$exception->getCode() !== 404)
+			{
+				throw $exception;
+			}
+
+			$result->addError(new Main\Error($exception->getMessage(), $exception->getCode()));
+		}
+		catch (AuthException $exception)
+		{
+			$result->addError(new Main\Error($exception->getMessage(), $exception->getCode()));
 		}
 
 		return $result;
@@ -295,13 +344,18 @@ class EventManager extends AbstractManager implements EventManagerInterface
 					$result->addError(new Main\Error("Instances for event not found", 404));
 				}
 			}
-			catch(ApiException $e)
+			catch (ApiException $e)
 			{
-				if ((int)$e->getCode() !== 400)
+				if ((int)$e->getCode() !== 400 && (int)$e->getCode() !== 404)
 				{
 					throw $e;
 				}
+
 				$result->addError(new Main\Error($e->getMessage(), $e->getCode()));
+			}
+			catch (AuthException $exception)
+			{
+				$result->addError(new Main\Error($exception->getMessage(), $exception->getCode()));
 			}
 		}
 
@@ -327,24 +381,37 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	private function moveInstance(Event $event, EventContext $context): Result
 	{
 		$result = new Result();
+		$instance = null;
 		$masterLink = $context->getEventConnection();
-		$instance = $this->getInstanceForDay(
-			$masterLink->getVendorEventId(),
-			$event->getOriginalDateFrom()->getDate()
-		);
+
+		if ($masterLink && $event->getOriginalDateFrom())
+		{
+			$instance = $this->getInstanceForDay(
+				$masterLink->getVendorEventId(),
+				$event->getOriginalDateFrom()->getDate()
+			);
+		}
+
 		if ($instance)
 		{
-			$dto = $this->getService()->updateEvent(
-				$instance->id,
-				$this->getEventConverter()->eventToDto($event),
-			);
-			if (!empty($dto->id))
+			try
 			{
-				$result->setData($this->prepareResultData($dto));
+				$dto = $this->getService()->updateEvent(
+					$instance->id,
+					$this->getEventConverter()->eventToDto($event),
+				);
+				if ($dto && !empty($dto->id))
+				{
+					$result->setData($this->prepareResultData($dto));
+				}
+				else
+				{
+					$result->addError(new Main\Error('Error of move instance', 400));
+				}
 			}
-			else
+			catch (NotFoundException $e)
 			{
-				$result->addError(new Main\Error('Error of move instance', 400));
+				$result->addError(new Main\Error('Instance not found'));
 			}
 		}
 		else
@@ -410,7 +477,6 @@ class EventManager extends AbstractManager implements EventManagerInterface
 				$data = $this->prepareSeries($deltaData, $sectionLink);
 
 			}
-			// there are simple instances of serie yet. But they are not needed.
 
 			if ($data)
 			{
@@ -485,7 +551,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 			/** @var SyncEvent $instance */
 			foreach ($recurrenceEvent->getInstanceMap()->getCollection() as $instance)
 			{
-				if (empty($instance->getEvent()->getOriginalDateFrom()))
+				if ($instance->getEvent()->getOriginalDateFrom() === null)
 				{
 					$result->addError(
 						new Main\Error('Instance is invalid - there is not original date from. ['.$instance->getEvent()->getId().']', 400));
@@ -520,8 +586,10 @@ class EventManager extends AbstractManager implements EventManagerInterface
 					);
 				}
 				$excludes->removeDateFromCollection($instance->getEvent()->getOriginalDateFrom());
-				if ($instance->getEvent()->getStart()->format('Ymd')
-					!== $instance->getEvent()->getOriginalDateFrom()->format('Ymd'))
+				if (
+					$instance->getEvent()->getStart()->format('Ymd')
+					!== $instance->getEvent()->getOriginalDateFrom()->format('Ymd')
+				)
 				{
 					$excludes->removeDateFromCollection($instance->getEvent()->getStart());
 				}
@@ -835,7 +903,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 					}
 					else
 					{
-						$errMessage = 'Uncknown error of creating recurrence '
+						$errMessage = 'Unknown error of creating recurrence '
 							. ($masterLink ? 'master' : 'instance');
 						$result->addError(new Main\Error($errMessage, 400, ['data' => $result->getData()]));
 					}

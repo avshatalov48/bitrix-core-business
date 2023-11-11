@@ -2,6 +2,8 @@
 
 namespace Bitrix\Im\V2\Chat;
 
+use Bitrix\Im\V2\Chat;
+
 class OpenLineLiveChat extends EntityChat
 {
 	protected $entityMap = [
@@ -28,6 +30,26 @@ class OpenLineLiveChat extends EntityChat
 	}
 
 	public function setEntityMap(array $entityMap): EntityChat
+	{
+		return $this;
+	}
+
+	public function setExtranet(?bool $extranet): \Bitrix\Im\V2\Chat
+	{
+		return $this;
+	}
+
+	public function getExtranet(): ?bool
+	{
+		return false;
+	}
+
+	protected function updateIndex(): \Bitrix\Im\V2\Chat
+	{
+		return $this;
+	}
+
+	protected function addIndex(): Chat
 	{
 		return $this;
 	}

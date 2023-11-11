@@ -99,12 +99,6 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 			return $this->unsetValue();
 		}
 
-		$defaultValue = $this->getDefaultValue();
-		if ($value === $defaultValue)
-		{
-			return $this->unsetValue();
-		}
-
 		switch ($this->type)
 		{
 			case self::TYPE_INT:
@@ -128,6 +122,12 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 
 			default:
 				$this->value = $value;
+		}
+
+		$defaultValue = $this->getDefaultValue();
+		if ($this->value === $defaultValue)
+		{
+			return $this->unsetValue();
 		}
 
 		$this->markChanged();

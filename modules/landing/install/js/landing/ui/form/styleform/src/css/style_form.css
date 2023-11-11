@@ -49,3 +49,37 @@
 .landing-ui-form-style .landing-ui-form-body .landing-ui-field:last-child {
 	margin-bottom: 0;
 }
+
+.landing-ui-form-replace-by-templates-card {
+	width: 100%;
+	height: 107px;
+	background: #eaf9fe url('images/replace_by_templates_card_bg.png') no-repeat right bottom;
+	border-radius: 6px;
+	padding: 16px 13px;
+	position: relative;
+	margin-bottom: 50px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+.landing-ui-form-replace-by-templates-card:after
+{
+	content: '';
+	display: block;
+	position: absolute;
+	height: 1px;
+	left: 6px;
+	right: 6px;
+	bottom: -25px;
+	background-color: #f1f2f3;
+	margin: 5px 0;
+}
+
+.landing-ui-form-replace-by-templates-card-title {
+	font-weight: 300;
+	font-size: 17px;
+	line-height: 20px;
+	color: #535C69;
+}

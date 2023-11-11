@@ -9,6 +9,7 @@ import NotificationEvent from './notification/notification-event';
 import BaseProvider from './providers/base';
 import MacProvider from './providers/mac';
 import WindowsProvider from './providers/windows';
+import LinuxProvider from './providers/linux';
 import BrowserProvider from './providers/browser';
 import BrowserPageProvider from './providers/browser-page';
 
@@ -21,36 +22,39 @@ import type { ProviderOptions } from './providers/provider-options';
 class Notifier
 {
 	static EVENT_NAMESPACE: string = 'BX.UI.NotificationManager';
+	static PROVIDER_OPTIONS: ProviderOptions = {
+		eventNamespace: Notifier.EVENT_NAMESPACE,
+	};
 
 	constructor()
 	{
 		this.provider = this.createProvider();
-
 		Pull.subscribe(new PullHandler());
 	}
 
 	createProvider(): BaseProvider
 	{
-		const providerOptions: ProviderOptions = {
-			eventNamespace: Notifier.EVENT_NAMESPACE,
-		};
-
 		if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isMac() && DesktopHelper.geApiVersion() >= 73)
 		{
-			return new MacProvider(providerOptions);
+			return new MacProvider(Notifier.PROVIDER_OPTIONS);
 		}
 
 		if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isWindows())
 		{
-			return new WindowsProvider(providerOptions);
+			return new WindowsProvider(Notifier.PROVIDER_OPTIONS);
+		}
+
+		if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isLinux())
+		{
+			return new LinuxProvider(Notifier.PROVIDER_OPTIONS);
 		}
 
 		if (BrowserHelper.isSupportedBrowser() && BrowserHelper.isNativeNotificationAllowed())
 		{
-			return new BrowserProvider(providerOptions);
+			return new BrowserProvider(Notifier.PROVIDER_OPTIONS);
 		}
 
-		return new BrowserPageProvider(providerOptions);
+		return this.#getBrowserPageProvider();
 	}
 
 	notify(notificationOptions: NotificationOptions): void
@@ -65,14 +69,11 @@ class Notifier
 		this.provider.notify(notification);
 	}
 
-	subscribe(eventName: string, handler: function): void
+	notifyViaBrowserProvider(notificationOptions: NotificationOptions)
 	{
-		if (!NotificationEvent.isSupported(eventName))
-		{
-			throw new Error(`NotificationManager: event "${eventName}" is not supported.`);
-		}
+		const notification = new Notification(notificationOptions);
 
-		this.provider.subscribe(eventName, handler);
+		this.#getBrowserPageProvider().notify(notification);
 	}
 
 	notifyViaDesktopProvider(notification: NotificationOptions)
@@ -90,6 +91,30 @@ class Notifier
 		}
 
 		throw new Error(`NotificationManager: unsupported environment for sending through a desktop provider.`);
+	}
+
+	subscribe(eventName: string, handler: function): void
+	{
+		if (!NotificationEvent.isSupported(eventName))
+		{
+			throw new Error(`NotificationManager: event "${eventName}" is not supported.`);
+		}
+
+		this.provider.subscribe(eventName, handler);
+		if (this.provider !== this.#getBrowserPageProvider())
+		{
+			this.#getBrowserPageProvider().subscribe(eventName, handler);
+		}
+	}
+
+	#getBrowserPageProvider(): BrowserPageProvider
+	{
+		if (!this.browserProvider)
+		{
+			this.browserProvider = new BrowserPageProvider(Notifier.PROVIDER_OPTIONS);
+		}
+
+		return this.browserProvider;
 	}
 }
 

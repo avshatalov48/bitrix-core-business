@@ -45,6 +45,12 @@ if ($IBLOCK_ID <= 0 || $ID <= 0)
 	return;
 }
 
+$catalog = CCatalogSku::GetInfoByIBlock($IBLOCK_ID);
+if (empty($catalog))
+{
+	return;
+}
+
 $PRODUCT_ID = CIBlockElement::GetRealElement($ID);
 
 $accessController = AccessController::getCurrent();
@@ -286,7 +292,7 @@ if ($allowEdit)
 		'TRIAL_PRICE_ID' => false,
 		'WITHOUT_ORDER' => false,
 		'BARCODE_MULTI' => $barcodeMultiply,
-		'MEASURE' => $CAT_MEASURE,
+		'MEASURE' => $CAT_MEASURE ?? null,
 	];
 	if ($quantityTrace !== null)
 	{
@@ -327,12 +333,12 @@ if ($allowEdit)
 
 	if(!$bUseStoreControl && !$isService)
 	{
-		$productFields['QUANTITY'] = $CAT_BASE_QUANTITY;
+		$productFields['QUANTITY'] = $CAT_BASE_QUANTITY ?? null;
 		if ($productFields['QUANTITY'] === '' || $productFields['QUANTITY'] === null)
 			unset($productFields['QUANTITY']);
 		if ($bEnableReservation && isset($CAT_BASE_QUANTITY_RESERVED))
 		{
-			$productFields['QUANTITY_RESERVED'] = $CAT_BASE_QUANTITY_RESERVED;
+			$productFields['QUANTITY_RESERVED'] = $CAT_BASE_QUANTITY_RESERVED ?? null;
 			if ($productFields['QUANTITY_RESERVED'] === '' || $productFields['QUANTITY_RESERVED'] === null)
 				unset($productFields['QUANTITY_RESERVED']);
 		}
@@ -355,7 +361,11 @@ if ($allowEdit)
 
 	if ($currentTab === \CCatalogAdminTools::TAB_CATALOG)
 	{
-		$productFields['TYPE'] = Catalog\ProductTable::TYPE_PRODUCT;
+			$productFields['TYPE'] =
+				$catalog['CATALOG_TYPE'] === CCatalogSku::TYPE_OFFERS
+					? Catalog\ProductTable::TYPE_OFFER
+					: Catalog\ProductTable::TYPE_PRODUCT
+			;
 	}
 	elseif ($currentTab === \CCatalogAdminTools::TAB_SERVICE)
 	{
@@ -413,14 +423,14 @@ if ($allowEdit)
 	$ratioList = [];
 	$arMeasureRatio = [
 		'PRODUCT_ID' => $PRODUCT_ID,
-		'RATIO' => $CAT_MEASURE_RATIO,
+		'RATIO' => $CAT_MEASURE_RATIO ?? 1,
 		'IS_DEFAULT' => 'Y'
 	];
 	$newRatio = true;
 	$currentRatioID = 0;
 	if (isset($_POST['CAT_MEASURE_RATIO_ID']))
 		$currentRatioID = (int)$_POST['CAT_MEASURE_RATIO_ID'];
-	$ratioFilter = ['=PRODUCT_ID' => $PRODUCT_ID, '=RATIO' => $CAT_MEASURE_RATIO];
+	$ratioFilter = ['=PRODUCT_ID' => $PRODUCT_ID, '=RATIO' => $arMeasureRatio['RATIO']];
 	$ratioIterator = Catalog\MeasureRatioTable::getList([
 		'select' => ['*'],
 		'filter' => $ratioFilter

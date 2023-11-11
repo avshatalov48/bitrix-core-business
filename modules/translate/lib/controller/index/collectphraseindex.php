@@ -16,10 +16,10 @@ class CollectPhraseIndex
 	use Translate\Controller\ProcessParams;
 
 	/** @var string */
-	private $seekPathId;
+	private $seekPathId = '';
 
 	/** @var string[] */
-	private $languages;
+	private $languages = [];
 
 	/**
 	 * \Bitrix\Main\Engine\Action constructor.
@@ -28,7 +28,7 @@ class CollectPhraseIndex
 	 * @param Main\Engine\Controller $controller Parent controller object.
 	 * @param array $config Additional configuration.
 	 */
-	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
 		$this->keepField(['seekPathId', 'languages']);
 
@@ -58,6 +58,8 @@ class CollectPhraseIndex
 
 		if ($this->isNewProcess)
 		{
+			Index\Internals\PhraseFts::checkTables();
+
 			$languages = $this->controller->getRequest()->get('languages');
 			if (\is_array($languages) && !\in_array('all', $languages))
 			{
@@ -107,7 +109,7 @@ class CollectPhraseIndex
 	 *
 	 * @return array
 	 */
-	private function runIndexing(array $params)
+	private function runIndexing(array $params): array
 	{
 		$path = \rtrim($params['path'], '/');
 
@@ -139,9 +141,9 @@ class CollectPhraseIndex
 			$this->seekPathId = $seek->nextPathId;
 		}
 
-		return array(
+		return [
 			'PROCESSED_ITEMS' => $this->processedItems,
 			'TOTAL_ITEMS' => $this->totalItems,
-		);
+		];
 	}
 }

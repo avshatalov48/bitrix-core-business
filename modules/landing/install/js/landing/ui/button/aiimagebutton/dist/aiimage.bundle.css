@@ -4,7 +4,7 @@
 	border-radius: 20px;
 	font-weight: 600;
 	font-size: 14px;
-	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-family: var(--ui-font-family-system);
 	font-style: normal;
 }
 
@@ -31,14 +31,18 @@
 	-webkit-box-pack: center;
 	    -ms-flex-pack: center;
 	        justify-content: center;
+	line-height: 14px;
+	letter-spacing: 0.4px;
+	padding-bottom: 2px;
 }
 
 .landing-ui-button.landing-ui-button-ai-image .landing-ui-button-text:before {
 	content: '';
 	display: block;
-	height: 13px;
-	width: 13px;
+	height: 17px;
+	width: 17px;
 	margin-right: 6px;
 	background: url('../images/icon.svg') no-repeat;
+	background-size: 100%;
 }
 

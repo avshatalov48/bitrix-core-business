@@ -1,3 +1,5 @@
+/* eslint-disable no-new-func */
+
 const ResizeWorker = (): void => {
 	self.onmessage = (event: MessageEvent): void => {
 		// Hack for Safari. Workers can become unpredictable.
@@ -10,13 +12,12 @@ const ResizeWorker = (): void => {
 				createImagePreviewCanvasSource,
 				sharpenSource,
 				shouldSharpenSource,
-				type,
+				/* type, */
 			} = event.data.message;
 
 			createImageBitmap(file)
-				.then(bitmap => {
-
-					const getResizedImageSize = new Function('return ' + getResizedImageSizeSource)();
+				.then((bitmap: ImageBitmap) => {
+					const getResizedImageSize = new Function(`return ${getResizedImageSizeSource}`)();
 					const { targetWidth, targetHeight, useOriginalSize } = getResizedImageSize(bitmap, options);
 
 					if (useOriginalSize)
@@ -34,11 +35,11 @@ const ResizeWorker = (): void => {
 					}
 					else
 					{
-						const createImagePreviewCanvas = new Function('return ' + createImagePreviewCanvasSource)();
+						const createImagePreviewCanvas = new Function(`return ${createImagePreviewCanvasSource}`)();
 						let offscreenCanvas: OffscreenCanvas = createImagePreviewCanvas(bitmap, targetWidth, targetHeight);
 
-						const sharpen = new Function('return ' + sharpenSource)();
-						const shouldSharpen = new Function('return ' + shouldSharpenSource)();
+						const sharpen = new Function(`return ${sharpenSource}`)();
+						const shouldSharpen = new Function(`return ${shouldSharpenSource}`)();
 						if (shouldSharpen(bitmap, targetWidth, targetHeight))
 						{
 							sharpen(offscreenCanvas, targetWidth, targetHeight, 0.2);
@@ -86,7 +87,8 @@ const ResizeWorker = (): void => {
 					}
 				})
 				.catch((error): void => {
-					console.log('Resize Worker Error (createImageBitmap)', error);
+					// eslint-disable-next-line no-console
+					console.log('Uploader: Resize Worker Error (createImageBitmap)', error);
 					self.postMessage({
 						id: event.data.id,
 						message: null,

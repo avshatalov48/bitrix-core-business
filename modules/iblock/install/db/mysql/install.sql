@@ -96,7 +96,7 @@ create table if not exists b_iblock_property
 (
 	ID int(11) not null auto_increment,
 	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
-	IBLOCK_ID int(11) not null REFERENCES b_iblock(ID),
+	IBLOCK_ID int(11) not null,
 	NAME varchar(255) not null,
 	ACTIVE char(1) not null default 'Y',
 	SORT int(11) not null default 500,
@@ -144,8 +144,8 @@ create table if not exists b_iblock_section
 	MODIFIED_BY int(18),
 	DATE_CREATE datetime,
 	CREATED_BY int(18),
-	IBLOCK_ID int(11) not null REFERENCES b_iblock(ID),
-	IBLOCK_SECTION_ID int(11) REFERENCES b_iblock_section(ID),
+	IBLOCK_ID int(11) not null,
+	IBLOCK_SECTION_ID int(11),
 	ACTIVE char(1) not null DEFAULT 'Y',
 	GLOBAL_ACTIVE char(1) not null DEFAULT 'Y',
 	SORT int(11) not null DEFAULT 500,
@@ -229,8 +229,8 @@ create table if not exists b_iblock_element
 create table if not exists b_iblock_element_property
 (
 	ID int(11) not null  auto_increment,
-	IBLOCK_PROPERTY_ID int(11) not null REFERENCES b_iblock_property(ID),
-	IBLOCK_ELEMENT_ID int(11) not null REFERENCES b_iblock_element(ID),
+	IBLOCK_PROPERTY_ID int(11) not null,
+	IBLOCK_ELEMENT_ID int(11) not null,
 	VALUE text not null,
 	VALUE_TYPE char(4) not null DEFAULT 'text',
 	VALUE_ENUM int(11),
@@ -259,8 +259,8 @@ create table if not exists b_iblock_property_enum
 
 create table if not exists b_iblock_group
 (
-	IBLOCK_ID int(11) not null REFERENCES b_iblock(ID),
-	GROUP_ID int(11) not null REFERENCES b_group(ID),
+	IBLOCK_ID int(11) not null,
+	GROUP_ID int(11) not null,
 	PERMISSION char(1) not null,
 	UNIQUE ux_iblock_group_1(IBLOCK_ID, GROUP_ID)
 );
@@ -268,12 +268,12 @@ create table if not exists b_iblock_group
 create table if not exists b_iblock_right
 (
 	ID int(11) not null auto_increment,
-	IBLOCK_ID int(11) not null REFERENCES b_iblock(ID),
+	IBLOCK_ID int(11) not null,
 	GROUP_CODE varchar(50) not null,
 	ENTITY_TYPE varchar(32) not null,
 	ENTITY_ID int(11) not null,
 	DO_INHERIT char(1) not null,
-	TASK_ID int(11) not null REFERENCES b_task(ID),
+	TASK_ID int(11) not null,
 	OP_SREAD char(1) not null,
 	OP_EREAD char(1) not null,
 	XML_ID varchar(32),
@@ -288,9 +288,9 @@ create table if not exists b_iblock_right
 
 create table if not exists b_iblock_section_right
 (
-	IBLOCK_ID int(11) not null REFERENCES b_iblock(ID),
+	IBLOCK_ID int(11) not null,
 	SECTION_ID int(11) not null,
-	RIGHT_ID int(11) not null REFERENCES b_iblock_right(ID),
+	RIGHT_ID int(11) not null,
 	IS_INHERITED char(1) not null,
 	primary key (RIGHT_ID, SECTION_ID),
 	KEY ix_b_iblock_section_right_1(SECTION_ID, IBLOCK_ID),
@@ -299,10 +299,10 @@ create table if not exists b_iblock_section_right
 
 create table if not exists b_iblock_element_right
 (
-	IBLOCK_ID int(11) not null REFERENCES b_iblock(ID),
+	IBLOCK_ID int(11) not null,
 	SECTION_ID int(11) not null,
 	ELEMENT_ID int(11) not null,
-	RIGHT_ID int(11) not null REFERENCES b_iblock_right(ID),
+	RIGHT_ID int(11) not null,
 	IS_INHERITED char(1) not null,
 	primary key (RIGHT_ID, ELEMENT_ID, SECTION_ID),
 	KEY ix_b_iblock_element_right_1(ELEMENT_ID, IBLOCK_ID),
@@ -337,7 +337,7 @@ create table if not exists b_iblock_cache
 
 create table if not exists b_iblock_element_lock
 (
-	IBLOCK_ELEMENT_ID int(11) not null REFERENCES b_iblock_element(ID),
+	IBLOCK_ELEMENT_ID int(11) not null,
 	DATE_LOCK datetime,
 	LOCKED_BY varchar(32),
 	primary key PK_B_IBLOCK_ELEMENT_LOCK (IBLOCK_ELEMENT_ID)

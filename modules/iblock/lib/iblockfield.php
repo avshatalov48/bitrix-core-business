@@ -23,9 +23,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_IblockField_Query query()
- * @method static EO_IblockField_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_IblockField_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_IblockField_Result getById($id)
- * @method static EO_IblockField_Result getList(array $parameters = array())
+ * @method static EO_IblockField_Result getList(array $parameters = [])
  * @method static EO_IblockField_Entity getEntity()
  * @method static \Bitrix\Iblock\EO_IblockField createObject($setDefaultValues = true)
  * @method static \Bitrix\Iblock\EO_IblockField_Collection createCollection()

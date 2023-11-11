@@ -305,6 +305,11 @@ export class SearchItem
 		return !this.isUser();
 	}
 
+	isLines(): boolean
+	{
+		return this.isOpeLinesType();
+	}
+
 	isExtranet(): boolean
 	{
 		if (this.isFromProviderResponse(this.rawData))
@@ -315,6 +320,8 @@ export class SearchItem
 		{
 			return !!this.rawData.user?.extranet || !!this.rawData.dialog.extranet;
 		}
+
+		return false;
 	}
 
 	getUserCustomData()

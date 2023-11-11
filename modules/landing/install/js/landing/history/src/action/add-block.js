@@ -16,23 +16,24 @@ export default function addBlock(entry)
 				if (block)
 				{
 					block.forceInit();
-					return scrollTo(block.node)
-						.then(highlight.bind(null, block.node, false, true))
-						.then(resolve);
 				}
-
 				resolve();
 			}))
-				.then(() => {
-					const landing = BX.Landing.Main.getInstance();
-					landing.currentBlock = block;
+			.then(() => {
+				const landing = BX.Landing.Main.getInstance();
+				landing.currentBlock = block;
 
-					return PageObject.getInstance().view().then((iframe) => {
-						landing.currentArea = iframe.contentDocument.body.querySelector(`[data-landing="${entry.params.lid}"]`);
-						landing.insertBefore = entry.params.insertBefore;
+				return PageObject.getInstance().view().then((iframe) => {
+					landing.currentArea = iframe.contentDocument.body.querySelector(`[data-landing="${entry.params.lid}"]`);
+					landing.insertBefore = entry.params.insertBefore;
 
-						return landing.onAddBlock(entry.params.code, entry.block, true);
-					});
+					return landing.onAddBlock(entry.params.code, entry.block, true)
+						.then(newBlock => {
+							return scrollTo(newBlock)
+								.then(highlight.bind(null, newBlock, false, false));
+						})
+					;
 				});
+			});
 		});
 }

@@ -4,16 +4,16 @@
 		<div class="container u-bg-overlay__inner">
 			<div class="row">
 				<div class="col-md-4 d-flex align-items-center text-center text-md-left g-mb-20 g-mb-0--md">
-					<div class="landing-block-node-copy landing-semantic-text-image-medium w-100 g-font-size-13 g-color-white mb-0 js-animation fadeInLeft">
+					<div class="landing-block-node-copy w-100 g-font-size-13 g-color-white mb-0 js-animation fadeInLeft">
 						&copy; 2023 All rights reserved.
 					</div>
 				</div>
 
 				<div class="col-md-4 d-flex flex-column text-center align-self-center g-mb-20 g-mb-0--md">
-					<div class="landing-block-node-phone-subtitle landing-semantic-text-image-medium text-uppercase g-font-size-11 g-color-white mb-0 js-animation fadeInRight">
+					<div class="landing-block-node-phone-subtitle text-uppercase g-font-size-11 g-color-white mb-0 js-animation fadeInRight">
 						Support 24/7
 					</div>
-					<a class="landing-block-node-phone-link landing-semantic-link-image-medium g-font-size-22 g-mt-5 g-font-weight-700 g-color-white js-animation fadeInLeft"
+					<a class="landing-block-node-phone-link g-font-size-22 g-mt-5 g-font-weight-700 g-color-white js-animation fadeInLeft"
 						href="tel:#crmPhone1">
 						#crmPhoneTitle1
 					</a>

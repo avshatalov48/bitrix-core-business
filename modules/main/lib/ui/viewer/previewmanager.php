@@ -344,24 +344,37 @@ final class PreviewManager
 		return Response\AjaxJson::createError();
 	}
 
-	public function setPreviewImageId($fileId, $previewImageId)
+	public function attachPreviewToFileId(int $fileId, ?int $previewId, ?int $previewImageId): Main\ORM\Data\Result
 	{
+		$updatedFields = array_filter([
+			'PREVIEW_IMAGE_ID' => $previewImageId,
+			'PREVIEW_ID' => $previewId,
+		]);
+
+		if (empty($updatedFields))
+		{
+			return new Main\ORM\Data\Result();
+		}
+
 		$alreadyPreview = $this->getFilePreviewEntryByFileId($fileId);
 		if (isset($alreadyPreview['ID']))
 		{
-			$result = FilePreviewTable::update($fileId, [
-				'PREVIEW_IMAGE_ID' => $previewImageId,
-			]);
+			$result = FilePreviewTable::update($fileId, $updatedFields);
 		}
 		else
 		{
-			$result = FilePreviewTable::add([
-				'FILE_ID' => $fileId,
-				'PREVIEW_IMAGE_ID' => $previewImageId,
-			]);
+			$addedFields = $updatedFields;
+			$addedFields['FILE_ID'] = $fileId;
+
+			$result = FilePreviewTable::add($addedFields);
 		}
 
 		return $result;
+	}
+
+	public function setPreviewImageId(int $fileId, int $previewImageId): Main\ORM\Data\Result
+	{
+		return $this->attachPreviewToFileId($fileId, null, $previewImageId);
 	}
 
 	public function generatePreview($fileId): ?Main\Result
@@ -460,7 +473,7 @@ final class PreviewManager
 		return $cache[$fileData['ID']];
 	}
 
-	protected function getFilePreviewEntryByFileId($fileId)
+	public function getFilePreviewEntryByFileId(int $fileId): ?array
 	{
 		$row = FilePreviewTable::getList([
 			'filter' => [
@@ -469,7 +482,7 @@ final class PreviewManager
 			'limit' => 1,
 		])->fetch();
 
-		return $row;
+		return $row ?: null;
 	}
 
 	protected function buildRenderByFile($originalName, $contentType, Uri $sourceUri, array $options = [])

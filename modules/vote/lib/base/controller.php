@@ -143,7 +143,7 @@ abstract class Controller
 
 	/**
 	 * Gets current user.
-	 * @return array|bool|\CAllUser|\CUser
+	 * @return array|bool|\CUser
 	 */
 	protected function getUser()
 	{
@@ -461,7 +461,7 @@ abstract class Controller
 
 	/**
 	 * Get application instance.
-	 * @return Application|\Bitrix\Main\HttpApplication|\CAllMain|\CMain
+	 * @return Application|\Bitrix\Main\HttpApplication|\CMain
 	 */
 	protected function getApplication()
 	{

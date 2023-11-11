@@ -714,14 +714,16 @@ class CCalendarLiveFeed
 			[
 				'arFilter' => [
 					"PARENT_ID" => $eventId,
-					"DELETED" => "N"
+					"ID" => $eventId,
+					"DELETED" => "N",
 				],
 				'parseRecursion' => false,
 				'fetchAttendees' => true,
 				'fetchMeetings' => true,
 				'checkPermissions' => false,
-				'setDefaultLimit' => false
-			]);
+				'setDefaultLimit' => false,
+			]
+		);
 
 		if ($currentEvent && count($currentEvent) > 0)
 		{
@@ -746,7 +748,11 @@ class CCalendarLiveFeed
 		$folowersList = [];
 		$unfolowersList = [];
 
-		if ($currentEvent['IS_MEETING'] && is_array($currentEvent['ATTENDEE_LIST']))
+		if (
+			$currentEvent['IS_MEETING']
+			&& !empty($currentEvent['ATTENDEE_LIST'])
+			&& is_array($currentEvent['ATTENDEE_LIST'])
+		)
 		{
 			foreach ($currentEvent['ATTENDEE_LIST'] as $attendee)
 			{
@@ -1118,7 +1124,11 @@ class CCalendarLiveFeed
 			{
 				foreach ($params['event']['ATTENDEES_CODES'] as $code)
 				{
-					if (mb_strpos($code, 'U') === 0)
+					if ($code === 'UA')
+					{
+						$codesList[] = 'G2';
+					}
+					else if (mb_strpos($code, 'U') === 0)
 					{
 						$attendeeId = (int)mb_substr($code, 1);
 						if (!in_array($attendeeId, $unfolowersList, true))

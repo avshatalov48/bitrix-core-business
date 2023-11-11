@@ -24,6 +24,7 @@ $MESS["LANDING_PUBLICATION_BUY_RENEW"] = "Renew";
 $MESS["LANDING_PUBLICATION_CONFIRM_EMAIL"] = "Confirm";
 $MESS["LANDING_PUBLICATION_GOTO_BLOCK"] = "Show";
 $MESS["LANDING_PUBLICATION_SUBMIT"] = "Publish site";
+$MESS["LANDING_SITE_HINT_AUTOPUBLISHING_AREA"] = "To change auto publishing parameters, open a page that is not an include area.";
 $MESS["LANDING_SITE_HINT_AUTOPUBLISHING_OPTIONS"] = "Auto publishing settings";
 $MESS["LANDING_SITE_TILE_POPUP_COPY_LINK_COMPLETE"] = "Link copied.";
 $MESS["LANDING_TPL_BUY_RENEW"] = "Please #LINK1#renew your license#LINK2#";

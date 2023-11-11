@@ -4,6 +4,7 @@ namespace Bitrix\Translate\Controller\Export;
 use Bitrix\Main;
 use Bitrix\Translate;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Translate\Index;
 
 /**
  * Harvester of the lang files disposition.
@@ -11,47 +12,48 @@ use Bitrix\Main\Localization\Loc;
  * @method array run(string $path, bool $runBefore)
  *
  */
-abstract class ExportAction
-	extends Translate\Controller\Action
+abstract class ExportAction extends Translate\Controller\Action
 {
+	protected static string $documentRoot = '';
 
-	/** @var string */
-	protected static $documentRoot;
-
-	/** @var bool */
-	protected static $useTranslationRepository;
+	protected static bool $useTranslationRepository = false;
 	/** @var string[] */
-	protected static $translationRepositoryLanguages;
+	protected static array $translationRepositoryLanguages = [];
 
-	/** @var int */
-	protected $tabId;
+	protected int $tabId = 0;
 
-	/** @var string */
-	protected $exportFilePath;
-	/** @var string */
-	protected $exportFileName;
-	/** @var string */
-	protected $exportFileType = 'application/csv';
-	/** @var int */
-	protected $exportFileSize = 0;
+	protected string $exportFilePath = '';
+	protected string $exportFileName = '';
+	protected string $exportFileType = 'application/csv';
+	protected int $exportFileSize = 0;
 
-	/** @var bool */
-	protected $convertEncoding;
+	protected bool $convertEncoding;
 
-	/** @var string */
-	protected $encodingOut;
+	protected string $encodingOut;
 
-	/** @var bool */
-	protected $collectUntranslated;
+	protected bool $collectUntranslated;
+
+	/* Look for translation samples */
+	protected bool $appendSamples = false;
+	protected int $samplesCount = 10;
+	protected array $samplesRestriction = [];
+	protected string $samplesFilePath = '';
+	protected string $samplesFileName = '';
+	protected int $samplesFileSize = 0;
+
+	/* Don't look for samples for a long text */
+	protected int $maxSampleSourceLength = 500;
 
 	/** @var string[] */
-	protected $languages;
+	protected array $languages = [];
 
-	/** @var int */
-	protected $exportedPhraseCount = 0;
+	protected int $exportedPhraseCount = 0;
 
-	/** @var Translate\Filter */
-	protected $filter;
+	protected int $exportedSamplesCount = 0;
+
+	protected Translate\Filter $filter;
+
+	protected array $fullPathCache = [];
 
 
 	/**
@@ -61,19 +63,45 @@ abstract class ExportAction
 	 * @param Main\Engine\Controller $controller Parent controller object.
 	 * @param array $config Additional configuration.
 	 */
-	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
+		$this->filter = new Translate\Filter();
+
 		Loc::loadLanguageFile(__FILE__);
 
 		if ($this instanceof Translate\Controller\IProcessParameters)
 		{
 			$this->keepField([
-				'tabId', 'exportFileName', 'exportFilePath', 'exportFileSize', 'exportedPhraseCount',
-				'collectUntranslated', 'convertEncoding', 'encodingOut', 'languages'
+				'tabId',
+				'exportFileName',
+				'exportFilePath',
+				'exportFileSize',
+				'exportedPhraseCount',
+				'collectUntranslated',
+				'appendSamples',
+				'samplesCount',
+				'samplesRestriction',
+				'samplesFileName',
+				'samplesFilePath',
+				'samplesFileSize',
+				'exportedSamplesCount',
+				'convertEncoding',
+				'encodingOut',
+				'languages'
 			]);
 		}
 
-		foreach (['collectUntranslated', 'convertEncoding', 'encodingOut', 'languages', 'filter'] as $key)
+		$fields = [
+			'collectUntranslated',
+			'appendSamples',
+			'samplesCount',
+			'samplesRestriction',
+			'convertEncoding',
+			'encodingOut',
+			'languages',
+			'filter'
+		];
+		foreach ($fields as $key)
 		{
 			if (isset($config[$key]))
 			{
@@ -96,7 +124,7 @@ abstract class ExportAction
 			self::$translationRepositoryLanguages = Translate\Config::getTranslationRepositoryLanguages();
 		}
 
-		if ($this->languages === 'all' || empty($this->languages))
+		if (in_array('all', $this->languages) || empty($this->languages))
 		{
 			$this->languages = Translate\Config::getEnabledLanguages();
 		}
@@ -111,7 +139,7 @@ abstract class ExportAction
 	 * @param string $exportFileName
 	 * @return Translate\IO\CsvFile
 	 */
-	protected function createExportTempFile(string $exportFileName)
+	protected function createExportTempFile(string $exportFileName): Translate\IO\CsvFile
 	{
 		/** @var Translate\IO\CsvFile $csvFile */
 		$exportFolder = Translate\Config::getExportFolder();
@@ -147,16 +175,13 @@ abstract class ExportAction
 
 		$csvFile->openWrite();
 
-		$row = array('file', 'key');
+		$row = ['file', 'key'];
 		foreach ($this->languages as $langId)
 		{
 			$row[] = $langId;
 		}
 		$csvFile->put($row);
 		$csvFile->close();
-
-		$this->exportFilePath = $csvFile->getPhysicalPath();
-		$this->exportFileSize = $csvFile->getSize();
 
 		return $csvFile;
 	}
@@ -168,7 +193,7 @@ abstract class ExportAction
 	 *
 	 * @return void
 	 */
-	protected function configureExportCsvFile(Translate\IO\CsvFile $csvFile)
+	protected function configureExportCsvFile(Translate\IO\CsvFile $csvFile): void
 	{
 		$csvFile
 			->setRowDelimiter(Translate\IO\CsvFile::LINE_DELIMITER_WIN)
@@ -197,7 +222,7 @@ abstract class ExportAction
 	 *
 	 * @return string
 	 */
-	protected function generateExportFileName($path, $languages)
+	protected function generateExportFileName(string $path, array $languages): string
 	{
 		return \trim(\str_replace(['.php', '/'], ['', '_'], $path), '_').'_'.\implode('_', $languages).'.csv';
 	}
@@ -207,14 +232,29 @@ abstract class ExportAction
 	 *
 	 * @return array
 	 */
-	public function getDownloadingParameters()
+	public function getDownloadingParameters(): array
 	{
-		return array(
+		return [
 			'fileName' => $this->exportFileName,
 			'filePath' => $this->exportFilePath,
 			'fileType' => $this->exportFileType,
 			'fileSize' => $this->exportFileSize,
-		);
+		];
+	}
+
+	/**
+	 * Returns exported file properties.
+	 *
+	 * @return array
+	 */
+	public function getDownloadingSamplesParameters(): array
+	{
+		return [
+			'fileName' => $this->samplesFileName,
+			'filePath' => $this->samplesFilePath,
+			'fileType' => $this->exportFileType,
+			'fileSize' => $this->samplesFileSize,
+		];
 	}
 
 	/**
@@ -227,17 +267,22 @@ abstract class ExportAction
 	 *
 	 * @return array
 	 */
-	protected function mergeLangFiles($langFilePath, $fullLangFilePaths, $collectUntranslated = false, $filterByCodeList = [])
+	public function mergeLangFiles(
+		string $langFilePath,
+		array $fullLangFilePaths,
+		bool $collectUntranslated = false,
+		array $filterByCodeList = []
+	): array
 	{
-		$mergedContent = array();
+		$mergedContent = [];
 
-		$rowLang0 = array();
+		$rowLang0 = [];
 		foreach ($this->languages as $langId)
 		{
 			$rowLang0[$langId] = '';
 		}
 
-		$filterByCode = \is_array($filterByCodeList) && (\count($filterByCodeList) > 0);
+		$filterByCode = !empty($filterByCodeList);
 
 		foreach ($this->languages as $langId)
 		{
@@ -278,7 +323,7 @@ abstract class ExportAction
 				}
 				if (!isset($mergedContent[$code]))
 				{
-					$mergedContent[$code] = \array_merge(array('file' => $langFilePath, 'key' => $code), $rowLang0);
+					$mergedContent[$code] = \array_merge(['file' => $langFilePath, 'key' => $code], $rowLang0);
 				}
 				$mergedContent[$code][$langId] = $phrase;
 			}
@@ -328,9 +373,9 @@ abstract class ExportAction
 	 *
 	 * @param string $langPath Relative project path of the language folder.
 	 *
-	 * @return \Generator|array
+	 * @return \Generator|array|iterable
 	 */
-	protected function lookThroughLangFolder($langPath)
+	public function lookThroughLangFolder(string $langPath): iterable
 	{
 		$files = [];
 		$folders = [];
@@ -356,7 +401,7 @@ abstract class ExportAction
 						continue;
 					}
 
-					if ((\mb_substr($name, -4) === '.php') && \is_file($fullPath))
+					if (Translate\IO\Path::isPhpFile($fullPath, true))
 					{
 						$files[$langPath.'/'.$name][$langId] = $fullPath;
 					}
@@ -419,5 +464,105 @@ abstract class ExportAction
 				}
 			}
 		}
+	}
+
+	/**
+	 * Looks for exact translation sample of the phrase.
+	 *
+	 * @param string $searchPhrase Phrase to look for.
+	 * @param string $searchLangId Phrase lang to look for.
+	 * @param int|string $stripPath Strip current file.
+	 * @param int $limit Limit search result.
+	 * @param int[] $restrictByPathId
+	 * @return array
+	 */
+	public function findSamples(string $searchPhrase, string $searchLangId, $stripPath, int $limit = 50, array $restrictByPathId = []): array
+	{
+		$select = [
+			'PATH_ID' => 'PATH_ID',
+			'PHRASE_CODE' => 'CODE',
+			'FILE_PATH' => 'PATH.PATH',
+		];
+
+		$phraseFilter = [];
+
+		$minLengthFulltextWorld = Index\PhraseIndexSearch::getFullTextMinLength();
+		$fulltextIndexSearchStr = Index\PhraseIndexSearch::prepareTextForFulltextSearch($searchPhrase);
+		if (\mb_strlen($fulltextIndexSearchStr) > $minLengthFulltextWorld)
+		{
+			$phraseFilter['*=PHRASE'] = $fulltextIndexSearchStr;
+		}
+
+		$phraseFilter['=PHRASE'] = $searchPhrase;
+		if (is_numeric($stripPath))
+		{
+			$phraseFilter['!=PATH_ID'] = $stripPath;
+		}
+		else
+		{
+			$phraseFilter['!=PATH.PATH'] = $stripPath;
+		}
+
+		if (!empty($restrictByPathId))
+		{
+			$phraseFilter['=PATH.DESCENDANTS.PARENT_ID'] = $restrictByPathId; //ancestor
+		}
+
+		$ftsClass = Index\Internals\PhraseFts::getFtsEntityClass($searchLangId);
+
+		/** @var Main\ORM\Query\Result $cachePathRes */
+		$phraseInxRes = $ftsClass::getList([
+			'filter' => $phraseFilter,
+			'select' => $select,
+			'limit' => $limit,
+		]);
+
+		$samples = [];
+		$fileInxCache = [];
+		while ($phraseInx = $phraseInxRes->fetch())
+		{
+			$pathId = (int)$phraseInx['PATH_ID'];
+			$phraseCode = $phraseInx['PHRASE_CODE'];
+
+			if (!isset($fileInxCache[$pathId]))
+			{
+				$fullPaths = $this->getFullPath($pathId);
+				$fileInxCache[$pathId] = $this->mergeLangFiles($phraseInx['FILE_PATH'], $fullPaths);
+			}
+
+			if (
+				isset($fileInxCache[$pathId][$phraseCode])
+				&& $fileInxCache[$pathId][$phraseCode][$searchLangId] == $searchPhrase
+			)
+			{
+				$samples[] = $fileInxCache[$pathId][$phraseCode];
+			}
+		}
+
+		return $samples;
+	}
+
+	/**
+	 * Returns list of full paths for lang path.
+	 * @param int $pathId
+	 * @return array
+	 */
+	protected function getFullPath(int $pathId): array
+	{
+		if (!isset($this->fullPathCache[$pathId]))
+		{
+			$this->fullPathCache[$pathId] = [];
+			$fileInxRes = Translate\Index\Internals\FileIndexTable::getList([
+				'filter' => ['=PATH_ID' => $pathId],
+				'order' => ['ID' => 'ASC'],
+				'select' => ['LANG_ID', 'FULL_PATH'],
+			]);
+			while ($fileInx = $fileInxRes->fetch())
+			{
+				$this->fullPathCache[$pathId][$fileInx['LANG_ID']] = $fileInx['FULL_PATH'];
+			}
+		}
+
+		return $this->fullPathCache[$pathId];
 	}
 }

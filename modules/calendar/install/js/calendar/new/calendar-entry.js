@@ -378,7 +378,6 @@
 						year_to: params.finishDate ? params.finishDate.getFullYear() : '',
 						active_sect: sections.active,
 						sup_sect: sections.superposed,
-						cal_dav_data_sync: this.calendar.reloadGoogle ? 'Y' : 'N',
 						direction: params.direction ?? '',
 					}
 				}).then((response) => {
@@ -400,7 +399,7 @@
 					this.fillChunkIndex(params.startDate, params.finishDate, {
 						sections: sections.allActive
 					});
-					this.calendar.reloadGoogle = false;
+
 					BX.Event.EventEmitter.emit('BX.Calendar:onEntryListReload', {
 						isBoundaryOfPastReached: response.data.isBoundaryOfPastReached,
 						isBoundaryOfFutureReached: response.data.isBoundaryOfFutureReached,
@@ -542,6 +541,12 @@
 			const formattedDateFrom = entry.isFullDay() ? this.calendar.util.formatDate(entry.from) : this.calendar.util.formatDateTime(entry.from);
 			const formattedDateTo = entry.isFullDay() ? this.calendar.util.formatDate(entry.to) : this.calendar.util.formatDateTime(entry.to);
 
+			let duration = (entry.to.getTime() - entry.from.getTime()) / 1000;
+			if (entry.fullDay)
+			{
+				duration += 86400;
+			}
+
 			this.movedEntries = this.movedEntries.filter(e => e.ID !== entry.uid);
 			this.movedEntries.push({
 				ID: entry.uid,
@@ -549,7 +554,7 @@
 				ORIGINAL_DATE_FROM: this.calendar.util.formatDateTime(BX.parseDate(entry.data.DATE_FROM)),
 				DATE_FROM: formattedDateFrom,
 				DATE_TO: formattedDateTo,
-				DT_LENGTH: (entry.to.getTime() - entry.from.getTime()) / 1000,
+				DT_LENGTH: duration,
 			});
 		},
 
@@ -614,25 +619,21 @@
 
 		sort: function(a, b)
 		{
-			if (a.entry.isTask() !==  b.entry.isTask())
+			if (a.entry.isTask() && !b.entry.isTask())
 			{
-				if (a.entry.isTask())
-					return 1;
-				if (b.entry.isTask())
-					return -1;
+				 return 1;
+			}
+			if (!a.entry.isTask() && b.entry.isTask())
+			{
+				return -1;
 			}
 
-			if (a.part.daysCount == b.part.daysCount && a.part.daysCount == 1)
+			if (a.part.daysCount === b.part.daysCount)
 			{
 				return a.entry.from.getTime() - b.entry.from.getTime();
 			}
-			else
-			{
-				if (a.part.daysCount == b.part.daysCount)
-					return a.entry.from.getTime() - b.entry.from.getTime();
-				else
-					return a.part.daysCount - b.part.daysCount;
-			}
+
+			return a.part.daysCount - b.part.daysCount;
 		},
 
 		clearLoadIndexCache: function()

@@ -1,8 +1,15 @@
 <?php
 namespace Bitrix\Calendar\Internals;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\BooleanField;
+use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Fields\EnumField;
+use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
 
 Loc::loadMessages(__FILE__);
 
@@ -55,77 +62,83 @@ class PushTable extends Main\Entity\DataManager
 	 */
 	public static function getMap()
 	{
-		return array(
-			'ENTITY_TYPE' => array(
-				'data_type' => 'string',
-				'primary' => true,
-				'validation' => array(__CLASS__, 'validateEntityType'),
-				'title' => Loc::getMessage('PUSH_ENTITY_ENTITY_TYPE_FIELD'),
-			),
-			'ENTITY_ID' => array(
-				'data_type' => 'integer',
-				'primary' => true,
-				'title' => Loc::getMessage('PUSH_ENTITY_ENTITY_ID_FIELD'),
-			),
-			'CHANNEL_ID' => array(
-				'data_type' => 'string',
-				'required' => true,
-				'validation' => array(__CLASS__, 'validateChannelId'),
-				'title' => Loc::getMessage('PUSH_ENTITY_CHANNEL_ID_FIELD'),
-			),
-			'RESOURCE_ID' => array(
-				'data_type' => 'string',
-				'required' => true,
-				'validation' => array(__CLASS__, 'validateResourceId'),
-				'title' => Loc::getMessage('PUSH_ENTITY_RESOURCE_ID_FIELD'),
-			),
-			'EXPIRES' => array(
-				'data_type' => 'datetime',
-				'required' => true,
-				'title' => Loc::getMessage('PUSH_ENTITY_EXPIRES_FIELD'),
-			),
-			'NOT_PROCESSED' => array(
-				'data_type' => 'enum',
-				'values' => array('N', 'Y', 'B', 'U'),
-				'title' => Loc::getMessage('PUSH_ENTITY_NOT_PROCESSED_FIELD'),
-			),
-			'FIRST_PUSH_DATE' => array(
-				'data_type' => 'datetime',
-				'title' => Loc::getMessage('PUSH_ENTITY_FIRST_PUSH_DATE_FIELD'),
-			),
-		);
+		return [
+			(new StringField('ENTITY_TYPE',
+				[
+					'validation' => [__CLASS__, 'validateEntityType']
+				]
+			))
+				->configureTitle(Loc::getMessage('PUSH_ENTITY_ENTITY_TYPE_FIELD'))
+				->configurePrimary(true)
+			,
+			(new IntegerField('ENTITY_ID'))
+				->configureTitle(Loc::getMessage('PUSH_ENTITY_ENTITY_ID_FIELD'))
+				->configurePrimary(true)
+			,
+			(new StringField('CHANNEL_ID',
+				[
+					'validation' => [__CLASS__, 'validateChannelId']
+				]
+			))
+				->configureTitle(Loc::getMessage('PUSH_ENTITY_CHANNEL_ID_FIELD'))
+				->configureRequired(true)
+			,
+			(new StringField('RESOURCE_ID',
+				[
+					'validation' => [__CLASS__, 'validateResourceId']
+				]
+			))
+				->configureTitle(Loc::getMessage('PUSH_ENTITY_RESOURCE_ID_FIELD'))
+				->configureRequired(true)
+			,
+			(new DatetimeField('EXPIRES'))
+				->configureTitle(Loc::getMessage('PUSH_ENTITY_EXPIRES_FIELD'))
+				->configureRequired(true)
+			,
+			(new EnumField('NOT_PROCESSED'))
+				->configureTitle(Loc::getMessage('PUSH_ENTITY_NOT_PROCESSED_FIELD'))
+				->configureValues(['N', 'Y', 'B', 'U'])
+				->configureDefaultValue('N')
+			,
+			(new DatetimeField('FIRST_PUSH_DATE'))
+				->configureTitle(Loc::getMessage('PUSH_ENTITY_FIRST_PUSH_DATE_FIELD'))
+			,
+		];
 	}
+
 	/**
 	 * Returns validators for ENTITY_TYPE field.
 	 *
 	 * @return array
 	 */
-	public static function validateEntityType()
+	public static function validateEntityType(): array
 	{
-		return array(
-			new Main\Entity\Validator\Length(null, 24),
-		);
+		return [
+			new LengthValidator(null, 24),
+		];
 	}
+
 	/**
 	 * Returns validators for CHANNEL_ID field.
 	 *
 	 * @return array
 	 */
-	public static function validateChannelId()
+	public static function validateChannelId(): array
 	{
-		return array(
-			new Main\Entity\Validator\Length(null, 128),
-		);
+		return [
+			new LengthValidator(null, 128),
+		];
 	}
+
 	/**
 	 * Returns validators for RESOURCE_ID field.
 	 *
 	 * @return array
 	 */
-	public static function validateResourceId()
+	public static function validateResourceId(): array
 	{
-		return array(
-			new Main\Entity\Validator\Length(null, 128),
-		);
+		return [
+			new LengthValidator(null, 128),
+		];
 	}
 }

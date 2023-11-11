@@ -193,9 +193,11 @@ class Helper
 	 * Get filter user fields.
 	 *
 	 * @param integer $entityTypeId Entity type ID.
+	 * @param bool $checkAccessRights
+	 *
 	 * @return array
 	 */
-	public static function getFilterUserFields($entityTypeId)
+	public static function getFilterUserFields(int $entityTypeId, bool $checkAccessRights = true): array
 	{
 		$list = array();
 		$ufManager = is_object($GLOBALS['USER_FIELD_MANAGER']) ? $GLOBALS['USER_FIELD_MANAGER'] : null;
@@ -207,8 +209,14 @@ class Helper
 		$ufEntityId = \CCrmOwnerType::resolveUserFieldEntityID($entityTypeId);
 		$crmUserType = new \CCrmUserType($ufManager, $ufEntityId);
 		$logicFilter = array();
-		$crmUserType->prepareListFilterFields($list, $logicFilter);
-		$originalList = $crmUserType->getFields();
+		$fieldsParams = [];
+
+		if (!$checkAccessRights)
+		{
+			$fieldsParams = ['skipUserFieldVisibilityCheck' => true];
+		}
+		$crmUserType->prepareListFilterFields($list, $logicFilter, $fieldsParams);
+		$originalList = $crmUserType->getFields($fieldsParams);
 		$restrictedTypes = ['address', 'file', 'crm', 'resourcebooking'];
 
 		$list = array_filter(

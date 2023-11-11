@@ -98,16 +98,13 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 									}
 							}
 						),
-						new BX.PopupWindowButtonLink(
-							{
-								text : BX.message("UI_ENTITY_EDITOR_CANCEL"),
-								className : "ui-btn ui-btn-link",
-								events:
-									{
-										click: BX.delegate(this.onCancelButtonClick, this)
-									}
+						new BX.UI.Button({
+							text: BX.message("UI_ENTITY_EDITOR_CANCEL"),
+							color: BX.UI.Button.Color.LIGHT,
+							events: {
+								click: BX.delegate(this.onCancelButtonClick, this)
 							}
-						)
+						})
 					],
 					events: {
 						onPopupClose: this.onPopupClose.bind(this),

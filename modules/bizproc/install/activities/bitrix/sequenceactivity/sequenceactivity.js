@@ -356,6 +356,7 @@
 	        title: snippet.Properties.Title,
 	        onclick: (event, menuItem) => {
 	          _SequenceActivityMyActivityClick(index, menuItem.getMenuWindow().getParentMenuWindow().bindElement.ind);
+	          menuItem.getMenuWindow().getParentMenuWindow().close();
 	        }
 	      });
 	    });
@@ -368,6 +369,7 @@
 	  return {
 	    onclick: (event, menuItem) => {
 	      _SequenceActivityClick(id, menuItem.getMenuWindow().getParentMenuWindow().bindElement.ind, preset ? preset.ID : null);
+	      menuItem.getMenuWindow().getParentMenuWindow().close();
 	    },
 	    className: 'bizproc-designer-sequence-activity-menu-item-icon',
 	    html: babelHelpers.classPrivateFieldLooseBase(this, _renderActivityMenuItemNode)[_renderActivityMenuItemNode](preset ? preset.NAME : description.NAME, descriptionText),

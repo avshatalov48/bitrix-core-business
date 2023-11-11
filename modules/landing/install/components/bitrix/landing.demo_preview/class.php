@@ -59,8 +59,6 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 			$this->getRemoteTemplates = true;
 			$demo = $this->getDemoPage($code);
 
-			$this->instagramUrlRegister();//@tmp
-
 			if (isset($demo[$code]))
 			{
 				$this->arResult['SITE_GROUP'] = [];
@@ -201,6 +199,12 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 				{
 					$this->arResult['FOLDER_ID'] = $this->request($this->arParams['ACTION_FOLDER']);
 				}
+
+				// replace landing instead create new
+				if ((int)$this->request('replaceLid') > 0)
+				{
+					$this->arParams['REPLACE_LID'] = (int)$this->request('replaceLid');
+				}
 			}
 			else
 			{
@@ -210,65 +214,6 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 		}
 
 		parent::executeComponent();
-	}
-
-	/**
-	 * Temp function for register external instagram import.
-	 * @return void
-	 */
-	private function instagramUrlRegister(): void
-	{
-		$eventManager = EventManager::getInstance();
-		$eventManager->addEventHandler('landing', 'onBuildTemplateCreateUrl',
-			function(Event $event)
-			{
-				$result = new \Bitrix\Main\Entity\EventResult;
-				$uri = $event->getParameter('uri');
-				$code = $event->getParameter('code');
-
-				if (
-					($code === 'store-instagram/mainpage') &&
-					Loader::includeModule('crm')
-				)
-				{
-					// build url for create site
-					$uriSelect = new Uri($uri);
-					$uriSelect->addParams([
-						'action' => 'select',
-						'param' => $code,
-						'sessid' => bitrix_sessid(),
-						'additional' => [
-							//TODO: change to method from \Bitrix\Crm\Order\Import\Instagram - get section XML_ID
-							'section' => 'instagram'
-						]
-					]);
-					// removed dependency from crm instagram feature
-					// @see \Bitrix\Crm\Order\Import\Instagram::isSiteTemplateImportable
-					$externalImportPath = (string) Option::get(
-						'crm', 'path_to_order_import_instagram'
-					);
-					$uriCreate = new Uri($externalImportPath);
-					$params = [
-						'create_url' => $uriSelect->getUri(),
-					];
-
-					if ($this->request->get('IFRAME') === 'Y')
-					{
-						$params['IFRAME'] = 'Y';
-						$params['IFRAME_TYPE'] = 'SIDE_SLIDER';
-					}
-
-					$uriCreate->addParams($params);
-					// set new url for create
-					$result->modifyFields([
-						'href' => $uriCreate->getUri()
-					]);
-				}
-
-				return $result;
-			}
-		);
-		unset($eventManager);
 	}
 
 	/**

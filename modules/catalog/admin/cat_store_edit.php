@@ -43,7 +43,6 @@ if ($id < 0)
 
 
 Loader::includeModule("catalog");
-/** @var AccessController $accessController */
 $accessController = AccessController::getCurrent();
 if (
 	!(

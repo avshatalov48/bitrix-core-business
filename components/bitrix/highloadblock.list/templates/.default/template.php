@@ -1,6 +1,13 @@
-<?
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+/** @global CMain $APPLICATION */
+/** @var array $arParams */
+/** @var array $arResult */
+
 
 if (!empty($arResult['ERROR']))
 {
@@ -8,10 +15,7 @@ if (!empty($arResult['ERROR']))
 	return false;
 }
 
-//$GLOBALS['APPLICATION']->SetTitle('Highloadblock List');
-
 ?>
-
 <div class="reports-result-list-wrap">
 <div class="report-table-wrap">
 <div class="reports-list-left-corner"></div>
@@ -19,100 +23,118 @@ if (!empty($arResult['ERROR']))
 <table cellspacing="0" class="reports-list-table" id="report-result-table">
 	<!-- head -->
 	<tr>
-		<? $i = 0; foreach(array_keys($arResult['tableColumns']) as $col): ?>
-		<?
-		$i++;
+		<?php
+		$fieldNames = array_keys($arResult['tableColumns']);
+		$fieldNamesCount = count($fieldNames);
+		$i = 0;
+		foreach($fieldNames as $col):
+			$i++;
 
-		if ($i == 1)
-		{
-			$th_class = 'reports-first-column';
-		}
-		else if ($i == count($arResult['viewColumns']))
-		{
-			$th_class = 'reports-last-column';
-		}
-		else
-		{
-			$th_class = 'reports-head-cell';
-		}
-
-		// title
-		$arUserField = $arResult['fields'][$col];
-		$title = $arUserField["LIST_COLUMN_LABEL"]? $arUserField["LIST_COLUMN_LABEL"]: $col;
-
-		// sorting
-		$defaultSort = 'DESC';
-		//$defaultSort = $col['defaultSort'];
-
-		if ($col === $arResult['sort_id'])
-		{
-			$th_class .= ' reports-selected-column';
-
-			if($arResult['sort_type'] == 'ASC')
+			if ($i === 1)
 			{
-				$th_class .= ' reports-head-cell-top';
+				$th_class = 'reports-first-column';
 			}
-		}
-		else
-		{
-			if ($defaultSort == 'ASC')
+			else if ($i === $fieldNamesCount)
 			{
-				$th_class .= ' reports-head-cell-top';
+				$th_class = 'reports-last-column';
 			}
-		}
+			else
+			{
+				$th_class = 'reports-head-cell';
+			}
 
+			// title
+			$arUserField = $arResult['fields'][$col];
+			$title = trim((string)($arUserField["LIST_COLUMN_LABEL"] ?? ''));
+			if ($title === '')
+			{
+				$title = $col;
+			}
+
+			// sorting
+			$defaultSort = 'DESC';
+			//$defaultSort = $col['defaultSort'];
+
+			if ($col === $arResult['sort_id'])
+			{
+				$th_class .= ' reports-selected-column';
+
+				if($arResult['sort_type'] == 'ASC')
+				{
+					$th_class .= ' reports-head-cell-top';
+				}
+			}
+			else
+			{
+				if ($defaultSort == 'ASC')
+				{
+					$th_class .= ' reports-head-cell-top';
+				}
+			}
+
+			?>
+			<th class="<?=$th_class?>" colId="<?=htmlspecialcharsbx($col)?>" defaultSort="<?=$defaultSort?>">
+				<div class="reports-head-cell"><?php
+					if($defaultSort):
+						?><span class="reports-table-arrow"></span><?php
+					endif;
+				?><span class="reports-head-cell-title"><?=htmlspecialcharsex($title)?></span></div>
+			</th>
+			<?php
+		endforeach;
 		?>
-		<th class="<?=$th_class?>" colId="<?=htmlspecialcharsbx($col)?>" defaultSort="<?=$defaultSort?>">
-			<div class="reports-head-cell"><?if($defaultSort):
-				?><span class="reports-table-arrow"></span><?
-			endif?><span class="reports-head-cell-title"><?=htmlspecialcharsex($title)?></span></div>
-		</th>
-		<? endforeach; ?>
 	</tr>
 
 	<!-- data -->
-	<? foreach ($arResult['rows'] as $row): ?>
-	<tr class="reports-list-item">
-		<? $i = 0; foreach(array_keys($arResult['tableColumns']) as $col): ?>
-		<?
-		$i++;
-		if ($i == 1)
-		{
-			$td_class = 'reports-first-column';
-		}
-		else if ($i == count($arResult['viewColumns']))
-		{
-			$td_class = 'reports-last-column';
-		}
-		else
-		{
-			$td_class = '';
-		}
-
-		//if (CReport::isColumnPercentable($col))
-		if (false) // numeric rows
-		{
-			$td_class .= ' reports-numeric-column';
-		}
-
-		$finalValue = $row[$col];
-
-		if ($col === 'ID' && !empty($arParams['DETAIL_URL']))
-		{
-			$url = str_replace(
-				array('#ID#', '#BLOCK_ID#'),
-				array($finalValue, intval($arParams['BLOCK_ID'])),
-				$arParams['DETAIL_URL']
-			);
-
-			$finalValue = '<a href="'.htmlspecialcharsbx($url).'">'.$finalValue.'</a>';
-		}
-
+	<?php
+	foreach ($arResult['rows'] as $row):
 		?>
-		<td class="<?=$td_class?>"><?=$finalValue?></td>
-		<? endforeach; ?>
+	<tr class="reports-list-item">
+		<?php
+		$i = 0;
+		foreach ($fieldNames as $col):
+			$i++;
+			if ($i === 1)
+			{
+				$td_class = 'reports-first-column';
+			}
+			else if ($i === $fieldNamesCount)
+			{
+				$td_class = 'reports-last-column';
+			}
+			else
+			{
+				$td_class = '';
+			}
+
+			//if (CReport::isColumnPercentable($col))
+			if (false) // numeric rows
+			{
+				$td_class .= ' reports-numeric-column';
+			}
+
+			$finalValue = $row[$col];
+
+			if ($col === 'ID' && !empty($arParams['DETAIL_URL']))
+			{
+				$url = str_replace(
+					array('#ID#', '#BLOCK_ID#'),
+					array($finalValue, intval($arParams['BLOCK_ID'])),
+					$arParams['DETAIL_URL']
+				);
+
+				$finalValue = '<a href="'.htmlspecialcharsbx($url).'">'.$finalValue.'</a>';
+			}
+
+			?>
+			<td class="<?=$td_class?>"><?=$finalValue?></td>
+			<?php
+		endforeach;
+		?>
 	</tr>
-	<? endforeach; ?>
+	<?php
+	endforeach;
+	?>
 
 </table>
 

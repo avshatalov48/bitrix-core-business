@@ -182,7 +182,7 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 		return '';
 	}
 
-	protected function getCommonText(): string
+	protected function getCommonText(): ?string
 	{
 		$isB24 = Manager::isB24();
 		$lang = $this->getLang();
@@ -213,9 +213,8 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 			);
 		}
 
-		$component = $this->getPublicComponent();
-
 		// SMN
+		$component = $this->getPublicComponent();
 		if (!$isB24)
 		{
 			$advCode = $component->getAdvCode();
@@ -228,26 +227,17 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 			;
 		}
 
-		// Not RU
-		$linkLogo = $component->getRefLink('bitrix24_logo', true, true);
+		// Not RU and B24
 		$linkSite = $component->getRefLink('websites', true, true);
-		$linkCrm = $component->getRefLink('crm', true, true);
-		if ($linkLogo && $linkSite && $linkCrm)
+		if ($linkSite)
 		{
-			return str_replace(
-				[
-					'#LOGO#',
-					'<linklogo>', '</linklogo>',
-					'<linksite>', '</linksite>',
-					'<linkcrm>', '</linkcrm>',
-				],
-				[
-					$logo,
-					'<a rel="nofollow" target="_blank" href="' . $linkLogo . '">', '</a>',
-					'<a class="bitrix-footer-link" target="_blank" href="' . $linkSite . '">', '</a>',
-					'<a rel="nofollow" class="bitrix-footer-link" target="_blank" href="' . $linkCrm . '">', '</a>',
-				],
-				$commonText
+			return Loc::getMessage(
+				'LANDING_HOOK_COPYRIGHT_TEXT_COMMON_EN', [
+				'#LOGO#' => $logo,
+				'<linksite>' => '<a class="bitrix-footer-link" target="_blank" href="' . $linkSite . '">',
+				'</linksite>' => '</a>',
+			],
+				$lang
 			);
 		}
 
@@ -289,7 +279,7 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 			$link = str_replace('features/sites.php', 'features/shop.php', $link);
 		}
 
-		return '. <a href="' . $link . '">' . $text . '</a>';
+		return '. <a href="' . $link . '" class="bitrix-footer-link">' . $text . '</a>';
 	}
 
 	protected function getPublicComponent(): \LandingPubComponent
@@ -353,14 +343,14 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 			'from_url' => urlencode($url),
 		];
 		$hrefLinkReportWithParams = $hrefLinkReport->addParams($urlParams);
-		$linkReport = '<a class="bitrix-footer-link bitrix-footer-link-report" target="_blank" href="'
+		$linkReport = '<a class="bitrix-footer-link bitrix-footer-link-report" target="_blank" rel="nofollow"  href="'
 			. $hrefLinkReportWithParams
 			. '">'
 			. Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_CONTENT_LINK_REPORT', null, $lang)
 			. '</a>';
 		$hintText = Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_CONTENT_LINK_REPORT_HINT', null, $lang);
 		$hint = '<span class="bitrix-footer-hint" data-hint="' . $hintText . '"></span>';
-		$content .= $linkReport . $hint;
+		$content .= '<noindex>' . $linkReport . $hint . '</noindex>';
 		$content .= '</div>';
 
 		return $content;

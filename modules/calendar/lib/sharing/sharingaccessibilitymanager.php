@@ -2,7 +2,7 @@
 
 namespace Bitrix\Calendar\Sharing;
 
-use Bitrix\Main\Type\DateTime;
+use Bitrix\Calendar\Core\Managers\Accessibility;
 
 class SharingAccessibilityManager
 {
@@ -12,8 +12,6 @@ class SharingAccessibilityManager
 	private int $timestampFrom;
 	/** @var int  */
 	private int $timestampTo;
-	/** @var string|null  */
-	private ?string $timezone;
 
 	/**
 	 * @param $options
@@ -23,7 +21,6 @@ class SharingAccessibilityManager
 		$this->userId = $options['userId'];
 		$this->timestampFrom = $options['timestampFrom'];
 		$this->timestampTo = $options['timestampTo'];
-		$this->timezone = $options['timezone'] ?? null;
 	}
 
 	/**
@@ -31,72 +28,25 @@ class SharingAccessibilityManager
 	 */
 	public function checkUserAccessibility(): bool
 	{
-		$this->timestampFrom -= \CCalendar::GetTimezoneOffset($this->timezone, $this->timestampFrom);
-		$this->timestampTo -= \CCalendar::GetTimezoneOffset($this->timezone, $this->timestampTo);
+		$busyUserIds = (new Accessibility())
+			->setCheckPermissions(false)
+			->getBusyUsersIds([$this->userId], $this->timestampFrom, $this->timestampTo)
+		;
 
-		$accessibility = \CCalendar::GetAccessibilityForUsers([
-			'users' => [$this->userId],
-			'from' => \CCalendar::Date($this->timestampFrom, false),
-			'to' => \CCalendar::Date($this->timestampTo, false),
-			'checkPermissions' => false
-		]);
-		$events = $accessibility[$this->userId];
-
-		foreach ($events as $event)
-		{
-			$eventTsFrom = \CCalendar::Timestamp($event['DATE_FROM']);
-			$eventTsTo = \CCalendar::Timestamp($event['DATE_TO']);
-
-			if ($event['DT_SKIP_TIME'] === 'Y')
-			{
-				$eventTsTo += \CCalendar::GetDayLen();
-			}
-
-			$eventTsFrom -= \CCalendar::GetTimezoneOffset($event['TZ_FROM'], $eventTsFrom);
-			$eventTsTo -= \CCalendar::GetTimezoneOffset($event['TZ_TO'], $eventTsTo);
-
-			if ($eventTsFrom < $this->timestampTo && $eventTsTo > $this->timestampFrom)
-			{
-				return false;
-			}
-		}
-
-		return true;
+		return empty($busyUserIds);
 	}
 
 	/**
 	 * @return array
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public function getUserAccessibilitySegmentsInUtc(): array
 	{
-		$result = [];
+		$accessibility = (new Accessibility())
+			->setCheckPermissions(false)
+			->getAccessibility([$this->userId], $this->timestampFrom, $this->timestampTo)
+		;
 
-		$accessibility = \CCalendar::GetAccessibilityForUsers([
-			'users' => [$this->userId],
-			'from' => \CCalendar::Date($this->timestampFrom, false),
-			'to' => \CCalendar::Date($this->timestampTo, false),
-			'checkPermissions' => false
-		]);
-
-		$userEvents = $accessibility[$this->userId];
-
-		foreach ($userEvents as $event)
-		{
-			$eventTsFromUTC = Helper::getEventTimestampUTC(new DateTime($event['DATE_FROM']), $event['TZ_FROM']);
-			$eventTsToUTC = Helper::getEventTimestampUTC(new DateTime($event['DATE_TO']), $event['TZ_TO']);
-
-			if ($event['DT_SKIP_TIME'] === 'Y')
-			{
-				$eventTsToUTC += \CCalendar::GetDayLen();
-			}
-
-			$result[] = [
-				'timestampFromUTC' => $eventTsFromUTC,
-				'timestampToUTC' => $eventTsToUTC,
-				'accessibility' => $event['ACCESSIBILITY'],
-			];
-		}
-
-		return $result;
+		return $accessibility[$this->userId];
 	}
 }

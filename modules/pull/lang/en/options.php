@@ -32,7 +32,6 @@ $MESS["PULL_OPTIONS_NGINX_VERSION_034"] = "Bitrix Virtual Appliance 4.2 - 4.3 (n
 $MESS["PULL_OPTIONS_NGINX_VERSION_034_DESC"] = "nginx-push-stream-module 0.4.0 is strongly recommended; install it whenever possible.<br> If using nginx-push-stream-module 0.3.4, WebSocket and command broadcasting will be unavailable.";
 $MESS["PULL_OPTIONS_NGINX_VERSION_040"] = "Bitrix Virtual Appliance 4.4 or higher (nginx-push-stream-module 0.4.0)";
 $MESS["PULL_OPTIONS_NGINX_VERSION_710"] = "Bitrix Virtual Appliance 7.1 and higher (Bitrix Push server)";
-$MESS["PULL_OPTIONS_NGINX_VERSION_730"] = "Bitrix Virtual Appliance 7.3 and later (Bitrix Push server 2.0)";
 $MESS["PULL_OPTIONS_NGINX_VERSION_730_2"] = "Virtual Appliance 7.3 - 7.5 (Bitrix Push server 2.0)";
 $MESS["PULL_OPTIONS_NGINX_VERSION_760"] = "Bitrix Virtual Appliance 7.6 and later (Bitrix Push server 3.0)";
 $MESS["PULL_OPTIONS_PATH_TO_JSON_RPC"] = "Path for executing JSON-RPC queries";

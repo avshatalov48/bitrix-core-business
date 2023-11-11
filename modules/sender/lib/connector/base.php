@@ -23,6 +23,7 @@ abstract class Base
 	/** @var  integer $dataTypeId Data type ID. */
 	protected $dataTypeId = Recipient\Type::EMAIL;
 
+	protected bool $checkAccessRights = true;
 	/**
 	 * @param string $moduleId
 	 * @return void
@@ -374,5 +375,25 @@ abstract class Base
 	public function getStatFields()
 	{
 		return [];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isCheckAccessRights(): bool
+	{
+		return $this->checkAccessRights;
+	}
+
+	/**
+	 * @param bool $checkAccessRights
+	 *
+	 * @return $this
+	 */
+	public function setCheckAccessRights(bool $checkAccessRights): static
+	{
+		$this->checkAccessRights = $checkAccessRights;
+
+		return $this;
 	}
 }

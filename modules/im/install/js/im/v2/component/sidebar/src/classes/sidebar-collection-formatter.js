@@ -1,4 +1,4 @@
-import {DateFormatter, DateTemplate} from 'im.v2.lib.date-formatter';
+import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 
 type FormattableCollection = {
 	date: Date,
@@ -17,13 +17,13 @@ export class SidebarCollectionFormatter
 	{
 		const dateGroups = {};
 
-		collection.forEach(item => {
+		collection.forEach((item) => {
 			const dateGroup = this.getDateGroup(item.date);
 			if (!dateGroups[dateGroup.title])
 			{
 				dateGroups[dateGroup.title] = {
 					dateGroupTitle: dateGroup.title,
-					items: []
+					items: [],
 				};
 			}
 
@@ -45,7 +45,7 @@ export class SidebarCollectionFormatter
 
 		this.cachedDateGroups[shortDate] = {
 			id: shortDate,
-			title: DateFormatter.formatByTemplate(date, DateTemplate.dateGroup)
+			title: DateFormatter.formatByTemplate(date, DateTemplate.dateGroup),
 		};
 
 		return this.cachedDateGroups[shortDate];

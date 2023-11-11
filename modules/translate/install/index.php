@@ -50,17 +50,7 @@ class translate extends \CModule
 				return false;
 			}
 
-			$errors = $DB->runSqlBatch(sprintf(
-				'%s/bitrix/modules/%s/install/db/mysql/install_ft.sql',
-				$_SERVER['DOCUMENT_ROOT'],
-				mb_strtolower($this->MODULE_ID)
-			));
-			if ($errors !== false)
-			{
-				$APPLICATION->ThrowException(implode("<br>", $errors));
-
-				return false;
-			}
+			\CAgent::AddAgent('\Bitrix\Translate\Index\Internals\PhraseFts::checkTables();', $this->MODULE_ID, 'N', 1);
 		}
 
 		Main\ModuleManager::registerModule($this->MODULE_ID);
@@ -105,9 +95,18 @@ class translate extends \CModule
 			}
 		}
 
+		$tablesRes = $DB->Query("SHOW TABLES LIKE 'b_translate_phrase_fts_%'");
+		while ($row = $tablesRes->fetch())
+		{
+			$tableName = array_shift($row);
+			$DB->Query("DROP TABLE IF EXISTS `{$tableName}`");
+		}
+
 		Main\Config\Option::delete($this->MODULE_ID);
 
 		$this->UnInstallEvents();
+
+		\CAgent::RemoveModuleAgents($this->MODULE_ID);
 
 		Main\ModuleManager::unRegisterModule($this->MODULE_ID);
 
@@ -205,14 +204,12 @@ class translate extends \CModule
 					'ID' => array(
 						'b_translate_file' => 'PATH_ID',
 						'b_translate_phrase' => 'PATH_ID',
-						'b_translate_diff' => 'PATH_ID',
 						'b_translate_path' => 'PARENT_ID',
 					),
 				),
 				'b_translate_file' => array(
 					'ID' => array(
 						'b_translate_phrase' => 'FILE_ID',
-						'b_translate_diff' => 'FILE_ID',
 					),
 					'LANG_ID' => array(
 						'b_language' => 'LID',

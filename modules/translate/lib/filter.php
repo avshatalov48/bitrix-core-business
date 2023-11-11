@@ -20,14 +20,11 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 	const STORAGE_NAME = 'TRANSLATE_FILTER';
 	const STORAGE_TAB_CNT = 'TRANSLATE_FILTER_TAB';
 
-	/** @var array */
-	private $params = array();
+	private array $params = [];
 
-	/** @var array */
-	private $iterateCodes = array();
+	private array $iterateCodes = [];
 
-	/** @var int */
-	private $iteratePosition;
+	private int $iteratePosition = 0;
 
 
 	/**
@@ -170,7 +167,7 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 	 * String representation of object.
 	 * @return string
 	 */
-	public function serialize()
+	public function serialize(): string
 	{
 		return \serialize($this->params);
 	}
@@ -179,7 +176,7 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 	 * Constructs the object from a string representation.
 	 * @param string $data Data to deserialize.
 	 */
-	public function unserialize($data)
+	public function unserialize($data): void
 	{
 		if (!empty($data))
 		{
@@ -200,7 +197,7 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 	 * @param bool $increment Generate new id.
 	 * @return int
 	 */
-	public static function getTabId($increment = true)
+	public static function getTabId(bool $increment = true): int
 	{
 		$tabId = 0;
 		if (isset($_SESSION[self::STORAGE_TAB_CNT]))
@@ -221,11 +218,11 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 	 * Stories the object into storage.
 	 * @return void
 	 */
-	public function store()
+	public function store(): void
 	{
 		if (!isset($_SESSION[self::STORAGE_NAME]))
 		{
-			$_SESSION[self::STORAGE_NAME] = array();
+			$_SESSION[self::STORAGE_NAME] = [];
 		}
 		if (!isset($this->tabId))
 		{
@@ -239,13 +236,13 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 	 * Reconstructs the object from storage.
 	 * @param int $id In of the saved date in storage.
 	 */
-	public function restore($id)
+	public function restore(int $id): void
 	{
-		if (isset($_SESSION[self::STORAGE_NAME], $_SESSION[self::STORAGE_NAME][(int)$id]))
+		if (isset($_SESSION[self::STORAGE_NAME], $_SESSION[self::STORAGE_NAME][$id]))
 		{
-			$this->unserialize($_SESSION[self::STORAGE_NAME][(int)$id]);
+			$this->unserialize($_SESSION[self::STORAGE_NAME][$id]);
 		}
-		$this->tabId = (int)$id;
+		$this->tabId = $id;
 	}
 
 	// endregion

@@ -43,6 +43,13 @@ $lAdmin = new CAdminList($sTableID, $oSort);
 
 $by = mb_strtoupper($oSort->getField());
 $order = mb_strtoupper($oSort->getOrder());
+$listOrder = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$listOrder['ID'] = 'ASC';
+}
 
 $arFilterFields = array(
 	"filter_id_start",
@@ -105,10 +112,10 @@ if ($lAdmin->EditAction() && !$bReadOnly)
 	}
 }
 
-
-if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
+$arID = $lAdmin->GroupAction();
+if (!$bReadOnly && !empty($arID) && is_array($arID))
 {
-	if ($_REQUEST['action_target']=='selected')
+	if ($lAdmin->IsGroupActionToAll())
 	{
 		$arID = array();
 		$dbResultList = CCatalogDiscountCoupon::GetList(
@@ -122,12 +129,13 @@ if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 			$arID[] = $arResult['ID'];
 	}
 
+	$action = $lAdmin->GetAction();
 	foreach ($arID as $ID)
 	{
 		if ($ID == '')
 			continue;
 
-		switch ($_REQUEST['action'])
+		switch ($action)
 		{
 			case "delete":
 				@set_time_limit(0);
@@ -149,7 +157,7 @@ if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 			case "activate":
 			case "deactivate":
 				$arFields = array(
-					"ACTIVE" => (($_REQUEST['action']=="activate") ? "Y" : "N")
+					"ACTIVE" => ($action === "activate" ? "Y" : "N")
 				);
 				if (!CCatalogDiscountCoupon::Update($ID, $arFields))
 				{
@@ -255,13 +263,14 @@ $arSelectFieldsMap = array_merge($arSelectFieldsMap, array_fill_keys($arSelectFi
 
 $arCouponType = Catalog\DiscountCouponTable::getCouponTypes(true);
 
-$arNavParams = (isset($_REQUEST["mode"]) && 'excel' == $_REQUEST["mode"]
-	? false
-	: array("nPageSize" => CAdminResult::GetNavSize($sTableID))
+$arNavParams = (
+	$lAdmin->isExportMode()
+		? false
+		: ["nPageSize" => CAdminResult::GetNavSize($sTableID)]
 );
 
 $dbResultList = CCatalogDiscountCoupon::GetList(
-	array($by => $order),
+	$listOrder,
 	$arFilter,
 	false,
 	$arNavParams,

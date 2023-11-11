@@ -1,5 +1,5 @@
-import {Reflection} from 'main.core';
-import {GridActions} from 'catalog.agent-contract';
+import { Reflection } from 'main.core';
+import { GridActions } from 'catalog.agent-contract';
 
 const namespace = Reflection.namespace('BX.Catalog.Component');
 
@@ -20,7 +20,7 @@ class AgentContractList
 		}
 
 		this.gridActions = new GridActions({
-			grid: this.grid
+			grid: this.grid,
 		});
 
 		this.sliderOptions = {
@@ -47,7 +47,7 @@ class AgentContractList
 
 	deleteList()
 	{
-		let ids = this.grid.getRows().getSelectedIds();
+		const ids = this.grid.getRows().getSelectedIds();
 		if (ids && ids.length > 0)
 		{
 			this.gridActions.deleteList(ids);
@@ -56,9 +56,9 @@ class AgentContractList
 
 	static openHelpDesk()
 	{
-		if(top.BX.Helper)
+		if (top.BX.Helper)
 		{
-			top.BX.Helper.show("redirect=detail&code=17917894");
+			top.BX.Helper.show('redirect=detail&code=17917894');
 			event.preventDefault();
 		}
 	}

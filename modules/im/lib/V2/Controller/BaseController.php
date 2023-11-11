@@ -68,16 +68,6 @@ abstract class BaseController extends Controller
 		);
 	}
 
-	protected function getDefaultPostFilters()
-	{
-		return array_merge(
-			parent::getDefaultPostFilters(),
-			[
-				new UpdateStatus(),
-			]
-		);
-	}
-
 	protected function getLimit(int $limit): int
 	{
 		return $limit > 0 && $limit <= static::MAX_LIMIT ? $limit : static::DEFAULT_LIMIT;
@@ -119,5 +109,19 @@ abstract class BaseController extends Controller
 		}
 
 		return $message;
+	}
+
+	protected function convertCharToBool(string $char, bool $default = false): bool
+	{
+		if ($char === 'Y')
+		{
+			return true;
+		}
+		if ($char === 'N')
+		{
+			return false;
+		}
+
+		return $default;
 	}
 }

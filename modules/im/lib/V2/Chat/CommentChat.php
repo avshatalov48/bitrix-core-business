@@ -71,7 +71,7 @@ class CommentChat extends GroupChat
 			return $result->addErrors($paramsResult->getErrors());
 		}
 
-		$chat = new CommentChat($params);
+		$chat = new static($params);
 		$chat->setParentChatId($params['PARENT_ID']);
 		if (!$chat->getParent())
 		{
@@ -128,5 +128,15 @@ class CommentChat extends GroupChat
 		}
 
 		return false;
+	}
+
+	protected function addIndex(): Chat
+	{
+		return $this;
+	}
+
+	protected function updateIndex(): Chat
+	{
+		return $this;
 	}
 }

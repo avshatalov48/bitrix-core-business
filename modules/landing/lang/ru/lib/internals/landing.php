@@ -18,7 +18,6 @@ $MESS['LANDING_TABLE_FIELD_FOLDER'] = 'Является папкой';
 $MESS['LANDING_TABLE_FIELD_FOLDER_ID'] = 'Привязка к папке';
 $MESS['LANDING_TABLE_FIELD_SEARCH_CONTENT'] = 'Поисковое содержимое';
 $MESS['LANDING_TABLE_FIELD_VERSION'] = 'Версия страницы';
-$MESS['LANDING_TABLE_FIELD_HISTORY_STEP'] = 'Шаг истории';
 $MESS['LANDING_TABLE_FIELD_CREATED_BY_ID'] = 'Идентификатор создавшего пользователя';
 $MESS['LANDING_TABLE_FIELD_MODIFIED_BY_ID'] = 'Идентификатор изменившего пользователя';
 $MESS['LANDING_TABLE_FIELD_DATE_CREATE'] = 'Дата создания';

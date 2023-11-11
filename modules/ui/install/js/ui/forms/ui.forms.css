@@ -656,6 +656,7 @@ button.ui-ctl-after:active {
 /*arrow-down*/
 .ui-ctl-icon-arrow-down {
 	background-image: url(/bitrix/js/ui/forms/images/arrow-down.svg);
+	background-size: 14px auto;
 }
 
 /*close-special*/
@@ -664,7 +665,7 @@ button.ui-ctl-after:active {
 }
 
 /*location*/
-.ui-ctl-icon-arrow-down {
+.ui-ctl-icon-location {
 	background-image: url(/bitrix/js/ui/forms/images/location.svg);
 }
 

@@ -28,11 +28,6 @@ Class vote extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = VOTE_VERSION;
-			$this->MODULE_VERSION_DATE = VOTE_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("VOTE_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("VOTE_MODULE_DESCRIPTION");
@@ -60,11 +55,14 @@ Class vote extends CModule
 	function InstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		// Database tables creation
-		if(!$DB->Query("SELECT 'x' FROM b_vote WHERE 1=0", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/db/mysql/install.sql");
+		if (!$DB->TableExists('b_vote'))
+		{
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/vote/install/db/' . $connection->getType() . '/install.sql');
+		}
 
 		if($this->errors !== false)
 		{
@@ -91,12 +89,13 @@ Class vote extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
 			$this->UnInstallUserFields();
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/db/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/db/".$connection->getType()."/uninstall.sql");
 		}
 
 		//delete agents

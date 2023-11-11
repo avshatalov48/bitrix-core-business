@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core_events,main_core) {
 	'use strict';
@@ -23,7 +24,7 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(this, "editedVariations", new Map());
 	    babelHelpers.defineProperty(this, "morePhotoChangedInputs", new Map());
 	    this.gridId = options.gridId;
-	    this.canEditPrice = options.canEditPrice !== undefined ? options.canEditPrice === true : true;
+	    this.canEditPrice = options.canEditPrice === undefined ? true : options.canEditPrice === true;
 	    _classPrivateMethodGet(this, _addAccessDeniedHintForCreateButton, _addAccessDeniedHintForCreateButton2).call(this);
 	    this.handleOnGridUpdatedHandler();
 	    main_core_events.EventEmitter.subscribe('Grid::updated', this.handleOnGridUpdatedHandler.bind(this));
@@ -48,12 +49,12 @@ this.BX = this.BX || {};
 	}();
 	function _addAccessDeniedHintForPriceColumns2() {
 	  this.getGrid().getHeaders().forEach(function (header) {
-	    var cellsTitles = header.querySelectorAll('.main-grid-cell-head[data-name^="CATALOG_GROUP_"] .main-grid-head-title');
+	    var cellsTitles = header.querySelectorAll('.main-grid-cell-head[data-name^="CATALOG_GROUP_"] .main-grid-head-title, .main-grid-cell-head[data-name^="PRICE_"] .main-grid-head-title');
 	    cellsTitles.forEach(function (title) {
-	      var lockIcon = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-btn ui-btn-link ui-btn-icon-lock ui-btn-xs catalog-product-grid-lock-hint\"></span>\n\t\t\t\t"])));
+	      var lockIcon = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-btn ui-btn-link ui-btn-icon-lock ui-btn-xs catalog-product-grid-lock-hint\"></span>\n\t\t\t\t"])));
 	      lockIcon.dataset.hint = main_core.Loc.getMessage('CATALOG_IBLOCK_PRODUCT_LIST_PRICE_ACCESS_DENIED_HINT');
 	      lockIcon.dataset.hintNoIcon = true;
-	      BX.UI.Hint.initNode(lockIcon);
+	      BX.UI.Hint.createInstance({}).initNode(lockIcon);
 	      title.prepend(lockIcon);
 	    });
 	  });
@@ -64,7 +65,7 @@ this.BX = this.BX || {};
 	    button.classList.add('ui-btn-icon-lock', 'ui-btn-disabled');
 	    button.dataset.hint = main_core.Loc.getMessage('CATALOG_IBLOCK_PRODUCT_LIST_CREATE_ACCESS_DENIED_HINT');
 	    button.dataset.hintNoIcon = true;
-	    BX.UI.Hint.initNode(button);
+	    BX.UI.Hint.createInstance({}).initNode(button);
 	  }
 	}
 
@@ -77,6 +78,7 @@ this.BX = this.BX || {};
 	   */
 
 	  function IblockProductList() {
+	    var _options$rowIdMask, _options$variationFie, _options$productVaria, _options$createNewPro, _options$showCatalogW;
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, IblockProductList);
 	    babelHelpers.defineProperty(this, "variations", new Map());
@@ -89,11 +91,11 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(this, "onFilterApplyHandler", this.handleOnFilterApply.bind(this));
 	    babelHelpers.defineProperty(this, "onSaveImageHandler", this.handleOnSaveImage.bind(this));
 	    this.gridId = options.gridId;
-	    this.rowIdMask = options.rowIdMask || '#ID#';
-	    this.variationFieldNames = options.variationFieldNames || [];
-	    this.productVariationMap = options.productVariationMap || {};
-	    this.createNewProductHref = options.createNewProductHref || '';
-	    this.showCatalogWithOffers = options.showCatalogWithOffers || false;
+	    this.rowIdMask = (_options$rowIdMask = options.rowIdMask) !== null && _options$rowIdMask !== void 0 ? _options$rowIdMask : '#ID#';
+	    this.variationFieldNames = (_options$variationFie = options.variationFieldNames) !== null && _options$variationFie !== void 0 ? _options$variationFie : [];
+	    this.productVariationMap = (_options$productVaria = options.productVariationMap) !== null && _options$productVaria !== void 0 ? _options$productVaria : {};
+	    this.createNewProductHref = (_options$createNewPro = options.createNewProductHref) !== null && _options$createNewPro !== void 0 ? _options$createNewPro : '';
+	    this.showCatalogWithOffers = (_options$showCatalogW = options.showCatalogWithOffers) !== null && _options$showCatalogW !== void 0 ? _options$showCatalogW : false;
 	    this.addCustomClassToGrid();
 	    this.cacheSelectedVariation();
 	    main_core_events.EventEmitter.subscribe('BX.Grid.SettingsWindow:save', this.onSettingsWindowSaveHandler);
@@ -101,6 +103,7 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:apply', this.onFilterApplyHandler);
 	    main_core_events.EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
+	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onMessage', this.handlerOnSliderMessage.bind(this));
 	    this.hints = new IblockProductListHints(options);
 	  }
 	  babelHelpers.createClass(IblockProductList, [{
@@ -155,7 +158,7 @@ this.BX = this.BX || {};
 	        _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
 	        settingsWindow = _event$getCompatData2[0];
 	      var selectedColumns = settingsWindow.getSelectedColumns();
-	      this.showCatalogWithOffers = selectedColumns.indexOf('CATALOG_PRODUCT') !== -1;
+	      this.showCatalogWithOffers = selectedColumns.includes('CATALOG_PRODUCT');
 	    }
 	  }, {
 	    key: "handleOnChangeVariation",
@@ -256,6 +259,7 @@ this.BX = this.BX || {};
 	      };
 	      this.getProductRow(productId).stateLoad();
 	      this.getGrid().getData().request(url, method, data, 'changeVariation', function () {
+	        main_core_events.EventEmitter.emit('Grid::updated', [self.getGrid()]);
 	        var row = self.getProductRow(productId);
 	        if (row) {
 	          row.stateUnload();
@@ -341,17 +345,17 @@ this.BX = this.BX || {};
 	          var rowId = _this6.getRowIdByProductId(variationId);
 	          submitData.FIELDS[rowId] = submitData.FIELDS[rowId] || {};
 	          Object.keys(editFields).map(function (cellName) {
-	            if (cellName.indexOf('CATALOG_GROUP_') >= 0) {
+	            if (cellName.includes('CATALOG_GROUP_')) {
 	              var groupPriceId = cellName.replace('CATALOG_GROUP_', '');
-	              if (!main_core.Type.isNil(editFields[cellName]['PRICE'])) {
-	                submitData['CATALOG_PRICE'] = submitData['CATALOG_PRICE'] || {};
-	                submitData['CATALOG_PRICE'][variationId] = submitData['CATALOG_PRICE'][variationId] || {};
-	                submitData['CATALOG_PRICE'][variationId][groupPriceId] = editFields[cellName]['PRICE']['VALUE'];
+	              if (!main_core.Type.isNil(editFields[cellName].PRICE)) {
+	                submitData.CATALOG_PRICE = submitData.CATALOG_PRICE || {};
+	                submitData.CATALOG_PRICE[variationId] = submitData.CATALOG_PRICE[variationId] || {};
+	                submitData.CATALOG_PRICE[variationId][groupPriceId] = editFields[cellName].PRICE.VALUE;
 	              }
-	              if (!main_core.Type.isNil(editFields[cellName]['CURRENCY'])) {
-	                submitData['CATALOG_CURRENCY'] = submitData['CATALOG_CURRENCY'] || {};
-	                submitData['CATALOG_CURRENCY'][variationId] = submitData['CATALOG_CURRENCY'][variationId] || {};
-	                submitData['CATALOG_CURRENCY'][variationId][groupPriceId] = editFields[cellName]['CURRENCY']['VALUE'];
+	              if (!main_core.Type.isNil(editFields[cellName].CURRENCY)) {
+	                submitData.CATALOG_CURRENCY = submitData.CATALOG_CURRENCY || {};
+	                submitData.CATALOG_CURRENCY[variationId] = submitData.CATALOG_CURRENCY[variationId] || {};
+	                submitData.CATALOG_CURRENCY[variationId][groupPriceId] = editFields[cellName].CURRENCY.VALUE;
 	              }
 	            } else if (cellName !== 'MORE_PHOTO' && cellName !== 'MORE_PHOTO_custom') {
 	              submitData.FIELDS[rowId][cellName] = editFields[cellName];
@@ -365,32 +369,34 @@ this.BX = this.BX || {};
 	          }
 	          var productId = this.getProductIdByRowId(rowId);
 	          var variationId = this.getCurrentVariationIdByProduct(productId);
-	          var newFilesRegExp = new RegExp(/([0-9A-Za-z_]+?(_n\d+)*)\[([A-Za-z_]+)\]/);
+	          var newFilesRegExp = new RegExp(/(\w+?(_n\d+)*)\[([A-Z_a-z]+)]/);
 	          var rowFields = submitData.FIELDS[rowId];
 	          var morePhotoValues = {};
-	          if (!main_core.Type.isNil(rowFields['MORE_PHOTO_custom'])) {
-	            for (var key in rowFields['MORE_PHOTO_custom']) {
-	              if (!rowFields['MORE_PHOTO_custom'].hasOwnProperty(key)) {
+	          if (!main_core.Type.isNil(rowFields.MORE_PHOTO_custom)) {
+	            for (var key in rowFields.MORE_PHOTO_custom) {
+	              if (!rowFields.MORE_PHOTO_custom.hasOwnProperty(key)) {
 	                continue;
 	              }
-	              var inputValue = rowFields['MORE_PHOTO_custom'][key];
-	              if (newFilesRegExp.test(inputValue.name)) {
-	                var fileCounter = void 0,
-	                  fileSetting = void 0;
-	                var _inputValue$name$matc = inputValue.name.match(newFilesRegExp);
-	                var _inputValue$name$matc2 = babelHelpers.slicedToArray(_inputValue$name$matc, 4);
-	                fileCounter = _inputValue$name$matc2[1];
-	                fileSetting = _inputValue$name$matc2[3];
-	                if (fileCounter && fileSetting) {
-	                  morePhotoValues[fileCounter] = morePhotoValues[fileCounter] || {};
-	                  morePhotoValues[fileCounter][fileSetting] = inputValue.value;
+	              var inputValue = rowFields.MORE_PHOTO_custom[key];
+	              if (!main_core.Type.isNil(inputValue)) {
+	                if (newFilesRegExp.test(inputValue.name)) {
+	                  var fileCounter = void 0;
+	                  var fileSetting = void 0;
+	                  var _inputValue$name$matc = inputValue.name.match(newFilesRegExp);
+	                  var _inputValue$name$matc2 = babelHelpers.slicedToArray(_inputValue$name$matc, 4);
+	                  fileCounter = _inputValue$name$matc2[1];
+	                  fileSetting = _inputValue$name$matc2[3];
+	                  if (fileCounter && fileSetting) {
+	                    morePhotoValues[fileCounter] = morePhotoValues[fileCounter] || {};
+	                    morePhotoValues[fileCounter][fileSetting] = inputValue.value;
+	                  }
+	                } else {
+	                  morePhotoValues[inputValue.name] = inputValue.value;
 	                }
-	              } else {
-	                morePhotoValues[inputValue.name] = inputValue.value;
 	              }
 	            }
 	          }
-	          rowFields['MORE_PHOTO'] = morePhotoValues;
+	          rowFields.MORE_PHOTO = morePhotoValues;
 	          if (variationId && this.showCatalogWithOffers) {
 	            var variationRowId = this.getRowIdByProductId(variationId);
 	            // clear old cache
@@ -434,9 +440,9 @@ this.BX = this.BX || {};
 	        if (main_core.Type.isArray(filterFields)) {
 	          var fieldSectionId = this.getFieldSectionId(filterFields);
 	          if (fieldSectionId) {
-	            var value = fieldSectionId['VALUE'];
+	            var value = fieldSectionId.VALUE;
 	            if (main_core.Type.isObject(value)) {
-	              sectionId = value['VALUE'];
+	              sectionId = value.VALUE;
 	            }
 	          }
 	        }
@@ -454,17 +460,29 @@ this.BX = this.BX || {};
 	      this.morePhotoChangedInputs.set(id, response.data.input);
 	    }
 	  }, {
+	    key: "handlerOnSliderMessage",
+	    value: function handlerOnSliderMessage(event) {
+	      var _event$getCompatData3 = event.getCompatData(),
+	        _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
+	        sliderEvent = _event$getCompatData4[0];
+	      if (sliderEvent.getEventId() === 'Catalog.ProductCard::onCreate' || sliderEvent.getEventId() === 'Catalog.ProductCard::onUpdate'
+	      // compatibility for admin forms
+	      || sliderEvent.getEventId() === 'save' || sliderEvent.getEventId() === 'apply') {
+	        this.getGrid().reload();
+	      }
+	    }
+	  }, {
 	    key: "getFilterFields",
 	    value: function getFilterFields(filter) {
 	      var presets = filter.getParam('PRESETS');
 	      var tmpFilterPreset = null;
 	      if (main_core.Type.isArray(presets)) {
 	        tmpFilterPreset = presets.find(function (preset) {
-	          return preset['ID'] === 'tmp_filter';
+	          return preset.ID === 'tmp_filter';
 	        });
 	      }
 	      if (tmpFilterPreset) {
-	        return tmpFilterPreset['FIELDS'] || null;
+	        return tmpFilterPreset.FIELDS || null;
 	      }
 	      return null;
 	    }
@@ -472,19 +490,48 @@ this.BX = this.BX || {};
 	    key: "getFieldSectionId",
 	    value: function getFieldSectionId(fields) {
 	      return fields.find(function (field) {
-	        return field['ID'] === 'field_SECTION_ID';
+	        return field.ID === 'field_SECTION_ID';
 	      });
 	    }
 	  }, {
 	    key: "setNewProductButtonHrefSectionId",
 	    value: function setNewProductButtonHrefSectionId(sectionId) {
-	      var uri = new main_core.Uri(this.createNewProductHref);
-	      uri.setQueryParams({
-	        IBLOCK_SECTION_ID: sectionId
+	      var _this7 = this;
+	      var nodes = document.querySelectorAll('[data-grid-create-button]');
+	      if (nodes.length === 0) {
+	        return;
+	      }
+	      var buttonContainer = Array.prototype.find.call(nodes, function (item) {
+	        return item.dataset.gridCreateButton === _this7.gridId;
 	      });
-	      var button = document.getElementById('create_new_product_button_' + this.gridId);
-	      if (main_core.Type.isDomNode(button)) {
-	        button.href = uri.getPath() + uri.getQuery();
+	      if (main_core.Type.isDomNode(buttonContainer)) {
+	        var _buttonObject$getMenu, _buttonObject$getMenu2;
+	        var buttonObject = BX.UI.ButtonManager.getByUniqid(buttonContainer.dataset.btnUniqid);
+	        if (!buttonObject) {
+	          return;
+	        }
+
+	        // main
+	        var mainButton = buttonObject.getMainButton();
+	        if (mainButton && mainButton.getLink()) {
+	          var uri = new main_core.Uri(mainButton.getLink());
+	          uri.setQueryParams({
+	            IBLOCK_SECTION_ID: sectionId
+	          });
+	          mainButton.setLink(uri.toString());
+	        }
+
+	        // menu
+	        (_buttonObject$getMenu = buttonObject.getMenuWindow()) === null || _buttonObject$getMenu === void 0 ? void 0 : (_buttonObject$getMenu2 = _buttonObject$getMenu.getMenuItems()) === null || _buttonObject$getMenu2 === void 0 ? void 0 : _buttonObject$getMenu2.forEach(function (item) {
+	          var link = item.getLayout().item;
+	          if (link.tagName === 'A') {
+	            var _uri = new main_core.Uri(link.href);
+	            _uri.setQueryParams({
+	              IBLOCK_SECTION_ID: sectionId
+	            });
+	            link.href = _uri.toString();
+	          }
+	        });
 	      }
 	    }
 	  }]);

@@ -241,6 +241,11 @@ export class CalendarSection
 		return !this.isPseudo() && this.type !== 'user' && this.type !== 'group' && !this.ownerId;
 	}
 
+	isGroupCalendar()
+	{
+		return !this.isPseudo() && this.type === 'group'
+	}
+
 	hasConnection()
 	{
 		return !this.isPseudo() && this.data.connectionLinks && this.data.connectionLinks.length;
@@ -287,7 +292,10 @@ export class CalendarSection
 
 	externalTypeIsLocal(): boolean
 	{
-		return this.getExternalType() === SectionManager.EXTERNAL_TYPE_LOCAL;
+		return this.getExternalType() === SectionManager.EXTERNAL_TYPE_LOCAL
+			|| this.isCompanyCalendar()
+			|| this.isGroupCalendar()
+		;
 	}
 
 	isPrimaryForConnection(): boolean

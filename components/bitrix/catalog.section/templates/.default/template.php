@@ -797,7 +797,7 @@ $signedParams = $signer->sign(base64_encode(serialize($arResult['ORIGINAL_PARAME
 		siteId: '<?=CUtil::JSEscape($component->getSiteId())?>',
 		componentPath: '<?=CUtil::JSEscape($componentPath)?>',
 		navParams: <?=CUtil::PhpToJSObject($navParams)?>,
-		deferredLoad: false, // enable it for deferred load
+		deferredLoad: false,
 		initiallyShowHeader: '<?=!empty($arResult['ITEM_ROWS'])?>',
 		bigData: <?=CUtil::PhpToJSObject($arResult['BIG_DATA'])?>,
 		lazyLoad: !!'<?=$showLazyLoad?>',

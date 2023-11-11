@@ -49,13 +49,13 @@
 
 					<figcaption class="landing-block-card-member-container g-mt-0 g-pos-abs g-top-0 g-left-0 d-flex flex-column justify-content-center w-100 h-100 g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--hover g-transition-0_2 g-transition--ease-in g-pointer-events-none">
 						<div class="align-self-center g-pa-20 g-pointer-events-all">
-							<div class="landing-block-node-member-post landing-semantic-text-image-small text-uppercase g-color-white-opacity-0_7 g-mb-15">
+							<div class="landing-block-node-member-post text-uppercase g-color-white-opacity-0_7 g-mb-15">
 								<p>Chef</p>
 							</div>
-							<h2 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-weight-700 g-color-white g-mb-15">
+							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
 								George
 								Freeman</h2>
-							<div class="landing-block-node-member-text landing-semantic-text-image-small g-color-white-opacity-0_7 g-mb-20 g-px-10">
+							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
 								<p>
 									Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 							</div>
@@ -72,13 +72,13 @@
 
 					<figcaption class="landing-block-card-member-container g-mt-0 g-pos-abs g-top-0 g-left-0 d-flex flex-column justify-content-center w-100 h-100 g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--hover g-transition-0_2 g-transition--ease-in g-pointer-events-none">
 						<div class="align-self-center g-pa-20 g-pointer-events-all">
-							<div class="landing-block-node-member-post landing-semantic-text-image-small text-uppercase g-color-white-opacity-0_7 g-mb-15">
+							<div class="landing-block-node-member-post text-uppercase g-color-white-opacity-0_7 g-mb-15">
 								<p>Chef</p>
 							</div>
-							<h2 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-weight-700 g-color-white g-mb-15">
+							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
 								Hilary
 								Johnson</h2>
-							<div class="landing-block-node-member-text landing-semantic-text-image-small g-color-white-opacity-0_7 g-mb-20 g-px-10">
+							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
 								<p>
 									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 								</p>
@@ -96,13 +96,13 @@
 
 					<figcaption class="landing-block-card-member-container g-mt-0 g-pos-abs g-top-0 g-left-0 d-flex flex-column justify-content-center w-100 h-100 g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--hover g-transition-0_2 g-transition--ease-in g-pointer-events-none">
 						<div class="align-self-center g-pa-20 g-pointer-events-all">
-							<div class="landing-block-node-member-post landing-semantic-text-image-small text-uppercase g-color-white-opacity-0_7 g-mb-15">
+							<div class="landing-block-node-member-post text-uppercase g-color-white-opacity-0_7 g-mb-15">
 								<p>Chef</p>
 							</div>
-							<h2 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-weight-700 g-color-white g-mb-15">
+							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
 								Alice
 								Regen</h2>
-							<div class="landing-block-node-member-text landing-semantic-text-image-small g-color-white-opacity-0_7 g-mb-20 g-px-10">
+							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
 								<p>
 									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 								</p>
@@ -120,13 +120,13 @@
 
 					<figcaption class="landing-block-card-member-container g-mt-0 g-pos-abs g-top-0 g-left-0 d-flex flex-column justify-content-center w-100 h-100 g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--hover g-transition-0_2 g-transition--ease-in g-pointer-events-none">
 						<div class="align-self-center g-pa-20 g-pointer-events-all">
-							<div class="landing-block-node-member-post landing-semantic-text-image-small text-uppercase g-color-white-opacity-0_7 g-mb-15">
+							<div class="landing-block-node-member-post text-uppercase g-color-white-opacity-0_7 g-mb-15">
 								<p>Chef</p>
 							</div>
-							<h2 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-weight-700 g-color-white g-mb-15">
+							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
 								Kate
 								Dolli</h2>
-							<div class="landing-block-node-member-text landing-semantic-text-image-small g-color-white-opacity-0_7 g-mb-20 g-px-10">
+							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
 								<p>
 									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 								</p>
@@ -144,13 +144,13 @@
 
 					<figcaption class="landing-block-card-member-container g-mt-0 g-pos-abs g-top-0 g-left-0 d-flex flex-column justify-content-center w-100 h-100 g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--hover g-transition-0_2 g-transition--ease-in g-pointer-events-none">
 						<div class="align-self-center g-pa-20 g-pointer-events-all">
-							<div class="landing-block-node-member-post landing-semantic-text-image-small text-uppercase g-color-white-opacity-0_7 g-mb-15">
+							<div class="landing-block-node-member-post text-uppercase g-color-white-opacity-0_7 g-mb-15">
 								<p>Chef</p>
 							</div>
-							<h2 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-weight-700 g-color-white g-mb-15">
+							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
 								Mona
 								Watson</h2>
-							<div class="landing-block-node-member-text landing-semantic-text-image-small g-color-white-opacity-0_7 g-mb-20 g-px-10">
+							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
 								<p>
 									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 								</p>
@@ -168,13 +168,13 @@
 
 					<figcaption class="landing-block-card-member-container g-mt-0 g-pos-abs g-top-0 g-left-0 d-flex flex-column justify-content-center w-100 h-100 g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--hover g-transition-0_2 g-transition--ease-in g-pointer-events-none">
 						<div class="align-self-center g-pa-20 g-pointer-events-all">
-							<div class="landing-block-node-member-post landing-semantic-text-image-small text-uppercase g-color-white-opacity-0_7 g-mb-15">
+							<div class="landing-block-node-member-post text-uppercase g-color-white-opacity-0_7 g-mb-15">
 								<p>Chef</p>
 							</div>
-							<h2 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-weight-700 g-color-white g-mb-15">
+							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
 								Edward
 								Luma</h2>
-							<div class="landing-block-node-member-text landing-semantic-text-image-small g-color-white-opacity-0_7 g-mb-20 g-px-10">
+							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
 								<p>
 									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 								</p>
@@ -192,13 +192,13 @@
 
 					<figcaption class="landing-block-card-member-container g-mt-0 g-pos-abs g-top-0 g-left-0 d-flex flex-column justify-content-center w-100 h-100 g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--hover g-transition-0_2 g-transition--ease-in g-pointer-events-none">
 						<div class="align-self-center g-pa-20 g-pointer-events-all">
-							<div class="landing-block-node-member-post landing-semantic-text-image-small text-uppercase g-color-white-opacity-0_7 g-mb-15">
+							<div class="landing-block-node-member-post text-uppercase g-color-white-opacity-0_7 g-mb-15">
 								<p>Chef</p>
 							</div>
-							<h2 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-weight-700 g-color-white g-mb-15">
+							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
 								Shadiah
 								Dolumn</h2>
-							<div class="landing-block-node-member-text landing-semantic-text-image-small g-color-white-opacity-0_7 g-mb-20 g-px-10">
+							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
 								<p>
 									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 								</p>

@@ -68,12 +68,69 @@
 		}
 	});
 
-	BX.Landing.OnscrollAnimationHelper.SELECTOR = '.js-animation';
+	BX.Landing.OnscrollAnimationHelper.SELECTOR = '.js-animation:not(.animation-none)';
 	BX.Landing.OnscrollAnimationHelper.PROP = 'animation-name';
+	BX.Landing.OnscrollAnimationHelper.ANIMATIONS = [
+		'bounce',
+		'flash',
+		'pulse',
+		'rubberBand',
+		'shake',
+		'headShake',
+		'swing',
+		'tada',
+		'wobble',
+		'jello',
+		'bounceIn',
+		'bounceInDown',
+		'bounceInLeft',
+		'bounceInRight',
+		'bounceInUp',
+		'fadeIn',
+		'fadeInDown',
+		'fadeInDownBig',
+		'fadeInLeft',
+		'fadeInLeftBig',
+		'fadeInRight',
+		'fadeInRightBig',
+		'fadeInUp',
+		'fadeInUpBig',
+		'flip',
+		'flipInX',
+		'flipInY',
+		'lightSpeedIn',
+		'rotateIn',
+		'rotateInDownLeft',
+		'rotateInDownRight',
+		'rotateInUpLeft',
+		'rotateInUpRight',
+		'rollIn',
+		'zoomIn',
+		'zoomToIn',
+		'zoomInDown',
+		'zoomInLeft',
+		'zoomInRight',
+		'zoomInUp',
+		'slideInDown',
+		'slideInLeft',
+		'slideInRight',
+		'slideInUp',
+	];
+
 	BX.Landing.OnscrollAnimationHelper.getBlockAnimatedElements = function(block)
 	{
-		return slice(block.querySelectorAll(BX.Landing.OnscrollAnimationHelper.SELECTOR));
-	}
+		return slice(block.querySelectorAll(BX.Landing.OnscrollAnimationHelper.SELECTOR)).filter((element) => {
+			for (const animation of BX.Landing.OnscrollAnimationHelper.ANIMATIONS)
+			{
+				if (hasClass(element, animation))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		});
+	};
 
 	/**
 	 * Prepares animated element

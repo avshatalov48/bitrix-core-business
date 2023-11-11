@@ -215,8 +215,8 @@ class CIBlockParameters
 					"ONCLICK" => "$action_function('#IBLOCK_CODE#', '$menuID', '$inputID')",
 				),
 				array(
-					"TEXT" => Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID"),
-					"TITLE" => "#IBLOCK_EXTERNAL_ID# - ".Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID"),
+					"TEXT" => Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID_MSGVER_1"),
+					"TITLE" => "#IBLOCK_EXTERNAL_ID# - ".Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID_MSGVER_1"),
 					"ONCLICK" => "$action_function('#IBLOCK_EXTERNAL_ID#', '$menuID', '$inputID')",
 				),
 				array("SEPARATOR" => true),
@@ -257,8 +257,8 @@ class CIBlockParameters
 					"ONCLICK" => "$action_function('#ELEMENT_CODE#', '$menuID', '$inputID')",
 				),
 				array(
-					"TEXT" => Loc::getMessage("IB_COMPLIB_POPUP_ELEMENT_EXTERNAL_ID"),
-					"TITLE" => "#EXTERNAL_ID# - ".Loc::getMessage("IB_COMPLIB_POPUP_ELEMENT_EXTERNAL_ID"),
+					"TEXT" => Loc::getMessage("IB_COMPLIB_POPUP_ELEMENT_EXTERNAL_ID_MSGVER_1"),
+					"TITLE" => "#EXTERNAL_ID# - ".Loc::getMessage("IB_COMPLIB_POPUP_ELEMENT_EXTERNAL_ID_MSGVER_1"),
 					"ONCLICK" => "$action_function('#EXTERNAL_ID#', '$menuID', '$inputID')",
 				),
 			);
@@ -291,8 +291,8 @@ class CIBlockParameters
 					"ONCLICK" => "$action_function('#IBLOCK_CODE#', '$menuID', '$inputID')",
 				),
 				array(
-					"TEXT" => Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID"),
-					"TITLE" => "#IBLOCK_EXTERNAL_ID# - ".Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID"),
+					"TEXT" => Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID_MSGVER_1"),
+					"TITLE" => "#IBLOCK_EXTERNAL_ID# - ".Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID_MSGVER_1"),
 					"ONCLICK" => "$action_function('#IBLOCK_EXTERNAL_ID#', '$menuID', '$inputID')",
 				),
 				array("SEPARATOR" => true),
@@ -322,8 +322,8 @@ class CIBlockParameters
 					"ONCLICK" => "$action_function('#SECTION_CODE_PATH#', '$menuID', '$inputID')",
 				),
 				array(
-					"TEXT" => Loc::getMessage("IB_COMPLIB_POPUP_SECTION_EXTERNAL_ID"),
-					"TITLE"=>"#EXTERNAL_ID# - ".Loc::getMessage("IB_COMPLIB_POPUP_SECTION_EXTERNAL_ID"),
+					"TEXT" => Loc::getMessage("IB_COMPLIB_POPUP_SECTION_EXTERNAL_ID_MSGVER_1"),
+					"TITLE"=>"#EXTERNAL_ID# - ".Loc::getMessage("IB_COMPLIB_POPUP_SECTION_EXTERNAL_ID_MSGVER_1"),
 					"ONCLICK" => "$action_function('#EXTERNAL_ID#', '$menuID', '$inputID')",
 				),
 			);
@@ -356,8 +356,8 @@ class CIBlockParameters
 					"ONCLICK" => "$action_function('#IBLOCK_CODE#', '$menuID', '$inputID')",
 				),
 				array(
-					"TEXT" => Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID"),
-					"TITLE" => "#IBLOCK_EXTERNAL_ID# - ".Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID"),
+					"TEXT" => Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID_MSGVER_1"),
+					"TITLE" => "#IBLOCK_EXTERNAL_ID# - ".Loc::getMessage("IB_COMPLIB_POPUP_IBLOCK_EXTERNAL_ID_MSGVER_1"),
 					"ONCLICK" => "$action_function('#IBLOCK_EXTERNAL_ID#', '$menuID', '$inputID')",
 				),
 			);

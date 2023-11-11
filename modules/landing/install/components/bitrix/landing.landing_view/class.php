@@ -12,7 +12,8 @@ use \Bitrix\Landing\Site\Type;
 use \Bitrix\Landing\Syspage;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Rights;
-use Bitrix\Main\Event;
+use \Bitrix\Landing\TemplateRef;
+use \Bitrix\Main\Event;
 use \Bitrix\Main\EventManager;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Landing\Source\Selector;
@@ -170,7 +171,7 @@ class LandingViewComponent extends LandingBaseComponent
 		return [
 			'type' => $this->arParams['TYPE'],
 			'id' => $landing->getId(),
-			'url' => $this->arResult['~LANDING_FULL_URL'] ?? $landing->getPublicUrl(),
+			'url' => str_replace(' ', '%20', $this->arResult['~LANDING_FULL_URL'] ?? $landing->getPublicUrl()),
 			'siteId' => $landing->getSiteId(),
 			'siteTitle' => $site['TITLE'],
 			'active' => $landing->isActive(),
@@ -652,6 +653,7 @@ class LandingViewComponent extends LandingBaseComponent
 				$options['allow_svg'] = Manager::getOption('allow_svg_content') === 'Y';
 				$options['allow_ai_text'] = $arResult['ALLOW_AI_TEXT'];
 				$options['allow_ai_image'] = $arResult['ALLOW_AI_IMAGE'];
+				$options['release_autumn_2023'] = Manager::getOption('release_autumn_2023', 'N');
 				$options['folder_id'] = $landing->getFolderId();
 				$options['version'] = Manager::getVersion();
 				$options['default_section'] = $this->getCurrentBlockSection($type);
@@ -678,10 +680,6 @@ class LandingViewComponent extends LandingBaseComponent
 				if (!$site['TPL_CODE'] && mb_strpos($site['XML_ID'], '|'))
 				{
 					[, $site['TPL_CODE']] = explode('|', $site['XML_ID']);
-				}
-				if ($site['TPL_CODE'])
-				{
-					$options['theme'] = $this->getThemeManifest($site['TPL_CODE']);
 				}
 				$options['sites_count'] = $this->getSitesCount();
 				$options['pages_count'] = $this->getPagesCount($landing->getSiteId());
@@ -1123,11 +1121,6 @@ class LandingViewComponent extends LandingBaseComponent
 		$sliderConditions = [];
 
 		$sliderUrlKeys = [
-			'landing_edit',
-			'site_edit',
-			'site_show',
-			'landing_design',
-			'site_design',
 			'landing_settings',
 			'site_settings',
 		];
@@ -1323,6 +1316,12 @@ class LandingViewComponent extends LandingBaseComponent
 					$this->arResult['SITE'],
 					$rights
 				);
+				$this->arParams['PAGE_URL_LANDING_ADD'] = $this->getUrlAdd(false);
+				$this->arParams['PAGE_URL_LANDING_REPLACE'] = $this->getUrlAdd(
+					false,
+					['replaceLid' => $this->arParams['LANDING_ID']],
+					Manager::getMarketCollectionId('form_minisite')
+				);
 
 				if (\Bitrix\Main\Loader::includeModule('bitrix24'))
 				{
@@ -1345,6 +1344,7 @@ class LandingViewComponent extends LandingBaseComponent
 						$this->arResult['FORM_NAME'] = $crmFormEditorData['formOptions']['name'];
 					}
 				}
+				$this->arResult['IS_AREA'] = TemplateRef::landingIsArea($landing->getId());
 
 				$this->onLandingView();
 				$this->onEpilog();

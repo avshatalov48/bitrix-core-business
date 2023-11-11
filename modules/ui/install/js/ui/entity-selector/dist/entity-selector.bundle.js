@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_popup,main_core_collections,main_core_events,main_core,main_loader) {
@@ -2201,6 +2202,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "searchFields", null);
 	    babelHelpers.defineProperty(this, "dynamicLoad", false);
 	    babelHelpers.defineProperty(this, "dynamicSearch", false);
+	    babelHelpers.defineProperty(this, "substituteEntityId", null);
 	    babelHelpers.defineProperty(this, "searchCacheLimits", []);
 	    babelHelpers.defineProperty(this, "filters", new Map());
 	    babelHelpers.defineProperty(this, "itemOptions", {});
@@ -2218,6 +2220,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.itemOptions = main_core.Type.isPlainObject(options.itemOptions) ? options.itemOptions : {};
 	    this.tagOptions = main_core.Type.isPlainObject(options.tagOptions) ? options.tagOptions : {};
 	    this.badgeOptions = main_core.Type.isArray(options.badgeOptions) ? options.badgeOptions : [];
+	    this.substituteEntityId = main_core.Type.isStringFilled(options.substituteEntityId) ? options.substituteEntityId : null;
 	    if (main_core.Type.isArray(options.filters)) {
 	      options.filters.forEach(function (filterOptions) {
 	        _this.addFilter(filterOptions);
@@ -2438,6 +2441,11 @@ this.BX.UI = this.BX.UI || {};
 	      return this.filters.get(id) || null;
 	    }
 	  }, {
+	    key: "getSubstituteEntityId",
+	    value: function getSubstituteEntityId() {
+	      return this.substituteEntityId;
+	    }
+	  }, {
 	    key: "toJSON",
 	    value: function toJSON() {
 	      return {
@@ -2446,7 +2454,8 @@ this.BX.UI = this.BX.UI || {};
 	        searchable: this.isSearchable(),
 	        dynamicLoad: this.hasDynamicLoad(),
 	        dynamicSearch: this.hasDynamicSearch(),
-	        filters: this.getFilters()
+	        filters: this.getFilters(),
+	        substituteEntityId: this.getSubstituteEntityId()
 	      };
 	    }
 	  }], [{

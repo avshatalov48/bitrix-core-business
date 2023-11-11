@@ -7,6 +7,7 @@ $MESS["LANDING_TPL_BUTTON_CREATE_KB"] = "Create knowledge base";
 $MESS["LANDING_TPL_BUTTON_CREATE_PAGE"] = "Create page";
 $MESS["LANDING_TPL_BUTTON_CREATE_SITE"] = "Create site";
 $MESS["LANDING_TPL_BUTTON_CREATE_STORE"] = "Create online store";
+$MESS["LANDING_TPL_BUTTON_REPLACE_PAGE"] = "Apply template";
 $MESS["LANDING_TPL_BUTTON_SHOW_IN_MOBILE"] = "Open on mobile device";
 $MESS["LANDING_TPL_HEADER_LOGO_BITRIX"] = "Bitrix";
 $MESS["LANDING_TPL_HEADER_LOGO_KB"] = "Knowledge bases";

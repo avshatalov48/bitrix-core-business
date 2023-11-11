@@ -25,6 +25,14 @@
 	cursor: default;
 }
 
+.bx-im-chat-header-call-button__container.--conference {
+	padding-right: 13px;
+}
+
+.bx-im-chat-header-call-button__container.--conference .bx-im-chat-header-call-button__text {
+	margin-right: 0;
+}
+
 .bx-im-chat-header-call-button__text {
 	margin-right: 5px;
 

@@ -1,0 +1,78 @@
+.bx-im-message-call-invite__scope {
+	--im-message-chat-creation__background-color_content: rgb(255 255 255 / 90%);
+	--im-message-chat-creation__font-color_title: #151515;
+	--im-message-chat-creation__font-color_description: var(--im-color-palette-gray-70);
+}
+
+.bx-im-message-call-invite__container {
+	padding: var(--im-message-base__padding_body);
+}
+
+.bx-im-message-call-invite__content-container {
+	width: 100%;
+	overflow: hidden;
+	display: flex;
+	height: 121px;
+	max-height: 121px;
+	border-radius: 16px;
+	margin-top: 6px;
+}
+
+.bx-im-message-call-invite__content-container + .bx-im-message-base__container {
+	margin-top: 24px;
+}
+
+.bx-im-message-base__container + .bx-im-message-call-invite__content-container {
+	margin-top: 24px;
+}
+
+.bx-im-message-call-invite__image {
+	width: 126px;
+	min-width: 126px;
+	background-image: url('./images/call-invite.svg');
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.bx-im-message-call-invite__content {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	max-width: calc(100% - 121px);
+	padding-left: 17px;
+	padding-right: 17px;
+}
+
+.bx-im-message-call-invite__title {
+	font: var(--im-font-size-2xl)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	color: var(--im-message-chat-creation__font-color_title);
+	font-weight: var(--im-font-weight-bold);
+	margin-bottom: 8px;
+	user-select: none;
+}
+
+.bx-im-message-call-invite__description {
+	max-width: 100%;
+	margin-bottom: 16px;
+	font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	color: var(--im-message-chat-creation__font-color_description);
+	user-select: none;
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.bx-im-message-call-invite__action {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.bx-im-message-call-invite__buttons_container {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-message-call-invite__buttons_item + .bx-im-message-call-invite__buttons_item {
+	margin-left: 8px;
+}

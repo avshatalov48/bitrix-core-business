@@ -266,7 +266,7 @@ $arHeaders = array(
 	),
 	array(
 		"id" => "XML_ID",
-		"content" => GetMessage("IBLOCK_SECSEARCH_XML_ID"),
+		"content" => GetMessage("IBLOCK_SECSEARCH_XML_ID_MSGVER_1"),
 	),
 	array(
 		"id" => "ELEMENT_CNT",
@@ -542,7 +542,7 @@ $arFindFields = array_merge(
 		"date_create" => GetMessage("IBLOCK_SECSEARCH_DATE_CREATE"),
 		"created_by" => GetMessage("IBLOCK_SECSEARCH_CREATED_BY"),
 		"code" => GetMessage("IBLOCK_SECSEARCH_CODE"),
-		"xml_id" => GetMessage("IBLOCK_SECSEARCH_XML_ID"),
+		"xml_id" => GetMessage("IBLOCK_SECSEARCH_XML_ID_MSGVER_1"),
 		"active" => GetMessage("IBLOCK_SECSEARCH_ACTIVE"),
 	]
 );
@@ -815,7 +815,7 @@ if ($useParentFilter)
 		<td><input type="text" name="find_section_code" size="47" value="<?= htmlspecialcharsbx($currentFilter['find_section_code']); ?>"></td>
 	</tr>
 	<tr>
-		<td><?= GetMessage("IBLOCK_SECSEARCH_XML_ID")?>:</td>
+		<td><?= GetMessage("IBLOCK_SECSEARCH_XML_ID_MSGVER_1")?>:</td>
 		<td><input type="text" name="find_section_external_id" size="47" value="<?= htmlspecialcharsbx($currentFilter['find_section_external_id']); ?>"></td>
 	</tr>
 	<tr>

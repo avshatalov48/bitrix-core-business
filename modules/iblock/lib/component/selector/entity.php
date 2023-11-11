@@ -103,41 +103,12 @@ abstract class Entity extends \CBitrixComponent implements Main\Engine\Contract\
 	 */
 	public function onPrepareComponentParams($params)
 	{
-		$gridId = '';
-		if (isset($params['GRID_ID']) && is_string($params['GRID_ID']))
+		if (!is_array($params))
 		{
-			$gridId = preg_replace('/[^a-zA-Z0-9_:\\[\\]]/', '', $params['GRID_ID']);
+			$params = [];
 		}
-		$params['GRID_ID'] = $gridId;
-		unset($gridId);
 
-		$filterId = '';
-		if (isset($params['FILTER_ID']) && is_string($params['FILTER_ID']))
-		{
-			$filterId = preg_replace('/[^a-zA-Z0-9_:\\[\\]]/', '', $params['FILTER_ID']);
-		}
-		$params['FILTER_ID'] = $filterId;
-		unset($filterId);
-
-		$navigationId = '';
-		if (isset($params['NAVIGATION_ID']) && is_string($params['NAVIGATION_ID']))
-		{
-			$navigationId = preg_replace('/[^a-zA-Z0-9_:\\[\\]]/', '', $params['NAVIGATION_ID']);
-		}
-		$params['NAVIGATION_ID'] = $navigationId;
-		unset($navigationId);
-
-		if (!empty($params['GRID_ID']))
-		{
-			if (empty($params['FILTER_ID']))
-			{
-				$params['FILTER_ID'] = static::createFilterId($params['GRID_ID']);
-			}
-			if (empty($params['NAVIGATION_ID']))
-			{
-				$params['NAVIGATION_ID'] = static::createNavigationId($params['GRID_ID']);
-			}
-		}
+		$this->prepareNodeIds($params);
 
 		$params['MULTIPLE_SELECT'] = (isset($params['MULTIPLE_SELECT']) && $params['MULTIPLE_SELECT'] === 'Y');
 
@@ -218,6 +189,34 @@ abstract class Entity extends \CBitrixComponent implements Main\Engine\Contract\
 	public function getErrors()
 	{
 		return $this->errorCollection->toArray();
+	}
+
+	/**
+	 * @param array $params
+	 * @return void
+	 */
+	protected function prepareNodeIds(array &$params): void
+	{
+		static::validateListParameters(
+			$params,
+			[
+				'GRID_ID',
+				'FILTER_ID',
+				'NAVIGATION_ID'
+			]
+		);
+
+		if (!empty($params['GRID_ID']))
+		{
+			if (empty($params['FILTER_ID']))
+			{
+				$params['FILTER_ID'] = static::createFilterId($params['GRID_ID']);
+			}
+			if (empty($params['NAVIGATION_ID']))
+			{
+				$params['NAVIGATION_ID'] = static::createNavigationId($params['GRID_ID']);
+			}
+		}
 	}
 
 	/**
@@ -501,14 +500,41 @@ abstract class Entity extends \CBitrixComponent implements Main\Engine\Contract\
 		$filter = [];
 		if ($this->isUsedGridFilter())
 		{
+			$entityFilter = Main\Filter\Factory::createEntityFilter(
+				Iblock\Filter\EntityList::ELEMENT,
+				[
+					'ID' => $this->getFilterId(),
+					'IBLOCK_ID' => $this->getStorageItem(self::STORAGE_ENTITY_IBLOCK, 'IBLOCK_ID')
+				]
+			);
+
+			$usedFields = $this->gridFilterConfig->getUsedFields();
+			if(empty($usedFields))
+			{
+				$usedFields = $entityFilter->getDefaultFieldIDs();
+			}
+
 			$filter = [
 				'FILTER_ID' => $this->getFilterId(),
 				'GRID_ID' => $this->getGridId(),
-				'FILTER' => $this->getGridFilterRows(),
+				'FILTER' => $entityFilter->getFieldArrays($usedFields),
 				'FILTER_PRESETS' => [],
 				'DISABLE_SEARCH' => $this->getQuickSearchField() === null,
 				'ENABLE_LABEL' => true,
-				'ENABLE_LIVE_SEARCH' => true
+				'ENABLE_LIVE_SEARCH' => true,
+				'LAZY_LOAD' => [
+					'CONTROLLER' => [
+						'getList' => 'iblock.filter.element.getlist',
+						'getField' => 'iblock.filter.element.getfield',
+						'componentName' => $this->getName(),
+						'signedParameters' => \Bitrix\Main\Component\ParameterSigner::signParameters(
+							$this->getName(),
+							[
+								'IBLOCK_ID' => $this->getStorageItem(self::STORAGE_ENTITY_IBLOCK, 'IBLOCK_ID')
+							]
+						)
+					]
+				]
 			];
 		}
 
@@ -760,10 +786,6 @@ abstract class Entity extends \CBitrixComponent implements Main\Engine\Contract\
 			]
 		);
 
-		//$this->setStorageValue('COLUMNS', $columns);
-		//$this->setStorageValue('VISIBLE_COLUMNS', $visibleColumns);
-		//$this->setStorageValue('VISIBLE_COLUMNS_MAP', $visibleColumnsMap);
-
 		unset($visibleColumnsMap, $visibleColumns, $columns);
 	}
 
@@ -793,7 +815,7 @@ abstract class Entity extends \CBitrixComponent implements Main\Engine\Contract\
 	/**
 	 * @return array
 	 */
-	protected function getGridFilterDefinition()
+	protected function getGridFilterDefinition() //TODO: remove this method
 	{
 		$result = [];
 		$result['NAME'] = [
@@ -835,7 +857,7 @@ abstract class Entity extends \CBitrixComponent implements Main\Engine\Contract\
 		{
 			$result['XML_ID'] = [
 				'id' => 'XML_ID',
-				'name' => Loc::getMessage('ENTITY_SELECTOR_FILTER_FIELD_XML_ID'),
+				'name' => Loc::getMessage('ENTITY_SELECTOR_FILTER_FIELD_XML_ID_MSGVER_1'),
 				'type' => 'string',
 				'operators' => [
 					'default' => '='
@@ -854,14 +876,6 @@ abstract class Entity extends \CBitrixComponent implements Main\Engine\Contract\
 		];
 
 		return $result;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getGridFilterRows()
-	{
-		return array_filter($this->getGridFilterDefinition(), [__CLASS__, 'isGridFilterRow']);
 	}
 
 	/**
@@ -910,7 +924,7 @@ abstract class Entity extends \CBitrixComponent implements Main\Engine\Contract\
 		{
 			$result['XML_ID'] = [
 				'id' => 'XML_ID',
-				'name' => Loc::getMessage('ENTITY_SELECTOR_GRID_COLUMN_XML_ID'),
+				'name' => Loc::getMessage('ENTITY_SELECTOR_GRID_COLUMN_XML_ID_MSGVER_1'),
 				'sort' => 'XML_ID',
 				'default' => false
 			];
@@ -1019,9 +1033,6 @@ abstract class Entity extends \CBitrixComponent implements Main\Engine\Contract\
 				'GRID_ORDER_VARS' => $sorting['vars']
 			]
 		);
-
-		//$this->setStorageValue('GRID_ORDER', $this->modifyGridOrder($result));
-		//$this->setStorageValue('GRID_ORDER_VARS', $sorting['vars']);
 
 		unset($found, $field, $order, $sorting, $result);
 	}
@@ -1727,5 +1738,50 @@ abstract class Entity extends \CBitrixComponent implements Main\Engine\Contract\
 	protected static function isGridFilterRow(array $row)
 	{
 		return (!isset($row['quickSearchOnly']));
+	}
+
+	/**
+	 * Clear id value.
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	protected static function clearStringValue(string $value): string
+	{
+		return preg_replace('/[^a-zA-Z0-9_:\\[\\]]/', '', $value);
+	}
+
+	/**
+	 * Validate string parameter with dom element id.
+	 *
+	 * @param array &$params
+	 * @param string $field
+	 * @return void
+	 */
+	protected static function validateSingleParameter(array &$params, string $field): void
+	{
+		$value = '';
+		if (isset($params[$field]) && is_string($params[$field]))
+		{
+			$value = static::clearStringValue($params[$field]);
+		}
+		$params[$field] = $value;
+		unset($value);
+	}
+
+	/**
+	 * Validate list of parameters with dom element id's.
+	 *
+	 * @param array &$params
+	 * @param array $list
+	 * @return void
+	 */
+	protected static function validateListParameters(array &$params, array $list): void
+	{
+		foreach ($list as $field)
+		{
+			static::validateSingleParameter($params, $field);
+		}
+		unset($field);
 	}
 }

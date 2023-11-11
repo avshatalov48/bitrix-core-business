@@ -149,27 +149,6 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 
 	public function validateId($sessionId): bool
 	{
-		if (\PHP_VERSION_ID < 70317 || (70400 <= \PHP_VERSION_ID && \PHP_VERSION_ID < 70405))
-		{
-			//due to https://bugs.php.net/bug.php?id=77178
-			foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $frame)
-			{
-				if (!isset($frame['class']) && isset($frame['function']) && in_array($frame['function'], [
-						'session_regenerate_id',
-						'session_create_id',
-						'session_start',
-					], true
-					))
-				{
-
-					if ($this->lastCreatedId === $sessionId)
-					{
-						return true;
-					}
-				}
-			}
-		}
-
 		$this->listValidatedIds[$sessionId] = true;
 
 		$this->prefetchData = $this->read($sessionId);

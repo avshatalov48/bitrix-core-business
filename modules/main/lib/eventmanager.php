@@ -179,8 +179,8 @@ class EventManager
 
 		$uniqueID = md5(mb_strtolower($fromModuleId.'.'.$eventType.'.'.$toModuleId.'.'.$toPath.'.'.$toClass.'.'.$toMethod.'.'.$toMethodArg.'.'.$version));
 
-		$con = Application::getConnection();
-		$sqlHelper = $con->getSqlHelper();
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
 
 		$fromModuleId = $sqlHelper->forSql($fromModuleId);
 		$eventType = $sqlHelper->forSql($eventType);
@@ -190,12 +190,10 @@ class EventManager
 		$toPath = $sqlHelper->forSql($toPath);
 		$toMethodArg = $sqlHelper->forSql($toMethodArg);
 
-		$con->queryExecute(
-			"INSERT IGNORE INTO b_module_to_module (SORT, FROM_MODULE_ID, MESSAGE_ID, TO_MODULE_ID, ".
-			"	TO_CLASS, TO_METHOD, TO_PATH, TO_METHOD_ARG, VERSION, UNIQUE_ID) ".
-			"VALUES (".$sort.", '".$fromModuleId."', '".$eventType."', '".$toModuleId."', ".
-			"   '".$toClass."', '".$toMethod."', '".$toPath."', '".$toMethodArg."', ".$version.", '".$uniqueID."')"
-		);
+		$fields =  '(SORT, FROM_MODULE_ID, MESSAGE_ID, TO_MODULE_ID, TO_CLASS, TO_METHOD, TO_PATH, TO_METHOD_ARG, VERSION, UNIQUE_ID)';
+		$values = "(".$sort.", '".$fromModuleId."', '".$eventType."', '".$toModuleId."', "."   '".$toClass."', '".$toMethod."', '".$toPath."', '".$toMethodArg."', ".$version.", '".$uniqueID."')";
+		$sql = $sqlHelper->getInsertIgnore('b_module_to_module', $fields, 'VALUES ' . $values);
+		$connection->queryExecute($sql);
 
 		$this->clearLoadedHandlers();
 	}

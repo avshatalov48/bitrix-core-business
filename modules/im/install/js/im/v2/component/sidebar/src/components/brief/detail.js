@@ -1,30 +1,33 @@
-import {SidebarFileTypes, SidebarDetailBlock} from 'im.v2.const';
-import type {ImModelSidebarFileItem} from 'im.v2.model';
-import {SidebarCollectionFormatter} from '../../classes/sidebar-collection-formatter';
-import {FileMenu} from '../../classes/context-menu/file/file-menu';
-import {DateGroup} from '../date-group';
-import {BriefItem} from './brief-item';
-import {SidebarDetail} from '../detail';
-import {DetailEmptyState} from '../detail-empty-state';
+import { SidebarFileTypes, SidebarDetailBlock } from 'im.v2.const';
+
+import { SidebarCollectionFormatter } from '../../classes/sidebar-collection-formatter';
+import { FileMenu } from '../../classes/context-menu/file/file-menu';
+import { DateGroup } from '../date-group';
+import { BriefItem } from './brief-item';
+import { SidebarDetail } from '../detail';
+import { DetailEmptyState } from '../detail-empty-state';
+
 import '../../css/brief/detail.css';
+
+import type { ImModelSidebarFileItem } from 'im.v2.model';
 
 // @vue/component
 export const BriefDetail = {
 	name: 'BriefDetail',
-	components: {DateGroup, BriefItem, SidebarDetail, DetailEmptyState},
+	components: { DateGroup, BriefItem, SidebarDetail, DetailEmptyState },
 	props: {
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		chatId: {
 			type: Number,
-			required: true
+			required: true,
 		},
 		service: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	computed:
 	{
@@ -35,12 +38,12 @@ export const BriefDetail = {
 		},
 		formattedCollection(): Array
 		{
-			return this.collectionFormatter.format(this.files);
+			return this.collectionFormatter.format([...this.files, ...this.files, ...this.files, ...this.files, ...this.files, ...this.files, ...this.files]);
 		},
 		isEmptyState(): boolean
 		{
 			return this.formattedCollection.length === 0;
-		}
+		},
 	},
 	created()
 	{
@@ -62,11 +65,11 @@ export const BriefDetail = {
 		{
 			const item = {
 				...event,
-				dialogId: this.dialogId
+				dialogId: this.dialogId,
 			};
 
 			this.contextMenu.openMenu(item, target);
-		}
+		},
 	},
 	template: `
 		<SidebarDetail
@@ -77,19 +80,19 @@ export const BriefDetail = {
 			v-slot="slotProps"
 			class="bx-im-sidebar-brief-detail__scope"
 		>
-			<template v-for="dateGroup in formattedCollection">
+			<div v-for="dateGroup in formattedCollection" class="bx-im-sidebar-brief-detail__date-group_container">
 				<DateGroup :dateText="dateGroup.dateGroupTitle"/>
 				<BriefItem
 					v-for="file in dateGroup.items"
 					:brief="file"
 					@contextMenuClick="onContextMenuClick"
 				/>
-			</template>
+			</div>
 			<DetailEmptyState
 				v-if="!slotProps.isLoading && isEmptyState"
 				:title="$Bitrix.Loc.getMessage('IM_SIDEBAR_BRIEFS_EMPTY')"
 				:iconType="SidebarDetailBlock.brief"
 			/>
 		</SidebarDetail>
-	`
+	`,
 };

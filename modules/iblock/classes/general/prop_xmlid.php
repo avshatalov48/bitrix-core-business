@@ -129,6 +129,7 @@ class CIBlockPropertyXmlID
 		if(!$ar_res)
 			$ar_res = array("NAME" => "");
 
+		$arProperty["LINK_IBLOCK_ID"] ??= 0;
 		$fixIBlock = $arProperty["LINK_IBLOCK_ID"] > 0;
 		$windowTableId = 'iblockprop-'.Iblock\PropertyTable::TYPE_ELEMENT.'-'.$arProperty['ID'].'-'.$arProperty['LINK_IBLOCK_ID'];
 

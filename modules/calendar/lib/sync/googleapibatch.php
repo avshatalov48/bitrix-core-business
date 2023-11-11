@@ -10,6 +10,9 @@ use Bitrix\Calendar\Internals;
 use Bitrix\Main\Web\HttpClient;
 use CCalendarEvent;
 
+/**
+ * @deprecated
+ */
 class GoogleApiBatch
 {
 	protected const FINISH = true;

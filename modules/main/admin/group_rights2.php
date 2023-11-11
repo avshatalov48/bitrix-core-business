@@ -95,8 +95,10 @@ if(count($arGROUPS) > count($arUsedGroups)):
 		<option value=""><?echo GetMessage("group_rights_select")?></option>
 <?
 foreach($arGROUPS as $group):
-	if($arUsedGroups[$group["ID"]] == true)
+	if (!empty($arUsedGroups[$group["ID"]]))
+	{
 		continue;
+	}
 ?>
 		<option value="<?=$group["ID"]?>"><?=$group["NAME"]." [".$group["ID"]."]"?></option>
 <?endforeach?>

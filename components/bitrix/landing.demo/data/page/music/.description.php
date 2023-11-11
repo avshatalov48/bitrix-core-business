@@ -103,11 +103,11 @@ return [
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1400x891/img1.jpg);">
 			<div class="u-bg-overlay__inner">
 				<div class="landing-block-node-card-text-container js-animation fadeInLeft u-heading-v4-1 g-max-width-645 g-brd-7 g-brd-primary g-pl-30">
-					<h3 class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-15 g-mb-25--md">
+					<h3 class="landing-block-node-card-subtitle text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-15 g-mb-25--md">
 						Company24 new album</h3>
-					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium u-heading-v4__title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-65 g-color-white g-mb-15">
+					<h2 class="landing-block-node-card-title u-heading-v4__title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-65 g-color-white g-mb-15">
 						Reincarnation</h2>
-					<div class="landing-block-node-card-text landing-semantic-text-image-medium mb-0 g-color-white" data-auto-font-scale>
+					<div class="landing-block-node-card-text mb-0 g-color-white" data-auto-font-scale>
 						<p>Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 							finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor. Nullam faucibus
 							iaculis laoreet.
@@ -121,11 +121,11 @@ return [
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1400x891/img2.jpg);">
 			<div class="u-bg-overlay__inner">
 				<div class="landing-block-node-card-text-container js-animation fadeInLeft u-heading-v4-1 g-max-width-645 g-brd-7 g-brd-primary g-pl-30">
-					<h3 class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-15 g-mb-25--md">
+					<h3 class="landing-block-node-card-subtitle text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-15 g-mb-25--md">
 						Company24 new album</h3>
-					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium u-heading-v4__title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-65 g-color-white g-mb-15">
+					<h2 class="landing-block-node-card-title u-heading-v4__title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-65 g-color-white g-mb-15">
 						Umbrella</h2>
-					<div class="landing-block-node-card-text landing-semantic-text-image-medium mb-0 g-color-white" data-auto-font-scale>
+					<div class="landing-block-node-card-text mb-0 g-color-white" data-auto-font-scale>
 						<p>Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 							finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor. Nullam faucibus
 							iaculis laoreet.
@@ -790,7 +790,7 @@ return [
 							<div class="landing-block-node-card-label-left g-color-primary">April 27, 2022</div>
 						</div>
 
-						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
+						<a class="btn landing-block-node-card-button js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
 					</div>
 					<!-- End Article Content -->
 				</article>
@@ -810,7 +810,7 @@ return [
 							<div class="landing-block-node-card-label-left g-color-primary">APRIL 27, 2022</div>
 						</div>
 
-						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
+						<a class="btn landing-block-node-card-button js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
 					</div>
 					<!-- End Article Content -->
 				</article>
@@ -830,7 +830,7 @@ return [
 							<div class="landing-block-node-card-label-left g-color-primary">APRIL 27, 2022</div>
 						</div>
 
-						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
+						<a class="btn landing-block-node-card-button js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
 					</div>
 					<!-- End Article Content -->
 				</article>
@@ -847,7 +847,7 @@ return [
 			[
 				'CODE' => '33.3.form_1_transparent_black_no_text',
 				'SORT' => '6500',
-				'CONTENT' => '<section class="landing-block landing-block-node-bgimg landing-semantic-color-overlay g-bg-primary-dark-v1 g-pos-rel g-pt-120 g-pb-120 g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1900x1155/img1.jpg);">
+				'CONTENT' => '<section class="landing-block landing-block-node-bgimg g-bg-primary-dark-v1 g-pos-rel g-pt-120 g-pb-120 g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1900x1155/img1.jpg);">
 
 	<div class="container g-z-index-1 g-pos-rel">
 		<div class="row align-items-center">

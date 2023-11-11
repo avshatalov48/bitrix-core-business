@@ -10,7 +10,7 @@ export default class YandexTemplate extends CaldavInterfaceTemplate
 	{
 		super({
 			title: Loc.getMessage("CALENDAR_TITLE_YANDEX"),
-			helpDeskCode: '10930170',
+			helpDeskCode: '12925048',
 			titleInfoHeader: Loc.getMessage('CAL_CONNECT_YANDEX_CALENDAR'),
 			descriptionInfoHeader: Loc.getMessage('CAL_YANDEX_CONNECT_DESCRIPTION'),
 			titleActiveHeader: Loc.getMessage('CAL_YANDEX_CALENDAR_IS_CONNECT'),

@@ -6,7 +6,6 @@
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 require_once(__DIR__."/../include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 
 if(!($USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('view_all_users')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -124,12 +123,7 @@ if(CheckFilter($arFilterFields))
 
 if(!$USER->CanDoOperation('view_all_users'))
 {
-	$arUserSubordinateGroups = array();
-	$arUserGroups = CUser::GetUserGroup($USER->GetID());
-	foreach($arUserGroups as $grp)
-		$arUserSubordinateGroups = array_merge($arUserSubordinateGroups, CGroup::GetSubordinateGroups($grp));
-
-	$arFilter["CHECK_SUBORDINATE"] = array_unique($arUserSubordinateGroups);
+	$arFilter["CHECK_SUBORDINATE"] = CUser::GetSubordinateGroups();
 	if($USER->CanDoOperation('edit_own_profile'))
 	{
 		$arFilter["CHECK_SUBORDINATE_AND_OWN"] = $USER->GetID();

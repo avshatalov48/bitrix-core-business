@@ -74,7 +74,7 @@
 	BX.Landing.UI.Tool.ColorPicker.getDefaultColors = function()
 	{
 		return [
-			["#f5f5f5", "#eeeeee", "#e0e0e0", "#9e9e9e", "#757575", "#616161", "#212121"],
+			["#ffffff", "#f5f5f5", "#e0e0e0", "#9e9e9e", "#757575", "#616161", "#212121"],
 			["#cfd8dc", "#b0bec5", "#90a4ae", "#607d8b", "#546e7a", "#455a64", "#263238"],
 			["#d7ccc8", "#bcaaa4", "#a1887f", "#795548", "#6d4c41", "#5d4037", "#3e2723"],
 			["#ffccbc", "#ffab91", "#ff8a65", "#ff5722", "#f4511e", "#e64a19", "#bf360c"],

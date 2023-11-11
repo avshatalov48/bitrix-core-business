@@ -90,4 +90,12 @@ $MESS["REST_SCOPE_USERFIELDCONFIG_DESCRIPTION"] = "полный доступ: ч
 $MESS["REST_SCOPE_CONFIGURATION.IMPORT"] = "Импорт отраслевых решений";
 $MESS["REST_SCOPE_CONFIGURATION.IMPORT_DESCRIPTION"] = "Доступ к импорту отраслевых решений";
 $MESS["REST_SCOPE_BICONNECTOR"] = "Коннектор BI-аналитики";
-
+$MESS["REST_SCOPE_CATALOG"] = "Торговый каталог";
+$MESS["REST_SCOPE_CALENDARMOBILE"] = "Мобильный календарь";
+$MESS["REST_SCOPE_IM.IMPORT"] = "Импорт сообщений";
+$MESS["REST_SCOPE_IMCONNECTOR"] = "Коннекторы для внешних мессенджеров";
+$MESS["REST_SCOPE_NOTIFICATIONS"] = "Уведомления";
+$MESS["REST_SCOPE_TASKS"] = "Задачи";
+$MESS["REST_SCOPE_TASKSMOBILE"] = "Мобильные задачи";
+$MESS["REST_SCOPE_IBLOCK"] = "Информационные блоки";
+$MESS["REST_SCOPE_LANDING_CLOUD"] = "Облачные сайты";

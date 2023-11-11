@@ -4,6 +4,13 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,main_core_events,main_core) {
 	'use strict';
 
+	/**
+	 * @namespace BX.UI.Uploader
+	 */
+
+	/**
+	 * @namespace BX.UI.Uploader
+	 */
 	const FileStatus = {
 	  INIT: 'init',
 	  ADDED: 'added',
@@ -11,17 +18,23 @@ this.BX.UI = this.BX.UI || {};
 	  PENDING: 'pending',
 	  UPLOADING: 'uploading',
 	  COMPLETE: 'complete',
-	  //REMOVING: 'removing',
-	  //REMOVE_FAILED: 'remove-failed',
+	  // REMOVING: 'removing',
+	  // REMOVE_FAILED: 'remove-failed',
 	  LOAD_FAILED: 'load-failed',
 	  UPLOAD_FAILED: 'upload-failed'
 	};
 
+	/**
+	 * @namespace BX.UI.Uploader
+	 */
 	const FileOrigin = {
 	  CLIENT: 'client',
 	  SERVER: 'server'
 	};
 
+	/**
+	 * @namespace BX.UI.Uploader
+	 */
 	const FileEvent = {
 	  ADD: 'onAdd',
 	  BEFORE_UPLOAD: 'onBeforeUpload',
@@ -95,36 +108,35 @@ this.BX.UI = this.BX.UI || {};
 	      error.setOrigin(UploaderError.Origin.SERVER);
 	      error.setType(UploaderError.Type.USER);
 	      return error;
-	    } else {
-	      let {
-	        code,
-	        message,
-	        description
-	      } = errors[0];
-	      const {
-	        customData,
-	        system,
-	        type
-	      } = errors[0];
-	      if (code === 'NETWORK_ERROR') {
-	        message = main_core.Loc.getMessage('UPLOADER_NETWORK_ERROR');
-	      } else {
-	        code = main_core.Type.isStringFilled(code) ? code : 'SERVER_ERROR';
-	        if (!main_core.Type.isStringFilled(description)) {
-	          description = message;
-	          message = main_core.Loc.getMessage('UPLOADER_SERVER_ERROR');
-	        }
-	      }
-	      console.error('Uploader', errors);
-	      const error = new this(code, message, description, customData);
-	      error.setOrigin(UploaderError.Origin.SERVER);
-	      if (type === 'file-uploader') {
-	        error.setType(system ? UploaderError.Type.SYSTEM : UploaderError.Type.USER);
-	      } else {
-	        error.setType(UploaderError.Type.UNKNOWN);
-	      }
-	      return error;
 	    }
+	    let {
+	      code,
+	      message,
+	      description
+	    } = errors[0];
+	    const {
+	      customData,
+	      system,
+	      type
+	    } = errors[0];
+	    if (code === 'NETWORK_ERROR') {
+	      message = main_core.Loc.getMessage('UPLOADER_NETWORK_ERROR');
+	    } else {
+	      code = main_core.Type.isStringFilled(code) ? code : 'SERVER_ERROR';
+	      if (!main_core.Type.isStringFilled(description)) {
+	        description = message;
+	        message = main_core.Loc.getMessage('UPLOADER_SERVER_ERROR');
+	      }
+	    }
+	    console.error('Uploader', errors);
+	    const error = new this(code, message, description, customData);
+	    error.setOrigin(UploaderError.Origin.SERVER);
+	    if (type === 'file-uploader') {
+	      error.setType(system ? UploaderError.Type.SYSTEM : UploaderError.Type.USER);
+	    } else {
+	      error.setType(UploaderError.Type.UNKNOWN);
+	    }
+	    return error;
 	  }
 	  static createFromError(error) {
 	    return new this(error.name, error.message);
@@ -213,7 +225,8 @@ this.BX.UI = this.BX.UI || {};
 	  getOption(option, defaultValue) {
 	    if (!main_core.Type.isUndefined(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options][option])) {
 	      return babelHelpers.classPrivateFieldLooseBase(this, _options)[_options][option];
-	    } else if (!main_core.Type.isUndefined(defaultValue)) {
+	    }
+	    if (!main_core.Type.isUndefined(defaultValue)) {
 	      return defaultValue;
 	    }
 	    return null;
@@ -252,7 +265,8 @@ this.BX.UI = this.BX.UI || {};
 	  getOption(option, defaultValue) {
 	    if (!main_core.Type.isUndefined(babelHelpers.classPrivateFieldLooseBase(this, _options$1)[_options$1][option])) {
 	      return babelHelpers.classPrivateFieldLooseBase(this, _options$1)[_options$1][option];
-	    } else if (!main_core.Type.isUndefined(defaultValue)) {
+	    }
+	    if (!main_core.Type.isUndefined(defaultValue)) {
 	      return defaultValue;
 	    }
 	    return null;
@@ -289,9 +303,10 @@ this.BX.UI = this.BX.UI || {};
 	    return babelHelpers.classPrivateFieldLooseBase(this, _options$2)[_options$2];
 	  }
 	  getOption(option, defaultValue) {
-	    if (!Type.isUndefined(babelHelpers.classPrivateFieldLooseBase(this, _options$2)[_options$2][option])) {
+	    if (!main_core.Type.isUndefined(babelHelpers.classPrivateFieldLooseBase(this, _options$2)[_options$2][option])) {
 	      return babelHelpers.classPrivateFieldLooseBase(this, _options$2)[_options$2][option];
-	    } else if (!Type.isUndefined(defaultValue)) {
+	    }
+	    if (!main_core.Type.isUndefined(defaultValue)) {
 	      return defaultValue;
 	    }
 	    return null;
@@ -301,12 +316,15 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 
+	/* eslint-disable @bitrix24/bitrix24-rules/no-typeof */
+
 	let crypto = window.crypto || window.msCrypto;
 	if (!crypto && typeof process === 'object') {
+	  // eslint-disable-next-line no-undef
 	  crypto = require('crypto').webcrypto;
 	}
 	const createUniqueId = () => {
-	  return `${1e7}-${1e3}-${4e3}-${8e3}-${1e11}`.replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+	  return `${1e7}-${1e3}-${4e3}-${8e3}-${1e11}`.replaceAll(/[018]/g, part => (part ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> part / 4).toString(16));
 	};
 
 	const getExtensionFromType = type => {
@@ -331,32 +349,33 @@ this.BX.UI = this.BX.UI || {};
 
 	let counter = 0;
 	const createFileFromBlob = (blob, fileName) => {
-	  if (!main_core.Type.isStringFilled(fileName)) {
+	  let newFileName = fileName;
+	  if (!main_core.Type.isStringFilled(newFileName)) {
 	    const date = new Date();
-	    fileName = `File ${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${++counter}`;
+	    newFileName = `File ${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${++counter}`;
 	    const extension = getExtensionFromType(blob.type);
 	    if (extension) {
-	      fileName += `.${extension}`;
+	      newFileName += `.${extension}`;
 	    }
 	  }
 	  try {
-	    return new File([blob], fileName, {
+	    return new File([blob], newFileName, {
 	      lastModified: Date.now(),
 	      lastModifiedDate: new Date(),
 	      type: blob.type
 	    });
-	  } catch (exception) {
+	  } catch {
 	    const file = blob.slice(0, blob.size, blob.type);
-	    file.name = fileName;
+	    file.name = newFileName;
 	    file.lastModified = Date.now();
 	    file.lastModifiedDate = new Date();
 	    return file;
 	  }
 	};
 
-	const regexp = /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/;
+	const regexp = /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\W\w]*?[^;])*),(.+)$/;
 	const isDataUri = str => {
-	  return typeof str === 'string' ? str.match(regexp) : false;
+	  return main_core.Type.isString(str) ? str.match(regexp) : false;
 	};
 
 	const createBlobFromDataUri = dataURI => {
@@ -365,7 +384,7 @@ this.BX.UI = this.BX.UI || {};
 	  const buffer = new ArrayBuffer(byteString.length);
 	  const view = new Uint8Array(buffer);
 	  for (let i = 0; i < byteString.length; i++) {
-	    view[i] = byteString.charCodeAt(i);
+	    view[i] = byteString.codePointAt(i);
 	  }
 	  return new Blob([buffer], {
 	    type: mimeString
@@ -374,41 +393,38 @@ this.BX.UI = this.BX.UI || {};
 
 	const getFileExtension = filename => {
 	  const position = main_core.Type.isStringFilled(filename) ? filename.lastIndexOf('.') : -1;
-	  return position > 0 ? filename.substring(position + 1) : '';
+	  return position > 0 ? filename.slice(Math.max(0, position + 1)) : '';
 	};
 
-	const imageExtensions = ['jpg', 'bmp', 'jpeg', 'jpe', 'gif', 'png', 'webp'];
+	const imageExtensions = new Set(['jpg', 'bmp', 'jpeg', 'jpe', 'gif', 'png', 'webp']);
 	const isResizableImage = (file, mimeType = null) => {
 	  const fileName = main_core.Type.isFile(file) ? file.name : file;
 	  const type = main_core.Type.isFile(file) ? file.type : mimeType;
 	  const extension = getFileExtension(fileName).toLowerCase();
-	  if (imageExtensions.includes(extension)) {
-	    if (type === null || /^image\/[a-z0-9.-]+$/i.test(type)) {
-	      return true;
-	    }
-	  }
-	  return false;
+	  return imageExtensions.has(extension) && (type === null || /^image\/[\d.a-z-]+$/i.test(type));
 	};
 
 	const formatFileSize = (size, base = 1024) => {
 	  let i = 0;
 	  const units = getUnits();
-	  while (size >= base && units[i + 1]) {
-	    size /= base;
+	  let currentSize = size;
+	  while (currentSize >= base && units[i + 1]) {
+	    currentSize /= base;
 	    i++;
 	  }
-	  return (main_core.Type.isInteger(size) ? size : size.toFixed(1)) + units[i];
+	  return (main_core.Type.isInteger(currentSize) ? currentSize : currentSize.toFixed(1)) + units[i];
 	};
 	let fileSizeUnits = null;
 	const getUnits = () => {
 	  if (fileSizeUnits !== null) {
 	    return fileSizeUnits;
 	  }
-	  const units = main_core.Loc.getMessage('UPLOADER_FILE_SIZE_POSTFIXES').split(/[|]/);
+	  const units = main_core.Loc.getMessage('UPLOADER_FILE_SIZE_POSTFIXES').split(/\|/);
 	  fileSizeUnits = main_core.Type.isArrayFilled(units) ? units : ['B', 'kB', 'MB', 'GB', 'TB'];
 	  return fileSizeUnits;
 	};
 
+	// eslint-disable-next-line max-classes-per-file
 	var _id = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("id");
 	var _file = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("file");
 	var _serverFileId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("serverFileId");
@@ -585,15 +601,20 @@ this.BX.UI = this.BX.UI || {};
 	  upload(callbacks = {}) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].subscribe(callbacks);
 	    if (this.isComplete() && this.isUploadable()) {
-	      return babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onComplete');
-	    } else if (this.isUploadFailed()) {
-	      return babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onError', {
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onComplete');
+	      return;
+	    }
+	    if (this.isUploadFailed()) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onError', {
 	        error: this.getError()
 	      });
-	    } else if (!this.canUpload()) {
-	      return babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onError', {
+	      return;
+	    }
+	    if (!this.canUpload()) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].emit('onError', {
 	        error: new UploaderError('FILE_UPLOAD_NOT_ALLOWED')
 	      });
+	      return;
 	    }
 	    const event = new main_core_events.BaseEvent({
 	      data: {
@@ -629,8 +650,8 @@ this.BX.UI = this.BX.UI || {};
 	    this.emit(FileEvent.REMOVE_COMPLETE);
 	    this.abort();
 
-	    //this.#setStatus(FileStatus.REMOVING);
-	    //this.#removeController.remove(this);
+	    // this.#setStatus(FileStatus.REMOVING);
+	    // this.#removeController.remove(this);
 
 	    const removeFromServer = !options || options.removeFromServer !== false;
 	    if (removeFromServer && babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController] !== null && this.getOrigin() === FileOrigin.CLIENT) {
@@ -807,12 +828,12 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController] = controller;
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController] && changed) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController].subscribeOnce('onError', event => {
-	        //const error = this.addError(event.getData().error);
-	        //this.emit(FileEvent.REMOVE_ERROR, { error });
+	        // const error = this.addError(event.getData().error);
+	        // this.emit(FileEvent.REMOVE_ERROR, { error });
 	      });
 	      babelHelpers.classPrivateFieldLooseBase(this, _removeController)[_removeController].subscribeOnce('onRemove', event => {
-	        //this.#setStatus(FileStatus.INIT);
-	        //this.emit(FileEvent.REMOVE_COMPLETE);
+	        // this.#setStatus(FileStatus.INIT);
+	        // this.emit(FileEvent.REMOVE_COMPLETE);
 	      });
 	    }
 	    if (changed) {
@@ -886,7 +907,7 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }
 	  getName() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] !== null ? babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] : this.getBinary() ? this.getBinary().name : '';
+	    return babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] === null ? this.getBinary() ? this.getBinary().name : '' : babelHelpers.classPrivateFieldLooseBase(this, _name)[_name];
 	  }
 	  setName(name) {
 	    if (main_core.Type.isStringFilled(name) || main_core.Type.isNull(name)) {
@@ -900,7 +921,7 @@ this.BX.UI = this.BX.UI || {};
 	  getExtension() {
 	    const name = this.getName();
 	    const position = name.lastIndexOf('.');
-	    return position >= 0 ? name.substring(position + 1).toLowerCase() : '';
+	    return position >= 0 ? name.slice(Math.max(0, position + 1)).toLowerCase() : '';
 	  }
 	  getType() {
 	    return this.getBinary() ? this.getBinary().type : babelHelpers.classPrivateFieldLooseBase(this, _type)[_type];
@@ -1108,12 +1129,10 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }
 	  addError(error) {
-	    if (error instanceof Error) {
-	      error = UploaderError.createFromError(error);
-	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _errors)[_errors].push(error);
+	    const uploaderError = error instanceof Error ? UploaderError.createFromError(error) : error;
+	    babelHelpers.classPrivateFieldLooseBase(this, _errors)[_errors].push(uploaderError);
 	    this.emit(FileEvent.STATE_CHANGE);
-	    return error;
+	    return uploaderError;
 	  }
 	  getError() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _errors)[_errors][0] || null;
@@ -1149,7 +1168,7 @@ this.BX.UI = this.BX.UI || {};
 	        this.emit(FileEvent.STATE_CHANGE, {
 	          property: 'customData',
 	          customProperty: property,
-	          value: value
+	          value
 	        });
 	      }
 	    }
@@ -1157,7 +1176,8 @@ this.BX.UI = this.BX.UI || {};
 	  getCustomData(property) {
 	    if (main_core.Type.isUndefined(property)) {
 	      return babelHelpers.classPrivateFieldLooseBase(this, _customData)[_customData];
-	    } else if (main_core.Type.isStringFilled(property)) {
+	    }
+	    if (main_core.Type.isStringFilled(property)) {
 	      return babelHelpers.classPrivateFieldLooseBase(this, _customData)[_customData][property];
 	    }
 	    return undefined;
@@ -1214,12 +1234,12 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _emitter)[_emitter] = new main_core_events.EventEmitter(file, 'BX.UI.Uploader.File.UploadCallbacks');
 	  }
 	  subscribe(callbacks = {}) {
-	    callbacks = main_core.Type.isPlainObject(callbacks) ? callbacks : {};
-	    if (main_core.Type.isFunction(callbacks.onComplete)) {
-	      this.getEmitter().subscribeOnce('onComplete', callbacks.onComplete);
+	    const handlers = main_core.Type.isPlainObject(callbacks) ? callbacks : {};
+	    if (main_core.Type.isFunction(handlers.onComplete)) {
+	      this.getEmitter().subscribeOnce('onComplete', handlers.onComplete);
 	    }
-	    if (main_core.Type.isFunction(callbacks.onError)) {
-	      this.getEmitter().subscribeOnce('onError', callbacks.onError);
+	    if (main_core.Type.isFunction(handlers.onError)) {
+	      this.getEmitter().subscribeOnce('onError', handlers.onError);
 	    }
 	  }
 	  emit(eventName, event) {
@@ -1475,7 +1495,7 @@ this.BX.UI = this.BX.UI || {};
 	    // First call
 	    babelHelpers.classPrivateFieldLooseBase(this, _chunkOffset)[_chunkOffset] = 0;
 	  }
-	  let chunk;
+	  let chunk = null;
 	  if (this.getChunkOffset() === 0 && this.getFile().getSize() <= this.getChunkSize()) {
 	    chunk = new Chunk(this.getFile().getBinary(), this.getChunkOffset());
 	    babelHelpers.classPrivateFieldLooseBase(this, _chunkOffset)[_chunkOffset] = this.getFile().getSize();
@@ -1536,6 +1556,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 	function loadInternal() {
+	  // eslint-disable-next-line no-invalid-this,unicorn/no-this-assignment
 	  const server = this;
 	  const queue = pendingQueues.get(server);
 	  if (!queue) {
@@ -1554,7 +1575,7 @@ this.BX.UI = this.BX.UI || {};
 	  const controllerOptions = server.getControllerOptions();
 	  main_core.ajax.runAction('ui.fileuploader.load', {
 	    data: {
-	      fileIds: fileIds
+	      fileIds
 	    },
 	    getParameters: {
 	      controller: server.getController(),
@@ -1568,8 +1589,7 @@ this.BX.UI = this.BX.UI || {};
 	        const progress = event.total > 0 ? Math.floor(event.loaded / event.total * 100) : 100;
 	        queue.tasks.forEach(task => {
 	          const {
-	            controller,
-	            file
+	            controller
 	          } = task;
 	          controller.emit('onProgress', {
 	            progress
@@ -1682,7 +1702,9 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 	  }
-	  abort() {}
+	  abort() {
+	    // silent abort
+	  }
 	}
 
 	const queues = new WeakMap();
@@ -1704,6 +1726,7 @@ this.BX.UI = this.BX.UI || {};
 	  queue.remove();
 	}
 	function removeInternal() {
+	  // eslint-disable-next-line no-invalid-this,unicorn/no-this-assignment
 	  const server = this;
 	  const queue = queues.get(server);
 	  if (!queue) {
@@ -1726,7 +1749,7 @@ this.BX.UI = this.BX.UI || {};
 	  const controllerOptions = server.getControllerOptions();
 	  main_core.ajax.runAction('ui.fileuploader.remove', {
 	    data: {
-	      fileIds: fileIds
+	      fileIds
 	    },
 	    getParameters: {
 	      controller: server.getController(),
@@ -1784,9 +1807,6 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	class RemoveController extends AbstractRemoveController {
-	  constructor(server) {
-	    super(server);
-	  }
 	  remove(file) {
 	    removeMultiple(this, file);
 	  }
@@ -1810,7 +1830,9 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 	  }
-	  abort() {}
+	  abort() {
+	    // silent abort
+	  }
 	}
 
 	var _controller = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("controller");
@@ -1900,19 +1922,26 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isStringFilled(options[controllerClass])) {
 	        fn = main_core.Runtime.getClass(options[controllerClass]);
 	        if (!main_core.Type.isFunction(fn)) {
-	          throw new Error(`Uploader.Server: "${controllerClass}" must be a function.`);
+	          throw new TypeError(`Uploader.Server: "${controllerClass}" must be a function.`);
 	        }
 	      } else if (main_core.Type.isFunction(options[controllerClass])) {
 	        fn = options[controllerClass];
 	      }
-	      if (controllerClass === 'uploadControllerClass') {
-	        babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerClass)[_uploadControllerClass] = fn;
-	      } else if (controllerClass === 'loadControllerClass') {
-	        babelHelpers.classPrivateFieldLooseBase(this, _loadControllerClass)[_loadControllerClass] = fn;
-	      } else if (controllerClass === 'removeControllerClass') {
-	        babelHelpers.classPrivateFieldLooseBase(this, _removeControllerClass)[_removeControllerClass] = fn;
+	      switch (controllerClass) {
+	        case 'uploadControllerClass':
+	          babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerClass)[_uploadControllerClass] = fn;
+	          break;
+	        case 'loadControllerClass':
+	          babelHelpers.classPrivateFieldLooseBase(this, _loadControllerClass)[_loadControllerClass] = fn;
+	          break;
+	        case 'removeControllerClass':
+	          babelHelpers.classPrivateFieldLooseBase(this, _removeControllerClass)[_removeControllerClass] = fn;
+	          break;
+	        default:
+	        // No default
 	      }
 	    });
+
 	    babelHelpers.classPrivateFieldLooseBase(this, _loadControllerOptions)[_loadControllerOptions] = main_core.Type.isPlainObject(options.loadControllerOptions) ? options.loadControllerOptions : {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerOptions)[_uploadControllerOptions] = main_core.Type.isPlainObject(options.uploadControllerOptions) ? options.uploadControllerOptions : {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _removeControllerOptions)[_removeControllerOptions] = main_core.Type.isPlainObject(options.removeControllerOptions) ? options.removeControllerOptions : {};
@@ -1921,10 +1950,11 @@ this.BX.UI = this.BX.UI || {};
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerClass)[_uploadControllerClass]) {
 	      const controller = new (babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerClass)[_uploadControllerClass])(this, babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerOptions)[_uploadControllerOptions]);
 	      if (!(controller instanceof AbstractUploadController)) {
-	        throw new Error('Uploader.Server: "uploadControllerClass" must be an instance of AbstractUploadController.');
+	        throw new TypeError('Uploader.Server: "uploadControllerClass" must be an instance of AbstractUploadController.');
 	      }
 	      return controller;
-	    } else if (main_core.Type.isStringFilled(babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller])) {
+	    }
+	    if (main_core.Type.isStringFilled(babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller])) {
 	      return new UploadController(this, babelHelpers.classPrivateFieldLooseBase(this, _uploadControllerOptions)[_uploadControllerOptions]);
 	    }
 	    return null;
@@ -1933,7 +1963,7 @@ this.BX.UI = this.BX.UI || {};
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _loadControllerClass)[_loadControllerClass]) {
 	      const controller = new (babelHelpers.classPrivateFieldLooseBase(this, _loadControllerClass)[_loadControllerClass])(this, babelHelpers.classPrivateFieldLooseBase(this, _loadControllerOptions)[_loadControllerOptions]);
 	      if (!(controller instanceof AbstractLoadController)) {
-	        throw new Error('Uploader.Server: "loadControllerClass" must be an instance of AbstractLoadController.');
+	        throw new TypeError('Uploader.Server: "loadControllerClass" must be an instance of AbstractLoadController.');
 	      }
 	      return controller;
 	    }
@@ -1952,10 +1982,11 @@ this.BX.UI = this.BX.UI || {};
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _removeControllerClass)[_removeControllerClass]) {
 	      const controller = new (babelHelpers.classPrivateFieldLooseBase(this, _removeControllerClass)[_removeControllerClass])(this, babelHelpers.classPrivateFieldLooseBase(this, _removeControllerOptions)[_removeControllerOptions]);
 	      if (!(controller instanceof AbstractRemoveController)) {
-	        throw new Error('Uploader.Server: "removeControllerClass" must be an instance of AbstractRemoveController.');
+	        throw new TypeError('Uploader.Server: "removeControllerClass" must be an instance of AbstractRemoveController.');
 	      }
 	      return controller;
-	    } else if (main_core.Type.isStringFilled(babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller])) {
+	    }
+	    if (main_core.Type.isStringFilled(babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller])) {
 	      return new RemoveController(this, babelHelpers.classPrivateFieldLooseBase(this, _removeControllerOptions)[_removeControllerOptions]);
 	    }
 	    return null;
@@ -2172,15 +2203,15 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  const mimeType = file.type;
 	  const baseMimeType = mimeType.replace(/\/.*$/, '');
-	  for (let i = 0; i < fileTypes.length; i++) {
-	    if (!main_core.Type.isStringFilled(fileTypes[i])) {
+	  for (const fileType of fileTypes) {
+	    if (!main_core.Type.isStringFilled(fileType)) {
 	      continue;
 	    }
-	    const type = fileTypes[i].trim().toLowerCase();
+	    const type = fileType.trim().toLowerCase();
 	    if (type.charAt(0) === '.')
 	      // extension case
 	      {
-	        if (file.name.toLowerCase().indexOf(type, file.name.length - type.length) !== -1) {
+	        if (file.name.toLowerCase().includes(type, file.name.length - type.length)) {
 	          return true;
 	        }
 	      } else if (/\/\*$/.test(type))
@@ -2214,25 +2245,24 @@ this.BX.UI = this.BX.UI || {};
 	const getArrayBuffer = file => {
 	  if (file.arrayBuffer) {
 	    return file.arrayBuffer();
-	  } else {
-	    return new Promise((resolve, reject) => {
-	      const fileReader = new FileReader();
-	      fileReader.readAsArrayBuffer(file);
-	      fileReader.onload = () => {
-	        const buffer = fileReader.result;
-	        resolve(buffer);
-	      };
-	      fileReader.onerror = () => {
-	        reject(fileReader.error);
-	      };
-	    });
 	  }
+	  return new Promise((resolve, reject) => {
+	    const fileReader = new FileReader();
+	    fileReader.readAsArrayBuffer(file);
+	    fileReader.onload = () => {
+	      const buffer = fileReader.result;
+	      resolve(buffer);
+	    };
+	    fileReader.onerror = () => {
+	      reject(fileReader.error);
+	    };
+	  });
 	};
 
 	const convertStringToBuffer = str => {
 	  const result = [];
 	  for (let i = 0; i < str.length; i++) {
-	    result.push(str.charCodeAt(i) & 0xFF);
+	    result.push(str.codePointAt(i) & 0xFF);
 	  }
 	  return result;
 	};
@@ -2252,13 +2282,15 @@ this.BX.UI = this.BX.UI || {};
 	  getSize(file) {
 	    return new Promise((resolve, reject) => {
 	      if (file.size < 10) {
-	        return reject(new Error('GIF signature not found.'));
+	        reject(new Error('GIF signature not found.'));
+	        return;
 	      }
 	      const blob = file.slice(0, 10);
 	      getArrayBuffer(blob).then(buffer => {
 	        const view = new DataView(buffer);
 	        if (!compareBuffers(view, GIF87a, 0) && !compareBuffers(view, GIF89a, 0)) {
-	          return reject(new Error('GIF signature not found.'));
+	          reject(new Error('GIF signature not found.'));
+	          return;
 	        }
 	        resolve({
 	          width: view.getUint16(6, true),
@@ -2271,20 +2303,22 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 
-	const PNG_SIGNATURE = convertStringToBuffer('\x89PNG\r\n\x1a\n');
+	const PNG_SIGNATURE = convertStringToBuffer('\x89PNG\r\n\x1A\n');
 	const IHDR_SIGNATURE = convertStringToBuffer('IHDR');
 	const FRIED_CHUNK_NAME = convertStringToBuffer('CgBI');
 	class Png {
 	  getSize(file) {
 	    return new Promise((resolve, reject) => {
 	      if (file.size < 40) {
-	        return reject(new Error('PNG signature not found.'));
+	        reject(new Error('PNG signature not found.'));
+	        return;
 	      }
 	      const blob = file.slice(0, 40);
 	      getArrayBuffer(blob).then(buffer => {
 	        const view = new DataView(buffer);
 	        if (!compareBuffers(view, PNG_SIGNATURE, 0)) {
-	          return reject(new Error('PNG signature not found.'));
+	          reject(new Error('PNG signature not found.'));
+	          return;
 	        }
 	        if (compareBuffers(view, FRIED_CHUNK_NAME, 12)) {
 	          if (compareBuffers(view, IHDR_SIGNATURE, 28)) {
@@ -2293,7 +2327,7 @@ this.BX.UI = this.BX.UI || {};
 	              height: view.getUint32(36)
 	            });
 	          } else {
-	            return reject(new Error('PNG IHDR not found.'));
+	            reject(new Error('PNG IHDR not found.'));
 	          }
 	        } else if (compareBuffers(view, IHDR_SIGNATURE, 12)) {
 	          resolve({
@@ -2301,7 +2335,7 @@ this.BX.UI = this.BX.UI || {};
 	            height: view.getUint32(20)
 	          });
 	        } else {
-	          return reject(new Error('PNG IHDR not found.'));
+	          reject(new Error('PNG IHDR not found.'));
 	        }
 	      }).catch(error => {
 	        return reject(error);
@@ -2310,19 +2344,21 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 
-	const BMP_SIGNATURE = 0x424d; // BM
+	const BMP_SIGNATURE = 0x424D; // BM
 
 	class Bmp {
 	  getSize(file) {
 	    return new Promise((resolve, reject) => {
 	      if (file.size < 26) {
-	        return reject(new Error('BMP signature not found.'));
+	        reject(new Error('BMP signature not found.'));
+	        return;
 	      }
 	      const blob = file.slice(0, 26);
 	      getArrayBuffer(blob).then(buffer => {
 	        const view = new DataView(buffer);
 	        if (!view.getUint16(0) === BMP_SIGNATURE) {
-	          return reject(new Error('BMP signature not found.'));
+	          reject(new Error('BMP signature not found.'));
+	          return;
 	        }
 	        resolve({
 	          width: view.getUint32(18, true),
@@ -2340,43 +2376,50 @@ this.BX.UI = this.BX.UI || {};
 	  getSize(file) {
 	    return new Promise((resolve, reject) => {
 	      if (file.size < 2) {
-	        return reject(new Error('JPEG signature not found.'));
+	        reject(new Error('JPEG signature not found.'));
+	        return;
 	      }
 	      getArrayBuffer(file).then(buffer => {
 	        const view = new DataView(buffer);
 	        if (view.getUint8(0) !== 0xFF || view.getUint8(1) !== 0xD8) {
-	          return reject(new Error('JPEG signature not found.'));
+	          reject(new Error('JPEG signature not found.'));
+	          return;
 	        }
 	        let offset = 2;
 	        let orientation = -1;
 	        for (;;) {
 	          if (view.byteLength - offset < 2) {
-	            return reject(new Error('JPEG signature not found.'));
+	            reject(new Error('JPEG signature not found.'));
+	            return;
 	          }
 	          if (view.getUint8(offset++) !== 0xFF) {
-	            return reject(new Error('JPEG signature not found.'));
+	            reject(new Error('JPEG signature not found.'));
+	            return;
 	          }
 	          let code = view.getUint8(offset++);
-	          let length;
+	          let length = 0;
 
 	          // skip padding bytes
 	          while (code === 0xFF) {
 	            code = view.getUint8(offset++);
 	          }
-	          if (0xD0 <= code && code <= 0xD9 || code === 0x01) {
+	          if (code >= 0xD0 && code <= 0xD9 || code === 0x01) {
 	            length = 0;
-	          } else if (0xC0 <= code && code <= 0xFE) {
+	          } else if (code >= 0xC0 && code <= 0xFE) {
 	            // the rest of the unreserved markers
 	            if (view.byteLength - offset < 2) {
-	              return reject(new Error('JPEG signature not found.'));
+	              reject(new Error('JPEG signature not found.'));
+	              return;
 	            }
 	            length = view.getUint16(offset) - 2;
 	            offset += 2;
 	          } else {
-	            return reject(new Error('JPEG unknown markers.'));
+	            reject(new Error('JPEG unknown markers.'));
+	            return;
 	          }
 	          if (code === 0xD9 /* EOI */ || code === 0xDA /* SOS */) {
-	            return reject(new Error('JPEG end of the data stream.'));
+	            reject(new Error('JPEG end of the data stream.'));
+	            return;
 	          }
 
 	          // try to get orientation from Exif segment
@@ -2384,20 +2427,22 @@ this.BX.UI = this.BX.UI || {};
 	            const exifBlock = new DataView(view.buffer, offset + 6, offset + length);
 	            orientation = getOrientation(exifBlock);
 	          }
-	          if (length >= 5 && 0xC0 <= code && code <= 0xCF && code !== 0xC4 && code !== 0xC8 && code !== 0xCC) {
+	          if (length >= 5 && code >= 0xC0 && code <= 0xCF && code !== 0xC4 && code !== 0xC8 && code !== 0xCC) {
 	            if (view.byteLength - offset < length) {
-	              return reject(new Error('JPEG size not found.'));
+	              reject(new Error('JPEG size not found.'));
+	              return;
 	            }
 	            let width = view.getUint16(offset + 3);
 	            let height = view.getUint16(offset + 1);
 	            if (orientation >= 5 && orientation <= 8) {
 	              [width, height] = [height, width];
 	            }
-	            return resolve({
+	            resolve({
 	              width,
 	              height,
 	              orientation
 	            });
+	            return;
 	          }
 	          offset += length;
 	        }
@@ -2408,7 +2453,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 	const Marker = {
-	  BIG_ENDIAN: 0x4d4d,
+	  BIG_ENDIAN: 0x4D4D,
 	  LITTLE_ENDIAN: 0x4949
 	};
 	const getOrientation = exifBlock => {
@@ -2449,48 +2494,53 @@ this.BX.UI = this.BX.UI || {};
 	      return block.getUint16(8, littleEndian);
 	    }
 	  }
+	  return -1;
 	};
 
 	const RIFF_HEADER = 0x52494646; // RIFF
 	const WEBP_SIGNATURE = 0x57454250; // WEBP
 	const VP8_SIGNATURE = 0x56503820; // VP8
-	const VP8L_SIGNATURE = 0x5650384c; // VP8L
+	const VP8L_SIGNATURE = 0x5650384C; // VP8L
 	const VP8X_SIGNATURE = 0x56503858; // VP8X
 
 	class Webp {
 	  getSize(file) {
 	    return new Promise((resolve, reject) => {
 	      if (file.size < 16) {
-	        return reject(new Error('WEBP signature not found.'));
+	        reject(new Error('WEBP signature not found.'));
+	        return;
 	      }
 	      const blob = file.slice(0, 30);
 	      getArrayBuffer(blob).then(buffer => {
 	        const view = new DataView(buffer);
 	        if (view.getUint32(0) !== RIFF_HEADER && view.getUint32(8) !== WEBP_SIGNATURE) {
-	          return reject(new Error('WEBP signature not found.'));
+	          reject(new Error('WEBP signature not found.'));
+	          return;
 	        }
 	        const headerType = view.getUint32(12);
 	        const headerView = new DataView(buffer, 20, 10);
-	        if (headerType === VP8_SIGNATURE && headerView.getUint8(0) !== 0x2f) {
+	        if (headerType === VP8_SIGNATURE && headerView.getUint8(0) !== 0x2F) {
 	          resolve({
-	            width: headerView.getUint16(6, true) & 0x3fff,
-	            height: headerView.getUint16(8, true) & 0x3fff
+	            width: headerView.getUint16(6, true) & 0x3FFF,
+	            height: headerView.getUint16(8, true) & 0x3FFF
 	          });
 	          return;
-	        } else if (headerType === VP8L_SIGNATURE && headerView.getUint8(0) === 0x2f) {
+	        }
+	        if (headerType === VP8L_SIGNATURE && headerView.getUint8(0) === 0x2F) {
 	          const bits = headerView.getUint32(1, true);
 	          resolve({
 	            width: (bits & 0x3FFF) + 1,
 	            height: (bits >> 14 & 0x3FFF) + 1
 	          });
 	          return;
-	        } else if (headerType === VP8X_SIGNATURE) {
+	        }
+	        if (headerType === VP8X_SIGNATURE) {
 	          const extendedHeader = headerView.getUint8(0);
-	          const validStart = (extendedHeader & 0xc0) === 0;
+	          const validStart = (extendedHeader & 0xC0) === 0;
 	          const validEnd = (extendedHeader & 0x01) === 0;
 	          if (validStart && validEnd) {
 	            const width = 1 + (headerView.getUint8(6) << 16 | headerView.getUint8(5) << 8 | headerView.getUint8(4));
-	            const height = 1 + (headerView.getUint8(9) << 0 | headerView.getUint8(8) << 8 | headerView.getUint8(7));
+	            const height = 1 + (Math.trunc(headerView.getUint8(9)) | headerView.getUint8(8) << 8 | headerView.getUint8(7));
 	            resolve({
 	              width,
 	              height
@@ -2511,7 +2561,7 @@ this.BX.UI = this.BX.UI || {};
 	  gif: new Gif(),
 	  png: new Png(),
 	  bmp: new Bmp(),
-	  jpg: jpg,
+	  jpg,
 	  jpeg: jpg,
 	  jpe: jpg,
 	  webp: new Webp()
@@ -2616,7 +2666,8 @@ this.BX.UI = this.BX.UI || {};
 	          resolve();
 	        } else {
 	          if (error) {
-	            console.log('Uploader ImageSizeFilter:', error);
+	            // eslint-disable-next-line no-console
+	            console.warn('Uploader ImageSizeFilter:', error);
 	          }
 	          reject(new UploaderError('IMAGE_TYPE_NOT_SUPPORTED'));
 	        }
@@ -2720,6 +2771,8 @@ this.BX.UI = this.BX.UI || {};
 	  };
 	};
 
+	/* eslint-disable no-new-func */
+
 	const ResizeWorker = () => {
 	  self.onmessage = event => {
 	    // Hack for Safari. Workers can become unpredictable.
@@ -2731,11 +2784,11 @@ this.BX.UI = this.BX.UI || {};
 	        getResizedImageSizeSource,
 	        createImagePreviewCanvasSource,
 	        sharpenSource,
-	        shouldSharpenSource,
-	        type
+	        shouldSharpenSource
+	        /* type, */
 	      } = event.data.message;
 	      createImageBitmap(file).then(bitmap => {
-	        const getResizedImageSize = new Function('return ' + getResizedImageSizeSource)();
+	        const getResizedImageSize = new Function(`return ${getResizedImageSizeSource}`)();
 	        const {
 	          targetWidth,
 	          targetHeight,
@@ -2754,10 +2807,10 @@ this.BX.UI = this.BX.UI || {};
 	          }, []);
 	        } else {
 	          var _event$data2;
-	          const createImagePreviewCanvas = new Function('return ' + createImagePreviewCanvasSource)();
+	          const createImagePreviewCanvas = new Function(`return ${createImagePreviewCanvasSource}`)();
 	          let offscreenCanvas = createImagePreviewCanvas(bitmap, targetWidth, targetHeight);
-	          const sharpen = new Function('return ' + sharpenSource)();
-	          const shouldSharpen = new Function('return ' + shouldSharpenSource)();
+	          const sharpen = new Function(`return ${sharpenSource}`)();
+	          const shouldSharpen = new Function(`return ${shouldSharpenSource}`)();
 	          if (shouldSharpen(bitmap, targetWidth, targetHeight)) {
 	            sharpen(offscreenCanvas, targetWidth, targetHeight, 0.2);
 	          }
@@ -2799,7 +2852,8 @@ this.BX.UI = this.BX.UI || {};
 	          // ;
 	        }
 	      }).catch(error => {
-	        console.log('Resize Worker Error (createImageBitmap)', error);
+	        // eslint-disable-next-line no-console
+	        console.log('Uploader: Resize Worker Error (createImageBitmap)', error);
 	        self.postMessage({
 	          id: event.data.id,
 	          message: null
@@ -2827,19 +2881,23 @@ this.BX.UI = this.BX.UI || {};
 	  };
 	});
 
-	const createImagePreviewCanvas = (imageSource, width, height) => {
-	  width = Math.round(width);
-	  height = Math.round(height);
+	/* eslint-disable @bitrix24/bitrix24-rules/no-typeof */
+
+	// Warning!
+	// This function uses in a resize workers.
+	// You cannot import anything from other files and extensions.
+	const createImagePreviewCanvas = (imageSource, newWidth, newHeight) => {
+	  let width = Math.round(newWidth);
+	  let height = Math.round(newHeight);
 	  const isPageContext = typeof window !== 'undefined' && typeof document !== 'undefined' && typeof parent !== 'undefined';
-	  const createCanvas = (width, height) => {
+	  const createCanvas = (canvasWidth, canvasHeight) => {
 	    if (isPageContext) {
 	      const canvas = document.createElement('canvas');
-	      canvas.width = width;
-	      canvas.height = height;
+	      canvas.width = canvasWidth;
+	      canvas.height = canvasHeight;
 	      return canvas;
-	    } else {
-	      return new OffscreenCanvas(width, height);
 	    }
+	    return new OffscreenCanvas(canvasWidth, canvasHeight);
 	  };
 	  if (imageSource.height <= height && imageSource.width <= width) {
 	    const canvas = createCanvas(width, height);
@@ -2847,41 +2905,40 @@ this.BX.UI = this.BX.UI || {};
 	    context.imageSmoothingQuality = 'high';
 	    context.drawImage(imageSource, 0, 0, width, height);
 	    return canvas;
-	  } else {
-	    if (imageSource.height > imageSource.width) {
-	      width = Math.floor(height * (imageSource.width / imageSource.height));
-	    } else {
-	      height = Math.floor(width * (imageSource.height / imageSource.width));
-	    }
-	    let currentImageWidth = Math.floor(imageSource.width);
-	    let currentImageHeight = Math.floor(imageSource.height);
-	    let currentImageSource = imageSource;
-	    let resizingCanvas = null;
-	    while (currentImageWidth * 0.5 > width) {
-	      const halfImageWidth = Math.floor(currentImageWidth * 0.5);
-	      const halfImageHeight = Math.floor(currentImageHeight * 0.5);
-	      resizingCanvas = createCanvas(halfImageWidth, halfImageHeight);
-	      const resizingCanvasContext = resizingCanvas.getContext('2d');
-	      resizingCanvasContext.imageSmoothingQuality = 'high';
-	      resizingCanvasContext.drawImage(currentImageSource, 0, 0, currentImageWidth, currentImageHeight, 0, 0, halfImageWidth, halfImageHeight);
-	      currentImageWidth = halfImageWidth;
-	      currentImageHeight = halfImageHeight;
-	      currentImageSource = resizingCanvas;
-	    }
-	    const outputCanvas = createCanvas(width, height);
-	    const outputCanvasContext = outputCanvas.getContext('2d');
-	    outputCanvasContext.imageSmoothingQuality = 'high';
-	    outputCanvasContext.drawImage(resizingCanvas === null ? imageSource : resizingCanvas, 0, 0, currentImageWidth, currentImageHeight, 0, 0, width, height);
-	    if (resizingCanvas) {
-	      resizingCanvas.width = 0;
-	      resizingCanvas.height = 0;
-	      resizingCanvas = null;
-	      currentImageSource.width = 0;
-	      currentImageSource.height = 0;
-	      currentImageSource = null;
-	    }
-	    return outputCanvas;
 	  }
+	  if (imageSource.height > imageSource.width) {
+	    width = Math.floor(height * (imageSource.width / imageSource.height));
+	  } else {
+	    height = Math.floor(width * (imageSource.height / imageSource.width));
+	  }
+	  let currentImageWidth = Math.floor(imageSource.width);
+	  let currentImageHeight = Math.floor(imageSource.height);
+	  let currentImageSource = imageSource;
+	  let resizingCanvas = null;
+	  while (currentImageWidth * 0.5 > width) {
+	    const halfImageWidth = Math.floor(currentImageWidth * 0.5);
+	    const halfImageHeight = Math.floor(currentImageHeight * 0.5);
+	    resizingCanvas = createCanvas(halfImageWidth, halfImageHeight);
+	    const resizingCanvasContext = resizingCanvas.getContext('2d');
+	    resizingCanvasContext.imageSmoothingQuality = 'high';
+	    resizingCanvasContext.drawImage(currentImageSource, 0, 0, currentImageWidth, currentImageHeight, 0, 0, halfImageWidth, halfImageHeight);
+	    currentImageWidth = halfImageWidth;
+	    currentImageHeight = halfImageHeight;
+	    currentImageSource = resizingCanvas;
+	  }
+	  const outputCanvas = createCanvas(width, height);
+	  const outputCanvasContext = outputCanvas.getContext('2d');
+	  outputCanvasContext.imageSmoothingQuality = 'high';
+	  outputCanvasContext.drawImage(resizingCanvas === null ? imageSource : resizingCanvas, 0, 0, currentImageWidth, currentImageHeight, 0, 0, width, height);
+	  if (resizingCanvas) {
+	    resizingCanvas.width = 0;
+	    resizingCanvas.height = 0;
+	    resizingCanvas = null;
+	    currentImageSource.width = 0;
+	    currentImageSource.height = 0;
+	    currentImageSource = null;
+	  }
+	  return outputCanvas;
 	};
 
 	const getResizedImageSize = (imageData, options) => {
@@ -2927,7 +2984,8 @@ this.BX.UI = this.BX.UI || {};
 	    height = imageData.height * ratio;
 	  }
 
-	  /*if (mode === 'crop')
+	  /*
+	  if (mode === 'crop')
 	  {
 	  	const sourceImageRatio = sourceImageWidth / sourceImageHeight;
 	  	const targetRatio = targetWidth / targetHeight;
@@ -2944,7 +3002,8 @@ this.BX.UI = this.BX.UI || {};
 	  		sourceImageHeight = newHeight;
 	  	}
 	  		context.drawImage(image, srcX, srcY, sourceImageWidth, sourceImageHeight, 0, 0, targetWidth, targetHeight);
-	  }*/
+	  }
+	  */
 
 	  return {
 	    targetWidth: Math.round(width),
@@ -2964,6 +3023,8 @@ this.BX.UI = this.BX.UI || {};
 	        quality
 	      }).then(blob => {
 	        resolve(blob);
+	      }).catch(error => {
+	        reject(error);
 	      });
 	    } else if (hasToBlobSupport) {
 	      canvas.toBlob(blob => {
@@ -2985,7 +3046,7 @@ this.BX.UI = this.BX.UI || {};
 	  const context = canvas.getContext('2d');
 	  const weights = [0, -1, 0, -1, 5, -1, 0, -1, 0];
 	  const katet = Math.round(Math.sqrt(weights.length));
-	  const half = katet * 0.5 | 0;
+	  const half = Math.trunc(katet * 0.5);
 	  const destinationData = context.createImageData(width, height);
 	  const destinationBuffer = destinationData.data;
 	  const sourceBuffer = context.getImageData(0, 0, width, height).data;
@@ -2999,7 +3060,8 @@ this.BX.UI = this.BX.UI || {};
 	      let red = 0;
 	      let green = 0;
 	      let blue = 0;
-	      let alpha = 0;
+	      // let alpha = 0;
+
 	      for (let cy = 0; cy < katet; cy++) {
 	        for (let cx = 0; cx < katet; cx++) {
 	          const scy = sy + cy - half;
@@ -3010,10 +3072,11 @@ this.BX.UI = this.BX.UI || {};
 	            red += sourceBuffer[srcOff] * wt;
 	            green += sourceBuffer[srcOff + 1] * wt;
 	            blue += sourceBuffer[srcOff + 2] * wt;
-	            alpha += sourceBuffer[srcOff + 3] * wt;
+	            // alpha += sourceBuffer[srcOff + 3] * wt;
 	          }
 	        }
 	      }
+
 	      destinationBuffer[dstOff] = red * mixFactor + sourceBuffer[dstOff] * (1 - mixFactor);
 	      destinationBuffer[dstOff + 1] = green * mixFactor + sourceBuffer[dstOff + 1] * (1 - mixFactor);
 	      destinationBuffer[dstOff + 2] = blue * mixFactor + sourceBuffer[dstOff + 2] * (1 - mixFactor);
@@ -3058,17 +3121,16 @@ this.BX.UI = this.BX.UI || {};
 	  const mimeTypeMode = options.mimeTypeMode;
 	  if (mimeTypeMode === 'force') {
 	    return mimeType;
-	  } else {
-	    return isSupportedMimeType(blob.type) ? blob.type : mimeType;
 	  }
+	  return isSupportedMimeType(blob.type) ? blob.type : mimeType;
 	};
 
 	const getFilenameWithoutExtension = name => {
-	  return name.substr(0, name.lastIndexOf('.')) || name;
+	  return name.slice(0, Math.max(0, name.lastIndexOf('.'))) || name;
 	};
 
 	const extensionMap = {
-	  'jpeg': 'jpg'
+	  jpeg: 'jpg'
 	};
 	const renameFileToMatchMimeType = (filename, mimeType) => {
 	  const name = getFilenameWithoutExtension(filename);
@@ -3077,10 +3139,10 @@ this.BX.UI = this.BX.UI || {};
 	  return `${name}.${extension}`;
 	};
 
-	let canCreateImageBitmap = 'createImageBitmap' in window && typeof ImageBitmap !== 'undefined' && ImageBitmap.prototype && ImageBitmap.prototype.close;
+	let canCreateImageBitmap = 'createImageBitmap' in window && !main_core.Type.isUndefined(window.ImageBitmap) && ImageBitmap.prototype && ImageBitmap.prototype.close;
 	if (canCreateImageBitmap && main_core.Browser.isSafari()) {
 	  const ua = navigator.userAgent.toLowerCase();
-	  const regex = new RegExp('version\\/([0-9.]+)', 'i');
+	  const regex = /version\/([\d.]+)/i;
 	  const result = regex.exec(ua);
 	  if (result && result[1] && result[1] < '16.4') {
 	    // Webkit bug https://bugs.webkit.org/show_bug.cgi?id=223326
@@ -3092,7 +3154,10 @@ this.BX.UI = this.BX.UI || {};
 	const sharpenSource = sharpen.toString();
 	const shouldSharpenSource = shouldSharpen.toString();
 	const canUseOffscreenCanvas$1 = canCreateImageBitmap && !main_core.Type.isUndefined(window.OffscreenCanvas);
+
+	// eslint-disable-next-line max-lines-per-function
 	const resizeImage = (source, options) => {
+	  // eslint-disable-next-line max-lines-per-function
 	  return new Promise((resolve, reject) => {
 	    if (canUseOffscreenCanvas$1) {
 	      const resizeWorker = createWorker(ResizeWorker);
@@ -3109,7 +3174,6 @@ this.BX.UI = this.BX.UI || {};
 	        resizeWorker.terminate();
 	        if (message) {
 	          const {
-	            blob,
 	            bitmap,
 	            targetWidth,
 	            targetHeight,
@@ -3145,6 +3209,10 @@ this.BX.UI = this.BX.UI || {};
 	                width: targetWidth,
 	                height: targetHeight
 	              });
+	            }).catch(error => {
+	              // eslint-disable-next-line no-console
+	              console.log('Uploader: convertCanvasToBlob error', error);
+	              loadImageDataFallback();
 	            }).finally(() => {
 	              canvas.width = 0;
 	              canvas.height = 0;
@@ -3203,9 +3271,10 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	      } else {
 	        const mimeType = getCanvasToBlobType(source, options);
-	        createImagePreview(imageData, Object.assign({}, options, {
+	        createImagePreview(imageData, {
+	          ...options,
 	          mimeType
-	        })).then(({
+	        }).then(({
 	          blob,
 	          width,
 	          height
@@ -3232,6 +3301,7 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	    function loadImageDataFallback() {
+	      // eslint-disable-next-line no-console
 	      console.log('Uploader: resize image fallback');
 	      loadImage(source).then(({
 	        image
@@ -3245,7 +3315,7 @@ this.BX.UI = this.BX.UI || {};
 	};
 
 	const isVideo = blob => {
-	  return /^video\/[a-z0-9.-]+$/i.test(blob.type);
+	  return /^video\/[\d.a-z-]+$/i.test(blob.type);
 	};
 
 	const createVideoPreview = (blob, options = {
@@ -3257,13 +3327,10 @@ this.BX.UI = this.BX.UI || {};
 	    video.setAttribute('src', URL.createObjectURL(blob));
 	    video.load();
 	    main_core.Event.bind(video, 'error', error => {
-	      reject('Error while loading video file', error);
+	      reject(error || 'Error while loading video file');
 	    });
 	    main_core.Event.bind(video, 'loadedmetadata', () => {
-	      if (video.duration < seekTime) {
-	        seekTime = 0;
-	      }
-	      video.currentTime = seekTime;
+	      video.currentTime = video.duration < seekTime ? 0 : seekTime;
 	      main_core.Event.bind(video, 'seeked', () => {
 	        const imageData = {
 	          width: video.videoWidth,
@@ -3374,7 +3441,8 @@ this.BX.UI = this.BX.UI || {};
 	          resolve();
 	        }).catch(error => {
 	          if (error) {
-	            console.log('Uploader: image resize error', error);
+	            // eslint-disable-next-line no-console
+	            console.warn('Uploader: image resize error', error);
 	          }
 	          resolve();
 	        });
@@ -3388,7 +3456,8 @@ this.BX.UI = this.BX.UI || {};
 	          resolve();
 	        }).catch(error => {
 	          if (error) {
-	            console.log('Uploader: video preview error', error);
+	            // eslint-disable-next-line no-console
+	            console.warn('Uploader: video preview error', error);
 	          }
 	          resolve();
 	        });
@@ -3562,7 +3631,8 @@ this.BX.UI = this.BX.UI || {};
 	        resolve();
 	      }).catch(error => {
 	        if (error) {
-	          console.log('image resize error', error);
+	          // eslint-disable-next-line no-console
+	          console.warn('image resize error', error);
 	        }
 	        resolve();
 	      });
@@ -3637,6 +3707,9 @@ this.BX.UI = this.BX.UI || {};
 	  STOPPED: 1
 	};
 
+	/**
+	 * @namespace BX.UI.Uploader
+	 */
 	const UploaderEvent = {
 	  UPLOAD_START: 'onUploadStart',
 	  UPLOAD_COMPLETE: 'onUploadComplete',
@@ -3646,6 +3719,7 @@ this.BX.UI = this.BX.UI || {};
 	  BEFORE_BROWSE: 'onBeforeBrowse',
 	  BEFORE_DROP: 'onBeforeDrop',
 	  BEFORE_PASTE: 'onBeforePaste',
+	  BEFORE_FILES_ADD: 'onBeforeFilesAdd',
 	  FILE_BEFORE_ADD: 'File:onBeforeAdd',
 	  FILE_ADD_START: 'File:onAddStart',
 	  FILE_LOAD_START: 'File:onLoadStart',
@@ -3662,6 +3736,9 @@ this.BX.UI = this.BX.UI || {};
 	  FILE_STATE_CHANGE: 'File:onStateChange'
 	};
 
+	/**
+	 * @namespace BX.UI.Uploader
+	 */
 	const FilterType = {
 	  VALIDATION: 'validation',
 	  PREPARATION: 'preparation'
@@ -3687,12 +3764,12 @@ this.BX.UI = this.BX.UI || {};
 	            resolveIfDone();
 	            return;
 	          }
-	          entries.forEach(entry => {
-	            if (entry.isDirectory) {
-	              readEntries(entry);
+	          entries.forEach(fileEntry => {
+	            if (fileEntry.isDirectory) {
+	              readEntries(fileEntry);
 	            } else {
 	              fileCounter++;
-	              entry.file(file => {
+	              fileEntry.file(file => {
 	                files.push(file);
 	                fileCounter--;
 	                resolveIfDone();
@@ -3733,7 +3810,7 @@ this.BX.UI = this.BX.UI || {};
 	};
 	const getFilesFromDataTransfer = (dataTransfer, browseFolders = true) => {
 	  return new Promise((resolve, reject) => {
-	    if (!dataTransfer.items) {
+	    if (!dataTransfer.items || dataTransfer.items.length === 0) {
 	      resolve(dataTransfer.files ? [...dataTransfer.files] : []);
 	      return;
 	    }
@@ -3794,7 +3871,7 @@ this.BX.UI = this.BX.UI || {};
 	      input.setAttribute('type', 'file');
 	      input.files = dataTransfer.files;
 	      result = input.files.length === 1;
-	    } catch (err) {
+	    } catch {
 	      result = false;
 	    }
 	  }
@@ -3805,11 +3882,13 @@ this.BX.UI = this.BX.UI || {};
 	  try {
 	    const dataTransfer = new DataTransfer();
 	    const files = main_core.Type.isArray(file) ? file : [file];
-	    files.forEach(file => {
-	      dataTransfer.items.add(file);
+	    files.forEach(item => {
+	      dataTransfer.items.add(item);
 	    });
+
+	    // eslint-disable-next-line no-param-reassign
 	    input.files = dataTransfer.files;
-	  } catch (error) {
+	  } catch {
 	    return false;
 	  }
 	  return true;
@@ -3874,7 +3953,7 @@ this.BX.UI = this.BX.UI || {};
 	    return instances.get(id) || null;
 	  }
 	  static getInstances() {
-	    return Array.from(instances.values());
+	    return [...instances.values()];
 	  }
 	  constructor(uploaderOptions) {
 	    super();
@@ -4060,12 +4139,14 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _onInputFileChangeHandler)[_onInputFileChangeHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handleInputFileChange)[_handleInputFileChange].bind(this);
 	    babelHelpers.classPrivateFieldLooseBase(this, _onPasteHandler)[_onPasteHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handlePaste)[_handlePaste].bind(this);
 	    babelHelpers.classPrivateFieldLooseBase(this, _onDropHandler)[_onDropHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handleDrop)[_handleDrop].bind(this);
-	    const options = main_core.Type.isPlainObject(uploaderOptions) ? Object.assign({}, uploaderOptions) : {};
+	    const options = main_core.Type.isPlainObject(uploaderOptions) ? {
+	      ...uploaderOptions
+	    } : {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _id$1)[_id$1] = main_core.Type.isStringFilled(options.id) ? options.id : `ui-uploader-${main_core.Text.getRandom().toLowerCase()}`;
 	    babelHelpers.classPrivateFieldLooseBase(this, _multiple)[_multiple] = main_core.Type.isBoolean(options.multiple) ? options.multiple : false;
 	    const acceptOnlyImages = main_core.Type.isBoolean(options.acceptOnlyImages) ? options.acceptOnlyImages : null;
 	    const acceptOnlyImagesGlobal = Uploader.getGlobalOption('acceptOnlyImages', null);
-	    this.setAcceptOnlyImages(acceptOnlyImages ? acceptOnlyImages : acceptOnlyImagesGlobal);
+	    this.setAcceptOnlyImages(acceptOnlyImages || acceptOnlyImagesGlobal);
 	    if (main_core.Type.isString(options.acceptedFileTypes) || main_core.Type.isArray(options.acceptedFileTypes)) {
 	      this.setAcceptedFileTypes(options.acceptedFileTypes);
 	    } else if (acceptOnlyImages !== true) {
@@ -4087,10 +4168,11 @@ this.BX.UI = this.BX.UI || {};
 	    this.setMaxParallelUploads(options.maxParallelUploads);
 	    this.setMaxParallelLoads(options.maxParallelLoads);
 	    let serverOptions = main_core.Type.isPlainObject(options.serverOptions) ? options.serverOptions : {};
-	    serverOptions = Object.assign({}, {
+	    serverOptions = {
 	      controller: options.controller,
-	      controllerOptions: options.controllerOptions
-	    }, serverOptions);
+	      controllerOptions: options.controllerOptions,
+	      ...serverOptions
+	    };
 	    babelHelpers.classPrivateFieldLooseBase(this, _server$3)[_server$3] = new Server(serverOptions);
 	    this.subscribeFromOptions(options.events);
 	    this.addFilter(FilterType.VALIDATION, new FileSizeFilter(this, options));
@@ -4110,18 +4192,41 @@ this.BX.UI = this.BX.UI || {};
 	    if (!main_core.Type.isArrayLike(fileList)) {
 	      return [];
 	    }
-	    const files = Array.from(fileList);
+	    const files = [];
+	    [...fileList].forEach(item => {
+	      if (item instanceof UploaderFile) {
+	        if (item.getStatus() === FileStatus.INIT) {
+	          files.push(item);
+	        }
+	      } else if (main_core.Type.isArrayFilled(item)) {
+	        files.push(new UploaderFile(item[0], item[1]));
+	      } else {
+	        files.push(new UploaderFile(item));
+	      }
+	    });
+	    const event = new main_core_events.BaseEvent({
+	      data: {
+	        files: [...files]
+	      }
+	    });
+	    this.emit(UploaderEvent.BEFORE_FILES_ADD, event);
+	    if (event.isDefaultPrevented()) {
+	      const {
+	        error
+	      } = event.getData();
+	      if (error instanceof UploaderError) {
+	        this.emit(UploaderEvent.ERROR, {
+	          error
+	        });
+	      }
+	      return [];
+	    }
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _exceedsMaxFileCount)[_exceedsMaxFileCount](files)) {
 	      return [];
 	    }
 	    const results = [];
 	    files.forEach(file => {
-	      let result = null;
-	      if (main_core.Type.isArrayFilled(file)) {
-	        result = this.addFile(file[0], file[1]);
-	      } else {
-	        result = this.addFile(file);
-	      }
+	      const result = this.addFile(file);
 	      if (result !== null) {
 	        results.push(result);
 	      }
@@ -4129,7 +4234,16 @@ this.BX.UI = this.BX.UI || {};
 	    return results;
 	  }
 	  addFile(source, options) {
-	    const file = new UploaderFile(source, options);
+	    let file = null;
+	    if (source instanceof UploaderFile) {
+	      if (source.getStatus() === FileStatus.INIT) {
+	        file = source;
+	      } else {
+	        return null;
+	      }
+	    } else {
+	      file = new UploaderFile(source, options);
+	    }
 	    if (this.getIgnoredFileNames().includes(file.getName().toLowerCase())) {
 	      return null;
 	    }
@@ -4142,7 +4256,7 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	    const event = new main_core_events.BaseEvent({
 	      data: {
-	        file: file
+	        file
 	      }
 	    });
 	    this.emit(UploaderEvent.FILE_BEFORE_ADD, event);
@@ -4167,11 +4281,9 @@ this.BX.UI = this.BX.UI || {};
 	        file.setLoadController(this.getServer().createClientLoadController());
 	      }
 	    }
-	    if (!file.isUploadable()) {
-	      if (file.getOrigin() === FileOrigin.CLIENT) {
-	        const uploadController = this.getServer().createUploadController();
-	        file.setUploadController(uploadController);
-	      }
+	    if (!file.isUploadable() && file.getOrigin() === FileOrigin.CLIENT) {
+	      const uploadController = this.getServer().createUploadController();
+	      file.setUploadController(uploadController);
 	    }
 	    if (!file.isRemoveable()) {
 	      file.setRemoveController(this.getServer().createRemoveController());
@@ -4234,11 +4346,9 @@ this.BX.UI = this.BX.UI || {};
 	      file.remove(options);
 	    });
 	  }
-	  removeFile(file, options) {
-	    if (main_core.Type.isString(file)) {
-	      file = this.getFile(file);
-	    }
-	    const index = babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].findIndex(element => element === file);
+	  removeFile(fileOrId, options) {
+	    const file = main_core.Type.isString(fileOrId) ? this.getFile(fileOrId) : fileOrId;
+	    const index = babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].indexOf(file);
 	    if (index === -1) {
 	      return;
 	    }
@@ -4248,7 +4358,7 @@ this.BX.UI = this.BX.UI || {};
 	    return babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].find(file => file.getId() === id) || null;
 	  }
 	  getFiles() {
-	    return Array.from(babelHelpers.classPrivateFieldLooseBase(this, _files)[_files]);
+	    return [...babelHelpers.classPrivateFieldLooseBase(this, _files)[_files]];
 	  }
 	  getId() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _id$1)[_id$1];
@@ -4259,12 +4369,15 @@ this.BX.UI = this.BX.UI || {};
 	  getStatus() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _status$1)[_status$1];
 	  }
-	  addFilter(type, filter, filterOptions = {}) {
-	    if (main_core.Type.isFunction(filter) || main_core.Type.isString(filter)) {
-	      const className = main_core.Type.isString(filter) ? main_core.Reflection.getClass(filter) : filter;
-	      if (main_core.Type.isFunction(className)) {
-	        filter = new className(this, filterOptions);
+	  addFilter(type, filterEntity, filterOptions = {}) {
+	    let filter = null;
+	    if (main_core.Type.isFunction(filterEntity) || main_core.Type.isString(filterEntity)) {
+	      const ClassName = main_core.Type.isString(filterEntity) ? main_core.Reflection.getClass(filterEntity) : filterEntity;
+	      if (main_core.Type.isFunction(ClassName)) {
+	        filter = new ClassName(this, filterOptions);
 	      }
+	    } else {
+	      filter = filterEntity;
 	    }
 	    if (filter instanceof Filter) {
 	      let filters = babelHelpers.classPrivateFieldLooseBase(this, _filters)[_filters].get(type);
@@ -4274,7 +4387,7 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      filters.push(filter);
 	    } else {
-	      throw new Error('Uploader: a filter must be an instance of FileUploader.Filter.');
+	      throw new TypeError('Uploader: a filter must be an instance of FileUploader.Filter.');
 	    }
 	  }
 	  addFilters(filters) {
@@ -4289,8 +4402,8 @@ this.BX.UI = this.BX.UI || {};
 	  getServer() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _server$3)[_server$3];
 	  }
-	  assignBrowse(nodes) {
-	    nodes = main_core.Type.isElementNode(nodes) ? [nodes] : nodes;
+	  assignBrowse(htmlElement) {
+	    const nodes = main_core.Type.isElementNode(htmlElement) ? [htmlElement] : htmlElement;
 	    if (!main_core.Type.isArray(nodes)) {
 	      return;
 	    }
@@ -4298,12 +4411,12 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isElementNode(node) || babelHelpers.classPrivateFieldLooseBase(this, _browsingNodes)[_browsingNodes].has(node)) {
 	        return;
 	      }
-	      let input;
+	      let input = null;
 	      if (node.tagName === 'INPUT' && node.type === 'file') {
 	        input = node;
 
 	        // Add already selected files
-	        if (input.files && input.files.length) {
+	        if (input.files && input.files.length > 0) {
 	          this.addFiles(input.files);
 	        }
 	        const acceptAttr = input.getAttribute('accept');
@@ -4327,8 +4440,8 @@ this.BX.UI = this.BX.UI || {};
 	      main_core.Event.bind(input, 'change', babelHelpers.classPrivateFieldLooseBase(this, _onInputFileChangeHandler)[_onInputFileChangeHandler]);
 	    });
 	  }
-	  unassignBrowse(nodes) {
-	    nodes = main_core.Type.isElementNode(nodes) ? [nodes] : nodes;
+	  unassignBrowse(htmlElement) {
+	    const nodes = main_core.Type.isElementNode(htmlElement) ? [htmlElement] : htmlElement;
 	    if (!main_core.Type.isArray(nodes)) {
 	      return;
 	    }
@@ -4341,12 +4454,12 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	  }
 	  unassignBrowseAll() {
-	    Array.from(babelHelpers.classPrivateFieldLooseBase(this, _browsingNodes)[_browsingNodes].keys()).forEach(node => {
+	    [...babelHelpers.classPrivateFieldLooseBase(this, _browsingNodes)[_browsingNodes].keys()].forEach(node => {
 	      this.unassignBrowse(node);
 	    });
 	  }
-	  assignDropzone(nodes) {
-	    nodes = main_core.Type.isElementNode(nodes) ? [nodes] : nodes;
+	  assignDropzone(htmlElement) {
+	    const nodes = main_core.Type.isElementNode(htmlElement) ? [htmlElement] : htmlElement;
 	    if (!main_core.Type.isArray(nodes)) {
 	      return;
 	    }
@@ -4360,8 +4473,8 @@ this.BX.UI = this.BX.UI || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _dropNodes)[_dropNodes].add(node);
 	    });
 	  }
-	  unassignDropzone(nodes) {
-	    nodes = main_core.Type.isElementNode(nodes) ? [nodes] : nodes;
+	  unassignDropzone(htmlElement) {
+	    const nodes = main_core.Type.isElementNode(htmlElement) ? [htmlElement] : htmlElement;
 	    if (!main_core.Type.isArray(nodes)) {
 	      return;
 	    }
@@ -4375,12 +4488,12 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	  }
 	  unassignDropzoneAll() {
-	    Array.from(babelHelpers.classPrivateFieldLooseBase(this, _dropNodes)[_dropNodes]).forEach(node => {
+	    [...babelHelpers.classPrivateFieldLooseBase(this, _dropNodes)[_dropNodes]].forEach(node => {
 	      this.unassignDropzone(node);
 	    });
 	  }
-	  assignPaste(nodes) {
-	    nodes = main_core.Type.isElementNode(nodes) ? [nodes] : nodes;
+	  assignPaste(htmlElement) {
+	    const nodes = main_core.Type.isElementNode(htmlElement) ? [htmlElement] : htmlElement;
 	    if (!main_core.Type.isArray(nodes)) {
 	      return;
 	    }
@@ -4392,8 +4505,8 @@ this.BX.UI = this.BX.UI || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _pastingNodes)[_pastingNodes].add(node);
 	    });
 	  }
-	  unassignPaste(nodes) {
-	    nodes = main_core.Type.isElementNode(nodes) ? [nodes] : nodes;
+	  unassignPaste(htmlElement) {
+	    const nodes = main_core.Type.isElementNode(htmlElement) ? [htmlElement] : htmlElement;
 	    if (!main_core.Type.isArray(nodes)) {
 	      return;
 	    }
@@ -4405,7 +4518,7 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	  }
 	  unassignPasteAll() {
-	    Array.from(babelHelpers.classPrivateFieldLooseBase(this, _pastingNodes)[_pastingNodes]).forEach(node => {
+	    [...babelHelpers.classPrivateFieldLooseBase(this, _pastingNodes)[_pastingNodes]].forEach(node => {
 	      this.unassignPaste(node);
 	    });
 	  }
@@ -4508,13 +4621,11 @@ this.BX.UI = this.BX.UI || {};
 	    return babelHelpers.classPrivateFieldLooseBase(this, _acceptedFileTypes)[_acceptedFileTypes];
 	  }
 	  setAcceptedFileTypes(fileTypes) {
-	    if (main_core.Type.isString(fileTypes)) {
-	      fileTypes = fileTypes.split(',');
-	    }
-	    if (main_core.Type.isArray(fileTypes)) {
+	    const types = main_core.Type.isString(fileTypes) ? fileTypes.split(',') : fileTypes;
+	    if (main_core.Type.isArray(types)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _acceptedFileTypes)[_acceptedFileTypes] = [];
 	      babelHelpers.classPrivateFieldLooseBase(this, _acceptOnlyImages)[_acceptOnlyImages] = false;
-	      fileTypes.forEach(type => {
+	      types.forEach(type => {
 	        if (main_core.Type.isStringFilled(type)) {
 	          babelHelpers.classPrivateFieldLooseBase(this, _acceptedFileTypes)[_acceptedFileTypes].push(type);
 	        }
@@ -4665,10 +4776,8 @@ this.BX.UI = this.BX.UI || {};
 	  if (this.getStatus() === UploaderStatus.STOPPED) {
 	    event.preventDefault();
 	    this.start();
-	  } else {
-	    if (this.getUploadingFileCount() >= this.getMaxParallelUploads()) {
-	      event.preventDefault();
-	    }
+	  } else if (this.getUploadingFileCount() >= this.getMaxParallelUploads()) {
+	    event.preventDefault();
 	  }
 	}
 	function _handleFileStatusChange2(event) {
@@ -4696,7 +4805,7 @@ this.BX.UI = this.BX.UI || {};
 	  if (!this.isMultiple() && totalNewFiles > 1) {
 	    return true;
 	  }
-	  let maxFileCount;
+	  let maxFileCount = null;
 	  if (this.isMultiple()) {
 	    maxFileCount = this.getMaxFileCount();
 	  } else {
@@ -4732,7 +4841,7 @@ this.BX.UI = this.BX.UI || {};
 	  });
 	}
 	function _removeFile2(file) {
-	  const index = babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].findIndex(element => element === file);
+	  const index = babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].indexOf(file);
 	  if (index !== -1) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].splice(index, 1);
 	  }
@@ -4757,7 +4866,7 @@ this.BX.UI = this.BX.UI || {};
 	}
 	function _handleInputFileChange2(event) {
 	  const input = event.currentTarget;
-	  this.addFiles(Array.from(input.files));
+	  this.addFiles([...input.files]);
 
 	  // reset file input
 	  input.value = '';
@@ -4775,6 +4884,8 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getFilesFromDataTransfer(dragEvent.dataTransfer).then(files => {
 	    this.addFiles(files);
+	  }).catch(error => {
+	    console.error('Uploader: data transfer error', error);
 	  });
 	}
 	function _preventDefault2(event) {
@@ -4798,6 +4909,8 @@ this.BX.UI = this.BX.UI || {};
 	    clipboardEvent.preventDefault();
 	    getFilesFromDataTransfer(clipboardData).then(files => {
 	      this.addFiles(files);
+	    }).catch(error => {
+	      console.error('Uploader: data transfer error', error);
 	    });
 	  }
 	}
@@ -4885,7 +4998,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 	function _resetHiddenFields2() {
-	  Array.from(babelHelpers.classPrivateFieldLooseBase(this, _hiddenFields)[_hiddenFields].values()).forEach(input => {
+	  [...babelHelpers.classPrivateFieldLooseBase(this, _hiddenFields)[_hiddenFields].values()].forEach(input => {
 	    main_core.Dom.remove(input);
 	  });
 	  babelHelpers.classPrivateFieldLooseBase(this, _hiddenFields)[_hiddenFields] = [];
@@ -4904,16 +5017,16 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	const isImage = blob => {
-	  return /^image\/[a-z0-9.-]+$/i.test(blob.type);
+	  return /^image\/[\d.a-z-]+$/i.test(blob.type);
 	};
 
 	const Marker$1 = {
-	  JPEG: 0xffd8,
-	  APP1: 0xffe1,
+	  JPEG: 0xFFD8,
+	  APP1: 0xFFE1,
 	  EXIF: 0x45786966,
 	  TIFF: 0x4949,
 	  Orientation: 0x0112,
-	  Unknown: 0xff00
+	  Unknown: 0xFF00
 	};
 	const getUint16 = (view, offset, little = false) => view.getUint16(offset, little);
 	const getUint32 = (view, offset, little = false) => view.getUint32(offset, little);
@@ -4934,7 +5047,8 @@ this.BX.UI = this.BX.UI || {};
 
 	        // APP1 Marker
 	        if (marker === Marker$1.APP1) {
-	          if (getUint32(view, offset += 2) !== Marker$1.EXIF) {
+	          offset += 2;
+	          if (getUint32(view, offset) !== Marker$1.EXIF) {
 	            // no EXIF
 	            break;
 	          }
@@ -4949,10 +5063,10 @@ this.BX.UI = this.BX.UI || {};
 	              return;
 	            }
 	          }
-	        } else if ((marker & Marker$1.Unknown) !== Marker$1.Unknown) {
-	          break; // Invalid
-	        } else {
+	        } else if ((marker & Marker$1.Unknown) === Marker$1.Unknown) {
 	          offset += getUint16(view, offset);
+	        } else {
+	          break; // Invalid
 	        }
 	      }
 

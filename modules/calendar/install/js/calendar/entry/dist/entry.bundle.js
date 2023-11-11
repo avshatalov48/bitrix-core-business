@@ -1,7 +1,9 @@
 this.BX = this.BX || {};
-(function (exports,calendar_entry,calendar_sectionmanager,calendar_util,main_core_events,calendar_compacteventform,ui_notification,calendar_roomsmanager,main_core) {
+(function (exports,calendar_entry,calendar_sectionmanager,calendar_util,main_core_events,calendar_compacteventform,ui_notification,calendar_roomsmanager,ui_dialogs_messagebox,main_core) {
 	'use strict';
 
+	let _ = t => t,
+	  _t;
 	class EntryManager {
 	  static getNewEntry(options) {
 	    const newEntryData = {};
@@ -288,6 +290,34 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
+	  }
+	  static getLocationRepeatBusyErrorPopup(options = {}) {
+	    return new ui_dialogs_messagebox.MessageBox({
+	      title: main_core.Loc.getMessage('EC_LOCATION_REPEAT_BUSY_POPUP_TITLE'),
+	      message: main_core.Tag.render(_t || (_t = _`
+				<div class="calendar-list-slider-messagebox-text-with-title">
+					${0}
+				</div>
+			`), options.message),
+	      minHeight: 100,
+	      minWidth: 300,
+	      maxWidth: 690,
+	      buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL,
+	      onYes: options.onYesCallback,
+	      onCancel: options.onCancelCallback,
+	      yesCaption: main_core.Loc.getMessage('EC_LOCATION_REPEAT_BUSY_POPUP_SAVE_WITHOUT_ROOM'),
+	      cancelCaption: main_core.Loc.getMessage('EC_LOCATION_REPEAT_BUSY_POPUP_RETURN_TO_EDIT'),
+	      mediumButtonSize: false,
+	      popupOptions: {
+	        events: {
+	          onPopupClose: options.onPopupCloseCallback
+	        },
+	        closeByEsc: true,
+	        padding: 0,
+	        contentPadding: 0,
+	        animation: 'fading-slide'
+	      }
+	    });
 	  }
 	  static showEmailLimitationDialog(options = {}) {
 	    if (!this.limitationEmailDialog) {
@@ -1092,5 +1122,5 @@ this.BX = this.BX || {};
 	exports.EntryManager = EntryManager;
 	exports.Entry = Entry;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar,BX,BX.Calendar,BX));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar,BX,BX.Calendar,BX.UI.Dialogs,BX));
 //# sourceMappingURL=entry.bundle.js.map

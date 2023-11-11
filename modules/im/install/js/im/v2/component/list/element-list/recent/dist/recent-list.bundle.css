@@ -166,7 +166,7 @@
 }
 
 .bx-im-list-recent__container.--compact .bx-im-list-recent-item__container.--no-counter .bx-im-list-recent-item__avatar_container {
-	opacity: 0.65;
+	opacity: 0.57;
 }
 
 .bx-im-list-recent__container.--compact .bx-im-list-recent-item__container:hover .bx-im-list-recent-item__avatar_container {
@@ -816,6 +816,44 @@
 
 .bx-im-list-recent-active-call__container .bx-im-list-recent-item__content_container {
 	padding-bottom: 7px;
+}
+.bx-im-list-recent-create-chat__container {
+	--im-list-recent-create-chat__background-color_not-active: var(--im-color-palette-blue-15);
+	--im-list-recent-create-chat__font-color_header: var(--im-color-palette-white-base);
+
+	margin: 4px 4px 6px 4px;
+}
+
+.bx-im-list-recent-create-chat__container .bx-im-list-recent-item__wrap:not(.--selected) {
+	background-color: var(--im-list-recent-create-chat__background-color_not-active);
+}
+
+.bx-im-list-recent-create-chat__avatar {
+	width: 48px;
+	height: 48px;
+}
+
+.bx-im-list-recent-create-chat__avatar.--default {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='48' height='48' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='24' cy='24' r='24' fill='%232FC6F6'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M35.817 15.809h-5.909c-.422-1.662-.844-3.323-2.532-3.323h-6.753c-1.688 0-2.11 1.661-2.532 3.322h-5.908c-.929 0-1.688.748-1.688 1.662v14.953c0 .913.76 1.661 1.688 1.661h23.634c.928 0 1.688-.748 1.688-1.661V17.47c0-.914-.76-1.661-1.688-1.661zm-16.149 8.875c0 2.355 1.94 4.263 4.332 4.263s4.331-1.908 4.331-4.263c0-2.354-1.94-4.262-4.331-4.262-2.392 0-4.332 1.908-4.332 4.262zM24 30.504c-3.266 0-5.914-2.605-5.914-5.82 0-3.214 2.648-5.82 5.914-5.82 3.266 0 5.914 2.606 5.914 5.82 0 3.215-2.648 5.82-5.914 5.82zm10.585-10.598h-2.187V18.45h2.187v1.457z' fill='%23fff'/%3E%3C/svg%3E");
+}
+
+.bx-im-list-recent-create-chat__avatar.--image {
+	object-fit: cover;
+	border-radius: 50%;
+}
+
+.bx-im-list-recent-create-chat__header {
+	font: var(--im-font-size-lg) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-list-recent-create-chat__font-color_header);
+
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.bx-im-list-recent-create-chat__container .bx-im-list-recent-item__wrap:not(.--selected) .bx-im-list-recent-create-chat__header {
+	--im-list-recent-create-chat__font-color_header: var(--im-color-palette-black-base)
 }
 .bx-im-new-user-popup {
 	padding: 0;

@@ -577,7 +577,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return new ui_buttons.Button({
 	      size: ui_buttons.ButtonSize.MEDIUM,
 	      color: ui_buttons.ButtonColor.DANGER,
-	      text: main_core.Loc.getMessage('SHARING_WARNING_POPUP_SUBMIT_BUTTON'),
+	      text: main_core.Loc.getMessage('SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW'),
 	      events: {
 	        click: () => this.handleSubmitButtonClick()
 	      }

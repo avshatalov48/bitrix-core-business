@@ -27,6 +27,7 @@ export const Config = {
 							}
 						]
 					},
+					/* Disable - chat with users section
 					{
 						id: 'im-chat-user',
 						options: {
@@ -39,6 +40,7 @@ export const Config = {
 						dynamicLoad: true,
 						dynamicSearch: true,
 					},
+					*/
 				],
 				preselectedItems: [],
 				clearUnavailableItems: false,
@@ -86,5 +88,12 @@ export const Config = {
 			dynamicLoad: true,
 			dynamicSearch: true,
 		};
-	}
+	},
+	getLinesEntity: () => {
+		return {
+			id: 'imol-chat',
+			dynamicLoad: true,
+			dynamicSearch: true,
+		};
+	},
 };

@@ -306,7 +306,6 @@ class Access
 		$entity = static::getActiveEntity();
 		$maxCount = static::getAvailableCount();
 		$isB24 = ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24');
-
 		$isSubscriptionFinished = $dateFinish && $dateFinish < (new Date());
 		$isSubscriptionAccess = Client::isSubscriptionAccess();
 		$isSubscriptionDemoAvailable = Client::isSubscriptionDemoAvailable() && !$dateFinish;
@@ -400,7 +399,7 @@ class Access
 				if ($isSubscriptionDemoAvailable)
 				{
 					// activate demo subscription
-					$code = 'limit_subscription_market_marketpaid';
+					$code = 'limit_subscription_market_access';
 				}
 				elseif ($isB24 && $isDemo)
 				{
@@ -532,7 +531,7 @@ class Access
 			else
 			{
 				// activate demo subscription
-				$code = 'limit_subscription_market_marketpaid';
+				$code = 'limit_subscription_market_access';
 			}
 		}
 		elseif ($isDemoSubscription && !$isCanInstallInDemo)

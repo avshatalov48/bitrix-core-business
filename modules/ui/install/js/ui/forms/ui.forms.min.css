@@ -41,14 +41,14 @@
 
 /*arrow-down*/
 .ui-ctl-icon-arrow-down {
-	background-image: url(/bitrix/js/ui/forms/images/arrow-down.svg); }
+	background-image: url(/bitrix/js/ui/forms/images/arrow-down.svg); background-size:14px auto;}
 
 /*close-special*/
 .ui-ctl-icon-close-special {
 	background-image: url(/bitrix/js/ui/forms/images/close-special.svg); }
 
 /*location*/
-.ui-ctl-icon-arrow-down {
+.ui-ctl-icon-location {
 	background-image: url(/bitrix/js/ui/forms/images/location.svg);}.ui-ctl-icon-forward.ui-ctl-before[class*=ui-ctl-icon-],.ui-ctl-icon-forward.ui-ctl-after[class*=ui-ctl-icon-]{background-size:14px auto;opacity:.56;}
 
 /*endregion*/

@@ -8,8 +8,8 @@ return [
 	'css' => 'dist/map.bundle.css',
 	'js' => 'dist/map.bundle.js',
 	'rel' => [
-		'main.core',
+		'main.polyfill.core',
 		'landing.node',
 	],
-	'skip_core' => false,
+	'skip_core' => true,
 ];

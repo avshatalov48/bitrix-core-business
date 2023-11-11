@@ -1,4 +1,4 @@
-export function fetchBlockImageNodes(block: BX.Landing.Block): Array<BX.Landing.Block.Node.Img>
+export function fetchBlockImageNodes(block: BX.Landing.Block): Array<BX.Landing.Node.Img>
 {
 	if (block)
 	{

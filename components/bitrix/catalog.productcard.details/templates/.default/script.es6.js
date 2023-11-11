@@ -1,8 +1,8 @@
-import {Loc, Reflection} from 'main.core';
-import {EntityCard} from 'catalog.entity-card';
-import {BaseEvent, EventEmitter} from 'main.core.events';
-import {MenuManager, Popup} from "main.popup";
-import {Button} from "ui.buttons";
+import { Loc, Reflection } from 'main.core';
+import { EntityCard } from 'catalog.entity-card';
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import { MenuManager, Popup } from 'main.popup';
+import { Button } from 'ui.buttons';
 
 class ProductCard extends EntityCard
 {
@@ -145,7 +145,7 @@ class ProductCard extends EntityCard
 					let slider = BX.SidePanel.Instance.getTopSlider();
 					if (slider)
 					{
-						slider.url = BX.Uri.addParam(slider.getUrl(), {productTypeId: type});
+						slider.url = BX.Uri.addParam(slider.getUrl(), { productTypeId: type });
 						slider.requestMethod = 'post';
 
 						slider.setFrameSrc();

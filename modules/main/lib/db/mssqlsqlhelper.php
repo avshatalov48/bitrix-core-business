@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\DB;
 
 use Bitrix\Main;
@@ -9,9 +10,7 @@ use Bitrix\Main\ORM\Fields\ScalarField;
 class MssqlSqlHelper extends SqlHelper
 {
 	/**
-	 * Returns an identificator escaping left character.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getLeftQuote()
 	{
@@ -19,9 +18,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns an identificator escaping right character.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getRightQuote()
 	{
@@ -29,9 +26,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns maximum length of an alias in a select statement
-	 *
-	 * @return integer
+	 * @inheritdoc
 	 */
 	public function getAliasLength()
 	{
@@ -39,9 +34,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns database specific query delimiter for batch processing.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getQueryDelimiter()
 	{
@@ -49,14 +42,9 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Escapes special characters in a string for use in an SQL statement.
-	 *
-	 * @param string $value Value to be escaped.
-	 * @param integer $maxLength Limits string length if set.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
-	function forSql($value, $maxLength = 0)
+	public function forSql($value, $maxLength = 0)
 	{
 		if ($maxLength > 0)
 		{
@@ -68,9 +56,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns function for getting current time.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getCurrentDateTimeFunction()
 	{
@@ -78,9 +64,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns function for getting current date without time part.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getCurrentDateFunction()
 	{
@@ -88,16 +72,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns function for adding seconds time interval to $from.
-	 * <p>
-	 * If $from is null or omitted, then current time is used.
-	 * <p>
-	 * $seconds and $from parameters are SQL unsafe.
-	 *
-	 * @param integer $seconds How many seconds to add.
-	 * @param integer $from Datetime database field of expression.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function addSecondsToDateTime($seconds, $from = null)
 	{
@@ -110,13 +85,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns function cast $value to datetime database type.
-	 * <p>
-	 * $value parameter is SQL unsafe.
-	 *
-	 * @param string $value Database field or expression to cast.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getDatetimeToDateFunction($value)
 	{
@@ -124,29 +93,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns database expression for converting $field value according the $format.
-	 * <p>
-	 * Following format parts converted:
-	 * - YYYY   A full numeric representation of a year, 4 digits
-	 * - MMMM   A full textual representation of a month, such as January or March
-	 * - MM     Numeric representation of a month, with leading zeros
-	 * - MI     Minutes with leading zeros
-	 * - M      A short textual representation of a month, three letters
-	 * - DD     Day of the month, 2 digits with leading zeros
-	 * - HH     24-hour format of an hour with leading zeros
-	 * - H      24-hour format of an hour without leading zeros
-	 * - GG     12-hour format of an hour with leading zeros
-	 * - G      12-hour format of an hour without leading zeros
-	 * - SS     Seconds with leading zeros
-	 * - TT     AM or PM
-	 * - T      AM or PM
-	 * <p>
-	 * $field parameter is SQL unsafe.
-	 *
-	 * @param string $format Format string.
-	 * @param string $field Database field or expression.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function formatDate($format, $field = null)
 	{
@@ -180,14 +127,10 @@ class MssqlSqlHelper extends SqlHelper
 					$result[] = "\n\tREPLICATE('0',2-LEN(DATEPART(dd, $field)))+CONVERT(varchar(2),DATEPART(dd, $field))";
 					break;
 				case "HH":
-					$result[] = "\n\tREPLICATE('0',2-LEN(DATEPART(hh, $field)))+CONVERT(varchar(2),DATEPART(hh, $field))";
-					break;
-				case "H":
-					$result[] = "\n\tCASE WHEN DATEPART(HH, $field) < 13 THEN RIGHT(REPLICATE('0',2) + CAST(datepart(HH, $field) AS VARCHAR(2)),2) ELSE RIGHT(REPLICATE('0',2) + CAST(datepart(HH, dateadd(HH, -12, $field)) AS VARCHAR(2)), 2) END";
-					break;
 				case "GG":
 					$result[] = "\n\tREPLICATE('0',2-LEN(DATEPART(hh, $field)))+CONVERT(varchar(2),DATEPART(hh, $field))";
 					break;
+				case "H":
 				case "G":
 					$result[] = "\n\tCASE WHEN DATEPART(HH, $field) < 13 THEN RIGHT(REPLICATE('0',2) + CAST(datepart(HH, $field) AS VARCHAR(2)),2) ELSE RIGHT(REPLICATE('0',2) + CAST(datepart(HH, dateadd(HH, -12, $field)) AS VARCHAR(2)), 2) END";
 					break;
@@ -195,8 +138,6 @@ class MssqlSqlHelper extends SqlHelper
 					$result[] = "\n\tREPLICATE('0',2-LEN(DATEPART(ss, $field)))+CONVERT(varchar(2),DATEPART(ss, $field))";
 					break;
 				case "TT":
-					$result[] = "\n\tCASE WHEN DATEPART(HH, $field) < 12 THEN 'AM' ELSE 'PM' END";
-					break;
 				case "T":
 					$result[] = "\n\tCASE WHEN DATEPART(HH, $field) < 12 THEN 'AM' ELSE 'PM' END";
 					break;
@@ -210,18 +151,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns function for getting part of string.
-	 * <p>
-	 * If length is null or omitted, the substring starting
-	 * from start until the end of the string will be returned.
-	 * <p>
-	 * $str and $from parameters are SQL unsafe.
-	 *
-	 * @param string $str Database field or expression.
-	 * @param integer $from Start position.
-	 * @param integer $length Maximum length.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getSubstrFunction($str, $from, $length = null)
 	{
@@ -236,13 +166,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns function for concatenating database fields or expressions.
-	 * <p>
-	 * All parameters are SQL unsafe.
-	 *
-	 * @param string $field,... Database fields or expressions.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getConcatFunction()
 	{
@@ -250,15 +174,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns function for testing database field or expressions
-	 * against NULL value. When it is NULL then $result will be returned.
-	 * <p>
-	 * All parameters are SQL unsafe.
-	 *
-	 * @param string $expression Database field or expression for NULL test.
-	 * @param string $result Database field or expression to return when $expression is NULL.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getIsNullFunction($expression, $result)
 	{
@@ -266,13 +182,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns function for getting length of database field or expression.
-	 * <p>
-	 * $field parameter is SQL unsafe.
-	 *
-	 * @param string $field Database field or expression.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getLengthFunction($field)
 	{
@@ -280,15 +190,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns function for converting string value into datetime.
-	 * $value must be in YYYY-MM-DD HH:MI:SS format.
-	 * <p>
-	 * $value parameter is SQL unsafe.
-	 *
-	 * @param string $value String in YYYY-MM-DD HH:MI:SS format.
-	 *
-	 * @return string
-	 * @see \Bitrix\Main\DB\MssqlSqlHelper::formatDate
+	 * @inheritdoc
 	 */
 	public function getCharToDateFunction($value)
 	{
@@ -296,16 +198,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns function for converting database field or expression into string.
-	 * <p>
-	 * Result string will be in YYYY-MM-DD HH:MI:SS format.
-	 * <p>
-	 * $fieldName parameter is SQL unsafe.
-	 *
-	 * @param string $fieldName Database field or expression.
-	 *
-	 * @return string
-	 * @see \Bitrix\Main\DB\MssqlSqlHelper::formatDate
+	 * @inheritdoc
 	 */
 	public function getDateToCharFunction($fieldName)
 	{
@@ -313,11 +206,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * @param string $fieldName
-	 *
-	 * return string
+	 * @inheritdoc
 	 */
 	public function castToChar($fieldName)
 	{
@@ -325,11 +214,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * @param string $fieldName
-	 *
-	 * return string
+	 * @inheritdoc
 	 */
 	public function softCastTextToChar($fieldName)
 	{
@@ -337,12 +222,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns callback to be called for a field value on fetch.
-	 * Used for soft conversion. For strict results @see ORM\Query\Result::setStrictValueConverters()
-	 *
-	 * @param ScalarField $field Type "source".
-	 *
-	 * @return false|callback
+	 * @inheritdoc
 	 */
 	public function getConverter(ScalarField $field)
 	{
@@ -365,26 +245,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * @deprecated
-	 * Converts string into \Bitrix\Main\Type\DateTime object.
-	 * <p>
-	 * Helper function.
-	 *
-	 * @param string $value Value fetched.
-	 *
-	 * @return null|\Bitrix\Main\Type\DateTime
-	 * @see \Bitrix\Main\Db\MssqlSqlHelper::getConverter
-	 */
-	public function convertDatetimeField($value)
-	{
-		return $this->convertFromDbDateTime($value);
-	}
-
-	/**
-	 * @param $value
-	 *
-	 * @return Type\DateTime
-	 * @throws Main\ObjectException
+	 * @inheritdoc
 	 */
 	public function convertFromDbDateTime($value)
 	{
@@ -397,26 +258,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * @deprecated
-	 * Converts string into \Bitrix\Main\Type\Date object.
-	 * <p>
-	 * Helper function.
-	 *
-	 * @param string $value Value fetched.
-	 *
-	 * @return \Bitrix\Main\Type\Date
-	 * @see \Bitrix\Main\Db\MssqlSqlHelper::getConverter
-	 */
-	public function convertDateField($value)
-	{
-		return $this->convertFromDbDate($value);
-	}
-
-	/**
-	 * @param $value
-	 *
-	 * @return Type\Date
-	 * @throws Main\ObjectException
+	 * @inheritdoc
 	 */
 	public function convertFromDbDate($value)
 	{
@@ -429,27 +271,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * @deprecated
-	 * Converts string into \Bitrix\Main\Type\Date object if string has datetime specific format..
-	 * <p>
-	 * Helper function.
-	 *
-	 * @param string $value Value fetched.
-	 *
-	 * @return null|\Bitrix\Main\Type\DateTime
-	 * @see \Bitrix\Main\Db\MssqlSqlHelper::getConverter
-	 */
-	public function convertStringField($value)
-	{
-		return $this->convertFromDbString($value);
-	}
-
-	/**
-	 * @param string $value
-	 * @param null   $length
-	 *
-	 * @return Type\DateTime|string
-	 * @throws Main\ObjectException
+	 * @inheritdoc
 	 */
 	public function convertFromDbString($value, $length = null)
 	{
@@ -465,11 +287,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns a column type according to ScalarField object.
-	 *
-	 * @param ScalarField $field Type "source".
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getColumnTypeByField(ScalarField $field)
 	{
@@ -529,14 +347,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Returns instance of a descendant from Entity\ScalarField
-	 * that matches database type.
-	 *
-	 * @param string $name Database column name.
-	 * @param mixed $type Database specific type.
-	 * @param array $parameters Additional information.
-	 *
-	 * @return ScalarField
+	 * @inheritdoc
 	 */
 	public function getFieldByColumnType($name, $type, array $parameters = null)
 	{
@@ -593,16 +404,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Transforms Sql according to $limit and $offset limitations.
-	 * <p>
-	 * You must specify $limit when $offset is set.
-	 *
-	 * @param string $sql Sql text.
-	 * @param integer $limit Maximum number of rows to return.
-	 * @param integer $offset Offset of the first row to return, starting from 0.
-	 *
-	 * @return string
-	 * @throws Main\ArgumentException
+	 * @inheritdoc
 	 */
 	public function getTopSql($sql, $limit, $offset = 0)
 	{
@@ -659,14 +461,7 @@ class MssqlSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Builds the strings for the SQL MERGE command for the given table.
-	 *
-	 * @param string $tableName A table name.
-	 * @param array $primaryFields Array("column")[] Primary key columns list.
-	 * @param array $insertFields Array("column" => $value)[] What to insert.
-	 * @param array $updateFields Array("column" => $value)[] How to update.
-	 *
-	 * @return array (merge)
+	 * @inheritdoc
 	 */
 	public function prepareMerge($tableName, array $primaryFields, array $insertFields, array $updateFields)
 	{

@@ -33,7 +33,8 @@ export default class AbstractUploadController extends EventEmitter
 		{
 			return this.#options[option];
 		}
-		else if (!Type.isUndefined(defaultValue))
+
+		if (!Type.isUndefined(defaultValue))
 		{
 			return defaultValue;
 		}

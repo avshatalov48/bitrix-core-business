@@ -1,3 +1,4 @@
+/* eslint-disable */
 ;(function() {
 
 	if (window['LHEPostForm'])
@@ -6,7 +7,7 @@
 	}
 
 this.BX = this.BX || {};
-(function (exports,main_core_events,main_polyfill_intersectionobserver,main_popup,main_core) {
+(function (exports,ai_copilot,main_core_events,main_polyfill_intersectionobserver,main_popup,main_core) {
 	'use strict';
 
 	var Default = /*#__PURE__*/function () {
@@ -1047,7 +1048,7 @@ this.BX = this.BX || {};
 	      main_core.Runtime.loadExtension('ai.picker').then(function () {
 	        var aiTextPicker = new BX.AI.Picker({
 	          moduleId: 'main',
-	          contextId: main_core.Loc.getMessage('USER_ID'),
+	          contextId: 'text_' + main_core.Loc.getMessage('USER_ID'),
 	          analyticLabel: 'main_post_form_comments_ai_text',
 	          history: true,
 	          onSelect: function onSelect(message) {
@@ -1099,7 +1100,7 @@ this.BX = this.BX || {};
 	      main_core.Runtime.loadExtension('ai.picker').then(function () {
 	        var aiImagePicker = new BX.AI.Picker({
 	          moduleId: 'main',
-	          contextId: main_core.Loc.getMessage('USER_ID'),
+	          contextId: 'image_' + main_core.Loc.getMessage('USER_ID'),
 	          analyticLabel: 'main_post_form_comments_ai_image',
 	          saveImages: false,
 	          history: true,
@@ -1357,6 +1358,12 @@ this.BX = this.BX || {};
 	  if (editor.getContainer().querySelector('[data-bx-role="button-show-panel-editor"]')) {
 	    editor.getContainer().querySelector('[data-bx-role="button-show-panel-editor"]').addEventListener('click', function () {
 	      editor.showPanelEditor();
+	    });
+	  }
+	  var copilot = toolbar.querySelector('[data-id="copilot"]');
+	  if (copilot) {
+	    copilot.addEventListener('click', function () {
+	      editor.showCopilot();
 	    });
 	  }
 	}
@@ -1944,6 +1951,27 @@ this.BX = this.BX || {};
 	        });
 	        htmlEditor.iframeView.container.dispatchEvent(event);
 	      });
+	      main_core_events.EventEmitter.subscribe(this.getEditor(), 'OnSetViewAfter', function (data) {
+	        if (_this3.getEditor() === data.target) {
+	          _this3.OnEditorSetViewAfter();
+	        }
+	      });
+	    }
+	  }, {
+	    key: "OnEditorSetViewAfter",
+	    value: function OnEditorSetViewAfter() {
+	      var copilot = this.toolbar.container.querySelector('[data-id="copilot"]');
+	      if (copilot) {
+	        if (this.getEditor().GetViewMode() === 'code') {
+	          this.isCopilotEnabled = false;
+	          main_core.Dom.attr(copilot, 'title', main_core.Loc.getMessage('MPF_COPILOT_BB_CODE'));
+	          main_core.Dom.addClass(copilot, 'disabled');
+	        } else {
+	          this.isCopilotEnabled = true;
+	          main_core.Dom.attr(copilot, 'title', '');
+	          main_core.Dom.removeClass(copilot, 'disabled');
+	        }
+	      }
 	    }
 	  }, {
 	    key: "getEditor",
@@ -2237,6 +2265,13 @@ this.BX = this.BX || {};
 	      main_core_events.EventEmitter.emit(this.getEventObject(), 'onShowControllers', status === 'hide' ? 'hide' : 'show');
 	    }
 	  }, {
+	    key: "showCopilot",
+	    value: function showCopilot() {
+	      if (this.isCopilotEnabled) {
+	        this.getEditor().ShowCopilotAtTheBottom();
+	      }
+	    }
+	  }, {
 	    key: "isReady",
 	    get: function get() {
 	      return this.editorIsLoaded;
@@ -2361,7 +2396,7 @@ this.BX = this.BX || {};
 	exports.PostForm = Editor;
 	exports.PostFormTasksLimit = TasksLimit;
 
-}((this.BX.Main = this.BX.Main || {}),BX.Event,BX,BX.Main,BX));
+}((this.BX.Main = this.BX.Main || {}),BX.AI,BX.Event,BX,BX.Main,BX));
 
 
 

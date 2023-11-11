@@ -1,6 +1,6 @@
 <?php
 $MESS["IM_DIALOG_AVATAR_MENU_KICK"] = "Remove from chat";
-$MESS["IM_DIALOG_AVATAR_MENU_MENTION"] = "Mention user";
+$MESS["IM_DIALOG_AVATAR_MENU_MENTION_2"] = "Mention";
 $MESS["IM_DIALOG_AVATAR_MENU_OPEN_PROFILE"] = "Profile";
 $MESS["IM_DIALOG_AVATAR_MENU_SEND_MESSAGE"] = "Send message";
 $MESS["IM_DIALOG_CHAT_BLOCK_MARKED_MESSAGES"] = "Read later";
@@ -18,6 +18,7 @@ $MESS["IM_DIALOG_CHAT_MENU_MARK"] = "Mark to read later";
 $MESS["IM_DIALOG_CHAT_MENU_PIN"] = "Pin";
 $MESS["IM_DIALOG_CHAT_MENU_QUOTE"] = "Quote";
 $MESS["IM_DIALOG_CHAT_MENU_REMOVE_FROM_SAVED"] = "Remove from Favorites";
+$MESS["IM_DIALOG_CHAT_MENU_REPLY"] = "Reply";
 $MESS["IM_DIALOG_CHAT_MENU_SAVE"] = "Add to Favorites";
 $MESS["IM_DIALOG_CHAT_MENU_SAVE_ON_DISK"] = "Save to Drive";
 $MESS["IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_SUCCESS"] = "File has been saved to your Drive.";

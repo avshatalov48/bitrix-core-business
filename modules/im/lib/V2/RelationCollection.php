@@ -10,6 +10,7 @@ use Bitrix\Main\UserTable;
 
 /**
  * @implements \IteratorAggregate<int,Relation>
+ * @implements Registry<Relation>
  * @method Relation offsetGet($key)
  */
 class RelationCollection extends Collection

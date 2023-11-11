@@ -1,61 +1,66 @@
-import {Dom, Text} from 'main.core';
+import { Dom, Text } from 'main.core';
+import { getConst, getUtils } from '../utils/core-proxy';
 
+const { MessageMentionType } = getConst();
 export const ParserCall = {
 
 	decode(text): string
 	{
-		text = text.replace(/\[CALL(?:=([-+\d()./# ]+))?](.+?)\[\/CALL]/gi, (whole, number, text) => {
+		let result = text;
 
+		result = result.replaceAll(/\[call(?:=([\d #()+./-]+))?](.+?)\[\/call]/gi, (whole, number, text) => {
 			if (!text)
 			{
 				return whole;
 			}
 
-			if (!number)
-			{
-				if (text.match(/^([-+\d()./# ]+)$/))
-				{
-					number = text;
-				}
-				else
-				{
-					return whole;
-				}
-			}
+			let destination = '';
 
-			text = Text.decode(text);
+			if (number)
+			{
+				destination = number;
+			}
+			else if (getUtils.call.isNumber(text))
+			{
+				destination = text;
+			}
+			else
+			{
+				return whole;
+			}
 
 			return Dom.create({
 				tag: 'span',
 				attrs: {
 					className: 'bx-im-mention',
-					'data-type': 'CALL',
-					'data-value': number,
+					'data-type': MessageMentionType.call,
+					'data-destination': destination,
 				},
-				text
+				text: Text.decode(text),
 			}).outerHTML;
 		});
 
-		text = text.replace(
-			/\[PCH=([0-9]+)](.*?)\[\/PCH]/gi, (whole, historyId, text) => text
-		);
+		result = result.replaceAll(/\[pch=(\d+)](.*?)\[\/pch]/gi, (whole, historyId, text) => '');
 
-		return text;
+		return result;
 	},
 
 	purify(text): string
 	{
-		text = text.replace(
-			/\[CALL(?:=([-+\d()./# ]+))?](.+?)\[\/CALL]/gi,
-			(whole, number, text) => text? text: number
+		let result = text;
+
+		result = result.replaceAll(
+			/\[call(?:=([\d #()+./-]+))?](.+?)\[\/call]/gi,
+			(whole, number, text) => {
+				return text || number;
+			},
 		);
 
-		text = text.replace(
-			/\[PCH=([0-9]+)](.*?)\[\/PCH]/gi,
-			(whole, historyId, text) => text
+		result = result.replaceAll(
+			/\[pch=(\d+)](.*?)\[\/pch]/gi,
+			(whole, historyId, text) => text,
 		);
 
-		return text;
-	}
-}
-
+		return result;
+	},
+};

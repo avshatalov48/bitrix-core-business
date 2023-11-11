@@ -9,6 +9,9 @@ class CIBlockPropertyHTML
 {
 	public const USER_TYPE = 'HTML';
 
+	public const VALUE_TYPE_TEXT = 'TEXT';
+	public const VALUE_TYPE_HTML = 'HTML';
+
 	public static function GetUserTypeDescription(): array
 	{
 		return [
@@ -32,7 +35,7 @@ class CIBlockPropertyHTML
 	{
 		if (!is_array($value["VALUE"]))
 			$value = static::ConvertFromDB($arProperty, $value);
-		$ar = $value["VALUE"];
+		$ar = $value['VALUE'] ?? '';
 		if (!empty($ar) && is_array($ar))
 		{
 			if (isset($strHTMLControlName['MODE']) && $strHTMLControlName['MODE'] == 'CSV_EXPORT')
@@ -80,7 +83,7 @@ class CIBlockPropertyHTML
 			'name' => $strHTMLControlName["VALUE"].'[TEXT]',
 			'id' => $id,
 			'inputName' => $strHTMLControlName["VALUE"].'[TEXT]',
-			'content' => $value["VALUE"]['TEXT'],
+			'content' => $value['VALUE']['TEXT'] ?? '',
 			'width' => '100%',
 			'minBodyWidth' => 350,
 			'normalBodyWidth' => 555,
@@ -128,10 +131,31 @@ class CIBlockPropertyHTML
 
 	public static function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName)
 	{
+		if (!is_array($arProperty))
+		{
+			$arProperty = [];
+		}
+		$arProperty['WITH_DESCRIPTION'] = ($arProperty['WITH_DESCRIPTION'] ?? 'N') === 'Y' ? 'Y' : 'N';
+
+		if (!is_array($strHTMLControlName))
+		{
+			$strHTMLControlName = [];
+		}
+
+		$strHTMLControlName['VALUE'] ??= '';
+		$strHTMLControlName['DESCRIPTION'] ??= '';
+		if (!is_string($strHTMLControlName['DESCRIPTION']))
+		{
+			$strHTMLControlName['DESCRIPTION'] = '';
+		}
+
 		$strHTMLControlName["VALUE"] = htmlspecialcharsEx($strHTMLControlName["VALUE"]);
 		if (!is_array($value["VALUE"]))
+		{
 			$value = static::ConvertFromDB($arProperty, $value);
-		$ar = $value["VALUE"];
+		}
+		$ar = $value["VALUE"] ?? self::getEmptyValue();
+
 		if (mb_strtolower($ar["TYPE"]) != "text")
 			$ar["TYPE"] = "html";
 		else
@@ -181,7 +205,11 @@ class CIBlockPropertyHTML
 			<td colspan="2" align="center"><textarea cols="60" rows="10" name="<?=$strHTMLControlName["VALUE"]?>[TEXT]" style="width:100%"><?=htmlspecialcharsEx($ar["TEXT"])?></textarea></td>
 		</tr>
 		<?endif;
-		if (($arProperty["WITH_DESCRIPTION"]=="Y") && ('' != trim($strHTMLControlName["DESCRIPTION"]))):?>
+		if (
+			$arProperty['WITH_DESCRIPTION'] === 'Y'
+			&& $strHTMLControlName['DESCRIPTION'] !== ''
+		):
+		?>
 		<tr>
 			<td colspan="2">
 				<span title="<?echo Loc::getMessage("IBLOCK_PROP_HTML_DESCRIPTION_TITLE")?>"><?echo Loc::getMessage("IBLOCK_PROP_HTML_DESCRIPTION_LABEL")?>:<input type="text" name="<?=$strHTMLControlName["DESCRIPTION"]?>" value="<?=$value["DESCRIPTION"]?>" size="18"></span>
@@ -447,5 +475,13 @@ class CIBlockPropertyHTML
 				'TYPE' => $valueType
 			);
 		}
+	}
+
+	private static function getEmptyValue(): array
+	{
+		return [
+			'TEXT' => '',
+			'TYPE' => self::VALUE_TYPE_TEXT,
+		];
 	}
 }

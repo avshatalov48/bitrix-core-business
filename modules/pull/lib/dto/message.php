@@ -8,7 +8,7 @@ class Message implements \JsonSerializable
 {
 	public array $userList = [];
 	public array $channelList = [];
-	public array $body;
+	public ?array $body;
 	public array $userParams; // map: userId => {user specific params}
 	public array $dictionary; // map: key => value
 	public int $expiry;
@@ -18,19 +18,22 @@ class Message implements \JsonSerializable
 		$instance = new static();
 		$instance->userList = $arrayFields['users'] ?? [];
 		$instance->channelList = $arrayFields['channels'] ?? [];
-		$instance->body = $arrayFields['event'];
-		if (isset($instance->body['user_params']))
+
+		$body = $arrayFields['event'];
+		if (is_array($body['user_params']) && !empty($body['user_params']))
 		{
 			$instance->userParams = $arrayFields['event']['user_params'];
-			unset($instance->body['user_params']);
 		}
-		if (isset($instance->body['dictionary']))
+		if (is_array($body['dictionary']) && !empty($body['dictionary']))
 		{
 			$instance->dictionary = $arrayFields['event']['dictionary'];
-			unset($instance->body['dictionary']);
 		}
+		$instance->expiry = is_int($body['expiry']) && $body['expiry'] > 0 ? $body['expiry'] : 86400;
+		unset($body['user_params']);
+		unset($body['dictionary']);
+		unset($body['expiry']);
 
-		$instance->expiry = $arrayFields['event']['expiry'] ?? 86400;
+		$instance->body = $body;
 
 		return $instance;
 	}

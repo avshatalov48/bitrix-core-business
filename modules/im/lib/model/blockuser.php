@@ -2,10 +2,9 @@
 
 namespace Bitrix\Im\Model;
 
-use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
-use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 
 /**
  * Class BlockUserTable
@@ -25,6 +24,8 @@ use Bitrix\Main\Localization\Loc;
  */
 class BlockUserTable extends Entity\DataManager
 {
+	use DeleteByFilterTrait;
+
 	public static function getTableName()
 	{
 		return 'b_im_block_user';

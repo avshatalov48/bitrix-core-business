@@ -102,7 +102,7 @@
 			{
 				this.options.table.setAttribute('text-color', color);
 			}
-			BX.Landing.Block.Node.Text.currentNode.onChange(true);
+			BX.Landing.Node.Text.currentNode.onChange(true);
 		},
 
 		/**
@@ -138,7 +138,7 @@
 			{
 				this.options.table.setAttribute('bg-color', color);
 			}
-			BX.Landing.Block.Node.Text.currentNode.onChange(true);
+			BX.Landing.Node.Text.currentNode.onChange(true);
 		},
 
 		/**

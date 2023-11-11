@@ -1,11 +1,13 @@
-import {Loc, Dom, Text, Type} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Loc, Dom, Text, Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { Messenger } from 'im.public';
 
-import {Parser} from '../parser';
-import {ParserUtils} from '../utils/utils';
-import {getCore, getConst} from '../utils/core-proxy';
+import { Parser } from '../parser';
+import { ParserUtils } from '../utils/utils';
+import { getCore, getConst, getUtils } from '../utils/core-proxy';
 
-const {EventType, MessageMentionType} = getConst();
+const { EventType, MessageMentionType } = getConst();
+
 
 export const ParserMention = {
 
@@ -41,39 +43,38 @@ export const ParserMention = {
 				tag: 'span',
 				attrs: {
 					className: 'bx-im-mention',
-					'data-type': 'USER',
+					'data-type': MessageMentionType.user,
 					'data-value': userId,
 				},
 				text: userName
 			}).outerHTML;
 		});
 
-		text = text.replace(/\[chat=(imol\|)?(\d+)](.*?)\[\/chat]/gi, (whole, openlines, chatId, chatName) => {
-			chatId = Number.parseInt(chatId, 10);
-
-			if (!Type.isNumber(chatId) || chatId === 0 || openlines)
+		text = text.replace(/\[chat=(imol\|)?(\d+)](.*?)\[\/chat]/gi, (whole, isLines, chatId, chatNameParsed) => {
+			if (chatId === 0)
 			{
-				return chatName;
+				return chatNameParsed;
 			}
 
+			let chatName = chatNameParsed;
 			if (chatName)
 			{
 				chatName = Text.decode(chatName);
 			}
 			else
 			{
-				const dialog = getCore().store.getters['dialogues/get']('chat'+chatId);
-				chatName = dialog? dialog.name: 'Chat '+chatId;
+				const dialog = getCore().store.getters['dialogues/get'](`chat${chatId}`);
+				chatName = dialog ? dialog.name : `Chat ${chatId}`;
 			}
 
 			return Dom.create({
 				tag: 'span',
 				attrs: {
 					className: 'bx-im-mention',
-					'data-type': 'CHAT',
-					'data-value': 'chat' + chatId,
+					'data-type': (isLines ? MessageMentionType.lines : MessageMentionType.chat),
+					'data-value': (isLines ? `imol|${chatId}` : `chat${chatId}`),
 				},
-				text: chatName
+				text: chatName,
 			}).outerHTML;
 		});
 
@@ -116,7 +117,7 @@ export const ParserMention = {
 				tag: 'span',
 				attrs: {
 					className: 'bx-im-mention',
-					'data-type': 'CONTEXT',
+					'data-type': MessageMentionType.context,
 					'data-dialog-id': dialogId,
 					'data-message-id': messageId,
 					title,
@@ -198,8 +199,20 @@ export const ParserMention = {
 		{
 			EventEmitter.emit(EventType.mention.openChatInfo, {
 				event,
-				dialogId: event.target.dataset.value
+				dialogId: event.target.dataset.value,
 			});
+		}
+		else if (event.target.dataset.type === MessageMentionType.lines)
+		{
+			const dialogId = event.target.dataset.value;
+			if (getUtils().dialog.isLinesHistoryId(dialogId))
+			{
+				void Messenger.openLinesHistory(dialogId);
+			}
+			else if (getUtils().dialog.isLinesExternalId(dialogId))
+			{
+				void Messenger.openLines(dialogId);
+			}
 		}
 		else if (event.target.dataset.type === MessageMentionType.context)
 		{
@@ -208,6 +221,12 @@ export const ParserMention = {
 				dialogId: event.target.dataset.dialogId.toString(),
 			});
 		}
+		else if (event.target.dataset.type === MessageMentionType.call)
+		{
+			if (getUtils().call.isNumber(event.target.dataset.destination))
+			{
+				void Messenger.startPhoneCall(event.target.dataset.destination);
+			}
+		}
 	},
-}
-
+};

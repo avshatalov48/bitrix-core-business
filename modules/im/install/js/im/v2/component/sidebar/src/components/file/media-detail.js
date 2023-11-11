@@ -1,31 +1,33 @@
-import {SidebarDetailBlock, SidebarFileTypes} from 'im.v2.const';
-import {SidebarCollectionFormatter} from '../../classes/sidebar-collection-formatter';
-import {FileMenu} from '../../classes/context-menu/file/file-menu';
-import {DateGroup} from '../date-group';
-import {DetailEmptyState} from '../detail-empty-state';
-import {MediaDetailItem} from './item/media-detail-item';
-import {SidebarDetail} from '../detail';
+import { SidebarDetailBlock, SidebarFileTypes } from 'im.v2.const';
+
+import { SidebarCollectionFormatter } from '../../classes/sidebar-collection-formatter';
+import { FileMenu } from '../../classes/context-menu/file/file-menu';
+import { DateGroup } from '../date-group';
+import { DetailEmptyState } from '../detail-empty-state';
+import { MediaDetailItem } from './item/media-detail-item';
+
+import { SidebarDetail } from '../detail';
 import '../../css/file/media-detail.css';
 
-import type {ImModelSidebarFileItem} from 'im.v2.model';
+import type { ImModelSidebarFileItem } from 'im.v2.model';
 
 // @vue/component
 export const MediaDetail = {
 	name: 'MediaDetail',
-	components: {DateGroup, MediaDetailItem, DetailEmptyState, SidebarDetail},
+	components: { DateGroup, MediaDetailItem, DetailEmptyState, SidebarDetail },
 	props: {
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		chatId: {
 			type: Number,
-			required: true
+			required: true,
 		},
 		service: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	computed:
 	{
@@ -41,7 +43,7 @@ export const MediaDetail = {
 		isEmptyState(): boolean
 		{
 			return this.formattedCollection.length === 0;
-		}
+		},
 	},
 	created()
 	{
@@ -63,11 +65,11 @@ export const MediaDetail = {
 		{
 			const item = {
 				...event,
-				dialogId: this.dialogId
+				dialogId: this.dialogId,
 			};
 
 			this.contextMenu.openMenu(item, target);
-		}
+		},
 	},
 	template: `
 		<SidebarDetail
@@ -78,7 +80,7 @@ export const MediaDetail = {
 			v-slot="slotProps"
 			class="bx-im-sidebar-file-media-detail__scope"
 		>
-			<template v-for="dateGroup in formattedCollection">
+			<div v-for="dateGroup in formattedCollection" class="bx-im-sidebar-file-media-detail__date-group_container">
 				<DateGroup :dateText="dateGroup.dateGroupTitle" />
 				<div class="bx-im-sidebar-file-media-detail__items-group">
 					<MediaDetailItem
@@ -87,12 +89,12 @@ export const MediaDetail = {
 						@contextMenuClick="onContextMenuClick"
 					/>
 				</div>
-			</template>
+			</div>
 			<DetailEmptyState
 				v-if="!slotProps.isLoading && isEmptyState"
 				:title="$Bitrix.Loc.getMessage('IM_SIDEBAR_FILES_EMPTY')"
 				:iconType="SidebarDetailBlock.media"
 			/>
 		</SidebarDetail>
-	`
+	`,
 };

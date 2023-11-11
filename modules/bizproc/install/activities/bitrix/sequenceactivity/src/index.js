@@ -367,6 +367,7 @@ export class SequenceActivity extends BizProcActivity
 							index,
 							menuItem.getMenuWindow().getParentMenuWindow().bindElement.ind,
 						);
+						menuItem.getMenuWindow().getParentMenuWindow().close()
 					},
 				});
 			});
@@ -386,6 +387,7 @@ export class SequenceActivity extends BizProcActivity
 					menuItem.getMenuWindow().getParentMenuWindow().bindElement.ind,
 					preset ? preset.ID : null,
 				);
+				menuItem.getMenuWindow().getParentMenuWindow().close()
 			},
 			className: 'bizproc-designer-sequence-activity-menu-item-icon',
 			html: this.#renderActivityMenuItemNode(preset ? preset.NAME : description.NAME, descriptionText),

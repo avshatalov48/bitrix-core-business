@@ -26,9 +26,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_PropertyFeature_Query query()
- * @method static EO_PropertyFeature_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PropertyFeature_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_PropertyFeature_Result getById($id)
- * @method static EO_PropertyFeature_Result getList(array $parameters = array())
+ * @method static EO_PropertyFeature_Result getList(array $parameters = [])
  * @method static EO_PropertyFeature_Entity getEntity()
  * @method static \Bitrix\Iblock\EO_PropertyFeature createObject($setDefaultValues = true)
  * @method static \Bitrix\Iblock\EO_PropertyFeature_Collection createCollection()

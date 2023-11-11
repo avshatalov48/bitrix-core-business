@@ -18,7 +18,7 @@ export default class AITextGenerator extends Default
 		Runtime.loadExtension('ai.picker').then(() => {
 			const aiTextPicker = new BX.AI.Picker({
 				moduleId: 'main',
-				contextId: Loc.getMessage('USER_ID'),
+				contextId: 'text_' + Loc.getMessage('USER_ID'),
 				analyticLabel: 'main_post_form_comments_ai_text',
 				history: true,
 				onSelect: (message) => {

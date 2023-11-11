@@ -104,7 +104,8 @@ export default class ImageSizeFilter extends Filter
 					{
 						if (error)
 						{
-							console.log('Uploader ImageSizeFilter:', error);
+							// eslint-disable-next-line no-console
+							console.warn('Uploader ImageSizeFilter:', error);
 						}
 
 						reject(new UploaderError('IMAGE_TYPE_NOT_SUPPORTED'));

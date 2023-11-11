@@ -5,13 +5,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => 'dist/chat-creation-message.bundle.css',
-	'js' => 'dist/chat-creation-message.bundle.js',
+	'css' => 'dist/chat-creation.bundle.css',
+	'js' => 'dist/chat-creation.bundle.js',
 	'rel' => [
-		'main.core',
+		'main.polyfill.core',
+		'im.public',
 		'im.v2.component.elements',
 		'im.v2.component.entity-selector',
-		'im.public',
+		'im.v2.component.message.base',
 	],
-	'skip_core' => false,
+	'skip_core' => true,
 ];

@@ -20,7 +20,9 @@ class Type extends TypeBase
 
 	public static function getDBColumnType()
 	{
-		return "text";
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\TextField('x'));
 	}
 
 	public static function getPublicView($arUserField, $arAdditionalParameters = array())

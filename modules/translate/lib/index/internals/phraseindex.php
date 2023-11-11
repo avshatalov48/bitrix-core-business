@@ -2,6 +2,7 @@
 
 namespace Bitrix\Translate\Index\Internals;
 
+use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Translate;
 use Bitrix\Translate\Index;
@@ -43,7 +44,7 @@ class PhraseIndexTable extends DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_translate_phrase';
 	}
@@ -53,7 +54,7 @@ class PhraseIndexTable extends DataManager
 	 *
 	 * @return string
 	 */
-	public static function getObjectClass()
+	public static function getObjectClass(): string
 	{
 		return Index\PhraseIndex::class;
 	}
@@ -63,7 +64,7 @@ class PhraseIndexTable extends DataManager
 	 *
 	 * @return string
 	 */
-	public static function getCollectionClass()
+	public static function getCollectionClass(): string
 	{
 		return Index\PhraseIndexCollection::class;
 	}
@@ -73,54 +74,68 @@ class PhraseIndexTable extends DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
-		return array(
-			'ID' => array(
-				'data_type' => 'integer',
-				'primary' => true,
-				'autocomplete' => true,
-			),
-			'FILE_ID' => array(
-				'data_type' => 'integer',
-			),
-			'PATH_ID' => array(
-				'data_type' => 'string',
-			),
-			'LANG_ID' => array(
-				'data_type' => 'string',
-			),
-			'CODE' => array(
-				'data_type' => 'string',
-			),
-			'PHRASE' => array(
-				'data_type' => 'string',
-			),
-			'FILE' => array(
-				'data_type' => '\Bitrix\Translate\Index\Internals\FileIndexTable',
-				'reference' => array(
-					'=this.FILE_ID' => 'ref.ID',
-				),
-				'join_type' => 'INNER',
-			),
-			'PATH' => array(
-				'data_type' => '\Bitrix\Translate\Index\Internals\PathIndexTable',
-				'reference' => array(
-					'=this.PATH_ID' => 'ref.ID',
-				),
-				'join_type' => 'INNER',
-			),
-		);
+		static $fields;
+		if ($fields === null)
+		{
+			$fields = [
+				'ID' => [
+					'data_type' => 'integer',
+					'primary' => true,
+					'autocomplete' => true,
+				],
+				'FILE_ID' => [
+					'data_type' => 'integer',
+				],
+				'PATH_ID' => [
+					'data_type' => 'string',
+				],
+				'LANG_ID' => [
+					'data_type' => 'string',
+				],
+				'CODE' => [
+					'data_type' => 'string',
+				],
+				'FILE' => [
+					'data_type' => Index\Internals\FileIndexTable::class,
+					'reference' => [
+						'=this.FILE_ID' => 'ref.ID',
+					],
+					'join_type' => 'INNER',
+				],
+				'PATH' => [
+					'data_type' => Index\Internals\PathIndexTable::class,
+					'reference' => [
+						'=this.PATH_ID' => 'ref.ID',
+					],
+					'join_type' => 'INNER',
+				],
+			];
+
+			foreach (Translate\Config::getLanguages() as $langId)
+			{
+				$fields['PHRASE_' . mb_strtoupper($langId)] = [
+					'data_type' => Index\Internals\PhraseFts::getFtsEntityClass($langId),
+					'reference' => [
+						'=this.ID' => 'ref.ID',
+					],
+					'join_type' => 'INNER',
+				];
+			}
+		}
+
+		return $fields;
 	}
 
 	/**
 	 * Drop index.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
 	 * @return void
 	 */
-	public static function purge(Translate\Filter $filter = null)
+	public static function purge(?Translate\Filter $filter = null): void
 	{
 		if (($filterOut = static::processFilter($filter)) !== false)
 		{
@@ -131,15 +146,15 @@ class PhraseIndexTable extends DataManager
 	/**
 	 * Processes filter params to convert them into orm type.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
-	 * @return array|bool
+	 * @return array
 	 */
-	public static function processFilter(Translate\Filter $filter = null)
+	public static function processFilter(?Translate\Filter $filter = null): array
 	{
-		$filterOut = array();
+		$filterOut = [];
 
-		if ($filter !== null && ($filter instanceof Translate\Filter || $filter instanceof \Traversable))
+		if ($filter !== null)
 		{
 			foreach ($filter as $key => $value)
 			{

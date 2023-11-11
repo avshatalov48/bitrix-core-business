@@ -84,6 +84,19 @@ class Map
 		$manifest['callbacks'] = [
 			'afterAdd' => function (Block &$block)
 			{
+				$dom = $block->getDom();
+				$node = $dom->querySelector(self::MAP_SELECTOR);
+				if (!$node)
+				{
+					return;
+				}
+
+				$attrsExists = $node->getAttributes();
+				if (isset($attrsExists['data-map']) && $attrsExists['data-map'] !== '')
+				{
+					return;
+				}
+
 				$isUseYandex = self::$settings['YMAP']['USE'] && !empty(self::$settings['YMAP']['CODE']);
 				$isNotSettings =
 					(!self::$settings['YMAP']['USE'] || empty(self::$settings['YMAP']['CODE']))

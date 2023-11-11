@@ -15,7 +15,6 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Authentication\Policy;
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 define("HELP_FILE", "users/user_edit.php");
 $strRedirect_admin = BX_ROOT."/admin/user_admin.php?lang=".LANG;
 $strRedirect = BX_ROOT."/admin/user_edit.php?lang=".LANG;
@@ -59,20 +58,15 @@ else
 
 $selfEdit = ($USER->CanDoOperation('edit_own_profile') && $ID == $uid);
 
-$arUserSubordinateGroups = array();
-if($USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('edit_all_users'))
+$arUserSubordinateGroups = [];
+if ($USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('edit_all_users'))
 {
-	$arUserSubordinateGroups = array(2);
-	$arUserGroups_u = CUser::GetUserGroup($uid);
-	for ($j = 0,$len = count($arUserGroups_u); $j < $len; $j++)
-	{
-		$arSubordinateGroups = CGroup::GetSubordinateGroups($arUserGroups_u[$j]);
-		$arUserSubordinateGroups = array_merge ($arUserSubordinateGroups, $arSubordinateGroups);
-	}
-	$arUserSubordinateGroups = array_unique($arUserSubordinateGroups);
+	$arUserSubordinateGroups = CUser::GetSubordinateGroups();
 
 	if (!empty(array_diff($arUserGroups, $arUserSubordinateGroups)) && !$selfEdit)
+	{
 		LocalRedirect(BX_ROOT."/admin/user_admin.php?lang=".LANG);
+	}
 }
 
 $editable = ($USER->IsAdmin() ||
@@ -866,10 +860,18 @@ if($showGroupTabs):
 			while ($arGroups = $dbGroups->Fetch())
 			{
 				$arGroups["ID"] = intval($arGroups["ID"]);
-				if (!$USER->CanDoOperation('edit_all_users') && $USER->CanDoOperation('edit_subordinate_users') && !in_array($arGroups["ID"], $arUserSubordinateGroups) || $arGroups["ID"] == 2)
+				if ($arGroups["ID"] == 2)
+				{
 					continue;
-				if($arGroups["ID"]==1 && !$USER->IsAdmin())
+				}
+				if (!$USER->CanDoOperation('edit_all_users') && $USER->CanDoOperation('edit_subordinate_users') && !in_array($arGroups["ID"], $arUserSubordinateGroups))
+				{
 					continue;
+				}
+				if ($arGroups["ID"] == 1 && !$USER->IsAdmin())
+				{
+					continue;
+				}
 				$ind++;
 				?>
 				<tr>

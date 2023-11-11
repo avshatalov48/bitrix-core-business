@@ -1105,21 +1105,8 @@ export class Planner extends EventEmitter
 
 		if (!Type.isDate(entry.toReal))
 		{
-			// Full day
-			if (
-				(entry.toTimestamp - entry.fromTimestamp) % Util.getDayLength() === 0
-				&& BX.date.format('H:i', entry.toTimestamp / 1000) === '00:00'
-			)
-			{
-				entry.toReal = new Date(entry.to.getTime() + Util.getDayLength());
-				entry.toReal.setSeconds(0,0);
-				entry.toTimestampReal = entry.toReal.getTime();
-			}
-			else
-			{
-				entry.toReal = entry.to;
-				entry.toTimestampReal = entry.toTimestamp;
-			}
+			entry.toReal = entry.to;
+			entry.toTimestampReal = entry.toTimestamp;
 		}
 
 		return entry;
@@ -2166,9 +2153,13 @@ export class Planner extends EventEmitter
 		const prevScaleDateTo = this.scaleDateTo;
 
 		if (!scaleDateFrom)
+		{
 			scaleDateFrom = this.scaleDateFrom;
+		}
 		if (!scaleDateTo)
+		{
 			scaleDateTo = this.scaleDateTo;
+		}
 
 		if (this.expandTimelineDirection === 'past')
 		{
@@ -2297,7 +2288,10 @@ export class Planner extends EventEmitter
 		}
 
 		this.entries = entries;
-		this.accessibility = accessibility;
+		this.accessibility = [];
+		this.entries.forEach((entry) => {
+			this.accessibility[entry.id] = accessibility[entry.id];
+		});
 
 		const userId = parseInt(this.userId);
 
@@ -2405,35 +2399,6 @@ export class Planner extends EventEmitter
 		this.adjustHeight();
 	}
 
-	updateAccessibility(accessibility)
-	{
-		this.accessibility = accessibility;
-		if (Type.isPlainObject(accessibility))
-		{
-			let key;
-			for (key in accessibility)
-			{
-				if (accessibility.hasOwnProperty(key)
-					&& Type.isArray(accessibility[key])
-					&& accessibility[key].length)
-				{
-					let wrap = this.entriesDataRowMap.get(key);
-					if (Type.isDomNode(wrap))
-					{
-						accessibility[key].forEach((event) => {
-							event = Planner.prepareAccessibilityItem(event);
-							if (event)
-							{
-								this.addAccessibilityItem(event, wrap)
-							}
-						});
-					}
-				}
-
-			}
-		}
-	}
-
 	updateSelector(from, to, fullDay, options = {})
 	{
 		if (this.shown && this.selector)
@@ -2465,9 +2430,7 @@ export class Planner extends EventEmitter
 				}
 			}
 
-			if ((to.getTime() > this.scaleDateTo.getTime())
-				||
-				from.getTime() < this.scaleDateFrom.getTime())
+			if (this.isNeedToExpandTimeline(from, to))
 			{
 				this.expandTimelineDirection = false;
 				this.expandTimeline(from, to);
@@ -2502,6 +2465,12 @@ export class Planner extends EventEmitter
 				this.selector.focus(true, 300);
 			}
 		}
+	}
+
+	isNeedToExpandTimeline(from, to)
+	{
+		return to.getTime() > this.scaleDateTo.getTime()
+			|| from.getTime() < this.scaleDateFrom.getTime();
 	}
 
 	handleSelectorChanges(event)
@@ -2666,9 +2635,12 @@ export class Planner extends EventEmitter
 					if (this.fullDayMode)
 						dateTo = new Date(dateTo.getTime() - Util.getDayLength());
 
+					this.currentFromDate = dateFrom;
+					this.currentToDate = dateTo;
+
 					this.selector.update({
 						from: dateFrom,
-						to:dateTo,
+						to: dateTo,
 						updateScaleType:false,
 						updateScaleLimits:true,
 						animation: true,

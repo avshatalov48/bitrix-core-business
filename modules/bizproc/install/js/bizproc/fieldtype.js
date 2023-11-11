@@ -34,6 +34,16 @@
 		return value ? value.replace(/(\s\[-?[0-9]+\])$/, '') : '';
 	};
 
+	const normalizeTimeValue = (value, property) => {
+		const result = toMultipleValue(value);
+		if (isMultiple(property))
+		{
+			return result;
+		}
+
+		return result.join(',');
+	};
+
 	var getOptions = function (property)
 	{
 		return property.Options ? property.Options : {};
@@ -301,6 +311,9 @@
 
 					result = address;
 
+					break;
+				case 'time':
+					result = normalizeTimeValue(value, property);
 					break;
 				default:
 					if (BX.type.isString(value))
@@ -861,17 +874,17 @@
 				attrs: {
 					type: 'text',
 					autocomplete: 'off',
-					'data-role': isSelectable(property) ? 'inline-selector-target' : '',
-					'data-selector-type': 'time'
+					'data-role': isSelectable(property) ? 'inline-selector-time' : '',
+					'data-selector-type': 'time',
 				},
 				props: {
-					className: 'bizproc-type-control bizproc-type-control-time' + (isMultiple(property) ? ' bizproc-type-control-multiple' : ''),
+					className: `bizproc-type-control bizproc-type-control-time${isMultiple(property) ? ' bizproc-type-control-multiple' : ''}`,
 					name: fieldName + (isMultiple(property) ? '[]' : ''),
 					value: value || '',
-				}
+				},
 			});
 
-			return BX.Dom.create('DIV', {children: [input]})
+			return BX.Dom.create('DIV', { children: [input] });
 		},
 		initControl: function(controlNode, property)
 		{

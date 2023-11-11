@@ -1,0 +1,26 @@
+.bx-im-message-deleted__scope {
+	--im-message-base__font-color_delete-mark: var(--im-color-palette-gray-60);
+}
+
+.bx-im-message-deleted__container {
+	padding: var(--im-message-base__padding_body);
+}
+
+.bx-im-message-deleted__content-container {
+	display: flex;
+	align-items: center;
+	margin-left: -5px;
+}
+
+.bx-im-message-deleted__icon {
+	width: 18px;
+	height: 18px;
+	background-image: url('./images/deleted.svg');
+	margin-right: 3px;
+}
+
+.bx-im-message-deleted__text {
+	font: var(--im-font-size-lg) var(--im-font-family-system);
+	color: var(--im-message-base__font-color_delete-mark);
+	padding-right: 40px;
+}

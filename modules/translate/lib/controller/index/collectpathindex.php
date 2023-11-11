@@ -17,10 +17,10 @@ class CollectPathIndex
 	use Translate\Controller\ProcessParams;
 
 	/** @var int */
-	private $seekPathLangId;
+	private $seekPathLangId = 0;
 
 	/** @var string[] */
-	private $languages;
+	private $languages = [];
 
 
 	/**
@@ -30,7 +30,7 @@ class CollectPathIndex
 	 * @param Main\Engine\Controller $controller Parent controller object.
 	 * @param array $config Additional configuration.
 	 */
-	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
 		$this->keepField(['seekPathLangId', 'languages']);
 
@@ -65,9 +65,9 @@ class CollectPathIndex
 			{
 				if ($indexPath->getIndexed())
 				{
-					return array(
+					return [
 						'STATUS' => Translate\Controller\STATUS_COMPLETED
-					);
+					];
 				}
 			}
 		}
@@ -134,7 +134,7 @@ class CollectPathIndex
 	 *
 	 * @return array
 	 */
-	private function runIndexing(array $params)
+	private function runIndexing(array $params): array
 	{
 		$path = \rtrim($params['path'], '/');
 
@@ -174,9 +174,9 @@ class CollectPathIndex
 			$this->seekPathLangId = $seek->nextLangPathId;
 		}
 
-		return array(
+		return [
 			'PROCESSED_ITEMS' => $this->processedItems,
 			'TOTAL_ITEMS' => $this->totalItems,
-		);
+		];
 	}
 }

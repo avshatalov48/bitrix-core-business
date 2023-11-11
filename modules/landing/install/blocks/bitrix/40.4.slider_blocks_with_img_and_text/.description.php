@@ -81,7 +81,7 @@ return array(
 			'type' => array('button', 'animation'),
 		),
 		'.landing-block-node-card-button-container' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_40.4.SLIDER_BLOCKS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDBUTTON2'),
+			'name' => Loc::getMessage('LANDING_BLOCK_40_4_BUTTON_AREA'),
 			'type' => 'text-align',
 		),
 		'.landing-block-node-card' => array(

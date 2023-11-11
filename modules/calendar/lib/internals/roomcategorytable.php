@@ -3,7 +3,9 @@ namespace Bitrix\Calendar\Internals;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
-use Bitrix\Main\ORM\Fields;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
 
 /**
  * Class RoomCategoryTable
@@ -50,21 +52,18 @@ class RoomCategoryTable extends DataManager
 	public static function getMap()
 	{
 		return [
-			'ID' => new Fields\IntegerField(
-				'ID',
+			(new IntegerField('ID'))
+				->configureTitle(Loc::getMessage('ROOM_CATEGORY_ENTITY_ID_FIELD'))
+				->configurePrimary(true)
+				->configureAutocomplete(true)
+			,
+			(new StringField('NAME',
 				[
-					'primary' => true,
-					'autocomplete' => true,
-					'title' => Loc::getMessage('ROOM_CATEGORY_ENTITY_ID_FIELD'),
+					'validation' => [__CLASS__, 'validateName']
 				]
-			),
-			'NAME' => new Fields\StringField(
-				'NAME',
-				[
-					'validation' => [__CLASS__, 'validateName'],
-					'title' => Loc::getMessage('ROOM_CATEGORY_ENTITY_NAME_FIELD'),
-				]
-			),
+			))
+				->configureTitle(Loc::getMessage('ROOM_CATEGORY_ENTITY_NAME_FIELD'))
+			,
 		];
 	}
 
@@ -76,7 +75,7 @@ class RoomCategoryTable extends DataManager
 	public static function validateName(): array
 	{
 		return [
-			new Fields\Validators\LengthValidator(null, 255),
+			new LengthValidator(null, 255),
 		];
 	}
 }

@@ -1,7 +1,7 @@
-<section class="landing-block landing-block-node-bgimage landing-semantic-color-overlay g-flex-centered u-bg-overlay g-bg-img-hero g-bg-white-opacity-0_9--after g-min-height-40vh"
+<section class="landing-block landing-block-node-bgimage g-flex-centered u-bg-overlay g-bg-img-hero g-bg-white-opacity-0_9--after g-min-height-40vh"
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img2.jpg);">
 	<div class="container u-bg-overlay__inner text-center g-max-width-700">
-		<h2 class="landing-block-node-title landing-semantic-title-medium text-uppercase g-mb-30 g-font-size-35">
+		<h2 class="landing-block-node-title text-uppercase g-mb-30 g-font-size-35">
 			Search Results
 		</h2>
 		<form class="landing-block-node-form">
@@ -20,7 +20,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="landing-block-node-text landing-semantic-text-small form-text g-opacity-0_8 g-font-size-14 g-color-gray-dark-v3">
+				<div class="landing-block-node-text form-text g-opacity-0_8 g-font-size-14 g-color-gray-dark-v3">
 					<p>Search any words, questions and so on here.</p>
 				</div>
 			</div>

@@ -28,7 +28,6 @@ export default class ServerlessLoadController extends AbstractLoadController
 
 	abort(): void
 	{
-
+		// silent abort
 	}
-
 }

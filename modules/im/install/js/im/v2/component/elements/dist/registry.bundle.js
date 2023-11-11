@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_fonts_opensans,im_v2_lib_parser,im_v2_provider_service,im_v2_application_core,im_v2_lib_user,ui_loader,im_public,im_v2_model,im_v2_lib_logger,main_popup,dropdown_css,main_core_events,im_v2_lib_utils,im_v2_lib_progressbar,ui_icons_disk,ui_vue3_directives_lazyload,ui_vue3_components_audioplayer,im_v2_const,ui_vue3,ui_vue3_components_socialvideo,main_core) {
+(function (exports,ui_fonts_opensans,ui_icons_disk,im_v2_lib_parser,rest_client,ui_vue3_directives_lazyload,im_v2_provider_service,im_v2_application_core,im_v2_lib_user,ui_loader,im_public,im_v2_model,im_v2_const,im_v2_lib_logger,main_popup,ui_forms,main_core,ui_vue3_components_audioplayer,ui_vue3,im_v2_lib_textHighlighter,im_v2_lib_utils) {
 	'use strict';
 
 	const UserStatusSize = {
@@ -317,31 +317,35 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return classes;
 	    },
 	    dialogName() {
+	      let resultText = this.dialog.name;
 	      if (!this.dialogId && this.text) {
-	        return this.text;
+	        resultText = this.text;
 	      }
 	      if (this.isUser) {
 	        if (this.onlyFirstName) {
-	          return this.user.firstName;
+	          resultText = this.user.firstName;
 	        }
-	        return this.user.name;
+	        resultText = this.user.name;
 	      }
-	      return this.dialog.name;
+	      return main_core.Text.encode(resultText);
 	    },
 	    dialogSpecialType() {
 	      if (!this.isUser) {
 	        if (this.isExtranet) {
 	          return DialogSpecialType.extranet;
-	        } else if ([im_v2_const.DialogType.support24Notifier, im_v2_const.DialogType.support24Question].includes(this.dialog.type)) {
+	        }
+	        if ([im_v2_const.DialogType.support24Notifier, im_v2_const.DialogType.support24Question].includes(this.dialog.type)) {
 	          return DialogSpecialType.support24;
 	        }
 	        return '';
 	      }
 	      if (this.isBot) {
 	        return this.botType;
-	      } else if (this.isExtranet) {
+	      }
+	      if (this.isExtranet) {
 	        return DialogSpecialType.extranet;
-	      } else if (this.isNetwork) {
+	      }
+	      if (this.isNetwork) {
 	        return DialogSpecialType.network;
 	      }
 	      return '';
@@ -358,7 +362,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      if (this.showBirthdays && this.user.isBirthday) {
 	        return TitleIcons.birthday;
-	      } else if (this.user.isAbsent) {
+	      }
+	      if (this.user.isAbsent) {
 	        return TitleIcons.absent;
 	      }
 	      return '';
@@ -397,7 +402,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      const isMuted = this.dialog.muteList.find(element => {
 	        return element === im_v2_application_core.Core.getUserId();
 	      });
-	      return !!isMuted;
+	      return Boolean(isMuted);
 	    },
 	    tooltipText() {
 	      if (this.isSelfChat && this.showItsYou) {
@@ -418,9 +423,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					:style="{color: color}"
 					:title="tooltipText"
 					class="bx-im-chat-title__text"
-				>
-					{{ dialogName }}
-				</span>
+					v-html="dialogName"
+				></span>
 				<strong v-if="isSelfChat && showItsYou">
 					<span class="bx-im-chat-title__text --self">({{ $Bitrix.Loc.getMessage('IM_LIST_RECENT_CHAT_SELF') }})</span>
 				</strong>
@@ -432,11 +436,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	const ButtonSize = {
 	  S: 'S',
+	  // 18
 	  M: 'M',
+	  // 26
 	  L: 'L',
+	  // 31
 	  XL: 'XL',
-	  XXL: 'XXL'
+	  // 39
+	  XXL: 'XXL' // 47
 	};
+
 	const ButtonColor = {
 	  Primary: 'primary',
 	  PrimaryLight: 'primary-light',
@@ -452,7 +461,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  Link: 'link',
 	  Call: 'call',
 	  EndCall: 'end-call',
-	  AddUser: 'add-user'
+	  AddUser: 'add-user',
+	  Camera: 'camera'
 	};
 	// @vue/component
 	const Button = {
@@ -585,6 +595,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	const POPUP_CONTAINER_PREFIX = '#popup-window-content-';
+	const POPUP_BORDER_RADIUS = '10px';
 
 	// @vue/component
 	const MessengerPopup = {
@@ -597,7 +608,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    config: {
 	      type: Object,
 	      required: false,
-	      default: function () {
+	      default() {
 	        return {};
 	      }
 	    }
@@ -649,8 +660,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        closeByEsc: true,
 	        animation: 'fading',
 	        events: {
-	          onPopupClose: this.closePopup.bind(this)
-	        }
+	          onPopupClose: this.closePopup.bind(this),
+	          onPopupDestroy: this.closePopup.bind(this)
+	        },
+	        contentBorderRadius: POPUP_BORDER_RADIUS
 	      };
 	    },
 	    getPopupConfig() {
@@ -659,12 +672,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      const modifiedOptions = {};
 	      const defaultClassName = defaultConfig.className;
 	      if (this.config.className) {
-	        modifiedOptions['className'] = `${defaultClassName} ${this.config.className}`;
+	        modifiedOptions.className = `${defaultClassName} ${this.config.className}`;
 	      }
 	      const offsetTop = (_this$config$offsetTo = this.config.offsetTop) != null ? _this$config$offsetTo : defaultConfig.offsetTop;
 	      // adjust for default popup margin for shadow
 	      if (((_this$config$bindOpti = this.config.bindOptions) == null ? void 0 : _this$config$bindOpti.position) === 'top' && main_core.Type.isNumber(this.config.offsetTop)) {
-	        modifiedOptions['offsetTop'] = offsetTop - 10;
+	        modifiedOptions.offsetTop = offsetTop - 10;
 	      }
 	      return {
 	        ...defaultConfig,
@@ -708,6 +721,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  conference: 'conference',
 	  disk: 'disk',
 	  upload: 'upload',
+	  file: 'file',
 	  task: 'task',
 	  meeting: 'meeting',
 	  summary: 'summary',
@@ -1193,7 +1207,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-attach-image__container">
+		<div class="bx-im-attach-image__container bx-im-attach-image__scope">
 			<AttachImageItem v-for="(image, index) in internalConfig.IMAGE" :config="image" :key="index" />
 		</div>
 	`
@@ -1317,12 +1331,47 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	var _restClient = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
+	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
+	var _message = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("message");
+	class RichService {
+	  constructor(message) {
+	    Object.defineProperty(this, _restClient, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _store, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _message, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient)[_restClient] = im_v2_application_core.Core.getRestClient();
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
+	    babelHelpers.classPrivateFieldLooseBase(this, _message)[_message] = message;
+	  }
+	  deleteRichLink(attachId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/deleteAttach', {
+	      messageId: babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].id,
+	      attachId
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient)[_restClient].callMethod(im_v2_const.RestMethod.imV2ChatMessageDeleteRichUrl, {
+	      messageId: babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].id
+	    }).catch(error => {
+	      console.error('RichService: error deleting rich link', error);
+	    });
+	  }
+	}
+
 	// @vue/component
 	const AttachRichItem = {
 	  name: 'AttachRichItem',
 	  components: {
 	    AttachImage
 	  },
+	  inject: ['message'],
 	  props: {
 	    config: {
 	      type: Object,
@@ -1331,6 +1380,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    color: {
 	      type: String,
 	      default: im_v2_const.Color.transparent
+	    },
+	    attachId: {
+	      type: String,
+	      required: true
 	    }
 	  },
 	  computed: {
@@ -1359,24 +1412,45 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	          PREVIEW: this.preview
 	        }]
 	      };
+	    },
+	    canShowDeleteIcon() {
+	      if (!this.message) {
+	        return false;
+	      }
+	      return this.message.authorId === im_v2_application_core.Core.getUserId();
+	    },
+	    deleteRichLinkTitle() {
+	      return this.$Bitrix.Loc.getMessage('IM_ELEMENTS_ATTACH_RICH_LINK_DELETE');
 	    }
 	  },
 	  methods: {
 	    openLink() {
 	      if (!this.link) {
-	        return false;
+	        return;
 	      }
 	      window.open(this.link, '_blank');
+	    },
+	    deleteRichLink() {
+	      if (!this.message) {
+	        return;
+	      }
+	      new RichService(this.message).deleteRichLink(this.attachId);
 	    }
 	  },
 	  template: `
-		<div class="bx-im-attach-rich__item">
-			<div v-if="preview" class="bx-im-attach-rich__image">
-				<AttachImage :config="imageConfig" :color="color" />
-			</div>
+		<div class="bx-im-attach-rich__scope bx-im-attach-rich__container">
 			<div class="bx-im-attach-rich__block">
 				<div class="bx-im-attach-rich__name" @click="openLink">{{ name }}</div>
 				<div v-if="html || description" class="bx-im-attach-rich__desc">{{ html || description }}</div>
+				<button 
+					v-if="canShowDeleteIcon" 
+					class="bx-im-attach-rich__hide-icon"
+					@click="deleteRichLink"
+					:title="deleteRichLinkTitle"
+				></button>
+			</div>
+			<div v-if="preview" class="bx-im-attach-rich__image" @click="openLink">
+				<AttachImage :config="imageConfig" :color="color" />
 			</div>
 		</div>
 	`
@@ -1395,6 +1469,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    color: {
 	      type: String,
 	      default: im_v2_const.Color.transparent
+	    },
+	    attachId: {
+	      type: String,
+	      required: true
 	    }
 	  },
 	  computed: {
@@ -1404,7 +1482,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-attach-rich__container">
-			<AttachRichItem v-for="(rich, index) in internalConfig.RICH_LINK" :config="rich" :color="color" :key="index" />
+			<AttachRichItem 
+				v-for="(rich, index) in internalConfig.RICH_LINK" 
+				:config="rich" 
+				:color="color" 
+				:key="index" 
+				:attachId="attachId" 
+			/>
 		</div>
 	`
 	};
@@ -1555,10 +1639,18 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (!this.internalConfig.COLOR) {
 	        return this.baseColor;
 	      }
+
+	      // todo: in future we should set color for rich link on the backend. Remove after we delete the old chat.
+	      if (this.internalConfig.COLOR === im_v2_const.Color.transparent && this.hasRichLink) {
+	        return '#2FC6F6';
+	      }
 	      if (this.internalConfig.COLOR === im_v2_const.Color.transparent) {
 	        return '';
 	      }
 	      return this.internalConfig.COLOR;
+	    },
+	    hasRichLink() {
+	      return this.blocks.some(block => block[im_v2_const.AttachType.Rich]);
 	    }
 	  },
 	  methods: {
@@ -1580,6 +1672,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					:config="block"
 					:color="color"
 					:key="index"
+					:attachId="internalConfig.ID.toString()"
 				/>
 			</div>
 		</div>
@@ -1617,6 +1710,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    isUser() {
 	      var _this$dialog;
 	      return ((_this$dialog = this.dialog) == null ? void 0 : _this$dialog.type) === im_v2_const.DialogType.user;
+	    },
+	    isBot() {
+	      if (this.isUser) {
+	        return this.user.bot;
+	      }
+	      return false;
 	    },
 	    isChat() {
 	      return !this.isUser;
@@ -1688,7 +1787,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 						@click="onOpenChat"
 					/>
 					<Button
-						v-if="isUser"
+						v-if="isUser && !isBot"
 						:size="ButtonSize.M"
 						:color="ButtonColor.PrimaryBorder"
 						:isRounded="true"
@@ -1762,16 +1861,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
-	var _restClient = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
+	var _store$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
+	var _restClient$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
 	var _userManager = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userManager");
 	class UserListService {
 	  constructor() {
-	    Object.defineProperty(this, _store, {
+	    Object.defineProperty(this, _store$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _restClient, {
+	    Object.defineProperty(this, _restClient$1, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -1779,12 +1878,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient)[_restClient] = im_v2_application_core.Core.getRestClient();
+	    babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1] = im_v2_application_core.Core.getStore();
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$1)[_restClient$1] = im_v2_application_core.Core.getRestClient();
 	    babelHelpers.classPrivateFieldLooseBase(this, _userManager)[_userManager] = new im_v2_lib_user.UserManager();
 	  }
 	  loadUsers(userIds) {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _restClient)[_restClient].callMethod(im_v2_const.RestMethod.imUserListGet, {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _restClient$1)[_restClient$1].callMethod(im_v2_const.RestMethod.imUserListGet, {
 	      ID: userIds
 	    }).then(response => {
 	      return babelHelpers.classPrivateFieldLooseBase(this, _userManager)[_userManager].setUsersToModel(Object.values(response.data()));
@@ -2226,7 +2325,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    if (this.defaultItem) {
 	      this.selectedElement = this.defaultItem.value;
 	    }
-	    this.$emit('itemChange', this.selectedElement);
+	  },
+	  beforeUnmount() {
+	    var _this$menuInstance;
+	    (_this$menuInstance = this.menuInstance) == null ? void 0 : _this$menuInstance.destroy();
 	  },
 	  methods: {
 	    toggleMenu() {
@@ -2238,7 +2340,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return;
 	      }
 	      this.menuInstance.show();
-	      const width = this.$refs['container'].clientWidth;
+	      const width = this.$refs.container.clientWidth;
 	      this.menuInstance.getPopupWindow().setWidth(width);
 	      this.menuOpened = true;
 	    },
@@ -2250,7 +2352,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	          position: 'bottom'
 	        },
 	        targetContainer: document.body,
-	        bindElement: this.$refs['container'],
+	        bindElement: this.$refs.container,
 	        items: this.getMenuItems(),
 	        events: {
 	          onClose: () => {
@@ -2364,228 +2466,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		</div>
 	`
 	};
-
-	// @vue/component
-	const File = {
-	  name: 'FileComponent',
-	  props: {
-	    item: {
-	      type: Object,
-	      required: true
-	    },
-	    messageId: {
-	      type: [String, Number],
-	      required: true
-	    }
-	  },
-	  computed: {
-	    file() {
-	      return this.item;
-	    },
-	    fileShortName() {
-	      const NAME_MAX_LENGTH = 70;
-	      return im_v2_lib_utils.Utils.file.getShortFileName(this.file.name, NAME_MAX_LENGTH);
-	    },
-	    fileSize() {
-	      return im_v2_lib_utils.Utils.file.formatFileSize(this.file.size);
-	    },
-	    iconClass() {
-	      const iconType = im_v2_lib_utils.Utils.file.getIconTypeByFilename(this.file.name);
-	      return `ui-icon-file-${iconType}`;
-	    },
-	    isImage() {
-	      return this.file.type !== im_v2_const.FileType.image;
-	    },
-	    isVideo() {
-	      return this.file.type !== im_v2_const.FileType.video;
-	    },
-	    canBeOpenedWithViewer() {
-	      var _BX$UI;
-	      return this.file.viewerAttrs && ((_BX$UI = BX.UI) == null ? void 0 : _BX$UI.Viewer);
-	    },
-	    viewerAttributes() {
-	      return im_v2_lib_utils.Utils.file.getViewerDataAttributes(this.file.viewerAttrs);
-	    }
-	  },
-	  watch: {
-	    'file.status'() {
-	      this.getProgressBarManager().update();
-	    },
-	    'file.progress'() {
-	      this.getProgressBarManager().update();
-	    }
-	  },
-	  mounted() {
-	    this.initProgressBar();
-	  },
-	  beforeUnmount() {
-	    this.removeProgressBar();
-	  },
-	  methods: {
-	    download() {
-	      var _this$file$urlDownloa;
-	      if (this.file.progress !== 100 || this.canBeOpenedWithViewer) {
-	        return;
-	      }
-	      const url = (_this$file$urlDownloa = this.file.urlDownload) != null ? _this$file$urlDownloa : this.file.urlShow;
-	      window.open(url, '_blank');
-	    },
-	    initProgressBar() {
-	      if (this.file.progress === 100) {
-	        return;
-	      }
-	      let blurElement;
-	      if (this.file.progress < 0 || !this.isImage && !this.isVideo) {
-	        blurElement = false;
-	      }
-	      this.progressBarManager = new im_v2_lib_progressbar.ProgressBarManager({
-	        container: this.$refs['container'],
-	        uploadState: this.file,
-	        customConfig: {
-	          blurElement
-	        }
-	      });
-	      this.progressBarManager.subscribe(im_v2_lib_progressbar.ProgressBarManager.event.cancel, () => {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.uploader.cancel, {
-	          tempFileId: this.file.id,
-	          tempMessageId: this.messageId
-	        });
-	      });
-	      this.progressBarManager.subscribe(im_v2_lib_progressbar.ProgressBarManager.event.destroy, () => {
-	        if (this.progressBar) {
-	          this.progressBar = null;
-	        }
-	      });
-	      this.progressBarManager.start();
-	    },
-	    removeProgressBar() {
-	      if (!this.progressBarManager) {
-	        return;
-	      }
-	      this.progressBarManager.destroy();
-	    },
-	    getProgressBarManager() {
-	      return this.progressBarManager;
-	    },
-	    loc(phraseCode, replacements = {}) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
-	    }
-	  },
-	  template: `
-		<div @click="download" v-bind="viewerAttributes" class="bx-im-media-file__container bx-im-media-file__scope" ref="container">
-			<div class="bx-im-media-file__icon">
-				<div :class="iconClass" class="ui-icon"><i></i></div>
-			</div>
-			<div class="bx-im-media-file__right">
-				<div :title="file.name" class="bx-im-element-file-name bx-im-media-file__name">
-					{{ fileShortName }}
-				</div>
-				<div class="bx-im-element-file-size bx-im-media-file__size">{{ fileSize }}</div>
-			</div>
-		</div>
-	`
-	};
-
-	const MAX_IMAGE_SIZE$1 = 250;
-
-	// @vue/component
-	const Image = ui_vue3.BitrixVue.cloneComponent(File, {
-	  name: 'ImageComponent',
-	  directives: {
-	    lazyload: ui_vue3_directives_lazyload.lazyload
-	  },
-	  computed: {
-	    imageSize() {
-	      const aspectRatio = this.file.width > MAX_IMAGE_SIZE$1 ? MAX_IMAGE_SIZE$1 / this.file.width : 1;
-	      const sizes = {
-	        width: this.file.width * aspectRatio,
-	        height: this.file.height * aspectRatio
-	      };
-	      return {
-	        width: `${sizes.width}px`,
-	        height: `${sizes.height}px`,
-	        backgroundSize: sizes.width < 100 || sizes.height < 100 ? 'contain' : 'initial'
-	      };
-	    }
-	  },
-	  template: `
-		<div v-bind="viewerAttributes" class="bx-im-media-image__container" @click="download" ref="container">
-			<img
-				v-lazyload
-				data-lazyload-dont-hide
-				:data-lazyload-src="file.urlPreview"
-				:title="loc('IM_ELEMENTS_MEDIA_IMAGE_TITLE', {'#NAME#': file.name, '#SIZE#': file.size})"
-				:style="imageSize"
-				:alt="file.name"
-				class="bx-im-media-image__source"
-			/>
-		</div>
-	`
-	});
-
-	// @vue/component
-	const Audio = {
-	  name: 'AudioComponent',
-	  components: {
-	    AudioPlayer: ui_vue3_components_audioplayer.AudioPlayer
-	  },
-	  props: {
-	    item: {
-	      type: Object,
-	      required: true
-	    },
-	    messageType: {
-	      type: String,
-	      required: true
-	    },
-	    messageId: {
-	      type: [String, Number],
-	      required: true
-	    }
-	  },
-	  computed: {
-	    file() {
-	      return this.item;
-	    },
-	    playerBackgroundType() {
-	      return this.messageType === im_v2_const.MessageType.self ? 'dark' : 'light';
-	    }
-	  },
-	  template: `
-		<div class="bx-im-media-audio__container">
-			<AudioPlayer :id="file.id" :src="file.urlShow" :background="playerBackgroundType" />
-		</div>
-	`
-	};
-
-	const VIDEO_SIZE_TO_AUTOPLAY = 5000000;
-
-	// @vue/component
-	const Video = ui_vue3.BitrixVue.cloneComponent(Image, {
-	  name: 'VideoComponent',
-	  components: {
-	    SocialVideo: ui_vue3_components_socialvideo.SocialVideo
-	  },
-	  computed: {
-	    autoplay() {
-	      return this.file.size < VIDEO_SIZE_TO_AUTOPLAY;
-	    }
-	  },
-	  template: `
-		<div @click="download" class="bx-im-media-video__container" ref="container">
-			<SocialVideo
-				v-bind="viewerAttributes"
-				:id="file.id"
-				:src="file.urlShow"
-				:preview="file.urlPreview"
-				:containerStyle="{height: '162px'}"
-				:elementStyle="imageSize"
-				:autoplay="autoplay"
-				:showControls="!file.viewerAttrs"
-			/>
-		</div>
-	`
-	});
 
 	const ARROW_CONTROL_SIZE = 50;
 	const TabsColorScheme = Object.freeze({
@@ -2716,6 +2596,259 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	// @vue/component
+	const AudioPlayer$$1 = ui_vue3.BitrixVue.cloneComponent(ui_vue3_components_audioplayer.AudioPlayer, {
+	  name: 'AudioPlayer',
+	  components: {
+	    Avatar
+	  },
+	  props: {
+	    file: {
+	      type: Object,
+	      required: true
+	    },
+	    authorId: {
+	      type: Number,
+	      required: true
+	    },
+	    timelineType: {
+	      type: Number,
+	      required: true
+	    },
+	    withContextMenu: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withAvatar: {
+	      type: Boolean,
+	      default: true
+	    }
+	  },
+	  data() {
+	    return {
+	      ...this.parentData(),
+	      showContextButton: false
+	    };
+	  },
+	  computed: {
+	    AvatarSize: () => AvatarSize,
+	    fileSize() {
+	      return im_v2_lib_utils.Utils.file.formatFileSize(this.file.size);
+	    },
+	    fileAuthorDialogId() {
+	      return this.authorId.toString();
+	    },
+	    progressPosition() {
+	      if (!this.loaded || this.state === ui_vue3_components_audioplayer.AudioPlayerState.none) {
+	        return {
+	          width: '100%'
+	        };
+	      }
+	      return {
+	        width: `${this.progressInPixel}px`
+	      };
+	    },
+	    activeTimelineStyles() {
+	      const TIMELINE_VERTICAL_SHIFT = 44;
+	      const ACTIVE_TIMELINE_VERTICAL_SHIFT = 19;
+	      const shift = this.timelineType * TIMELINE_VERTICAL_SHIFT + ACTIVE_TIMELINE_VERTICAL_SHIFT;
+	      return {
+	        ...this.progressPosition,
+	        'background-position-y': `-${shift}px`
+	      };
+	    },
+	    timelineStyles() {
+	      const TIMELINE_VERTICAL_SHIFT = 44;
+	      const shift = this.timelineType * TIMELINE_VERTICAL_SHIFT;
+	      return {
+	        'background-position-y': `-${shift}px`
+	      };
+	    }
+	  },
+	  template: `
+		<div 
+			class="bx-im-audio-player__container bx-im-audio-player__scope" 
+			ref="body"
+			@mouseover="showContextButton = true"
+			@mouseleave="showContextButton = false"
+		>
+			<div class="bx-im-audio-player__control-container">
+				<button :class="['bx-im-audio-player__control-button', {
+					'bx-im-audio-player__control-loader': loading,
+					'bx-im-audio-player__control-play': !loading && state !== State.play,
+					'bx-im-audio-player__control-pause': !loading && state === State.play,
+				}]" @click="clickToButton"></button>
+				<div v-if="withAvatar" class="bx-im-audio-player__author-avatar-container">
+					<Avatar :dialogId="fileAuthorDialogId" :withStatus="false" :size="AvatarSize.XS"></Avatar>
+				</div>
+			</div>
+			<div class="bx-im-audio-player__timeline-container">
+				<div class="bx-im-audio-player__track-container" @click="setPosition" ref="track">
+					<div class="bx-im-audio-player__track-mask" :style="timelineStyles"></div>
+					<div class="bx-im-audio-player__track-mask --active" :style="activeTimelineStyles"></div>
+					<div class="bx-im-audio-player__track-seek" :style="seekPosition"></div>
+					<div class="bx-im-audio-player__track-event" @mousemove="seeking"></div>
+				</div>
+				<div class="bx-im-audio-player__timer-container">
+					{{fileSize}}, {{labelTime}}
+				</div>
+			</div>
+			<button
+				v-if="showContextButton && withContextMenu"
+				class="bx-im-messenger__context-menu-icon bx-im-audio-player__context-menu-button"
+				@click="$emit('contextMenuClick', $event)"
+			></button>
+			<audio 
+				v-if="src" 
+				:src="src" 
+				class="bx-im-audio-player__audio-source" 
+				ref="source" 
+				:preload="preload"
+				@abort="audioEventRouter('abort', $event)"
+				@error="audioEventRouter('error', $event)"
+				@suspend="audioEventRouter('suspend', $event)"
+				@canplay="audioEventRouter('canplay', $event)"
+				@canplaythrough="audioEventRouter('canplaythrough', $event)"
+				@durationchange="audioEventRouter('durationchange', $event)"
+				@loadeddata="audioEventRouter('loadeddata', $event)"
+				@loadedmetadata="audioEventRouter('loadedmetadata', $event)"
+				@timeupdate="audioEventRouter('timeupdate', $event)"
+				@play="audioEventRouter('play', $event)"
+				@playing="audioEventRouter('playing', $event)"
+				@pause="audioEventRouter('pause', $event)"
+			></audio>
+		</div>
+	`
+	});
+
+	// @vue/component
+	const ChatTitleWithHighlighting$$1 = ui_vue3.BitrixVue.cloneComponent(ChatTitle, {
+	  name: 'ChatTitleWithHighlighting',
+	  props: {
+	    textToHighlight: {
+	      type: String,
+	      default: ''
+	    }
+	  },
+	  computed: {
+	    dialogName() {
+	      // noinspection JSUnresolvedVariable
+	      return im_v2_lib_textHighlighter.highlightText(this.parentDialogName, this.textToHighlight);
+	    }
+	  }
+	});
+
+	// @vue/component
+	const SearchInput = {
+	  name: 'SearchInput',
+	  props: {
+	    placeholder: {
+	      type: String,
+	      default: ''
+	    },
+	    searchMode: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withIcon: {
+	      type: Boolean,
+	      default: true
+	    },
+	    delayForFocusOnStart: {
+	      type: Number,
+	      default: 0
+	    }
+	  },
+	  emits: ['queryChange', 'inputFocus', 'inputBlur', 'keyPressed', 'close'],
+	  data() {
+	    return {
+	      query: '',
+	      hasFocus: false
+	    };
+	  },
+	  computed: {
+	    isEmptyQuery() {
+	      return this.query.length === 0;
+	    }
+	  },
+	  watch: {
+	    searchMode(newValue) {
+	      if (newValue === true) {
+	        this.focus();
+	      } else {
+	        this.query = '';
+	        this.blur();
+	      }
+	    }
+	  },
+	  created() {
+	    if (this.delayForFocusOnStart > 0) {
+	      setTimeout(() => {
+	        this.focus();
+	      }, this.delayForFocusOnStart);
+	    }
+	  },
+	  methods: {
+	    onInputUpdate() {
+	      this.$emit('queryChange', this.query);
+	    },
+	    onFocus() {
+	      this.focus();
+	      this.$emit('inputFocus');
+	    },
+	    onCloseClick() {
+	      this.query = '';
+	      this.hasFocus = false;
+	      this.$emit('queryChange', this.query);
+	      this.$emit('close');
+	    },
+	    onClearInput() {
+	      this.query = '';
+	      this.focus();
+	      this.$emit('queryChange', this.query);
+	    },
+	    onKeyUp(event) {
+	      if (im_v2_lib_utils.Utils.key.isCombination(event, 'Escape')) {
+	        this.onEscapePressed();
+	        return;
+	      }
+	      this.$emit('keyPressed', event);
+	    },
+	    onEscapePressed() {
+	      if (this.isEmptyQuery) {
+	        this.onCloseClick();
+	        this.blur();
+	      } else {
+	        this.onClearInput();
+	      }
+	    },
+	    focus() {
+	      this.hasFocus = true;
+	      this.$refs.searchInput.focus();
+	    },
+	    blur() {
+	      this.hasFocus = false;
+	      this.$refs.searchInput.blur();
+	    }
+	  },
+	  template: `
+		<div class="bx-im-search-input__scope bx-im-search-input__container" :class="{'--has-focus': hasFocus}">
+			<div v-if="withIcon && !hasFocus" class="bx-im-search-input__search-icon"></div>
+			<input
+				@focus="onFocus"
+				@input="onInputUpdate"
+				@keyup="onKeyUp"
+				v-model="query"
+				class="bx-im-search-input__element"
+				:class="{'--with-icon': withIcon}"
+				:placeholder="placeholder"
+				ref="searchInput"
+			/>
+			<div v-if="hasFocus" class="bx-im-search-input__close-icon" @click="onCloseClick"></div>
+		</div>
+	`
+	};
+
 	exports.Avatar = Avatar;
 	exports.AvatarSize = AvatarSize;
 	exports.RecentLoadingState = RecentLoadingState;
@@ -2741,12 +2874,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.SpinnerColor = SpinnerColor;
 	exports.Toggle = Toggle;
 	exports.ToggleSize = ToggleSize;
-	exports.File = File;
-	exports.Image = Image;
-	exports.Audio = Audio;
-	exports.Video = Video;
 	exports.MessengerTabs = MessengerTabs;
 	exports.TabsColorScheme = TabsColorScheme;
+	exports.AudioPlayer = AudioPlayer$$1;
+	exports.ChatTitleWithHighlighting = ChatTitleWithHighlighting$$1;
+	exports.SearchInput = SearchInput;
 
-}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Model,BX.Messenger.v2.Lib,BX.Main,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Vue3.Directives,BX.Vue3.Components,BX.Messenger.v2.Const,BX.Vue3,BX.Vue3.Components,BX));
+}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX,BX,BX.Messenger.v2.Lib,BX,BX.Vue3.Directives,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Model,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Main,BX,BX,BX.Vue3.Components,BX.Vue3,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=registry.bundle.js.map

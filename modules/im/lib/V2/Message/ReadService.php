@@ -124,7 +124,7 @@ class ReadService
 	public function unreadTo(Message $message): Result
 	{
 		//$this->setLastIdForUnread($message->getMessageId(), $message->getChatId());
-		$relation = $message->getChat()->getSelfRelation();
+		$relation = $message->getChat()->withContext($this->context)->getSelfRelation();
 		if ($relation === null)
 		{
 			return new Result();
@@ -181,7 +181,7 @@ class ReadService
 	 */
 	public function markRecentUnread(Message $message): self
 	{
-		Recent::unread($message->getChat()->getDialogId(), false, $this->getContext()->getUserId());
+		Recent::unread($message->getChat()->withContext($this->context)->getDialogId(), false, $this->getContext()->getUserId());
 		return $this;
 	}
 

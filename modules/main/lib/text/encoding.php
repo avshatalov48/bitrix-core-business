@@ -207,8 +207,6 @@ class Encoding
 	 */
 	public static function detectUtf8($string, $replaceHex = true)
 	{
-		//http://mail.nl.linux.org/linux-utf8/1999-09/msg00110.html
-
 		if ($replaceHex)
 		{
 			$string = preg_replace_callback(
@@ -220,35 +218,7 @@ class Encoding
 			);
 		}
 
-		//valid UTF-8 octet sequences
-		//0xxxxxxx
-		//110xxxxx 10xxxxxx
-		//1110xxxx 10xxxxxx 10xxxxxx
-		//11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-
-		$prevBits8and7 = 0;
-		$isUtf = 0;
-		foreach (unpack("C*", $string) as $byte)
-		{
-			$hiBits8and7 = $byte & 0xC0;
-			if ($hiBits8and7 == 0x80)
-			{
-				if ($prevBits8and7 == 0xC0)
-				{
-					$isUtf++;
-				}
-				elseif (($prevBits8and7 & 0x80) == 0x00)
-				{
-					$isUtf--;
-				}
-			}
-			elseif ($prevBits8and7 == 0xC0)
-			{
-				$isUtf--;
-			}
-			$prevBits8and7 = $hiBits8and7;
-		}
-		return ($isUtf > 0);
+		return (bool)preg_match('//u', $string);
 	}
 
 	protected static function convertByMbstring($data, $charsetFrom, $charsetTo)

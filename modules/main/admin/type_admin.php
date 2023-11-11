@@ -6,7 +6,6 @@
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 require_once(__DIR__."/../include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 define("HELP_FILE", "settings/mail_events/messagetype_admin.php");
 
 use Bitrix\Main\Localization\Loc;

@@ -3,31 +3,35 @@
 use Bitrix\Main\Loader;
 
 //main is usually included directly
-$documentRoot = Loader::getDocumentRoot();
+$moduleRoot = realpath(__DIR__ . '/../');
 foreach(
 	[
-		'Bitrix\\Main' => '/bitrix/modules/main/lib',
-		'Bitrix\\UI' => '/bitrix/modules/ui/lib',
-		'Psr\\Container' => '/bitrix/modules/main/vendor/psr/container/src',
-		'Psr\\Log' => '/bitrix/modules/main/vendor/psr/log/Psr/Log',
-		'Psr\\Http\\Message' => '/bitrix/modules/main/vendor/psr/http-message/src',
-		'Psr\\Http\\Client' => '/bitrix/modules/main/vendor/psr/http-client/src',
-		'Http\\Promise' => '/bitrix/modules/main/vendor/php-http/promise/src',
-		'PHPMailer\\PHPMailer' => '/bitrix/modules/main/vendor/phpmailer/phpmailer/src',
-		'GeoIp2' => '/bitrix/modules/main/vendor/geoip2/geoip2/src',
-		'MaxMind\\Db' => '/bitrix/modules/main/vendor/maxmind-db/reader/src/MaxMind/Db',
+		'Bitrix\\Main' => '/lib',
+		'Psr\\Container' => '/vendor/psr/container/src',
+		'Psr\\Log' => '/vendor/psr/log/src',
+		'Psr\\Http\\Message' => '/vendor/psr/http-message/src',
+		'Psr\\Http\\Client' => '/vendor/psr/http-client/src',
+		'Http\\Promise' => '/vendor/php-http/promise/src',
+		'PHPMailer\\PHPMailer' => '/vendor/phpmailer/phpmailer/src',
+		'GeoIp2' => '/vendor/geoip2/geoip2/src',
+		'MaxMind\\Db' => '/vendor/maxmind-db/reader/src/MaxMind/Db',
+		'PhpParser' => '/vendor/nikic/php-parser/lib/PhpParser',
 	]
 	as $namespace => $namespacePath
 )
 {
-	Loader::registerNamespace($namespace, $documentRoot . $namespacePath);
+	Loader::registerNamespace($namespace, $moduleRoot . $namespacePath);
 }
+
+$documentRoot = Loader::getDocumentRoot();
+Loader::registerNamespace('Bitrix\\UI', $documentRoot . '/bitrix/modules/ui/lib');
+
 unset($namespace, $namespacePath);
 
-if (is_dir($documentRoot . '/bitrix/modules/main/dev'))
+if (is_dir($moduleRoot . '/dev'))
 {
 	// developer mode
-	Loader::registerNamespace('Dev\Main', $documentRoot . '/bitrix/modules/main/dev');
+	Loader::registerNamespace('Dev\Main', $moduleRoot . '/dev');
 }
 
 spl_autoload_register([Loader::class, 'autoLoad']);
@@ -93,9 +97,7 @@ Loader::registerAutoLoadClasses(
 		'bitrix\\main\\db\\transactionexception' => 'lib/db/sqlexception.php',
 		'bitrix\\main\\db\\sqlexpression' => 'lib/db/sqlexpression.php',
 		'bitrix\\main\\db\\sqlhelper' => 'lib/db/sqlhelper.php',
-		'bitrix\\main\\db\\mysqlconnection' => 'lib/db/mysqlconnection.php',
-		'bitrix\\main\\db\\mysqlresult' => 'lib/db/mysqlresult.php',
-		'bitrix\\main\\db\\mysqlsqlhelper' => 'lib/db/mysqlsqlhelper.php',
+		'bitrix\\main\\db\\mysqlcommonconnection' => 'lib/db/mysqlcommonconnection.php',
 		'bitrix\\main\\db\\mysqliconnection' => 'lib/db/mysqliconnection.php',
 		'bitrix\\main\\db\\mysqliresult' => 'lib/db/mysqliresult.php',
 		'bitrix\\main\\db\\mysqlisqlhelper' => 'lib/db/mysqlisqlhelper.php',
@@ -105,6 +107,7 @@ Loader::registerAutoLoadClasses(
 		'bitrix\\main\\db\\oracleconnection' => 'lib/db/oracleconnection.php',
 		'bitrix\\main\\db\\oracleresult' => 'lib/db/oracleresult.php',
 		'bitrix\\main\\db\\oraclesqlhelper' => 'lib/db/oraclesqlhelper.php',
+		'bitrix\\main\\db\\pgsqlconnection' => 'lib/db/pgsqlconnection.php',
 		'bitrix\\main\\diag\\httpexceptionhandleroutput' => 'lib/diag/httpexceptionhandleroutput.php',
 		'bitrix\\main\\diag\\fileexceptionhandlerlog' => 'lib/diag/fileexceptionhandlerlog.php',
 		'bitrix\\main\\diag\\exceptionhandler' => 'lib/diag/exceptionhandler.php',
@@ -180,6 +183,17 @@ Loader::registerAutoLoadClasses(
 		'CUtil' => 'classes/general/util.php',
 		'CAllMain' => 'classes/general/main.php',
 		'CMain' => 'classes/general/main.php',
+		'CAllDatabase' => 'classes/general/database.php',
+		'CAllDBResult' => 'classes/general/dbresult.php',
+		'CDatabaseMysql' => 'classes/mysql/database.php',
+		'CDBResultMysql' => 'classes/mysql/dbresult.php',
+		'ICacheBackend' => 'classes/general/cache_backend.php',
+		'CPHPCache' => 'classes/general/cache.php',
+		'CCacheManager' => 'classes/general/cache_manager.php',
+		'CPageCache' => 'classes/general/page_cache.php',
+		'CStackCacheEntry' => 'classes/general/stack_cache_entry.php',
+		'CStackCacheManager' => 'classes/general/stack_cache.php',
+		'CModule' => '/classes/general/module.php',
 	]
 );
 

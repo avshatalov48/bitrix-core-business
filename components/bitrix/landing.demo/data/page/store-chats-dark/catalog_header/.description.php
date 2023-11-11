@@ -57,10 +57,10 @@ return [
 					0 => 'landing-block-node-container container text-center u-bg-overlay__inner g-mx-0',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title landing-semantic-title-image-medium g-line-height-1 text-left g-color-black g-text-transform-none g-font-size-46 g-font-roboto g-font-weight-600 g-mb-10',
+					0 => 'landing-block-node-title g-line-height-1 text-left g-color-black g-text-transform-none g-font-size-46 g-font-roboto g-font-weight-600 g-mb-10',
 				],
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text landing-semantic-text-image-medium text-left g-color-black g-font-size-22 g-font-roboto g-font-weight-400 g-mb-0',
+					0 => 'landing-block-node-text text-left g-color-black g-font-size-22 g-font-roboto g-font-weight-400 g-mb-0',
 				],
 			],
 		],

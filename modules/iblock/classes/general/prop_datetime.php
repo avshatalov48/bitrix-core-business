@@ -22,6 +22,7 @@ class CIBlockPropertyDateTime
 			//optional handlers
 			"GetPublicViewHTML" => [__CLASS__, "GetPublicViewHTML"],
 			"GetPublicEditHTML" => [__CLASS__, "GetPublicEditHTML"],
+			"GetPublicEditHTMLMulty" => [__CLASS__, "GetPublicEditHTMLMulty"],
 			"GetAdminListViewHTML" => [__CLASS__, "GetAdminListViewHTML"],
 			"GetPropertyFieldHtml" => [__CLASS__, "GetPropertyFieldHtml"],
 			"CheckFields" => [__CLASS__, "CheckFields"],
@@ -213,7 +214,9 @@ class CIBlockPropertyDateTime
 		if ($value["VALUE"] <> '')
 		{
 			if (!CheckDateTime($value["VALUE"]))
-				$value = static::ConvertFromDB($arProperty, $value, $strHTMLControlName["DATETIME_FORMAT"]);
+			{
+				$value = static::ConvertFromDB($arProperty, $value, $strHTMLControlName["DATETIME_FORMAT"] ?? '');
+			}
 
 			if (isset($strHTMLControlName["MODE"]))
 			{
@@ -232,26 +235,54 @@ class CIBlockPropertyDateTime
 
 	public static function GetPublicEditHTML($arProperty, $value, $strHTMLControlName)
 	{
-		/** @var CMain $APPLICATION*/
+		/** @var CMain $APPLICATION */
 		global $APPLICATION;
 
-		$s = '<input type="text" name="'.htmlspecialcharsbx($strHTMLControlName["VALUE"]).'" size="25" value="'.htmlspecialcharsbx($value["VALUE"]).'" />';
 		ob_start();
 		$APPLICATION->IncludeComponent(
-			'bitrix:main.calendar',
-			'',
-			array(
-				'FORM_NAME' => $strHTMLControlName["FORM_NAME"],
-				'INPUT_NAME' => $strHTMLControlName["VALUE"],
-				'INPUT_VALUE' => $value["VALUE"],
-				'SHOW_TIME' => "Y",
-			),
+			'bitrix:iblock.property.field.public.edit',
+			'date',
+			[
+				'NAME' => $strHTMLControlName['VALUE'],
+				'VALUE' => static::prepareMultiValue($value),
+				'PROPERTY' => $arProperty,
+				'SHOW_TIME' => 'Y',
+			],
 			null,
-			array('HIDE_ICONS' => 'Y')
+			[
+				'HIDE_ICONS' => 'Y',
+			]
 		);
-		$s .= ob_get_contents();
+		$result = ob_get_contents();
 		ob_end_clean();
-		return  $s;
+
+		return $result;
+	}
+
+	public static function GetPublicEditHTMLMulty($arProperty, $value, $strHTMLControlName): string
+	{
+		/** @var CMain $APPLICATION */
+		global $APPLICATION;
+
+		ob_start();
+		$APPLICATION->IncludeComponent(
+			'bitrix:iblock.property.field.public.edit',
+			'date',
+			[
+				'NAME' => $strHTMLControlName['VALUE'],
+				'VALUE' => static::prepareMultiValue($value),
+				'PROPERTY' => $arProperty,
+				'SHOW_TIME' => 'Y',
+			],
+			null,
+			[
+				'HIDE_ICONS' => 'Y',
+			]
+		);
+		$result = ob_get_contents();
+		ob_end_clean();
+
+		return $result;
 	}
 
 	public static function GetAdminListViewHTML($arProperty, $value, $strHTMLControlName)
@@ -274,11 +305,57 @@ class CIBlockPropertyDateTime
 	//safe html
 	public static function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName)
 	{
-		return  CAdminCalendar::CalendarDate($strHTMLControlName["VALUE"], $value["VALUE"], 20, true).
-			($arProperty["WITH_DESCRIPTION"]=="Y" && '' != trim($strHTMLControlName["DESCRIPTION"]) ?
-				'&nbsp;<input type="text" size="20" name="'.$strHTMLControlName["DESCRIPTION"].'" value="'.htmlspecialcharsbx($value["DESCRIPTION"]).'">'
-				:''
-			);
+		return static::getPropertyFormField($arProperty, $value, $strHTMLControlName, true);
+	}
+
+	protected static function getPropertyFormField(
+		$property,
+		$value,
+		$controlDescription,
+		bool $useTime
+	): string
+	{
+		if (!is_array($property))
+		{
+			$property = [];
+		}
+		$property['WITH_DESCRIPTION'] = ($property['WITH_DESCRIPTION'] ?? 'N') === 'Y' ? 'Y' : 'N';
+
+		if (!is_array($value))
+		{
+			$value = [];
+		}
+		$value['VALUE'] ??= '';
+		$value['DESCRIPTION'] ??= '';
+		if (!is_string($value['DESCRIPTION']))
+		{
+			$value['DESCRIPTION'] = '';
+		}
+
+		if (!is_array($controlDescription))
+		{
+			$controlDescription = [];
+		}
+		$controlDescription['VALUE'] ??= '';
+		$controlDescription['DESCRIPTION'] ??= '';
+		if (!is_string($controlDescription['DESCRIPTION']))
+		{
+			$controlDescription['DESCRIPTION'] = '';
+		}
+		$controlDescription['DESCRIPTION'] = trim($controlDescription['DESCRIPTION']);
+
+		$result = CAdminCalendar::CalendarDate($controlDescription['VALUE'], $value['VALUE'], 20, $useTime);
+		if (
+			$property['WITH_DESCRIPTION'] === 'Y'
+			&& $controlDescription['DESCRIPTION'] !== ''
+		)
+		{
+			$result .= '&nbsp;<input type="text" size="20" name="' . $controlDescription['DESCRIPTION'].'"'
+				.' value="' . htmlspecialcharsbx($value['DESCRIPTION'] ?? '') . '">'
+			;
+		}
+
+		return $result;
 	}
 
 	//PARAMETERS:
@@ -431,5 +508,37 @@ class CIBlockPropertyDateTime
 		$correctValue = date_parse_from_format(self::FORMAT_SHORT, $value);
 
 		return ($correctValue['warning_count'] === 0 && $correctValue['error_count'] === 0);
+	}
+
+	protected static function prepareMultiValue(mixed $value): ?array
+	{
+		if (empty($value))
+		{
+			return null;
+		}
+		if (!is_array($value))
+		{
+			$value = [$value];
+		}
+		if (isset($value['VALUE']))
+		{
+			$rawValue = is_array($value['VALUE']) ? $value['VALUE'] : [$value['VALUE']];
+		}
+		else
+		{
+			$rawValue = [];
+			foreach ($value as $row)
+			{
+				if (!is_array($row))
+				{
+					$row = [
+						'VALUE' => $row,
+					];
+				}
+				$rawValue[] = $row['VALUE'];
+			}
+		}
+
+		return array_filter($rawValue);
 	}
 }

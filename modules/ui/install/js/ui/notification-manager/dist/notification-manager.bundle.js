@@ -151,13 +151,13 @@ this.BX.UI = this.BX.UI || {};
 	    return typeof BX.desktop !== 'undefined' && BX.desktop.apiReady;
 	  }
 	  static isMac() {
-	    return navigator.userAgent.toLowerCase().includes('macintosh');
+	    return main_core.Browser.isMac();
 	  }
 	  static isLinux() {
-	    return navigator.userAgent.toLowerCase().includes('linux');
+	    return main_core.Browser.isLinux();
 	  }
 	  static isWindows() {
-	    return navigator.userAgent.toLowerCase().includes('windows') || !DesktopHelper.isMac() && !DesktopHelper.isLinux();
+	    return main_core.Browser.isWin() || !main_core.Browser.isMac() && !main_core.Browser.isLinux();
 	  }
 	  static isRunningOnAnyDevice() {
 	    return BXIM && BXIM.desktopStatus;
@@ -425,6 +425,36 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 
+	class LinuxProvider extends DesktopProvider {
+	  convertNotificationToNative(notification) {
+	    if (!main_core.Type.isStringFilled(notification.getId())) {
+	      throw new Error(`NotificationManager: You cannot send a notification without an ID.`);
+	    }
+	    const notificationUid = notification.getUid();
+	    BXDesktopSystem.NotificationCreate(notificationUid);
+	    if (main_core.Type.isStringFilled(notification.getTitle())) {
+	      BXDesktopSystem.NotificationAddText(notificationUid, notification.getTitle());
+	    }
+	    if (main_core.Type.isStringFilled(notification.getText())) {
+	      BXDesktopSystem.NotificationAddText(notificationUid, notification.getText());
+	    }
+	    if (main_core.Type.isStringFilled(notification.getIcon())) {
+	      BXDesktopSystem.NotificationAddImage(notificationUid, notification.getIcon());
+	    }
+	    if (notification.getInputPlaceholderText() && main_core.Type.isString(notification.getInputPlaceholderText())) {
+	      BXDesktopSystem.NotificationAddInput(notificationUid, notification.getInputPlaceholderText(), NotificationAction.USER_INPUT);
+	    }
+	    if (notification.getButton1Text() && main_core.Type.isStringFilled(notification.getButton1Text())) {
+	      BXDesktopSystem.NotificationAddAction(notificationUid, notification.getButton1Text(), NotificationAction.BUTTON_1);
+	    }
+	    if (notification.getButton2Text() && main_core.Type.isStringFilled(notification.getButton2Text())) {
+	      BXDesktopSystem.NotificationAddAction(notificationUid, notification.getButton2Text(), NotificationAction.BUTTON_2);
+	    }
+	    BXDesktopSystem.NotificationSetExpiration(notificationUid, BaseProvider.NOTIFICATION_LIFETIME);
+	    return notificationUid;
+	  }
+	}
+
 	class BrowserProvider extends BaseProvider {
 	  convertNotificationToNative(notification) {
 	    const notificationOptions = {
@@ -550,6 +580,7 @@ this.BX.UI = this.BX.UI || {};
 				<div
 					class="ui-notification-manager-browser-message"
 					onclick="${0}"
+					oncontextmenu="${0}"
 				>
 					${0}
 					<div class="ui-notification-manager-browser-column">
@@ -561,7 +592,7 @@ this.BX.UI = this.BX.UI || {};
 				</div>
 				${0}
 			</div>
-		`), contentWidth, this.handleContentClick.bind(this), this.getIconNode(), this.getTitleNode(), this.getTextNode(), this.getUserInputContainerNode(), this.getActionsNode(), this.getCloseButtonNode());
+		`), contentWidth, this.handleContentClick.bind(this), this.handleContextClick.bind(this), this.getIconNode(), this.getTitleNode(), this.getTextNode(), this.getUserInputContainerNode(), this.getActionsNode(), this.getCloseButtonNode());
 	  }
 	  getTitleNode() {
 	    if (!main_core.Type.isStringFilled(this.getData().title)) {
@@ -714,6 +745,12 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	    this.close();
 	  }
+	  handleContextClick(event) {
+	    event.preventDefault();
+	    if (main_core.Type.isFunction(this.getData().contextClickHandler)) {
+	      this.getData().contextClickHandler();
+	    }
+	  }
 	  handleUserInputEnter(event) {
 	    if (!main_core.Type.isFunction(this.getData().userInputHandler)) {
 	      return;
@@ -749,6 +786,16 @@ this.BX.UI = this.BX.UI || {};
 	};
 
 	class BrowserPageProvider extends BaseProvider {
+	  constructor(options = {}) {
+	    super(options);
+	    this.broadcastChannel = null;
+	    this.setBroadcast(options);
+	  }
+	  setBroadcast(options) {
+	    this.broadcastChannel = new BroadcastChannel(BrowserPageProvider.BROADCAST_CHANNEL);
+	    this.broadcastChannel.onmessage = event => this.handleMessageEvent(event);
+	    this.postMessageToBroadcast(BrowserPageProvider.MESSAGE_TYPE.closeAllNotifications);
+	  }
 	  convertNotificationToNative(notification) {
 	    if (!main_core.Type.isStringFilled(notification.getId())) {
 	      throw new Error(`NotificationManager: You cannot send a notification without an ID.`);
@@ -758,6 +805,9 @@ this.BX.UI = this.BX.UI || {};
 	    };
 	    const clickHandler = () => {
 	      this.notificationClick(notification.getUid());
+	    };
+	    const contextClickHandler = () => {
+	      this.closeAllNotifications();
 	    };
 	    const userInputHandler = userInput => {
 	      this.notificationAction(notification.getUid(), NotificationAction.BUTTON_1, userInput);
@@ -772,12 +822,18 @@ this.BX.UI = this.BX.UI || {};
 	        icon: notification.getIcon(),
 	        closedByUserHandler,
 	        clickHandler,
+	        contextClickHandler,
 	        userInputHandler
 	      },
 	      actions: [],
 	      width: 380,
 	      position: 'top-right',
-	      autoHideDelay: 6000
+	      autoHideDelay: BrowserPageProvider.autoHideDelay,
+	      events: {
+	        onClose: event => {
+	          this.onBalloonClose(event);
+	        }
+	      }
 	    };
 	    if (notification.getInputPlaceholderText()) {
 	      balloonOptions.data.inputPlaceholderText = notification.getInputPlaceholderText();
@@ -810,6 +866,51 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	    return balloonOptions;
 	  }
+	  onBalloonClose(event) {
+	    const id = event.getBalloon().id;
+	    this.postMessageToBroadcast(BrowserPageProvider.MESSAGE_TYPE.closeNotification, id);
+	  }
+	  postMessageToBroadcast(action, uid = '') {
+	    if (action === BrowserPageProvider.MESSAGE_TYPE.closeNotification && !uid) {
+	      return;
+	    }
+	    this.broadcastChannel.postMessage({
+	      action,
+	      ...(uid ? {
+	        uid
+	      } : {})
+	    });
+	  }
+	  handleMessageEvent(event) {
+	    if (event.data.action === BrowserPageProvider.MESSAGE_TYPE.closeNotification) {
+	      const uid = event.data.uid;
+	      const id = Notification.decodeUidToId(uid);
+	      const balloon = this.findBalloonById(id);
+	      if (balloon === null) {
+	        return;
+	      }
+	      this.closeNotification(balloon);
+	    } else if (event.data.action === BrowserPageProvider.MESSAGE_TYPE.closeAllNotifications) {
+	      this.closeAllNotifications();
+	    }
+	  }
+	  findBalloonById(id) {
+	    const balloonsKeys = Object.keys(ui_notification.UI.Notification.Center.balloons);
+	    for (const uid of balloonsKeys) {
+	      if (uid.startsWith(id)) {
+	        return ui_notification.UI.Notification.Center.balloons[uid];
+	      }
+	    }
+	    return null;
+	  }
+	  closeNotification(balloon) {
+	    this.notificationClose(balloon.id, NotificationCloseReason.CLOSED_BY_USER);
+	    balloon.close();
+	  }
+	  closeAllNotifications() {
+	    var _UI$Notification$Cent;
+	    (_UI$Notification$Cent = ui_notification.UI.Notification.Center.getDefaultStack()) == null ? void 0 : _UI$Notification$Cent.clear();
+	  }
 	  sendNotification(notification) {
 	    ui_notification.UI.Notification.Center.notify(notification);
 	  }
@@ -818,29 +919,39 @@ this.BX.UI = this.BX.UI || {};
 	    this.notificationAction(balloon.id, action.id);
 	  }
 	}
+	BrowserPageProvider.BROADCAST_CHANNEL = 'ui-notification-manager-channel';
+	BrowserPageProvider.MESSAGE_TYPE = {
+	  closeNotification: 'close-notification',
+	  closeAllNotifications: 'close-all-notifications'
+	};
+	BrowserPageProvider.autoHideDelay = 6000;
 
+	var _getBrowserPageProvider = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getBrowserPageProvider");
 	/**
 	 * @memberof BX.UI.NotificationManager
 	 */
 	class Notifier {
 	  constructor() {
+	    Object.defineProperty(this, _getBrowserPageProvider, {
+	      value: _getBrowserPageProvider2
+	    });
 	    this.provider = this.createProvider();
 	    pull_client.PULL.subscribe(new PullHandler());
 	  }
 	  createProvider() {
-	    const providerOptions = {
-	      eventNamespace: Notifier.EVENT_NAMESPACE
-	    };
 	    if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isMac() && DesktopHelper.geApiVersion() >= 73) {
-	      return new MacProvider(providerOptions);
+	      return new MacProvider(Notifier.PROVIDER_OPTIONS);
 	    }
 	    if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isWindows()) {
-	      return new WindowsProvider(providerOptions);
+	      return new WindowsProvider(Notifier.PROVIDER_OPTIONS);
+	    }
+	    if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isLinux()) {
+	      return new LinuxProvider(Notifier.PROVIDER_OPTIONS);
 	    }
 	    if (BrowserHelper.isSupportedBrowser() && BrowserHelper.isNativeNotificationAllowed()) {
-	      return new BrowserProvider(providerOptions);
+	      return new BrowserProvider(Notifier.PROVIDER_OPTIONS);
 	    }
-	    return new BrowserPageProvider(providerOptions);
+	    return babelHelpers.classPrivateFieldLooseBase(this, _getBrowserPageProvider)[_getBrowserPageProvider]();
 	  }
 	  notify(notificationOptions) {
 	    const notification = new Notification(notificationOptions);
@@ -849,11 +960,9 @@ this.BX.UI = this.BX.UI || {};
 	  sendNotification(notification) {
 	    this.provider.notify(notification);
 	  }
-	  subscribe(eventName, handler) {
-	    if (!NotificationEvent.isSupported(eventName)) {
-	      throw new Error(`NotificationManager: event "${eventName}" is not supported.`);
-	    }
-	    this.provider.subscribe(eventName, handler);
+	  notifyViaBrowserProvider(notificationOptions) {
+	    const notification = new Notification(notificationOptions);
+	    babelHelpers.classPrivateFieldLooseBase(this, _getBrowserPageProvider)[_getBrowserPageProvider]().notify(notification);
 	  }
 	  notifyViaDesktopProvider(notification) {
 	    if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isMac()) {
@@ -866,8 +975,26 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	    throw new Error(`NotificationManager: unsupported environment for sending through a desktop provider.`);
 	  }
+	  subscribe(eventName, handler) {
+	    if (!NotificationEvent.isSupported(eventName)) {
+	      throw new Error(`NotificationManager: event "${eventName}" is not supported.`);
+	    }
+	    this.provider.subscribe(eventName, handler);
+	    if (this.provider !== babelHelpers.classPrivateFieldLooseBase(this, _getBrowserPageProvider)[_getBrowserPageProvider]()) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _getBrowserPageProvider)[_getBrowserPageProvider]().subscribe(eventName, handler);
+	    }
+	  }
+	}
+	function _getBrowserPageProvider2() {
+	  if (!this.browserProvider) {
+	    this.browserProvider = new BrowserPageProvider(Notifier.PROVIDER_OPTIONS);
+	  }
+	  return this.browserProvider;
 	}
 	Notifier.EVENT_NAMESPACE = 'BX.UI.NotificationManager';
+	Notifier.PROVIDER_OPTIONS = {
+	  eventNamespace: Notifier.EVENT_NAMESPACE
+	};
 	const notifier = new Notifier();
 
 	exports.Notifier = notifier;

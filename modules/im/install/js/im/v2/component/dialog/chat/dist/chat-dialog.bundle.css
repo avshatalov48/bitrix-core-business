@@ -44,10 +44,19 @@
 	flex-direction: column;
 	justify-content: flex-end;
 	width: 100%;
-	max-width: var(--im-content-chat__max-width_textarea_container);
 	min-height: 100%;
+}
+
+.bx-im-content-chat__container.--center-align .bx-im-dialog-chat__content {
+	max-width: var(--im-content-chat__max-width_textarea_container);
 	margin: 0 auto;
 	padding: 0 3px 0 9px;
+}
+
+.bx-im-content-chat__container.--left-align .bx-im-dialog-chat__content {
+	max-width: 100%;
+	margin: 0;
+	padding: 0 27px 0 33px;
 }
 
 .bx-im-dialog-chat__date-group_container {
@@ -83,15 +92,29 @@
 	display: flex;
 	align-items: flex-end;
 	width: 100%;
-	max-width: 100%;
-	margin: 0 auto;
 }
 .bx-im-dialog-chat__author-group_container + .bx-im-dialog-chat__author-group_container {
 	margin-top: 10px;
 }
-.bx-im-dialog-chat__author-group_container.--self {
+
+.bx-im-content-chat__container.--center-align .bx-im-dialog-chat__author-group_container {
+	max-width: 100%;
+	margin: 0 auto;
+}
+
+.bx-im-content-chat__container.--left-align .bx-im-dialog-chat__author-group_container {
+	max-width: var(--im-content-chat__max-width_textarea_container);
+	margin: 0;
+}
+
+.bx-im-content-chat__container.--center-align .bx-im-dialog-chat__author-group_container.--self {
 	flex-direction: column;
 	align-items: end;
+}
+
+.bx-im-content-chat__container.--left-align .bx-im-dialog-chat__author-group_container.--self {
+	flex-direction: row;
+	align-items: flex-end;
 }
 
 .bx-im-dialog-chat__author-group_avatar {
@@ -367,4 +390,49 @@
 	to {
 		transform: rotate(1turn)
 	}
+}
+.bx-im-dialog-chat__quote-button {
+	position: fixed;
+	cursor: pointer;
+	opacity: 0.95;
+	z-index: 100;
+	transition: opacity .1s ease-out, transform .1s ease-out;
+}
+
+.bx-im-dialog-chat__quote-icon {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='92' height='86' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M40 15c-10.493 0-19 8.507-19 19s8.507 19 19 19l6 6 6-6c10.493 0 19-8.507 19-19s-8.507-19-19-19H40z' fill='%23fff'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M45.505 29.411A1.41 1.41 0 0044.095 28H40.91a1.41 1.41 0 00-1.41 1.411v3.126c0 .78.631 1.411 1.41 1.411h2.39c0 .477-.008 1.746-.464 2.419-.492.727-1.326 1.17-1.857 1.394-.287.12-.495.394-.498.705l-.01 1.222a.283.283 0 00.345.285c.796-.185 2.739-.752 3.537-2.02 1.017-1.615 1.152-3.656 1.152-4.497V29.41zm6.995 0A1.41 1.41 0 0051.09 28h-3.185a1.41 1.41 0 00-1.41 1.411v3.126c0 .78.631 1.411 1.41 1.411h2.39c0 .477-.008 1.746-.464 2.419-.492.727-1.326 1.17-1.857 1.394-.287.12-.495.394-.498.705l-.01 1.222a.283.283 0 00.345.285c.796-.185 2.739-.752 3.537-2.02 1.017-1.615 1.152-3.656 1.152-4.497V29.41z' fill='%23BDC1C6'/%3E%3C/svg%3E") no-repeat center;
+	background-position-y: -15px;
+	transition: .1s opacity linear;
+}
+
+.bx-im-dialog-chat__quote-button:before {
+	content: '';
+	display: block;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 66%;
+	height: 74%;
+	box-shadow: 0 1px 10px 6px rgba(0, 0, 0, 0.09);
+	border-radius: 50%;
+	z-index: -1;
+}
+
+.bx-im-dialog-chat__quote-icon.--hover {
+	opacity: 0;
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='92' height='86' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M40 15c-10.493 0-19 8.507-19 19s8.507 19 19 19l6 6 6-6c10.493 0 19-8.507 19-19s-8.507-19-19-19H40z' fill='%23fff'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M45.505 29.411A1.41 1.41 0 0044.095 28H40.91a1.41 1.41 0 00-1.41 1.411v3.126c0 .78.631 1.411 1.41 1.411h2.39c0 .477-.008 1.746-.464 2.419-.492.727-1.326 1.17-1.857 1.394-.287.12-.495.394-.498.705l-.01 1.222a.283.283 0 00.345.285c.796-.185 2.739-.752 3.537-2.02 1.017-1.615 1.152-3.656 1.152-4.497V29.41zm6.995 0A1.41 1.41 0 0051.09 28h-3.185a1.41 1.41 0 00-1.41 1.411v3.126c0 .78.631 1.411 1.41 1.411h2.39c0 .477-.008 1.746-.464 2.419-.492.727-1.326 1.17-1.857 1.394-.287.12-.495.394-.498.705l-.01 1.222a.283.283 0 00.345.285c.796-.185 2.739-.752 3.537-2.02 1.017-1.615 1.152-3.656 1.152-4.497V29.41z' fill='%23959CA4'/%3E%3C/svg%3E") no-repeat center;
+	background-position-y: -15px;
+}
+.bx-im-dialog-chat__quote-button:hover .bx-im-dialog-chat__quote-icon.--hover {
+	opacity: 1;
+}
+
+.bx-im-dialog-chat__quote-button.fade-up-enter-active, .bx-im-dialog-chat__quote-button.fade-up-leave-to {
+	opacity: 0;
+	transform: translateY(10px);
 }

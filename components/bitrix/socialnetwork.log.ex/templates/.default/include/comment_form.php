@@ -69,6 +69,7 @@ $formParams = [
 		"Source", "MentionUser", "Spoiler"
 	],
 	"BUTTONS" => [
+		"Copilot",
 		(
 			(
 				in_array("UF_SONET_COM_FILE", $arParams["COMMENT_PROPERTY"])
@@ -113,7 +114,12 @@ $formParams = [
 //		"ctrlEnterHandler" => "__logSubmitCommentForm".$arParams["UID"],
 		"fontSize" => "14px",
 		"bInitByJS" => true,
-		"height" => 80
+		"height" => 80,
+		'copilotParams' => [
+			'moduleId' => 'socialnetwork',
+			'contextId' => 'sonet_comment_' . $USER->GetID(),
+			'category' => 'livefeed_comments',
+		],
 	],
 	"PROPERTIES" => [
 		array_merge(

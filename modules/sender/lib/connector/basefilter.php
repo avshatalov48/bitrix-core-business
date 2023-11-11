@@ -40,7 +40,7 @@ abstract class BaseFilter extends Base
 
 		$filterId = $this->getUiFilterId();
 		$this->clearFilterState($filterId);
-		$filter = static::getFilterFields();
+		$filter = static::getFilterFields(checkAccessRights: $this->isCheckAccessRights());
 		return $this->buildUi($filterId, $currentPresetId, $presets, $filter);
 	}
 
@@ -62,7 +62,7 @@ abstract class BaseFilter extends Base
 
 		$filterId = $params['filter_id']??$this->getUiFilterId();
 		$this->clearFilterState($filterId);
-		$filter = static::getFilterFields($params['filter']);
+		$filter = static::getFilterFields($params['filter'], $this->isCheckAccessRights());
 
 		return $this->buildUi($filterId, $currentPresetId, $presets, $filter);
 	}
@@ -160,7 +160,7 @@ abstract class BaseFilter extends Base
 		if (is_array($fieldValues) && count($fieldValues) > 0)
 		{
 			$values = array();
-			$fields = $this->getFilterFields();
+			$fields = $this->getFilterFields(checkAccessRights: $this->isCheckAccessRights());
 
 			$systemFields = array(self::FIELD_PRESET_ID, self::FIELD_FOR_PRESET_ALL);
 			foreach ($systemFields as $fieldId)
@@ -305,12 +305,13 @@ abstract class BaseFilter extends Base
 	 * Get Ui filter presets.
 	 *
 	 * @param null $filter
+	 * @param bool $checkAccessRights
 	 *
 	 * @return array
 	 */
-	private static function getFilterFields($filter = null)
+	private static function getFilterFields($filter = null, bool $checkAccessRights = true): array
 	{
-		$fields = $filter??static::getUiFilterFields();
+		$fields = $filter ?? static::getUiFilterFields($checkAccessRights);
 		$fields = is_array($fields) ? $fields : array();
 		$fields[] = array(
 			"id" => self::FIELD_FOR_PRESET_ALL,

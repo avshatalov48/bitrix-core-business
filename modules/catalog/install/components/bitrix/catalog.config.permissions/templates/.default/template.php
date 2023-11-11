@@ -10,7 +10,7 @@ use Bitrix\Main\Localization\Loc;
 /**
  * @var array $arResult
  * @var array $arParams
- * @var CAllMain $APPLICATION
+ * @var CMain $APPLICATION
  */
 $this->addExternalCss('/bitrix/css/main/table/style.css');
 

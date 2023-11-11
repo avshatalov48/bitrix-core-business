@@ -13,6 +13,7 @@ return [
 		'ui.notification',
 		'main.popup',
 		'pull.client',
+		'ui.dialogs.messagebox',
 	],
 	'skip_core' => false,
 ];

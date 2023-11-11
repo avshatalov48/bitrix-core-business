@@ -26,33 +26,39 @@ export class DelayInterval
 	{
 		if (Type.isPlainObject(params))
 		{
-			if (params['type'])
+			if (params.type)
 			{
-				this.setType(params['type']);
+				this.setType(params.type);
 			}
-			if (params['value'])
+
+			if (params.value)
 			{
-				this.setValue(params['value']);
+				this.setValue(params.value);
 			}
-			if (params['valueType'])
+
+			if (params.valueType)
 			{
-				this.setValueType(params['valueType']);
+				this.setValueType(params.valueType);
 			}
-			if (params['basis'])
+
+			if (params.basis)
 			{
-				this.setBasis(params['basis']);
+				this.setBasis(params.basis);
 			}
-			if (params['workTime'])
+
+			if (params.workTime)
 			{
-				this.setWorkTime(params['workTime']);
+				this.setWorkTime(params.workTime);
 			}
-			if (params['waitWorkDay'])
+
+			if (params.waitWorkDay)
 			{
-				this.setWaitWorkDay(params['waitWorkDay']);
+				this.setWaitWorkDay(params.waitWorkDay);
 			}
-			if (params['inTime'])
+
+			if (params.inTime)
 			{
-				this.setInTime(params['inTime']);
+				this.setInTime(params.inTime);
 			}
 		}
 	}
@@ -96,10 +102,10 @@ export class DelayInterval
 	{
 		if (!this.#inTime)
 		{
-			return ''
+			return '';
 		}
 
-		return ('0' + this.#inTime[0]).slice(-2) + ':' + ('0' + this.#inTime[1]).slice(-2);
+		return `${('0' + this.#inTime[0]).slice(-2)}:${('0' + this.#inTime[1]).slice(-2)}`;
 	}
 
 	clone()
@@ -149,8 +155,8 @@ export class DelayInterval
 			intervalString = intervalString.substring(8, intervalString.length - 1);
 
 			const setTimeArgs = intervalString.split(',');
-			const minute = parseInt(setTimeArgs.pop().trim());
-			const hour = parseInt(setTimeArgs.pop().trim());
+			const minute = parseInt(setTimeArgs.pop().trim(), 10);
+			const hour = parseInt(setTimeArgs.pop().trim(), 10);
 
 			params.inTime = [hour || 0, minute || 0];
 			intervalString = setTimeArgs.join(',');
@@ -161,7 +167,7 @@ export class DelayInterval
 			if (intervalString.indexOf('workdateadd(') === 0)
 			{
 				intervalString = intervalString.substring(12, intervalString.length - 1);
-				params['workTime'] = true;
+				params.workTime = true;
 			}
 			else
 			{
@@ -169,72 +175,82 @@ export class DelayInterval
 			}
 
 			const fnArgs = intervalString.split(',');
-			params['basis'] = fnArgs[0].trim();
+			params.basis = fnArgs[0].trim();
 			fnArgs[1] = (fnArgs[1] || '').replace(/['")]+/g, '');
-			params['type'] = fnArgs[1].indexOf('-') === 0 ? DelayInterval.DELAY_TYPE.Before : DelayInterval.DELAY_TYPE.After;
+			params.type = fnArgs[1].indexOf('-') === 0 ? DelayInterval.DELAY_TYPE.Before : DelayInterval.DELAY_TYPE.After;
 
 			let match;
 			const re = /s*([\d]+)\s*(i|h|d)\s*/ig;
 			while (match = re.exec(fnArgs[1]))
 			{
-				values[match[2]] = parseInt(match[1]);
+				values[match[2]] = parseInt(match[1], 10);
 			}
 		}
 		else
 		{
-			params['basis'] = intervalString;
+			params.basis = intervalString;
+
+			if (params.basis === DelayInterval.BASIS_TYPE.CurrentDateTime)
+			{
+				params.type = DelayInterval.DELAY_TYPE.After;
+			}
+			else
+			{
+				params.type = DelayInterval.DELAY_TYPE.In;
+			}
 		}
 
-		if (!DelayInterval.isSystemBasis(params['basis']) && BX.type.isArray(basisFields))
+		if (!DelayInterval.isSystemBasis(params.basis) && BX.type.isArray(basisFields))
 		{
 			let found = false;
 			for (let i = 0, s = basisFields.length; i < s; ++i)
 			{
-				if (params['basis'] === basisFields[i].SystemExpression || params['basis'] === basisFields[i].Expression)
+				if (params.basis === basisFields[i].SystemExpression || params.basis === basisFields[i].Expression)
 				{
-					params['basis'] = basisFields[i].SystemExpression;
+					params.basis = basisFields[i].SystemExpression;
 					found = true;
 					break;
 				}
 			}
+
 			if (!found)
 			{
-				params['basis'] = DelayInterval.BASIS_TYPE.CurrentDateTime;
+				params.basis = DelayInterval.BASIS_TYPE.CurrentDateTime;
 			}
 		}
 
-		const minutes = values['i'] + values['h'] * 60 + values['d'] * 60 * 24;
+		const minutes = values.i + values.h * 60 + values.d * 60 * 24;
 
 		if (minutes % 1440 === 0)
 		{
-			params['value'] = minutes / 1440;
-			params['valueType'] = 'd';
+			params.value = minutes / 1440;
+			params.valueType = 'd';
 		}
 		else if (minutes % 60 === 0)
 		{
-			params['value'] = minutes / 60;
-			params['valueType'] = 'h';
+			params.value = minutes / 60;
+			params.valueType = 'h';
 		}
 		else
 		{
-			params['value'] = minutes;
-			params['valueType'] = 'i';
+			params.value = minutes;
+			params.valueType = 'i';
 		}
 
 		if (
-			!params['value']
+			!params.value
 			&& (
-				params['basis'] !== DelayInterval.BASIS_TYPE.CurrentDateTime
+				params.basis !== DelayInterval.BASIS_TYPE.CurrentDateTime
 				|| params.inTime
 			)
-			&& params['basis']
+			&& params.basis
 		)
 		{
-			params['type'] = DelayInterval.DELAY_TYPE.In;
+			params.type = DelayInterval.DELAY_TYPE.In;
 		}
 
 		return new DelayInterval(params);
-	};
+	}
 
 	static fromMinutes(minutes): Array<string>
 	{
@@ -275,6 +291,8 @@ export class DelayInterval
 			case 'd':
 				result = value * 60 * 24;
 				break;
+			default:
+				result = 0;
 		}
 
 		return result;
@@ -297,7 +315,7 @@ export class DelayInterval
 
 	setValue(value): this
 	{
-		value = parseInt(value);
+		value = parseInt(value, 10);
 		this.#value = value >= 0 ? value : 0;
 
 		return this;
@@ -327,14 +345,14 @@ export class DelayInterval
 
 	setWorkTime(flag): this
 	{
-		this.#workTime = !!flag;
+		this.#workTime = Boolean(flag);
 
 		return this;
 	}
 
 	setWaitWorkDay(flag): this
 	{
-		this.#waitWorkDay = !!flag;
+		this.#waitWorkDay = Boolean(flag);
 
 		return this;
 	}
@@ -376,12 +394,12 @@ export class DelayInterval
 			workTime: this.#workTime ? 1 : 0,
 			waitWorkDay: this.#waitWorkDay ? 1 : 0,
 			inTime: this.#inTime || null,
-		}
+		};
 	}
 
 	toExpression(basisFields, workerExpression): string
 	{
-		let basis = this.#basis ? this.#basis : DelayInterval.BASIS_TYPE.CurrentDate;
+		let basis = this.#basis ?? DelayInterval.BASIS_TYPE.CurrentDate;
 
 		if (!DelayInterval.isSystemBasis(basis) && Type.isArray(basisFields))
 		{
@@ -419,22 +437,24 @@ export class DelayInterval
 
 		let add = '';
 
-		if (this.#type === DelayInterval.DELAY_TYPE.Before)
-		{
-			add = '-';
-		}
-
 		if (days > 0)
 		{
-			add += days + 'd';
+			add += `${days}d`;
 		}
+
 		if (hours > 0)
 		{
-			add += hours + 'h';
+			add += `${hours}h`;
 		}
+
 		if (minutes > 0)
 		{
-			add += minutes + 'i';
+			add += `${minutes}i`;
+		}
+
+		if (add !== '' && this.#type === DelayInterval.DELAY_TYPE.Before)
+		{
+			add = `-${add}`;
 		}
 
 		const fn = this.#workTime ? 'workdateadd' : 'dateadd';
@@ -450,19 +470,21 @@ export class DelayInterval
 			worker = workerExpression;
 		}
 
-		let result = fn + '(' + basis + ',"' + add + '"' + (worker ? ',' + worker : '') + ')'
-
-		if (this.#type === DelayInterval.DELAY_TYPE.In && this.#inTime)
+		let result = basis;
+		let isFunctionInResult = false;
+		if (add !== '')
 		{
-			if (!this.#workTime)
-			{
-				result = basis;
-			}
-
-			result = `settime(${result}, ${this.#inTime[0] || 0}, ${this.#inTime[1] || 0})`;
+			result = `${fn}(${basis},"${add}"${worker ? ',' + worker : ''})`;
+			isFunctionInResult = true;
 		}
 
-		return '=' + result;
+		if (this.#inTime)
+		{
+			result = `settime(${result}, ${this.#inTime[0] || 0}, ${this.#inTime[1] || 0})`;
+			isFunctionInResult = true;
+		}
+
+		return isFunctionInResult ? `=${result}` : result;
 	}
 
 	format(emptyText, fields)
@@ -471,32 +493,33 @@ export class DelayInterval
 
 		if (this.#type === DelayInterval.DELAY_TYPE.In)
 		{
-			str = Loc.getMessage('BIZPROC_AUTOMATION_CMP_IN_TIME');
+			str = Loc.getMessage('BIZPROC_AUTOMATION_CMP_IN_TIME_2');
 			if (Type.isArray(fields))
 			{
-				for (let i = 0; i < fields.length; ++i)
+				for (const field of fields)
 				{
-					if (this.#basis === fields[i].SystemExpression)
+					if (this.#basis === field.SystemExpression)
 					{
-						str += ' ' + fields[i].Name;
+						str += ` ${field.Name}`;
 						break;
 					}
 				}
 			}
+
 			if (this.inTime)
 			{
-				str += ' ' + this.inTimeString;
+				str += ` ${this.inTimeString}`;
 			}
 		}
 		else if (this.#value)
 		{
 			const prefix = (
 				this.#type === DelayInterval.DELAY_TYPE.After
-					? Loc.getMessage('BIZPROC_AUTOMATION_CMP_THROUGH')
-					: Loc.getMessage('BIZPROC_AUTOMATION_CMP_FOR_TIME_1')
+					? Loc.getMessage('BIZPROC_AUTOMATION_CMP_THROUGH_3')
+					: Loc.getMessage('BIZPROC_AUTOMATION_CMP_FOR_TIME_3')
 			);
 
-			str = prefix + ' ' + this.getFormattedPeriodLabel(this.#value, this.#valueType);
+			str = `${prefix} ${this.getFormattedPeriodLabel(this.#value, this.#valueType)}`;
 
 			if (Type.isArray(fields))
 			{
@@ -505,11 +528,11 @@ export class DelayInterval
 						? Loc.getMessage('BIZPROC_AUTOMATION_CMP_AFTER')
 						: Loc.getMessage('BIZPROC_AUTOMATION_CMP_BEFORE_1')
 				);
-				for (let i = 0; i < fields.length; ++i)
+				for (const field of fields)
 				{
-					if (this.#basis === fields[i].SystemExpression)
+					if (this.#basis === field.SystemExpression)
 					{
-						str += ' ' + fieldSuffix + ' ' + fields[i].Name;
+						str += ` ${fieldSuffix} ${field.Name}`;
 						break;
 					}
 				}
@@ -518,7 +541,7 @@ export class DelayInterval
 
 		if (this.#workTime)
 		{
-			str += ', ' + Loc.getMessage('BIZPROC_AUTOMATION_CMP_IN_WORKTIME');
+			str += `, ${Loc.getMessage('BIZPROC_AUTOMATION_CMP_IN_WORKTIME')}`;
 		}
 
 		return str;
@@ -526,11 +549,11 @@ export class DelayInterval
 
 	getFormattedPeriodLabel(value, type)
 	{
-		const label = value + ' ';
+		const label = `${value} `;
 		let labelIndex = 0;
 		if (value > 20)
 		{
-			value = (value % 10);
+			value %= 10;
 		}
 
 		if (value === 1)
@@ -554,29 +577,36 @@ export class DelayInterval
 	static getPeriodLabels(period)
 	{
 		let labels = [];
-		if (period === 'i')
+		switch (period)
 		{
-			labels = [
-				Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN1'),
-				Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN2'),
-				Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN3')
-			];
-		}
-		else if (period === 'h')
-		{
-			labels = [
-				Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR1'),
-				Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR2'),
-				Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR3')
-			];
-		}
-		else if (period === 'd')
-		{
-			labels = [
-				Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY1'),
-				Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY2'),
-				Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY3')
-			];
+			case 'i': {
+				labels = [
+					Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN1'),
+					Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN2'),
+					Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN3'),
+				];
+				break;
+			}
+
+			case 'h': {
+				labels = [
+					Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR1'),
+					Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR2'),
+					Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR3'),
+				];
+				break;
+			}
+
+			case 'd': {
+				labels = [
+					Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY1'),
+					Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY2'),
+					Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY3'),
+				];
+				break;
+			}
+			default:
+				labels = [];
 		}
 
 		return labels;

@@ -174,25 +174,32 @@ class Site
 		$isPageImport = $return['RATIO']['IS_PAGE_IMPORT'] ?? false;
 		// if only current step add page
 		$isPageStep = false;
+		// if replace landing, not import
+		$isReplaceLanding = $additional && (int)$additional['replaceLid'] > 0;
 		if (isset($ratio[$code]['SITE_ID']) && (int)$ratio[$code]['SITE_ID'] > 0)
 		{
 			$isPageStep = true;
 		}
-		elseif ($additional && (int)$additional['siteId'] > 0)
+		elseif (
+			$additional && (int)$additional['siteId'] > 0
+		)
 		{
-			$isPageStep = true;
 			$return['RATIO']['SITE_ID'] = (int)$additional['siteId'];
-			if (!isset($return['RATIO']['IS_PAGE_IMPORT']))
-			{
-				$isPageImport = true;
-			}
+			$isPageImport = $return['RATIO']['IS_PAGE_IMPORT'] ?? true;
 		}
 
-		$return['RATIO']['IS_PAGE_IMPORT'] = $isPageImport;
+		if ($isReplaceLanding)
+		{
+			$return['RATIO']['REPLACE_ID'] = (int)$additional['replaceLid'];
+		}
 
 		// common ratio params
 		$data = self::prepareData($content['~DATA']);
 		$data = self::prepareAdditionalFields($data, $additional);
+		if ($isReplaceLanding && !$isPageStep)
+		{
+			$return['RATIO']['ADDITIONAL_FIELDS_SITE'] = $data['ADDITIONAL_FIELDS'];
+		}
 		if (!isset($return['RATIO']['SPECIAL_PAGES']))
 		{
 			$return['RATIO']['SPECIAL_PAGES'] = [
@@ -201,9 +208,11 @@ class Site
 				'LANDING_ID_503' => isset($data['LANDING_ID_503']) ? (int)$data['LANDING_ID_503'] : 0
 			];
 		}
+		$return['RATIO']['IS_PAGE_IMPORT'] = $isPageImport;
+		$return['RATIO']['TYPE'] = $data['TYPE'];
 
 		// site import
-		if (!$isPageStep)
+		if (!$isPageImport && !$isPageStep && !$isReplaceLanding)
 		{
 			Type::setScope($data['TYPE']);
 			$res = self::importSite($data, $structure);
@@ -215,7 +224,6 @@ class Site
 				$return['RATIO']['TEMPLATES'] = [];
 				$return['RATIO']['TEMPLATE_LINKING'] = [];
 				$return['RATIO']['SITE_ID'] = $res->getId();
-				$return['RATIO']['TYPE'] = $data['TYPE'];
 				$return['RATIO']['FOLDERS_NEW'] = $data['FOLDERS_NEW'] ?? [];
 				$return['RATIO']['SYS_PAGES'] = $data['SYS_PAGES'];
 
@@ -253,7 +261,12 @@ class Site
 			return $return;
 		}
 
-		// pages import
+		// not site imports
+		if (isset($return['RATIO']['REPLACE_ID']) && $return['RATIO']['REPLACE_ID'] > 0)
+		{
+			return Landing::replaceLanding($event);
+		}
+
 		return Landing::importLanding($event);
 	}
 
@@ -481,7 +494,11 @@ class Site
 
 			// if import just page in existing site
 			$isPageImport = false;
-			if ($additional && (int)$additional['siteId'] > 0)
+			$isReplaceLanding = (int)$additional['replaceLid'] > 0;
+			if (
+				$additional
+				&& ((int)$additional['siteId'] > 0 || $isReplaceLanding)
+			)
 			{
 				$isPageImport = true;
 			}
@@ -657,7 +674,7 @@ class Site
 			}
 
 			//set default additional fields for page
-			if ($mainPageId)
+			if ($mainPageId && !$isReplaceLanding)
 			{
 				self::setAdditionalPageFields($mainPageId, $additional);
 			}
@@ -706,6 +723,11 @@ class Site
 				}
 			}
 
+			if ($isReplaceLanding)
+			{
+				$linkAttrs['data-replace-lid'] .= (int)$additional['replaceLid'];
+			}
+
 			$domList = [
 				[
 					'TAG' => 'a',
@@ -715,7 +737,6 @@ class Site
 					]
 				]
 			];
-
 
 			if (mb_strpos($linkAttrs['href'], '#') !== 0)
 			{

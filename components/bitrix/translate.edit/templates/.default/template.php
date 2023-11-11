@@ -19,8 +19,6 @@ use Bitrix\Translate;
 
 $isAjax = $arResult['IS_AJAX_REQUEST'];
 $hasPermissionEdit = $arResult['ALLOW_EDIT'];
-
-
 if (!$isAjax)
 {
 	?>
@@ -494,9 +492,101 @@ if (!$isAjax)
 							'title' => Loc::getMessage('TR_EXPORT_CSV_PARAM_LANGUAGES'),
 							'list' => array_merge(['all' => Loc::getMessage('TR_EXPORT_CSV_PARAM_LANGUAGES_ALL')], $arResult['LANGUAGES_TITLE']),
 							'value' => 'all',
-						]
+						],
+						'appendSamples' => [
+							'name' => 'appendSamples',
+							'type' => 'checkbox',
+							'title' => Loc::getMessage('TR_EXPORT_CSV_PARAM_APPEND_SAMPLES'),
+							'value' => 'N'
+						],
+						'samplesCount' => [
+							'name' => 'samplesCount',
+							'type' => 'select',
+							'title' => Loc::getMessage('TR_EXPORT_CSV_PARAM_SAMPLES_COUNT'),
+							'list' => [10 => '10', 20 => '20', 30 => '30', 50 => '50', 100 => '100'],
+							'value' => 10,
+						],
+						'samplesRestriction' => [
+							'name' => 'samplesRestriction',
+							'type' => 'select',
+							'multiple' => true,
+							'size' => 5,
+							'title' => Loc::getMessage('TR_EXPORT_CSV_PARAM_SAMPLES_RESTRICTION'),
+							'list' => $component->getTopIndexedFolders(),
+							'value' => '',
+						],
 					]
-				])?>);
+				])?>)
+					.setHandler(
+						BX.UI.StepProcessing.ProcessCallback.StateChanged,
+						function (state, result)
+						{
+							/** @type {BX.UI.StepProcessing.Process} this */
+							if (
+								state === BX.UI.StepProcessing.ProcessResultStatus.completed
+								&& result.DOWNLOAD_LINK
+								&& result.SAMPLES_LINK
+							)
+							{
+								var dialog = this.getDialog();
+								if (dialog)
+								{
+									var urls = [
+										{link: result.DOWNLOAD_LINK, name: result.FILE_NAME},
+										{link: result.SAMPLES_LINK, name: result.SAMPLES_FILE}
+									],
+									makeLink = function(url) {
+										var a = document.createElement('a');
+										a.setAttribute('href', url.link);
+										a.setAttribute('download', url.name);
+										a.setAttribute('target', '_blank');
+										a.style.display = 'none';
+										return a;
+									};
+									var buttons = [];
+									buttons.push(new BX.UI.Button({
+										text: "<?= Loc::getMessage('TR_EXPORT_DLG_DOWNLOAD_MULTI') ?>",
+										color: BX.UI.Button.Color.SUCCESS,
+										icon: BX.UI.Button.Icon.DOWNLOAD,
+										events: {
+											click: function(){
+												for(var i=0, a; i<urls.length; i++){
+													a = makeLink(urls[i]);
+													setTimeout(function(a){a.click();}, 10+i*5, a);
+												}
+											}
+										}
+									}));
+									buttons.push(new BX.UI.Button({
+										text: "<?= Loc::getMessage('TR_EXPORT_DLG_CLEAR_MULTI') ?>",
+										color: BX.UI.Button.Color.LIGHT_BORDER,
+										icon: BX.UI.Button.Icon.REMOVE,
+										events: {
+											click: BX.proxy(function(){
+												this.getDialog().resetButtons({stop: true, close: true});
+												this.callAction('clear');
+												setTimeout(BX.delegate(function(){
+													this.getDialog().resetButtons({close: true});
+												}, this), 1000);
+											}, this)
+										}
+									}));
+									buttons.push(new BX.UI.CancelButton({
+										text: "<?= Loc::getMessage('TR_DLG_BTN_CLOSE') ?>",
+										color: BX.UI.Button.Color.LINK,
+										tag: BX.UI.Button.Tag.SPAN,
+										events: {
+											click: BX.proxy(function () {
+												this.closeDialog();
+												BX.Translate.PathList.reloadGrid();
+											}, this)
+										}
+									}));
+									dialog.popupWindow.setButtons(buttons);
+								}
+							}
+						}
+					);
 				<?
 			}
 			?>

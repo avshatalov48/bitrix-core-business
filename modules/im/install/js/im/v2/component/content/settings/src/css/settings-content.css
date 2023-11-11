@@ -1,0 +1,6 @@
+.bx-im-content-settings__container {
+	--im-content-settings__background-color_border: var(--im-color-palette-gray-15);
+
+	display: flex;
+	height: 100%;
+}

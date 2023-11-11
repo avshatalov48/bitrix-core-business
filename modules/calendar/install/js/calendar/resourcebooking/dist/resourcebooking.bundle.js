@@ -3609,7 +3609,7 @@ value=""/>`)));
 	      this.popupMenu.popupWindow.setMinWidth(this.input.offsetWidth);
 	    }
 	    this.popupMenu.popupWindow.setMaxWidth(300);
-	    let menuContainer = this.popupMenu.layout.menuContainer;
+	    let menuContainer = this.popupMenu.getPopupWindow().getContentContainer();
 	    main_core.Dom.addClass(this.popupMenu.layout.menuContainer, 'calendar-resourcebook-select-popup');
 	    this.popupMenu.show();
 	    let menuItem = this.popupMenu.menuItems[ind];

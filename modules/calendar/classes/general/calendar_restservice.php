@@ -298,6 +298,7 @@ final class CCalendarRestService extends IRestService
 		}
 
 		$event = CCalendarEvent::GetById($params['id']);
+		unset($event['ACTIVE'], $event['DT_FROM'], $event['DT_TO'], $event['TEXT_COLOR']);
 
 		return $event ?: null;
 	}
@@ -398,20 +399,51 @@ final class CCalendarRestService extends IRestService
 			$params['to'] = CCalendar::Date($params['to_ts']);
 		}
 
-		$necessaryParams = ['from', 'to', 'name', 'ownerId', 'type'];
+		$necessaryParams = [
+			'from',
+			'to',
+			'name',
+			'ownerId',
+			'type'
+		];
+
 		if (isset($params['auto_detect_section']) && $params['auto_detect_section'] !== "Y")
 		{
 			$necessaryParams[] = 'section';
 		}
+
 		foreach ($necessaryParams as $param)
 		{
 			if (empty($params[$param]))
 			{
+				if ($param === 'ownerId' && isset($params[$param]))
+				{
+					continue;
+				}
+
 				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
 					'#PARAM_NAME#' => $param,
 					'#REST_METHOD#' => $methodName
 				]));
 			}
+		}
+
+		if (!is_string($params['name']))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_ERROR',
+				[
+					'#PARAM_NAME#' => 'name',
+				]
+			));
+		}
+
+		if (isset($params['description']) && !is_string($params['description']))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_ERROR',
+				[
+					'#PARAM_NAME#' => 'description',
+				]
+			));
 		}
 
 		$type = $params['type'];
@@ -645,11 +677,34 @@ final class CCalendarRestService extends IRestService
 		{
 			if (empty($params[$param]))
 			{
+				if ($param === 'ownerId' && isset($params[$param]))
+				{
+					continue;
+				}
+
 				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', [
 					'#PARAM_NAME#' => $param,
 					'#REST_METHOD#' => $methodName
 				]));
 			}
+		}
+
+		if (!is_string($params['name']))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_ERROR',
+				[
+					'#PARAM_NAME#' => 'name',
+				]
+			));
+		}
+
+		if (isset($params['description']) && !is_string($params['description']))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_ERROR',
+				[
+					'#PARAM_NAME#' => 'description',
+				]
+			));
 		}
 
 		$id = (int)$params['id'];
@@ -928,7 +983,8 @@ final class CCalendarRestService extends IRestService
 				'fromLimit' => $fromLimit,
 				'toLimit' => $toLimit,
 				'type' => $params['CALENDAR_TYPE'],
-				'sectionId' => $params['CALENDAR_SECTION_ID']
+				'sectionId' => $params['CALENDAR_SECTION_ID'],
+				'fromRest' => true,
 			));
 
 		if ($arEvents === 'access_denied' || $arEvents === 'inactive_feature')
@@ -1035,9 +1091,34 @@ final class CCalendarRestService extends IRestService
 				$res[$i]['CAL_DAV_CAL'],
 				$res[$i]['XML_ID']
 			);
+
+			if (!empty($res[$i]['DATE_CREATE']) && is_string($res[$i]['DATE_CREATE']))
+			{
+				$res[$i]['DATE_CREATE'] = self::formatOld($res[$i]['DATE_CREATE']);
+			}
+
+			if (!empty($res[$i]['TIMESTAMP_X']) && is_string($res[$i]['TIMESTAMP_X']))
+			{
+				$res[$i]['TIMESTAMP_X'] = self::formatOld($res[$i]['TIMESTAMP_X']);
+			}
 		}
 
 		return $res;
+	}
+
+	/**
+	 * @param string $value
+	 * @return string
+	 */
+	private static function formatOld(string $value): string
+	{
+		try
+		{
+			$value = (new \Bitrix\Main\Type\DateTime($value))->format('Y-m-d H:i:s');
+		}
+		catch (\Bitrix\Main\ObjectException $e) {}
+
+		return $value;
 	}
 
 	/*
@@ -1110,6 +1191,24 @@ final class CCalendarRestService extends IRestService
 				'#REST_METHOD#' => $methodName,
 				'#PARAM_NAME#' => 'ownerId'
 			]));
+		}
+
+		if (!is_string($params['name']))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_ERROR',
+				[
+					'#PARAM_NAME#' => 'name',
+				]
+			));
+		}
+
+		if (isset($params['description']) && !is_string($params['description']))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_ERROR',
+				[
+					'#PARAM_NAME#' => 'description',
+				]
+			));
 		}
 
 		$perm = CCalendar::GetPermissions([
@@ -1253,6 +1352,24 @@ final class CCalendarRestService extends IRestService
 		else
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_SECT_ID_EXCEPTION'));
+		}
+
+		if (isset($params['name']) && !is_string($params['name']))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_ERROR',
+				[
+					'#PARAM_NAME#' => 'name',
+				]
+			));
+		}
+
+		if (isset($params['description']) && !is_string($params['description']))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_PARAM_ERROR',
+				[
+					'#PARAM_NAME#' => 'description',
+				]
+			));
 		}
 
 		$accessController = new SectionAccessController($userId);

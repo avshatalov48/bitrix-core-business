@@ -1,5 +1,4 @@
 <?
-define("BX_DESKTOP", true);
 define("BX_SKIP_SESSION_EXPAND", true);
 define("PUBLIC_AJAX_MODE", true);
 define("NO_KEEP_STATISTIC", "Y");

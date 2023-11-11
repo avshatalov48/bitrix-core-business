@@ -311,7 +311,7 @@ $templateData['SIGNED_PARAMETERS'] = $signedParams;
 		siteId: '<?=CUtil::JSEscape($component->getSiteId())?>',
 		componentPath: '<?=CUtil::JSEscape($componentPath)?>',
 		navParams: <?=CUtil::PhpToJSObject($navParams)?>,
-		deferredLoad: <?=($arParams['DEFERRED_LOAD'] === 'Y') ? 'true' : 'false' ?>, // enable it for deferred load
+		deferredLoad: <?=($arParams['DEFERRED_LOAD'] === 'Y') ? 'true' : 'false' ?>,
 		initiallyShowHeader: '<?=!empty($arResult['ITEM_ROWS'])?>',
 		bigData: <?=CUtil::PhpToJSObject($arResult['BIG_DATA'])?>,
 		lazyLoad: !!'<?=$showLazyLoad?>',

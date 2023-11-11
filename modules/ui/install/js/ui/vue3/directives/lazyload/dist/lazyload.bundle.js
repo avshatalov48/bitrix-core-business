@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Vue3 = this.BX.Vue3 || {};
 (function (exports,ui_vue3) {
@@ -21,18 +22,15 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    if (typeof bindings.value === 'object' && typeof bindings.value.callback === 'function') {
 	      element.lazyloadCallback = bindings.value.callback;
 	    }
-
 	    if (!element.src || element.src === location.href.replace(location.hash, '')) {
 	      element.src = BLANK_IMAGE;
 	    }
-
 	    if (lazyloadObserver) {
 	      lazyloadObserver.observe(element);
 	    } else {
 	      lazyloadLoadImage(element);
 	    }
 	  },
-
 	  updated(element) {
 	    if (!element.classList.contains(SUCCESS) && !element.classList.contains(ERROR) && !element.classList.contains(WATCH) && !element.classList.contains(LOADING)) {
 	      element.classList.add(LOADING);
@@ -40,25 +38,20 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      if (!element.dataset.lazyloadSrc.startsWith('http')) {
 	        const url = document.createElement('a');
 	        url.href = element.dataset.lazyloadSrc;
-
 	        if (url.href === element.src) {
 	          return;
 	        }
 	      }
-
 	      lazyloadLoadImage(element);
 	    }
 	  },
-
 	  unmounted(element) {
 	    if (lazyloadObserver) {
 	      lazyloadObserver.unobserve(element);
 	    }
 	  }
-
 	};
 	let lazyloadObserver = null;
-
 	let lazyloadLoadImage = function (currentImage, callback) {
 	  let SUCCESS_CLASS = currentImage.dataset.lazyloadSuccessClass ? currentImage.dataset.lazyloadSuccessClass.split(" ") : [];
 	  delete currentImage.dataset.lazyloadSuccessClass;
@@ -69,23 +62,18 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	  currentImage.classList.add(LOADING);
 	  const newImage = new Image();
 	  newImage.src = currentImage.dataset.lazyloadSrc;
-
 	  if (!currentImage.dataset.lazyloadHiddenSrc) {
 	    currentImage.dataset.lazyloadHiddenSrc = currentImage.src;
 	  }
-
 	  newImage.onload = function () {
 	    if (currentImage.classList.contains(HIDDEN)) {
 	      return false;
 	    }
-
 	    if (currentImage.dataset.lazyloadSrc) {
 	      currentImage.src = currentImage.dataset.lazyloadSrc;
 	    }
-
 	    currentImage.classList.remove(LOADING);
 	    currentImage.classList.add(...SUCCESS_CLASS);
-
 	    if (typeof currentImage.lazyloadCallback === 'function') {
 	      currentImage.lazyloadCallback({
 	        element: currentImage,
@@ -94,17 +82,14 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      delete currentImage.lazyloadCallback;
 	    }
 	  };
-
 	  newImage.onerror = function () {
 	    if (currentImage.classList.contains(HIDDEN)) {
 	      return false;
 	    }
-
 	    currentImage.classList.remove(LOADING);
 	    currentImage.classList.add(...ERROR_CLASS);
 	    currentImage.title = '';
 	    currentImage.alt = '';
-
 	    if (typeof currentImage.lazyloadCallback === 'function') {
 	      currentImage.lazyloadCallback({
 	        element: currentImage,
@@ -115,32 +100,26 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      currentImage.src = BLANK_IMAGE;
 	    }
 	  };
-
 	  if (typeof currentImage.dataset.lazyloadDontHide !== 'undefined') {
 	    currentImage.classList.remove(WATCH);
 	    delete currentImage.dataset.lazyloadDontHide;
-
 	    if (lazyloadObserver) {
 	      lazyloadObserver.unobserve(currentImage);
 	    }
 	  }
 	};
-
 	if (typeof window.IntersectionObserver !== 'undefined') {
 	  lazyloadObserver = new IntersectionObserver(function (entries, observer) {
 	    entries.forEach(function (entry) {
 	      const currentImage = entry.target;
-
 	      if (currentImage.classList.contains(ERROR)) {
 	        return true;
 	      }
-
 	      if (entry.isIntersecting) {
 	        if (currentImage.classList.contains(HIDDEN)) {
 	          if (currentImage.dataset.lazyloadSrc) {
 	            currentImage.src = currentImage.dataset.lazyloadSrc;
 	          }
-
 	          currentImage.classList.remove(HIDDEN);
 	        } else if (currentImage.classList.contains(WATCH)) {
 	          return true;
@@ -152,11 +131,9 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	        if (currentImage.classList.contains(HIDDEN) || !currentImage.classList.contains(WATCH)) {
 	          return true;
 	        }
-
 	        if (currentImage.dataset.lazyloadHiddenSrc) {
 	          currentImage.src = currentImage.dataset.lazyloadHiddenSrc;
 	        }
-
 	        currentImage.classList.remove(LOADING);
 	        currentImage.classList.add(HIDDEN);
 	      }

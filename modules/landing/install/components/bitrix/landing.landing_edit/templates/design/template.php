@@ -139,7 +139,10 @@ if ($formEditor)
 			top.BX.Landing.UI.Tool.ActionDialog.getInstance().close();
 		}
 		BX.Landing.Env.createInstance({
-			params: {type: '<?= $arParams['TYPE'] ?>'}
+			site_id: '<?= $row['SITE_ID']['CURRENT'] ?>',
+			params: {
+				type: '<?= $arParams['TYPE'] ?>',
+			},
 		});
 	});
 </script>

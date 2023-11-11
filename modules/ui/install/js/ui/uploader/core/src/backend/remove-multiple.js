@@ -36,6 +36,7 @@ export function removeMultiple(controller: RemoveController, file: UploaderFile)
 
 function removeInternal()
 {
+	// eslint-disable-next-line no-invalid-this,unicorn/no-this-assignment
 	const server: Server = this;
 	const queue = queues.get(server);
 	if (!queue)
@@ -47,7 +48,7 @@ function removeInternal()
 	queues.delete(server);
 
 	const fileIds = [];
-	tasks.forEach(task => {
+	tasks.forEach((task) => {
 		const file: UploaderFile = task.file;
 		if (file.getServerFileId() !== null)
 		{
@@ -62,55 +63,52 @@ function removeInternal()
 
 	const controllerOptions = server.getControllerOptions();
 	Ajax.runAction('ui.fileuploader.remove', {
-			data: {
-				fileIds: fileIds,
-			},
-			getParameters: {
-				controller: server.getController(),
-				controllerOptions: controllerOptions ? JSON.stringify(controllerOptions) : null,
-			},
-			onrequeststart: (xhr) => {
-				queue.xhr = xhr;
-			},
-		})
-		.then(response => {
-			if (response.data?.files)
-			{
-				const fileResults = {};
-				response.data.files.forEach((fileResult) => {
-					fileResults[fileResult.id] = fileResult;
-				});
+		data: {
+			fileIds,
+		},
+		getParameters: {
+			controller: server.getController(),
+			controllerOptions: controllerOptions ? JSON.stringify(controllerOptions) : null,
+		},
+		onrequeststart: (xhr) => {
+			queue.xhr = xhr;
+		},
+	}).then((response) => {
+		if (response.data?.files)
+		{
+			const fileResults = {};
+			response.data.files.forEach((fileResult) => {
+				fileResults[fileResult.id] = fileResult;
+			});
 
-				tasks.forEach(task => {
-					const { controller, file } = task;
-					const fileResult = fileResults[file.getServerFileId()] || null;
+			tasks.forEach((task) => {
+				const { controller, file } = task;
+				const fileResult = fileResults[file.getServerFileId()] || null;
 
-					if (fileResult && fileResult.success)
-					{
-						controller.emit('onRemove', { fileId: fileResult.id });
-					}
-					else
-					{
-						const error = UploaderError.createFromAjaxErrors(fileResult?.errors);
-						controller.emit('onError', { error });
-					}
-				});
-			}
-			else
-			{
-				const error = new UploaderError('SERVER_ERROR');
-				tasks.forEach(task => {
-					const { controller } = task;
-					controller.emit('onError', { error: error.clone() });
-				});
-			}
-		})
-		.catch(response => {
-			const error = UploaderError.createFromAjaxErrors(response.errors);
-			tasks.forEach(task => {
+				if (fileResult && fileResult.success)
+				{
+					controller.emit('onRemove', { fileId: fileResult.id });
+				}
+				else
+				{
+					const error = UploaderError.createFromAjaxErrors(fileResult?.errors);
+					controller.emit('onError', { error });
+				}
+			});
+		}
+		else
+		{
+			const error = new UploaderError('SERVER_ERROR');
+			tasks.forEach((task) => {
 				const { controller } = task;
 				controller.emit('onError', { error: error.clone() });
 			});
-		})
-	;
+		}
+	}).catch((response) => {
+		const error = UploaderError.createFromAjaxErrors(response.errors);
+		tasks.forEach((task) => {
+			const { controller } = task;
+			controller.emit('onError', { error: error.clone() });
+		});
+	});
 }

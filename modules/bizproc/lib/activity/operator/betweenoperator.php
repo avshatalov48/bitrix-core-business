@@ -27,21 +27,19 @@ class BetweenOperator extends BaseOperator
 
 	public function check(): bool
 	{
-		$classType = $this->fieldType->getTypeClass();
-
 		$greaterThen = is_array($this->value[0]) ? $this->value[0] : [$this->value[0]];
 		$lessThen = is_array($this->value[1]) ? $this->value[1] : [$this->value[1]];
 		$toCheck = $this->toCheck;
 
-		usort($greaterThen, [$classType, 'compareValues']);
-		usort($lessThen, [$classType, 'compareValues']);
-		usort($toCheck, [$classType, 'compareValues']);
+		reset($greaterThen);
+		reset($lessThen);
+		reset($toCheck);
 
-		$maxGreaterThen = $greaterThen[array_key_last($greaterThen)];
-		$maxLessThen = $lessThen[array_key_last($lessThen)];
-		$checkValue = $toCheck[array_key_last($toCheck)];
+		$firstGreaterThen = current($greaterThen);
+		$firstLessThen = current($lessThen);
+		$checkValue = current($toCheck);
 
-		return $this->compare($checkValue,[$maxGreaterThen, $maxLessThen]);
+		return $this->compare($checkValue, [$firstGreaterThen, $firstLessThen]);
 	}
 
 	protected function compare($toCheck, $value): bool
@@ -49,10 +47,10 @@ class BetweenOperator extends BaseOperator
 		$classType = $this->fieldType->getTypeClass();
 		[$greaterThen, $lessThen] = $value;
 
-		// $maxGreaterThen < $checkValue < $maxLessThen
+		// $firstGreaterThen <= $checkValue <= $firstLessThen
 		return (
-			$classType::compareValues($toCheck, $greaterThen) === 1
-			&& $classType::compareValues($toCheck, $lessThen) === -1
+			$classType::compareValues($toCheck, $greaterThen) >= 0
+			&& $classType::compareValues($toCheck, $lessThen) <= 0
 		);
 	}
 }

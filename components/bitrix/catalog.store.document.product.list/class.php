@@ -1842,6 +1842,7 @@ final class CatalogStoreDocumentProductListComponent
 		{
 			$result['COMMENT']['name'] = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_COMMENT_DEDUCT');
 			$result['COMMENT']['title'] = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_COMMENT_DEDUCT');
+			$result['COMMENT']['default'] = true;
 		}
 
 		foreach ($result as &$item)

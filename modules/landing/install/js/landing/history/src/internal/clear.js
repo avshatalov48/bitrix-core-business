@@ -8,8 +8,10 @@ import type {History} from '../history';
  */
 export default function clear(history: History): Promise<History>
 {
-	history.stack = [];
- 	history.step = -1;
+	history.stack = {};
+	history.stackCount = 0;
+ 	history.step = 0;
 	history.commandState = RESOLVED;
+
 	return Promise.resolve(history);
 }

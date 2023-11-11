@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core,ui_tour,main_loader) {
@@ -5,15 +6,11 @@ this.BX.UI = this.BX.UI || {};
 
 	var Step = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Step, _Event$EventEmitter);
-
 	  function Step(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Step);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Step).call(this));
-
 	    _this.setEventNamespace('BX.UI.Tutor.Step');
-
 	    options = main_core.Type.isPlainObject(options) ? options : {};
 	    _this.id = options.id || null;
 	    _this.title = options.title || null;
@@ -29,12 +26,11 @@ this.BX.UI = this.BX.UI || {};
 	    _this.videoObj = null;
 	    return _this;
 	  }
+
 	  /**
 	   * @public
 	   * @returns {string}
 	   */
-
-
 	  babelHelpers.createClass(Step, [{
 	    key: "getTitle",
 	    value: function getTitle() {
@@ -44,7 +40,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {Object}
 	     */
-
 	  }, {
 	    key: "getVideoObj",
 	    value: function getVideoObj() {
@@ -53,7 +48,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @public
 	     */
-
 	  }, {
 	    key: "getHighlightOptions",
 	    value: function getHighlightOptions() {
@@ -63,7 +57,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {string}
 	     */
-
 	  }, {
 	    key: "getDescription",
 	    value: function getDescription() {
@@ -73,7 +66,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {string}
 	     */
-
 	  }, {
 	    key: "getUrl",
 	    value: function getUrl() {
@@ -83,7 +75,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {Boolean}
 	     */
-
 	  }, {
 	    key: "getCompleted",
 	    value: function getCompleted() {
@@ -103,7 +94,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {string}
 	     */
-
 	  }, {
 	    key: "getId",
 	    value: function getId() {
@@ -113,7 +103,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {Object}
 	     */
-
 	  }, {
 	    key: "getInitOptions",
 	    value: function getInitOptions() {
@@ -122,7 +111,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @public
 	     */
-
 	  }, {
 	    key: "activate",
 	    value: function activate() {
@@ -131,7 +119,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @public
 	     */
-
 	  }, {
 	    key: "getShownForSlider",
 	    value: function getShownForSlider() {
@@ -140,7 +127,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @public
 	     */
-
 	  }, {
 	    key: "deactivate",
 	    value: function deactivate() {
@@ -149,7 +135,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }], [{
 	    key: "getFullEventName",
 	    value: function getFullEventName(shortName) {
@@ -162,18 +147,13 @@ this.BX.UI = this.BX.UI || {};
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11;
 	var Manager = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Manager, _Event$EventEmitter);
-
 	  function Manager() {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Manager);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Manager).call(this));
-
 	    _this.setEventNamespace('BX.UI.Tutor.Manager');
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Manager, [{
 	    key: "setOptions",
 	    value: function setOptions(options, domain, feedbackFormId) {
@@ -183,11 +163,9 @@ this.BX.UI = this.BX.UI || {};
 	      this.lastCheckTime = options.lastCheckTime || 0;
 	      this.domain = options.domain || '';
 	      this.feedbackFormId = options.feedbackFormId || '';
-
 	      if (main_core.Type.isString(domain) && domain.length > 0) {
 	        this.domain = domain;
 	      }
-
 	      if (main_core.Type.isString(feedbackFormId) && feedbackFormId.length > 0) {
 	        this.feedbackFormId = feedbackFormId;
 	      }
@@ -197,7 +175,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function showFeedbackForm() {
 	      if (this.feedbackFormId) {
 	        this.feedBackForm = BX.UI.Feedback.Form.getById(this.feedbackFormId);
-
 	        if (this.feedBackForm) {
 	          this.feedBackForm.openPanel();
 	        }
@@ -226,7 +203,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @return {Manager}
 	     */
-
 	  }], [{
 	    key: "getInstance",
 	    value: function getInstance() {
@@ -235,7 +211,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @return {Scenario}
 	     */
-
 	  }, {
 	    key: "getScenarioInstance",
 	    value: function getScenarioInstance() {
@@ -245,7 +220,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "init",
 	    value: function init(options, domain, feedbackFormId) {
 	      var instance = this.getInstance();
-
 	      if (!(instance instanceof Manager)) {
 	        this.instance = new Manager();
 	        instance = this.getInstance();
@@ -253,7 +227,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else {
 	        instance = this.getInstance();
 	      }
-
 	      instance.setOptions(options, domain, feedbackFormId);
 	      return instance;
 	    }
@@ -261,7 +234,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "initScenario",
 	    value: function initScenario(options) {
 	      var instance = this.getScenarioInstance();
-
 	      if (!(instance instanceof Scenario)) {
 	        this.scenarioInstance = new Scenario();
 	        instance = this.getScenarioInstance();
@@ -269,7 +241,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else {
 	        instance = this.getScenarioInstance();
 	      }
-
 	      instance.setOptions(options);
 	      return instance;
 	    }
@@ -292,17 +263,13 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getImButton",
 	    value: function getImButton(animation) {
 	      var _this2 = this;
-
 	      if (!this.layout.imButton) {
 	        var buttonWrapper = this.getRootImButton();
-
 	        if (buttonWrapper) {
 	          var buttonInner = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-btn\"></div>\n\t\t\t\t"])));
-
 	          if (animation) {
 	            main_core.Dom.addClass(buttonWrapper, 'ui-tutor-btn-wrap-animate');
 	          }
-
 	          main_core.Dom.append(buttonInner, buttonWrapper);
 	          main_core.Dom.addClass(buttonWrapper, 'ui-tutor-btn-wrap-show');
 	          this.layout.imButton = buttonWrapper;
@@ -310,7 +277,6 @@ this.BX.UI = this.BX.UI || {};
 	            _this2.emit('clickImButton');
 	          });
 	          var usersPanel = document.querySelector('.bx-im-users-wrap');
-
 	          if (document.querySelector('#bx-im-btn-call')) {
 	            usersPanel.style.bottom = '175px';
 	          } else {
@@ -318,7 +284,6 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        }
 	      }
-
 	      return this.layout.imButton;
 	    }
 	  }, {
@@ -327,7 +292,6 @@ this.BX.UI = this.BX.UI || {};
 	      this.smallPopupText = text;
 	      this.getSmallPopup().style.display = 'block';
 	      this.smallPopupText = '';
-
 	      if (main_core.Dom.hasClass(this.getSmallPopup(), 'ui-tutor-popup-welcome-hide')) {
 	        main_core.Dom.removeClass(this.getSmallPopup(), 'ui-tutor-popup-welcome-hide');
 	      }
@@ -336,20 +300,15 @@ this.BX.UI = this.BX.UI || {};
 	    key: "hideSmallPopup",
 	    value: function hideSmallPopup(skipAnimation) {
 	      skipAnimation = skipAnimation === true;
-
 	      var removeHandler = function () {
 	        main_core.Dom.remove(this.getSmallPopup());
-
 	        if (this.hasOwnProperty('smallPopup')) {
 	          delete this.smallPopup;
 	        }
-
 	        this.emit('onCompleteHideSmallPopup');
 	      }.bind(this);
-
 	      main_core.Dom.removeClass(this.getSmallPopup(), 'ui-tutor-popup-welcome-show');
 	      main_core.Dom.addClass(this.getSmallPopup(), 'ui-tutor-popup-welcome-hide');
-
 	      if (skipAnimation) {
 	        removeHandler();
 	      } else {
@@ -386,11 +345,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getSmallPopup",
 	    value: function getSmallPopup() {
 	      var _this3 = this;
-
 	      var clickSmallPopupHandler = function clickSmallPopupHandler() {
 	        _this3.emit('onClickSmallPopupBtn');
 	      };
-
 	      if (!this.smallPopup) {
 	        this.smallPopup = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup\" onclick=\"", "\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-header\">\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-icon\"></span>\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title-wrap\">\n\t\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title\">", "</span> \n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-content\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-text\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-icon-angle\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), clickSmallPopupHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_TITLE'), this.smallPopupText);
 	        this.emit('onCreateSmallPopupNode');
@@ -399,7 +356,6 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.append(this.smallPopup, document.body);
 	        this.emit('onAfterAppendSmallPopupNode');
 	      }
-
 	      return this.smallPopup;
 	    }
 	  }, {
@@ -428,41 +384,35 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.append(this.startPopup, document.body);
 	        this.emit('onAfterAppendStartPopupNode');
 	      }
-
 	      return this.startPopup;
 	    }
 	  }, {
 	    key: "getBeginBtn",
 	    value: function getBeginBtn() {
 	      var _this4 = this;
-
 	      if (!this.beginBtn) {
 	        this.beginBtn = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_BEGIN'));
 	        main_core.Event.bind(this.beginBtn, "click", function () {
 	          _this4.emit('clickBeginBtn');
 	        });
 	      }
-
 	      return this.beginBtn;
 	    }
 	  }, {
 	    key: "getDeferBtn",
 	    value: function getDeferBtn() {
 	      var _this5 = this;
-
 	      if (!this.deferBtn) {
 	        this.deferBtn = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-link\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_CLOSE_POPUP_BTN'));
 	        main_core.Event.bind(this.deferBtn, "click", function () {
 	          _this5.emit('clickDeferBtn');
 	        });
 	      }
-
 	      return this.deferBtn;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "getFullEventName",
 	    value: function getFullEventName(shortName) {
@@ -471,30 +421,25 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @public
 	     */
-
 	  }, {
 	    key: "getInformer",
 	    value: function getInformer() {
 	      if (!this.informer) {
 	        this.informer = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-informer\" id=\"ui-tutor-informer\"></div>\n\t\t\t\t"])));
 	        var informerParentNode = this.getImButton();
-
 	        if (this.isCollapsedShow) {
 	          informerParentNode = this.getCollapseBlock();
 	        }
-
 	        if (informerParentNode) {
 	          main_core.Dom.append(this.informer, informerParentNode);
 	        }
 	      }
-
 	      return this.informer;
 	    }
 	  }, {
 	    key: "setCount",
 	    value: function setCount(num) {
 	      this.emit('onBeforeSetCount');
-
 	      if (num < 1) {
 	        this.removeInformer();
 	        delete this.informer;
@@ -503,13 +448,11 @@ this.BX.UI = this.BX.UI || {};
 	        this.getInformer().textContent = num;
 	        this.isInformerShow = true;
 	      }
-
 	      this.emit('onAfterSetCount');
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "removeInformer",
 	    value: function removeInformer() {
@@ -521,44 +464,34 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "showCollapsedBlock",
 	    value: function showCollapsedBlock(step, withGuide, showAfterAnimation) {
 	      withGuide = withGuide !== false;
 	      showAfterAnimation = showAfterAnimation !== false;
 	      this.emit('onBeforeShowCollapsedBlock');
-
 	      if (!this.isCollapsedShow) {
 	        this.emit('onStartShowCollapsedBlock');
-
 	        if (!(step instanceof Step)) {
 	          step = new Step(step);
 	        }
-
 	        this.collapsedStep = step;
 	        var collapsedBlock = this.getCollapseBlock();
-
 	        var showFunction = function showFunction() {
 	          collapsedBlock.style.display = 'flex';
 	        };
-
 	        if (showAfterAnimation) {
 	          setTimeout(showFunction.bind(this), 300);
 	        } else {
 	          showFunction.call(this);
 	        }
-
 	        this.getCollapseTitle().innerHTML = step.getTitle();
-
 	        if (this.isInformerShow) {
 	          main_core.Dom.append(this.getInformer(), collapsedBlock);
 	        }
-
 	        this.isCollapsedShow = true;
 	        this.emit('onShowCollapsedBlock');
 	      }
-
 	      if (withGuide) {
 	        this.showGuide();
 	      } else {
@@ -580,29 +513,24 @@ this.BX.UI = this.BX.UI || {};
 	    value: function checkButtonsState() {
 	      this.emit('onCheckButtonsState');
 	      var step = this.collapsedStep;
-
 	      if (!step) {
 	        return;
 	      }
-
 	      if (step.getCompleted()) {
 	        if (this.activeGuide) {
 	          this.hideNode(this.getRepeatBtn());
 	        } else {
 	          this.showNode(this.getRepeatBtn());
 	        }
-
 	        this.hideNode(this.getCompletedBtn());
 	        this.hideNode(this.getStartBtn());
 	      } else if (step.isActive) {
 	        this.showNode(this.getCompletedBtn());
-
 	        if (this.activeGuide || !this.isShowRepeatWithCompleted) {
 	          this.hideNode(this.getRepeatBtn());
 	        } else {
 	          this.showNode(this.getRepeatBtn());
 	        }
-
 	        this.hideNode(this.getStartBtn());
 	      } else {
 	        this.showNode(this.getStartBtn());
@@ -615,7 +543,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function showGuide() {
 	      this.emit('onBeforeShowGuide');
 	      var step = this.collapsedStep;
-
 	      if (!this.activeGuide && step) {
 	        this.emit('onStartShowGuide');
 	        this.activeGuide = new ui_tour.Guide({
@@ -641,7 +568,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getCollapseBlock",
 	    value: function getCollapseBlock() {
@@ -651,91 +577,75 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.append(this.layout.collapseBlock, document.body);
 	        this.emit('onAfterAppendCollapsedBlockNode');
 	      }
-
 	      return this.layout.collapseBlock;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getStartBtn",
 	    value: function getStartBtn() {
 	      var _this6 = this;
-
 	      if (!this.startBtn) {
 	        this.startBtn = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round ui-btn-xs\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_START'));
 	        main_core.Event.bind(this.startBtn, "click", function (event) {
 	          event.stopPropagation();
-
 	          _this6.emit('clickStartBtn');
 	        });
 	      }
-
 	      return this.startBtn;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getRepeatBtn",
 	    value: function getRepeatBtn() {
 	      var _this7 = this;
-
 	      if (!this.repeatBtn) {
 	        this.repeatBtn = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round ui-btn-xs\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_REPEAT'));
 	        main_core.Event.bind(this.repeatBtn, "click", function (event) {
 	          event.stopPropagation();
-
 	          _this7.emit('clickRepeatBtn');
 	        });
 	      }
-
 	      return this.repeatBtn;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getCompletedBtn",
 	    value: function getCompletedBtn() {
 	      var _this8 = this;
-
 	      if (!this.completedBtn) {
 	        this.completedBtn = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-success ui-btn-round ui-btn-xs\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_COMPLETED_SHORT'));
 	        main_core.Event.bind(this.completedBtn, "click", function (event) {
 	          event.stopPropagation();
-
 	          _this8.emit('clickCompletedBtn');
 	        });
 	      }
-
 	      return this.completedBtn;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getCollapseTitle",
 	    value: function getCollapseTitle() {
 	      if (!this.layout.collapseTitle) {
 	        this.layout.collapseTitle = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-title\"></div>\n\t\t\t\t"])));
 	      }
-
 	      return this.layout.collapseTitle;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "closeCollapsePopup",
 	    value: function closeCollapsePopup(event) {
@@ -745,7 +655,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "clickCollapseBlockHandler",
 	    value: function clickCollapseBlockHandler() {
@@ -764,15 +673,12 @@ this.BX.UI = this.BX.UI || {};
 	      this.emit('onBeforeHideCollapsedBlock');
 	      this.getCollapseBlock().style.display = 'none';
 	      this.getImButton().style.display = 'block';
-
 	      if (this.activeGuide instanceof ui_tour.Guide) {
 	        this.activeGuide.close();
 	      }
-
 	      if (this.isInformerShow) {
 	        main_core.Dom.append(this.getInformer(), this.getImButton());
 	      }
-
 	      delete this.collapsedStep;
 	      this.isCollapsedShow = false;
 	      this.emit('onHideCollapsedBlock');
@@ -817,13 +723,11 @@ this.BX.UI = this.BX.UI || {};
 	    key: "hideCollapsedLoader",
 	    value: function hideCollapsedLoader() {
 	      this.emit('onBeforeHideCollapsedLoader');
-
 	      if (this.layout.collapseLoader) {
 	        this.layout.collapseLoader.destroy();
 	        main_core.Dom.removeClass(this.getCollapseBlock(), "ui-tutor-popup-collapse-load");
 	        this.getCollapseBlock().style.display = 'none';
 	      }
-
 	      this.emit('onAfterHideCollapsedLoader');
 	    }
 	  }, {
@@ -841,13 +745,10 @@ this.BX.UI = this.BX.UI || {};
 	    value: function checkFollowLink(step, scenario) {
 	      this.emit('onStartCheckFollowLink');
 	      step = step || this.collapsedStep;
-
 	      if (step instanceof Step) {
 	        scenario = scenario || {};
-
 	        if (!(window.location.pathname === step.getUrl())) {
 	          var beforeEvent = 'onBeforeRedirectToActionPage';
-
 	          if (scenario instanceof Scenario) {
 	            main_core.Dom.addClass(scenario.getStartBtn(), 'ui-btn-wait');
 	            scenario.fireCurrentStepEvent(beforeEvent);
@@ -857,7 +758,6 @@ this.BX.UI = this.BX.UI || {};
 	              step: step
 	            });
 	          }
-
 	          window.location = step.getUrl();
 	        } else {
 	          if (scenario instanceof Scenario) {
@@ -868,7 +768,6 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        }
 	      }
-
 	      this.emit('onFinishCheckFollowLink');
 	    }
 	  }, {
@@ -879,10 +778,10 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return Manager;
 	}(main_core.Event.EventEmitter);
+
 	/**
 	 * @private
 	 */
-
 	Manager.instance = null;
 	Manager.scenarioInstance = null;
 	Manager.activeGuide = null;
@@ -896,16 +795,12 @@ this.BX.UI = this.BX.UI || {};
 	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11$1, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17, _templateObject18, _templateObject19, _templateObject20, _templateObject21, _templateObject22, _templateObject23, _templateObject24, _templateObject25, _templateObject26, _templateObject27, _templateObject28, _templateObject29;
 	var Scenario = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Scenario, _Event$EventEmitter);
-
 	  function Scenario() {
 	    var _this;
-
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Scenario);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Scenario).call(this));
-
 	    _this.setEventNamespace('BX.UI.Tutor.Scenario');
-
 	    _this.stepPopup = null;
 	    _this.arrowTimer = null;
 	    _this.guide = null;
@@ -918,9 +813,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this.isAddedSteps = false;
 	    _this.hasArrows = false;
 	    _this.isLoading = true;
-
 	    _this.setOptions(options);
-
 	    _this.btn = document.getElementById('ui-tutor-btn-wrap');
 	    _this.informer = document.getElementById('ui-tutor-informer');
 	    _this.layout = {
@@ -949,16 +842,12 @@ this.BX.UI = this.BX.UI || {};
 	      supportLink: null
 	    };
 	    _this.sections = ['settings', 'scenario', 'work'];
-
 	    _this.loadYoutubeApiScript();
-
 	    _this.subscribe("onYouTubeReady", function () {
 	      _this.setVideoItems();
 	    });
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Scenario, [{
 	    key: "loadYoutubeApiScript",
 	    value: function loadYoutubeApiScript() {
@@ -967,7 +856,6 @@ this.BX.UI = this.BX.UI || {};
 	          scenario: this
 	        });
 	      }.bind(this);
-
 	      if (!window.YT) {
 	        var isNeedCheckYT = true;
 	        var tag = document.createElement('script');
@@ -996,56 +884,44 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setOptions",
 	    value: function setOptions(options) {
 	      var _this2 = this;
-
 	      this.fireCurrentStepEvent('onBeforeSetOptions', false);
 	      options = main_core.Type.isPlainObject(options) ? options : {};
 	      var currentStep = this.getCurrentStep();
+
 	      /** @var {Step[]} */
-
 	      this.steps = [];
-
 	      if (Array.isArray(options.steps)) {
 	        options.steps.forEach(function (step) {
 	          _this2.steps.push(new Step(step));
 	        });
 	      }
-
 	      if (currentStep instanceof Step) {
 	        var stepInList = this.findStepById(currentStep.getId());
-
 	        if (stepInList) {
 	          currentStep = stepInList;
 	        }
 	      } else if (main_core.Type.isString(options.currentStepId) && options.currentStepId.length > 0) {
 	        var _stepInList = this.findStepById(options.currentStepId);
-
 	        if (_stepInList) {
 	          currentStep = _stepInList;
-
 	          if (options.currentStepIsActive === true) {
 	            currentStep.activate();
 	          }
 	        }
 	      }
-
 	      if (!currentStep) {
 	        var uncompletedStep = this.getFirstUncompletedStep();
-
 	        if (uncompletedStep) {
 	          currentStep = uncompletedStep;
 	        }
 	      }
-
 	      if (!currentStep && this.steps && this.steps[0]) {
 	        currentStep = this.steps[0];
 	      }
-
 	      this.setCurrentStep(currentStep);
-
 	      if (options) {
 	        this.isLoading = false;
 	      }
-
 	      this.title = options.title || '';
 	      this.supportLink = options.supportLink || '';
 	      this.isFinished = options.isFinished || false;
@@ -1054,50 +930,42 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @param {Step} step
 	     */
-
 	  }, {
 	    key: "setCurrentStep",
 	    value: function setCurrentStep(step) {
 	      if (step instanceof Step) {
 	        this.currentStep = step;
 	        var steps = this.steps;
-
 	        if (main_core.Type.isArray(steps)) {
 	          this.currentStepIndex = steps.indexOf(step);
 	        }
-
 	        this.fireCurrentStepEvent('onStartStep');
 	      }
 	    }
 	    /**
 	     * @public
 	     */
-
 	  }, {
 	    key: "start",
 	    value: function start(complexAnimation) {
 	      this.emit("onStart", {
 	        scenario: this
 	      });
-
-	      if (complexAnimation) // animate transition from collapsed popup to step popup
+	      if (complexAnimation)
+	        // animate transition from collapsed popup to step popup
 	        {
 	          this.complexAnimation = true;
 	        }
-
 	      this.showPopup(this.getStepPopup());
 	      this.toggleCompletedState();
 	      this.toggleNavBtn();
 	      this.setPopupData();
-
 	      if (this.isAddedSteps) {
 	        this.hideFinalState();
 	      }
-
 	      if (!this.hasArrows) {
 	        this.initArrows();
 	      }
-
 	      this.complexAnimation = false;
 	      this.fireCurrentStepEvent('onShowComplete');
 	    }
@@ -1106,104 +974,88 @@ this.BX.UI = this.BX.UI || {};
 	    value: function findStepById(stepId) {
 	      for (var i = 0; i < this.steps.length; i++) {
 	        var step = this.steps[i];
-
 	        if (step.getId() === stepId) {
 	          return step;
 	        }
 	      }
-
 	      return null;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getStepPopup",
 	    value: function getStepPopup() {
 	      var _this3 = this;
-
 	      var clickOnCloseIcon = function clickOnCloseIcon() {
 	        _this3.emit("onClickOnCloseIcon", {
 	          scenario: _this3
 	        });
 	      };
-
 	      if (!this.stepPopup) {
 	        this.stepPopup = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup ui-tutor-popup-step\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-header\">\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-icon\"></span>\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title\">\n\t\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-counter\">\n\t\t\t\t\t\t\t\t\t", ".\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-subtitle\">", "</span>\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-content\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-step-wrap\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-step-inner\">\n\t\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-arrow-wrap\"></div>\n\t\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-step-list-wrap\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-icon-close\" onclick=\"", "\"></div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-icon-angle\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_TITLE'), this.getCounterContainer(), this.title, this.getDeferLink(), this.getContentBlock(), this.getStepBlock(), clickOnCloseIcon.bind(this));
 	        this.fireCurrentStepEvent('onCreateStepPopupNode');
 	        main_core.Dom.append(this.stepPopup, document.body);
 	        this.fireCurrentStepEvent('onAfterAppendStepPopupNode');
 	      }
-
 	      return this.stepPopup;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getContentBlock",
 	    value: function getContentBlock() {
 	      if (!this.layout.contentBlock) {
 	        this.layout.contentBlock = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-content-block\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getContentInner(), this.getFooter());
 	      }
-
 	      return this.layout.contentBlock;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getFooter",
 	    value: function getFooter() {
 	      if (!this.layout.footer) {
 	        this.layout.footer = main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-footer\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getNavigation(), this.getBtnContainer());
-
 	        if (Manager.getInstance().feedbackFormId) {
 	          main_core.Dom.append(this.getSupportLink(), this.layout.footer);
 	        }
 	      }
-
 	      return this.layout.footer;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getContentInner",
 	    value: function getContentInner() {
 	      if (!this.layout.contentInner) {
 	        this.layout.contentInner = main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-content-inner\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getTitle(), this.getDescription(), this.getHelpBlock());
 	      }
-
 	      return this.layout.contentInner;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getBtnContainer",
 	    value: function getBtnContainer() {
 	      if (!this.layout.btnContainer) {
 	        this.layout.btnContainer = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-btn\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getStartBtn(), this.getRepeatBtn(), this.getCompletedBtn());
 	      }
-
 	      return this.layout.btnContainer;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getNavigation",
 	    value: function getNavigation() {
@@ -1214,14 +1066,12 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.append(this.layout.backBtn, this.layout.navigation);
 	        main_core.Dom.append(this.layout.nextBtn, this.layout.navigation);
 	      }
-
 	      return this.layout.navigation;
 	    }
 	    /**
 	     * @private
 	     * @param {HTMLElement} node
 	     */
-
 	  }, {
 	    key: "setInformer",
 	    value: function setInformer(node) {
@@ -1231,7 +1081,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @param {Number} num
 	     */
-
 	  }, {
 	    key: "setInformerExternal",
 	    value: function setInformerExternal(num) {
@@ -1240,7 +1089,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "setInformerCount",
 	    value: function setInformerCount(num) {
@@ -1251,25 +1099,21 @@ this.BX.UI = this.BX.UI || {};
 	     * @param {Event} event
 	     * @param {Boolean} complexAnimation
 	     */
-
 	  }, {
 	    key: "closeStepPopup",
 	    value: function closeStepPopup(event, complexAnimation) {
 	      if (!this.stepPopup) {
 	        return;
 	      }
-
 	      if (event) {
 	        event.stopPropagation();
 	      }
-
 	      this.fireCurrentStepEvent('onCloseStepPopup');
-
-	      if (complexAnimation) // animate transition from collapsed popup to step popup
+	      if (complexAnimation)
+	        // animate transition from collapsed popup to step popup
 	        {
 	          this.complexAnimation = true;
 	        }
-
 	      this.fadeAnimation(this.getStepPopup());
 	      setTimeout(function () {
 	        this.hideNode(this.getStepPopup());
@@ -1280,24 +1124,20 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {number}
 	     */
-
 	  }, {
 	    key: "getCompletedSteps",
 	    value: function getCompletedSteps() {
 	      var total = 0;
-
 	      for (var i = 0; i < this.steps.length; i += 1) {
 	        if (this.steps[i].isCompleted) {
 	          total += 1;
 	        }
 	      }
-
 	      return total;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "setStepCounter",
 	    value: function setStepCounter() {
@@ -1307,35 +1147,30 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getCounterContainer",
 	    value: function getCounterContainer() {
 	      if (!this.layout.counterContainer) {
 	        this.layout.counterContainer = main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-header-counter-step\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), this.getCounter());
 	      }
-
 	      return this.layout.counterContainer;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getCounter",
 	    value: function getCounter() {
 	      if (!this.layout.counter) {
 	        this.layout.counter = main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-header-counter-number\"></span>\n\t\t\t\t"])));
 	      }
-
 	      return this.layout.counter;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getDeferLink",
 	    value: function getDeferLink() {
@@ -1384,119 +1219,102 @@ this.BX.UI = this.BX.UI || {};
 	          deferMenu.show();
 	        });
 	      }
-
 	      return this.layout.deferLink;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getStartBtn",
 	    value: function getStartBtn() {
 	      if (!this.layout.startBtn) {
 	        this.layout.startBtn = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.clickStartHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_START'));
 	      }
-
 	      return this.layout.startBtn;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getCompletedBtn",
 	    value: function getCompletedBtn() {
 	      if (!this.layout.completedBtn) {
 	        this.layout.completedBtn = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-success ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.showSuccessState.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_COMPLETED'));
 	      }
-
 	      return this.layout.completedBtn;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getRepeatBtn",
 	    value: function getRepeatBtn() {
 	      if (!this.layout.repeatBtn) {
 	        this.layout.repeatBtn = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.repeatStep.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_REPEAT'));
 	      }
-
 	      return this.layout.repeatBtn;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getDeferBtn",
 	    value: function getDeferBtn() {
 	      if (!this.layout.deferBtn) {
 	        this.layout.deferBtn = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-link ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.closeStepPopup.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_DEFER'));
 	      }
-
 	      return this.layout.deferBtn;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getCompletedBLock",
 	    value: function getCompletedBLock() {
 	      if (!this.layout.completedBlock) {
 	        this.layout.completedBlock = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-completed\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-completed-icon\"></div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-completed-text\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_STEP_COMPLETED'));
 	      }
-
 	      return this.layout.completedBlock;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getTitle",
 	    value: function getTitle() {
 	      if (!this.layout.title) {
 	        this.layout.title = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-title\"></div>\n\t\t\t\t"])));
 	      }
-
 	      return this.layout.title;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getDescription",
 	    value: function getDescription() {
 	      if (!this.layout.description) {
 	        this.layout.description = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-decs\"></div>\n\t\t\t\t"])));
 	      }
-
 	      return this.layout.description;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getSupportLink",
 	    value: function getSupportLink() {
 	      if (!this.layout.supportLink) {
 	        this.layout.supportLink = main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a class=\"ui-tutor-popup-support-link\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"])), this.supportLinkHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_SUPPORT'));
 	      }
-
 	      return this.layout.supportLink;
 	    }
 	  }, {
@@ -1519,29 +1337,24 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getStepBlock",
 	    value: function getStepBlock() {
 	      if (!this.layout.stepBlock) {
 	        this.layout.stepBlock = main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-list\"></div>\n\t\t\t\t"])));
 	        this.layout.stepItems = [];
-
 	        for (var i = 0; i < this.steps.length; i += 1) {
 	          var currentStepIndex = main_core.Tag.render(_templateObject21 || (_templateObject21 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<span class=\"ui-tutor-popup-step-item\" data-step=", " onclick=\"", "\">\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-step-item-number\">", "</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t"])), i, this.switchStep.bind(this), i + 1);
 	          this.layout.stepItems.push(currentStepIndex);
 	          main_core.Dom.append(currentStepIndex, this.layout.stepBlock);
 	        }
-
 	        this.setStepItems();
 	      }
-
 	      return this.layout.stepBlock;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "setStepItems",
 	    value: function setStepItems() {
@@ -1549,11 +1362,9 @@ this.BX.UI = this.BX.UI || {};
 	        for (var i = 0; i < this.steps.length; i += 1) {
 	          if (this.layout.stepItems[i]) {
 	            main_core.Dom.removeClass(this.layout.stepItems[i], 'ui-tutor-popup-step-item-current');
-
 	            if (i === this.currentStepIndex) {
 	              main_core.Dom.addClass(this.layout.stepItems[i], 'ui-tutor-popup-step-item-current');
 	            }
-
 	            if (this.steps[i].isCompleted) {
 	              main_core.Dom.addClass(this.layout.stepItems[i], 'ui-tutor-popup-step-item-completed');
 	            }
@@ -1565,14 +1376,12 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getHelpBlock",
 	    value: function getHelpBlock() {
 	      if (!this.layout.help) {
 	        this.layout.help = main_core.Tag.render(_templateObject22 || (_templateObject22 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-help\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getHelpLink());
 	      }
-
 	      return this.layout.help;
 	    }
 	  }, {
@@ -1581,7 +1390,6 @@ this.BX.UI = this.BX.UI || {};
 	      for (var i = 0; i < this.steps.length; i += 1) {
 	        var currentVideo = main_core.Tag.render(_templateObject23 || (_templateObject23 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-video\" data-step=", "></div>\n\t\t\t\t"])), i);
 	        main_core.Dom.prepend(currentVideo, this.getHelpBlock());
-
 	        if (window.YT && main_core.Type.isObject(window.YT) && main_core.Type.isFunction(window.YT.Player) && this.steps[i].video !== null) {
 	          var playerData = {
 	            videoId: this.steps[i].video,
@@ -1590,7 +1398,6 @@ this.BX.UI = this.BX.UI || {};
 	                event.target.mute();
 	                event.target.pauseVideo();
 	                event.target.setPlaybackQuality('hd720');
-
 	                if (+event.target.getIframe().getAttribute('data-step') === this.currentStepIndex) {
 	                  main_core.Dom.addClass(event.target.getIframe(), 'ui-tutor-popup-video-show');
 	                  event.target.playVideo();
@@ -1615,10 +1422,8 @@ this.BX.UI = this.BX.UI || {};
 	    key: "pauseCurrentVideo",
 	    value: function pauseCurrentVideo() {
 	      var step = this.getCurrentStep();
-
 	      if (window.YT && step instanceof Step) {
 	        var video = step.getVideoObj();
-
 	        if (main_core.Type.isObject(video) && video.pauseVideo) {
 	          video.pauseVideo();
 	        }
@@ -1628,10 +1433,8 @@ this.BX.UI = this.BX.UI || {};
 	    key: "playCurrentVideo",
 	    value: function playCurrentVideo() {
 	      var step = this.getCurrentStep();
-
 	      if (window.YT && step instanceof Step) {
 	        var video = step.getVideoObj();
-
 	        if (main_core.Type.isObject(video) && video.playVideo) {
 	          video.playVideo();
 	        }
@@ -1643,13 +1446,11 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.layout.link) {
 	        this.layout.link = main_core.Tag.render(_templateObject24 || (_templateObject24 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-help-link\" onclick=\"", "\">\n\t\t\t\t\t\t<span class=\"ui-tutor-popup-help-link-text\">", "</span>\n\t\t\t\t\t</span>\n\t\t\t\t"])), this.handleClickLinkHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_ARTICLE_HELP_TOPIC'));
 	      }
-
 	      return this.layout.link;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "handleClickLinkHandler",
 	    value: function handleClickLinkHandler() {
@@ -1659,7 +1460,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @param {HTMLElement} node
 	     */
-
 	  }, {
 	    key: "showPopup",
 	    value: function showPopup(node) {
@@ -1670,7 +1470,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @param {HTMLElement} node
 	     */
-
 	  }, {
 	    key: "showNode",
 	    value: function showNode(node) {
@@ -1680,7 +1479,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @param {HTMLElement} node
 	     */
-
 	  }, {
 	    key: "hideNode",
 	    value: function hideNode(node) {
@@ -1690,7 +1488,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @param {HTMLElement} node
 	     */
-
 	  }, {
 	    key: "removePopup",
 	    value: function removePopup(node) {
@@ -1699,12 +1496,10 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "clickOnNextBtn",
 	    value: function clickOnNextBtn() {
 	      this.fireCurrentStepEvent('onBeforeClickNavNextBtn');
-
 	      if (this.getCompletedSteps() === this.steps.length && !this.isFinished) {
 	        this.isAddedSteps = false;
 	        main_core.Dom.remove(this.getNewStepsSection());
@@ -1712,11 +1507,9 @@ this.BX.UI = this.BX.UI || {};
 	        this.showFinalState();
 	        return;
 	      }
-
 	      if (this.getCompletedSteps() === this.steps.length && this.currentStepIndex + 1 === this.steps.length) {
 	        this.currentStepIndex = -1;
 	      }
-
 	      main_core.Dom.removeClass(this.getStartBtn(), 'ui-btn-wait');
 	      this.increaseCurrentIndex();
 	      this.showStep();
@@ -1737,11 +1530,9 @@ this.BX.UI = this.BX.UI || {};
 	    value: function toggleNavBtn() {
 	      main_core.Dom.removeClass(this.layout.backBtn, 'ui-tutor-popup-nav-item-disabled');
 	      main_core.Dom.removeClass(this.layout.nextBtn, 'ui-tutor-popup-nav-item-disabled');
-
 	      if (this.currentStepIndex === 0) {
 	        main_core.Dom.addClass(this.layout.backBtn, 'ui-tutor-popup-nav-item-disabled');
 	      }
-
 	      if (this.currentStepIndex + 1 === this.steps.length) {
 	        main_core.Dom.addClass(this.layout.nextBtn, 'ui-tutor-popup-nav-item-disabled');
 	      }
@@ -1752,12 +1543,10 @@ this.BX.UI = this.BX.UI || {};
 	      // when last step is completed, but some steps are not
 	      if (this.clickOnCompletedBtn && this.currentStepIndex === this.steps.length) {
 	        var nextUncompletedStep = this.getFirstUncompletedStep();
-
 	        if (nextUncompletedStep) {
 	          this.setCurrentStep(nextUncompletedStep);
 	        }
 	      }
-
 	      this.scrollToStep();
 	      this.toggleCompletedState();
 	      this.setPopupData();
@@ -1767,18 +1556,15 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "switchStep",
 	    value: function switchStep() {
 	      this.fireCurrentStepEvent('onBeforeSwitchStep');
 	      this.setCurrentStep(this.steps[+window.event.target.getAttribute('data-step')]);
 	      this.fireCurrentStepEvent('onAfterSwitchStep');
-
 	      if (this.layout.finishedBlock) {
 	        this.hideFinalState();
 	      }
-
 	      this.showStep();
 	      this.toggleNavBtn();
 	      this.fireCurrentStepEvent('onEndSwitchStep');
@@ -1786,7 +1572,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "getFirstUncompletedStep",
 	    value: function getFirstUncompletedStep() {
@@ -1795,18 +1580,15 @@ this.BX.UI = this.BX.UI || {};
 	          return this.steps[i];
 	        }
 	      }
-
 	      return null;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "toggleCompletedState",
 	    value: function toggleCompletedState() {
 	      var currentStep = this.getCurrentStep();
-
 	      if (currentStep) {
 	        if (currentStep.getCompleted()) {
 	          this.showNode(this.getRepeatBtn());
@@ -1826,43 +1608,35 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "setPopupData",
 	    value: function setPopupData() {
 	      this.fireCurrentStepEvent('onBeforeSetPopupData');
 	      var currentStep = this.getCurrentStep();
-
 	      if (currentStep) {
 	        this.getTitle().innerHTML = currentStep.getTitle();
 	        this.getDescription().innerHTML = currentStep.getDescription();
 	        Manager.getCollapseTitle().innerHTML = currentStep.getTitle();
-
 	        if (this.getCurrentStep().getVideo() && window.YT) {
 	          this.setCurrentVideo();
 	        }
-
 	        this.setStepCounter();
 	        this.setStepItems();
 	      }
-
 	      this.fireCurrentStepEvent('onAfterSetPopupData');
 	    }
 	  }, {
 	    key: "setCurrentVideo",
 	    value: function setCurrentVideo() {
 	      this.fireCurrentStepEvent('onSetCurrentVideo');
-
 	      for (var i = 0; i < this.steps.length; i += 1) {
 	        var video = this.steps[i].getVideoObj();
-
 	        if (window.YT && i === this.currentStepIndex && video && video.playVideo) {
 	          main_core.Dom.addClass(video.getIframe(), 'ui-tutor-popup-video-show');
 	          video.playVideo();
 	        } else {
 	          if (video) {
 	            main_core.Dom.removeClass(video.getIframe(), 'ui-tutor-popup-video-show');
-
 	            if (video.pauseVideo) {
 	              video.pauseVideo();
 	            }
@@ -1874,7 +1648,6 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {Step}
 	     */
-
 	  }, {
 	    key: "getCurrentStep",
 	    value: function getCurrentStep() {
@@ -1883,35 +1656,30 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "increaseCurrentIndex",
 	    value: function increaseCurrentIndex() {
 	      if (this.currentStepIndex === this.steps.length) {
 	        return;
 	      }
-
 	      this.currentStepIndex += 1;
 	      this.setCurrentStep(this.steps[this.currentStepIndex]);
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "reduceCurrentIndex",
 	    value: function reduceCurrentIndex() {
 	      if (this.currentStepIndex === 0) {
 	        return;
 	      }
-
 	      this.currentStepIndex -= 1;
 	      this.setCurrentStep(this.steps[this.currentStepIndex]);
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "showCollapseBlock",
 	    value: function showCollapseBlock(step, withGuide) {
@@ -1922,7 +1690,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "minimize",
 	    value: function minimize() {
@@ -1943,16 +1710,13 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "followLink",
 	    value: function followLink(step) {
 	      var currentStep = this.getCurrentStep();
-
 	      if (step instanceof Step) {
 	        currentStep = step;
 	      }
-
 	      this.pauseCurrentVideo();
 	      this.setActiveStep(currentStep);
 	      Manager.checkFollowLink(currentStep, this);
@@ -1961,11 +1725,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setActiveStep",
 	    value: function setActiveStep(step) {
 	      this.fireCurrentStepEvent('onBeforeSetActiveStep');
-
 	      if (this.currentActiveStep instanceof Step) {
 	        this.currentActiveStep.deactivate();
 	      }
-
 	      step.activate();
 	      this.currentActiveStep = step;
 	      this.fireCurrentStepEvent('onAfterSetActiveStep');
@@ -1973,7 +1735,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "showSuccessState",
 	    value: function showSuccessState() {
@@ -1981,11 +1742,9 @@ this.BX.UI = this.BX.UI || {};
 	      this.clickOnCompletedBtn = true;
 	      currentStep.isCompleted = true;
 	      this.fireCurrentStepEvent('onFinishStep');
-
 	      if (currentStep.getCompleted()) {
 	        main_core.Dom.addClass(this.layout.stepItems[this.currentStepIndex], 'ui-tutor-popup-step-item-completed');
 	      }
-
 	      main_core.Dom.addClass(this.getContentBlock(), 'ui-tutor-popup-content-block-animate');
 	      setTimeout(function () {
 	        main_core.Dom.replace(this.getHelpBlock(), this.getCompletedBLock());
@@ -2020,30 +1779,24 @@ this.BX.UI = this.BX.UI || {};
 	        step: currentStep,
 	        scenario: this
 	      };
-
 	      if (extra) {
 	        data.extra = extra;
 	      }
-
 	      if (currentStep && fireStepEvent) {
 	        currentStep.emit(eventName, data);
 	      }
-
 	      this.emit(eventName, data);
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "showFinalState",
 	    value: function showFinalState() {
 	      this.fireCurrentStepEvent('onFinalState');
-
 	      if (this.layout.stepItems) {
 	        main_core.Dom.removeClass(this.layout.stepItems[this.currentStepIndex], 'ui-tutor-popup-step-item-current');
 	      }
-
 	      main_core.Dom.append(this.getFinishedBlock(), this.getContentInner());
 	      main_core.Dom.replace(this.getStartBtn(), this.getFinishedNotice());
 	      main_core.Dom.remove(this.getCompletedBtn());
@@ -2060,33 +1813,26 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "hideFinalState",
 	    value: function hideFinalState() {
 	      this.fireCurrentStepEvent('onBeforeHideFinalState');
-
 	      if (this.getCurrentStep().getCompleted()) {
 	        main_core.Dom.replace(this.getFinishedNotice(), this.getRepeatBtn());
 	      } else {
 	        main_core.Dom.replace(this.getFinishedNotice(), this.getStartBtn());
 	      }
-
 	      main_core.Dom.replace(this.getFinishedBlock(), this.getHelpBlock());
-
 	      if (Manager.getInstance().feedbackFormId) {
 	        main_core.Dom.append(this.getSupportLink(), this.getFooter());
 	      }
-
 	      main_core.Dom.prepend(this.getNavigation(), this.getFooter());
 	      main_core.Dom.prepend(this.getDescription(), this.getContentInner());
 	      main_core.Dom.prepend(this.getTitle(), this.getContentInner());
-
 	      if (this.layout.deferBtn) {
 	        main_core.Dom.remove(this.getDeferBtn());
 	        main_core.Dom.prepend(this.getStartBtn(), this.getBtnContainer());
 	      }
-
 	      var header = this.getStepPopup().querySelector('.ui-tutor-popup-header');
 	      main_core.Dom.append(this.getDeferLink(), header);
 	      this.fireCurrentStepEvent('onAfterHideFinalState');
@@ -2095,48 +1841,41 @@ this.BX.UI = this.BX.UI || {};
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getFinishedBlock",
 	    value: function getFinishedBlock() {
 	      if (!this.layout.finishedBlock) {
 	        this.layout.finishedBlock = main_core.Tag.render(_templateObject25 || (_templateObject25 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-finished\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-finished-title\">", "</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-finished-icon\"></div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-finished-text\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_FINAL_CONGRATULATIONS'), main_core.Loc.getMessage('JS_UI_TUTOR_FINAL_TEXT'));
 	      }
-
 	      return this.layout.finishedBlock;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getFinishedNotice",
 	    value: function getFinishedNotice() {
 	      if (!this.layout.finishedNotice) {
 	        this.layout.finishedNotice = main_core.Tag.render(_templateObject26 || (_templateObject26 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-finished-notice\">", "</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_FINAL_NOTICE'));
 	      }
-
 	      return this.layout.finishedNotice;
 	    }
 	    /**
 	     * @public
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getNewStepsSection",
 	    value: function getNewStepsSection() {
 	      if (!this.layout.newStepsSection) {
 	        this.layout.newStepsSection = main_core.Tag.render(_templateObject27 || (_templateObject27 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-new-text\">", "</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_STEP_NEW'));
 	      }
-
 	      return this.layout.newStepsSection;
 	    }
 	    /**
 	     * @public
 	     */
-
 	  }, {
 	    key: "showNewSteps",
 	    value: function showNewSteps() {
@@ -2155,13 +1894,11 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "initArrows",
 	    value: function initArrows() {
 	      this.stepListWrap = document.querySelector('.ui-tutor-popup-step-list-wrap');
 	      this.arrowWrap = document.querySelector('.ui-tutor-popup-arrow-wrap');
-
 	      if (this.stepListWrap && this.stepListWrap.scrollWidth > this.stepListWrap.offsetWidth) {
 	        main_core.Dom.append(this.getPrevArrow(), this.arrowWrap);
 	        main_core.Dom.append(this.getNextArrow(), this.arrowWrap);
@@ -2181,7 +1918,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.prevArrow) {
 	        this.prevArrow = main_core.Tag.render(_templateObject28 || (_templateObject28 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-arrow ui-tutor-popup-arrow-prev\"></div>\n\t\t\t\t"])));
 	      }
-
 	      return this.prevArrow;
 	    }
 	  }, {
@@ -2190,13 +1926,11 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.nextArrow) {
 	        this.nextArrow = main_core.Tag.render(_templateObject29 || (_templateObject29 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-arrow ui-tutor-popup-arrow-next\"></div>\n\t\t\t\t"])));
 	      }
-
 	      return this.nextArrow;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "scrollToLeft",
 	    value: function scrollToLeft() {
@@ -2207,7 +1941,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "scrollToRight",
 	    value: function scrollToRight() {
@@ -2218,7 +1951,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "stopAutoScroll",
 	    value: function stopAutoScroll() {
@@ -2227,7 +1959,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "toggleArrows",
 	    value: function toggleArrows() {
@@ -2237,7 +1968,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "toggleNextArrow",
 	    value: function toggleNextArrow() {
@@ -2250,7 +1980,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "togglePrevArrow",
 	    value: function togglePrevArrow() {
@@ -2263,13 +1992,11 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "showAnimation",
 	    value: function showAnimation(popup) {
 	      main_core.Dom.removeClass(popup, 'ui-tutor-popup-hide-complex');
 	      main_core.Dom.removeClass(popup, 'ui-tutor-popup-hide');
-
 	      if (this.complexAnimation) {
 	        main_core.Dom.addClass(popup, 'ui-tutor-popup-show-complex');
 	      } else {
@@ -2279,13 +2006,11 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "fadeAnimation",
 	    value: function fadeAnimation(popup) {
 	      main_core.Dom.removeClass(popup, 'ui-tutor-popup-show-complex');
 	      main_core.Dom.removeClass(popup, 'ui-tutor-popup-show');
-
 	      if (this.complexAnimation) {
 	        main_core.Dom.addClass(popup, 'ui-tutor-popup-hide-complex');
 	      } else {
@@ -2295,24 +2020,20 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "scrollToStep",
 	    value: function scrollToStep() {
 	      var posList = null;
 	      var posStep = null;
-
 	      if (this.stepListWrap) {
 	        posList = main_core.Dom.getPosition(this.stepListWrap);
 	        posStep = main_core.Dom.getPosition(this.stepListWrap.querySelector('[data-step="' + this.currentStepIndex + '"]'));
 	      }
-
 	      var offset = 7; // padding 2px and margin 5px
 
 	      if (!main_core.Type.isNull(posStep) && posStep.left + posStep.width > posList.left + posList.width) {
 	        this.stepListWrap.scrollLeft += posStep.left - (posList.left + posList.width) + posStep.width + offset;
 	      }
-
 	      if (!main_core.Type.isNull(posStep) && posStep.left < posList.left) {
 	        this.stepListWrap.scrollLeft -= posList.left - posStep.left + offset;
 	      }
@@ -2320,7 +2041,6 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }], [{
 	    key: "getFullEventName",
 	    value: function getFullEventName(shortName) {

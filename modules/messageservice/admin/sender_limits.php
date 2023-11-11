@@ -31,7 +31,7 @@ if ($isSlider)
 ?>
 	<div style="background: white">
 		<?
-		/** @var \CAllMain $APPLICATION */
+		/** @var CMain $APPLICATION */
 		$APPLICATION->IncludeComponent("bitrix:messageservice.config.sender.limits", "", []);
 		?>
 	</div>

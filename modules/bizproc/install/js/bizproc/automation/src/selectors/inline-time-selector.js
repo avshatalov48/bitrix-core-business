@@ -1,32 +1,29 @@
-import {Type, Event, Loc, Text} from 'main.core';
-import {DateTimeFormat} from 'main.date';
-import { Menu } from 'main.popup';
+import { Type, Loc, Text, Dom, Tag, Runtime, Event } from 'main.core';
+import { DateTimeFormat } from 'main.date';
+import { Menu, MenuItem } from 'main.popup';
+import { InlineSelector } from './inline-selector';
+import { SelectorContext } from 'bizproc.automation';
 
-export class InlineTimeSelector
+export class InlineTimeSelector extends InlineSelector
 {
-	#labelNode: HTMLInputElement = null;
-
-	#time: string = '';
+	#labelNode: HTMLElement = null;
+	#inputNode: HTMLInputElement = null;
+	#showDottedSelector: boolean;
 
 	#timeValues: [] = [];
 	#timeFormat: string;
 
 	#selector: Menu;
+	#chevron: HTMLSpanElement;
 
-	constructor(options: {
-		labelNode: HTMLInputElement,
-	})
+	constructor(props: { context: SelectorContext, showValuesSelector: boolean })
 	{
-		if (Type.isPlainObject(options))
-		{
-			if (Type.isElementNode(options.labelNode))
-			{
-				this.#labelNode = options.labelNode;
-			}
-		}
+		super(props);
 
 		this.#fillTimeFormat();
 		this.#fillTimeValues();
+
+		this.#showDottedSelector = Type.isNil(props.showValuesSelector) ? true : Text.toBoolean(props.showValuesSelector);
 	}
 
 	#fillTimeFormat()
@@ -42,12 +39,10 @@ export class InlineTimeSelector
 
 	#fillTimeValues()
 	{
-		const self = this;
-		const onclick = function(event, item)
-		{
+		const onclick = (event, item: MenuItem) => {
 			event.preventDefault();
-			self.#labelNode.value = Text.encode(item.text);
-			this.close();
+			this.#inputNode.value = Text.encode(item.text);
+			item.getMenuWindow().close();
 		};
 
 		for (let hour = 0; hour < 24; hour++)
@@ -55,12 +50,11 @@ export class InlineTimeSelector
 			this.#timeValues.push({
 				id: hour * 60,
 				text: this.#formatTime(hour, 0),
-				onclick: onclick
-			});
-			this.#timeValues.push({
+				onclick,
+			}, {
 				id: hour * 60 + 30,
 				text: this.#formatTime(hour, 30),
-				onclick: onclick
+				onclick,
 			});
 		}
 	}
@@ -73,30 +67,66 @@ export class InlineTimeSelector
 		return DateTimeFormat.format(this.#timeFormat, date.getTime() / 1000);
 	}
 
-	init(time: string)
+	renderWith(targetInput: Element): HTMLDivElement
 	{
-		if (Type.isStringFilled(time))
+		this.targetInput = Runtime.clone(targetInput);
+		this.targetInput.setAttribute('autocomplete', 'off');
+
+		this.parseTargetProperties();
+		this.replaceOnWrite = true;
+
+		if (this.#showDottedSelector === false)
 		{
-			this.#time = time;
+			return this.#labelNode;
 		}
 
-		this.#setLabelText();
-		this.#bindLabelNode();
+		const { root, menuButton } = Tag.render`
+			<div class="bizproc-automation-popup-select">
+				${this.#labelNode}
+				<span
+					ref="menuButton"
+					onclick="${this.openMenu.bind(this)}"
+					class="bizproc-automation-popup-select-dotted"
+				></span>
+			</div>
+		`;
+		this.menuButton = menuButton;
+
+		return root;
 	}
 
-	#setLabelText()
+	parseTargetProperties()
 	{
-		if (Type.isElementNode(this.#labelNode))
+		super.parseTargetProperties();
+		this.#init();
+	}
+
+	#init()
+	{
+		const targetInput = this.targetInput;
+		const hasParentNode = Type.isDomNode(this.targetInput.parentNode);
+		if (hasParentNode)
 		{
-			this.#labelNode.textContent = this.#time;
+			this.targetInput = Runtime.clone(targetInput);
 		}
-	}
 
-	#bindLabelNode()
-	{
-		if (Type.isElementNode(this.#labelNode))
+		const { root, chevron } = Tag.render`
+			<span onclick="${this.#onLabelClick.bind(this)}" style="width: 100%; position: relative">
+				${this.targetInput}
+				<span 
+					ref="chevron"
+					class="ui-icon-set --chevron-down bizproc-automation-inline-time-selector-chevron"
+				></span>
+			</span>
+		`;
+
+		this.#labelNode = root;
+		this.#inputNode = this.targetInput;
+		this.#chevron = chevron;
+
+		if (hasParentNode)
 		{
-			Event.bind(this.#labelNode, 'click', this.#onLabelClick.bind(this));
+			Dom.replace(targetInput, this.#labelNode);
 		}
 	}
 
@@ -115,9 +145,22 @@ export class InlineTimeSelector
 				bindElement: this.#labelNode,
 				items: this.#timeValues,
 				maxHeight: 230,
-			})
+				width: this.#labelNode.offsetWidth || this.#labelNode.clientWidth || 100,
+				events: {
+					onPopupClose: () => {
+						if (Dom.hasClass(this.#chevron, '--chevron-up'))
+						{
+							Dom.toggleClass(this.#chevron, ['--chevron-down', '--chevron-up']);
+						}
+					},
+				},
+			});
 		}
 
 		this.#selector.show();
+		if (Dom.hasClass(this.#chevron, '--chevron-down'))
+		{
+			Dom.toggleClass(this.#chevron, ['--chevron-down', '--chevron-up']);
+		}
 	}
 }

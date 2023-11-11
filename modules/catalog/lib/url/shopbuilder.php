@@ -170,6 +170,37 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 		return (isset($this->config['UI_CATALOG']) && $this->config['UI_CATALOG']);
 	}
 
+	public function getDetailPageSlider(): string
+	{
+		$path = $this->getSliderPath();
+		if (!$this->checkSliderPath($path))
+		{
+			return '';
+		}
+		$path = \CUtil::JSEscape($path);
+
+		$listUrl = \CUtil::JSEscape($this->getElementListUrl(0));
+
+		return<<<HTML
+			<script>
+				window.history.replaceState({}, '', '$path');
+				BX.Event.ready(function(){
+					BX.SidePanel.Instance.open(
+						'$path',
+						{
+							events: {
+								onCloseComplete: function(event) {
+									 window.location = '$listUrl';
+								}
+							}
+						}
+					);
+				});
+			</script>
+			HTML
+		;
+	}
+
 	/**
 	 * Fill url templates list.
 	 *
@@ -177,61 +208,83 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 	 */
 	protected function initUrlTemplates(): void
 	{
-		$this->urlTemplates[self::PAGE_SECTION_LIST] = '#PATH_PREFIX#'
-			.($this->iblockListMixed ? 'menu_catalog_goods_#IBLOCK_ID#/' : 'menu_catalog_category_#IBLOCK_ID#/')
-			.'?#BASE_PARAMS#'
-			.'#PARENT_FILTER#'
-			.'#ADDITIONAL_PARAMETERS#';
-		$this->urlTemplates[self::PAGE_SECTION_DETAIL] = '#PATH_PREFIX#'
-			.'cat_section_edit/'
-			.'?#BASE_PARAMS#'
-			.'&ID=#ENTITY_ID#'
-			.'#ADDITIONAL_PARAMETERS#';
-		$this->urlTemplates[self::PAGE_SECTION_COPY] = $this->urlTemplates[self::PAGE_SECTION_DETAIL]
-			.$this->getCopyAction();
-		$this->urlTemplates[self::PAGE_SECTION_SAVE] = '#PATH_PREFIX#'
-			.'cat_section_edit.php'
-			.'?#BASE_PARAMS#'
-			.'#ADDITIONAL_PARAMETERS#';
-		$this->urlTemplates[self::PAGE_SECTION_SEARCH] = '/bitrix/tools/iblock/section_search.php'
-			.'?#LANGUAGE#'
-			.'#ADDITIONAL_PARAMETERS#';
+		$this->urlTemplates[self::PAGE_SECTION_LIST] =
+			'/shop/catalog/#IBLOCK_ID#/section/#PARENT_ID#/'
+			. '?#ADDITIONAL_PARAMETERS#'
+		;
+		$this->urlTemplates[self::PAGE_ELEMENT_LIST] =
+			'/shop/catalog/#IBLOCK_ID#/'
+		;
 
-		$this->urlTemplates[self::PAGE_ELEMENT_LIST] = '#PATH_PREFIX#'
-			.($this->iblockListMixed ? 'menu_catalog_goods_#IBLOCK_ID#/' : 'menu_catalog_#IBLOCK_ID#/')
-			.'?#BASE_PARAMS#'
-			.'#PARENT_FILTER#'
-			.'#ADDITIONAL_PARAMETERS#';
+		$this->urlTemplates[self::PAGE_SECTION_DETAIL] =
+			'#PATH_PREFIX#'
+			. 'cat_section_edit/'
+			. '?#BASE_PARAMS#'
+			. '&ID=#ENTITY_ID#'
+			. '&publicSidePanel=Y'
+			. '#ADDITIONAL_PARAMETERS#'
+		;
+		$this->urlTemplates[self::PAGE_SECTION_COPY] =
+			$this->urlTemplates[self::PAGE_SECTION_DETAIL]
+			. $this->getCopyAction()
+		;
+		$this->urlTemplates[self::PAGE_SECTION_SAVE] =
+			'#PATH_PREFIX#'
+			. 'cat_section_edit.php'
+			. '?#BASE_PARAMS#'
+			. '#ADDITIONAL_PARAMETERS#'
+		;
+		$this->urlTemplates[self::PAGE_SECTION_SEARCH] =
+			'/bitrix/tools/iblock/section_search.php'
+			. '?#LANGUAGE#'
+			. '#ADDITIONAL_PARAMETERS#'
+		;
+
 		if ($this->isUiCatalog())
 		{
-			$this->urlTemplates[self::PAGE_ELEMENT_DETAIL] = self::PATH_DETAIL_CARD_PREFIX
-				.'#IBLOCK_ID#/product/#ENTITY_ID#/'
-				.'?#ADDITIONAL_PARAMETERS#';
-			$this->urlTemplates[self::PAGE_ELEMENT_COPY] = self::PATH_DETAIL_CARD_PREFIX
-				.'#IBLOCK_ID#/product/0/copy/#ENTITY_ID#/';
+			$this->urlTemplates[self::PAGE_ELEMENT_DETAIL] =
+				self::PATH_DETAIL_CARD_PREFIX
+				. '#IBLOCK_ID#/product/#ENTITY_ID#/'
+				. '?#ADDITIONAL_PARAMETERS#'
+			;
+			$this->urlTemplates[self::PAGE_ELEMENT_COPY] =
+				self::PATH_DETAIL_CARD_PREFIX
+				. '#IBLOCK_ID#/product/0/copy/#ENTITY_ID#/'
+			;
 			$this->urlTemplates[self::PAGE_ELEMENT_SAVE] = $this->urlTemplates[self::PAGE_ELEMENT_DETAIL];
-			$this->urlTemplates[self::PAGE_OFFER_DETAIL] = '/shop/catalog/'
-				.'#PRODUCT_IBLOCK_ID#/product/#PRODUCT_ID#/'
-				.'variation/#ENTITY_ID#/';
+			$this->urlTemplates[self::PAGE_OFFER_DETAIL] =
+				'/shop/catalog/'
+				. '#PRODUCT_IBLOCK_ID#/product/#PRODUCT_ID#/'
+				. 'variation/#ENTITY_ID#/'
+			;
 		}
 		else
 		{
-			$this->urlTemplates[self::PAGE_ELEMENT_DETAIL] = '#PATH_PREFIX#'
-				.'cat_product_edit/'
-				.'?#BASE_PARAMS#'
-				.'&ID=#ENTITY_ID#'
-				.'#ADDITIONAL_PARAMETERS#';
-			$this->urlTemplates[self::PAGE_ELEMENT_COPY] = $this->urlTemplates[self::PAGE_ELEMENT_DETAIL]
-				.$this->getCopyAction();
-			$this->urlTemplates[self::PAGE_ELEMENT_SAVE] = '#PATH_PREFIX#'
-				.'cat_product_edit.php'
-				.'?#BASE_PARAMS#'
-				.'#ADDITIONAL_PARAMETERS#';
+			$this->urlTemplates[self::PAGE_ELEMENT_DETAIL] =
+				'#PATH_PREFIX#'
+				. 'cat_product_edit/'
+				. '?#BASE_PARAMS#'
+				. '&ID=#ENTITY_ID#'
+				. '&publicSidePanel=Y'
+				. '#ADDITIONAL_PARAMETERS#'
+			;
+			$this->urlTemplates[self::PAGE_ELEMENT_COPY] =
+				$this->urlTemplates[self::PAGE_ELEMENT_DETAIL]
+				. $this->getCopyAction()
+			;
+			$this->urlTemplates[self::PAGE_ELEMENT_SAVE] =
+				'#PATH_PREFIX#'
+				. 'cat_product_edit.php'
+				. '?#BASE_PARAMS#'
+				. '#ADDITIONAL_PARAMETERS#'
+			;
 			$this->urlTemplates[self::PAGE_OFFER_DETAIL] = $this->urlTemplates[self::PAGE_ELEMENT_DETAIL];
 		}
-		$this->urlTemplates[self::PAGE_ELEMENT_SEARCH] = '/bitrix/tools/iblock/element_search.php'
-			.'?#LANGUAGE#'
-			.'#ADDITIONAL_PARAMETERS#';
+		$this->urlTemplates[self::PAGE_ELEMENT_SEARCH] =
+			'/bitrix/tools/iblock/element_search.php'
+			. '?#LANGUAGE#'
+			. '#ADDITIONAL_PARAMETERS#'
+		;
 		$this->urlTemplates[self::PAGE_CATALOG_SEO] = self::PATH_DETAIL_CARD_PREFIX . '#IBLOCK_ID#/seo/';
 		$this->urlTemplates[self::PAGE_ELEMENT_SEO] = self::PATH_DETAIL_CARD_PREFIX . '#IBLOCK_ID#/seo/product/#PRODUCT_ID#/';
 		$this->urlTemplates[self::PAGE_SECTION_SEO] = self::PATH_DETAIL_CARD_PREFIX . '#IBLOCK_ID#/seo/section/#SECTION_ID#/';

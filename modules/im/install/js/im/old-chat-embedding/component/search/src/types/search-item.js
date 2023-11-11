@@ -28,4 +28,5 @@ export const EntityIdTypes = Object.freeze({
 	chatUser: 'im-chat-user',
 	department: 'department',
 	network: 'imbot-network',
+	lines: 'imol-chat',
 });

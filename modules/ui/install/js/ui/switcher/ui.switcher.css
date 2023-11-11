@@ -131,4 +131,9 @@
 .ui-switcher-off .ui-switcher-enabled {
 	opacity: 0;
 }
+
+.ui-switcher-lock {
+	opacity: .4;
+	cursor: not-allowed;
+}
 /* endregion */

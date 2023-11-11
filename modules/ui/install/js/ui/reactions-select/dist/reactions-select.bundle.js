@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core,main_core_events,ui_lottie,main_popup) {
 	'use strict';

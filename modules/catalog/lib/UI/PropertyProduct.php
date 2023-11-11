@@ -7,7 +7,8 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog;
 use Bitrix\Crm;
-use Bitrix\Iblock;
+use Bitrix\Highloadblock\HighloadBlockTable;
+use Bitrix\Iblock\PropertyTable;
 
 class PropertyProduct
 {
@@ -44,10 +45,26 @@ class PropertyProduct
 		if ($product !== null)
 		{
 			$properties['PURCHASING_PRICE'] = round((float)$product['PURCHASING_PRICE'], self::PRICE_PRECISION);
-			$properties['PURCHASING_PRICE_FORMATTED'] = \CCrmCurrency::MoneyToString(
-				$product['PURCHASING_PRICE'],
-				$product['PURCHASING_CURRENCY']
-			);
+			if (Loader::includeModule('crm'))
+			{
+				$properties['PURCHASING_PRICE_FORMATTED'] = \CCrmCurrency::MoneyToString(
+					$product['PURCHASING_PRICE'],
+					$product['PURCHASING_CURRENCY']
+				);
+			}
+			elseif (Loader::includeModule('currency'))
+			{
+				$properties['PURCHASING_PRICE_FORMATTED'] = \CCurrencyLang::CurrencyFormat(
+					$product['PURCHASING_PRICE'],
+					$product['PURCHASING_CURRENCY']
+				);
+			}
+			else
+			{
+				$properties['PURCHASING_PRICE_FORMATTED'] = htmlspecialcharsbx(
+					$product['PURCHASING_PRICE'] . ' ' . $product['PURCHASING_CURRENCY']
+				);
+			}
 			$properties['LENGTH'] = $product['LENGTH'];
 			$properties['WEIGHT'] = $product['WEIGHT'];
 			$properties['WIDTH'] = $product['WIDTH'];
@@ -99,16 +116,16 @@ class PropertyProduct
 
 			switch ($prop['PROPERTY_TYPE'])
 			{
-				case 'S':
-				case 'N':
-					if ($prop['USER_TYPE'] === 'directory'
+				case PropertyTable::TYPE_STRING:
+				case PropertyTable::TYPE_NUMBER:
+					if ($prop['USER_TYPE'] === PropertyTable::USER_TYPE_DIRECTORY
 						&& isset($prop['USER_TYPE_SETTINGS']['TABLE_NAME'])
-						&& \CModule::IncludeModule('highloadblock')
+						&& Loader::includeModule('highloadblock')
 					)
 					{
 						$value = self::getDirectoryValue($prop);
 					}
-					else if ($prop['USER_TYPE'] === 'HTML')
+					else if ($prop['USER_TYPE'] === PropertyTable::USER_TYPE_HTML)
 					{
 						$value = (new \CBXSanitizer())->SanitizeHtml($prop['~VALUE']['TEXT']);
 					}
@@ -127,8 +144,8 @@ class PropertyProduct
 					}
 
 					break;
-				case 'L':
-					if ($prop['LIST_TYPE'] === 'C')
+				case PropertyTable::TYPE_LIST:
+					if ($prop['LIST_TYPE'] === PropertyTable::CHECKBOX)
 					{
 						switch ($prop['VALUE_ENUM'])
 						{
@@ -164,8 +181,9 @@ class PropertyProduct
 					}
 
 					break;
-				case 'F':
-					$listImageSize = Option::get('iblock', 'list_image_size');
+				case PropertyTable::TYPE_FILE:
+					Loader::includeModule('fileman'); // always exists
+					$listImageSize = (int)Option::get('iblock', 'list_image_size');
 					$minImageSize = [
 						'W' => 1,
 						'H' => 1,
@@ -215,7 +233,7 @@ class PropertyProduct
 	 */
 	private static function getDirectoryValue(array $prop): ?string
 	{
-		$hlblock = \Bitrix\Highloadblock\HighloadBlockTable::getRow([
+		$hlblock = HighloadBlockTable::getRow([
 			'filter' => [
 				'=TABLE_NAME' => $prop['USER_TYPE_SETTINGS']['TABLE_NAME'],
 			],
@@ -223,11 +241,11 @@ class PropertyProduct
 
 		if ($hlblock)
 		{
-			$entity = \Bitrix\Highloadblock\HighloadBlockTable::compileEntity($hlblock);
+			$entity = HighloadBlockTable::compileEntity($hlblock);
 			$entityClass = $entity->getDataClass();
 			$row = $entityClass::getRow([
 				'filter' => [
-					'UF_XML_ID' => $prop['VALUE'],
+					'=UF_XML_ID' => $prop['VALUE'],
 				],
 			]);
 
@@ -250,11 +268,16 @@ class PropertyProduct
 	public static function getColumnNames(): array
 	{
 		$result = [];
-		$iterator = Iblock\PropertyTable::getList([
-			'select' => ['ID'],
+		$iterator = PropertyTable::getList([
+			'select' => [
+				'ID',
+				'IBLOCK_ID',
+				'SORT',
+				'NAME',
+			],
 			'filter' => [
 				'=IBLOCK_ID' => self::getIblockIds(),
-				'ACTIVE' => 'Y',
+				'=ACTIVE' => 'Y',
 				[
 					'LOGIC' => 'OR',
 					'==USER_TYPE' => null,
@@ -264,13 +287,18 @@ class PropertyProduct
 				'!@PROPERTY_TYPE' => self::getRestrictedPropertyTypes(),
 				'!@CODE' => self::getRestrictedProperties(),
 			],
-			'order' => ['IBLOCK_ID' => 'ASC', 'SORT' => 'ASC', 'NAME' => 'ASC'],
+			'order' => [
+				'IBLOCK_ID' => 'ASC',
+				'SORT' => 'ASC',
+				'NAME' => 'ASC',
+			],
 		]);
 
 		while ($prop = $iterator->fetch())
 		{
 			$result[] = 'PROPERTY_' . $prop['ID'];
 		}
+		unset($iterator);
 
 		$skuFields = [
 			'SKU_ID',
@@ -294,8 +322,8 @@ class PropertyProduct
 	public static function getRestrictedPropertyTypes(): array
 	{
 		return [
-			Iblock\PropertyTable::TYPE_ELEMENT,
-			Iblock\PropertyTable::TYPE_SECTION,
+			PropertyTable::TYPE_ELEMENT,
+			PropertyTable::TYPE_SECTION,
 		];
 	}
 
@@ -323,10 +351,10 @@ class PropertyProduct
 	public static function getAllowedPropertyUserTypes(): array
 	{
 		return [
-			'Date',
-			'DateTime',
-			'directory',
-			'HTML',
+			PropertyTable::USER_TYPE_DATE,
+			PropertyTable::USER_TYPE_DATETIME,
+			PropertyTable::USER_TYPE_DIRECTORY,
+			PropertyTable::USER_TYPE_HTML,
 		];
 	}
 

@@ -16,46 +16,46 @@
 			 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-bottom-minus-70">
 
 			<div class="landing-block-node-card js-slide align-self-center js-animation fadeIn g-px-15">
-				<h2 class="landing-block-node-title landing-semantic-title-image-big text-uppercase g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-20">
+				<h2 class="landing-block-node-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-20">
 					Solutions</h2>
 
-				<div class="landing-block-node-text landing-semantic-text-image-medium g-color-white-opacity-0_7 g-mb-35" data-auto-font-scale>
+				<div class="landing-block-node-text g-color-white-opacity-0_7 g-mb-35" data-auto-font-scale>
 					Morbi a suscipit ipsum. Suspendisse mollis libero ante.
 					Pellentesque finibus convallis nulla vel placerat.
 				</div>
 				<div class="landing-block-node-button-container">
 					<a href="#"
-					   class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase g-rounded-50">Buy
+					   class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase g-rounded-50">Buy
 						full version</a>
 				</div>
 			</div>
 
 			<div class="landing-block-node-card js-slide align-self-center js-animation fadeIn g-px-15">
-				<h2 class="landing-block-node-title landing-semantic-title-image-big text-uppercase g-line-height-1g-font-weight-700d g-font-size-90 g-color-white g-mb-20">
+				<h2 class="landing-block-node-title text-uppercase g-line-height-1g-font-weight-700d g-font-size-90 g-color-white g-mb-20">
 					High quality solutions</h2>
 
-				<div class="landing-block-node-text landing-semantic-text-image-medium g-color-white-opacity-0_7 g-mb-35" data-auto-font-scale>
+				<div class="landing-block-node-text g-color-white-opacity-0_7 g-mb-35" data-auto-font-scale>
 					Morbi a suscipit ipsum. Suspendisse mollis libero ante.
 					Pellentesque finibus convallis nulla vel placerat.
 				</div>
 				<div class="landing-block-node-button-container">
 					<a href="#"
-					   class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase g-rounded-50">Buy
+					   class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase g-rounded-50">Buy
 						full version</a>
 				</div>
 			</div>
 
 			<div class="landing-block-node-card js-slide align-self-center js-animation fadeIn g-px-15">
-				<h2 class="landing-block-node-title landing-semantic-title-image-big text-uppercase g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-20">
+				<h2 class="landing-block-node-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-20">
 					The best solutions</h2>
 
-				<div class="landing-block-node-text landing-semantic-text-image-medium g-color-white-opacity-0_7 g-mb-35" data-auto-font-scale>
+				<div class="landing-block-node-text g-color-white-opacity-0_7 g-mb-35" data-auto-font-scale>
 					Morbi a suscipit ipsum. Suspendisse mollis libero ante.
 					Pellentesque finibus convallis nulla vel placerat.
 				</div>
 				<div class="landing-block-node-button-container">
 					<a href="#"
-					   class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase g-rounded-50">Buy
+					   class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase g-rounded-50">Buy
 						full version</a>
 				</div>
 			</div>

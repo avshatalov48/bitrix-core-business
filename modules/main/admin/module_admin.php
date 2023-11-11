@@ -249,7 +249,7 @@ foreach($arModules as $info)
 				{
 					$disabled = (
 						!$isAdmin
-						|| in_array($info["MODULE_ID"], [ "fileman", "intranet", "ui" ], true)
+						|| in_array($info["MODULE_ID"], ["fileman", "intranet", "ui", "security"], true)
 						|| (
 							in_array($info['MODULE_ID'], [ 'rest', 'socialnetwork' ], true)
 							&& ModuleManager::isModuleInstalled('intranet')

@@ -350,7 +350,7 @@ CREATE TABLE b_agent
 	IS_PERIOD char(1) default 'Y',
 	USER_ID INT,
 	RUNNING char(1) not null default 'N',
-	RETRY_COUNT int,
+	RETRY_COUNT int not null default 0,
 	PRIMARY KEY (ID),
 	INDEX ix_agent_user_id(USER_ID),
 	INDEX ix_agent_name(NAME(100)),

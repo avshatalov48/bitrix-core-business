@@ -37,7 +37,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public function executeComponent($level = 1)
+	public function executeComponent()
 	{
 		global $USER, $APPLICATION;
 
@@ -49,8 +49,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			return;
 		}
 
-		$this->isCrmEnable = Main\Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled();
-		$this->arResult['CRM_ENABLE'] = ($this->isCrmEnable ? 'Y' : 'N');
+		$this->setCrmEnableFields();
 
 		$pageSize = (int) $this->arParams['PAGE_SIZE'];
 		if ($pageSize < 1 || $pageSize > 100)
@@ -58,90 +57,14 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			$this->arParams['PAGE_SIZE'] = ($pageSize = 5);
 		}
 
-		$message = Mail\MailMessageTable::getList(array(
-			'runtime' => array(
-				new Main\Entity\ReferenceField(
-					'MESSAGE_UID',
-					'Bitrix\Mail\MailMessageUidTable',
-					array(
-						'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
-						'=this.ID'         => 'ref.MESSAGE_ID',
-					),
-					array(
-						'join_type' => 'INNER',
-					)
-				),
-				new Main\Entity\ReferenceField(
-					'MESSAGE_ACCESS',
-					Mail\Internals\MessageAccessTable::class,
-					array(
-						'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
-						'=this.ID' => 'ref.MESSAGE_ID',
-					)
-				),
-			),
-			'select' => array(
-				'*',
-				'UID' => 'MESSAGE_UID.ID',
-				'DIR_MD5' => 'MESSAGE_UID.DIR_MD5',
-				'MSG_UID' => 'MESSAGE_UID.MSG_UID',
-				'MAILBOX_EMAIL' => 'MAILBOX.EMAIL',
-				'MAILBOX_NAME' => 'MAILBOX.NAME',
-				'MAILBOX_OPTIONS' => 'MAILBOX.OPTIONS',
-				'HEADER_MD5' => 'MESSAGE_UID.HEADER_MD5',
-				'MAILBOX_LOGIN' => 'MAILBOX.LOGIN',
-				'IS_SEEN' => 'MESSAGE_UID.IS_SEEN',
-				new \Bitrix\Main\Entity\ExpressionField(
-					'BIND',
-					'GROUP_CONCAT(DISTINCT CONCAT(%s, "-", %s))',
-					array(
-						'MESSAGE_ACCESS.ENTITY_TYPE',
-						'MESSAGE_ACCESS.ENTITY_ID',
-					)
-				),
-			),
-			'filter' => array(
-				'=ID' => $this->arParams['VARIABLES']['id'],
-			),
-			'group' => array('ID'),
-		))->fetch();
+		$message = $this->getPreparedMessage((int)$this->arParams['VARIABLES']['id']);
 
 		if (empty($message))
 		{
-			showError(Loc::getMessage('MAIL_CLIENT_ELEMENT_NOT_FOUND'));
+			showError($this->getFirstErrorMessage());
 			return;
 		}
 
-		if (!Mail\Helper\Message::hasAccess($message))
-		{
-			showError(Loc::getMessage('MAIL_CLIENT_ELEMENT_DENIED'));
-			return;
-		}
-
-		$message['BIND'] = explode(',', $message['BIND']);
-
-		if ($level <= 1 && Mail\Helper\Message::ensureAttachments($message) > 0)
-		{
-			return $this->executeComponent($level + 1);
-		}
-
-		$message['__files'] = array();
-		if ($message['ATTACHMENTS'] > 0)
-		{
-			$message['__files'] = Mail\Internals\MailMessageAttachmentTable::getList(array(
-				'select' => array(
-					'ID', 'FILE_ID', 'FILE_NAME', 'FILE_SIZE', 'CONTENT_TYPE',
-				),
-				'filter' => array(
-					'=MESSAGE_ID' => $message['ID'],
-				),
-			))->fetchAll();
-		}
-
-//		$this->prepareICal($message);
-		$this->prepareMessage($message);
-
-		$message['SENDER_EMAIL'] = $this->getEmailFromFieldFrom($message['FIELD_FROM']);
 		$this->arResult['MESSAGE'] = $message;
 
 		$this->arResult['LAST_RCPT'] = Mail\Helper\Recipient::loadLastRcpt();
@@ -162,14 +85,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 					)
 				),
 			),
-			'select' => array(
-				'ID', 'MAILBOX_ID',
-				'FIELD_DATE', 'SUBJECT',
-				'FIELD_FROM', 'FIELD_REPLY_TO',
-				'FIELD_TO', 'FIELD_CC', 'FIELD_BCC',
-				'ATTACHMENTS',
-				'OPTIONS', 'READ_CONFIRMED'
-			),
+			'select' => $this->getLogItemSelectFields(),
 			'filter' => array(
 				'=MAILBOX_ID' => $message['MAILBOX_ID'],
 				'=CLOSURE.PARENT_ID' => $message['ID'],
@@ -183,12 +99,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 
 		while ($item = $res->fetch())
 		{
-			$item['MAILBOX_EMAIL'] = $message['MAILBOX_EMAIL'];
-			$item['MAILBOX_NAME'] = $message['MAILBOX_NAME'];
-			$item['MAILBOX_LOGIN'] = $message['MAILBOX_LOGIN'];
-
-			$item = $this->prepareMessage($item);
-			$item['SENDER_EMAIL'] = $this->getEmailFromFieldFrom($item['FIELD_FROM']);
+			$item = $this->prepareLog($item, $message);
 
 			$item['__log'] = 'A';
 
@@ -209,14 +120,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 						)
 					),
 				),
-				'select' => array(
-					'ID', 'MAILBOX_ID',
-					'FIELD_DATE', 'SUBJECT',
-					'FIELD_FROM', 'FIELD_REPLY_TO',
-					'FIELD_TO', 'FIELD_CC', 'FIELD_BCC',
-					'ATTACHMENTS',
-					'OPTIONS', 'READ_CONFIRMED'
-				),
+				'select' => $this->getLogItemSelectFields(),
 				'filter' => array(
 					'=MAILBOX_ID' => $message['MAILBOX_ID'],
 					'=CLOSURE.MESSAGE_ID' => $message['ID'],
@@ -230,12 +134,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 
 			while ($item = $res->fetch())
 			{
-				$item['MAILBOX_EMAIL'] = $message['MAILBOX_EMAIL'];
-				$item['MAILBOX_NAME'] = $message['MAILBOX_NAME'];
-				$item['MAILBOX_LOGIN'] = $message['MAILBOX_LOGIN'];
-
-				$item = $this->prepareMessage($item);
-				$item['SENDER_EMAIL'] = $this->getEmailFromFieldFrom($item['FIELD_FROM']);
+				$item = $this->prepareLog($item, $message);
 
 				$item['__log'] = 'B';
 
@@ -323,14 +222,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 						)
 					),
 				),
-				'select' => array(
-					'ID', 'MAILBOX_ID',
-					'FIELD_DATE', 'SUBJECT',
-					'FIELD_FROM', 'FIELD_REPLY_TO',
-					'FIELD_TO', 'FIELD_CC', 'FIELD_BCC',
-					'ATTACHMENTS',
-					'OPTIONS', 'READ_CONFIRMED'
-				),
+				'select' => $this->getLogItemSelectFields(),
 				'filter' => array(
 					'=MAILBOX_ID' => $message['MAILBOX_ID'],
 					'=CLOSURE.PARENT_ID' => $message['ID'],
@@ -360,14 +252,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 						)
 					),
 				),
-				'select' => array(
-					'ID', 'MAILBOX_ID',
-					'FIELD_DATE', 'SUBJECT',
-					'FIELD_FROM', 'FIELD_REPLY_TO',
-					'FIELD_TO', 'FIELD_CC', 'FIELD_BCC',
-					'ATTACHMENTS',
-					'OPTIONS', 'READ_CONFIRMED'
-				),
+				'select' => $this->getLogItemSelectFields(),
 				'filter' => array(
 					'=MAILBOX_ID' => $message['MAILBOX_ID'],
 					'=CLOSURE.MESSAGE_ID' => $message['ID'],
@@ -383,13 +268,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 		$log = array();
 		while ($item = $res->fetch())
 		{
-			$item['MAILBOX_EMAIL'] = $message['MAILBOX_EMAIL'];
-			$item['MAILBOX_NAME'] = $message['MAILBOX_NAME'];
-			$item['MAILBOX_LOGIN'] = $message['MAILBOX_LOGIN'];
-
-			$item = $this->prepareMessage($item);
-			$item['SENDER_EMAIL'] = $this->getEmailFromFieldFrom($item['FIELD_FROM']);
-
+			$item = $this->prepareLog($item, $message);
 			$item['__log'] = $type;
 
 			$log[] = $item;
@@ -437,6 +316,8 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 	}
 
 	/**
+	 * Return html for message in chain by ajax
+	 *
 	 * @param $id
 	 *
 	 * @return string|void
@@ -444,91 +325,18 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public function logitemAction($id, $level = 1)
+	public function logitemAction($id)
 	{
-		$this->isCrmEnable = Main\Loader::includeModule('crm');
-		$this->arResult['CRM_ENABLE'] = ($this->isCrmEnable ? 'Y' : 'N');
+		$this->setCrmEnableFields();
 
-		$message = Mail\MailMessageTable::getList(array(
-			'runtime' => array(
-				new Main\Entity\ReferenceField(
-					'MESSAGE_UID',
-					'Bitrix\Mail\MailMessageUidTable',
-					array(
-						'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
-						'=this.ID' => 'ref.MESSAGE_ID',
-					),
-					array(
-						'join_type' => 'INNER',
-					)
-				),
-				new Main\Entity\ReferenceField(
-					'MESSAGE_ACCESS',
-					Mail\Internals\MessageAccessTable::class,
-					array(
-						'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
-						'=this.ID' => 'ref.MESSAGE_ID',
-					)
-				),
-			),
-			'select' => array(
-				'*',
-				'MSG_UID' => 'MESSAGE_UID.MSG_UID',
-				'UID' => 'MESSAGE_UID.ID',
-				'DIR_MD5' => 'MESSAGE_UID.DIR_MD5',
-				'HEADER_MD5' => 'MESSAGE_UID.HEADER_MD5',
-				'IS_SEEN' => 'MESSAGE_UID.IS_SEEN',
-				'MAILBOX_EMAIL' => 'MAILBOX.EMAIL',
-				'MAILBOX_NAME' => 'MAILBOX.NAME',
-				'MAILBOX_LOGIN' => 'MAILBOX.LOGIN',
-				new \Bitrix\Main\Entity\ExpressionField(
-					'BIND',
-					'GROUP_CONCAT(DISTINCT CONCAT(%s, "-", %s))',
-					array(
-						'MESSAGE_ACCESS.ENTITY_TYPE',
-						'MESSAGE_ACCESS.ENTITY_ID',
-					)
-				),
-			),
-			'filter' => array(
-				'=ID' => $id,
-			),
-		))->fetch();
+		$message = $this->getPreparedMessage((int)$id);
 
 		if (empty($message))
 		{
-			$this->errorCollection[] = new Main\Error(Loc::getMessage('MAIL_CLIENT_ELEMENT_NOT_FOUND'));
+			// Errors added to collection in getMessage method
 			return;
 		}
 
-		if (!Mail\Helper\Message::hasAccess($message))
-		{
-			$this->errorCollection[] = new Main\Error(Loc::getMessage('MAIL_CLIENT_ELEMENT_DENIED'));
-			return;
-		}
-
-		$message['BIND'] = explode(',', $message['BIND']);
-
-		if ($level <= 1 && Mail\Helper\Message::ensureAttachments($message) > 0)
-		{
-			return $this->logitemAction($id, $level + 1);
-		}
-
-		$message['__files'] = array();
-		if ($message['ATTACHMENTS'] > 0)
-		{
-			$message['__files'] = Mail\Internals\MailMessageAttachmentTable::getList(array(
-				'select' => array(
-					'ID', 'FILE_ID', 'FILE_NAME', 'FILE_SIZE', 'CONTENT_TYPE',
-				),
-				'filter' => array(
-					'=MESSAGE_ID' => $message['ID'],
-				),
-			))->fetchAll();
-		}
-
-		$this->prepareMessage($message);
-		$message['SENDER_EMAIL'] = $this->getEmailFromFieldFrom($message['FIELD_FROM']);
 		$this->arResult['MESSAGE'] = $message;
 		$this->prepareUser();
 
@@ -625,6 +433,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 
 		if (
 			($message['OPTIONS']['attachments'] <= 0)
+			&& empty($message['OPTIONS']['isOriginalEmptyBody'])
 			&& ((isset($message['OPTIONS']['isEmptyBody']) && $message['OPTIONS']['isEmptyBody'] === 'Y')
 				|| empty($message['BODY_HTML'])
 			)
@@ -772,7 +581,17 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			}
 		}
 
-		return \Bitrix\Mail\Helper\Message::prepare($message);
+		$message = \Bitrix\Mail\Helper\Message::prepare($message);
+
+		$message['__diskFiles'] = array_filter(
+			$message['__files'] ?? [],
+			function ($item)
+			{
+				return isset($item['objectId']) && $item['objectId'] > 0;
+			}
+		);
+
+		return $message;
 	}
 
 	/**
@@ -825,4 +644,228 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			});
 		}
 	}
+
+	/**
+	 * Get message attachments by ajax
+	 *
+	 * @param int $id Message ID
+	 * @return array
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public function getAttachmentsAction(int $id): array
+	{
+		$this->setCrmEnableFields();
+
+		$message = $this->getPreparedMessage($id, true);
+
+
+		if (empty($message))
+		{
+			// Errors added to collection in getMessage method
+			return [];
+		}
+
+		$this->arResult['MESSAGE'] = $message;
+		ob_start();
+
+		$this->includeComponentTemplate('files');
+
+		return [
+			'attachmentsHtml' => ob_get_clean(),
+		];
+	}
+
+	/**
+	 * Set properties is CRM enabled
+	 */
+	private function setCrmEnableFields(): void
+	{
+		$this->isCrmEnable = Main\Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled();
+		$this->arResult['CRM_ENABLE'] = ($this->isCrmEnable ? 'Y' : 'N');
+	}
+
+	/**
+	 * Get first error message from collection
+	 *
+	 * @return string
+	 */
+	private function getFirstErrorMessage(): string
+	{
+		/** @var Main\Error $item */
+		foreach ($this->errorCollection as $item)
+		{
+			return $item->getMessage();
+		}
+		return '';
+	}
+
+	/**
+	 * Get message with prepeared fields
+	 *
+	 * @param int $id Message ID
+	 * @param bool $forceLoadLazyAttachments Force load lazy attachments
+	 *
+	 * @return array|null
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	private function getPreparedMessage(int $id, bool $forceLoadLazyAttachments = false): ?array
+	{
+		$message = $this->getMessage($id);
+
+		if (empty($message))
+		{
+			$this->errorCollection[] = new Main\Error(Loc::getMessage('MAIL_CLIENT_ELEMENT_NOT_FOUND'));
+			return null;
+		}
+
+		if (!Mail\Helper\Message::hasAccess($message))
+		{
+			$this->errorCollection[] = new Main\Error(Loc::getMessage('MAIL_CLIENT_ELEMENT_DENIED'));
+			return null;
+		}
+
+		if ($forceLoadLazyAttachments
+			|| Mail\Helper\Message::isBodyNeedUpdateAfterLoadAttachments((string)$message['BODY_HTML']))
+		{
+			Mail\Helper\Message::ensureAttachments($message);
+		}
+
+		$message = $this->appendAttachments($message);
+		$this->prepareMessage($message);
+
+		$message['SENDER_EMAIL'] = $this->getEmailFromFieldFrom($message['FIELD_FROM']);
+
+		return $message;
+	}
+
+	/**
+	 * Get message from database
+	 *
+	 * @param int $id Message ID
+	 *
+	 * @return array|null
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	private function getMessage(int $id): ?array
+	{
+		$message = Mail\MailMessageTable::getList([
+			'runtime' => [
+				new Main\Entity\ReferenceField(
+					'MESSAGE_UID',
+					'Bitrix\Mail\MailMessageUidTable',
+					[
+						'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
+						'=this.ID' => 'ref.MESSAGE_ID',
+					],
+					[
+						'join_type' => 'INNER',
+					]
+				),
+			],
+			'select' => [
+				'*',
+				'UID' => 'MESSAGE_UID.ID',
+				'DIR_MD5' => 'MESSAGE_UID.DIR_MD5',
+				'MSG_UID' => 'MESSAGE_UID.MSG_UID',
+				'MAILBOX_EMAIL' => 'MAILBOX.EMAIL',
+				'MAILBOX_NAME' => 'MAILBOX.NAME',
+				'MAILBOX_OPTIONS' => 'MAILBOX.OPTIONS',
+				'HEADER_MD5' => 'MESSAGE_UID.HEADER_MD5',
+				'MAILBOX_LOGIN' => 'MAILBOX.LOGIN',
+				'IS_SEEN' => 'MESSAGE_UID.IS_SEEN',
+			],
+			'filter' => [
+				'=ID' => $id,
+			],
+		])->fetch();
+
+		if ($message)
+		{
+			$message['BIND'] = MessageAccessTable::getBinds($message['MAILBOX_ID'], $id);
+
+			return $message;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Append attachments to message field if need
+	 *
+	 * @param array $message Message field
+	 *
+	 * @return array Array with appended __files field
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	private function appendAttachments(array $message): array
+	{
+		$message['__files'] = [];
+		if ($message['ATTACHMENTS'] > 0)
+		{
+			$message['__files'] = Mail\Internals\MailMessageAttachmentTable::getList([
+				'select' => ['ID', 'FILE_ID', 'FILE_NAME', 'FILE_SIZE', 'CONTENT_TYPE'],
+				'filter' => ['=MESSAGE_ID' => $message['ID']],
+			])->fetchAll();
+		}
+		return $message;
+	}
+
+	/**
+	 * Prepare log item fields
+	 *
+	 * @param array $item Log message
+	 * @param array $message Main message
+	 *
+	 * @return array
+	 * @throws Main\ArgumentException
+	 * @throws Main\LoaderException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	private function prepareLog(array $item, array $message): array
+	{
+		$item['MAILBOX_EMAIL'] = $message['MAILBOX_EMAIL'];
+		$item['MAILBOX_NAME'] = $message['MAILBOX_NAME'];
+		$item['MAILBOX_LOGIN'] = $message['MAILBOX_LOGIN'];
+
+		$item = $this->prepareMessage($item);
+		$item['SENDER_EMAIL'] = $this->getEmailFromFieldFrom($item['FIELD_FROM']);
+		return $item;
+	}
+
+	/**
+	 * Get fields list to select for log items
+	 *
+	 * @return array|string[]
+	 */
+	private function getLogItemSelectFields(): array
+	{
+		return [
+			'ID',
+			'MAILBOX_ID',
+			'FIELD_DATE',
+			'SUBJECT',
+			'FIELD_FROM',
+			'FIELD_REPLY_TO',
+			'FIELD_TO',
+			'FIELD_CC',
+			'FIELD_BCC',
+			'ATTACHMENTS',
+			'OPTIONS',
+			'READ_CONFIRMED',
+		];
+	}
+
 }

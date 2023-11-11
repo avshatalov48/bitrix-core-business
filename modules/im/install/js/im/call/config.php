@@ -4,6 +4,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+if (!\Bitrix\Main\Loader::includeModule('im'))
+{
+	return [];
+}
+
 return [
 	'js' => [
 		'./dist/call.bundle.js',
@@ -36,6 +41,8 @@ return [
 				'turn_server_password' => COption::GetOptionString('im', 'turn_server_password'),
 				'turn_server_max_users' => \Bitrix\Main\Config\Option::get('im', 'turn_server_max_users'),
 				'call_server_enabled' => \Bitrix\Im\Call\Call::isCallServerEnabled() ? 'Y' : 'N',
+				'bitrix_call_server_enabled' => \Bitrix\Im\Call\Call::isBitrixCallServerEnabled() ? 'Y' : 'N',
+				'voximplant_call_server_enabled' => \Bitrix\Im\Call\Call::isVoximplantCallServerEnabled() ? 'Y' : 'N',
 				'call_server_max_users' => \Bitrix\Main\Config\Option::get('im', 'call_server_max_users'),
 				'call_log_service' => \Bitrix\Im\Call\Call::getLogService(),
 				'call_collect_stats' => COption::GetOptionString('im', 'collect_call_stats', 'N'),

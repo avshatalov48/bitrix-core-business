@@ -345,10 +345,35 @@
 	--ui-icon-set__path_speed-meter: url('/bitrix/js/ui/icon-set/main/images/speed-meter.svg');
 	--ui-icon-set__path_add-chat: url('/bitrix/js/ui/icon-set/main/images/add-chat.svg');
 	--ui-icon-set__path_watch: url('/bitrix/js/ui/icon-set/main/images/watch.svg');
+	--ui-icon-set__path_copilot-ai: url('/bitrix/js/ui/icon-set/main/images/copilot-ai.svg');
+	--ui-icon-set__path_info-circle-plus: url('/bitrix/js/ui/icon-set/main/images/info-circle-plus.svg');
+	--ui-icon-set__path_location-plus: url('/bitrix/js/ui/icon-set/main/images/location-plus.svg');
+	--ui-icon-set__path_person-plus-3: url('/bitrix/js/ui/icon-set/main/images/person-plus-3.svg');
+	--ui-icon-set__path_calendar-slots: url('/bitrix/js/ui/icon-set/main/images/calendar-slots.svg');
 }
 
 .ui-icon-set.--watch {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_watch);
+}
+
+.ui-icon-set.--location-plus {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_location-plus);
+}
+
+.ui-icon-set.--person-plus-3 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_person-plus-3);
+}
+
+.ui-icon-set.--calendar-slots {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_calendar-slots);
+}
+
+.ui-icon-set.--info-circle-plus {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_info-circle-plus);
+}
+
+.ui-icon-set.--copilot-ai {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_copilot-ai);
 }
 
 .ui-icon-set.--add-chat {

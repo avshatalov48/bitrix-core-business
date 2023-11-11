@@ -6,13 +6,14 @@ const assignFileToInput = (input: HTMLInputElement, file: File | File[]) => {
 		const dataTransfer = new DataTransfer();
 		const files = Type.isArray(file) ? file : [file];
 
-		files.forEach(file => {
-			dataTransfer.items.add(file);
+		files.forEach((item) => {
+			dataTransfer.items.add(item);
 		});
 
+		// eslint-disable-next-line no-param-reassign
 		input.files = dataTransfer.files;
 	}
-	catch (error)
+	catch
 	{
 		return false;
 	}

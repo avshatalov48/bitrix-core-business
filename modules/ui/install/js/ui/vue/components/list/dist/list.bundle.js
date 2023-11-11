@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,ui_designTokens,ui_vue) {
 	'use strict';
 
@@ -20,7 +21,6 @@
 	    },
 	    avatarText: function avatarText() {
 	      var words = this.listItem.title.value.split(' ');
-
 	      if (words.length > 1) {
 	        return words[0].charAt(0) + words[1].charAt(0);
 	      } else if (words.length === 1) {
@@ -62,10 +62,8 @@
 	  },
 	  created: function created() {},
 	  methods: {
-	    /* region 01. Data validation */
-	    validateData: function validateData(listData) {
+	    /* region 01. Data validation */validateData: function validateData(listData) {
 	      var _this = this;
-
 	      var result = [];
 	      listData.items.forEach(function (listItem) {
 	        result.push(_this.validateItem(listItem));
@@ -75,29 +73,23 @@
 	    },
 	    validateItem: function validateItem(listItem) {
 	      var itemResult = {};
-
 	      if (typeof listItem.id === "number" || typeof listItem.id === "string") {
 	        itemResult.id = listItem.id.toString();
 	      }
-
 	      if (typeof listItem.type !== "undefined" && this.itemTypes[listItem.type]) {
 	        itemResult.type = listItem.type;
 	      } else {
 	        itemResult.type = this.itemTypes["default"];
 	      }
-
 	      if (typeof listItem.title !== "undefined") {
 	        itemResult.title = {};
-
 	        if (babelHelpers["typeof"](listItem.title) === 'object' && listItem.title) {
 	          if (typeof listItem.title.value === 'string') {
 	            itemResult.title.value = listItem.title.value;
 	          }
-
 	          if (typeof listItem.title.leftIcon === 'string') {
 	            itemResult.title.leftIcon = listItem.title.leftIcon;
 	          }
-
 	          if (typeof listItem.title.rightIcon === 'string') {
 	            itemResult.title.rightIcon = listItem.title.rightIcon;
 	          }
@@ -105,15 +97,12 @@
 	          itemResult.title.value = listItem.title;
 	        }
 	      }
-
 	      if (typeof listItem.subtitle !== "undefined") {
 	        itemResult.subtitle = {};
-
 	        if (babelHelpers["typeof"](listItem.subtitle) === 'object' && listItem.subtitle) {
 	          if (typeof listItem.subtitle.value === 'string') {
 	            itemResult.subtitle.value = listItem.subtitle.value;
 	          }
-
 	          if (typeof listItem.subtitle.leftIcon === 'string') {
 	            itemResult.subtitle.leftIcon = listItem.subtitle.leftIcon;
 	          }
@@ -121,20 +110,16 @@
 	          itemResult.subtitle.value = listItem.subtitle;
 	        }
 	      }
-
 	      if (typeof listItem.avatar !== 'undefined') {
 	        itemResult.avatar = {};
-
 	        if (babelHelpers["typeof"](listItem.avatar) === 'object' && listItem.avatar) {
 	          //TODO: avatar processing
 	          if (typeof listItem.avatar.url === 'string') {
 	            itemResult.avatar.url = listItem.avatar.url;
 	          }
-
 	          if (typeof listItem.avatar.topLeftIcon === 'string') {
 	            itemResult.avatar.topLeftIcon = listItem.avatar.topLeftIcon;
 	          }
-
 	          if (typeof listItem.avatar.bottomRightIcon === 'string') {
 	            itemResult.avatar.bottomRightIcon = listItem.avatar.bottomRightIcon;
 	          }
@@ -143,15 +128,12 @@
 	          itemResult.avatar.url = listItem.avatar;
 	        }
 	      }
-
 	      if (typeof listItem.date !== 'undefined') {
 	        itemResult.date = {};
-
 	        if (babelHelpers["typeof"](listItem.date) === 'object' && listItem.date && !(listItem.date instanceof Date)) {
 	          if (listItem.date.value instanceof Date) {
 	            itemResult.date.value = this.formatDate(listItem.date.value);
 	          }
-
 	          if (typeof listItem.date.leftIcon === 'string') {
 	            itemResult.date.leftIcon = listItem.date.leftIcon;
 	          }
@@ -159,24 +141,19 @@
 	          itemResult.date.value = this.formatDate(listItem.date);
 	        }
 	      }
-
 	      if (typeof listItem.sectionCode === 'string') {
 	        itemResult.sectionCode = listItem.sectionCode;
 	      }
-
 	      if (typeof listItem.counter === 'number') {
 	        itemResult.counter = this.formatCounter(listItem.counter);
 	      }
-
 	      if (typeof listItem.notification === 'boolean') {
 	        itemResult.notification = listItem.notification;
 	      }
-
 	      return itemResult;
 	    },
 	    validateSections: function validateSections(sections) {
 	      var _this2 = this;
-
 	      if (sections && sections.length > 0) {
 	        sections.forEach(function (element) {
 	          if (typeof element === 'string' && element.length > 0) {
@@ -184,7 +161,6 @@
 	          }
 	        });
 	      }
-
 	      if (this.sections.length === 0) {
 	        this.sections = [this.generalSectionName];
 	        this.list.map(function (element) {
@@ -199,18 +175,13 @@
 	      } else if (counter < 0) {
 	        counter = 0;
 	      }
-
 	      return counter;
 	    },
-
 	    /* endregion 01. Data validation */
-
 	    /* region 02. Events handling */
 	    onScroll: function onScroll(event) {},
 	    onClick: function onClick(event, id) {},
-	    onDoubleClick: function onDoubleClick(event) {}
-	    /* endregion 02. Events handling */
-
+	    onDoubleClick: function onDoubleClick(event) {} /* endregion 02. Events handling */
 	  },
 	  computed: {
 	    wrapperStyle: function wrapperStyle() {
@@ -224,14 +195,11 @@
 	    },
 	    sectionedList: function sectionedList() {
 	      var _this3 = this;
-
 	      this.sections.forEach(function (section) {
 	        ui_vue.BitrixVue.set(_this3.resultList, section, []);
-
 	        var listForSection = _this3.list.filter(function (item) {
 	          return item.sectionCode === section;
 	        });
-
 	        _this3.resultList[section] = babelHelpers.toConsumableArray(listForSection);
 	      });
 	      return this.resultList;

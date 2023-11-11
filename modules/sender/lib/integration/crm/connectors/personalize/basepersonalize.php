@@ -145,69 +145,6 @@ abstract class BasePersonalize
 		];
 	}
 
-	/**
-	 * Get filter user fields.
-	 *
-	 * @param integer $entityTypeId Entity type ID.
-	 *
-	 * @return array
-	 */
-	public static function getFilterUserFields($entityTypeId)
-	{
-		$list = [];
-		$ufManager = is_object($GLOBALS['USER_FIELD_MANAGER'])? $GLOBALS['USER_FIELD_MANAGER'] : null;
-		if (!$ufManager)
-		{
-			return $list;
-		}
-
-		$ufEntityId = \CCrmOwnerType::resolveUserFieldEntityID($entityTypeId);
-		$crmUserType = new \CCrmUserType($ufManager, $ufEntityId);
-		$logicFilter = [];
-		$crmUserType->prepareListFilterFields($list, $logicFilter);
-		$originalList = $crmUserType->getFields();
-		$restrictedTypes = ['address', 'file', 'crm', 'resourcebooking'];
-
-		$list = array_filter(
-			$list,
-			function($field) use ($originalList, $restrictedTypes)
-			{
-				if (empty($originalList[$field['id']]))
-				{
-					return false;
-				}
-
-				$type = $originalList[$field['id']]['USER_TYPE']['USER_TYPE_ID'];
-
-				return !in_array($type, $restrictedTypes);
-			}
-		);
-
-		foreach ($list as $index => $field)
-		{
-			if ($field['type'] === 'date')
-			{
-				$list[$index]['include'] = [
-					AdditionalDateType::CUSTOM_DATE,
-					AdditionalDateType::PREV_DAY,
-					AdditionalDateType::NEXT_DAY,
-					AdditionalDateType::MORE_THAN_DAYS_AGO,
-					AdditionalDateType::AFTER_DAYS,
-				];
-				if (!isset($list[$index]['allow_years_switcher']))
-				{
-					$list[$index]['allow_years_switcher'] = true;
-				}
-			}
-			if ($originalList[$field['id']]['MULTIPLE'] == 'Y')
-			{
-				$list[$index]['multiple_uf'] = true;
-			}
-		}
-
-		return $list;
-	}
-
 	public static function isFactoryBased(string $entityType): bool
 	{
 		return \CCrmOwnerType::isUseFactoryBasedApproach(\CCrmOwnerType::ResolveID($entityType));

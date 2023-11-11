@@ -2026,6 +2026,8 @@ class Imap extends Mail\Helper\Mailbox
 			return false;
 		}
 
+		$params['log_parts'] = $message['__parts'];
+
 		$complete = function (&$html, &$text)
 		{
 			if ('' !== $html && '' === $text)

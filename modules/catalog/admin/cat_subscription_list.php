@@ -86,6 +86,13 @@ $listObject = new CAdminUiList($tableId, $sortObject);
 
 $by = mb_strtoupper($sortObject->getField());
 $order = mb_strtoupper($sortObject->getOrder());
+$listOrder = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$listOrder['ID'] = 'DESC';
+}
 
 $listContactTypes = array();
 $contactType = Catalog\SubscribeTable::getContactTypes();
@@ -255,7 +262,7 @@ $select['IBLOCK_ID'] = 'IBLOCK_ELEMENT.IBLOCK_ID';
 $queryObject = Catalog\SubscribeTable::getList(array(
 	'select' => $select,
 	'filter' => $filter,
-	'order' => array($by => $order),
+	'order' => $listOrder,
 ));
 
 $queryObject = new CAdminUiResult($queryObject, $tableId);

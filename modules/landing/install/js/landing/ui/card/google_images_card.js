@@ -207,11 +207,16 @@
 				"sessid": BX.bitrix_sessid(),
 				"url": path
 			});
+			let extension = BX.util.getExtension(path);
+			if (extension.length > 4)
+			{
+				extension = extension.split('_').pop();
+			}
 
 			this.onChange({
 				link: url,
-				ext: BX.util.getExtension(path),
-				name: BX.Landing.Utils.getFileName(path)
+				ext: extension,
+				name: BX.Landing.Utils.getFileName(path),
 			});
 		},
 

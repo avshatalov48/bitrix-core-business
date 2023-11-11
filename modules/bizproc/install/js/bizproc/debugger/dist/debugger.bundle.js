@@ -3346,7 +3346,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return `
 			<ul class="bizproc-debugger-filter-guide-list">
 				<li class="bizproc-debugger-filter-guide-list-item">
-					${Helper.toHtml(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_1'))}
+					${Helper.toHtml(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_1_MSGVER_1'))}
 				</li>
 				<li class="bizproc-debugger-filter-guide-list-item">
 					${Helper.toHtml(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_2'))}

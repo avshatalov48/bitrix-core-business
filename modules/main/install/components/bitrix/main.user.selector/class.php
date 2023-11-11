@@ -47,7 +47,7 @@ class MainUserSelectorComponent extends CBitrixComponent
 		$this->arParams['READONLY'] = isset($this->arParams['READONLY']) ? (bool) $this->arParams['READONLY'] : false;
 		$this->arParams['BUTTON_SELECT_CAPTION'] = $this->arParams['BUTTON_SELECT_CAPTION'] ?? null;
 		$this->arParams['BUTTON_SELECT_CAPTION_MORE'] = $this->arParams['BUTTON_SELECT_CAPTION_MORE'] ?? $this->arParams['BUTTON_SELECT_CAPTION'];
-		$this->arParams['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? \CAllSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
+		$this->arParams['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
 		$this->arParams['SELECTOR_OPTIONS'] = is_array($this->arParams['SELECTOR_OPTIONS']) ? $this->arParams['SELECTOR_OPTIONS'] : [];
 		$this->arParams['FIRE_CLICK_EVENT'] = isset($this->arParams['FIRE_CLICK_EVENT']) && $this->arParams['FIRE_CLICK_EVENT'] == 'Y' ? 'Y' : 'N';
 		$this->arParams['LOCK'] = isset($this->arParams['LOCK']) ? (bool) $this->arParams['LOCK'] : false;
@@ -239,7 +239,7 @@ class MainUserSelectorComponent extends CBitrixComponent
 			}
 
 			// format name
-			$userName = \CAllUser::FormatName(
+			$userName = CUser::FormatName(
 				$this->arParams['NAME_TEMPLATE'],
 				[
 					'LOGIN' => $userData['LOGIN'],

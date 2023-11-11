@@ -1,8 +1,9 @@
 import { Extension } from 'main.core';
 
 import { UploadingService } from 'im.v2.provider.service';
-import { Utils } from 'im.v2.lib.utils';
 import { Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
+import { isSendMessageCombination, isNewLineCombination } from 'im.v2.lib.hotkey';
+import { Textarea } from 'im.v2.lib.textarea';
 
 import { FileItem } from './file-item';
 
@@ -120,14 +121,23 @@ export const UploadPreviewContent = {
 				sendAsFile: this.sendAsFile,
 			});
 		},
-		onKeyUpHandler(event)
+		onKeyDownHandler(event: KeyboardEvent)
 		{
-			if (!Utils.key.isCombination(event, 'Ctrl+Enter'))
+			const sendMessageCombination = isSendMessageCombination(event);
+			const newLineCombination = isNewLineCombination(event);
+			if (sendMessageCombination && !newLineCombination)
 			{
+				event.preventDefault();
+				this.onSend();
+
 				return;
 			}
 
-			this.onSend();
+			if (newLineCombination)
+			{
+				event.preventDefault();
+				this.text = Textarea.addNewLine(this.$refs.messageText);
+			}
 		},
 		removePreview(file: UploaderFile)
 		{
@@ -156,7 +166,7 @@ export const UploadPreviewContent = {
 					ref="messageText"
 					type="text"
 					v-model="text"
-					@keydown="onKeyUpHandler"
+					@keydown="onKeyDownHandler"
 					class="bx-im-upload-preview__message-text"
 					rows="1"
 					:placeholder="$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER')"

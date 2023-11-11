@@ -3,11 +3,11 @@ import {Type} from 'main.core';
 import './button.css';
 
 export const ButtonSize = {
-	S: 'S',
-	M: 'M',
-	L: 'L',
-	XL: 'XL',
-	XXL: 'XXL'
+	S: 'S', // 18
+	M: 'M', // 26
+	L: 'L', // 31
+	XL: 'XL', // 39
+	XXL: 'XXL', // 47
 };
 
 export const ButtonColor = {
@@ -27,6 +27,7 @@ export const ButtonIcon = {
 	Call: 'call',
 	EndCall: 'end-call',
 	AddUser: 'add-user',
+	Camera: 'camera',
 };
 
 export type CustomColorScheme = {

@@ -1,33 +1,18 @@
 import {Event} from 'main.core';
+import {Main} from 'landing.main';
 import {PageObject} from 'landing.pageobject';
 import {RESOLVED, PENDING} from './internal/constants';
 import registerBaseCommands from './internal/register-base-commands';
 import removePageHistory from './internal/remove-page-history';
 import loadStack from './internal/load-stack';
-import fetchEntities from './internal/fetch-entities';
-import removeEntities from './internal/remove-entities';
 import clear from './internal/clear';
 import onUpdate from './internal/on-update';
 import onInit from './internal/on-init';
 import Command from './history-command';
 import Entry from './history-entry';
-import Highlight from './history-highlight';
-import editText from './action/edit-text';
-import editEmbed from './action/edit-embed';
-import editMap from './action/edit-map';
-import editImage from './action/edit-image';
-import editIcon from './action/edit-icon';
-import editLink from './action/edit-link';
-import sortBlock from './action/sort-block';
-import addBlock from './action/add-block';
-import removeBlock from './action/remove-block';
-import addCard from './action/add-card';
-import removeCard from './action/remove-card';
-import addNode from './action/add-node';
-import removeNode from './action/remove-node';
-import editStyle from './action/edit-style';
-import updateContent from './action/update-content';
-import {Main} from 'landing.main';
+import Highlight from './history-highlight';    // not delete - just for export
+
+import './css/style.css';
 
 /**
  * Implements interface for works with landing history
@@ -39,8 +24,21 @@ export class History
 	static TYPE_LANDING = 'L';
 	static TYPE_DESIGNER_BLOCK = 'D';
 
-	stack: number;
-	commands: {};
+	/**
+	 * Stack of action commands. Key - is step, value - is a command name
+	 */
+	stack: {[number]: string};
+
+	/**
+	 * Lenght of stack
+	 */
+	stackCount: number;
+
+	/**
+	 * Key - is step, value - is a Command object
+	 */
+	commands: {[number]: Command};
+
 	/**
 	 * From 1 to X. 0 - is state without any history
 	 * @type {number}
@@ -53,9 +51,10 @@ export class History
 	constructor()
 	{
 		this.type = History.TYPE_LANDING;
-		this.stack = 0;
-		this.commands = {};
+		this.stack = {};
+		this.stackCount = 0;
 		this.step = 0;
+		this.commands = {};
 		this.commandState = RESOLVED;
 		this.onStorage = this.onStorage.bind(this);
 
@@ -77,25 +76,7 @@ export class History
 
 	static Command = Command;
 	static Entry = Entry;
-	static Highlight = Highlight;
-	// todo: need?
-	// static Action = {
-	// 	editText,
-	// 	editEmbed,
-	// 	editMap,
-	// 	editImage,
-	// 	editIcon,
-	// 	editLink,
-	// 	sortBlock,
-	// 	addBlock,
-	// 	removeBlock,
-	// 	addCard,
-	// 	removeCard,
-	// 	editStyle,
-	// 	addNode,
-	// 	removeNode,
-	// 	updateContent
-	// };
+	static Highlight = Highlight; // not delete - just for export
 
 	static getInstance(): History
 	{
@@ -121,7 +102,27 @@ export class History
 		return loadStack(this);
 	}
 
-	getUndoAction(): string
+	getLoadBackendActionName(): string
+	{
+		if (this.type === History.TYPE_DESIGNER_BLOCK)
+		{
+			return "History::getForDesignerBlock";
+		}
+
+		return "History::getForLanding";
+	}
+
+	getLoadBackendParams(): string
+	{
+		if (this.type === History.TYPE_DESIGNER_BLOCK)
+		{
+			return {blockId: this.designerBlockId};
+		}
+
+		return {lid: this.landingId};
+	}
+
+	getUndoBackendActionName(): string
 	{
 		if (this.type === History.TYPE_DESIGNER_BLOCK)
 		{
@@ -131,7 +132,23 @@ export class History
 		return "History::undoLanding";
 	}
 
-	getRedoAction(): string
+	beforeUndo(): Promise
+	{
+		const step = this.step;
+		if (
+			this.stack[step]
+			&& this.commands[this.stack[step]]
+		)
+		{
+			const command = this.commands[this.stack[step]];
+
+			return command.onBeforeCommand();
+		}
+
+		return Promise.resolve();
+	}
+
+	getRedoBackendActionName(): string
 	{
 		if (this.type === History.TYPE_DESIGNER_BLOCK)
 		{
@@ -141,7 +158,23 @@ export class History
 		return "History::redoLanding";
 	}
 
-	getActionParams(): string
+	beforeRedo(): Promise
+	{
+		const step = this.step + 1;
+		if (
+			this.stack[step]
+			&& this.commands[this.stack[step]]
+		)
+		{
+			const command = this.commands[this.stack[step]];
+
+			return command.onBeforeCommand();
+		}
+
+		return Promise.resolve();
+	}
+
+	getBackendActionParams(): string
 	{
 		if (
 			this.type === History.TYPE_DESIGNER_BLOCK
@@ -162,15 +195,19 @@ export class History
 	 * Applies preview history entry
 	 * @return {Promise}
 	 */
-	undo()
+	undo(): Promise
 	{
 		if (this.canUndo())
 		{
-			return BX.Landing.Backend.getInstance()
-				.action(
-					this.getUndoAction(),
-					this.getActionParams(),
-				)
+			this.commandState = PENDING;
+			return this.beforeUndo()
+				.then(() => {
+					return BX.Landing.Backend.getInstance()
+						.action(
+							this.getUndoBackendActionName(),
+							this.getBackendActionParams(),
+						)
+				})
 				.then(command => {
 					if (command)
 					{
@@ -190,6 +227,7 @@ export class History
 				.then(res => {
 					return this.offset(-1).then(onUpdate);
 				})
+			;
 		}
 
 		return Promise.resolve(this);
@@ -200,15 +238,19 @@ export class History
 	 * Applies preview next history entry
 	 * @return {Promise}
 	 */
-	redo()
+	redo(): Promise
 	{
 		if (this.canRedo())
 		{
-			return BX.Landing.Backend.getInstance()
-				.action(
-					this.getRedoAction(),
-					this.getActionParams(),
-				)
+			this.commandState = PENDING;
+			return this.beforeRedo()
+				.then(() => {
+					return BX.Landing.Backend.getInstance()
+						.action(
+							this.getRedoBackendActionName(),
+							this.getBackendActionParams(),
+						)
+				})
 				.then(command => {
 					if (command)
 					{
@@ -228,23 +270,7 @@ export class History
 				.then(res => {
 					return this.offset(1).then(onUpdate);
 				})
-		}
-
-		return Promise.resolve(this);
-	}
-
-	offset(offsetValue: number): Promise<History>
-	{
-		if (this.commandState === PENDING)
-		{
-			return Promise.resolve(this);
-		}
-
-		let step = this.step + offsetValue;
-
-		if (step >= 0 && step <= this.stack)
-		{
-			this.step = step;
+			;
 		}
 
 		return Promise.resolve(this);
@@ -267,13 +293,29 @@ export class History
 					})
 					.catch(() => {
 						this.commandState = RESOLVED;
-						// todo: how check and process error
-						return this.offset(offsetValue);
+
+						return this;
 					});
 			}
 		}
 	}
 
+	offset(offsetValue: number): Promise<History>
+	{
+		if (this.commandState === PENDING)
+		{
+			return Promise.resolve(this);
+		}
+
+		let step = this.step + offsetValue;
+
+		if (step >= 0 && step <= this.stackCount)
+		{
+			this.step = step;
+		}
+
+		return Promise.resolve(this);
+	}
 
 	/**
 	 * Check that there are actions to undo
@@ -283,7 +325,7 @@ export class History
 	{
 		return (
 			this.commandState !== PENDING
-			&& (this.step > 0 && this.stack > 0 && this.step <= this.stack)
+			&& (this.step > 0 && this.stackCount > 0 && this.step <= this.stackCount)
 		);
 	}
 
@@ -296,7 +338,7 @@ export class History
 	{
 		return (
 			this.commandState !== PENDING
-			&& (this.step < this.stack && this.step >= 0)
+			&& (this.step < this.stackCount && this.step >= 0)
 		);
 	}
 
@@ -305,17 +347,22 @@ export class History
 	 * Adds entry to history stack
 	 * @param {BX.Landing.History.Entry} entry
 	 */
-	push(entry)
+	push(): Promise<History>
 	{
-		if (this.step < this.stack)
+		if (this.step < this.stackCount)
 		{
-			this.stack = this.step;
+			this.stackCount = this.step;
 		}
 
 		this.step++;
-		this.stack++;
+		this.stackCount++;
 
-		onUpdate(this);
+		return new Promise(resolve => {
+			setTimeout(resolve, 400);
+		})
+			.then(() => {return loadStack(this)})
+			.then(onUpdate)
+		;
 	}
 
 
@@ -378,19 +425,5 @@ export class History
 				clear(this).then(onUpdate);
 			}
 		}
-	}
-
-
-	/**
-	 * Handles new branch events
-	 * @param {BX.Landing.History.Entry[]} entries
-	 * @return {Promise<History>}
-	 */
-	onNewBranch(entries)
-	{
-		return fetchEntities(entries, this)
-			.then((entities) => {
-				return removeEntities(entities, this);
-			});
 	}
 }

@@ -1,11 +1,13 @@
 <?php
 namespace Bitrix\Landing\Connector;
 
-use Bitrix\Crm\Settings\CompanySettings;
+use Bitrix\Crm\CompanyTable;
 use Bitrix\Crm\Requisite\EntityLink;
-use Bitrix\Main\Loader;
-use Bitrix\SalesCenter\Integration\CrmManager;
+use Bitrix\Crm\Settings\CompanySettings;
 use Bitrix\Landing\Manager;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Text\Encoding;
+use Bitrix\SalesCenter\Integration\CrmManager;
 
 class Crm
 {
@@ -266,5 +268,112 @@ class Crm
 		}
 
 		return $replace;
+	}
+
+	/**
+	 * Returns requisites each of my companies.
+	 * @return array
+	 */
+	public static function getMyRequisites(): array
+	{
+		if (!Loader::includeModule('crm'))
+		{
+			return [];
+		}
+
+		$fullData = [];
+
+		$companies = CompanyTable::query()
+			->setSelect(['ID', 'TITLE'])
+			->where('IS_MY_COMPANY', 'Y')
+			->setOrder(['DATE_MODIFY' => 'desc'])
+			->fetchAll()
+		;
+		foreach ($companies as $company)
+		{
+			$requisites = [];
+			$requisitesRaw = \CCrmEntitySelectorHelper::PrepareRequisiteData(
+				\CCrmOwnerType::Company,
+				$company['ID'],
+				['VIEW_FORMATTED' => true]
+			);
+			foreach ($requisitesRaw as $requisite)
+			{
+				$requisiteData = Encoding::convertEncoding(json_decode($requisite['requisiteData'], 1), 'UTF-8', SITE_CHARSET);
+				$requisites[$requisite['requisiteId']] = [
+					'id' =>  $requisite['requisiteId'],
+					'title' => $requisiteData['viewData']['title'] ?? null,
+					'data' => $requisiteData['viewData']['fields'],
+				];
+			}
+
+			if (empty($requisites))
+			{
+				continue;
+			}
+
+			$fullData[$company['ID']] = [
+				'companyId' => $company['ID'],
+				'companyTitle' => $company['TITLE'],
+				'requisites' => $requisites,
+			];
+		}
+
+		return $fullData;
+	}
+
+	/**
+	 * Returns requisites each of my companies (as plain list).
+	 * @return array
+	 */
+	public static function getMyRequisitesPlainList(): array
+	{
+		$requisites = [];
+
+		foreach (self::getMyRequisites() as $company)
+		{
+			foreach ($company['requisites'] as $requisite)
+			{
+				$requisites["{$company['companyId']}_{$requisite['id']}"] = "{$company['companyTitle']}: {$requisite['title']}";
+			}
+		}
+
+		return $requisites;
+	}
+
+	/**
+	 * Returns all company's communication variants.
+	 * @param int $companyId Company ID.
+	 * @return array
+	 */
+	public static function getCompanyCommunications(int $companyId): array
+	{
+		if (!Loader::includeModule('crm'))
+		{
+			return [];
+		}
+
+		$data = [];
+
+		$res = \CCrmFieldMulti::getList(
+			['ID' => 'asc'],
+			[
+				'ENTITY_ID' => \CCrmOwnerType::CompanyName,
+				'ELEMENT_ID' => $companyId,
+			]
+		);
+		while ($row = $res->Fetch())
+		{
+			$row = array_change_key_case($row);
+			$row['type_id'] = mb_strtolower($row['type_id']);
+
+			if (!isset($data[$row['type_id']]))
+			{
+				$data[$row['type_id']] = [];
+			}
+			$data[$row['type_id']][] = $row['value'];
+		}
+
+		return $data;
 	}
 }

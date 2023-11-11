@@ -149,7 +149,7 @@ export class ChatPullHandler
 		const dialog = this.#store.getters['dialogues/getByChatId'](params.chatId);
 		if (!dialog)
 		{
-			return false;
+			return;
 		}
 
 		this.#store.dispatch('dialogues/update', {
@@ -176,7 +176,7 @@ export class ChatPullHandler
 		if (params.users)
 		{
 			const userManager = new UserManager();
-			userManager.setUsersToModel(params.users);
+			userManager.setUsersToModel(Object.values(params.users));
 		}
 
 		this.#store.dispatch('dialogues/update', {

@@ -4,6 +4,7 @@ namespace Bitrix\Im\V2\Chat;
 
 use Bitrix\Im\Model\ChatTable;
 use Bitrix\Im\Model\RelationTable;
+use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\Model\EO_Chat;
@@ -170,7 +171,7 @@ class FavoriteChat extends PrivateChat
 
 		if (!$chat)
 		{
-			$chat = new FavoriteChat($params);
+			$chat = new static($params);
 			$chat
 				->setTitle(Loc::getMessage('IM_CHAT_FAVORITE_TITLE_V2'))
 				->setDescription(Loc::getMessage('IM_CHAT_FAVORITE_DESCRIPTION'))
@@ -192,8 +193,6 @@ class FavoriteChat extends PrivateChat
 				]);
 			}
 		}
-
-		$chat->updateIndex();
 
 		$result->setResult([
 			'CHAT_ID' => $chat->getChatId(),
@@ -245,5 +244,15 @@ class FavoriteChat extends PrivateChat
 
 		$result = $chatResult->getResult();
 		return FavoriteChat::getInstance($result['ID']);
+	}
+
+	protected function addIndex(): Chat
+	{
+		return $this;
+	}
+
+	protected function updateIndex(): Chat
+	{
+		return $this;
 	}
 }

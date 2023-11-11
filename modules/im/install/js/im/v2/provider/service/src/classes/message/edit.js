@@ -38,6 +38,7 @@ export class EditService
 				id: dialog.dialogId,
 				fields: {
 					message: { text },
+					dateUpdate: new Date(),
 				},
 			});
 		}

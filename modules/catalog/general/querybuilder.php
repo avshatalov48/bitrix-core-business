@@ -621,7 +621,7 @@ final class CProductQueryBuilder
 			self::ENTITY_VAT => [
 				'NAME' => 'b_catalog_vat',
 				'ALIAS' => 'CAT_VAT',
-				'JOIN' => 'left join #NAME# as #ALIAS# on (#ALIAS#.ID = IF((CAT_PR.VAT_ID IS NULL OR CAT_PR.VAT_ID = 0), CAT_IB.VAT_ID, CAT_PR.VAT_ID))',
+				'JOIN' => 'left join #NAME# as #ALIAS# on (#ALIAS#.ID = CASE WHEN (CAT_PR.VAT_ID IS NULL OR CAT_PR.VAT_ID = 0) THEN CAT_IB.VAT_ID ELSE CAT_PR.VAT_ID END)',
 				'RELATION' => [self::ENTITY_CATALOG_IBLOCK]
 			],
 		];

@@ -16,8 +16,8 @@ use Bitrix\Calendar\Rooms;
 use CDavConnection;
 
 /**
+ * @deprecated
  * Class GoogleApiSync
- *
  * @package Bitrix\Calendar\Sync
  */
 final class GoogleApiSync

@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2020 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 namespace Bitrix\Main\File\Image;
@@ -21,6 +21,7 @@ abstract class Engine
 	protected $file;
 	protected $info;
 	protected $options;
+	protected $substituted = false;
 
 	/**
 	 * Engine constructor.
@@ -284,6 +285,50 @@ abstract class Engine
 	 * Clears all resources associated to the image.
 	 */
 	abstract public function clear();
+
+	/**
+	 * Returns true if the image is substituted with a stub.
+	 *
+	 * @return bool
+	 */
+	public function substituted(): bool
+	{
+		return $this->substituted;
+	}
+
+	protected function getMaxSize()
+	{
+		if (isset($this->options["maxSize"]) && is_array($this->options["maxSize"]))
+		{
+			return new Rectangle($this->options["maxSize"][0], $this->options["maxSize"][1]);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns true if the image exceeds maximum dimensions in options.
+	 *
+	 * @return bool
+	 */
+	public function exceedsMaxSize(): bool
+	{
+		$info = $this->getInfo();
+		if (!$info)
+		{
+			return false;
+		}
+
+		$source = $info->toRectangle();
+		$maxSize = $this->getMaxSize();
+
+		if ($maxSize && $source->resize($maxSize, Image::RESIZE_PROPORTIONAL))
+		{
+			return true;
+		}
+
+		return false;
+	}
 
 	public function __destruct()
 	{

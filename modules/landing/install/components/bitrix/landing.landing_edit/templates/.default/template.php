@@ -36,24 +36,24 @@ $request = $context->getRequest();
 
 if ($arResult['ERRORS'])
 {
+	$errorMessages = [];
 	foreach ($arResult['ERRORS'] as $errorCode => $errorMessage)
 	{
-		$errorMessage .= $component->getSettingLinkByError(
-			$errorCode
-		);
-		if ($arResult['FATAL'])
-		{
-			?>
-			<div class="landing-error-page">
-				<div class="landing-error-page-inner">
-					<div class="landing-error-page-title"><?= $errorMessage ?></div>
-					<div class="landing-error-page-img">
-						<div class="landing-error-page-img-inner"></div>
-					</div>
+		$errorMessages[] = $component->getSettingLinkByError($errorCode) ?: $errorMessage;
+	}
+
+	if (!empty($errorMessages))
+	{
+		?>
+		<div class="landing-error-page">
+			<div class="landing-error-page-inner">
+				<div class="landing-error-page-title"><?= implode('<br>', $errorMessages)?></div>
+				<div class="landing-error-page-img">
+					<div class="landing-error-page-img-inner"></div>
 				</div>
 			</div>
-			<?php
-		}
+		</div>
+		<?php
 	}
 }
 
@@ -82,6 +82,7 @@ $siteCurrent = isset($sites[$row['SITE_ID']['CURRENT']])
 $isSMN = $siteCurrent['TYPE'] === 'SMN';
 $isAjax = $component->isAjax();
 $availableOnlyForZoneRu = Manager::availableOnlyForZone('ru');
+$isArea = $arResult['IS_AREA'];
 
 // check if this page is folder's index
 if (
@@ -152,16 +153,25 @@ $uriSave->addParams(array(
 	'action' => 'save'
 ));
 
-// special for forms
+// Not all hooks in forms
 if ($formEditor)
 {
-	$hooks = [
-		'METAOG' => $hooks['METAOG'],
-		'YACOUNTER' => $hooks['YACOUNTER'],
-		'GACOUNTER' => $hooks['GACOUNTER'],
-		'GTM' => $hooks['GTM'],
-		'B24BUTTON' => $hooks['B24BUTTON'],
+	$formHooks = [
+		'METAOG',
+		'YACOUNTER',
+		'GACOUNTER',
+		'GTM',
+		'B24BUTTON',
 	];
+
+	foreach($hooks as $code => $hook)
+	{
+		if (!in_array($code, $formHooks))
+		{
+			unset($hooks[$code]);
+		}
+	}
+
 	$arResult['TEMPLATES'] = [];
 }
 ?>
@@ -169,16 +179,20 @@ if ($formEditor)
 <script type="text/javascript">
 	BX.ready(function()
 	{
-		top.window['landingSettingsSaved'] = false;
-		<?php if ($arParams['SUCCESS_SAVE']):?>
-		top.window['landingSettingsSaved'] = true;
-		top.BX.onCustomEvent('BX.Landing.Filter:apply');
-		const editComponent = new BX.Landing.EditComponent('<?= $template->getFieldId('ACTION_CLOSE') ?>');
-		editComponent.actionClose();
-		top.BX.Landing.UI.Tool.ActionDialog.getInstance().close();
+		<?php if ($arParams['SUCCESS_SAVE']): ?>
+			top.window['landingSettingsSaved'] = true;
+			top.BX.onCustomEvent('BX.Landing.Filter:apply');
+			const editComponent = new BX.Landing.EditComponent('<?= $template->getFieldId('ACTION_CLOSE') ?>');
+			editComponent.actionClose();
+			top.BX.Landing.UI.Tool.ActionDialog.getInstance().close();
+		<?php else: ?>
+			top.window['landingSettingsSaved'] = false;
 		<?php endif;?>
 		BX.Landing.Env.createInstance({
-			params: {type: '<?= $arParams['TYPE'] ?>'}
+ 			site_id: '<?= $row['SITE_ID']['CURRENT'] ?>',
+			params: {
+				type: '<?= $arParams['TYPE'] ?>',
+			},
 		});
 	});
 </script>
@@ -284,17 +298,45 @@ if ($arParams['SUCCESS_SAVE'])
 							<input type="<?=($isIndex || $isFolderIndex) ? 'hidden' : 'text'?>"
 								name="fields[CODE]"
 								value="<?=$row['CODE']['CURRENT']?>"
+								maxlength="100"
 								class="ui-input"/>
 							<?=($isIndex || $isFolderIndex) ? '' : '<span class="landing-form-site-name-label">/</span>'?>
 							<?php if ($isIndex): ?>
+								<?php
+								$link1 = '';
+								if ($arParams['PAGE_URL_SITE_EDIT'])
+								{
+									$link1 = $isAjax
+										? '<a data-page="SITE_EDIT" style="cursor: pointer;">'
+										: '<a href="' . $arParams['PAGE_URL_SITE_EDIT'] . '">'
+									;
+								}
+								$link2 = $link1 ? '</a>' : '';
+								?>
+								<?php if (!$formEditor): ?>
 								<div class="landing-form-field-description">
-									<?=$component->getMessageType('LANDING_TPL_CODE_SETTINGS', [
-										'#LINK1#' => $arParams['PAGE_URL_SITE_EDIT'] ? '<a href="'
-											. $arParams['PAGE_URL_SITE_EDIT']
-											. '">' : '',
-										'#LINK2#' => $arParams['PAGE_URL_SITE_EDIT'] ? '</a>' : '',
-									])?>
+									<?= $component->getMessageType('LANDING_TPL_CODE_SETTINGS', [
+										'#LINK1#' => $link1,
+										'#LINK2#' => $link2,
+									]) ?>
 								</div>
+								<?php endif; ?>
+								<?php if (!$isAjax && $arParams['PAGE_URL_SITE_EDIT']): ?>
+									<script>
+										BX.ready(function()
+										{
+											if (typeof BX.SidePanel !== 'undefined')
+											{
+												BX.SidePanel.Instance.bindAnchors({
+													rules: [{
+														condition: ['<?= str_replace(['?', '&'], ['\\\?', '\\\&'], CUtil::jsEscape($arParams['PAGE_URL_SITE_EDIT']))?>'],
+														options: { allowChangeHistory: false }
+													}]
+												});
+											}
+										});
+									</script>
+								<?php endif; ?>
 							<?php elseif ($isFolderIndex): ?>
 								<div class="landing-form-field-description">
 									<?=$component->getMessageType('LANDING_TPL_CODE_FOLDER_SETTINGS', [
@@ -458,566 +500,568 @@ if ($arParams['SUCCESS_SAVE'])
 		</div>
 
 		<!--Additional labels-->
-		<div class="landing-form-additional-fields landing-form-collapse-block landing-form-additional-fields-js">
-			<span class="landing-form-collapse-label"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL')?></span>
-			<span class="landing-additional-alt-promo-wrap">
-				<?php if (isset($hooks['B24BUTTON'])): ?>
-					<span class="landing-additional-alt-promo-text"
-						  data-landing-additional-option="b24widget"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_WIDGET')?></span>
-				<?php endif; ?>
-				<?php if (isset($hooks['METAMAIN'])): ?>
-					<span class="landing-additional-alt-promo-text"
-						data-landing-additional-option="meta"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_TAGS')?></span>
-				<?php endif; ?>
-				<?php if (isset($hooks['VIEW'])): ?>
-					<span class="landing-additional-alt-promo-text"
-						data-landing-additional-option="view"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_VIEW')?></span>
-				<?php endif; ?>
-				<?php if ($arResult['TEMPLATES']): ?>
-					<span class="landing-additional-alt-promo-text"
-						data-landing-additional-option="layout"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_LAYOUT')?></span>
-				<?php endif; ?>
-				<?php if (isset($hooks['YACOUNTER']) || isset($hooks['GACOUNTER']) || isset($hooks['GTM'])): ?>
-					<span class="landing-additional-alt-promo-text"
-						data-landing-additional-option="metrika"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_METRIKA')?></span>
-				<?php endif; ?>
-				<?php if (isset($hooks['PIXELFB']) || isset($hooks['PIXELVK'])): ?>
-					<span class="landing-additional-alt-promo-text"
-						data-landing-additional-option="pixel"><?=Loc::getMessage('LANDING_TPL_HOOK_PIXEL')?></span>
-				<?php endif; ?>
-				<?php if (isset($hooks['METAROBOTS'])): ?>
-					<span class="landing-additional-alt-promo-text"
-						data-landing-additional-option="index"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_INDEX')?></span>
-				<?php endif; ?>
-				<?php if (isset($hooks['HEADBLOCK'])): ?>
-					<span class="landing-additional-alt-promo-text"
-						data-landing-additional-option="html"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_HTML')?></span>
-				<?php endif; ?>
-				<?php if (isset($hooks['CSSBLOCK'])): ?>
-					<span class="landing-additional-alt-promo-text"
-						data-landing-additional-option="css"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_CSS')?></span>
-				<?php endif; ?>
-				<?php if (!$isIntranet && !$formEditor && !$isSMN): ?>
-					<span class="landing-additional-alt-promo-text"
-						data-landing-additional-option="sitemap"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_SITEMAP')?></span>
-				<?php endif; ?>
-			</span>
-		</div>
+		<?php if (!$isArea): ?>
+			<div class="landing-form-additional-fields landing-form-collapse-block landing-form-additional-fields-js">
+				<span class="landing-form-collapse-label"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL')?></span>
+				<span class="landing-additional-alt-promo-wrap">
+					<?php if (isset($hooks['B24BUTTON'])): ?>
+						<span class="landing-additional-alt-promo-text"
+							  data-landing-additional-option="b24widget"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_WIDGET')?></span>
+					<?php endif; ?>
+					<?php if (isset($hooks['METAMAIN'])): ?>
+						<span class="landing-additional-alt-promo-text"
+							data-landing-additional-option="meta"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_TAGS')?></span>
+					<?php endif; ?>
+					<?php if (isset($hooks['VIEW'])): ?>
+						<span class="landing-additional-alt-promo-text"
+							data-landing-additional-option="view"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_VIEW')?></span>
+					<?php endif; ?>
+					<?php if ($arResult['TEMPLATES']): ?>
+						<span class="landing-additional-alt-promo-text"
+							data-landing-additional-option="layout"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_LAYOUT')?></span>
+					<?php endif; ?>
+					<?php if (isset($hooks['YACOUNTER']) || isset($hooks['GACOUNTER']) || isset($hooks['GTM'])): ?>
+						<span class="landing-additional-alt-promo-text"
+							data-landing-additional-option="metrika"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_METRIKA')?></span>
+					<?php endif; ?>
+					<?php if (isset($hooks['PIXELFB']) || isset($hooks['PIXELVK'])): ?>
+						<span class="landing-additional-alt-promo-text"
+							data-landing-additional-option="pixel"><?=Loc::getMessage('LANDING_TPL_HOOK_PIXEL')?></span>
+					<?php endif; ?>
+					<?php if (isset($hooks['METAROBOTS'])): ?>
+						<span class="landing-additional-alt-promo-text"
+							data-landing-additional-option="index"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_INDEX')?></span>
+					<?php endif; ?>
+					<?php if (isset($hooks['HEADBLOCK'])): ?>
+						<span class="landing-additional-alt-promo-text"
+							data-landing-additional-option="html"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_HTML')?></span>
+					<?php endif; ?>
+					<?php if (isset($hooks['CSSBLOCK'])): ?>
+						<span class="landing-additional-alt-promo-text"
+							data-landing-additional-option="css"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_CSS')?></span>
+					<?php endif; ?>
+					<?php if (!$isIntranet && !$formEditor && !$isSMN): ?>
+						<span class="landing-additional-alt-promo-text"
+							data-landing-additional-option="sitemap"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_SITEMAP')?></span>
+					<?php endif; ?>
+				</span>
+			</div>
 
-		<div class="ui-form ui-form-section landing-form-additional">
-			<!--Widget-->
-			<?php if (isset($hooks['B24BUTTON'])): ?>
-				<?php $pageFields = $hooks['B24BUTTON']->getPageFields(); ?>
-				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="b24widget">
-					<div class="ui-form-label">
-						<div class="ui-ctl-label-text">
-							<?= $hooks['B24BUTTON']->getPageTitle() ?>
-						</div>
-					</div>
-					<div class="ui-form-content">
-						<div class="ui-form-row">
-							<div class="ui-form-label" data-form-row-hidden>
-								<?php $template->showField($pageFields['B24BUTTON_USE'], ['title' => true]); ?>
+			<div class="ui-form ui-form-section landing-form-additional">
+				<!--Widget-->
+				<?php if (isset($hooks['B24BUTTON'])): ?>
+					<?php $pageFields = $hooks['B24BUTTON']->getPageFields(); ?>
+					<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="b24widget">
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text">
+								<?= $hooks['B24BUTTON']->getPageTitle() ?>
 							</div>
-							<div class="ui-form-row-hidden">
-								<div class="ui-form-row landing-form-widget">
-									<?php
-									$template->showField($pageFields['B24BUTTON_CODE']);
-									?>
-									<?php if (ModuleManager::isModuleInstalled('crm')):?>
-										<a href="/crm/button/" class="landing-form-input-right" target="_blank">
-											<?= Loc::getMessage('LANDING_TPL_ACTION_SETTINGS') ?>
-										</a>
-									<?php elseif (ModuleManager::isModuleInstalled('b24connector')):?>
-										<a href="/bitrix/admin/b24connector_b24connector.php?lang=<?= LANGUAGE_ID ?>" class="landing-form-input-right" target="_blank">
-											<?= Loc::getMessage('LANDING_TPL_ACTION_SETTINGS') ?>
-										</a>
-									<?php else:?>
-										<a href="/bitrix/admin/module_admin.php?lang=<?= LANGUAGE_ID ?>" class="landing-form-input-right" target="_blank">
-											<?= Loc::getMessage('LANDING_TPL_ACTION_INSTALL_B24') ?>
-										</a>
-									<?php endif;?>
+						</div>
+						<div class="ui-form-content">
+							<div class="ui-form-row">
+								<div class="ui-form-label" data-form-row-hidden>
+									<?php $template->showField($pageFields['B24BUTTON_USE'], ['title' => true]); ?>
 								</div>
-								<div class="ui-form-label">
-									<div class="ui-ctl-label-text">
-										<?= $pageFields['B24BUTTON_COLOR']->getLabel() ?>
+								<div class="ui-form-row-hidden">
+									<div class="ui-form-row landing-form-widget">
+										<?php
+										$template->showField($pageFields['B24BUTTON_CODE']);
+										?>
+										<?php if (ModuleManager::isModuleInstalled('crm')):?>
+											<a href="/crm/button/" class="landing-form-input-right" target="_blank">
+												<?= Loc::getMessage('LANDING_TPL_ACTION_SETTINGS') ?>
+											</a>
+										<?php elseif (ModuleManager::isModuleInstalled('b24connector')):?>
+											<a href="/bitrix/admin/b24connector_b24connector.php?lang=<?= LANGUAGE_ID ?>" class="landing-form-input-right" target="_blank">
+												<?= Loc::getMessage('LANDING_TPL_ACTION_SETTINGS') ?>
+											</a>
+										<?php else:?>
+											<a href="/bitrix/admin/module_admin.php?lang=<?= LANGUAGE_ID ?>" class="landing-form-input-right" target="_blank">
+												<?= Loc::getMessage('LANDING_TPL_ACTION_INSTALL_B24') ?>
+											</a>
+										<?php endif;?>
 									</div>
-								</div>
-								<div class="ui-form-row">
-									<?php $template->showField($pageFields['B24BUTTON_COLOR'], ['additional' => 'readonly']); ?>
+									<div class="ui-form-label">
+										<div class="ui-ctl-label-text">
+											<?= $pageFields['B24BUTTON_COLOR']->getLabel() ?>
+										</div>
+									</div>
+									<div class="ui-form-row">
+										<?php $template->showField($pageFields['B24BUTTON_COLOR'], ['additional' => 'readonly']); ?>
+										<script type="text/javascript">
+											BX.ready(function() {
+												new BX.Landing.B24ButtonColor(
+													BX('<?= $template->getFieldId('B24BUTTON_COLOR') ?>'),
+													BX('<?= $template->getFieldId('B24BUTTON_COLOR_VALUE') ?>')
+												);
+											});
+										</script>
+										<div class="landing-ui-form-row-hidden">
+											<?php $template->showField($pageFields['B24BUTTON_HELP'], ['additional' => 'hidden']); ?>
+										</div>
+									</div>
+
+									<?php $template->showField($pageFields['B24BUTTON_COLOR_VALUE'], ['title' => true]); ?>
 									<script type="text/javascript">
 										BX.ready(function() {
-											new BX.Landing.B24ButtonColor(
-												BX('<?= $template->getFieldId('B24BUTTON_COLOR') ?>'),
-												BX('<?= $template->getFieldId('B24BUTTON_COLOR_VALUE') ?>')
-											);
+											new BX.Landing.ColorPicker(BX('<?= $template->getFieldId('B24BUTTON_COLOR_VALUE') ?>'));
 										});
 									</script>
-									<div class="landing-ui-form-row-hidden">
-										<?php $template->showField($pageFields['B24BUTTON_HELP'], ['additional' => 'hidden']); ?>
+								</div>
+							</div>
+						</div>
+					</div>
+				<?php endif; ?>
+
+				<!--MetaMain-->
+				<?php if (isset($hooks['METAMAIN'])): ?>
+					<?php $pageFields = $hooks['METAMAIN']->getPageFields(); ?>
+					<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="meta">
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text">
+								<?= $hooks['METAMAIN']->getTitle() ?>
+							</div>
+						</div>
+						<div class="ui-form-content">
+							<div class="ui-form-row">
+								<div class="ui-form-label" data-form-row-hidden>
+									<?php $template->showField($pageFields['METAMAIN_USE'], ['title' => true]); ?>
+								</div>
+								<div class="ui-form-row-hidden">
+									<div class="landing-form-field-description">
+										<?=$hooks['METAMAIN']->getDescription()?>
 									</div>
-								</div>
-
-								<?php $template->showField($pageFields['B24BUTTON_COLOR_VALUE'], ['title' => true]); ?>
-								<script type="text/javascript">
-									BX.ready(function() {
-										new BX.Landing.ColorPicker(BX('<?= $template->getFieldId('B24BUTTON_COLOR_VALUE') ?>'));
-									});
-								</script>
-							</div>
-						</div>
-					</div>
-				</div>
-			<?php endif; ?>
-
-			<!--MetaMain-->
-			<?php if (isset($hooks['METAMAIN'])): ?>
-				<?php $pageFields = $hooks['METAMAIN']->getPageFields(); ?>
-				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="meta">
-					<div class="ui-form-label">
-						<div class="ui-ctl-label-text">
-							<?= $hooks['METAMAIN']->getTitle() ?>
-						</div>
-					</div>
-					<div class="ui-form-content">
-						<div class="ui-form-row">
-							<div class="ui-form-label" data-form-row-hidden>
-								<?php $template->showField($pageFields['METAMAIN_USE'], ['title' => true]); ?>
-							</div>
-							<div class="ui-form-row-hidden">
-								<div class="landing-form-field-description">
-									<?=$hooks['METAMAIN']->getDescription()?>
-								</div>
-								<?php if (
-									isset($pageFields['METAMAIN_TITLE']) && isset($pageFields['METAMAIN_DESCRIPTION'])
-								):
-									if (!$pageFields['METAMAIN_TITLE']->getValue())
-									{
-										$pageFields['METAMAIN_TITLE']->setValue($meta['title']);
-									}
-									if (!$pageFields['METAMAIN_DESCRIPTION']->getValue())
-									{
-										$pageFields['METAMAIN_DESCRIPTION']->setValue($meta['description']);
-									}
-									?>
-									<script type="text/javascript">
-										BX.ready(function ()
+									<?php if (
+										isset($pageFields['METAMAIN_TITLE']) && isset($pageFields['METAMAIN_DESCRIPTION'])
+									):
+										if (!$pageFields['METAMAIN_TITLE']->getValue())
 										{
-											BX.Landing.FieldLengthLimited([
-												{
-													field: BX('<?= $template->getFieldId('METAMAIN_TITLE') ?>'),
-													node: BX('<?= $template->getFieldId('METAMAIN_TITLE_NODE') ?>'),
-													length: 75,
-												},
-												{
-													field: BX('<?= $template->getFieldId('METAMAIN_DESCRIPTION') ?>'),
-													node: BX('<?= $template->getFieldId('METAMAIN_DESCRIPTION_NODE') ?>'),
-													length: 200,
-												},
-											]);
-										});
-									</script>
-									<div class="landing-form-meta">
-										<div
-											class="landing-form-meta-title"
-											id="<?= $template->getFieldId('METAMAIN_TITLE_NODE') ?>"
-										>
-											<?=htmlspecialcharsbx($pageFields['METAMAIN_TITLE']->getValue())?>
+											$pageFields['METAMAIN_TITLE']->setValue($meta['title']);
+										}
+										if (!$pageFields['METAMAIN_DESCRIPTION']->getValue())
+										{
+											$pageFields['METAMAIN_DESCRIPTION']->setValue($meta['description']);
+										}
+										?>
+										<script type="text/javascript">
+											BX.ready(function ()
+											{
+												BX.Landing.FieldLengthLimited([
+													{
+														field: BX('<?= $template->getFieldId('METAMAIN_TITLE') ?>'),
+														node: BX('<?= $template->getFieldId('METAMAIN_TITLE_NODE') ?>'),
+														length: 75,
+													},
+													{
+														field: BX('<?= $template->getFieldId('METAMAIN_DESCRIPTION') ?>'),
+														node: BX('<?= $template->getFieldId('METAMAIN_DESCRIPTION_NODE') ?>'),
+														length: 200,
+													},
+												]);
+											});
+										</script>
+										<div class="landing-form-meta">
+											<div
+												class="landing-form-meta-title"
+												id="<?= $template->getFieldId('METAMAIN_TITLE_NODE') ?>"
+											>
+												<?=htmlspecialcharsbx($pageFields['METAMAIN_TITLE']->getValue())?>
+											</div>
+											<div class="landing-form-meta-link"><?=$domainProtocol?>://<?=$domainName?>/</div>
+											<div
+												class="landing-form-meta-text"
+												id="<?= $template->getFieldId('METAMAIN_DESCRIPTION_NODE') ?>"
+											>
+												<?=htmlspecialcharsbx($pageFields['METAMAIN_DESCRIPTION']->getValue())?>
+											</div>
 										</div>
-										<div class="landing-form-meta-link"><?=$domainProtocol?>://<?=$domainName?>/</div>
-										<div
-											class="landing-form-meta-text"
-											id="<?= $template->getFieldId('METAMAIN_DESCRIPTION_NODE') ?>"
-										>
-											<?=htmlspecialcharsbx($pageFields['METAMAIN_DESCRIPTION']->getValue())?>
-										</div>
-									</div>
-									<?php $template->showField($pageFields['METAMAIN_TITLE'], ['title' => true]);?>
-									<?php $template->showField($pageFields['METAMAIN_DESCRIPTION'], ['title' => true]);?>
+										<?php $template->showField($pageFields['METAMAIN_TITLE'], ['title' => true]);?>
+										<?php $template->showField($pageFields['METAMAIN_DESCRIPTION'], ['title' => true]);?>
 
-									<?php if (isset($pageFields['METAMAIN_KEYWORDS'])): ?>
-										<?php $template->showField($pageFields['METAMAIN_KEYWORDS'], ['title' => true]);?>
+										<?php if (isset($pageFields['METAMAIN_KEYWORDS'])): ?>
+											<?php $template->showField($pageFields['METAMAIN_KEYWORDS'], ['title' => true]);?>
+										<?php endif; ?>
 									<?php endif; ?>
-								<?php endif; ?>
+								</div>
 							</div>
 						</div>
-					</div>
-				</div data-landing-additional-detail="view">
-			<?php endif;?>
+					</div data-landing-additional-detail="view">
+				<?php endif;?>
 
-			<!--View-->
-			<?php if (isset($hooks['VIEW'])): ?>
-				<?php $pageFields = $hooks['VIEW']->getPageFields(); ?>
-				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="view">
-					<div class="ui-form-label">
-						<div class="ui-ctl-label-text">
-							<?= $hooks['VIEW']->getTitle() ?>
+				<!--View-->
+				<?php if (isset($hooks['VIEW'])): ?>
+					<?php $pageFields = $hooks['VIEW']->getPageFields(); ?>
+					<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="view">
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text">
+								<?= $hooks['VIEW']->getTitle() ?>
+							</div>
+						</div>
+						<div class="ui-form-content">
+							<div class="ui-form-row">
+								<div class="ui-form-label" data-form-row-hidden>
+									<?php $template->showField($pageFields['VIEW_USE'], ['title' => true]); ?>
+								</div>
+								<div class="ui-form-row-hidden">
+									<?php if (isset($pageFields['VIEW_TYPE'])):
+										$value = $pageFields['VIEW_TYPE']->getValue();
+										$items = $hooks['VIEW']->getItems();
+										if (!$value)
+										{
+											$array = array_keys($items);
+											$value = array_shift($array);
+										}
+										?>
+										<div class="landing-form-type-page-wrap">
+											<?php foreach ($items as $key => $title): ?>
+												<span class="landing-form-type-page landing-form-type-<?=$key?>">
+													<input type="radio" <?php
+													?>name="fields[ADDITIONAL_FIELDS][VIEW_TYPE]" <?php
+													?>class="ui-radio" <?php
+													?>id="<?= $template->getFieldId('VIEW_TYPE_' . $key) ?>" <?php
+													?><? if ($value === $key) { ?> checked="checked"<? } ?> <?php
+													?>value="<?=$key?>"/>
+													<label for="<?= $template->getFieldId('VIEW_TYPE_' . $key) ?>">
+														<span class="landing-form-type-page-img"></span>
+														<span class="landing-form-type-page-title"><?=$title?></span>
+													</label>
+												</span>
+											<?php endforeach; ?>
+										</div>
+									<?php endif; ?>
+								</div>
+							</div>
 						</div>
 					</div>
-					<div class="ui-form-content">
-						<div class="ui-form-row">
-							<div class="ui-form-label" data-form-row-hidden>
-								<?php $template->showField($pageFields['VIEW_USE'], ['title' => true]); ?>
+				<?php endif;?>
+
+				<!--Template-->
+				<?php if ($arResult['TEMPLATES']): ?>
+					<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="layout">
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text">
+								<?= Loc::getMessage('LANDING_TPL_LAYOUT') ?>
 							</div>
-							<div class="ui-form-row-hidden">
-								<?php if (isset($pageFields['VIEW_TYPE'])):
-									$value = $pageFields['VIEW_TYPE']->getValue();
-									$items = $hooks['VIEW']->getItems();
-									if (!$value)
+						</div>
+						<div class="ui-form-content">
+							<div class="ui-form-row">
+								<div class="ui-form-label" data-form-row-hidden>
+									<?php
+									$saveRefs = '';
+									$tplUsed = false;
+									if (isset($arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]))
 									{
-										$array = array_keys($items);
-										$value = array_shift($array);
+										$tplUsed = true;
+										$aCount = $arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]['AREA_COUNT'];
+										for ($i = 1; $i <= $aCount; $i++)
+										{
+											$saveRefs .= $i . ':' . (isset($tplRefs[$i]) ? $tplRefs[$i] : '0') . ',';
+										}
 									}
 									?>
-									<div class="landing-form-type-page-wrap">
-										<?php foreach ($items as $key => $title): ?>
-											<span class="landing-form-type-page landing-form-type-<?=$key?>">
-												<input type="radio" <?php
-												?>name="fields[ADDITIONAL_FIELDS][VIEW_TYPE]" <?php
-												?>class="ui-radio" <?php
-												?>id="<?= $template->getFieldId('VIEW_TYPE_' . $key) ?>" <?php
-												?><? if ($value === $key) { ?> checked="checked"<? } ?> <?php
-												?>value="<?=$key?>"/>
-												<label for="<?= $template->getFieldId('VIEW_TYPE_' . $key) ?>">
-													<span class="landing-form-type-page-img"></span>
-													<span class="landing-form-type-page-title"><?=$title?></span>
-												</label>
-											</span>
-										<?php endforeach; ?>
-									</div>
-								<?php endif; ?>
-							</div>
-						</div>
-					</div>
-				</div>
-			<?php endif;?>
-
-			<!--Template-->
-			<?php if ($arResult['TEMPLATES']): ?>
-				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="layout">
-					<div class="ui-form-label">
-						<div class="ui-ctl-label-text">
-							<?= Loc::getMessage('LANDING_TPL_LAYOUT') ?>
-						</div>
-					</div>
-					<div class="ui-form-content">
-						<div class="ui-form-row">
-							<div class="ui-form-label" data-form-row-hidden>
-								<?php
-								$saveRefs = '';
-								$tplUsed = false;
-								if (isset($arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]))
-								{
-									$tplUsed = true;
-									$aCount = $arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]['AREA_COUNT'];
-									for ($i = 1; $i <= $aCount; $i++)
-									{
-										$saveRefs .= $i . ':' . (isset($tplRefs[$i]) ? $tplRefs[$i] : '0') . ',';
-									}
-								}
-								?>
-								<input
-									type="hidden"
-									name="fields[TPL_REF]"
-									value="<?= $saveRefs ?>"
-									id="<?= $template->getFieldId('LAYOUT_TPLREFS') ?>"
-								/>
-
-								<label class="ui-ctl ui-ctl-checkbox">
 									<input
-										type="checkbox"
-										class="ui-ctl-element"
-										id="<?= $template->getFieldId('LAYOUT_TPLREFS_USE') ?>"
-										<?= $tplUsed ? ' checked ' : '' ?>
+										type="hidden"
+										name="fields[TPL_REF]"
+										value="<?= $saveRefs ?>"
+										id="<?= $template->getFieldId('LAYOUT_TPLREFS') ?>"
 									/>
-									<div class="ui-ctl-label-text" for="<?= $template->getFieldId('LAYOUT_TPLREFS_USE') ?>">
-										<?= Loc::getMessage('LANDING_TPL_LAYOUT_USE') ?>
-									</div>
-								</label>
-							</div>
-							<div
-								class="ui-form-row-hidden landing-form-page-layout"
-								id="<?= $template->getFieldId('PAGE_LAYOUT') ?>"
-							>
-								<div class="landing-form-layout-select">
-									<?php foreach (array_values($arResult['TEMPLATES']) as $i => $tpl): ?>
-										<input <?php
-											?>class="layout-switcher <?= $template->getFieldClass('LAYOUT-RADIO_' . ($i + 1)) ?>" <?php
-											?>data-layout="<?=$tpl['XML_ID']?>" <?php
-											?>type="radio" <?php
-											?>name="fields[TPL_ID]" <?php
-											?>value="<?=$tpl['ID']?>" <?php
-											?>id="<?= $template->getFieldId('LAYOUT-RADIO_' . ($i + 1)) ?>"<?php
-											?><?php if ($tpl['ID'] === $row['TPL_ID']['CURRENT']) { ?> checked="checked"<?php } ?>
-										>
-									<?php endforeach; ?>
-									<div class="landing-form-list">
-										<div class="landing-form-select-buttons">
-											<div class="landing-form-select-prev"></div>
-											<div class="landing-form-select-next"></div>
+
+									<label class="ui-ctl ui-ctl-checkbox">
+										<input
+											type="checkbox"
+											class="ui-ctl-element"
+											id="<?= $template->getFieldId('LAYOUT_TPLREFS_USE') ?>"
+											<?= $tplUsed ? ' checked ' : '' ?>
+										/>
+										<div class="ui-ctl-label-text" for="<?= $template->getFieldId('LAYOUT_TPLREFS_USE') ?>">
+											<?= Loc::getMessage('LANDING_TPL_LAYOUT_USE') ?>
 										</div>
-										<div class="landing-form-list-container">
-											<div class="landing-form-list-inner">
-												<?php foreach (array_values($arResult['TEMPLATES']) as $i => $tpl): ?>
-													<div class="landing-form-layout-item-img-container">
-														<label class="landing-form-layout-item <?
-															?>landing-form-layout-item-<?= $tpl['XML_ID'] ?>" <?php
-															?>data-block="<?= $tpl['AREA_COUNT'] ?>" <?php
-															?>data-layout="<?= $tpl['XML_ID'] ?>" <?php
-															?>for="<?= $template->getFieldId('LAYOUT-RADIO_' . ($i + 1)) ?>"
-														>
-															<div class="landing-form-layout-item-img"></div>
-														</label>
-													</div>
-												<?php endforeach; ?>
-											</div>
-										</div>
-									</div>
+									</label>
 								</div>
-								<div class="landing-form-layout-detail">
-									<div class="landing-form-layout-img-container">
+								<div
+									class="ui-form-row-hidden landing-form-page-layout"
+									id="<?= $template->getFieldId('PAGE_LAYOUT') ?>"
+								>
+									<div class="landing-form-layout-select">
 										<?php foreach (array_values($arResult['TEMPLATES']) as $i => $tpl): ?>
-											<div class="landing-form-layout-img landing-form-layout-img-<?=$tpl['XML_ID']?>"
-												data-layout="<?=$tpl['XML_ID']?>"></div>
+											<input <?php
+												?>class="layout-switcher <?= $template->getFieldClass('LAYOUT-RADIO_' . ($i + 1)) ?>" <?php
+												?>data-layout="<?=$tpl['XML_ID']?>" <?php
+												?>type="radio" <?php
+												?>name="fields[TPL_ID]" <?php
+												?>value="<?=$tpl['ID']?>" <?php
+												?>id="<?= $template->getFieldId('LAYOUT-RADIO_' . ($i + 1)) ?>"<?php
+												?><?php if ($tpl['ID'] === $row['TPL_ID']['CURRENT']) { ?> checked="checked"<?php } ?>
+											>
 										<?php endforeach; ?>
-									</div>
-									<div class="landing-form-layout-block-container"></div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<script>
-					BX.ready(function() {
-						new BX.Landing.Layout({
-							container: BX('<?= $template->getFieldId('PAGE_LAYOUT') ?>'),
-							siteId: '<?= $row['SITE_ID']['CURRENT'] ?>',
-							landingId: '<?= $row['ID']['CURRENT'] ?>',
-							type: '<?= $siteCurrent ? $siteCurrent['TYPE'] : 'PAGE' ?>',
-							tplUse: BX('<?= $template->getFieldId('LAYOUT_TPLREFS_USE') ?>'),
-							tplRefs: BX('<?= $template->getFieldId('LAYOUT_TPLREFS') ?>'),
-							messages: {
-								area: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_LAYOUT_AREA')) ?>'
-							},
-							<?php if (isset($arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']])):?>
-							areasCount: <?= $arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]['AREA_COUNT'] ?>,
-							current: '<?= $arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]['XML_ID'] ?>',
-							<?php else:?>
-							areasCount: 0,
-							current: 'empty',
-							<?php endif;?>
-						});
-					});
-				</script>
-			<?php endif;?>
-
-			<!--Analytics-->
-			<?php if (isset($hooks['YACOUNTER']) || isset($hooks['GACOUNTER']) || isset($hooks['GTM'])): ?>
-				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="metrika">
-					<div class="ui-form-label">
-						<div class="ui-ctl-label-text">
-							<?= Loc::getMessage('LANDING_TPL_HOOK_METRIKA') ?>
-						</div>
-					</div>
-					<div class="ui-form-content">
-						<?php
-						$gaCounterFields = $hooks['GACOUNTER']->getPageFields();
-						$fieldId = $template->getFieldId('GACOUNTER');
-						if (!$gaCounterFields['GACOUNTER_CLICK_TYPE']->getValue())
-						{
-							$gaCounterFields['GACOUNTER_CLICK_TYPE']->setValue('text');
-						}
-						?>
-						<div class="ui-form-row landing-form-gacounter" id="<?= $fieldId ?>">
-							<?php
-							$isLocked = $hooks['GACOUNTER']->isLocked();
-							?>
-							<div class="ui-form-label landing-form-gacounter-use-js <?= $isLocked ? ' landing-form-label__locked' : ''?>"<?= $isLocked ? '' : 'data-form-row-hidden'?>>
-								<?php $template->showField($gaCounterFields['GACOUNTER_USE'], ['title' => true]);?>
-								<?php
-								if ($isLocked)
-								{
-									echo Restriction\Manager::getLockIcon(
-										Restriction\Hook::getRestrictionCodeByHookCode('GACOUNTER'),
-										[$fieldId]
-									);
-								}
-								?>
-							</div>
-							<div class="ui-form-row-hidden">
-								<div class="ui-form-row">
-									<div class="ui-form-label">
-										<?= Loc::getMessage('LANDING_TPL_HOOK_METRIKA_COUNTER') ?>
-									</div>
-									<?php $template->showField($gaCounterFields['GACOUNTER_COUNTER']); ?>
-									<div class="ui-form-label landing-form-gacounter-send-js" data-form-row-hidden>
-										<label class="ui-ctl ui-ctl-checkbox">
-											<input type="checkbox" class="ui-ctl-element">
-											<div class="ui-ctl-label-text">
-												<?=$gaCounterFields['GACOUNTER_SEND_CLICK']->getLabel()?>
+										<div class="landing-form-list">
+											<div class="landing-form-select-buttons">
+												<div class="landing-form-select-prev"></div>
+												<div class="landing-form-select-next"></div>
 											</div>
-										</label>
+											<div class="landing-form-list-container">
+												<div class="landing-form-list-inner">
+													<?php foreach (array_values($arResult['TEMPLATES']) as $i => $tpl): ?>
+														<div class="landing-form-layout-item-img-container">
+															<label class="landing-form-layout-item <?
+																?>landing-form-layout-item-<?= $tpl['XML_ID'] ?>" <?php
+																?>data-block="<?= $tpl['AREA_COUNT'] ?>" <?php
+																?>data-layout="<?= $tpl['XML_ID'] ?>" <?php
+																?>for="<?= $template->getFieldId('LAYOUT-RADIO_' . ($i + 1)) ?>"
+															>
+																<div class="landing-form-layout-item-img"></div>
+															</label>
+														</div>
+													<?php endforeach; ?>
+												</div>
+											</div>
+										</div>
 									</div>
-									<div class="ui-form-row-hidden">
-										<?php $template->showField($gaCounterFields['GACOUNTER_CLICK_TYPE']); ?>
+									<div class="landing-form-layout-detail">
+										<div class="landing-form-layout-img-container">
+											<?php foreach (array_values($arResult['TEMPLATES']) as $i => $tpl): ?>
+												<div class="landing-form-layout-img landing-form-layout-img-<?=$tpl['XML_ID']?>"
+													data-layout="<?=$tpl['XML_ID']?>"></div>
+											<?php endforeach; ?>
+										</div>
+										<div class="landing-form-layout-block-container"></div>
 									</div>
-									<?php $template->showField($gaCounterFields['GACOUNTER_SEND_SHOW'], ['title' => true]); ?>
-								</div>
-								<div class="ui-form-row">
-									<div class="ui-form-label">
-										<?= Loc::getMessage('LANDING_TPL_HOOK_METRIKA_COUNTER_GA4') ?>
-									</div>
-									<?php $template->showField($gaCounterFields['GACOUNTER_COUNTER_GA4']); ?>
 								</div>
 							</div>
 						</div>
-						<?php
-						$template->showFieldWithToggle('GTM', ['restrictionCode' => 'GACOUNTER']);
-						if ($availableOnlyForZoneRu)
-						{
-							$template->showFieldWithToggle('YACOUNTER', ['restrictionCode' => 'GACOUNTER']);
-						}
-						?>
-						<script type="text/javascript">
-							BX.ready(function ()
-							{
-								new BX.Landing.ExternalMetrika(
-									BX('<?=$template->getFieldId('GACOUNTER_USE')?>'),
-									BX('<?=$template->getFieldId('GACOUNTER_SEND_CLICK')?>'),
-									BX('<?=$template->getFieldId('GACOUNTER_SEND_SHOW')?>')
-								);
+					</div>
+
+					<script>
+						BX.ready(function() {
+							new BX.Landing.Layout({
+								container: BX('<?= $template->getFieldId('PAGE_LAYOUT') ?>'),
+								siteId: '<?= $row['SITE_ID']['CURRENT'] ?>',
+								landingId: '<?= $row['ID']['CURRENT'] ?>',
+								type: '<?= $siteCurrent ? $siteCurrent['TYPE'] : 'PAGE' ?>',
+								tplUse: BX('<?= $template->getFieldId('LAYOUT_TPLREFS_USE') ?>'),
+								tplRefs: BX('<?= $template->getFieldId('LAYOUT_TPLREFS') ?>'),
+								messages: {
+									area: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_LAYOUT_AREA')) ?>'
+								},
+								<?php if (isset($arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']])):?>
+								areasCount: <?= $arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]['AREA_COUNT'] ?>,
+								current: '<?= $arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]['XML_ID'] ?>',
+								<?php else:?>
+								areasCount: 0,
+								current: 'empty',
+								<?php endif;?>
 							});
-						</script>
-					</div>
-				</div>
-			<?php endif;?>
+						});
+					</script>
+				<?php endif;?>
 
-			<!--Pixels-->
-			<?php if (isset($hooks['PIXELFB'], $hooks['PIXELVK'])): ?>
-				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="pixel">
-					<div class="ui-form-label">
-						<div class="ui-ctl-label-text">
-							<?= Loc::getMessage('LANDING_TPL_HOOK_PIXEL') ?>
+				<!--Analytics-->
+				<?php if (isset($hooks['YACOUNTER']) || isset($hooks['GACOUNTER']) || isset($hooks['GTM'])): ?>
+					<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="metrika">
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text">
+								<?= Loc::getMessage('LANDING_TPL_HOOK_METRIKA') ?>
+							</div>
 						</div>
-					</div>
-					<div class="ui-form-content">
-						<?php
-						$zone = '';
-						if (Loader::includeModule('bitrix24'))
-						{
-							$zone = \CBitrix24::getPortalZone();
-						}
-						elseif (
-							file_exists($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/lang/ru")
-							&& !file_exists($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/lang/ua")
-						)
-						{
-							$zone = 'ru';
-						}
-						if ($zone !== 'ru')
-						{
-							$template->showFieldWithToggle('PIXELFB');
-						}
-
-						if ($availableOnlyForZoneRu)
-						{
-							$template->showFieldWithToggle('PIXELVK');
-						}
-						?>
-					</div>
-				</div>
-			<?php endif;?>
-
-			<!--MetaRobots-->
-			<?php if (isset($hooks['METAROBOTS'])): ?>
-				<?php $pageFields = $hooks['METAROBOTS']->getPageFields(); ?>
-				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="index">
-					<div class="ui-form-label">
-						<div class="ui-ctl-label-text">
-							<?= $hooks['METAROBOTS']->getTitle() ?>
-						</div>
-					</div>
-					<div class="ui-form-content">
-						<div class="ui-form-row">
+						<div class="ui-form-content">
 							<?php
-							if (isset($pageFields['METAROBOTS_INDEX']))
+							$gaCounterFields = $hooks['GACOUNTER']->getPageFields();
+							$fieldId = $template->getFieldId('GACOUNTER');
+							if (!$gaCounterFields['GACOUNTER_CLICK_TYPE']->getValue())
 							{
-								if (!$pageFields['METAROBOTS_INDEX']->getValue())
-								{
-									$pageFields['METAROBOTS_INDEX']->setValue('Y');
-								}
-								$template->showField($pageFields['METAROBOTS_INDEX'], ['title' => true]);
-								?>
+								$gaCounterFields['GACOUNTER_CLICK_TYPE']->setValue('text');
+							}
+							?>
+							<div class="ui-form-row landing-form-gacounter" id="<?= $fieldId ?>">
 								<?php
+								$isLocked = $hooks['GACOUNTER']->isLocked();
+								?>
+								<div class="ui-form-label landing-form-gacounter-use-js <?= $isLocked ? ' landing-form-label__locked' : ''?>"<?= $isLocked ? '' : 'data-form-row-hidden'?>>
+									<?php $template->showField($gaCounterFields['GACOUNTER_USE'], ['title' => true]);?>
+									<?php
+									if ($isLocked)
+									{
+										echo Restriction\Manager::getLockIcon(
+											Restriction\Hook::getRestrictionCodeByHookCode('GACOUNTER'),
+											[$fieldId]
+										);
+									}
+									?>
+								</div>
+								<div class="ui-form-row-hidden">
+									<div class="ui-form-row">
+										<div class="ui-form-label">
+											<?= Loc::getMessage('LANDING_TPL_HOOK_METRIKA_COUNTER') ?>
+										</div>
+										<?php $template->showField($gaCounterFields['GACOUNTER_COUNTER']); ?>
+										<div class="ui-form-label landing-form-gacounter-send-js" data-form-row-hidden>
+											<label class="ui-ctl ui-ctl-checkbox">
+												<input type="checkbox" class="ui-ctl-element">
+												<div class="ui-ctl-label-text">
+													<?=$gaCounterFields['GACOUNTER_SEND_CLICK']->getLabel()?>
+												</div>
+											</label>
+										</div>
+										<div class="ui-form-row-hidden">
+											<?php $template->showField($gaCounterFields['GACOUNTER_CLICK_TYPE']); ?>
+										</div>
+										<?php $template->showField($gaCounterFields['GACOUNTER_SEND_SHOW'], ['title' => true]); ?>
+									</div>
+									<div class="ui-form-row">
+										<div class="ui-form-label">
+											<?= Loc::getMessage('LANDING_TPL_HOOK_METRIKA_COUNTER_GA4') ?>
+										</div>
+										<?php $template->showField($gaCounterFields['GACOUNTER_COUNTER_GA4']); ?>
+									</div>
+								</div>
+							</div>
+							<?php
+							$template->showFieldWithToggle('GTM', ['restrictionCode' => 'GACOUNTER']);
+							if ($availableOnlyForZoneRu)
+							{
+								$template->showFieldWithToggle('YACOUNTER', ['restrictionCode' => 'GACOUNTER']);
+							}
+							?>
+							<script type="text/javascript">
+								BX.ready(function ()
+								{
+									new BX.Landing.ExternalMetrika(
+										BX('<?=$template->getFieldId('GACOUNTER_USE')?>'),
+										BX('<?=$template->getFieldId('GACOUNTER_SEND_CLICK')?>'),
+										BX('<?=$template->getFieldId('GACOUNTER_SEND_SHOW')?>')
+									);
+								});
+							</script>
+						</div>
+					</div>
+				<?php endif;?>
+
+				<!--Pixels-->
+				<?php if (isset($hooks['PIXELFB'], $hooks['PIXELVK'])): ?>
+					<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="pixel">
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text">
+								<?= Loc::getMessage('LANDING_TPL_HOOK_PIXEL') ?>
+							</div>
+						</div>
+						<div class="ui-form-content">
+							<?php
+							$zone = '';
+							if (Loader::includeModule('bitrix24'))
+							{
+								$zone = \CBitrix24::getPortalZone();
+							}
+							elseif (
+								file_exists($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/lang/ru")
+								&& !file_exists($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/lang/ua")
+							)
+							{
+								$zone = 'ru';
+							}
+							if ($zone !== 'ru')
+							{
+								$template->showFieldWithToggle('PIXELFB');
+							}
+
+							if ($availableOnlyForZoneRu)
+							{
+								$template->showFieldWithToggle('PIXELVK');
 							}
 							?>
 						</div>
 					</div>
-				</div>
-			<?php endif;?>
+				<?php endif;?>
 
-			<!--HTML-->
-			<?php if (isset($hooks['HEADBLOCK'])): ?>
-				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="html">
-					<div class="ui-form-label">
-						<div class="ui-ctl-label-text">
-							<?= $hooks['HEADBLOCK']->getTitle() ?>
-						</div>
-					</div>
-					<div class="ui-form-content">
-						<?php $template->showFieldWithToggle('HEADBLOCK'); ?>
-					</div>
-				</div>
-			<?php endif;?>
-
-			<!--CSS-->
-			<?php if (isset($hooks['CSSBLOCK'])): ?>
-				<?php $pageFields = $hooks['CSSBLOCK']->getPageFields(); ?>
-				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="css">
-					<div class="ui-form-label">
-						<div class="ui-ctl-label-text">
-							<?= $hooks['CSSBLOCK']->getTitle() ?>
-						</div>
-					</div>
-					<div class="ui-form-content">
-						<div class="ui-form-row">
-							<div class="ui-form-label" data-form-row-hidden>
-								<?php $template->showField($pageFields['CSSBLOCK_USE'], ['title' => true]);?>
+				<!--MetaRobots-->
+				<?php if (isset($hooks['METAROBOTS'])): ?>
+					<?php $pageFields = $hooks['METAROBOTS']->getPageFields(); ?>
+					<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="index">
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text">
+								<?= $hooks['METAROBOTS']->getTitle() ?>
 							</div>
-							<div class="ui-form-row-hidden">
-								<div class="ui-form-row">
-									<?php $template->showField($pageFields['CSSBLOCK_CODE']); ?>
+						</div>
+						<div class="ui-form-content">
+							<div class="ui-form-row">
+								<?php
+								if (isset($pageFields['METAROBOTS_INDEX']))
+								{
+									if (!$pageFields['METAROBOTS_INDEX']->getValue())
+									{
+										$pageFields['METAROBOTS_INDEX']->setValue('Y');
+									}
+									$template->showField($pageFields['METAROBOTS_INDEX'], ['title' => true]);
+									?>
+									<?php
+								}
+								?>
+							</div>
+						</div>
+					</div>
+				<?php endif;?>
+
+				<!--HTML-->
+				<?php if (isset($hooks['HEADBLOCK'])): ?>
+					<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="html">
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text">
+								<?= $hooks['HEADBLOCK']->getTitle() ?>
+							</div>
+						</div>
+						<div class="ui-form-content">
+							<?php $template->showFieldWithToggle('HEADBLOCK'); ?>
+						</div>
+					</div>
+				<?php endif;?>
+
+				<!--CSS-->
+				<?php if (isset($hooks['CSSBLOCK'])): ?>
+					<?php $pageFields = $hooks['CSSBLOCK']->getPageFields(); ?>
+					<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="css">
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text">
+								<?= $hooks['CSSBLOCK']->getTitle() ?>
+							</div>
+						</div>
+						<div class="ui-form-content">
+							<div class="ui-form-row">
+								<div class="ui-form-label" data-form-row-hidden>
+									<?php $template->showField($pageFields['CSSBLOCK_USE'], ['title' => true]);?>
+								</div>
+								<div class="ui-form-row-hidden">
+									<div class="ui-form-row">
+										<?php $template->showField($pageFields['CSSBLOCK_CODE']); ?>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			<?php endif;?>
+				<?php endif;?>
 
-			<!--SITEMAP-->
-			<?php if (!$isIntranet && !$formEditor && !$isSMN): ?>
-				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="sitemap">
-					<div class="ui-form-label">
-						<div class="ui-ctl-label-text">
-							<?= $row['SITEMAP']['TITLE'] ?>
+				<!--SITEMAP-->
+				<?php if (!$isIntranet && !$formEditor && !$isSMN): ?>
+					<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="sitemap">
+						<div class="ui-form-label">
+							<div class="ui-ctl-label-text">
+								<?= $row['SITEMAP']['TITLE'] ?>
+							</div>
+						</div>
+						<div class="ui-form-content">
+							<label class="ui-ctl ui-ctl-checkbox">
+								<input type="hidden" name="fields[SITEMAP]" value="N">
+								<input type="checkbox"
+									class="ui-ctl-element ui-field-sitemap"
+									name="fields[SITEMAP]"
+									value="Y"<? if ($row['SITEMAP']['CURRENT'] == 'Y') { ?> checked="checked"<? } ?> />
+								<div class="ui-ctl-label-text" for="checkbox-sitemap">
+									<?= Loc::getMessage('LANDING_TPL_ACTION_ADD_IN_SITEMAP')?>
+								</div>
+							</label>
 						</div>
 					</div>
-					<div class="ui-form-content">
-						<label class="ui-ctl ui-ctl-checkbox">
-							<input type="hidden" name="fields[SITEMAP]" value="N">
-							<input type="checkbox"
-								class="ui-ctl-element ui-field-sitemap"
-								name="fields[SITEMAP]"
-								value="Y"<? if ($row['SITEMAP']['CURRENT'] == 'Y') { ?> checked="checked"<? } ?> />
-							<div class="ui-ctl-label-text" for="checkbox-sitemap">
-								<?= Loc::getMessage('LANDING_TPL_ACTION_ADD_IN_SITEMAP')?>
-							</div>
-						</label>
-					</div>
-				</div>
-			<?php endif;?>
-		</div>
+				<?php endif;?>
+			</div>
+		<?php endif;?>
 		<?php
 		// for complex component landing.settings not need buttons. If isAjax will be incorrect - need add other flag for landgin.settings
 		if (!$isAjax)

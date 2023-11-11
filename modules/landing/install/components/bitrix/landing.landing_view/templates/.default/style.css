@@ -36,6 +36,10 @@
 	position: relative;
 }
 
+.landing-ui-panel-top-logo a {
+	text-decoration: none!important;
+}
+
 .landing-ui-panel-top-logo-link {
 	display: flex;
 	align-items: center;

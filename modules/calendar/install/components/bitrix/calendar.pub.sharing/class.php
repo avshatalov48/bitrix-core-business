@@ -5,6 +5,7 @@ use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Main\Type\DateTime;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 {
@@ -275,8 +276,8 @@ class CalendarPubSharingComponent extends CBitrixComponent
 	{
 		$date = new \Bitrix\Main\Type\Date();
 		$arrayKey = $date->format('n') . '.' . $date->format('Y');
-		$monthStart = strtotime('first day of this month 00:00:00');
-		$monthEnd = strtotime('last day of this month 23:59:59');
+		$monthStart = CCalendar::TimestampUTC('first day of this month 00:00:00');
+		$monthEnd = CCalendar::TimestampUTC('last day of this month 23:59:59');
 
 		$result = (new Sharing\SharingAccessibilityManager([
 			'userId' => $userId,

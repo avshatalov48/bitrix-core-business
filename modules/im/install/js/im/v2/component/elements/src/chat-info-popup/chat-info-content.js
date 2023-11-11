@@ -39,6 +39,15 @@ export const ChatInfoContent = {
 		{
 			return this.dialog?.type === DialogType.user;
 		},
+		isBot(): boolean
+		{
+			if (this.isUser)
+			{
+				return this.user.bot;
+			}
+
+			return false;
+		},
 		isChat()
 		{
 			return !this.isUser;
@@ -123,7 +132,7 @@ export const ChatInfoContent = {
 						@click="onOpenChat"
 					/>
 					<Button
-						v-if="isUser"
+						v-if="isUser && !isBot"
 						:size="ButtonSize.M"
 						:color="ButtonColor.PrimaryBorder"
 						:isRounded="true"

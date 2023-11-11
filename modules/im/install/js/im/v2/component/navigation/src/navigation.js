@@ -1,13 +1,13 @@
 import { Type } from 'main.core';
 import { hint } from 'ui.vue3.directives.hint';
 import { MessageBox, MessageBoxButtons } from 'ui.dialogs.messagebox';
-import { Monitor } from 'timeman.monitor';
 
 import { Logger } from 'im.v2.lib.logger';
 import { MessengerSlider } from 'im.v2.lib.slider';
 import { CallManager } from 'im.v2.lib.call';
 import { Layout } from 'im.v2.const';
-import { DesktopManager } from 'im.v2.lib.desktop';
+import { DesktopApi } from 'im.v2.lib.desktop-api';
+import { PhoneManager } from 'im.v2.lib.phone';
 
 import { UserSettings } from './components/user-settings';
 import { MarketApps } from './components/market-apps';
@@ -49,7 +49,7 @@ export const MessengerNavigation = {
 				{
 					id: Layout.chat.name,
 					text: this.prepareNavigationText('IM_NAVIGATION_CHATS'),
-					counter: this.formatCounter(this.$store.getters['recent/getTotalCounter']),
+					counter: this.formatCounter(this.$store.getters['recent/getTotalChatCounter']),
 					active: true,
 				},
 				{
@@ -59,24 +59,28 @@ export const MessengerNavigation = {
 					active: true,
 				},
 				{
-					id: Layout.openline.name,
+					id: Layout.openlines.name,
 					text: this.prepareNavigationText('IM_NAVIGATION_OPENLINES'),
-					counter: 0,
-					active: false,
-				},
-				{
-					id: Layout.call.name,
-					text: this.prepareNavigationText('IM_NAVIGATION_CALLS'),
-					counter: 0,
-					active: false,
-				},
-				{
-					id: 'settings',
-					text: this.prepareNavigationText('IM_NAVIGATION_SETTINGS'),
-					counter: 0,
-					active: false,
+					counter: this.formatCounter(this.$store.getters['recent/getTotalLinesCounter']),
+					active: true,
 				},
 			];
+
+			if (PhoneManager.getInstance().canCall())
+			{
+				menuItems.push({
+					id: Layout.call.name,
+					text: this.prepareNavigationText('IM_NAVIGATION_CALLS'),
+					active: true,
+					clickHandler: this.onCallClick,
+				});
+			}
+
+			menuItems.push({
+				id: Layout.settings.name,
+				text: this.prepareNavigationText('IM_NAVIGATION_SETTINGS'),
+				active: true,
+			});
 
 			if (this.isTimeManagerActive())
 			{
@@ -91,9 +95,9 @@ export const MessengerNavigation = {
 
 			return menuItems;
 		},
-		isDesktop(): boolean
+		showCloseIcon(): boolean
 		{
-			return DesktopManager.isDesktop();
+			return !DesktopApi.isChatTab();
 		},
 	},
 	created()
@@ -116,7 +120,7 @@ export const MessengerNavigation = {
 
 			if (Type.isFunction(item.clickHandler))
 			{
-				item.clickHandler();
+				item.clickHandler(event.target);
 
 				return;
 			}
@@ -230,13 +234,25 @@ export const MessengerNavigation = {
 				behavior: 'smooth',
 			});
 		},
+		onCallClick(clickTarget: HTMLElement)
+		{
+			const MENU_ITEM_CLASS = 'bx-im-navigation__item';
+			const KEYPAD_OFFSET_TOP = -30;
+			const KEYPAD_OFFSET_LEFT = 64;
+
+			PhoneManager.getInstance().openKeyPad({
+				bindElement: clickTarget.closest(`.${MENU_ITEM_CLASS}`),
+				offsetTop: KEYPAD_OFFSET_TOP,
+				offsetLeft: KEYPAD_OFFSET_LEFT,
+			});
+		},
 		isTimeManagerActive(): boolean
 		{
-			return Boolean(Monitor?.isEnabled());
+			return Boolean(BX.Timeman?.Monitor?.isEnabled());
 		},
-		onTimeManagerClick()
+		async onTimeManagerClick()
 		{
-			Monitor?.openReport();
+			BX.Timeman?.Monitor?.openReport();
 		},
 	},
 	template: `
@@ -245,7 +261,7 @@ export const MessengerNavigation = {
 				<div class="bx-im-navigation__scroll-button" @click="onClickScrollUp"></div>
 			</div>
 			<div class="bx-im-navigation__top" @scroll="onScroll" ref="navigation">
-				<template v-if="!isDesktop">
+				<template v-if="showCloseIcon">
 					<!-- Close -->
 					<div class="bx-im-navigation__close_container" @click="closeSlider">
 						<div class="bx-im-navigation__close"></div>

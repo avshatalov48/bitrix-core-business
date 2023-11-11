@@ -8,7 +8,8 @@ export class ConditionGroup
 	static CONDITION_TYPE = {
 		Field: 'field',
 		Mixed: 'mixed',
-	}
+	};
+
 	static JOINER = {
 		And: 'AND',
 		Or: 'OR',
@@ -21,8 +22,8 @@ export class ConditionGroup
 			}
 
 			return Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_AND');
-		}
-	}
+		},
+	};
 
 	#type: string;
 	#items: Array<[Condition, string]>;
@@ -35,27 +36,29 @@ export class ConditionGroup
 
 		if (Type.isPlainObject(params))
 		{
-			if (params['type'])
+			if (params.type)
 			{
-				this.#type = params['type'];
+				this.#type = params.type;
 			}
-			if (Type.isArray(params['items']))
+
+			if (Type.isArray(params.items))
 			{
-				params['items'].forEach(item => {
+				params.items.forEach((item) => {
 					const condition = new Condition(item[0], this);
 					this.addItem(condition, item[1]);
 				});
 			}
-			if (Type.isPlainObject(params['activityNames']))
+
+			if (Type.isPlainObject(params.activityNames))
 			{
-				this.#activityNames = params['activityNames'];
+				this.#activityNames = params.activityNames;
 			}
 		}
 	}
 
 	clone()
 	{
-		const clonedGroup = new ConditionGroup({type: this.#type});
+		const clonedGroup = new ConditionGroup({ type: this.#type });
 		this.#items.forEach(([condition, joiner]) => {
 			const clonedCondition = condition.clone();
 			clonedCondition.parentGroup = clonedGroup;
@@ -122,11 +125,11 @@ export class ConditionGroup
 				condition.setField(formFields[prefix + 'field'][i]);
 				condition.setOperator(formFields[prefix + 'operator'][i]);
 
-				const value =
+				const value = (
 					condition.operator === Operator.BETWEEN
 						? [formFields[prefix + 'value'][valueIndex], formFields[prefix + 'value'][valueIndex + 1]]
 						: formFields[prefix + 'value'][valueIndex]
-				;
+				);
 				condition.setValue(value);
 
 				let joiner = ConditionGroup.JOINER.And;
@@ -161,7 +164,7 @@ export class ConditionGroup
 	{
 		const itemsArray = [];
 
-		this.#items.forEach(item => {
+		this.#items.forEach((item) => {
 			if (item.field !== '')
 			{
 				itemsArray.push([item[0].serialize(), item[1]]);

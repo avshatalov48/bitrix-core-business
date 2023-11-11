@@ -25,7 +25,17 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => ['background', 'block-default-background-overlay'],
+			'type' => [
+				'display',
+				'background',
+				'background-attachment',
+				'background-size',
+				'padding-top',
+				'padding-bottom',
+				'padding-left',
+				'padding-right',
+				'margin-top',
+			],
 		),
 		'nodes' => array(),
 	),

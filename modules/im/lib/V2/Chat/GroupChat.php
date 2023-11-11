@@ -74,8 +74,8 @@ class GroupChat extends Chat implements PopupDataAggregatable
 			return $result->addErrors($paramsResult->getErrors());
 		}
 
-		$chat = new GroupChat($params);
-		$chat->setExtranet($chat->checkIsExtranet());
+		$chat = new static($params);
+		$chat->setExtranet($chat->checkIsExtranet())->setContext($context);
 		$chat->save();
 
 		if (!$chat->getChatId())
@@ -83,62 +83,26 @@ class GroupChat extends Chat implements PopupDataAggregatable
 			return $result->addError(new ChatError(ChatError::CREATION_ERROR));
 		}
 
+		$chat->addUsersToRelation([$chat->getAuthorId()], $params['MANAGERS'] ?? [], false);
 		$chat->sendGreetingMessage($this->getContext()->getUserId());
+		$chat->sendBanner($this->getContext()->getUserId());
 
-		if ($chat->getUserIds())
-		{
-			$chat->sendBanner($this->getContext()->getUserId());
-		}
+		$usersToInvite = $chat->filterUsersToAdd($chat->getUserIds());
+		$addedUsers = $usersToInvite;
+		$addedUsers[$chat->getAuthorId()] = $chat->getAuthorId();
 
-		if (!$chat->getUserIds())
-		{
-			$chat->sendBanner($this->getContext()->getUserId());
-		}
-
-		foreach ($chat->getUserIds() as $userId)
-		{
-			if ($chat->getAuthorId() == $userId)
-			{
-				$isManager = 'Y';
-			}
-			else
-			{
-				$isManager = in_array($userId, $params['MANAGERS']) ? 'Y' : 'N';
-			}
-
-			RelationTable::add([
-				'CHAT_ID' => $chat->getChatId(),
-				'MESSAGE_TYPE' => \IM_MESSAGE_CHAT,
-				'USER_ID' => $userId,
-				'STATUS' => \IM_STATUS_READ,
-				'MANAGER' => $isManager,
-			]);
-
-			if (\Bitrix\Im\V2\Entity\User\User::getInstance($userId)->isBot())
-			{
-				\Bitrix\Im\Bot::changeChatMembers($chat->getChatId(), $userId);
-				\Bitrix\Im\Bot::onJoinChat('chat' . $chat->getChatId(), [
-					'CHAT_TYPE' => $chat->getType(),
-					'MESSAGE_TYPE' => \IM_MESSAGE_CHAT,
-					'BOT_ID' => $userId,
-					'USER_ID' => $params['USER_ID'],
-					'CHAT_AUTHOR_ID' => $chat->getAuthorId(),
-					'CHAT_ENTITY_TYPE' => $chat->getEntityType(),
-					'CHAT_ENTITY_ID' => $chat->getEntityId(),
-					'ACCESS_HISTORY' => true,
-				]);
-			}
-		}
-
-		$chat->sendInviteMessage($this->getContext()->getUserId());
+		$chat->addUsersToRelation($usersToInvite, $params['MANAGERS'] ?? [], false);
+		$chat->sendMessageUsersAdd($usersToInvite);
+		$chat->sendEventUsersAdd($addedUsers);
 		$chat->sendDescriptionMessage();
-
-		$chat->updateIndex();
+		$chat->addIndex();
 
 		$result->setResult([
 			'CHAT_ID' => $chat->getChatId(),
 			'CHAT' => $chat,
 		]);
+
+		self::cleanCache($chat->getChatId());
 
 		return $result;
 	}
@@ -211,7 +175,10 @@ class GroupChat extends Chat implements PopupDataAggregatable
 			$params['OWNER_ID'] = $this->getContext()->getUserId();
 		}
 
-		$params['USERS'] = array_unique(array_merge($params['USERS'], [$params['AUTHOR_ID']]));
+		$params['MANAGERS'] ??= [];
+		$params['MANAGERS'] = array_unique(array_merge($params['MANAGERS'], [$params['AUTHOR_ID']]));
+
+		$params['USERS'] = array_unique(array_merge($params['USERS'], $params['MANAGERS']));
 		$params['USER_COUNT'] = count($params['USERS']);
 
 		if (
@@ -244,6 +211,11 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		}
 
 		return $result->setResult($params);
+	}
+
+	protected function addUsersToRelation(array $usersToAdd, array $managerIds = [], ?bool $hideHistory = null)
+	{
+		parent::addUsersToRelation($usersToAdd, $managerIds, $hideHistory ?? \CIMSettings::GetStartChatMessage() == \CIMSettings::START_MESSAGE_LAST);
 	}
 
 	public function checkTitle(): Result

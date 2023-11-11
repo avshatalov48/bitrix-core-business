@@ -33,11 +33,11 @@ export default class Server
 		this.#controller = Type.isStringFilled(options.controller) ? options.controller : null;
 		this.#controllerOptions = Type.isPlainObject(options.controllerOptions) ? options.controllerOptions : null;
 
-		const chunkSize: number =
+		const chunkSize: number = (
 			Type.isNumber(options.chunkSize) && options.chunkSize > 0
 				? options.chunkSize
 				: this.getDefaultChunkSize()
-		;
+		);
 
 		this.#chunkSize = options.forceChunkSize === true ? chunkSize : this.#calcChunkSize(chunkSize);
 
@@ -58,7 +58,7 @@ export default class Server
 				fn = Runtime.getClass(options[controllerClass]);
 				if (!Type.isFunction(fn))
 				{
-					throw new Error(`Uploader.Server: "${controllerClass}" must be a function.`);
+					throw new TypeError(`Uploader.Server: "${controllerClass}" must be a function.`);
 				}
 			}
 			else if (Type.isFunction(options[controllerClass]))
@@ -66,31 +66,33 @@ export default class Server
 				fn = options[controllerClass];
 			}
 
-			if (controllerClass === 'uploadControllerClass')
+			switch (controllerClass)
 			{
-				this.#uploadControllerClass = fn;
-			}
-			else if (controllerClass === 'loadControllerClass')
-			{
-				this.#loadControllerClass = fn;
-			}
-			else if (controllerClass === 'removeControllerClass')
-			{
-				this.#removeControllerClass = fn;
+				case 'uploadControllerClass':
+					this.#uploadControllerClass = fn;
+					break;
+				case 'loadControllerClass':
+					this.#loadControllerClass = fn;
+					break;
+				case 'removeControllerClass':
+					this.#removeControllerClass = fn;
+					break;
+				default:
+					// No default
 			}
 		});
 
-		this.#loadControllerOptions =
+		this.#loadControllerOptions = (
 			Type.isPlainObject(options.loadControllerOptions) ? options.loadControllerOptions : {}
-		;
+		);
 
-		this.#uploadControllerOptions =
+		this.#uploadControllerOptions = (
 			Type.isPlainObject(options.uploadControllerOptions) ? options.uploadControllerOptions : {}
-		;
+		);
 
-		this.#removeControllerOptions =
+		this.#removeControllerOptions = (
 			Type.isPlainObject(options.removeControllerOptions) ? options.removeControllerOptions : {}
-		;
+		);
 	}
 
 	createUploadController(): ?UploadController
@@ -100,14 +102,15 @@ export default class Server
 			const controller: AbstractUploadController = new this.#uploadControllerClass(this, this.#uploadControllerOptions);
 			if (!(controller instanceof AbstractUploadController))
 			{
-				throw new Error(
+				throw new TypeError(
 					'Uploader.Server: "uploadControllerClass" must be an instance of AbstractUploadController.',
 				);
 			}
 
 			return controller;
 		}
-		else if (Type.isStringFilled(this.#controller))
+
+		if (Type.isStringFilled(this.#controller))
 		{
 			return new UploadController(this, this.#uploadControllerOptions);
 		}
@@ -122,7 +125,7 @@ export default class Server
 			const controller: AbstractLoadController = new this.#loadControllerClass(this, this.#loadControllerOptions);
 			if (!(controller instanceof AbstractLoadController))
 			{
-				throw new Error(
+				throw new TypeError(
 					'Uploader.Server: "loadControllerClass" must be an instance of AbstractLoadController.',
 				);
 			}
@@ -155,14 +158,15 @@ export default class Server
 			const controller: AbstractRemoveController = new this.#removeControllerClass(this, this.#removeControllerOptions);
 			if (!(controller instanceof AbstractRemoveController))
 			{
-				throw new Error(
+				throw new TypeError(
 					'Uploader.Server: "removeControllerClass" must be an instance of AbstractRemoveController.',
 				);
 			}
 
 			return controller;
 		}
-		else if (Type.isStringFilled(this.#controller))
+
+		if (Type.isStringFilled(this.#controller))
 		{
 			return new RemoveController(this, this.#removeControllerOptions);
 		}

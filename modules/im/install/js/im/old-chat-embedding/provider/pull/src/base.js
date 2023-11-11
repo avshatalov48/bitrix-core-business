@@ -34,12 +34,11 @@ export class BasePullHandler
 
 	handleMessageAdd(params, extra)
 	{
-		Logger.warn('handleMessageAdd', params);
-
 		if (params.lines)
 		{
 			return false;
 		}
+		Logger.warn('handleMessageAdd', params);
 
 		if (params?.chat[params.chatId])
 		{

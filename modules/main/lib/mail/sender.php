@@ -92,6 +92,7 @@ class Sender
 				'protocol' => $smtpConfig['protocol'],
 				'login' => $smtpConfig['login'],
 				'password' => $smtpConfig['password'],
+				'isOauth' => $smtpConfig['isOauth'] ?? false,
 			));
 
 			if ($smtpConfig->canCheck())
@@ -255,7 +256,13 @@ class Sender
 					'protocol' => $config['protocol'],
 					'login' => $config['login'],
 					'password' => $config['password'],
+					'isOauth' => $config['isOauth'],
 				));
+				if ($config->getIsOauth() && \CModule::includeModule('mail'))
+				{
+					$token = \Bitrix\Mail\Helper\OAuth::getTokenByMeta($config->getPassword());
+					$config->setPassword($token);
+				}
 			}
 
 			$smtp[$email] = $config;
@@ -526,6 +533,7 @@ class Sender
 					$mailboxes[$userId][$key] = array(
 						'name'  => $mailboxName,
 						'email' => $mailbox['EMAIL'],
+						'showEditHint' => true,
 					);
 				}
 			}

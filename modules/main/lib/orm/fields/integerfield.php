@@ -18,6 +18,47 @@ use Bitrix\Main\DB\SqlExpression;
  */
 class IntegerField extends ScalarField
 {
+	/** @var int */
+	protected $size = 4;
+
+	/**
+	 * IntegerField constructor.
+	 *
+	 * @param       $name
+	 * @param array $parameters deprecated, use configure* and add* methods instead
+	 *
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	function __construct($name, $parameters = array())
+	{
+		parent::__construct($name, $parameters);
+
+		if(isset($parameters['size']) && intval($parameters['size']) > 0)
+		{
+			$this->size = intval($parameters['size']);
+		}
+	}
+
+	/**
+	 * @param $size
+	 *
+	 * @return $this
+	 */
+	public function configureSize($size)
+	{
+		$this->size = (int)$size;
+		return $this;
+	}
+
+	/**
+	 * Returns the size of the field in a database (in bits).
+	 * @return int
+	 */
+	public function getSize()
+	{
+		return $this->size;
+	}
+
 	/**
 	 * @param mixed $value
 	 *
@@ -72,7 +113,7 @@ class IntegerField extends ScalarField
 	 */
 	public function getGetterTypeHint()
 	{
-		return '\\int';
+		return $this->getNullableTypeHint('\\int');
 	}
 
 	/**
@@ -80,6 +121,6 @@ class IntegerField extends ScalarField
 	 */
 	public function getSetterTypeHint()
 	{
-		return '\\int';
+		return $this->getNullableTypeHint('\\int');
 	}
 }

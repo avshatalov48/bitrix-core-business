@@ -9,6 +9,9 @@ use Bitrix\Calendar\PushTable;
 use Bitrix\Main\Loader;
 use Bitrix\Calendar\Internals;
 
+/**
+ * @deprecated Old API
+ */
 final class GoogleApiPush
 {
 	private const RENEW_LIMIT = 5;
@@ -399,7 +402,7 @@ final class GoogleApiPush
 				$error
 			);
 	}
-
+	
 	/**
 	 * Stop all push channels agent
 	 * Recommended interval - 60 sec. Response from google not required
@@ -408,23 +411,9 @@ final class GoogleApiPush
 	 */
 	public static function clearPushChannels()
 	{
-		$hasRows = false;
-
-		$result = PushTable::getList(['limit' => self::CLEAR_LIMIT]);
-		while ($row = $result->fetch())
-		{
-			$hasRows = true;
-			self::stopChannel($row);
-		}
-
-		if ($hasRows)
-		{
-			return false;
-		}
-
 		return null;
 	}
-
+	
 	/**
 	 * @param $channelId
 	 * @param $resourceId
@@ -432,38 +421,9 @@ final class GoogleApiPush
 	 */
 	public static function receivePushSignal($channelId, $resourceId)
 	{
-		$pushDb = PushTable::getList([
-			'filter' => [
-				'=CHANNEL_ID' => $channelId,
-				'=RESOURCE_ID' => $resourceId
-			],
-		]);
-		$push = $pushDb->fetch();
-
-		if ($push['NOT_PROCESSED'] === \Bitrix\Calendar\Sync\Google\Dictionary::PUSH_STATUS_PROCESS['block'])
-		{
-			self::setUnprocessedPush($push['ENTITY_TYPE'], (int)$push['ENTITY_ID']);
-
-			return;
-		}
-
-		if ($push['NOT_PROCESSED'] === \Bitrix\Calendar\Sync\Google\Dictionary::PUSH_STATUS_PROCESS['unprocessed'])
-		{
-			return;
-		}
-
-		if ($push)
-		{
-			self::processIncomingPush($push['ENTITY_TYPE'], (int)$push['ENTITY_ID']);
-		}
-		elseif ($channelOwner = GoogleApiSync::getChannelOwner($channelId))
-		{
-			// stop channel if we can't find it in the push table
-			$googleApiConnection = new GoogleApiSync($channelOwner);
-			$googleApiConnection->stopChannel($channelId, $resourceId);
-		}
+		return;
 	}
-
+	
 
 	/**
 	 * Handles incoming push for entity - runs synchronization for connection or for section
@@ -490,7 +450,7 @@ final class GoogleApiPush
 					return;
 				}
 
-				$tokens = \CCalendarSync::syncCalendarEvents($section);
+				$tokens = [];
 				if (!empty($tokens))
 				{
 					if (empty($tokens['nextSyncToken']))
@@ -526,7 +486,7 @@ final class GoogleApiPush
 					return;
 				}
 
-				\CCalendarSync::syncConnection($connection);
+//				\CCalendarSync::syncConnection($connection);
 				\CCalendar::clearCache();
 			}
 		}

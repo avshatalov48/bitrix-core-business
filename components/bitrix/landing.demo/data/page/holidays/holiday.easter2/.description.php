@@ -330,7 +330,7 @@ return [
 						<div class="text-uppercase text-center g-mx-30">
 							<h4 class="landing-block-node-card-subtitle g-font-weight-700 g-font-size-12 g-color-white-opacity-0_7 g-mb-15">From
 								chef</h4>
-							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">tasty kuliches<br /></h2>
+							<h2 class="landing-block-node-card-title js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">tasty kuliches<br /></h2>
 						</div>
 
 						<div class="landing-block-node-card-text g-px-70--md g-color-white-opacity-0_7 g-mb-25 js-animation fadeIn">

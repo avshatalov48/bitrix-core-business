@@ -48,6 +48,29 @@ class Hook
 	];
 
 	/**
+	 * Hook codes which have visual effect
+	 */
+	const HOOKS_CODES_DESIGN = [
+		'BACKGROUND_USE',
+		'BACKGROUND_PICTURE',
+		'BACKGROUND_POSITION',
+		'BACKGROUND_COLOR',
+		'FONTS_CODE',
+		'THEME_CODE',
+		'THEME_USE',
+		'THEME_COLOR',
+		'THEMEFONTS_USE',
+		'THEMEFONTS_CODE_H',
+		'THEMEFONTS_CODE',
+		'THEMEFONTS_SIZE',
+		'THEMEFONTS_COLOR',
+		'THEMEFONTS_COLOR_H',
+		'THEMEFONTS_LINE_HEIGHT',
+		'THEMEFONTS_FONT_WEIGHT',
+		'THEMEFONTS_FONT_WEIGHT_H',
+	];
+
+	/**
 	 * Get classes from dir.
 	 * @param string $dir Relative dir.
 	 * @return array

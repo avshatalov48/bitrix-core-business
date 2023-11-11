@@ -1,19 +1,29 @@
+.bx-im-attach-rich__scope {
+	--im-attach-rich__font-color_name: #11a9d9;
+	--im-attach-rich__font-color_desc: #828b95;
+}
+
+.bx-im-attach-rich__container {
+	max-width: 560px;
+}
+
 .bx-im-attach-rich__image {
 	cursor: pointer;
+	padding-top: 2px;
 }
 
 .bx-im-attach-rich__block {
-	background: #fff;
-	border-radius: 10px;
-	border: 1px solid #e8e8e8;
 	overflow: hidden;
-	margin-top: 4px;
+	position: relative;
 }
+
 .bx-im-attach-rich__name {
+	font: var(--im-font-size-sm)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-attach-rich__font-color_name);
 	cursor: pointer;
-    color: #000000;
-    padding: 5px 10px;
-    font-weight: bold;
+	max-width: calc(100% - 25px);
+	padding-bottom: 2px;
 }
 
 .bx-im-attach-rich__name:hover {
@@ -21,5 +31,22 @@
 }
 
 .bx-im-attach-rich__desc {
-	padding: 0 10px 10px;
+	font: var(--im-font-size-sm)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-attach-rich__font-color_desc);
+	padding-bottom: 2px;
+}
+
+.bx-im-attach-rich__hide-icon {
+	background: url('./images/hide-icon.svg') no-repeat center;
+	width: 18px;
+	height: 18px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	cursor: pointer;
+	border: none;
+}
+
+.bx-im-attach-rich__hide-icon:hover {
+	background: url('./images/hide-icon-hover.svg') no-repeat center;
 }

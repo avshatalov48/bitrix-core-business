@@ -46,7 +46,7 @@ return [
 			],
 			'style' => [
 				'#wrapper' => [
-					0 => 'landing-block container landing-semantic-background-color g-bg-white l-d-xs-none l-d-md-none landing-block-node-navbar g-pt-6',
+					0 => 'landing-block container g-bg-white l-d-xs-none l-d-md-none landing-block-node-navbar g-pt-6',
 				],
 			],
 		]

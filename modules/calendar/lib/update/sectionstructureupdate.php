@@ -23,17 +23,15 @@ final class SectionStructureUpdate extends Stepper
 	{
 		global $DB;
 		$BATCH_SIZE = 1000;
-		if (Loader::includeModule("calendar")
-			&& Option::get('calendar', 'sectionStructureConverted', 'N') === 'Y')
+		if (
+			Loader::includeModule("calendar")
+			&& Option::get('calendar', 'sectionStructureConverted', 'N') === 'Y'
+		)
 		{
 			return self::FINISH_EXECUTION;
 		}
 
 		$status = $this->loadCurrentStatus();
-		if ($status['finished'])
-		{
-			return self::FINISH_EXECUTION;
-		}
 
 		$newStatus = array(
 			'count' => $status['count'],
@@ -44,27 +42,32 @@ final class SectionStructureUpdate extends Stepper
 
 		if (!$status['finished'])
 		{
-			$r = $DB->Query('select ID from b_calendar_event where SECTION_ID is null order by id asc limit 1;', false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$r = $DB->Query('SELECT ID FROM b_calendar_event 
+          		WHERE SECTION_ID IS NULL ORDER BY ID ASC limit 1;',
+				false,
+				"File: ".__FILE__."<br>Line: ".__LINE__
+			);
 
 			if ($entry = $r->Fetch())
 			{
 				$newStatus['lastEventId'] = $entry['ID'];
 				if ((int)$status['lastEventId'] === (int)$newStatus['lastEventId'])
 				{
+					Option::set('calendar', 'sectionStructureConverted', 'Y');
+					Option::delete('calendar', ['name' => 'sectionStructureUpdaterStatus']);
+
 					return self::FINISH_EXECUTION;
 				}
-				else
-				{
-					$DB->Query('UPDATE b_calendar_event CE
-						INNER JOIN b_calendar_event_sect CES ON CE.ID = CES.EVENT_ID
-						SET CE.SECTION_ID = CES.SECT_ID
-						WHERE CE.SECTION_ID is null and CE.ID < '.(intval($entry['ID']) + $BATCH_SIZE),
-						false,
-						"File: ".__FILE__."<br>Line: ".__LINE__
-					);
-				}
 
-				$newStatus['steps'] = $newStatus['count'] - self::getTotalCount();
+				$DB->Query('UPDATE b_calendar_event CE
+					INNER JOIN b_calendar_event_sect CES ON CE.ID = CES.EVENT_ID
+					SET CE.SECTION_ID = CES.SECT_ID
+					WHERE CE.SECTION_ID is null and CE.ID < '.((int)$entry['ID'] + $BATCH_SIZE),
+					false,
+					"File: ".__FILE__."<br>Line: ".__LINE__
+				);
+
+				$newStatus['steps'] = $newStatus['count'] - $this->getTotalCount();
 
 				Option::set('calendar', 'sectionStructureUpdaterStatus', serialize($newStatus));
 				$result = array(
@@ -93,7 +96,7 @@ final class SectionStructureUpdate extends Stepper
 		if (empty($status))
 		{
 			$status = [
-				'count' => self::getTotalCount(),
+				'count' => $this->getTotalCount(),
 				'steps' => 0,
 				'lastEventId' => 0,
 				'finished' => false
@@ -107,7 +110,7 @@ final class SectionStructureUpdate extends Stepper
 	{
 		global $DB;
 		$count = 0;
-		$res = $DB->Query('select count(*) as c  from b_calendar_event where SECTION_ID is null', false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query('SELECT count(*) AS c FROM b_calendar_event WHERE SECTION_ID is null', false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		if($res = $res->Fetch())
 		{
 			$count = intval($res['c']);

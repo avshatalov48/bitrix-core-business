@@ -13,7 +13,7 @@ return [
 						<div class="landing-block-node-card-contact-icon-container g-color-gray-light-v1">
 							<i class="landing-block-node-card-contact-icon fa fa-home g-pr-5"></i>
 						</div>
-						<div class="landing-block-node-card-contact-text landing-semantic-text-medium g-color-gray-light-v1">
+						<div class="landing-block-node-card-contact-text g-color-gray-light-v1">
 							Address: <span style="font-weight: bold;">In sed lectus tincidunt</span>
 						</div>
 					</div>',
@@ -33,8 +33,8 @@ return [
 							<i class="landing-block-node-card-contact-icon fa fa-envelope g-pr-5"></i>
 						</div>
 						<div>
-							<span class="landing-block-node-card-contact-text landing-semantic-text-medium g-color-gray-light-v1">Email: </span>
-							<a class="landing-block-node-card-contact-link landing-semantic-link-medium g-color-gray-light-v1 g-font-weight-700" href="mailto:info@company24.com" target="_blank">info@company24.com</a>
+							<span class="landing-block-node-card-contact-text g-color-gray-light-v1">Email: </span>
+							<a class="landing-block-node-card-contact-link g-color-gray-light-v1 g-font-weight-700" href="mailto:info@company24.com" target="_blank">info@company24.com</a>
 						</div>
 					</div>',
 		'values' => [

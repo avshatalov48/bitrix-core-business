@@ -19,8 +19,11 @@ $MESS["IM_TEXTAREA_EMOJI_CATEGORY_FREQUENTLY"] = "Часто используе�
 $MESS["IM_TEXTAREA_EDIT_MESSAGE_TITLE"] = "Редактировать сообщение";
 
 $MESS["IM_TEXTAREA_CREATE_AND_SEND_FILE"] = "Создать и отправить файл";
-$MESS["IM_TEXTAREA_SELECT_FROM_BITRIX24_DISK"] = "Выбрать на Диске";
-$MESS["IM_TEXTAREA_SELECT_FROM_COMPUTER"] = "Выбрать на компьютере";
+
+$MESS["IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO"] = "Фото или видео";
+$MESS["IM_TEXTAREA_SELECT_FILE"] = "Файл";
+$MESS["IM_TEXTAREA_SELECT_FILE_FROM_DISK"] = "Мой Диск";
+
 $MESS["IM_TEXTAREA_CREATE_DOCUMENT"] = "Документ";
 $MESS["IM_TEXTAREA_CREATE_PRESENTATION"] = "Презентация";
 $MESS["IM_TEXTAREA_CREATE_SPREADSHEET"] = "Таблица";
@@ -53,3 +56,8 @@ $MESS["IM_TEXTAREA_GIPHY_EMPTY_STATE"] = "По вашему запросу ни�
 $MESS["IM_TEXTAREA_GIPHY_UNAVAILABLE_STATE"] = "Интеграция с Giphy недоступна";
 $MESS["IM_TEXTAREA_GIPHY_MORE"] = "Подробнее";
 $MESS["IM_TEXTAREA_GIPHY_INPUT_PLACEHOLDER"] = "Поиск по Giphy.com";
+
+$MESS["IM_TEXTAREA_REPLY_AUDIO_TITLE"] = "Аудио";
+$MESS["IM_TEXTAREA_REPLY_DELETED_TITLE"] = "Сообщение удалено";
+
+$MESS["IM_TEXTAREA_MENTION_EMPTY_STATE"] = "Ничего не нашлось";

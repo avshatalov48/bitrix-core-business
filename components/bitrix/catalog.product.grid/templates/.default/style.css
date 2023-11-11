@@ -1,0 +1,14 @@
+.element-field-grid-section-cell
+{
+	white-space: nowrap;
+}
+.element-field-grid-section-cell .ui-icon
+{
+	--ui-icon-size: 16px;
+	vertical-align: middle;
+}
+.element-field-grid-section-cell-name
+{
+	padding-left: 10px;
+	white-space: nowrap;
+}

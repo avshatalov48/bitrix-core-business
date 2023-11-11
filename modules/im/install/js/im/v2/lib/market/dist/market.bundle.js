@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,marketplace,ui_vue3_vuex,main_core,im_v2_application_core,im_v2_const) {
+(function (exports,marketplace,ui_vue3_vuex,main_core,im_v2_application_core,im_v2_lib_logger,im_v2_const) {
 	'use strict';
 
 	var _loadLink = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadLink");
@@ -121,20 +121,25 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return dialogType === im_v2_const.DialogType.crm;
 	}
 
+	var _instance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("instance");
 	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _marketService = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("marketService");
 	var _availabilityManager = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("availabilityManager");
+	var _init = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("init");
 	class MarketManager {
 	  static getInstance() {
-	    if (!this.instance) {
-	      this.instance = new this();
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance] = new this();
 	    }
-	    return this.instance;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance];
 	  }
-	  static init(marketApps) {
-	    MarketManager.getInstance().init(marketApps);
+	  static init() {
+	    MarketManager.getInstance();
 	  }
 	  constructor() {
+	    Object.defineProperty(this, _init, {
+	      value: _init2
+	    });
 	    Object.defineProperty(this, _store, {
 	      writable: true,
 	      value: void 0
@@ -150,14 +155,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
 	    babelHelpers.classPrivateFieldLooseBase(this, _marketService)[_marketService] = new MarketService();
 	    babelHelpers.classPrivateFieldLooseBase(this, _availabilityManager)[_availabilityManager] = new AvailabilityManager();
-	  }
-	  init(marketApps) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('market/set', marketApps);
-	    babelHelpers.classPrivateFieldLooseBase(this, _marketService)[_marketService].setLoadLink(marketApps.links.load);
+	    const {
+	      marketApps: _marketApps
+	    } = im_v2_application_core.Core.getApplicationData();
+	    im_v2_lib_logger.Logger.warn('MarketManager: marketApps', _marketApps);
+	    babelHelpers.classPrivateFieldLooseBase(this, _init)[_init](_marketApps);
 	  }
 	  getAvailablePlacementsByType(placementType, dialogId = '') {
 	    const placements = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['market/getByPlacement'](placementType);
-	    const dialogType = dialogId ? babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['dialogues/get'](dialogId).type : '';
+	    const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['dialogues/get'](dialogId);
+	    const dialogType = dialog ? dialog.type : '';
 	    return babelHelpers.classPrivateFieldLooseBase(this, _availabilityManager)[_availabilityManager].getAvailablePlacements(placements, dialogType);
 	  }
 	  loadPlacement(id, context = {}) {
@@ -184,8 +191,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    BX.SidePanel.Instance.open(`/market/?placement=${marketplaceImPlacementCode}`);
 	  }
 	}
+	function _init2(marketApps) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('market/set', marketApps);
+	  babelHelpers.classPrivateFieldLooseBase(this, _marketService)[_marketService].setLoadLink(marketApps.links.load);
+	}
+	Object.defineProperty(MarketManager, _instance, {
+	  writable: true,
+	  value: void 0
+	});
 
 	exports.MarketManager = MarketManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Vue3.Vuex,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Vue3.Vuex,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=market.bundle.js.map

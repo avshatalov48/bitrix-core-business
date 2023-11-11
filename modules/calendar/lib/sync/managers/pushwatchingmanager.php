@@ -245,7 +245,7 @@ class PushWatchingManager
 		{
 			$vendorPushManager->deletePush($pushChannel);
 			$result = $vendorPushManager->addSectionPush($sectionLink);
-			if ($result->isSuccess())
+			if ($result->isSuccess() && !empty($result->getData()))
 			{
 				$data = $result->getData();
 				$pushChannel

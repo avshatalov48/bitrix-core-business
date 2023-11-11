@@ -11,7 +11,7 @@ class Text extends \Bitrix\Landing\Node
 	 */
 	public static function getHandlerJS()
 	{
-		return 'BX.Landing.Block.Node.Text';
+		return 'BX.Landing.Node.Text';
 	}
 
 	/**

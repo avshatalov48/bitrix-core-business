@@ -4,6 +4,7 @@ import {BaseEvent} from 'main.core.events';
 import {Dom, Tag, Type, Loc, Text} from 'main.core';
 import {Image as ImageField} from 'landing.ui.field.image';
 import {Backend} from 'landing.backend';
+import {Env} from 'landing.env';
 import {PageObject} from 'landing.pageobject';
 import BaseControl from "../base_control/base_control";
 import BgImageValue from '../../bg_image_value';
@@ -33,6 +34,7 @@ export default class Image extends BaseControl
 			disableLink: true,
 			disableAltField: true,
 			allowClear: true,
+			allowAiImage: Env.getInstance().getOptions()['allow_ai_image'],
 			dimensions: {width: 1920},
 			uploadParams: {
 				action: "Block::uploadFile",

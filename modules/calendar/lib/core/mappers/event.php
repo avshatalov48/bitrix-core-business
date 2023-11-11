@@ -247,13 +247,12 @@ class Event extends Mapper
 			'ORIGINAL_DATE_FROM' => $this->prepareOriginalDateFrom($event),
 			'DESCRIPTION'        => $event->getDescription(),
 			'ACCESSIBILITY'      => $event->getAccessibility(),
-			'PRIVATE_EVENT'      => $event->isPrivate(), // TODO: add converter
-			'IMPORTANCE'         => $event->getImportance(), // TODO: add converter
+			'PRIVATE_EVENT'      => $event->isPrivate(),
+			'IMPORTANCE'         => $event->getImportance(),
 			'OWNER_ID'           => $event->getOwner() ? $event->getOwner()->getId() : null,
 			'CREATED_BY'         => $event->getOwner() ? $event->getOwner()->getId() : null,
 			'CAL_TYPE'           => $event->getCalendarType(),
 			'EVENT_TYPE'         => $event->getSpecialLabel(),
-			'DATE_CREATE'        => $event->getDateCreate() ? (string) $event->getDateCreate() : (string)new Core\Base\Date(),
 			'LOCATION'           => $event->getLocation() ? $event->getLocation()->getActualLocation() : '',
 			'REMIND'             => ($event->getRemindCollection() && $event->getRemindCollection()->count())
 				? $this->prepareReminders($event->getRemindCollection(), $event->getStart())
@@ -269,7 +268,9 @@ class Event extends Mapper
 			'MEETING_STATUS'     => $event->getMeetingStatus(),
 			'MEETING_HOST'       => $event->getEventHost() ? $event->getEventHost()->getId() : null,
 			'MEETING'            => $event->getMeetingDescription() ? $event->getMeetingDescription()->getFields() : null,
-			'ATTENDEES_CODES'    => $event->getAttendeesCollection()->getFields()['attendeesCodesCollection'],
+			'ATTENDEES_CODES'    => $event->getAttendeesCollection()
+				? $event->getAttendeesCollection()->getFields()['attendeesCodesCollection']
+				: null,
 			'SECTIONS' 			 => $event->getSection() ? [$event->getSection()->getId()] : null,
 			'SECTION_ID'         => $event->getSection() ? $event->getSection()->getId() : null,
 			'RELATIONS' 		 => $event->getRelations() ? $event->getRelations()->getFields() : null,
@@ -287,11 +288,12 @@ class Event extends Mapper
 	 */
 	protected function getOneEntityByFilter(array $filter): ?object
 	{
-		if ($eventData = EventTable::query()
-			->setFilter($filter)
-			->setSelect(['*'])
-			->fetchObject()
-		)
+		$eventData = EventTable::query()
+		   ->setFilter($filter)
+		   ->setSelect(['*'])
+		   ->fetchObject();
+
+		if ($eventData)
 		{
 			return $this->convertToObject($eventData);
 		}

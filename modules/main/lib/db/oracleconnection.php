@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\DB;
 
 use Bitrix\Main\ArgumentException;
@@ -20,9 +21,6 @@ class OracleConnection extends Connection
 	 * SqlHelper
 	 **********************************************************/
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function createSqlHelper()
 	{
 		return new OracleSqlHelper($this);
@@ -85,15 +83,13 @@ class OracleConnection extends Connection
 	{
 		$this->connectInternal();
 
-		if ($trackerQuery != null)
-			$trackerQuery->startQuery($sql, $binds);
+		$trackerQuery?->startQuery($sql, $binds);
 
 		$result = oci_parse($this->resource, $sql);
 
 		if (!$result)
 		{
-			if ($trackerQuery != null)
-				$trackerQuery->finishQuery();
+			$trackerQuery?->finishQuery();
 
 			throw new SqlQueryException("", $this->getErrorMessage($this->resource), $sql);
 		}
@@ -108,17 +104,14 @@ class OracleConnection extends Connection
 			$executionMode = OCI_DEFAULT;
 			foreach ($binds as $key => $val)
 			{
-				$clob[$key] = oci_new_descriptor($this->resource, OCI_DTYPE_LOB);
+				$clob[$key] = oci_new_descriptor($this->resource);
 				oci_bind_by_name($result, ":".$key, $clob[$key], -1, OCI_B_CLOB);
 			}
 		}
 
 		if (!oci_execute($result, $executionMode))
 		{
-			if ($trackerQuery != null)
-			{
-				$trackerQuery->finishQuery();
-			}
+			$trackerQuery?->finishQuery();
 
 			throw new SqlQueryException("", $this->getErrorMessage($result), $sql);
 		}
@@ -131,7 +124,7 @@ class OracleConnection extends Connection
 				{
 					if($clob[$key])
 					{
-						$clob[$key]->save($binds[$key]);
+						$clob[$key]->save($val);
 					}
 				}
 			}
@@ -150,10 +143,7 @@ class OracleConnection extends Connection
 			}
 		}
 
-		if ($trackerQuery != null)
-		{
-			$trackerQuery->finishQuery();
-		}
+		$trackerQuery?->finishQuery();
 
 		$this->lastQueryResult = $result;
 
@@ -517,7 +507,7 @@ class OracleConnection extends Connection
 	 * </ul>
 	 *
 	 * @return string
-	 * @see \Bitrix\Main\DB\Connection::getType
+	 * @see Connection::getType
 	 */
 	public function getType()
 	{
@@ -547,7 +537,7 @@ class OracleConnection extends Connection
 	/**
 	 * @inheritDoc
 	 */
-	protected function getErrorMessage($resource = null)
+	public function getErrorMessage($resource = null)
 	{
 		if ($resource)
 			$error = oci_error($resource);

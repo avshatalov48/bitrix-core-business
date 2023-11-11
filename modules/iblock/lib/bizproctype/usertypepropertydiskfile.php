@@ -87,6 +87,11 @@ if (Loader::requireModule('bizproc'))
 			return $value;
 		}
 
+		public static function convertValueMultiple(FieldType $fieldType, $value, $toTypeClass)
+		{
+			return array_values(parent::convertValueMultiple($fieldType, $value, $toTypeClass));
+		}
+
 		/**
 		 * Return conversion map for current type.
 		 * @return array Map.

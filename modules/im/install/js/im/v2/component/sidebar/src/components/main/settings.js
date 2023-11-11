@@ -1,31 +1,33 @@
-import {hint} from 'ui.vue3.directives.hint';
+import { hint } from 'ui.vue3.directives.hint';
 
-import {Core} from 'im.v2.application.core';
-import {Toggle, ToggleSize} from 'im.v2.component.elements';
-import {ImModelDialog} from 'im.v2.model';
-import {ChatService} from 'im.v2.provider.service';
+import { Core } from 'im.v2.application.core';
+import { Toggle, ToggleSize } from 'im.v2.component.elements';
+import { ImModelDialog } from 'im.v2.model';
+import { ChatActionType } from 'im.v2.const';
+import { ChatService } from 'im.v2.provider.service';
+import { PermissionManager } from 'im.v2.lib.permission';
 
 import '../../css/main/settings.css';
 
 // @vue/component
 export const Settings = {
 	name: 'MainPreviewSettings',
-	directives: {hint},
-	components: {Toggle},
+	directives: { hint },
+	components: { Toggle },
 	props:
 	{
 		isLoading: {
 			type: Boolean,
-			default: false
+			default: false,
 		},
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		isModerator: {
 			type: Boolean,
-			default: false
-		}
+			default: false,
+		},
 	},
 	data() {
 		return {
@@ -45,15 +47,15 @@ export const Settings = {
 		},
 		canBeMuted(): boolean
 		{
-			return this.$store.getters['dialogues/canMute'](this.dialogId);
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.mute, this.dialogId);
 		},
 		isChatMuted(): boolean
 		{
-			const isMuted = this.dialog.muteList.find(element => {
+			const isMuted = this.dialog.muteList.find((element) => {
 				return element === Core.getUserId();
 			});
 
-			return !!isMuted;
+			return Boolean(isMuted);
 		},
 		hintMuteNotAvailable(): ?Object
 		{
@@ -70,9 +72,9 @@ export const Settings = {
 					offsetLeft: 141,
 					offsetTop: -10,
 					bindOptions: {
-						position: 'top'
-					}
-				}
+						position: 'top',
+					},
+				},
 			};
 		},
 		hintAutoDeleteNotAvailable()
@@ -81,19 +83,19 @@ export const Settings = {
 				text: this.$Bitrix.Loc.getMessage('IM_MESSENGER_NOT_AVAILABLE'),
 				popupOptions: {
 					bindOptions: {
-						position: 'top'
+						position: 'top',
 					},
 					angle: true,
 					targetContainer: document.body,
 					offsetLeft: 125,
-					offsetTop: -10
-				}
+					offsetTop: -10,
+				},
 			};
 		},
 		chatTypeClass(): string
 		{
 			return this.isGroupChat ? '--group-chat' : '--personal';
-		}
+		},
 	},
 	methods:
 	{
@@ -134,7 +136,7 @@ export const Settings = {
 			>
 				<div class="bx-im-sidebar-main-settings__notification-title">
 					<div class="bx-im-sidebar-main-settings__title-text bx-im-sidebar-main-settings__title-icon --notification">
-						{{ $Bitrix.Loc.getMessage('IM_SIDEBAR_ENABLE_NOTIFICATION_TITLE') }}
+						{{ $Bitrix.Loc.getMessage('IM_SIDEBAR_ENABLE_NOTIFICATION_TITLE_2') }}
 					</div>
 					<Toggle :size="ToggleSize.M" :isEnabled="!isChatMuted" @change="muteActionHandler" />
 				</div>
@@ -151,5 +153,5 @@ export const Settings = {
 				</div>
 			</div>
 		</div>
-	`
+	`,
 };

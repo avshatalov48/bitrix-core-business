@@ -32,7 +32,7 @@ return [
 			'type' => 'button',
 		],
 		'.landing-block-node-button-container' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_TEXT_AND_BUTTON_NODES_LANDINGBLOCKNODEBUTTON'),
+			'name' => Loc::getMessage('LANDING_BLOCK_13_1_BUTTON_AREA'),
 			'type' => 'text-align',
 		],
 		'.landing-block-node-container' => [

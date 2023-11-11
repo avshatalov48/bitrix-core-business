@@ -1,0 +1,26 @@
+.bx-im-settings-checkbox__container {
+	height: 19px;
+}
+
+.bx-im-settings-checkbox__container .ui-ctl {
+	min-height: 19px;
+}
+
+.bx-im-settings-checkbox__container label.ui-ctl {
+	width: 100%;
+}
+
+.bx-im-settings-checkbox__container .ui-ctl-checkbox {
+	margin-bottom: 0;
+	cursor: pointer;
+}
+
+.bx-im-settings-checkbox__container .ui-ctl-label-text {
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	color: var(--im-settings-section_content__font-color_label);
+}
+
+.bx-im-settings-checkbox__container .bx-im-settings-radio__label {
+	display: flex;
+	flex-direction: column;
+}

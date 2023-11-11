@@ -1,0 +1,3 @@
+<?php
+$MESS["IM_LIB_CALL_ADD_BUTTON"] = "Add";
+$MESS["IM_LIB_CALL_CANCEL_BUTTON"] = "Cancel";

@@ -2,25 +2,28 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,main_core_events,ui_vue3_vuex,im_v2_application_core,im_v2_lib_desktop,im_v2_const) {
+(function (exports,main_core,main_core_events,ui_vue3_vuex,im_v2_application_core,im_v2_lib_desktop,im_v2_lib_logger,im_v2_const) {
 	'use strict';
 
+	var _instance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("instance");
 	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
+	var _init = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("init");
 	var _prepareChatCounters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareChatCounters");
 	var _subscribeToCountersChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeToCountersChange");
 	var _sendNotificationCounterChangeEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendNotificationCounterChangeEvent");
 	var _sendChatCounterChangeEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendChatCounterChangeEvent");
+	var _sendLinesCounterChangeEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendLinesCounterChangeEvent");
 	var _onTotalCounterChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onTotalCounterChange");
 	var _updateBrowserTitleCounter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateBrowserTitleCounter");
 	class CounterManager {
 	  static getInstance() {
-	    if (!this.instance) {
-	      this.instance = new this();
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance] = new this();
 	    }
-	    return this.instance;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance];
 	  }
-	  static init(counters) {
-	    CounterManager.getInstance().init(counters);
+	  static init() {
+	    CounterManager.getInstance();
 	  }
 	  constructor() {
 	    Object.defineProperty(this, _updateBrowserTitleCounter, {
@@ -28,6 +31,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    Object.defineProperty(this, _onTotalCounterChange, {
 	      value: _onTotalCounterChange2
+	    });
+	    Object.defineProperty(this, _sendLinesCounterChangeEvent, {
+	      value: _sendLinesCounterChangeEvent2
 	    });
 	    Object.defineProperty(this, _sendChatCounterChangeEvent, {
 	      value: _sendChatCounterChangeEvent2
@@ -41,17 +47,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _prepareChatCounters, {
 	      value: _prepareChatCounters2
 	    });
+	    Object.defineProperty(this, _init, {
+	      value: _init2
+	    });
 	    Object.defineProperty(this, _store, {
 	      writable: true,
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
-	  }
-	  init(counters) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/setUnloadedChatCounters', babelHelpers.classPrivateFieldLooseBase(this, _prepareChatCounters)[_prepareChatCounters](counters));
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('notifications/setCounter', counters['TYPE']['NOTIFY']);
-	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeToCountersChange)[_subscribeToCountersChange]();
-	    babelHelpers.classPrivateFieldLooseBase(this, _sendNotificationCounterChangeEvent)[_sendNotificationCounterChangeEvent](counters['TYPE']['NOTIFY']);
+	    const {
+	      counters: _counters
+	    } = im_v2_application_core.Core.getApplicationData();
+	    im_v2_lib_logger.Logger.warn('CounterManager: counters', _counters);
+	    babelHelpers.classPrivateFieldLooseBase(this, _init)[_init](_counters);
 	  }
 	  removeBrowserTitleCounter() {
 	    const regexp = /^(?<counterWithWhitespace>\(\d+\)\s).*/;
@@ -63,11 +71,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    document.title = document.title.slice(counterPrefixLength);
 	  }
 	}
+	function _init2(counters) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/setUnloadedChatCounters', babelHelpers.classPrivateFieldLooseBase(this, _prepareChatCounters)[_prepareChatCounters](counters));
+	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/setUnloadedLinesCounters', counters.LINES);
+	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('notifications/setCounter', counters.TYPE.NOTIFY);
+	  babelHelpers.classPrivateFieldLooseBase(this, _subscribeToCountersChange)[_subscribeToCountersChange]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _sendNotificationCounterChangeEvent)[_sendNotificationCounterChangeEvent](counters.TYPE.NOTIFY);
+	  babelHelpers.classPrivateFieldLooseBase(this, _sendLinesCounterChangeEvent)[_sendLinesCounterChangeEvent](counters.TYPE.LINES);
+	}
 	function _prepareChatCounters2(counters) {
-	  const chatCounters = main_core.Type.isArray(counters['CHAT']) ? {} : counters['CHAT'];
-	  const markedChats = counters['CHAT_UNREAD'];
+	  const chatCounters = main_core.Type.isArray(counters.CHAT) ? {} : counters.CHAT;
+	  const markedChats = counters.CHAT_UNREAD;
 	  markedChats.forEach(markedChatId => {
-	    const unreadChatHasCounter = !!chatCounters[markedChatId];
+	    const unreadChatHasCounter = Boolean(chatCounters[markedChatId]);
 	    if (unreadChatHasCounter) {
 	      return;
 	    }
@@ -84,6 +100,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _sendChatCounterChangeEvent)[_sendChatCounterChangeEvent](newValue);
 	    babelHelpers.classPrivateFieldLooseBase(this, _onTotalCounterChange)[_onTotalCounterChange]();
 	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].watch(linesCounterWatch, newValue => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _sendLinesCounterChangeEvent)[_sendLinesCounterChangeEvent](newValue);
+	    babelHelpers.classPrivateFieldLooseBase(this, _onTotalCounterChange)[_onTotalCounterChange]();
+	  });
 	}
 	function _sendNotificationCounterChangeEvent2(notificationsCounter) {
 	  const event = new main_core_events.BaseEvent({
@@ -97,10 +117,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  });
 	  main_core_events.EventEmitter.emit(window, im_v2_const.EventType.counter.onChatCounterChange, event);
 	}
+	function _sendLinesCounterChangeEvent2(linesCounter) {
+	  const LINES_TYPE = 'LINES';
+	  const event = new main_core_events.BaseEvent({
+	    compatData: [linesCounter, LINES_TYPE]
+	  });
+	  main_core_events.EventEmitter.emit(window, im_v2_const.EventType.counter.onLinesCounterChange, event);
+	}
 	function _onTotalCounterChange2() {
 	  const notificationCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['notifications/getCounter'];
-	  const chatCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/getTotalCounter'];
-	  const totalCounter = notificationCounter + chatCounter;
+	  const chatCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/getTotalChatCounter'];
+	  const linesCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/getTotalLinesCounter'];
+	  const totalCounter = notificationCounter + chatCounter + linesCounter;
 	  if (im_v2_lib_desktop.DesktopManager.getInstance().isDesktopActive()) {
 	    return;
 	  }
@@ -119,14 +147,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    document.title = `(${newCounter}) ${document.title}`;
 	  }
 	}
+	Object.defineProperty(CounterManager, _instance, {
+	  writable: true,
+	  value: void 0
+	});
 	const notificationCounterWatch = (state, getters) => {
 	  return getters['notifications/getCounter'];
 	};
 	const chatCounterWatch = (state, getters) => {
-	  return getters['recent/getTotalCounter'];
+	  return getters['recent/getTotalChatCounter'];
+	};
+	const linesCounterWatch = (state, getters) => {
+	  return getters['recent/getTotalLinesCounter'];
 	};
 
 	exports.CounterManager = CounterManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Vue3.Vuex,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Vue3.Vuex,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=counter.bundle.js.map

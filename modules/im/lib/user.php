@@ -639,6 +639,10 @@ class User
 			$tempPath =  \CFile::GetTempName('', $hash.'.'.$matches[1]);
 
 			$http = new \Bitrix\Main\Web\HttpClient();
+			$http
+				->setTimeout(10)
+				->setStreamTimeout(10);
+
 			if (!defined('BOT_CLIENT_URL'))
 			{
 				$http->setPrivateIp(false);
@@ -1273,5 +1277,14 @@ class User
 		}
 
 		return \CUser::FormatName(self::$formatNameTemplate, $fields, true, false);
+	}
+
+	public static function setInstance($userId, $instance)
+	{
+		$c = __CLASS__;
+		if ($instance instanceof $c)
+		{
+			self::$instance[$userId] = $instance;
+		}
 	}
 }

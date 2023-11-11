@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Landing\Rights;
+use Bitrix\Landing\TemplateRef;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -71,6 +72,12 @@ class LandingSettingsComponent extends LandingBaseComponent
 				!$this->arParams['LANDING_ID']
 				&& in_array($code, self::PAGES_FOR_LANDING, true)
 			)
+			{
+				continue;
+			}
+
+			$isAreaPage = TemplateRef::landingIsArea($this->arParams['LANDING_ID']);
+			if ($isAreaPage && $code === self::PAGE_LANDING_DESIGN)
 			{
 				continue;
 			}
@@ -175,7 +182,6 @@ class LandingSettingsComponent extends LandingBaseComponent
 			&& $this->getSpecialTypeSiteByLanding($landing) === 'crm_forms'
 		)
 		{
-			unset($this->arResult['ITEMS'][self::PAGE_SITE_EDIT]);
 			unset($this->arResult['ITEMS'][self::PAGE_SITE_DESIGN]);
 		}
 	}

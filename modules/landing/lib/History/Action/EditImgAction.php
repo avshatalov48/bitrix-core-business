@@ -4,6 +4,7 @@ namespace Bitrix\Landing\History\Action;
 
 use Bitrix\Landing\Block;
 use Bitrix\Landing\Node;
+use Bitrix\Main\Web\Json;
 
 class EditImgAction extends BaseAction
 {
@@ -81,7 +82,12 @@ class EditImgAction extends BaseAction
 		$params['params']['value'] =
 			$undo
 				? $params['params']['valueBefore']
-				: $params['params']['valueAfter'];
+				: $params['params']['valueAfter']
+		;
+		if (isset($params['params']['value']['url']))
+		{
+			$params['params']['value']['url'] = Json::decode($params['params']['value']['url']);
+		}
 
 		unset(
 			$params['params']['valueAfter'],

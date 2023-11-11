@@ -141,8 +141,14 @@ else
 				if (!$hasAccessCreate)
 				{
 					?>
-					<span class="ui-btn ui-btn-success ui-btn-round ui-btn-disabled" data-hint="<?= Loc::getMessage('LANDING_TPL_HEADER_RIGHT_CREATE_HINT_MSGVER_1') ?>" data-hint-no-icon>
-						<?php if ($arParams['SITE_ID'] !== 0) : ?>
+					<span
+						class="ui-btn ui-btn-success ui-btn-round ui-btn-disabled"
+						data-hint="<?= Loc::getMessage('LANDING_TPL_HEADER_RIGHT_CREATE_HINT_MSGVER_1') ?>"
+						data-hint-no-icon
+					>
+						<?php if(isset($arParams['REPLACE_LID']) && $arParams['REPLACE_LID'] !== 0) : ?>
+							<?=Loc::getMessage('LANDING_TPL_BUTTON_REPLACE_PAGE') ?>
+						<?php elseif ($arParams['SITE_ID'] !== 0) : ?>
 							<?=Loc::getMessage('LANDING_TPL_BUTTON_CREATE_PAGE') ?>
 						<?php else : ?>
 							<?=Loc::getMessage('LANDING_TPL_BUTTON_CREATE_SITE') ?>
@@ -178,12 +184,28 @@ else
 				</span>
 					<?php
 				}
+				elseif (isset($arParams['REPLACE_LID']) && $arParams['REPLACE_LID'] !== 0)
+				{
+					?>
+					<a
+						href="<?= $uriSelect->getUri() ?>"
+						class="ui-btn ui-btn-success ui-btn-round landing-template-preview-create"
+						title="<?= Loc::getMessage('LANDING_TPL_BUTTON_REPLACE_PAGE') ?>"
+						data-slider-ignore-autobinding="true"
+					>
+						<?= Loc::getMessage('LANDING_TPL_BUTTON_REPLACE_PAGE') ?>
+					</a>
+					<?php
+				}
 				elseif ($arParams['SITE_ID'] !== 0)
 				{
 					?>
-					<a href="<?= $uriSelect->getUri() ?>" class="ui-btn ui-btn-success ui-btn-round landing-template-preview-create"
-					   title="<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE_PAGE') ?>"
-					   data-slider-ignore-autobinding="true">
+					<a
+						href="<?= $uriSelect->getUri() ?>"
+						class="ui-btn ui-btn-success ui-btn-round landing-template-preview-create"
+						title="<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE_PAGE') ?>"
+						data-slider-ignore-autobinding="true"
+					>
 						<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE_PAGE') ?>
 					</a>
 					<?php
@@ -392,6 +414,7 @@ else
 		disableStoreRedirect: <?= ($arParams['DISABLE_REDIRECT'] === 'Y') ? 'true' : 'false' ?>,
 		zipInstallPath: '<?= ($template['ZIP_ID'] ?? null) ? Url::getConfigurationImportZipUrl($template['ZIP_ID']) : '' ?>',
 		siteId: <?= ($arParams['SITE_ID'] > 0) ? $arParams['SITE_ID'] : 0 ?>,
+		replaceLid: <?= $arParams['REPLACE_LID'] ?? 0 ?>,
 		langId: "<?= is_string($arParams['LANG_ID']) ? $arParams['LANG_ID'] : ''?>",
 		folderId: <?= ($arResult['FOLDER_ID'] ?? 0 && $arResult['FOLDER_ID'] > 0) ? $arResult['FOLDER_ID'] : 0 ?>,
 		adminSection: <?= $arParams['ADMIN_SECTION'] === 'Y' ? 'true' : 'false'?>,

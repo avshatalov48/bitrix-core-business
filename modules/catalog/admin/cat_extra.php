@@ -47,6 +47,13 @@ $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $by = mb_strtoupper($oSort->getField());
 $order = mb_strtoupper($oSort->getOrder());
+$listOrder = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$listOrder['ID'] = 'ASC';
+}
 
 $arFilter = array();
 
@@ -100,9 +107,10 @@ if ($lAdmin->EditAction() && !$bReadOnly)
 	}
 }
 
-if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
+$arID = $lAdmin->GroupAction();
+if (!$bReadOnly && !empty($arID) && is_array($arID))
 {
-	if ($_REQUEST['action_target']=='selected')
+	if ($lAdmin->IsGroupActionToAll())
 	{
 		$arID = array();
 		$dbResultList = CExtra::GetList(array(), $arFilter, false, false, array('ID'));
@@ -110,12 +118,13 @@ if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 			$arID[] = $arResult['ID'];
 	}
 
+	$action = $lAdmin->GetAction();
 	foreach ($arID as $ID)
 	{
 		if ($ID == '')
 			continue;
 
-		switch ($_REQUEST['action'])
+		switch ($action)
 		{
 			case "delete":
 				@set_time_limit(0);
@@ -180,10 +189,8 @@ $lAdmin->AddHeaders($arHeaders);
 
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
-global $by, $order;
-
 $dbResultList = CExtra::GetList(
-	array($by => $order),
+	$listOrder,
 	$arFilter,
 	false,
 	false

@@ -20,7 +20,7 @@ const createWorker = (fn: Function) => {
 		terminate: (): void => {
 			worker.terminate();
 			URL.revokeObjectURL(workerURL);
-		}
+		},
 	};
 };
 

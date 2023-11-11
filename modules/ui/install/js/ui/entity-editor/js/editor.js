@@ -138,7 +138,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			var container = BX.prop.get(this._settings, "container");
 			if(!BX.type.isElementNode(container))
 			{
-				container = BX(BX.prop.get(this._settings, "containerId"));
+				container = BX(BX.prop.get(this._settings, "containerId")) || top.BX(BX.prop.get(this._settings, "containerId"));
 			}
 			this._container = container;
 
@@ -1635,9 +1635,11 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		{
 			if(mode === BX.UI.EntityEditorMode.edit)
 			{
-				this._pageTitle.style.display = "none";
 
-				if(this._buttonWrapper)
+				this._pageTitle.style.display = "none";
+				document.body.classList.add('--edit__title-input');
+
+				if (this._buttonWrapper)
 				{
 					this._buttonWrapper.style.display = "none";
 				}
@@ -2610,38 +2612,52 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				}
 			}
 
-			var redirectUrl = BX.prop.getString(result, "REDIRECT_URL", "");
+			const redirectUrl = BX.prop.getString(result, 'REDIRECT_URL', '');
+			const isOpenInNewSlide = BX.prop.getBoolean(result, 'OPEN_IN_NEW_SLIDE', false);
 
-			var additionalEventParams = BX.prop.getObject(result, "EVENT_PARAMS", null);
-			if(additionalEventParams)
+			const additionalEventParams = BX.prop.getObject(result, 'EVENT_PARAMS', null);
+			if (additionalEventParams)
 			{
-				var eventName = BX.prop.getString(additionalEventParams, "name", "");
-				var eventArgs = BX.prop.getObject(additionalEventParams, "args", null);
-				if(eventName !== "" && eventArgs !== null)
+				const eventName = BX.prop.getString(additionalEventParams, 'name', '');
+				const eventArgs = BX.prop.getObject(additionalEventParams, 'args', null);
+
+				if (BX.Type.isStringFilled(eventName) && eventArgs !== null)
 				{
-					if(redirectUrl !== "")
+					if (BX.Type.isStringFilled(redirectUrl))
 					{
-						eventArgs["redirectUrl"] = redirectUrl;
+						eventArgs.redirectUrl = redirectUrl;
 					}
 					BX.localStorage.set(eventName, eventArgs, 10);
 				}
 			}
 
-			if(this._isReleased)
+			if (this._isReleased)
 			{
 				return;
 			}
 
-			if(redirectUrl !== "")
+			if (BX.Type.isStringFilled(redirectUrl))
 			{
 				eventParams.redirectUrl = redirectUrl;
-				BX.onCustomEvent(window, "beforeEntityRedirect", [eventParams]);
-				window.location.replace(
-					BX.util.add_url_param(
-						redirectUrl,
-						{ "IFRAME": "Y", "IFRAME_TYPE": "SIDE_SLIDER" }
-					)
+				BX.onCustomEvent(window, 'beforeEntityRedirect', [eventParams]);
+
+				const url = BX.util.add_url_param(
+					redirectUrl,
+					{
+						IFRAME: 'Y',
+						IFRAME_TYPE: 'SIDE_SLIDER',
+					},
 				);
+
+				const sidePanel = window.top.BX.SidePanel ? window.top.BX.SidePanel.Instance : null;
+				if (isOpenInNewSlide && sidePanel && sidePanel.isOpen())
+				{
+					sidePanel.close(false, () => sidePanel.open(url));
+				}
+				else
+				{
+					window.location.replace(url);
+				}
 			}
 			else
 			{

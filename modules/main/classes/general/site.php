@@ -332,9 +332,14 @@ class CAllSite
 			{
 				if(trim($arTemplate["TEMPLATE"]) <> '')
 				{
-					$DB->Query(
-						"INSERT INTO b_site_template(SITE_ID, `CONDITION`, SORT, TEMPLATE) ".
-						"VALUES('".$DB->ForSQL($arFields["LID"])."', '".$DB->ForSQL(trim($arTemplate["CONDITION"]), 255)."', ".intval($arTemplate["SORT"]).", '".$DB->ForSQL(trim($arTemplate["TEMPLATE"]), 255)."')");
+					$arInsert = $DB->PrepareInsert("b_site_template", [
+						'SITE_ID' => $arFields["LID"],
+						'CONDITION' => trim($arTemplate["CONDITION"]),
+						'SORT' => $arTemplate["SORT"],
+						'TEMPLATE' => trim($arTemplate["TEMPLATE"]),
+					]);
+					$strSql = "INSERT INTO b_site_template(".$arInsert[0].") VALUES (".$arInsert[1].")";
+					$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 				}
 			}
 
@@ -392,9 +397,14 @@ class CAllSite
 			{
 				if(trim($arTemplate["TEMPLATE"]) <> '')
 				{
-					$DB->Query(
-						"INSERT INTO b_site_template(SITE_ID, `CONDITION`, SORT, TEMPLATE) ".
-						"VALUES('".$DB->ForSQL($ID)."', '".$DB->ForSQL(trim($arTemplate["CONDITION"]), 255)."', ".intval($arTemplate["SORT"]).", '".$DB->ForSQL(trim($arTemplate["TEMPLATE"]), 255)."')");
+					$arInsert = $DB->PrepareInsert("b_site_template", [
+						'SITE_ID' => $ID,
+						'CONDITION' => trim($arTemplate["CONDITION"]),
+						'SORT' => $arTemplate["SORT"],
+						'TEMPLATE' => trim($arTemplate["TEMPLATE"]),
+					]);
+					$strSql = "INSERT INTO b_site_template(".$arInsert[0].") VALUES (".$arInsert[1].")";
+					$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 				}
 			}
 

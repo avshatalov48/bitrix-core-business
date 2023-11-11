@@ -52,11 +52,15 @@ export class UploaderWrapper extends EventEmitter
 			imageResizeWidth: 1280,
 			imageResizeHeight: 1280,
 			imageResizeMode: 'contain',
-			imageResizeFilter: (file: UploaderFile) => !file.getCustomData('sendAsFile'),
+			imageResizeFilter: (file: UploaderFile) => {
+				return !file.getCustomData('sendAsFile') && file.getExtension() !== 'gif';
+			},
 			imageResizeMimeType: 'image/jpeg',
 			imageResizeMimeTypeMode: 'force',
-			imagePreviewHeight: 400,
-			imagePreviewWidth: 400,
+			imagePreviewHeight: 720,
+			imagePreviewWidth: 720,
+			treatOversizeImageAsFile: true,
+			ignoreUnknownImageTypes: true,
 			events: {
 				[UploaderEvent.FILE_ADD_START]: (event) => {
 					this.emit(UploaderWrapper.events.onFileAddStart, event);
@@ -65,7 +69,8 @@ export class UploaderWrapper extends EventEmitter
 					this.emit(UploaderWrapper.events.onFileUploadStart, event);
 				},
 				[UploaderEvent.FILE_ADD]: (event) => {
-					this.emit(UploaderWrapper.events.onFileAdd, event);
+					const { file } = event.getData();
+					this.emit(UploaderWrapper.events.onFileAdd, { file, uploaderId });
 				},
 				[UploaderEvent.FILE_UPLOAD_PROGRESS]: (event) => {
 					this.emit(UploaderWrapper.events.onFileUploadProgress, event);
@@ -124,6 +129,7 @@ export class UploaderWrapper extends EventEmitter
 					dialogId: task.dialogId,
 					chatId: task.chatId,
 					tempMessageId: task.tempMessageId,
+					sendAsFile: task.sendAsFile,
 				},
 			},
 		);

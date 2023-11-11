@@ -20,7 +20,7 @@
 			event.stopPropagation();
 			this.options.table.parentElement.remove();
 			BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
-			BX.Landing.Block.Node.Text.currentNode.onChange(true);
+			BX.Landing.Node.Text.currentNode.onChange(true);
 		}
 	};
 })();

@@ -14,20 +14,20 @@
 
 					<div class="col-lg-6 g-mb-0 g-mb-50--lg">
 						<div class="text-uppercase text-center g-mx-30">
-							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-small g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
+							<h6 class="landing-block-node-card-subtitle g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
 								chef</h6>
-							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
+							<h2 class="landing-block-node-card-title js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
 								Green soup with croutons</h2>
 						</div>
 
-						<div class="landing-block-node-card-text landing-semantic-text-medium js-animation fadeIn g-px-70--md g-color-white-opacity-0_7 g-mb-25 text-center">
+						<div class="landing-block-node-card-text js-animation fadeIn g-px-70--md g-color-white-opacity-0_7 g-mb-25 text-center">
 							<p>Sed feugiat porttitor nunc, non dignissim ipsum
 								vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
 
-						<div class="landing-block-node-card-price landing-semantic-subtitle-medium g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
+						<div class="landing-block-node-card-price g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
 						<div class="landing-block-node-card-button-container text-center">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
+							<a class="landing-block-node-card-button js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
 							   href="#">Book now
 							</a>
 						</div>
@@ -48,20 +48,20 @@
 
 					<div class="col-lg-6 g-mb-0 g-mb-50--lg">
 						<div class="text-uppercase text-center g-mx-30">
-							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-small g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
+							<h6 class="landing-block-node-card-subtitle g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
 								chef</h6>
-							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
+							<h2 class="landing-block-node-card-title js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
 								Spaghetti</h2>
 						</div>
 
-						<div class="landing-block-node-card-text landing-semantic-text-medium js-animation fadeIn g-px-70--md g-color-white-opacity-0_7 g-mb-25 text-center">
+						<div class="landing-block-node-card-text js-animation fadeIn g-px-70--md g-color-white-opacity-0_7 g-mb-25 text-center">
 							<p>Sed feugiat porttitor nunc, non dignissim ipsum
 								vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
 
-						<div class="landing-block-node-card-price landing-semantic-subtitle-medium g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
+						<div class="landing-block-node-card-price g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
 						<div class="landing-block-node-card-button-container text-center">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
+							<a class="landing-block-node-card-button js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
 							   href="#">Book now
 							</a>
 						</div>
@@ -82,20 +82,20 @@
 
 					<div class="col-lg-6 g-mb-0 g-mb-50--lg">
 						<div class="text-uppercase text-center g-mx-30">
-							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-small g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
+							<h6 class="landing-block-node-card-subtitle g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
 								chef</h6>
-							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
+							<h2 class="landing-block-node-card-title js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
 								Green soup with croutons</h2>
 						</div>
 
-						<div class="landing-block-node-card-text landing-semantic-text-medium js-animation fadeIn g-px-70--md g-color-white-opacity-0_7 g-mb-25 text-center">
+						<div class="landing-block-node-card-text js-animation fadeIn g-px-70--md g-color-white-opacity-0_7 g-mb-25 text-center">
 							<p>Sed feugiat porttitor nunc, non dignissim ipsum
 								vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
 
-						<div class="landing-block-node-card-price landing-semantic-subtitle-medium g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
+						<div class="landing-block-node-card-price g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
 						<div class="landing-block-node-card-button-container text-center">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
+							<a class="landing-block-node-card-button js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
 							   href="#">Book now
 							</a>
 						</div>
@@ -116,20 +116,20 @@
 
 					<div class="col-lg-6 g-mb-0 g-mb-50--lg">
 						<div class="text-uppercase text-center g-mx-30">
-							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-small g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
+							<h6 class="landing-block-node-card-subtitle g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
 								chef</h6>
-							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
+							<h2 class="landing-block-node-card-title js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
 								Green soup with croutons</h2>
 						</div>
 
-						<div class="landing-block-node-card-text landing-semantic-text-medium js-animation fadeIn g-px-70--md g-color-white-opacity-0_7 g-mb-25 text-center">
+						<div class="landing-block-node-card-text js-animation fadeIn g-px-70--md g-color-white-opacity-0_7 g-mb-25 text-center">
 							<p>Sed feugiat porttitor nunc, non dignissim ipsum
 								vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
 
-						<div class="landing-block-node-card-price landing-semantic-subtitle-medium g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
+						<div class="landing-block-node-card-price g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
 						<div class="landing-block-node-card-button-container text-center">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
+							<a class="landing-block-node-card-button js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
 							   href="#">Book now
 							</a>
 						</div>
@@ -150,20 +150,20 @@
 
 					<div class="col-lg-6 g-mb-0 g-mb-50--lg">
 						<div class="text-uppercase text-center g-mx-30">
-							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-small g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
+							<h6 class="landing-block-node-card-subtitle g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
 								chef</h6>
-							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
+							<h2 class="landing-block-node-card-title js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
 								Green soup with croutons</h2>
 						</div>
 
-						<div class="landing-block-node-card-text landing-semantic-text-medium js-animation fadeIn g-px-70--md g-color-white-opacity-0_7 g-mb-25 text-center">
+						<div class="landing-block-node-card-text js-animation fadeIn g-px-70--md g-color-white-opacity-0_7 g-mb-25 text-center">
 							<p>Sed feugiat porttitor nunc, non dignissim ipsum
 								vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
 
-						<div class="landing-block-node-card-price landing-semantic-subtitle-medium g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
+						<div class="landing-block-node-card-price g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
 						<div class="landing-block-node-card-button-container text-center">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
+							<a class="landing-block-node-card-button js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
 							   href="#">Book now
 							</a>
 						</div>

@@ -514,19 +514,9 @@ input.pagetitle-item {
 	transition: .2s;
 }
 
-.document-status-label {
-	vertical-align: middle;
-	text-transform: uppercase;
-	margin-left: 5px;
-}
-
 .catalog-title-buttons-wrapper {
 	display: inline-flex;
 	align-items: center;
-}
-
-.catalog-title-buttons-wrapper .ui-label-inner {
-	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .catalog-document-card-left {

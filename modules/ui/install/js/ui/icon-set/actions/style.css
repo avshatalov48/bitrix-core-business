@@ -101,10 +101,25 @@
 	--ui-icon-set__path_upload: url('/bitrix/js/ui/icon-set/actions/images/upload.svg');
 	--ui-icon-set__path_line: url('/bitrix/js/ui/icon-set/actions/images/line.svg');
 	--ui-icon-set__path_pen: url('/bitrix/js/ui/icon-set/actions/images/pen.svg');
+	--ui-icon-set__path_download-double: url('/bitrix/js/ui/icon-set/actions/images/download-double.svg');
+	--ui-icon-set__path_refresh-closed: url('/bitrix/js/ui/icon-set/actions/images/refresh-closed.svg');
+	--ui-icon-set__path_refresh-10: url('/bitrix/js/ui/icon-set/actions/images/refresh-10.svg');
 }
 
 .ui-icon-set.--4-cubes-1 {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_4-cubes-1);
+}
+
+.ui-icon-set.--refresh-10 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_refresh-10);
+}
+
+.ui-icon-set.--refresh-closed {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_refresh-closed);
+}
+
+.ui-icon-set.--download-double {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_download-double);
 }
 
 .ui-icon-set.--4-cubes-2 {

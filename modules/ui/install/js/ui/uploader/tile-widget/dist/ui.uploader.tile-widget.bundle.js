@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core_events,ui_uploader_vue,ui_progressround,main_popup,ui_icons_generator,ui_uploader_tileWidget,main_core,ui_uploader_core) {

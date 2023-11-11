@@ -118,9 +118,13 @@ class EnumType extends BaseType
 	{
 		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
 		$values = [];
-		if ($enum)
+		if(!$enum)
 		{
-			while ($item = $enum->GetNext())
+			$values = [];
+		}
+		else
+		{
+			while($item = $enum->GetNext())
 			{
 				$values[$item['ID']] = $item['VALUE'];
 			}
@@ -135,7 +139,9 @@ class EnumType extends BaseType
 	 */
 	public static function getDbColumnType(): string
 	{
-		return 'int(18)';
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\IntegerField('x'));
 	}
 
 	/**

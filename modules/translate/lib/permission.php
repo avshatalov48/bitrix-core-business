@@ -20,7 +20,7 @@ class Permission
 	 *
 	 * @return bool
 	 */
-	public static function isAllowPath($path)
+	public static function isAllowPath(string $path): bool
 	{
 		static $initFolders;
 		if (empty($initFolders))
@@ -53,7 +53,7 @@ class Permission
 	 *
 	 * @return bool
 	 */
-	public static function canEditSource($checkUser)
+	public static function canEditSource($checkUser): bool
 	{
 		if ($checkUser instanceof \CUser || $checkUser instanceof Main\Engine\CurrentUser)
 		{
@@ -71,7 +71,7 @@ class Permission
 	 *
 	 * @return bool
 	 */
-	public static function isAdmin($checkUser)
+	public static function isAdmin($checkUser): bool
 	{
 		if (!($checkUser instanceof \CUser) && !($checkUser instanceof Main\Engine\CurrentUser))
 		{
@@ -89,7 +89,7 @@ class Permission
 	 *
 	 * @return bool
 	 */
-	public static function canView($checkUser)
+	public static function canView($checkUser): bool
 	{
 		if (!($checkUser instanceof \CUser) && !($checkUser instanceof Main\Engine\CurrentUser))
 		{
@@ -120,7 +120,7 @@ class Permission
 	 *
 	 * @return bool
 	 */
-	public static function canEdit($checkUser)
+	public static function canEdit($checkUser): bool
 	{
 		if (!($checkUser instanceof \CUser) && !($checkUser instanceof Main\Engine\CurrentUser))
 		{

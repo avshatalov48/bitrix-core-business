@@ -24,7 +24,11 @@
 	border-radius: 12px;
 	background-color: var(--im-link-item__background-color_item-container);
 	padding: 6px;
-	margin: 0 10px 15px 15px;
+	margin: 0 10px 0 15px;
+}
+
+.bx-im-link-item__container + .bx-im-link-item__container {
+	margin-top: 10px;
 }
 
 .bx-im-link-item__content {

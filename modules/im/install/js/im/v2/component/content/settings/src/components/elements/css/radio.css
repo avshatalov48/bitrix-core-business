@@ -1,0 +1,21 @@
+.bx-im-settings-radio__container {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-settings-radio__container label.ui-ctl {
+	width: auto;
+}
+
+.bx-im-settings-radio__container .ui-ctl-radio {
+	cursor: pointer;
+}
+
+.bx-im-settings-radio__container .ui-ctl-radio .ui-ctl-element {
+	margin-right: 8px;
+}
+
+.bx-im-settings-radio__label_subtitle {
+	font-size: 11px;
+	color: #888;
+}

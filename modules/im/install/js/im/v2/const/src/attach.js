@@ -7,14 +7,13 @@ export const AttachType = Object.freeze({
 	Link: 'LINK',
 	Message: 'MESSAGE',
 	Rich: 'RICH_LINK',
-	User: 'USER'
+	User: 'USER',
 });
 
 export const AttachDescription = Object.freeze({
 	FIRST_MESSAGE: 'FIRST_MESSAGE',
 	SKIP_MESSAGE: 'SKIP_MESSAGE',
 });
-
 
 export type AttachConfig = {
 	ID: number,

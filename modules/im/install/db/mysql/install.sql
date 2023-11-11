@@ -25,11 +25,11 @@ CREATE TABLE `b_im_chat`
 	`LAST_MESSAGE_ID` int(18) null,
 	`LAST_MESSAGE_STATUS` varchar(50) DEFAULT 'received',
 	`DATE_CREATE` datetime null,
-	`MANAGE_USERS` varchar(255) not null default 'ALL',
-	`MANAGE_UI` varchar(255) not null default 'ALL',
+	`MANAGE_USERS` varchar(255) not null default 'MEMBER',
+	`MANAGE_UI` varchar(255) not null default 'MEMBER',
 	`MANAGE_SETTINGS` varchar(255) not null default 'OWNER',
 	`DISAPPEARING_TIME` int(18) null,
-	`CAN_POST` varchar(255) not null default 'ALL',
+	`CAN_POST` varchar(255) not null default 'MEMBER',
 	PRIMARY KEY (`ID`),
 	KEY `IX_IM_CHAT_1` (`AUTHOR_ID`, `TYPE`),
 	KEY `IX_IM_CHAT_2` (`ENTITY_TYPE`, `ENTITY_ID`, `AUTHOR_ID`),
@@ -147,7 +147,8 @@ CREATE TABLE `b_im_relation`
 	KEY `IX_IM_REL_4` (`USER_ID`, `STATUS`),
 	KEY `IX_IM_REL_5` (`MESSAGE_TYPE`, `STATUS`),
 	KEY `IX_IM_REL_6` (`CHAT_ID`, `USER_ID`),
-	KEY `IX_IM_REL_8` (`STATUS`, `COUNTER`)
+	KEY `IX_IM_REL_8` (`STATUS`, `COUNTER`),
+	KEY `IX_IM_REL_9` (`USER_ID`, `CHAT_ID`)
 );
 
 CREATE TABLE `b_im_recent`
@@ -168,7 +169,8 @@ CREATE TABLE `b_im_recent`
 	KEY `IX_IM_REC_1` (`ITEM_TYPE`, `ITEM_ID`),
 	KEY `IX_IM_REC_2` (`DATE_UPDATE`),
 	KEY `IX_IM_REC_3` (`ITEM_RID`),
-	KEY `IX_IM_REC_4` (`ITEM_MID`)
+	KEY `IX_IM_REC_4` (`ITEM_MID`),
+	KEY `IX_IM_REC_5` (`USER_ID`, `ITEM_CID`)
 );
 
 CREATE TABLE `b_im_last_search`
@@ -342,6 +344,9 @@ CREATE TABLE `b_im_call`
 	`END_DATE` datetime,
 	`CHAT_ID` int,
 	`LOG_URL` varchar(2000),
+	`UUID` varchar (36),
+	`SECRET_KEY` varchar (10),
+	`ENDPOINT` varchar (255),
 	PRIMARY KEY `PK_B_IM_CALL`(`ID`),
 	UNIQUE KEY `IX_B_IM_CALL_PID`(`PUBLIC_ID`),
 	INDEX `IX_B_IM_CALL_ENT_ID_2`(`ENTITY_TYPE`, `ENTITY_ID`, `TYPE`, `PROVIDER`, `END_DATE`),

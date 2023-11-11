@@ -803,30 +803,96 @@ var getLastContentTypeHeader = function (headers) {
 	return lastHeader ? lastHeader.value : null;
 };
 
-var prepareAjaxGetParameters = function(config)
+/**
+ * @see isValidAnalyticsData in ui.analytics
+* */
+const isValidAnalyticsData = function (analytics)
 {
-	var getParameters = config.getParameters || {};
-	if (BX.type.isNotEmptyString(config.analyticsLabel))
+	if (!BX.Type.isPlainObject(analytics))
+	{
+		console.error('BX.ajax: {analytics} must be an object.');
+
+		return false;
+	}
+
+	const requiredFields = ['event', 'tool', 'category'];
+	for (const field of requiredFields)
+	{
+		if (!BX.Type.isStringFilled(analytics[field]))
+		{
+			console.error(`BX.ajax: The "${field}" property in the "analytics" object must be a non-empty string.`);
+
+			return false;
+		}
+	}
+
+	const additionalFields = ['p1', 'p2', 'p3', 'p4', 'p5'];
+	for (const field of additionalFields)
+	{
+		const value = analytics[field];
+		if (!BX.Type.isStringFilled(value))
+		{
+			continue;
+		}
+
+		if (value.split('_').length > 2)
+		{
+			console.error(`BX.ajax: The "${field}" property (${value}) in the "analytics" object must be a string containing a single underscore.`);
+
+			return false;
+		}
+	}
+
+	return true;
+};
+
+const processAnalyticsDataToGetParameters = function(config)
+{
+	const getParameters = {};
+	if (BX.Type.isStringFilled(config.analyticsLabel) || BX.Type.isPlainObject(config.analyticsLabel))
 	{
 		getParameters.analyticsLabel = config.analyticsLabel;
 	}
-	else if (BX.type.isNotEmptyObject(config.analyticsLabel))
+
+	if (BX.Type.isPlainObject(config.analytics))
 	{
-		getParameters.analyticsLabel = config.analyticsLabel;
+		if (config.analyticsLabel)
+		{
+			delete getParameters.analyticsLabel;
+			console.error('BX.ajax: Only {analytics} or {analyticsLabel} should be used. If both are present, {analyticsLabel} will be ignored.');
+		}
+
+		if (isValidAnalyticsData(config.analytics))
+		{
+			getParameters.st = config.analytics;
+		}
+		else
+		{
+			console.error('BX.ajax: {analytics} is invalid and is skipped.');
+		}
 	}
+
+	return getParameters;
+};
+
+const prepareAjaxGetParameters = function(config)
+{
+	let getParameters = config.getParameters || {};
+	getParameters = { ...getParameters, ...processAnalyticsDataToGetParameters(config) };
+
 	if (typeof config.mode !== 'undefined')
 	{
 		getParameters.mode = config.mode;
 	}
 	if (config.navigation)
 	{
-		if(config.navigation.page)
+		if (config.navigation.page)
 		{
 			getParameters.nav = 'page-' + config.navigation.page;
 		}
-		if(config.navigation.size)
+		if (config.navigation.size)
 		{
-			if(getParameters.nav)
+			if (getParameters.nav)
 			{
 				getParameters.nav += '-';
 			}
@@ -1029,6 +1095,19 @@ var buildAjaxPromiseToRestoreCsrf = function(config, withoutRestoringCsrf)
  * @param {string} action
  * @param {Object} config
  * @param {?string|?Object} [config.analyticsLabel]
+ * @param {?Object} [config.analytics]
+ * @param {string} [config.analytics.event]
+ * @param {string} [config.analytics.tool]
+ * @param {string} [config.analytics.category]
+ * @param {?string} [config.analytics.c_section]
+ * @param {?string} [config.analytics.c_sub_section]
+ * @param {?string} [config.analytics.c_element]
+ * @param {?string} [config.analytics.type]
+ * @param {?string} [config.analytics.p1]
+ * @param {?string} [config.analytics.p2]
+ * @param {?string} [config.analytics.p3]
+ * @param {?string} [config.analytics.p4]
+ * @param {?string} [config.analytics.p5]
  * @param {string} [config.method='POST']
  * @param {Object} [config.data]
  * @param {?Object} [config.getParameters]
@@ -1064,6 +1143,19 @@ BX.ajax.runAction = function(action, config)
  * @param {string} action
  * @param {Object} config
  * @param {?string|?Object} [config.analyticsLabel]
+ * @param {?Object} [config.analytics]
+ * @param {string} [config.analytics.event]
+ * @param {string} [config.analytics.tool]
+ * @param {string} [config.analytics.category]
+ * @param {?string} [config.analytics.c_section]
+ * @param {?string} [config.analytics.c_sub_section]
+ * @param {?string} [config.analytics.c_element]
+ * @param {?string} [config.analytics.type]
+ * @param {?string} [config.analytics.p1]
+ * @param {?string} [config.analytics.p2]
+ * @param {?string} [config.analytics.p3]
+ * @param {?string} [config.analytics.p4]
+ * @param {?string} [config.analytics.p5]
  * @param {?string} [config.signedParameters]
  * @param {string} [config.method='POST']
  * @param {string} [config.mode='ajax'] Ajax or class.

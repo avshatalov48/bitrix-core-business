@@ -1,14 +1,16 @@
 <?php
+$MESS['IM_LIB_MENU_OPEN'] = "Открыть";
+$MESS['IM_LIB_MENU_OPEN_IN_NEW_TAB'] = "Открыть в новой вкладке";
 $MESS['IM_LIB_MENU_WRITE'] = "Написать сообщение";
 $MESS['IM_LIB_MENU_READ'] = "Прочитать всё";
 $MESS['IM_LIB_MENU_UNREAD'] = "Посмотреть позже";
 $MESS['IM_LIB_MENU_PIN'] = "Закрепить чат";
 $MESS['IM_LIB_MENU_UNPIN'] = "Открепить чат";
-$MESS['IM_LIB_MENU_MUTE'] = "Отключить уведомления";
-$MESS['IM_LIB_MENU_UNMUTE'] = "Включить уведомления";
+$MESS['IM_LIB_MENU_MUTE_2'] = "Выключить звук";
+$MESS['IM_LIB_MENU_UNMUTE_2'] = "Включить звук";
 $MESS['IM_LIB_MENU_OPEN_PROFILE'] = "Открыть профиль сотрудника";
 $MESS['IM_LIB_MENU_OPEN_CALENDAR'] = "Открыть календарь сотрудника";
-$MESS['IM_LIB_MENU_CALL'] = "Видеозвонок HD";
+$MESS['IM_LIB_MENU_CALL_2'] = "Видеозвонок";
 $MESS['IM_LIB_MENU_OPEN_HISTORY'] = "Открыть историю";
 $MESS['IM_LIB_MENU_HIDE'] = "Скрыть чат";
 $MESS['IM_LIB_MENU_LEAVE'] = "Покинуть чат";

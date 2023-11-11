@@ -263,23 +263,12 @@ final class Router
 		$furthestClass = null;
 		for ($i = $afterClassesCount - 1; $i >= $beforeClassesCount; $i--)
 		{
-			if (PHP_VERSION_ID < 70400)
+			if (
+				is_subclass_of($afterClasses[$i], Controller::class) ||
+				($furthestClass && is_subclass_of($afterClasses[$i], $furthestClass))
+			)
 			{
-				if (is_subclass_of($afterClasses[$i], Controller::class))
-				{
-					return $afterClasses[$i];
-				}
-			}
-			else
-			{
-				if (
-					is_subclass_of($afterClasses[$i], Controller::class) ||
-					($furthestClass && is_subclass_of($afterClasses[$i], $furthestClass))
-				)
-				{
-					$furthestClass = $afterClasses[$i];
-				}
-
+				$furthestClass = $afterClasses[$i];
 			}
 		}
 

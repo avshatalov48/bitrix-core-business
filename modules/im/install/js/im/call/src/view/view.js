@@ -75,6 +75,7 @@ const EventName = {
 	onUserPinned: 'onUserPinned',
 	onDeviceSelectorShow: 'onDeviceSelectorShow',
 	onOpenAdvancedSettings: 'onOpenAdvancedSettings',
+	onHasMainStream: 'onHasMainStream',
 };
 
 const newUserPosition = 999;
@@ -484,7 +485,10 @@ export class View
 		this.centralUser = (userId == this.userId ? this.localUser : this.users[userId]);
 		if (this.layout == Layouts.Centered || this.layout == Layouts.Mobile)
 		{
-			previousCentralUser.dismount();
+			if (this.layout == Layouts.Mobile)
+			{
+				previousCentralUser.dismount();
+			}
 			this.updateUserList();
 		}
 		if (this.layout == Layouts.Mobile)
@@ -697,6 +701,19 @@ export class View
 		if (this.pinnedUser === null)
 		{
 			this.setCentralUser(newPresenterId);
+
+			if (this.layout == Layouts.Centered)
+			{
+				this.eventEmitter.emit(EventName.onHasMainStream, {
+					userId: this.centralUser.id
+				});
+			}
+		}
+		else
+		{
+			this.eventEmitter.emit(EventName.onHasMainStream, {
+				userId: this.centralUser.id
+			});
 		}
 
 		if (this.layout == Layouts.Grid)
@@ -779,6 +796,9 @@ export class View
 				});
 			}
 			this.unpinUser();
+			this.eventEmitter.emit(EventName.onHasMainStream, {
+				userId: null
+			});
 		}
 		if (this.layout == Layouts.Centered && this.isFullScreen)
 		{
@@ -1046,7 +1066,9 @@ export class View
 
 	addUser(userId, state, direction)
 	{
-		userId = Number(userId);
+		// todo: revert after adding new provider to mobile apps
+		// userId = Number(userId);
+		userId = userId;
 		if (this.users[userId])
 		{
 			return;
@@ -1182,6 +1204,10 @@ export class View
 		{
 			user.order = this.getNextPosition();
 		}
+		else if (newState == UserState.Idle)
+		{
+			this.setUserFloorRequestState(userId, false);
+		}
 
 		if (userId == this.localUser.id)
 		{
@@ -1302,6 +1328,9 @@ export class View
 		this.setCentralUser(userId);
 		this.eventEmitter.emit(EventName.onUserPinned, {
 			userId: userId
+		});
+		this.eventEmitter.emit(EventName.onHasMainStream, {
+			userId: this.centralUser.id
 		});
 	};
 
@@ -1504,6 +1533,11 @@ export class View
 			this.setUserScreenState(userId, track !== null);
 		}
 	};
+
+	setBadNetworkIndicator(userId, badNetworkIndicator)
+	{
+		this.users[userId].badNetworkIndicator = badNetworkIndicator;
+	}
 
 	applyIncomingVideoConstraints()
 	{
@@ -1968,6 +2002,8 @@ export class View
 	{
 		this.showMessage(params);
 		this.setUiState(UiState.Error);
+		// in some cases video elements may still be shown on the error screen, let's hide them
+		this.elements.userList.container.style.display = 'none';
 	};
 
 	close()
@@ -2572,6 +2608,9 @@ export class View
 		if (this.layout == Layouts.Centered || this.layout == Layouts.Mobile)
 		{
 			this.centralUser.mount(this.elements.center);
+			this.eventEmitter.emit(EventName.onHasMainStream, {
+				userId: this.centralUser.id
+			});
 			this.elements.root.classList.add("bx-messenger-videocall-centered");
 			if (this.layout != Layouts.Mobile)
 			{
@@ -3319,6 +3358,9 @@ export class View
 				}
 
 				this.centralUser.mount(this.elements.center);
+				this.eventEmitter.emit(EventName.onHasMainStream, {
+					userId: this.centralUser.id
+				});
 				this.centralUser.visible = true;
 			}
 			return;
@@ -4050,6 +4092,10 @@ export class View
 
 	_onUserUnPin()
 	{
+		if (this.layout == Layouts.Centered)
+		{
+			this.setLayout(Layouts.Grid)
+		}
 		this.unpinUser();
 	};
 
@@ -4164,6 +4210,12 @@ export class View
 	_onGridButtonClick()
 	{
 		this.setLayout(this.layout == Layouts.Centered ? Layouts.Grid : Layouts.Centered);
+		if (this.layout == Layouts.Centered && this.localUser.id !== this.centralUser.id)
+		{
+			this.eventEmitter.emit(EventName.onHasMainStream, {
+				userId: this.centralUser.id
+			});
+		}
 	};
 
 	_onAddButtonClick(e)

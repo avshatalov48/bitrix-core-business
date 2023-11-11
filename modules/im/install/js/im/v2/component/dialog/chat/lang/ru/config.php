@@ -1,5 +1,6 @@
 <?
 $MESS["IM_DIALOG_CHAT_MENU_QUOTE"] = "Цитировать";
+$MESS["IM_DIALOG_CHAT_MENU_REPLY"] = "Ответить";
 $MESS["IM_DIALOG_CHAT_MENU_COPY_FILE"] = "Копировать файл";
 $MESS["IM_DIALOG_CHAT_MENU_COPY_FILE_SUCCESS"] = "Файл скопирован";
 $MESS["IM_DIALOG_CHAT_MENU_PIN"] = "Закрепить";
@@ -17,7 +18,7 @@ $MESS["IM_DIALOG_CHAT_MENU_SAVE_ON_DISK"] = "Сохранить на Диск";
 $MESS['IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_SUCCESS'] = "Файл успешно сохранён на ваш Диск";
 
 
-$MESS["IM_DIALOG_AVATAR_MENU_MENTION"] = "Вставить имя";
+$MESS["IM_DIALOG_AVATAR_MENU_MENTION_2"] = "Упомянуть";
 $MESS["IM_DIALOG_AVATAR_MENU_SEND_MESSAGE"] = "Написать сообщение";
 $MESS["IM_DIALOG_AVATAR_MENU_OPEN_PROFILE"] = "Профиль";
 $MESS["IM_DIALOG_AVATAR_MENU_KICK"] = "Исключить из чата";

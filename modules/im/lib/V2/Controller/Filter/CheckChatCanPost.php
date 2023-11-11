@@ -18,7 +18,7 @@ class CheckChatCanPost extends Base
 		$this->getAction()->setArguments($arguments);
 		if (in_array(
 			$arguments['rightsLevel'],
-			[Chat::MANAGE_RIGHTS_NONE, Chat::MANAGE_RIGHTS_ALL, Chat::MANAGE_RIGHTS_MANAGERS, Chat::MANAGE_RIGHTS_OWNER],
+			[Chat::MANAGE_RIGHTS_NONE, Chat::MANAGE_RIGHTS_MEMBER, Chat::MANAGE_RIGHTS_MANAGERS, Chat::MANAGE_RIGHTS_OWNER],
 			true
 		))
 		{

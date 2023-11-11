@@ -6,9 +6,7 @@ use Bitrix\Translate;
 use Bitrix\Main;
 
 
-class File
-	extends Main\IO\File
-	implements Translate\IErrorable
+class File extends Main\IO\File implements Translate\IErrorable
 {
 	// trait implements interface Translate\IErrorable
 	use Translate\Error;

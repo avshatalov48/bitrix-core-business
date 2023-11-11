@@ -65,7 +65,6 @@ class RestIntegratorsListComponent extends CBitrixComponent
 			{
 				$title = $items[$code]['TITLE'];
 			}
-			/**@var \CAllMain */
 			$GLOBALS['APPLICATION']->SetTitle($title);
 		}
 

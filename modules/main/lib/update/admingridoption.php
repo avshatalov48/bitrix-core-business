@@ -63,7 +63,7 @@ class AdminGridOption extends Stepper
 
 		foreach ($listGrid as $tableId => $table)
 		{
-			$queryObject = $connection->query("SELECT * FROM `b_user_option` WHERE `CATEGORY` = 'list' AND `NAME` = '".
+			$queryObject = $connection->query("SELECT * FROM b_user_option WHERE CATEGORY = 'list' AND NAME = '".
 				$sqlHelper->forSql($table["tableId"])."' ORDER BY ID ASC LIMIT ".$this->limit." OFFSET ".$table["offset"]);
 			$selectedRowsCount = $queryObject->getSelectedRowsCount();
 			while ($optionOldGrid = $queryObject->fetch())
@@ -76,8 +76,8 @@ class AdminGridOption extends Stepper
 				}
 
 				$queryResultObject = $connection->query(
-					"SELECT ID FROM `b_user_option` WHERE `CATEGORY` = 'main.interface.grid' AND `NAME` = '".
-					$sqlHelper->forSql($table["tableId"])."' AND `USER_ID` = '".$optionOldGrid["USER_ID"]."'");
+					"SELECT ID FROM b_user_option WHERE CATEGORY = 'main.interface.grid' AND NAME = '".
+					$sqlHelper->forSql($table["tableId"])."' AND USER_ID = '".$optionOldGrid["USER_ID"]."'");
 				if (!$queryResultObject->fetch())
 				{
 					if (!array_diff_key(array_flip(["page_size", "by", "order", "columns"]), $oldGridData))

@@ -18,11 +18,11 @@ class CheckChatManageUpdate extends Base
 		$this->getAction()->setArguments($arguments);
 		$rightsLevel = $arguments['rightsLevel'];
 		$actionName = $this->getAction()->getName();
-		if (in_array($actionName, ['setManageUsers', 'setManageUI'], true))
+		if ($this->inArrayCaseInsensitive($actionName, ['setManageUsers', 'setManageUI'], true))
 		{
 			if (in_array(
 				$rightsLevel,
-				[Chat::MANAGE_RIGHTS_ALL, Chat::MANAGE_RIGHTS_MANAGERS, Chat::MANAGE_RIGHTS_OWNER],
+				[Chat::MANAGE_RIGHTS_MEMBER, Chat::MANAGE_RIGHTS_MANAGERS, Chat::MANAGE_RIGHTS_OWNER],
 				true
 			))
 			{
@@ -30,7 +30,7 @@ class CheckChatManageUpdate extends Base
 			}
 		}
 
-		if ($actionName === 'setManageSettings')
+		if ($actionName === 'setManageSettings' || $actionName === 'setmanagesettings')
 		{
 			if (in_array(
 				$rightsLevel,
@@ -46,5 +46,19 @@ class CheckChatManageUpdate extends Base
 			ChatError::WRONG_PARAMETER
 		));
 		return new EventResult(EventResult::ERROR, null, null, $this);
+	}
+
+	/**
+	 * @param string $needle
+	 * @param string[] $haystack
+	 * @param bool $strict
+	 * @return bool
+	 */
+	private function inArrayCaseInsensitive(string $needle, array $haystack, bool $strict = true): bool
+	{
+		$needle = mb_strtolower($needle);
+		$haystack = array_map('mb_strtolower', $haystack);
+
+		return in_array($needle, $haystack, $strict);
 	}
 }

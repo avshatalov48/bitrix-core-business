@@ -77,6 +77,10 @@ if ($allowEditPrices)
 
 		for ($i = 0; $i <= $SUBCAT_ROW_COUNTER; $i++)
 		{
+			if (!isset(${"SUBCAT_BASE_PRICE_".$i}))
+			{
+				continue;
+			}
 			${"SUBCAT_BASE_PRICE_".$i} = str_replace([' ', ','], ['', '.'], ${"SUBCAT_BASE_PRICE_".$i});
 
 			if (intval(${"SUBCAT_BASE_QUANTITY_FROM_".$i}) > 0

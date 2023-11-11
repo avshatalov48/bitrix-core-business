@@ -133,25 +133,29 @@ class CAllSQLWhere
 	{
 		global $DB;
 
-		if(!is_array($fieldValue))
+		if (!is_array($fieldValue))
 		{
 			$fieldValue = array($fieldValue);
 		}
 		$orValues = array();
 		$wildcard = ($wildcard? "*" : "");
 
-		foreach($fieldValue as $value)
+		foreach ($fieldValue as $value)
 		{
 			$match = Filter\Helper::matchAgainstWildcard($value, $wildcard);
-			if($match <> '')
+			if ($match <> '')
 			{
 				$orValues[] = $match;
 			}
 		}
+
 		if(!empty($orValues))
 		{
-			$value = implode(" ", $orValues);
-			return "MATCH (".$field.") AGAINST ('".$DB->ForSQL($value)."' IN BOOLEAN MODE)";
+			$connection = \Bitrix\Main\Application::getConnection();
+			$helper = $connection->getSqlHelper();
+			$value = $helper->getMatchOrExpression($orValues);
+
+			return $helper->getMatchFunction($field, "'" . $helper->forSql($value) . "'");
 		}
 
 		return '';
@@ -338,6 +342,7 @@ class CAllSQLWhere
 						||
 						(
 							($operation=="NI" || $operation=="N" || $operation=="NS" || $operation=="NB" || $operation=="NM")
+							&& !is_object($value)
 							&& (
 								is_array($value)
 								|| (
@@ -478,6 +483,10 @@ class CAllSQLWhere
 				else
 					$result[] = "1=1";
 			}
+			elseif ($FIELD_VALUE instanceof \Bitrix\Main\DB\SqlExpression)
+			{
+				$result[] = $FIELD_NAME." <> ".$FIELD_VALUE->compile();
+			}
 			elseif ($FIELD_VALUE == 0)
 				$result[] = "(".$FIELD_NAME." IS NOT NULL AND ".$FIELD_NAME." <> 0)";
 			else
@@ -489,6 +498,10 @@ class CAllSQLWhere
 		case "G":
 			if (is_array($FIELD_VALUE))
 				$result[] = $FIELD_NAME." > ".$FIELD_VALUE[0];
+			elseif ($FIELD_VALUE instanceof \Bitrix\Main\DB\SqlExpression)
+			{
+				$result[] = $FIELD_NAME." > ".$FIELD_VALUE->compile();
+			}
 			else
 				$result[] = $FIELD_NAME." > ".$FIELD_VALUE;
 
@@ -498,6 +511,10 @@ class CAllSQLWhere
 		case "L":
 			if (is_array($FIELD_VALUE))
 				$result[] = $FIELD_NAME." < ".$FIELD_VALUE[0];
+			elseif ($FIELD_VALUE instanceof \Bitrix\Main\DB\SqlExpression)
+			{
+				$result[] = $FIELD_NAME." < ".$FIELD_VALUE->compile();
+			}
 			else
 				$result[] = $FIELD_NAME." < ".$FIELD_VALUE;
 
@@ -507,6 +524,10 @@ class CAllSQLWhere
 		case "GE":
 			if (is_array($FIELD_VALUE))
 				$result[] = $FIELD_NAME." >= ".$FIELD_VALUE[0];
+			elseif ($FIELD_VALUE instanceof \Bitrix\Main\DB\SqlExpression)
+			{
+				$result[] = $FIELD_NAME." >= ".$FIELD_VALUE->compile();
+			}
 			else
 				$result[] = $FIELD_NAME." >= ".$FIELD_VALUE;
 
@@ -516,6 +537,10 @@ class CAllSQLWhere
 		case "LE":
 			if (is_array($FIELD_VALUE))
 				$result[] = $FIELD_NAME." <= ".$FIELD_VALUE[0];
+			elseif ($FIELD_VALUE instanceof \Bitrix\Main\DB\SqlExpression)
+			{
+				$result[] = $FIELD_NAME." <= ".$FIELD_VALUE->compile();
+			}
 			else
 				$result[] = $FIELD_NAME." <= ".$FIELD_VALUE;
 
@@ -693,12 +718,12 @@ class CAllSQLWhere
 			if ($operation=="S" || $operation=="NS")
 			{
 				foreach ($value as $val)
-					$FIELD_VALUE[] = $this->ForLIKE(mb_strtoupper($val));
+					$FIELD_VALUE[] = $this->ForLIKE(mb_strtoupper((string)$val));
 			}
 			else
 			{
 				foreach ($value as $val)
-					$FIELD_VALUE[] = $DB->ForSQL($val);
+					$FIELD_VALUE[] = $DB->ForSQL((string)$val);
 			}
 		}
 		elseif (is_object($value))
@@ -708,9 +733,9 @@ class CAllSQLWhere
 		else
 		{
 			if ($operation=="S" || $operation=="NS")
-				$FIELD_VALUE = $this->ForLIKE(mb_strtoupper($value));
+				$FIELD_VALUE = $this->ForLIKE(mb_strtoupper((string)$value));
 			else
-				$FIELD_VALUE = $DB->ForSQL($value);
+				$FIELD_VALUE = $DB->ForSQL((string)$value);
 		}
 
 		switch ($operation)
@@ -1108,7 +1133,7 @@ class CSQLWhereExpression
 		$this->i = -1;
 
 		// string (default), integer (i), float (f), numeric (n), date (d), time (t)
-		$value = preg_replace_callback('/(?:[^\\\\]|^)(\?[#sif]?)/', array($this, 'execPlaceholders'), $this->expression);
+		$value = preg_replace_callback('/(?:[^\\\\]|^)(\?[#sifv]?)/', array($this, 'execPlaceholders'), $this->expression);
 		$value = str_replace('\?', '?', $value);
 
 		return $value;
@@ -1134,6 +1159,13 @@ class CSQLWhereExpression
 				$helper = $connection->getSqlHelper();
 
 				return $helper->quote($value);
+			}
+			elseif ($id == '?v')
+			{
+				$connection = \Bitrix\Main\Application::getConnection();
+				$helper = $connection->getSqlHelper();
+
+				return $helper->values($value);
 			}
 			elseif ($id == '?i')
 			{

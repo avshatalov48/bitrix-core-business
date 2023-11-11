@@ -1,7 +1,9 @@
-const regexp = /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/;
+import { Type } from 'main.core';
+
+const regexp = /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\W\w]*?[^;])*),(.+)$/;
 
 const isDataUri = (str: string): boolean => {
-	return typeof(str) === 'string' ? str.match(regexp) : false;
+	return Type.isString(str) ? str.match(regexp) : false;
 };
 
 export default isDataUri;

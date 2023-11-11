@@ -5,7 +5,7 @@ namespace Bitrix\Calendar\Sync\Office365;
 use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Role\Role;
-use Bitrix\Calendar\Internals\HandleStatusTrait;
+use Bitrix\Calendar\Sync\Util\HandleStatusTrait;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Exceptions\SyncException;

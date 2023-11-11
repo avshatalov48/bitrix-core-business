@@ -20,12 +20,16 @@ use \Bitrix\Main\UI\Extension;
 Loc::loadMessages(__FILE__);
 
 $this->setFrameMode(true);
-$landing = $arResult['LANDING'];/** @var \Bitrix\Landing\Landing $landing */
-$b24Installed = \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24');
-$formEditor = $arResult['SPECIAL_TYPE'] == \Bitrix\Landing\Site\Type::PSEUDO_SCOPE_CODE_FORMS;
-$masterFrame = $component->request('master') == 'Y' && Rights::hasAccessForSite(
-	$landing->getSiteId(), Rights::ACCESS_TYPES['edit']
-);
+
+if (isset($arResult['LANDING']))
+{
+	$landing = $arResult['LANDING'];/** @var \Bitrix\Landing\Landing $landing */
+	$b24Installed = \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24');
+	$formEditor = $arResult['SPECIAL_TYPE'] == \Bitrix\Landing\Site\Type::PSEUDO_SCOPE_CODE_FORMS;
+	$masterFrame = $component->request('master') == 'Y' && Rights::hasAccessForSite(
+		$landing->getSiteId(), Rights::ACCESS_TYPES['edit']
+	);
+}
 
 Manager::setPageTitle(
 	Loc::getMessage('LANDING_TPL_TITLE')

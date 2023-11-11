@@ -75,6 +75,13 @@ export type ReadMessageParams = {
 	viewedMessages: number[]
 };
 
+export type UnreadMessageParams = {
+	chatId: number,
+	counter: number,
+	dialogId: string,
+	lines: boolean,
+};
+
 export type ReadMessageOpponentParams = {
 	chatId: number,
 	chatMessageStatus: string,
@@ -93,9 +100,9 @@ export type PinAddParams = {
 		chatId: number,
 		dateCreate: string,
 		id: number,
-		message: RawMessage,
 		messageId: number
 	},
+	additionalMessages: RawMessage[],
 	reminders: Object | [],
 	users: RawUser[]
 };

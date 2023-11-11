@@ -161,12 +161,15 @@ class StoreProvider extends BaseProvider
 		{
 			$storeProductRaw = StoreProductTable::getList([
 				'filter' => ['=PRODUCT_ID' => $this->getProductId()],
-				'select' => ['STORE_ID', 'AMOUNT'],
+				'select' => ['STORE_ID', 'AMOUNT', 'QUANTITY_RESERVED'],
 			]);
 
 			while ($storeProduct = $storeProductRaw->fetch())
 			{
-				$storeProducts[$storeProduct['STORE_ID']] = $storeProduct['AMOUNT'];
+				$storeProducts[$storeProduct['STORE_ID']] = [
+					'RESERVED' => $storeProduct['QUANTITY_RESERVED'],
+					'AMOUNT' => $storeProduct['AMOUNT'],
+				];
 			}
 		}
 
@@ -181,14 +184,23 @@ class StoreProvider extends BaseProvider
 			$store['PRODUCT_AMOUNT'] = 0;
 			if (isset($storeProducts[$store['ID']]))
 			{
-				$store['PRODUCT_AMOUNT'] = $storeProducts[$store['ID']];
+				$store['PRODUCT_AMOUNT'] = $storeProducts[$store['ID']]['AMOUNT'];
+				$store['PRODUCT_RESERVED'] = $storeProducts[$store['ID']]['RESERVED'];
 			}
 
-			$store['IMAGE'] = null;
-			if ($store['IMAGE_ID'] > 0)
+			if ($store['IMAGE_ID'] !== null)
 			{
-				$store['IMAGE'] = $this->getImageSource($store['IMAGE_ID']);
+				$store['IMAGE_ID'] = (int)$store['IMAGE_ID'];
+				if ($store['IMAGE_ID'] <= 0)
+				{
+					$store['IMAGE_ID'] = null;
+				}
 			}
+			$store['IMAGE'] =
+				$store['IMAGE_ID'] !== null
+					? $this->getImageSource($store['IMAGE_ID'])
+					: null
+			;
 
 			$stores[] = $store;
 		}
@@ -255,6 +267,10 @@ class StoreProvider extends BaseProvider
 						: ''
 				,
 				'type' => 'html',
+			],
+			'customData' => [
+				'amount' => (float)$store['PRODUCT_AMOUNT'],
+				'availableAmount' => (float)$store['PRODUCT_AMOUNT'] - (float)$store['PRODUCT_RESERVED'],
 			],
 		]);
 

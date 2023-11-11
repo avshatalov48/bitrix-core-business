@@ -9,7 +9,10 @@
 .bx-im-sidebar-file-document-detail-item__container {
 	display: flex;
 	align-items: center;
-	margin-bottom: 24px;
+}
+
+.bx-im-sidebar-file-document-detail-item__container + .bx-im-sidebar-file-document-detail-item__container {
+	margin-top: 12px;
 }
 
 .bx-im-sidebar-file-document-detail-item__icon-container {
@@ -53,6 +56,9 @@
 	font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-medium);
 	color: var(--im-sidebar-file-document-detail-item__color_document-title);
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 .bx-im-sidebar-file-document-detail-item__document-title-text:hover {

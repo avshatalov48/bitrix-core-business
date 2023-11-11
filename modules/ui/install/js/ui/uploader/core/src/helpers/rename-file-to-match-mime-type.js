@@ -1,7 +1,7 @@
 import getFilenameWithoutExtension from './get-filename-without-extension';
 
 const extensionMap = {
-	'jpeg': 'jpg',
+	jpeg: 'jpg',
 };
 
 const renameFileToMatchMimeType = (filename, mimeType) => {

@@ -108,21 +108,29 @@
 				trDnd.appendChild(divRowDnd.cloneNode(true));
 			})
 			newTable.removeAttribute('id');
-			BX.Landing.Block.Node.Text.currentNode.onChange(true);
+			if (BX.Landing.Node.Text.currentNode)
+			{
+				BX.Landing.Node.Text.currentNode.onChange(true);
+			}
 		},
 
 		getCellWidth: function()
 		{
-			var STANDART_CELL_WIDTH = 250;
-			var BRAKEPOINT_DINAMIC_CELL = 1000;
-			var TECHNIC_WIDTH = 57;
-			var DEFAULT_AMOUNT_CELL = 4;
-			var cellWidth = STANDART_CELL_WIDTH;
-			var textNodeWidth = BX.Landing.Block.Node.Text.currentNode.node.getBoundingClientRect().width;
-			if (textNodeWidth < BRAKEPOINT_DINAMIC_CELL)
+			const STANDART_CELL_WIDTH = 250;
+			const BRAKEPOINT_DINAMIC_CELL = 1000;
+			const TECHNIC_WIDTH = 57;
+			const DEFAULT_AMOUNT_CELL = 4;
+
+			let cellWidth = STANDART_CELL_WIDTH;
+			if (BX.Landing.Node.Text.currentNode)
 			{
-				cellWidth = Math.floor((textNodeWidth - TECHNIC_WIDTH) / DEFAULT_AMOUNT_CELL);
+				const textNodeWidth = BX.Landing.Node.Text.currentNode.node.getBoundingClientRect().width;
+				if (textNodeWidth < BRAKEPOINT_DINAMIC_CELL)
+				{
+					cellWidth = Math.floor((textNodeWidth - TECHNIC_WIDTH) / DEFAULT_AMOUNT_CELL);
+				}
 			}
+
 			return cellWidth;
 		}
 	};

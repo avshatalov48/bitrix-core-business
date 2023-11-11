@@ -30,34 +30,30 @@ class CIBlockPropertyElementList
 
 	public static function PrepareSettings($arProperty)
 	{
-		$size = 0;
-		if(is_array($arProperty["USER_TYPE_SETTINGS"]))
-			$size = intval($arProperty["USER_TYPE_SETTINGS"]["size"]);
-		if($size <= 0)
+		$size = (int)($arProperty['USER_TYPE_SETTINGS']['size'] ?? 0);
+		if ($size <= 0)
+		{
 			$size = 1;
+		}
 
-		$width = 0;
-		if(is_array($arProperty["USER_TYPE_SETTINGS"]))
-			$width = intval($arProperty["USER_TYPE_SETTINGS"]["width"]);
-		if($width <= 0)
+		$width = (int)($arProperty['USER_TYPE_SETTINGS']['width'] ?? 0);
+		if ($width <= 0)
+		{
 			$width = 0;
+		}
 
-		if(is_array($arProperty["USER_TYPE_SETTINGS"]) && $arProperty["USER_TYPE_SETTINGS"]["group"] === "Y")
-			$group = "Y";
-		else
-			$group = "N";
+		$group = ($arProperty['USER_TYPE_SETTINGS']['group'] ?? 'N');
+		$group = ($group === 'Y' ? 'Y' : 'N');
 
-		if(is_array($arProperty["USER_TYPE_SETTINGS"]) && $arProperty["USER_TYPE_SETTINGS"]["multiple"] === "Y")
-			$multiple = "Y";
-		else
-			$multiple = "N";
+		$multiple = ($arProperty['USER_TYPE_SETTINGS']['multiple'] ?? 'N');
+		$multiple = ($multiple === 'Y' ? 'Y' : 'N');
 
-		return array(
-			"size" =>  $size,
-			"width" => $width,
-			"group" => $group,
-			"multiple" => $multiple,
-		);
+		return [
+			'size' =>  $size,
+			'width' => $width,
+			'group' => $group,
+			'multiple' => $multiple,
+		];
 	}
 
 	public static function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields)
@@ -111,10 +107,14 @@ class CIBlockPropertyElementList
 		$options = CIBlockPropertyElementList::GetOptionsHtml($arProperty, array($value["VALUE"]), $bWasSelect);
 
 		$html = '<select name="'.$strHTMLControlName["VALUE"].'"'.$size.$width.'>';
-		if($arProperty["IS_REQUIRED"] != "Y")
-			$html .= '<option value=""'.(!$bWasSelect? ' selected': '').'>'.Loc::getMessage("IBLOCK_PROP_ELEMENT_LIST_NO_VALUE").'</option>';
+		$arProperty['IS_REQUIRED'] ??= 'N';
+		if($arProperty['IS_REQUIRED'] !== 'Y')
+		{
+			$html .= '<option value=""'.(!$bWasSelect ? ' selected' : '').'>'.Loc::getMessage("IBLOCK_PROP_ELEMENT_LIST_NO_VALUE").'</option>';
+		}
 		$html .= $options;
 		$html .= '</select>';
+
 		return  $html;
 	}
 

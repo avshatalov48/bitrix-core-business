@@ -1,5 +1,8 @@
 module.exports = {
 	input: 'src/index.js',
-	output: 'dist/label.bundle.js',
+	output: {
+		js: 'dist/label.bundle.js',
+		css: 'dist/label.bundle.css'
+	},
 	namespace: 'BX.UI'
 };

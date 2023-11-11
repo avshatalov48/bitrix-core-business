@@ -1,26 +1,26 @@
-import {ImModelSidebarFileItem, ImModelFile} from 'im.v2.model';
-import {Avatar, AvatarSize} from 'im.v2.component.elements';
-import {SidebarAudioPlayer} from './audioplayer';
+import { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
+import { Avatar, AvatarSize, AudioPlayer } from 'im.v2.component.elements';
+
 import '../../../css/file/audio-detail-item.css';
 
 // @vue/component
 export const AudioDetailItem = {
 	name: 'AudioDetailItem',
-	components: {SidebarAudioPlayer, Avatar},
+	components: { AudioPlayer, Avatar },
 	props: {
 		id: {
 			type: Number,
-			required: true
+			required: true,
 		},
 		fileItem: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['contextMenuClick'],
 	data() {
 		return {
-			timelineType: 0
+			timelineType: 0,
 		};
 	},
 	computed:
@@ -37,7 +37,7 @@ export const AudioDetailItem = {
 		audioUrl(): string
 		{
 			return this.file.urlDownload;
-		}
+		},
 	},
 	created()
 	{
@@ -52,11 +52,11 @@ export const AudioDetailItem = {
 				file: this.file,
 				messageId: this.sidebarFileItem.messageId,
 			}, event.currentTarget);
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-file-audio-detail-item__container bx-im-sidebar-file-audio-detail-item__scope">
-			<SidebarAudioPlayer 
+			<AudioPlayer 
 				:id="id"
 				:src="audioUrl" 
 				:file="file" 
@@ -65,5 +65,5 @@ export const AudioDetailItem = {
 				@contextMenuClick="onContextMenuClick"
 			/>
 		</div>
-	`
+	`,
 };

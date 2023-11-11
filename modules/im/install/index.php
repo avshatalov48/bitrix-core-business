@@ -23,11 +23,6 @@ class im extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = IM_VERSION;
-			$this->MODULE_VERSION_DATE = IM_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("IM_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("IM_MODULE_DESCRIPTION");
@@ -421,6 +416,8 @@ class im extends CModule
 		{
 			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/im/install/db/' . $connection->getType() . '/uninstall.sql');
 			COption::RemoveOption("im", "general_chat_id");
+			\Bitrix\Im\V2\Chat\GeneralChat::cleanGeneralChatCache(\Bitrix\Im\V2\Chat\GeneralChat::ID_CACHE_ID);
+			\Bitrix\Im\V2\Chat\GeneralChat::cleanGeneralChatCache(\Bitrix\Im\V2\Chat\GeneralChat::MANAGERS_CACHE_ID);
 			\Bitrix\Main\Config\Option::delete('im', ['name' => \Bitrix\Im\Configuration\Configuration::DEFAULT_PRESET_SETTING_NAME]);
 		}
 

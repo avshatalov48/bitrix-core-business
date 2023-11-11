@@ -17,6 +17,6 @@ export {UserStatus, UserExternalType} from './user';
 export {Color} from './color';
 export {AttachType, AttachDescription} from './attach';
 export {DesktopFeature} from './desktop';
-export {ApplicationName} from './application';
+export {ApplicationName, ApplicationLayout} from './application';
 export {PopupType} from './popup';
 export {LocalStorageKey} from './local-storage';

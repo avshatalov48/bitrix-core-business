@@ -2445,13 +2445,13 @@ class CUpdateClientPartner
 
 		include_once($path."/install/index.php");
 
-		$arr = explode("/", $path);
-		$i = array_search("modules", $arr);
-		$module_code = $arr[$i+1];
-
+		$module_code = basename($path);
 		$class_name = str_replace(".", "_", $module_code);
+
 		if (!class_exists($class_name))
+		{
 			return array();
+		}
 
 		$cls = new $class_name;
 

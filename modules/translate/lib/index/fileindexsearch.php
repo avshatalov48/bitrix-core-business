@@ -35,7 +35,7 @@ class FileIndexSearch
 	 * @param array $filterIn Filter params.
 	 * @return int
 	 */
-	public static function getCount($filterIn)
+	public static function getCount($filterIn): int
 	{
 		[$select, $runtime, $filter] = self::processParams(['filter' => $filterIn]);
 
@@ -64,11 +64,11 @@ class FileIndexSearch
 	 * @param array $params Orm type params for the query.
 	 * @return Main\ORM\Query\Result
 	 */
-	public static function getList($params)
+	public static function getList($params): Main\ORM\Query\Result
 	{
 		[$select, $runtime, $filter] = self::processParams($params);
 
-		$executeParams = array(
+		$executeParams = [
 			'select' => \array_merge(
 				[
 					'PATH_ID' => 'ID',
@@ -81,7 +81,7 @@ class FileIndexSearch
 			),
 			'runtime' => $runtime,
 			'filter' => $filter,
-		);
+		];
 
 		if (isset($params['order']))
 		{
@@ -110,7 +110,7 @@ class FileIndexSearch
 	 * @param array $params Orm type params for the query.
 	 * @return array
 	 */
-	private static function processParams($params)
+	private static function processParams($params): array
 	{
 		$select = $runtime = $filterIn = $filterOut = [];
 		if (isset($params['filter']))
@@ -128,7 +128,7 @@ class FileIndexSearch
 		$enabledLanguages = Translate\Config::getEnabledLanguages();
 		$languageUpperKeys = \array_combine($enabledLanguages, \array_map('mb_strtoupper', $enabledLanguages));
 
-		$selectedLanguages = array();
+		$selectedLanguages = [];
 		foreach ($languageUpperKeys as $langId => $langUpper)
 		{
 			$alias = "{$langUpper}_LANG";
@@ -184,7 +184,7 @@ class FileIndexSearch
 				$tblAlias,
 				Index\Internals\FileIndexTable::class,
 				Main\ORM\Query\Join::on('ref.PATH_ID', '=', 'this.ID')->where('ref.LANG_ID', '=', $langId),
-				array('join_type' => $searchByLang ? 'INNER' : 'LEFT')
+				['join_type' => $searchByLang ? 'INNER' : 'LEFT']
 			);
 
 			$select[$alias] = "{$tblAlias}.PHRASE_COUNT";
@@ -195,7 +195,7 @@ class FileIndexSearch
 		if (Main\Localization\Translation::useTranslationRepository())
 		{
 			$statement = '';
-			$fields = array();
+			$fields = [];
 			foreach ($languageUpperKeys as $langId => $langUpper)
 			{
 				if (Main\Localization\Translation::isDefaultTranslationLang($langId))
@@ -253,7 +253,7 @@ class FileIndexSearch
 		};
 		$trimSlash = static function(&$val)
 		{
-			if (\mb_substr($val, -4) === '.php')
+			if (Translate\IO\Path::isPhpFile($val))
 			{
 				$val = '/'. \trim($val, '/');
 			}
@@ -290,20 +290,20 @@ class FileIndexSearch
 					\array_walk($pathNameIncludes, $replaceLangId);
 					\array_walk($pathPathIncludes, $replaceLangId);
 					\array_walk($pathPathIncludes, $trimSlash);
-					$filterOut[] = array(
+					$filterOut[] = [
 						'LOGIC' => 'OR',
 						'%=NAME' => $pathNameIncludes,
 						'%=PATH' => $pathPathIncludes,
-					);
+					];
 				}
 				elseif (\count($pathNameIncludes) > 0)
 				{
 					\array_walk($pathNameIncludes, $replaceLangId);
-					$filterOut[] = array(
+					$filterOut[] = [
 						'LOGIC' => 'OR',
 						'%=NAME' => $pathNameIncludes,
 						'%=PATH' => $pathNameIncludes,
-					);
+					];
 				}
 				elseif (\count($pathPathIncludes) > 0)
 				{
@@ -341,20 +341,20 @@ class FileIndexSearch
 					\array_walk($pathNameExcludes, $replaceLangId);
 					\array_walk($pathPathExcludes, $replaceLangId);
 					\array_walk($pathPathExcludes, $trimSlash);
-					$filterOut[] = array(
+					$filterOut[] = [
 						'LOGIC' => 'AND',
 						'!=%NAME' => $pathNameExcludes,
 						'!=%PATH' => $pathPathExcludes,
-					);
+					];
 				}
 				elseif (\count($pathNameExcludes) > 0)
 				{
 					\array_walk($pathNameExcludes, $replaceLangId);
-					$filterOut[] = array(
+					$filterOut[] = [
 						'LOGIC' => 'AND',
 						'!=%NAME' => $pathNameExcludes,
 						'!=%PATH' => $pathNameExcludes,
-					);
+					];
 				}
 				elseif (\count($pathPathExcludes) > 0)
 				{
@@ -394,6 +394,6 @@ class FileIndexSearch
 			$filterOut[$key] = $value;
 		}
 
-		return array($select, $runtime, $filterOut);
+		return [$select, $runtime, $filterOut];
 	}
 }

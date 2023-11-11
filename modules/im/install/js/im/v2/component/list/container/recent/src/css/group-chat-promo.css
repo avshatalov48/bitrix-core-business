@@ -1,0 +1,89 @@
+.bx-im-group-chat-promo__container {
+	--im-group-chat-promo__background-color_title: var(--im-color-palette-gray-90);
+	--im-group-chat-promo__background-color_content: var(--im-color-palette-gray-02);
+	--im-group-chat-promo__background-color_text: var(--im-color-palette-gray-70);
+
+	padding: 23px 20px 20px;
+}
+
+.bx-im-group-chat-promo__button-panel {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.bx-im-group-chat-promo__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 20px;
+}
+
+.bx-im-group-chat-promo__title {
+	font: var(--im-font-size-2xl) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-group-chat-promo__background-color_title);
+}
+
+.bx-im-group-chat-promo__close {
+	width: 24px;
+	height: 24px;
+	background-image: url('./images/promo/close.svg');
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+
+.bx-im-group-chat-promo__close:hover {
+	background-image: url('./images/promo/close-hover.svg');
+}
+
+.bx-im-group-chat-promo__content {
+	padding: 20px 12px;
+	background-color: var(--im-group-chat-promo__background-color_content);
+	border-radius: var(--im-border-radius-sm);
+	margin-bottom: 28px;
+}
+
+.bx-im-group-chat-promo__content_image {
+	width: 428px;
+	height: 170px;
+	margin-bottom: 20px;
+}
+
+.bx-im-group-chat-promo__content_item {
+	display: flex;
+	margin-bottom: 16px;
+}
+
+.bx-im-group-chat-promo__content_icon {
+	flex-shrink: 0;
+	width: 28px;
+	height: 28px;
+	background-repeat: no-repeat;
+	margin-right: 14px;
+}
+
+.bx-im-group-chat-promo__content_icon.--like {
+	background-image: url('./images/promo/like.svg');
+}
+
+.bx-im-group-chat-promo__content_icon.--chat {
+	background-image: url('./images/promo/chat.svg');
+}
+
+.bx-im-group-chat-promo__content_icon.--group {
+	background-image: url('./images/promo/group.svg');
+}
+
+.bx-im-group-chat-promo__content_icon.--camera {
+	background-image: url('./images/promo/camera.svg');
+}
+
+.bx-im-group-chat-promo__content_icon.--link {
+	background-image: url('./images/promo/link.svg');
+}
+
+.bx-im-group-chat-promo__content_text {
+	font: var(--im-font-size-xs)/16px var(--im-font-family-system);
+	color: var(--im-group-chat-promo__background-color_text);
+}

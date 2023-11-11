@@ -29,3 +29,4 @@ drop table if exists b_landing_urlchecker_status;
 drop table if exists b_landing_urlchecker_host;
 drop table if exists b_landing_block_last_used;
 drop table if exists b_landing_history;
+drop table if exists b_landing_history_step;

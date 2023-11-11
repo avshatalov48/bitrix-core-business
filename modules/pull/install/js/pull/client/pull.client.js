@@ -929,7 +929,7 @@
 
 		/**
 		 * Returns list channels that the connection is subscribed to.
-		 * 
+		 *
 		 * @returns {Promise}
 		 */
 		listChannels()
@@ -947,7 +947,7 @@
 
 			this.restartTimeout = setTimeout(
 				() => this.restart(disconnectCode, disconnectReason),
-				restartDelay
+				restartDelay * 1000
 			);
 		}
 
@@ -967,13 +967,15 @@
 			this.config = null;
 
 			this.loadConfig().then(
-				(config) =>	{
+				(config) =>
+				{
 					this.setConfig(config, true);
 					this.updateWatch();
 					this.startCheckConfig();
 					this.connect().catch(error => console.error(error));
 				},
-				(error) => {
+				(error) =>
+				{
 					console.error(Utils.getDateForLog() + ': Pull: could not read push-server config', error);
 					this.status = PullStatus.Offline;
 
@@ -1249,7 +1251,9 @@
 
 			if (!connectionDelay)
 			{
-				if (this.connectionAttempt > 3 && this.connectionType === ConnectionType.WebSocket && !this.sharedConfig.isLongPollingBlocked())
+				// never fallback to long polling
+				// TODO remove long polling support later
+				/*if (this.connectionAttempt > 3 && this.connectionType === ConnectionType.WebSocket && !this.sharedConfig.isLongPollingBlocked())
 				{
 					// Websocket seems to be closed by network filter. Trying to fallback to long polling
 					this.sharedConfig.setWebSocketBlocked(true);
@@ -1257,7 +1261,7 @@
 					this.connectionAttempt = 1;
 					connectionDelay = 1;
 				}
-				else
+				else*/
 				{
 					connectionDelay = this.getConnectionAttemptDelay(this.connectionAttempt);
 				}
@@ -1519,7 +1523,7 @@
 			const dataArray = pullEvent.match(/#!NGINXNMS!#(.*?)#!NGINXNME!#/gm);
 			if (dataArray === null)
 			{
-				text = "\n========= PULL ERROR ===========\n" +
+				const text = "\n========= PULL ERROR ===========\n" +
 					"Error type: parseResponse error parsing message\n" +
 					"\n" +
 					"Data string: " + pullEvent + "\n" +
@@ -2016,22 +2020,13 @@
 						text: BX.message('JS_CORE_WINDOW_CLOSE'),
 						className: "popup-window-button-decline",
 						events: {
-							click: () =>
-							{
-								this.notificationPopup.close();
-							}
+							click: () => this.notificationPopup.close(),
 						}
 					})
 				],
 				events: {
-					onPopupClose: function () //not arrow function; this should come from popup
-					{
-						this.destroy()
-					},
-					onPopupDestroy: () =>
-					{
-						this.notificationPopup = null;
-					}
+					onPopupClose: () =>	this.notificationPopup.destroy(),
+					onPopupDestroy: () =>this.notificationPopup = null,
 				}
 			});
 			this.notificationPopup.show();
@@ -2059,7 +2054,7 @@
 
 		getDebugInfo()
 		{
-			if (!console || !console.info || !JSON || !JSON.stringify)
+			if (!JSON || !JSON.stringify)
 			{
 				return false;
 			}
@@ -2067,13 +2062,15 @@
 			let configDump;
 			if (this.config && this.config.channels)
 			{
-				configDump = "ChannelID: " + (this.config.channels.private ? this.config.channels.private.id : "n/a")  + "\n" +
-					"ChannelDie: " + (this.config.channels.private ? this.config.channels.private.end : "n/a" ) + "\n" +
-					("shared" in this.config.channels ? "ChannelDieShared: " + this.config.channels.shared.end : "");
+				configDump = {
+					"ChannelID": (this.config.channels.private ? this.config.channels.private.id : "n/a"),
+					"ChannelDie": (this.config.channels.private ? this.config.channels.private.end : "n/a"),
+					"ChannelDieShared": ("shared" in this.config.channels ? this.config.channels.shared.end : "n/a"),
+				};
 			}
 			else
 			{
-				configDump = "Config error: config is not loaded";
+				configDump = {"Config error": "config is not loaded"}
 			}
 
 			let websocketMode = "-";
@@ -2089,29 +2086,26 @@
 				}
 			}
 
-			const watchTagsDump = JSON.stringify(this.watchTagsQueue);
-			const text = "\n========= PULL DEBUG ===========\n" +
-				"UserId: " + this.userId + " " + (this.userId > 0 ? '' : '(guest)') + "\n" +
-				(this.guestMode && this.guestUserId !== 0 ? "Guest userId: " + this.guestUserId + "\n" : "") +
-				"Browser online: " + (navigator.onLine ? 'Y' : 'N') + "\n" +
-				"Connect: " + (this.isConnected() ? 'Y' : 'N') + "\n" +
-				"Server type: " + (this.isSharedMode() ? 'cloud' : 'local') + "\n" +
-				"WebSocket supported: " + (this.isWebSocketSupported() ? 'Y' : 'N') + "\n" +
-				"WebSocket connected: " + (this._connectors.webSocket && this._connectors.webSocket.connected ? 'Y' : 'N') + "\n" +
-				"WebSocket mode: " + websocketMode + "\n" +
+			return {
+				"UserId": this.userId + (this.userId > 0 ? '' : '(guest)'),
+				"Guest userId": (this.guestMode && this.guestUserId !== 0 ? this.guestUserId : "-"),
+				"Browser online": (navigator.onLine ? 'Y' : 'N'),
+				"Connect": (this.isConnected() ? 'Y' : 'N'),
+				"Server type": (this.isSharedMode() ? 'cloud' : 'local'),
+				"WebSocket supported": (this.isWebSocketSupported() ? 'Y' : 'N'),
+				"WebSocket connected": (this._connectors.webSocket && this._connectors.webSocket.connected ? 'Y' : 'N'),
+				"WebSocket mode": websocketMode,
 
-				"Try connect: " + (this.reconnectTimeout ? 'Y' : 'N') + "\n" +
-				"Try number: " + (this.connectionAttempt) + "\n" +
-				"\n" +
-				"Path: " + (this.connector ? this.connector.path : '-') + "\n" +
-				configDump + "\n" +
-				"\n" +
-				"Last message: " + (this.session.mid > 0 ? this.session.mid : '-') + "\n" +
-				"Session history: " + JSON.stringify(this.session.history) + "\n" +
-				"Watch tags: " + (watchTagsDump == '{}' ? '-' : watchTagsDump) + "\n" +
-				"================================\n";
+				"Try connect": (this.reconnectTimeout ? 'Y' : 'N'),
+				"Try number": (this.connectionAttempt),
 
-			return console.info(text);
+				"Path": (this.connector ? this.connector.path : '-'),
+				...configDump,
+
+				"Last message": (this.session.mid > 0 ? this.session.mid : '-'),
+				"Session history": JSON.stringify(this.session.history),
+				"Watch tags": this.watchTagsQueue,
+			}
 		}
 
 		enableLogging(loggingFlag)
@@ -3091,7 +3085,8 @@
 					reject(new ErrorNotConnected('websocket is not connected'));
 				}
 
-				const t = setTimeout(() => {
+				const t = setTimeout(() =>
+				{
 					this.rpcResponseAwaiters.delete(request.id);
 					reject(new ErrorTimeout('no response'));
 				}, timeout * 1000);

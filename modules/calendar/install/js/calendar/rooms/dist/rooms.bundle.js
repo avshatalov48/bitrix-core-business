@@ -287,7 +287,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 	    if (!this.fullColorPicker || (_this$fullColorPicker = this.fullColorPicker.getPopupWindow()) != null && _this$fullColorPicker.isDestroyed()) {
 	      this.fullColorPicker = new BX.ColorPicker({
-	        bindElement: this.colorIcon,
+	        bindElement: this.DOM.colorContWrap,
 	        onColorSelected: BX.delegate(function (color) {
 	          this.setColor(color);
 	        }, this),
@@ -1212,6 +1212,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.CATEGORY_ROOMS_SHOWN_ALL = 0;
 	    this.CATEGORY_ROOMS_SHOWN_SOME = 1;
 	    this.CATEGORY_ROOMS_SHOWN_NONE = 2;
+	    this.HELP_DESK_CODE = 14327694;
 	    this.setEventNamespace('BX.Calendar.RoomsInterface');
 	    this.roomsManager = roomsManager;
 	    this.categoryManager = categoryManager;
@@ -1280,10 +1281,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  renderTitleWrap() {
 	    return main_core.Tag.render(_t2$3 || (_t2$3 = _$3`
-				<div class="calendar-list-slider-title-container">
-					<div class="calendar-list-slider-title">${0}</div>
+			<div class="calendar-list-slider-title-container">
+				<div class="calendar-list-slider-title">
+					${0}
+					<span onclick="${0}" class="ui-hint" title="${0}">
+						<span class="ui-hint-icon"></span>
+					</span>
 				</div>
-			`), main_core.Loc.getMessage('EC_SECTION_ROOMS'));
+			</div>
+		`), main_core.Loc.getMessage('EC_SECTION_ROOMS'), this.openHelpDesk.bind(this), main_core.Loc.getMessage('EC_CALENDAR_HOW_DOES_IT_WORK'));
 	  }
 	  renderAddButton() {
 	    return main_core.Tag.render(_t3$3 || (_t3$3 = _$3`
@@ -1971,6 +1977,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  getConfirmRoomInterfaceContent(text) {
 	    return main_core.Tag.render(_t19 || (_t19 = _$3`<div class="calendar-list-slider-messagebox-text">${0}</div>`), text);
+	  }
+	  openHelpDesk() {
+	    top.BX.Helper.show('redirect=detail&code=' + this.HELP_DESK_CODE);
 	  }
 	  keyHandler(e) {
 	    if (e.keyCode === calendar_util.Util.getKeyCode('enter')) {

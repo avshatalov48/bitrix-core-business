@@ -177,7 +177,7 @@ export default class Welcome
 				<div class="calendar-pub__welcome">
 					<div class="calendar-pub__welcome-user">
 						<div class="calendar-pub__welcome-userpic ui-icon ui-icon-common-user">
-							<i ${this.#photo ? `style="background-image: url(${this.#photo})"` : ''}></i>
+							<i ${this.#photo ? `style="background-image: url(${encodeURI(this.#photo)})"` : ''}></i>
 						</div>
 						<div class="calendar-pub-ui__typography-m">
 							${this.#name ? this.#name : ''} ${this.#lastName ? this.#lastName : ''} 

@@ -1,16 +1,15 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,ui_fonts_opensans,ui_designTokens,ui_notification,ui_entitySelector,ui_dialogs_messagebox,main_loader,main_core,main_core_events,main_popup,ui_buttons,ui_sidepanel_layout) {
 	'use strict';
 
 	let _ = t => t,
-	    _t,
-	    _t2,
-	    _t3,
-	    _t4;
-
+	  _t,
+	  _t2,
+	  _t3,
+	  _t4;
 	var _parent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("parent");
-
 	class DefaultTab extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -21,33 +20,26 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	    this.setEventNamespace('Main.Avatar.Editor');
 	  }
-
 	  getPriority() {
 	    return this.constructor.priority;
 	  }
-
 	  setParentTab(tab) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _parent)[_parent] = tab;
 	  }
-
 	  getHeaderContainer() {
 	    return this.cache.remember('headerContainer', () => {
 	      const id = this.constructor.code;
 	      const title = this.getHeader();
-
 	      if (title === null) {
 	        return main_core.Tag.render(_t || (_t = _`<span style="display: none;" data-bx-role="tab-header"  data-bx-state="hidden" data-bx-name="${0}"></span>`), id);
 	      }
-
 	      return main_core.Tag.render(_t2 || (_t2 = _`<span class="ui-avatar-editor__tab-button-item" data-bx-role="tab-header" data-bx-state="visible" data-bx-name="${0}">${0}</span>`), id, title);
 	    });
 	  }
-
 	  getHeader() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _parent)[_parent] !== null) return this.constructor.code.toUpperCase();
 	    return null;
 	  }
-
 	  getBodyContainer() {
 	    return this.cache.remember('bodyContainer', () => {
 	      const id = this.constructor.code;
@@ -55,7 +47,6 @@ this.BX.UI = this.BX.UI || {};
 				<div class="ui-avatar-editor__content-block ui-avatar-editor__${0}-block" data-bx-role="tab-body" data-bx-name="${0}">${0}</div>`), id, id, this.getBody());
 	    });
 	  }
-
 	  getBody() {
 	    const id = this.constructor.code;
 	    return this.cache.remember('body', () => {
@@ -65,69 +56,54 @@ this.BX.UI = this.BX.UI || {};
 			</div>`), id.toUpperCase());
 	    });
 	  }
-
 	  inactivate() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _parent)[_parent]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _parent)[_parent].getHeaderContainer().removeAttribute('data-bx-active');
-
 	      main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _parent)[_parent].getHeaderContainer(), 'ui-avatar-editor__tab-button-active');
 	    }
-
 	    this.getHeaderContainer().removeAttribute('data-bx-active');
 	    main_core.Dom.removeClass(this.getHeaderContainer(), 'ui-avatar-editor__tab-button-active');
 	    this.getBodyContainer().removeAttribute('data-bx-active');
 	    this.emit('onInactive');
 	    return this;
 	  }
-
 	  activate() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _parent)[_parent]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _parent)[_parent].getHeaderContainer().setAttribute('data-bx-active', 'Y');
-
 	      main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _parent)[_parent].getHeaderContainer(), 'ui-avatar-editor__tab-button-active');
 	    }
-
 	    this.getHeaderContainer().setAttribute('data-bx-active', 'Y');
 	    main_core.Dom.addClass(this.getHeaderContainer(), 'ui-avatar-editor__tab-button-active');
 	    this.getBodyContainer().setAttribute('data-bx-active', 'Y');
 	    this.emit('onActive');
 	    return this;
 	  }
-
 	  showError({
 	    message,
 	    code
 	  }) {
 	    const errorContainer = this.getBody().querySelector('[data-bx-role="error-container"]');
-
 	    if (errorContainer) {
 	      errorContainer.innerText = message || code;
 	    }
-
 	    main_core.Dom.addClass(this.getBodyContainer(), 'ui-avatar-editor--error');
 	  }
-
 	  static isAvailable() {
 	    return true;
 	  }
-
 	  static get code() {
 	    return 'default';
 	  }
-
 	}
 	DefaultTab.priority = 1;
 
 	let _$1 = t => t,
-	    _t$1;
-
+	  _t$1;
 	var _isCameraEnabled = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCameraEnabled");
-
 	class CameraTab extends DefaultTab {
 	  getHeader() {
 	    return null;
 	  }
-
 	  getBody() {
 	    return this.cache.remember('body', () => {
 	      const res = main_core.Tag.render(_t$1 || (_t$1 = _$1`
@@ -161,12 +137,12 @@ this.BX.UI = this.BX.UI || {};
 	      const video = res.querySelector('VIDEO');
 	      video.addEventListener("playing", event => {
 	        const visibleWidth = res.clientWidth,
-	              visibleHeight = res.clientHeight,
-	              w = video.clientWidth,
-	              h = video.clientHeight,
-	              scale = Math.max(w > 0 ? visibleWidth / w : 1, h > 0 ? visibleHeight / h : 1),
-	              left = (w * scale - w) / 2 + (visibleWidth - w * scale) / 2,
-	              top = (h * scale - h) / 2 + (visibleHeight - h * scale) / 2;
+	          visibleHeight = res.clientHeight,
+	          w = video.clientWidth,
+	          h = video.clientHeight,
+	          scale = Math.max(w > 0 ? visibleWidth / w : 1, h > 0 ? visibleHeight / h : 1),
+	          left = (w * scale - w) / 2 + (visibleWidth - w * scale) / 2,
+	          top = (h * scale - h) / 2 + (visibleHeight - h * scale) / 2;
 	        main_core.Dom.adjust(video.parentNode, {
 	          style: {
 	            width: w + 'px',
@@ -175,29 +151,23 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        });
 	      });
-
 	      res.querySelector('[data-bx-role="camera-button"]').onclick = () => {
 	        this.emit('onSetFile', video);
 	      };
-
 	      res.querySelector('[data-bx-role="button-back"]').onclick = () => {
 	        this.emit('onClickBack');
 	      };
-
 	      return res;
 	    });
 	  }
-
 	  inactivate() {
 	    this.stopStreaming();
 	    return super.inactivate();
 	  }
-
 	  activate() {
 	    this.startStreaming();
 	    return super.activate();
 	  }
-
 	  startStreaming() {
 	    const video = this.getBody().querySelector('VIDEO');
 	    video.setAttribute("active", "Y");
@@ -225,18 +195,15 @@ this.BX.UI = this.BX.UI || {};
 	      this.getBody().querySelector('[data-bx-role="tab-camera-error"]').innerHTML = main_core.Text.encode(error);
 	    });
 	  }
-
 	  stopStreaming() {
 	    const video = this.getBody().querySelector('VIDEO');
 	    video.removeAttribute("active");
 	    video.pause();
 	    video.src = "";
-
 	    if (video.srcObject) {
 	      video.srcObject.getTracks()[0].stop();
 	    }
 	  }
-
 	  static check() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _isCameraEnabled)[_isCameraEnabled] === null) {
 	      if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
@@ -252,16 +219,13 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	  }
-
 	  static isAvailable() {
 	    this.check();
 	    return babelHelpers.classPrivateFieldLooseBase(this, _isCameraEnabled)[_isCameraEnabled];
 	  }
-
 	  static get code() {
 	    return 'camera';
 	  }
-
 	}
 	CameraTab.priority = 2;
 	Object.defineProperty(CameraTab, _isCameraEnabled, {
@@ -270,7 +234,6 @@ this.BX.UI = this.BX.UI || {};
 	});
 
 	var _ajaxRepo = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("ajaxRepo");
-
 	class Backend {
 	  static saveMask({
 	    id,
@@ -280,11 +243,9 @@ this.BX.UI = this.BX.UI || {};
 	    if (main_core.Loc.getMessage('USER_ID') <= 0) {
 	      return;
 	    }
-
 	    const formObj = new FormData();
 	    formObj.append('id', id);
 	    formObj.append('title', title);
-
 	    if (accessCode.length > 0) {
 	      Array.from(accessCode).forEach((accessCode, index) => {
 	        formObj.append('accessCode[' + index + '][0]', accessCode[0]);
@@ -293,14 +254,12 @@ this.BX.UI = this.BX.UI || {};
 	    } else {
 	      formObj.append('accessCode[]', '');
 	    }
-
 	    if (file instanceof Blob) {
 	      formObj.append('file[changed]', 'Y');
 	      formObj.append('file', file, file['name']);
 	    } else {
 	      formObj.append('file[changed]', 'N');
 	    }
-
 	    return main_core.ajax.runAction('ui.avatar.mask.save', {
 	      data: formObj,
 	      analyticsLabel: {
@@ -310,7 +269,6 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	  }
-
 	  static getMaskList(actionName, {
 	    page,
 	    size
@@ -336,7 +294,6 @@ this.BX.UI = this.BX.UI || {};
 	      }).catch(reject);
 	    });
 	  }
-
 	  static getMaskInitialInfo({
 	    size,
 	    recentlyUsedListSize
@@ -345,7 +302,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (babelHelpers.classPrivateFieldLooseBase(this, _ajaxRepo)[_ajaxRepo]['getMaskInitialInfo']) {
 	        return resolve(babelHelpers.classPrivateFieldLooseBase(this, _ajaxRepo)[_ajaxRepo]['getMaskInitialInfo']);
 	      }
-
 	      main_core.ajax.runAction('ui.avatar.mask.getMaskInitialInfo', {
 	        data: {
 	          recentlyUsedListSize: recentlyUsedListSize
@@ -369,7 +325,6 @@ this.BX.UI = this.BX.UI || {};
 	      }).catch(reject);
 	    });
 	  }
-
 	  static getMaskAccessCode(itemId) {
 	    return main_core.ajax.runAction('ui.avatar.mask.getMaskAccessCode', {
 	      data: {
@@ -382,7 +337,6 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	  }
-
 	  static deleteMask(itemId) {
 	    return main_core.ajax.runAction('ui.avatar.mask.delete', {
 	      data: {
@@ -395,7 +349,6 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	  }
-
 	  static useRecently(itemId) {
 	    return main_core.ajax.runAction('ui.avatar.mask.useRecently', {
 	      data: {
@@ -408,7 +361,6 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	  }
-
 	  static cleanUp() {
 	    return main_core.ajax.runAction('ui.avatar.mask.cleanUp', {
 	      analyticsLabel: {
@@ -418,7 +370,6 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	  }
-
 	}
 	Object.defineProperty(Backend, _ajaxRepo, {
 	  writable: true,
@@ -426,25 +377,19 @@ this.BX.UI = this.BX.UI || {};
 	});
 
 	let _$2 = t => t,
-	    _t$2;
-
+	  _t$2;
 	function isImage(name, type, size) {
 	  type = type ? String(type) : null;
 	  size = size ? Number(size) : null;
 	  name = String(name).toLowerCase();
 	  let ext = name.split('.').pop();
-
 	  if (ext === name) {
 	    ext = null;
 	  }
-
 	  return (type === null || type.indexOf("image/") === 0) && (size === null || size < 20 * 1024 * 1024) && ext !== name && 'jpg,bmp,jpeg,jpe,gif,png,webp'.split(',').indexOf(ext) >= 0;
 	}
-
 	var _fileId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("fileId");
-
 	var _fileAccept = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("fileAccept");
-
 	class UploadTab extends DefaultTab {
 	  constructor(options) {
 	    super();
@@ -457,16 +402,13 @@ this.BX.UI = this.BX.UI || {};
 	      value: 'image/*'
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _fileId)[_fileId] = ['fileUpload_', new Date().valueOf()].join('_');
-
 	    if (options && options.fileAccept) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _fileAccept)[_fileAccept] = options.fileAccept;
 	    }
 	  }
-
 	  getHeader() {
 	    return null;
 	  }
-
 	  getBody() {
 	    return this.cache.remember('body', () => {
 	      const res = main_core.Tag.render(_t$2 || (_t$2 = _$2`
@@ -486,18 +428,15 @@ this.BX.UI = this.BX.UI || {};
 					<div class="ui-avatar-editor__upload-info-item"><!-- place for limit text --></div>
 				</div>
 			</div>`), babelHelpers.classPrivateFieldLooseBase(this, _fileId)[_fileId], main_core.Loc.getMessage('JS_AVATAR_EDITOR_PICK_UP_THE_FILE'), babelHelpers.classPrivateFieldLooseBase(this, _fileId)[_fileId], main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _fileAccept)[_fileAccept]), main_core.Loc.getMessage('JS_AVATAR_EDITOR_DROP_FILES_INTO_THIS_AREA'));
-
 	      const f = event => {
 	        const {
 	          target
 	        } = event;
 	        const fileButton = res.querySelector('[data-bx-role="file-button"]');
 	        const file = Array.from(target && target.files ? target.files : fileButton.files).shift();
-
 	        if (isImage(file.name, file.type, file.size)) {
 	          this.emit('onSetFile', file);
 	        }
-
 	        main_core.Event.unbindAll(fileButton);
 	        const node = fileButton.cloneNode(true, {
 	          value: ""
@@ -513,10 +452,8 @@ this.BX.UI = this.BX.UI || {};
 	        fileButton.parentNode.removeChild(fileButton);
 	        main_core.Event.bind(node, "change", f);
 	      };
-
 	      main_core.Event.bind(res.querySelector('[data-bx-role="file-button"]'), 'change', f);
 	      const dropZone = new BX.DD.dropFiles(res);
-
 	      if (dropZone && dropZone.supported()) {
 	        main_core_events.EventEmitter.subscribe(dropZone, 'dropFiles', (files, e) => {
 	          if (e && e["dataTransfer"] && e["dataTransfer"]["items"] && e["dataTransfer"]["items"].length > 0) {
@@ -524,18 +461,15 @@ this.BX.UI = this.BX.UI || {};
 	            Array.from(e["dataTransfer"]["items"]).forEach(item => {
 	              if (item["webkitGetAsEntry"] && item["getAsFile"]) {
 	                let entry = item["webkitGetAsEntry"]();
-
 	                if (entry && entry.isFile) {
 	                  fileCopy.push(item["getAsFile"]());
 	                }
 	              }
 	            });
-
 	            if (fileCopy.length > 0) {
 	              files = fileCopy;
 	            }
 	          }
-
 	          f({
 	            target: {
 	              files: files
@@ -549,7 +483,6 @@ this.BX.UI = this.BX.UI || {};
 	            const isFileTransfer = Array.from(e.dataTransfer.types).filter(type => {
 	              return type === "Files";
 	            }).length > 0;
-
 	            if (isFileTransfer) {
 	              main_core.Dom.addClass(res.parentNode, 'dnd-over');
 	            }
@@ -563,24 +496,19 @@ this.BX.UI = this.BX.UI || {};
 	          compatMode: true
 	        });
 	      }
-
 	      res.querySelector('[data-bx-role="button-back"]').onclick = () => {
 	        this.emit('onClickBack');
 	      };
-
 	      return res;
 	    });
 	  }
-
 	  deleteError() {
 	    this.getBody().querySelector('[data-bx-role="error-container"]').innerText = '';
 	    main_core.Dom.removeClass(this.getBodyContainer(), 'ui-avatar-editor--error');
 	  }
-
 	  static get code() {
 	    return 'upload';
 	  }
-
 	}
 	UploadTab.priority = 3;
 
@@ -590,24 +518,19 @@ this.BX.UI = this.BX.UI || {};
 	  rawSrc: document.currentScript.src,
 	  rawPath: null,
 	  eventNamespace: 'Main.Avatar.Editor',
-
 	  get path() {
 	    if (Options.rawPath === null) {
 	      const res = Options.rawSrc.split('/');
 	      let buf;
-
 	      while (buf = res.pop()) {
 	        if (buf === 'dist') {
 	          break;
 	        }
 	      }
-
 	      Options.rawPath = new main_core.Uri(res.join('/')).getPath();
 	    }
-
 	    return Options.rawPath;
 	  },
-
 	  getCollections: () => {
 	    const settings = Extension.getSettings('ui.avatar-editor');
 	    return Array.from(settings['commonCollection'])[{
@@ -625,24 +548,15 @@ this.BX.UI = this.BX.UI || {};
 	};
 
 	let _$3 = t => t,
-	    _t$3;
-
+	  _t$3;
 	var _instance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("instance");
-
 	var _data = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("data");
-
 	var _id = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("id");
-
 	var _changesCount = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("changesCount");
-
 	var _getEditor = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getEditor");
-
 	var _initAccessSelector = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initAccessSelector");
-
 	var _showSlider = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showSlider");
-
 	var _subscribedToASliderEvents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribedToASliderEvents");
-
 	class MaskEditor extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -671,7 +585,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.setEventNamespace([Options.eventNamespace, 'mask:editor'].join(':'));
 	    babelHelpers.classPrivateFieldLooseBase(this, _id)[_id] = [this.getEventNamespace(), new Date().getTime()].join(':');
 	  }
-
 	  getContentContainer() {
 	    return this.cache.remember('content', () => {
 	      const res = main_core.Tag.render(_t$3 || (_t$3 = _$3`<div class="ui-avatar-editor--scope">
@@ -715,17 +628,13 @@ this.BX.UI = this.BX.UI || {};
 						</ol>
 					</div>`), main_core.Loc.getMessage('UI_AVATAR_EDITOR_MASK_CREATOR_CONTENT_1_POINT').replace(/#SIZE/gi, main_core.Loc.getMessage('UI_AVATAR_MASK_MAX_SIZE')), main_core.Loc.getMessage('UI_AVATAR_MASK_PATH_ARTICLE'), main_core.Loc.getMessage('JS_AVATAR_EDITOR_HOW_TO'), main_core.Loc.getMessage('UI_AVATAR_EDITOR_MASK_DOWNLOAD_TEMPLATE2'), main_core.Loc.getMessage('UI_AVATAR_EDITOR_MASK_CREATOR_CONTENT_2_POINT'), main_core.Loc.getMessage('UI_AVATAR_EDITOR_MASK_CREATOR_CONTENT_3_POINT'), main_core.Loc.getMessage('JS_AVATAR_EDITOR_TITLE'), main_core.Loc.getMessage('JS_AVATAR_EDITOR_PLACEHOLDER'), main_core.Loc.getMessage('JS_AVATAR_EDITOR_ACCESS'));
 	      res.querySelector('[data-bx-role="mask-file"]').appendChild(babelHelpers.classPrivateFieldLooseBase(this, _getEditor)[_getEditor]().getContainer());
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _getEditor)[_getEditor]().getCanvasZooming().setDefaultValue(0.5).reset();
-
 	      return res;
 	    });
 	  }
-
 	  isModified() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _changesCount)[_changesCount] > 0;
 	  }
-
 	  openNew() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _showSlider)[_showSlider]().then(() => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _changesCount)[_changesCount] = 0;
@@ -735,15 +644,11 @@ this.BX.UI = this.BX.UI || {};
 	        src: null,
 	        accessCode: [['meta-user', 'all-users']]
 	      };
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _getEditor)[_getEditor]().reset();
-
 	      this.getContentContainer().querySelector('[data-bx-role="title"]').value = '';
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _initAccessSelector)[_initAccessSelector]();
 	    });
 	  }
-
 	  openSaved(data) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _data)[_data] = {
 	      id: data.id,
@@ -752,11 +657,9 @@ this.BX.UI = this.BX.UI || {};
 	      accessCode: data.accessCode || null
 	    };
 	    this.getContentContainer().querySelector('[data-bx-role="title"]').value = main_core.Text.encode(data.title);
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _showSlider)[_showSlider]().then(() => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _getEditor)[_getEditor]().loadSrc(data.src).then(() => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _changesCount)[_changesCount] = 0;
-
 	        if (!data.accessCode) {
 	          Backend.getMaskAccessCode(data.id).then(({
 	            data: {
@@ -765,45 +668,35 @@ this.BX.UI = this.BX.UI || {};
 	          }) => {
 	            this.emit('maskAccessCodeHasGot', accessCode);
 	            babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].accessCode = accessCode;
-
 	            babelHelpers.classPrivateFieldLooseBase(this, _initAccessSelector)[_initAccessSelector]();
 	          });
 	        } else {
 	          babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].accessCode = Array.from(data.accessCode);
-
 	          babelHelpers.classPrivateFieldLooseBase(this, _initAccessSelector)[_initAccessSelector]();
 	        }
 	      });
 	    });
 	  }
-
 	  checkOpened() {
 	    return new Promise((resolve, reject) => {
 	      let isSuccess = true;
-
 	      if (babelHelpers.classPrivateFieldLooseBase(this, _getEditor)[_getEditor]().isEmpty()) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _getEditor)[_getEditor]().getTab(UploadTab.code).showError({
 	          message: main_core.Loc.getMessage('JS_AVATAR_EDITOR_ERROR_IMAGE_IS_NOT_CHOSEN')
 	        });
-
 	        isSuccess = false;
 	      }
-
 	      const title = this.getContentContainer().querySelector('[data-bx-role="title"]').value.trim();
-
 	      if (title.length <= 0) {
 	        this.getContentContainer().querySelector('[data-bx-role="title"]').style.border = '3px solid red';
 	        isSuccess = false;
 	      }
-
 	      if (isSuccess) {
 	        return resolve();
 	      }
-
 	      return reject();
 	    });
 	  }
-
 	  saveOpened() {
 	    return new Promise((resolve, reject) => {
 	      const cb = ({
@@ -815,25 +708,20 @@ this.BX.UI = this.BX.UI || {};
 	          accessCode: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].accessCode
 	        }, blob).then(resolve).catch(reject);
 	      };
-
 	      if (!this.isModified()) {
 	        return cb({
 	          blob: null
 	        });
 	      }
-
 	      return babelHelpers.classPrivateFieldLooseBase(this, _getEditor)[_getEditor]().packBlob().then(cb);
 	    });
 	  }
-
 	  destroy() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _getEditor)[_getEditor]().reset();
-
 	    this.getContentContainer().querySelector('[data-bx-role="title"]').value = '';
 	    babelHelpers.classPrivateFieldLooseBase(this, _data)[_data] = null;
 	    this.cache.storage.clear();
 	  }
-
 	  /**
 	   * Emits specified event with specified event object
 	   * @param {string} eventName
@@ -844,14 +732,11 @@ this.BX.UI = this.BX.UI || {};
 	    BX.SidePanel.Instance.postMessageAll(babelHelpers.classPrivateFieldLooseBase(this, _id)[_id], eventName, event);
 	    return this;
 	  }
-
 	  static subscribe(eventName, listener) {
 	    main_core_events.EventEmitter.subscribe([Options.eventNamespace, 'mask:editor', eventName].join(':'), listener);
-
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _subscribedToASliderEvents)[_subscribedToASliderEvents]) {
 	      return;
 	    }
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _subscribedToASliderEvents)[_subscribedToASliderEvents] = true;
 	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onMessage', ({
 	      data: [BXSidePanelMessageEvent]
@@ -861,30 +746,24 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	  }
-
 	  static getInstance() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance]) {
 	      return babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance];
 	    }
-
 	    if (window === window.top) {
 	      if (!babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance]) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance] = new this();
 	      }
-
 	      return babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance];
 	    }
-
 	    return null;
 	  }
-
 	  static getPromiseWithInstance() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance] || this.getInstance()) {
 	      return new Promise(resolve => {
 	        resolve(babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance]);
 	      });
 	    }
-
 	    return new Promise(resolve => {
 	      top.BX.Runtime.loadExtension(['ui.avatar-editor']).then(() => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance] = top.BX.UI.AvatarEditor.MaskEditor.getInstance();
@@ -892,9 +771,7 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	}
-
 	function _getEditor2() {
 	  return this.cache.remember('editor', () => {
 	    const res = new Editor({
@@ -913,7 +790,6 @@ this.BX.UI = this.BX.UI || {};
 	    return res;
 	  });
 	}
-
 	function _initAccessSelector2() {
 	  return this.cache.remember('TagSelector', () => {
 	    const handler = ({
@@ -925,7 +801,6 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	      }
 	    };
-
 	    const selector = new top.BX.UI.EntitySelector.TagSelector({
 	      id: this.constructor.name,
 	      dialogOptions: {
@@ -964,7 +839,6 @@ this.BX.UI = this.BX.UI || {};
 	    return selector;
 	  });
 	}
-
 	function _showSlider2() {
 	  return new Promise((resolve, reject) => {
 	    BX.SidePanel.Instance.open(babelHelpers.classPrivateFieldLooseBase(this, _id)[_id], {
@@ -1016,7 +890,6 @@ this.BX.UI = this.BX.UI || {};
 	                      content: ['Error is here', ...arguments].join('-')
 	                    });
 	                  }
-
 	                  button.setWaiting(false);
 	                });
 	              }
@@ -1034,7 +907,6 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	  });
 	}
-
 	Object.defineProperty(MaskEditor, _instance, {
 	  writable: true,
 	  value: void 0
@@ -1045,12 +917,9 @@ this.BX.UI = this.BX.UI || {};
 	});
 
 	let _$4 = t => t,
-	    _t$4;
-
+	  _t$4;
 	var _repo = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("repo");
-
 	var _template = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("template");
-
 	class MaskItem extends main_core_events.EventEmitter {
 	  constructor(data, template) {
 	    super();
@@ -1070,7 +939,6 @@ this.BX.UI = this.BX.UI || {};
 	            data
 	          }
 	        } = event;
-
 	        if (String(this.data.id) === String(id)) {
 	          this.update(data);
 	        }
@@ -1079,29 +947,22 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	  }
-
 	  getContainer() {
 	    return this.cache.remember('container', () => {
 	      const itemText = babelHelpers.classPrivateFieldLooseBase(this, _template)[_template].replace(/#MASK_ID#/gi, main_core.Text.encode(this.data.id)).replace(/#MASK_TITLE#/gi, main_core.Text.encode(this.data.title || '')).replace(/#MASK_SUBTITLE#/gi, main_core.Text.encode(this.data.description || '')).replace(/#MASK_SRC#/gi, main_core.Text.encode(this.data.src));
-
 	      const res = main_core.Tag.render(_t$4 || (_t$4 = _$4`${0}`), itemText);
 	      main_core.Event.bind(res.querySelector('[data-bx-role="mask-item-menu-pointer"]'), 'click', this.onClickMenuPointer.bind(this));
-
 	      babelHelpers.classPrivateFieldLooseBase(this.constructor, _repo)[_repo].set(res, this);
-
 	      main_core.Event.bind(res, 'click', this.setActive.bind(this));
 	      return res;
 	    });
 	  }
-
 	  getData() {
 	    return Object.assign({}, this.data);
 	  }
-
 	  getId() {
 	    return this.data.id;
 	  }
-
 	  update(data) {
 	    this.data.title = data.title;
 	    this.data.src = data.src;
@@ -1113,11 +974,9 @@ this.BX.UI = this.BX.UI || {};
 	    const newContainer = this.getContainer();
 	    main_core.Dom.replace(oldContainer, newContainer);
 	  }
-
 	  setActive() {
 	    this.emit('onClickMask');
 	  }
-
 	  onClickMenuPointer(event) {
 	    event.preventDefault();
 	    event.stopPropagation();
@@ -1166,11 +1025,9 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	    return false;
 	  }
-
 	  static getByNode(node) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _repo)[_repo].get(node);
 	  }
-
 	}
 	Object.defineProperty(MaskItem, _repo, {
 	  writable: true,
@@ -1178,25 +1035,18 @@ this.BX.UI = this.BX.UI || {};
 	});
 
 	let _$5 = t => t,
-	    _t$5,
-	    _t2$1,
-	    _t3$1,
-	    _t4$1,
-	    _t5,
-	    _t6;
-
+	  _t$5,
+	  _t2$1,
+	  _t3$1,
+	  _t4$1,
+	  _t5,
+	  _t6;
 	var _container = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("container");
-
 	var _state = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("state");
-
 	var _pageSize = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pageSize");
-
 	var _pageNumber = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pageNumber");
-
 	var _getTemplateGroup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getTemplateGroup");
-
 	var _getTemplateItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getTemplateItem");
-
 	class MaskList extends main_core_events.EventEmitter {
 	  constructor({
 	    initialPageSize,
@@ -1232,7 +1082,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.loadItems(items);
 	    this.setReady();
 	  }
-
 	  static getTemplate() {
 	    return `<div>
 				<div class="ui-avatar-editor--scope" data-bx-role="avatar-mask-list-container">
@@ -1255,20 +1104,16 @@ this.BX.UI = this.BX.UI || {};
 				<nav class="ui-avatar-editor-pagination" data-bx-role="avatar-mask-list-pagination"></nav>
 			</div>`;
 	  }
-
 	  static setByNode(node, object) {
 	    return this.repoList.set(node, object);
 	  }
-
 	  static getByNode(node) {
 	    return this.repoList.get(node);
 	  }
-
 	  setPageSize(pageSize) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _pageSize)[_pageSize] = pageSize;
 	    return this;
 	  }
-
 	  getContainer() {
 	    return this.cache.remember('container', () => {
 	      const res = main_core.Tag.render(_t$5 || (_t$5 = _$5`${0}`), this.constructor.getTemplate());
@@ -1277,27 +1122,22 @@ this.BX.UI = this.BX.UI || {};
 	      return res;
 	    });
 	  }
-
 	  isReady() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _state)[_state] === this.constructor.paginationStates.ready;
 	  }
-
 	  setReady() {
 	    this.getMoreButton().setWaiting(false);
 	    babelHelpers.classPrivateFieldLooseBase(this, _state)[_state] = this.constructor.paginationStates.ready;
 	  }
-
 	  setBusy() {
 	    this.getMoreButton().setWaiting(true);
 	    babelHelpers.classPrivateFieldLooseBase(this, _state)[_state] = this.constructor.paginationStates.inprogress;
 	  }
-
 	  setFinished() {
 	    this.getMoreButton().setDisabled(true);
 	    babelHelpers.classPrivateFieldLooseBase(this, _state)[_state] = this.constructor.paginationStates.finished;
 	    main_core.Dom.remove(this.getContainer().querySelector('[data-bx-role="avatar-mask-list-pagination"]'));
 	  }
-
 	  getMoreButton() {
 	    return this.cache.remember('moreButton', () => {
 	      const butt = new ui_buttons.Button({
@@ -1312,27 +1152,22 @@ this.BX.UI = this.BX.UI || {};
 	      return butt;
 	    });
 	  }
-
 	  load() {
 	    if (!this.isReady()) {
 	      return;
 	    }
-
 	    this.setBusy();
 	    Backend.getMaskList(this.constructor.name.replace('Mask', ''), {
 	      page: ++babelHelpers.classPrivateFieldLooseBase(this, _pageNumber)[_pageNumber],
 	      size: babelHelpers.classPrivateFieldLooseBase(this, _pageSize)[_pageSize]
 	    }).then(this.loadItems.bind(this)).catch(this.terminate.bind(this));
 	  }
-
 	  loadItems(items) {
 	    this.renderItems(items);
 	    this.finish(items);
 	  }
-
 	  renderItems(data) {
 	    let maxCount = babelHelpers.classPrivateFieldLooseBase(this, _pageSize)[_pageSize];
-
 	    Object.values(data).forEach(({
 	      id,
 	      title,
@@ -1341,26 +1176,20 @@ this.BX.UI = this.BX.UI || {};
 	      if (maxCount <= 0) {
 	        return;
 	      }
-
 	      items = Object.values(items).slice(0, maxCount);
 	      maxCount -= items.length;
 	      id = id || '0';
-
 	      if (!babelHelpers.classPrivateFieldLooseBase(this, _container)[_container].querySelector(`[data-bx-group-id="${id}"][data-bx-role="group_body"]`)) {
 	        const groupText = babelHelpers.classPrivateFieldLooseBase(this, _getTemplateGroup)[_getTemplateGroup]().replace(/#GROUP_ID#/gi, main_core.Text.encode(id)).replace(/#GROUP_TITLE#/gi, main_core.Text.encode(title || ''));
-
 	        babelHelpers.classPrivateFieldLooseBase(this, _container)[_container].appendChild(main_core.Tag.render(_t2$1 || (_t2$1 = _$5`${0}`), groupText));
 	      }
-
 	      const badgeContainer = babelHelpers.classPrivateFieldLooseBase(this, _container)[_container].querySelector(`[data-bx-group-id="${id}"][data-bx-role="group_body"]`);
-
 	      items.forEach(item => {
 	        const maskItem = new MaskItem(item, babelHelpers.classPrivateFieldLooseBase(this, _getTemplateItem)[_getTemplateItem]());
 	        badgeContainer.appendChild(maskItem.getContainer());
 	      });
 	    });
 	  }
-
 	  renderItemsReverse(data) {
 	    Object.values(data).forEach(({
 	      id,
@@ -1368,22 +1197,17 @@ this.BX.UI = this.BX.UI || {};
 	      items
 	    }) => {
 	      id = id || '0';
-
 	      if (!babelHelpers.classPrivateFieldLooseBase(this, _container)[_container].querySelector(`[data-bx-group-id="${id}"][data-bx-role="group_body"]`)) {
 	        const groupText = babelHelpers.classPrivateFieldLooseBase(this, _getTemplateGroup)[_getTemplateGroup]().replace(/#GROUP_ID#/gi, main_core.Text.encode(id)).replace(/#GROUP_TITLE#/gi, main_core.Text.encode(title || ''));
-
 	        main_core.Dom.prepend(main_core.Tag.render(_t3$1 || (_t3$1 = _$5`${0}`), groupText), babelHelpers.classPrivateFieldLooseBase(this, _container)[_container]);
 	      }
-
 	      const badgeContainer = babelHelpers.classPrivateFieldLooseBase(this, _container)[_container].querySelector(`[data-bx-group-id="${id}"][data-bx-role="group_body"]`);
-
 	      items.forEach(item => {
 	        const maskItem = new MaskItem(item, babelHelpers.classPrivateFieldLooseBase(this, _getTemplateItem)[_getTemplateItem]());
 	        main_core.Dom.prepend(maskItem.getContainer(), badgeContainer);
 	      });
 	    });
 	  }
-
 	  finish(data) {
 	    let thisPageItemCount = 0;
 	    data.forEach(({
@@ -1391,17 +1215,14 @@ this.BX.UI = this.BX.UI || {};
 	    }) => {
 	      thisPageItemCount += items.length;
 	    });
-
 	    if (thisPageItemCount >= babelHelpers.classPrivateFieldLooseBase(this, _pageSize)[_pageSize]) {
 	      this.setReady();
 	    } else {
 	      this.setFinished();
 	    }
 	  }
-
 	  terminate(data) {
 	    let errors = [];
-
 	    if (data instanceof Error) {
 	      console.log('data: ', data);
 	      errors.push(data);
@@ -1412,7 +1233,6 @@ this.BX.UI = this.BX.UI || {};
 	        message: 'Some error'
 	      });
 	    }
-
 	    this.setFinished();
 	    errors.forEach(({
 	      code,
@@ -1421,9 +1241,7 @@ this.BX.UI = this.BX.UI || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _container)[_container].appendChild(main_core.Tag.render(_t4$1 || (_t4$1 = _$5`<pre>${0}</pre>`), main_core.Text.encode(message)));
 	    });
 	  }
-
 	}
-
 	function _getTemplateGroup2() {
 	  return this.cache.remember('templateGroup', () => {
 	    const maskGroup = main_core.Tag.render(_t5 || (_t5 = _$5`${0}`), this.constructor.getTemplate()).querySelector('#mask_group');
@@ -1433,7 +1251,6 @@ this.BX.UI = this.BX.UI || {};
 	    return maskGroup.outerHTML.trim();
 	  });
 	}
-
 	function _getTemplateItem2() {
 	  return this.cache.remember('templateItem', () => {
 	    const maskItem = main_core.Tag.render(_t6 || (_t6 = _$5`${0}`), this.constructor.getTemplate()).querySelector('#mask_item');
@@ -1441,7 +1258,6 @@ this.BX.UI = this.BX.UI || {};
 	    return maskItem.outerHTML.trim();
 	  });
 	}
-
 	MaskList.repoList = new WeakMap();
 	MaskList.paginationStates = {
 	  ready: 0,
@@ -1463,7 +1279,6 @@ this.BX.UI = this.BX.UI || {};
 	            data
 	          }
 	        } = event;
-
 	        if (id === null) {
 	          this.renderItemsReverse({
 	            'doesNotMatter': {
@@ -1476,21 +1291,15 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	  }
-
 	}
 	class MaskSharedList extends MaskList {}
 
 	let _$6 = t => t,
-	    _t$6;
-
+	  _t$6;
 	var _ready = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("ready");
-
 	var _callbacks = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("callbacks");
-
 	var _fulfillReadyCallbacksTimeout = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("fulfillReadyCallbacksTimeout");
-
 	var _deleteMaskVisually = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("deleteMaskVisually");
-
 	class MaskTab extends DefaultTab {
 	  constructor() {
 	    super();
@@ -1514,11 +1323,9 @@ this.BX.UI = this.BX.UI || {};
 	    this.mask = this.mask.bind(this);
 	    this.subscribeOnce('onActive', this.initialize.bind(this));
 	  }
-
 	  getHeader() {
 	    return main_core.Loc.getMessage('JS_AVATAR_EDITOR_MASKS');
 	  }
-
 	  getBody() {
 	    return this.cache.remember('body', () => {
 	      return main_core.Tag.render(_t$6 || (_t$6 = _$6`<div class="ui-avatar-editor__mask-block-container">
@@ -1558,7 +1365,6 @@ this.BX.UI = this.BX.UI || {};
 			</div>`), main_core.Loc.getMessage('JS_AVATAR_EDITOR_RECENT_MASKS'), main_core.Loc.getMessage('UI_AVATAR_EDITOR_MASK_LIST_SHARED'), main_core.Loc.getMessage('UI_AVATAR_EDITOR_MASK_LIST_MY_OWN'), main_core.Loc.getMessage('JS_AVATAR_EDITOR_LOAD_FROM_MARKET'), main_core.Loc.getMessage('UI_AVATAR_EDITOR_MASK_ADD_MY_OWN'), main_core.Loc.getMessage('UI_AVATAR_EDITOR_MASK_DOWNLOAD_TEMPLATE1'));
 	    });
 	  }
-
 	  initialize() {
 	    Backend.getMaskInitialInfo({
 	      size: MaskList.regularPageSize,
@@ -1567,7 +1373,6 @@ this.BX.UI = this.BX.UI || {};
 	      console.log('errors: ', error);
 	    });
 	  }
-
 	  initializeData({
 	    recentlyUsedItems,
 	    systemItems,
@@ -1576,13 +1381,11 @@ this.BX.UI = this.BX.UI || {};
 	    restMarketInfo
 	  }) {
 	    const body = this.getBody();
-
 	    if (main_core.Loc.getMessage('USER_ID') > 0) {
 	      main_core.Event.bind(body.querySelector('[data-bx-id="avatar-mask-list-own-create"]'), 'click', this.onClickCreateMask.bind(this));
 	      main_core_events.EventEmitter.subscribe(this.getEventNamespace() + ':' + 'onClickEditMask', this.onClickEditMask.bind(this));
 	      main_core_events.EventEmitter.subscribe(this.getEventNamespace() + ':' + 'onClickDeleteMask', this.onClickDeleteMask.bind(this));
 	    }
-
 	    if (restMarketInfo['available'] === 'Y') {
 	      const menuItem = body.querySelector('[data-bx-id="rest-market-export-menu"]');
 	      main_core.Dom.addClass(menuItem, '--menuable');
@@ -1593,23 +1396,18 @@ this.BX.UI = this.BX.UI || {};
 	      marketLink.style.display = '';
 	      marketLink.href = restMarketInfo['marketUrl'];
 	    }
-
 	    [[MaskRecentlyUsedList, recentlyUsedItems, body.querySelector('[data-bx-role="list-container"][data-bx-id="recently-used"]')], [MaskSystemList, systemItems, body.querySelector('[data-bx-role="list-container"][data-bx-id="system"]')], [MaskUserList, myOwnItems, body.querySelector('[data-bx-role="list-container"][data-bx-id="my-own"]')], [MaskSharedList, sharedItems, body.querySelector('[data-bx-role="list-container"][data-bx-id="shared"]')]].forEach(([className, items, container]) => {
 	      items = items || [];
-
 	      if (items.length > 0) {
 	        const semanticContainer = container.closest('[data-bx-role="semantic-container"]');
-
 	        if (semanticContainer) {
 	          semanticContainer.style.display = '';
 	        }
 	      }
-
 	      container.innerHTML = '';
 	      /**
 	       * @typedef {MaskList} list
 	       */
-
 	      const list = new className({
 	        initialPageSize: this.constructor.initialPageSize,
 	        items: items
@@ -1634,22 +1432,17 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _ready)[_ready] = true;
 	    this.fulfillReadyCallbacks();
 	  }
-
 	  onReady(callback) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _callbacks)[_callbacks].push(callback);
-
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _ready)[_ready]) {
 	      this.fulfillReadyCallbacks();
 	    }
 	  }
-
 	  fulfillReadyCallbacks() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _fulfillReadyCallbacksTimeout)[_fulfillReadyCallbacksTimeout] > 0) {
 	      return;
 	    }
-
 	    const callback = babelHelpers.classPrivateFieldLooseBase(this, _callbacks)[_callbacks].shift();
-
 	    if (callback) {
 	      if (babelHelpers.classPrivateFieldLooseBase(this, _callbacks)[_callbacks].length > 0) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _fulfillReadyCallbacksTimeout)[_fulfillReadyCallbacksTimeout] = setTimeout(() => {
@@ -1657,11 +1450,9 @@ this.BX.UI = this.BX.UI || {};
 	          this.fulfillReadyCallbacks();
 	        }, 10);
 	      }
-
 	      callback.call(this);
 	    }
 	  }
-
 	  unmask() {
 	    if (this.activeId !== null) {
 	      let foundAtLeastOneNode;
@@ -1669,25 +1460,20 @@ this.BX.UI = this.BX.UI || {};
 	        foundAtLeastOneNode = node;
 	        main_core.Dom.removeClass(node, '--active');
 	      });
-
 	      if (foundAtLeastOneNode) {
 	        this.emit('onUnsetMask', this.activeId);
 	      }
 	    }
-
 	    this.activeId = null;
 	  }
-
 	  maskById(id) {
 	    this.onReady(() => {
 	      const maskItem = MaskItem.getByNode(this.getBody().querySelector(`[data-bx-role="mask_item"][data-bx-id="${id}"]`));
-
 	      if (maskItem instanceof MaskItem) {
 	        maskItem.setActive();
 	      }
 	    });
 	  }
-
 	  mask({
 	    id,
 	    src,
@@ -1700,7 +1486,6 @@ this.BX.UI = this.BX.UI || {};
 	        foundAtLeastOneNode = node;
 	        main_core.Dom.addClass(node, ' --active');
 	      });
-
 	      if (foundAtLeastOneNode) {
 	        this.activeId = id;
 	        this.emit('onSetMask', {
@@ -1711,18 +1496,15 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	  }
-
 	  onClickCreateMask(event) {
 	    event.stopImmediatePropagation();
 	    MaskEditor.getPromiseWithInstance().then(maskEditor => {
 	      maskEditor.openNew();
 	    });
 	  }
-
 	  onClickEditMask(event) {
 	    /* @var MaskItem maskItem */
 	    const maskItem = event.getTarget();
-
 	    if (this.getBody().contains(maskItem.getContainer())) {
 	      event.stopImmediatePropagation();
 	      MaskEditor.getPromiseWithInstance().then(maskEditor => {
@@ -1730,14 +1512,12 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 	  }
-
 	  onClickDeleteMask({
 	    target
 	  }) {
 	    if (this.getBody().contains(target.getContainer())) {
 	      /* @var MaskItem target */
 	      babelHelpers.classPrivateFieldLooseBase(this, _deleteMaskVisually)[_deleteMaskVisually](target);
-
 	      Backend.deleteMask(target.getId()).then(() => {
 	        this.getBody().querySelectorAll(`[data-bx-role="mask_item"][data-bx-id="${target.getId()}"]`).forEach(node => {
 	          main_core.Dom.remove(node);
@@ -1756,7 +1536,6 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 	  }
-
 	  onClickOwnMaskMenu(event, urls) {
 	    const thisPopupId = 'mask-item-menu-context-own-masks';
 	    const isFilled = !!this.getBody().querySelector('[data-bx-role="list-container"][data-bx-id="my-own"]').querySelector(`[data-bx-role="mask_item"]`);
@@ -1805,8 +1584,8 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	    return false;
 	  }
-
-	  cleanUp() //delete all my masks
+	  cleanUp()
+	  //delete all my masks
 	  {
 	    const container = this.getBody().querySelector('[data-bx-role="list-container"][data-bx-id="my-own"]');
 	    const loader = new main_loader.Loader({
@@ -1821,19 +1600,16 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	      loader.hide();
 	    });
-	  } //TODO delete this string and its using after testing
+	  }
 
-
+	  //TODO delete this string and its using after testing
 	  static isAvailable() {
 	    return main_core.Loc.getMessage('UI_AVATAR_MASK_IS_AVAILABLE') === true;
 	  }
-
 	  static get code() {
 	    return 'mask';
 	  }
-
 	}
-
 	function _deleteMaskVisually2(maskItem) {
 	  /* @var MaskItem target */
 	  this.getBody().querySelectorAll(`[data-bx-role="mask_item"][data-bx-id="${maskItem.getId()}"]`).forEach(node => {
@@ -1841,30 +1617,25 @@ this.BX.UI = this.BX.UI || {};
 	    main_core.Dom.remove(node);
 	  });
 	  const listContainer = this.getBodyContainer().querySelector('[data-bx-role="list-container"][data-bx-id="recently-used"]');
-
 	  if (listContainer.childNodes.length <= 1) {
 	    const semanticContainer = listContainer.closest('[data-bx-role="semantic-container"]');
-
 	    if (semanticContainer) {
 	      semanticContainer.style.display = 'none';
 	    }
 	  }
-
 	  if (String(this.activeId) === String(maskItem.getId())) {
 	    this.unmask();
 	  }
 	}
-
 	MaskTab.maxCount = 5;
 	MaskTab.priority = 4;
 
 	let _$7 = t => t,
-	    _t$7;
+	  _t$7;
 	class CanvasTab extends DefaultTab {
 	  getHeader() {
 	    return main_core.Loc.getMessage('JS_AVATAR_EDITOR_PHOTO');
 	  }
-
 	  getBody() {
 	    return this.cache.remember('body', () => {
 	      const res = main_core.Tag.render(_t$7 || (_t$7 = _$7`
@@ -1914,39 +1685,25 @@ this.BX.UI = this.BX.UI || {};
 	      return res;
 	    });
 	  }
-
 	  static get code() {
 	    return 'canvas';
 	  }
-
 	}
 	CanvasTab.priority = 1;
 
 	let _$8 = t => t,
-	    _t$8;
-
+	  _t$8;
 	var _justACounter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("justACounter");
-
 	var _queue = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("queue");
-
 	var _image = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("image");
-
 	var _canvas = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canvas");
-
 	var _context = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("context");
-
 	var _reader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("reader");
-
 	var _isReady = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isReady");
-
 	var _id$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("id");
-
 	var _load = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("load");
-
 	var _exec = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("exec");
-
 	var _dataURLToBlob = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dataURLToBlob");
-
 	class CanvasLoader {
 	  constructor() {
 	    Object.defineProperty(this, _exec, {
@@ -1990,28 +1747,22 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _reader)[_reader] = new FileReader();
 	    babelHelpers.classPrivateFieldLooseBase(this, _queue)[_queue] = new Map();
 	    babelHelpers.classPrivateFieldLooseBase(this, _image)[_image] = new Image();
-	    babelHelpers.classPrivateFieldLooseBase(this, _canvas)[_canvas] = main_core.Tag.render(_t$8 || (_t$8 = _$8`<canvas id="loadercanvas"></canvas>`)); // document.querySelector('#workarea-content').appendChild(this.#canvas);
-
+	    babelHelpers.classPrivateFieldLooseBase(this, _canvas)[_canvas] = main_core.Tag.render(_t$8 || (_t$8 = _$8`<canvas id="loadercanvas"></canvas>`));
+	    // document.querySelector('#workarea-content').appendChild(this.#canvas);
 	    babelHelpers.classPrivateFieldLooseBase(this, _context)[_context] = babelHelpers.classPrivateFieldLooseBase(this, _canvas)[_canvas].getContext('2d');
 	    babelHelpers.classPrivateFieldLooseBase(this, _id$1)[_id$1] = String(new Date().getTime());
 	  }
-
 	  push(file, successCallback, failCallback) {
 	    const id = [babelHelpers.classPrivateFieldLooseBase(this, _id$1)[_id$1], babelHelpers.classPrivateFieldLooseBase(this, _justACounter)[_justACounter]++].join('_');
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _queue)[_queue].set(id, [file, successCallback, failCallback]);
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _exec)[_exec]();
 	  }
-
 	  getCanvas() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _canvas)[_canvas];
 	  }
-
 	  getContext() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _context)[_context];
 	  }
-
 	  pack(fileType) {
 	    return new Promise((resolve, reject) => {
 	      try {
@@ -2026,88 +1777,67 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	  }
-
 	  static getInstance() {
 	    if (this.instance === null) {
 	      this.instance = new this();
 	    }
-
 	    return this.instance;
 	  }
-
 	  static loadFile(file, successCallback, failCallback) {
 	    if (!window["FileReader"]) {
 	      return failCallback(new Error({
 	        message: 'FileReader is not supported.'
 	      }));
 	    }
-
 	    let newFile = file;
-
 	    if (main_core.Type.isString(file)) {
 	      newFile = {
 	        src: file,
 	        name: file.split('/').pop()
 	      };
 	    }
-
 	    this.getInstance().push(newFile, successCallback, failCallback);
 	  }
-
 	  static loadCanvas() {
 	    this.getInstance().getCanvas();
 	  }
-
 	}
-
 	function _load2(itemId) {
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _queue)[_queue].has(itemId) || babelHelpers.classPrivateFieldLooseBase(this, _isReady)[_isReady] !== true) {
 	    return;
 	  }
-
 	  babelHelpers.classPrivateFieldLooseBase(this, _isReady)[_isReady] = false;
-
 	  const [file, successCallback, failCallback] = babelHelpers.classPrivateFieldLooseBase(this, _queue)[_queue].get(itemId);
-
 	  babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].onload = function () {};
-
 	  babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].onerror = function () {};
+
 	  /* Almost all browsers cache images from local resource except of FF on 06.03.2017. It appears that
 	  FF collect src and does not abort image uploading when src is changed. And we had a bug when in
 	  onload event we got e.target.src of one element but source of image was from '/bitrix/images/1.gif'. */
 	  // TODO check if chrome and other browsers cache local files for now. If it does not then delete next 2 strings
-
-
 	  try {
 	    window["URL"]["revokeObjectURL"](babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].src);
 	  } catch (e) {}
-
 	  if (!main_core.Browser.isFirefox()) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].src = '/bitrix/images/1.gif';
 	  }
-
 	  const onFinish = () => {
 	    babelHelpers.classPrivateFieldLooseBase(this, _queue)[_queue].delete(itemId);
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _isReady)[_isReady] = true;
 	    setTimeout(() => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _exec)[_exec]();
 	    }, 0);
 	  };
-
 	  const onLoad = e => {
 	    const image = e && e.target ? e.target : babelHelpers.classPrivateFieldLooseBase(this, _image)[_image];
-
 	    if (image.src.indexOf('/bitrix/images/1.gif') >= 0) {
 	      return;
 	    }
-
 	    if (!!successCallback) {
 	      onFinish();
 	      successCallback(image);
 	    }
 	  };
-
 	  const onError = () => {
 	    if (!!failCallback) {
 	      try {
@@ -2116,20 +1846,16 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Runtime.debug(e);
 	      }
 	    }
-
 	    onFinish();
 	  };
-
 	  babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].name = file.name;
 	  babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].onload = onLoad;
 	  babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].onerror = onError;
-
 	  if (main_core.Type.isPlainObject(file) && (file['src'] || file['tmp_url'])) {
 	    const src = file['src'] || file['tmp_url'];
 	    babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].src = encodeURI(src) + (src.indexOf("?") > 0 ? '&' : '?') + 'imageUploader' + babelHelpers.classPrivateFieldLooseBase(this, _id$1)[_id$1] + babelHelpers.classPrivateFieldLooseBase(this, _justACounter)[_justACounter]++;
 	  } else {
 	    const res = Object.prototype.toString.call(file);
-
 	    if (res !== '[object File]' && res !== '[object Blob]') {
 	      onError();
 	    } else if (window["URL"]) {
@@ -2140,35 +1866,29 @@ this.BX.UI = this.BX.UI || {};
 	        babelHelpers.classPrivateFieldLooseBase(this, _reader)[_reader].onerror = null;
 	        babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].src = e.target.result;
 	      };
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _reader)[_reader].onerror = () => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _reader)[_reader].onloadend = null;
 	        babelHelpers.classPrivateFieldLooseBase(this, _reader)[_reader].onerror = null;
 	        onError();
 	      };
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _reader)[_reader].readAsDataURL(file);
 	    }
 	  }
 	}
-
 	function _exec2() {
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _isReady)[_isReady] === true) {
 	    const itemId = Array.from(babelHelpers.classPrivateFieldLooseBase(this, _queue)[_queue].keys()).shift();
-
 	    if (itemId) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _load)[_load](itemId);
 	    }
 	  }
 	}
-
 	function _dataURLToBlob2(dataURL) {
 	  let marker = ';base64,',
-	      parts,
-	      contentType,
-	      raw,
-	      rawLength;
-
+	    parts,
+	    contentType,
+	    raw,
+	    rawLength;
 	  if (dataURL.indexOf(marker) < 0) {
 	    parts = dataURL.split(',');
 	    contentType = parts[0].split(':')[1];
@@ -2177,41 +1897,30 @@ this.BX.UI = this.BX.UI || {};
 	      type: contentType
 	    });
 	  }
-
 	  parts = dataURL.split(marker);
 	  contentType = parts[0].split(':')[1];
 	  raw = window.atob(parts[1]);
 	  rawLength = raw.length;
 	  const uInt8Array = new Uint8Array(rawLength);
-
 	  for (let i = 0; i < rawLength; ++i) {
 	    uInt8Array[i] = raw.charCodeAt(i);
 	  }
-
 	  return new Blob([uInt8Array], {
 	    type: contentType
 	  });
 	}
-
 	Object.defineProperty(CanvasLoader, _dataURLToBlob, {
 	  value: _dataURLToBlob2
 	});
 	CanvasLoader.instance = null;
 
 	var _isSet = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isSet");
-
 	var _canvas$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canvas");
-
 	var _ctx = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("ctx");
-
 	var _table = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("table");
-
 	var _tableCloth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tableCloth");
-
 	var _tableFrame = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tableFrame");
-
 	var _stretchToCanvasSize = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("stretchToCanvasSize");
-
 	class CanvasDefault extends main_core_events.EventEmitter {
 	  constructor(canvas, options) {
 	    super();
@@ -2247,7 +1956,6 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1] = canvas;
 	    babelHelpers.classPrivateFieldLooseBase(this, _ctx)[_ctx] = babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].getContext("2d");
 	    babelHelpers.classPrivateFieldLooseBase(this, _table)[_table] = babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].parentNode;
-
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].clientWidth) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width = babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].clientWidth;
 	      babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].height = babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].clientHeight;
@@ -2255,9 +1963,9 @@ this.BX.UI = this.BX.UI || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width = babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].width;
 	      babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].height = babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].height;
 	    }
-
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1], {
-	      style: {// 'background' : '#fdbd00',
+	      style: {
+	        // 'background' : '#fdbd00',
 	      }
 	    });
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _table)[_table], {
@@ -2292,11 +2000,8 @@ this.BX.UI = this.BX.UI || {};
 	        role: 'tableCloth'
 	      }
 	    });
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].appendChild(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1]);
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].appendChild(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth]);
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _tableFrame)[_tableFrame] = main_core.Dom.create('DIV');
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _tableFrame)[_tableFrame], {
 	      style: {
@@ -2310,22 +2015,17 @@ this.BX.UI = this.BX.UI || {};
 	        role: 'tableFrame'
 	      }
 	    });
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].appendChild(babelHelpers.classPrivateFieldLooseBase(this, _tableFrame)[_tableFrame]);
-
 	    this.mouseMove = this.mouseMove.bind(this);
 	    this.stopMoving = this.stopMoving.bind(this);
 	    babelHelpers.classPrivateFieldLooseBase(this, _stretchToCanvasSize)[_stretchToCanvasSize] = !(options && options.stretchToCanvasSize === false);
 	    this.reset();
 	  }
-
 	  isEmpty() {
 	    return !babelHelpers.classPrivateFieldLooseBase(this, _isSet)[_isSet];
 	  }
-
 	  reset() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _ctx)[_ctx].clearRect(0, 0, babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].width, babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].height);
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _isSet)[_isSet] = false;
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth], {
 	      style: {
@@ -2353,7 +2053,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.disableToMove();
 	    this.emit('onReset', babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1]);
 	  }
-
 	  set(imageNode) {
 	    //region set image
 	    const image = {
@@ -2362,7 +2061,6 @@ this.BX.UI = this.BX.UI || {};
 	      scale: 1,
 	      name: imageNode["name"]
 	    };
-
 	    if (imageNode.clientWidth) {
 	      image.width = imageNode.clientWidth;
 	      image.height = imageNode.clientHeight;
@@ -2370,11 +2068,9 @@ this.BX.UI = this.BX.UI || {};
 	      image.width = imageNode.width;
 	      image.height = imageNode.height;
 	    }
-
 	    if (image.width <= 0 || image.height <= 0) {
 	      return;
 	    }
-
 	    const scaleForImage = Math.ceil(Math.max(image.width > Options.imageSize ? Options.imageSize / image.width : babelHelpers.classPrivateFieldLooseBase(this, _stretchToCanvasSize)[_stretchToCanvasSize] !== false && image.width < babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width ? babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width / image.width : 1, image.height > Options.imageSize ? Options.imageSize / image.height : babelHelpers.classPrivateFieldLooseBase(this, _stretchToCanvasSize)[_stretchToCanvasSize] !== false && image.height < babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].height ? babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].height / image.height : 1) * 1000) / 1000;
 	    image.width = Math.ceil(image.width * scaleForImage);
 	    image.height = Math.ceil(image.height * scaleForImage);
@@ -2399,11 +2095,10 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _isSet)[_isSet] = true;
+	    babelHelpers.classPrivateFieldLooseBase(this, _ctx)[_ctx].drawImage(imageNode, 0, 0, image.width, image.height);
+	    //endregion
 
-	    babelHelpers.classPrivateFieldLooseBase(this, _ctx)[_ctx].drawImage(imageNode, 0, 0, image.width, image.height); //endregion
 	    //region set TableCloth
-
-
 	    const tableFrame = {
 	      width: babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width,
 	      height: babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].height
@@ -2435,19 +2130,19 @@ this.BX.UI = this.BX.UI || {};
 	        top: `${tableCloth.top * -1}px`,
 	        left: `${tableCloth.left * -1}px`
 	      }
-	    }); //endregion
+	    });
+	    //endregion
 
 	    this.enableToMove();
 	    this.emit('onSetImage', {
 	      canvas: babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1]
 	    });
 	  }
-
 	  scale(zoomScale) {
 	    zoomScale = Math.max(0.01, 1 + zoomScale);
 	    const oldScale = Number(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].dataset.scale);
-	    const newScale = zoomScale * Number(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].dataset.initialScale); //region set image
-
+	    const newScale = zoomScale * Number(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].dataset.initialScale);
+	    //region set image
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1], {
 	      style: {
 	        transform: 'scale(' + newScale + ', ' + newScale + ')'
@@ -2456,9 +2151,10 @@ this.BX.UI = this.BX.UI || {};
 	        scale: newScale,
 	        hasChanged: true
 	      }
-	    }); //endregion
-	    //region set TableCloth
+	    });
+	    //endregion
 
+	    //region set TableCloth
 	    const tableFrame = {
 	      height: babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].height,
 	      width: babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width
@@ -2471,15 +2167,11 @@ this.BX.UI = this.BX.UI || {};
 	      top: null,
 	      left: null
 	    };
-
 	    const deltaTopOld = babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.top - babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.topToBeInTheCenter;
-
 	    const deltaTop = deltaTopOld / oldScale * newScale;
 	    tableCloth.top = Math.ceil(tableCloth.topToBeInTheCenter + deltaTop);
 	    tableCloth.top = Math.max(Math.min(tableCloth.top, 0), -1 * (Number(tableCloth.height) - tableFrame.height));
-
 	    const deltaLeftOld = babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.left - babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.leftToBeInTheCenter;
-
 	    const deltaLeft = deltaLeftOld / oldScale * newScale;
 	    tableCloth.left = Math.ceil(deltaLeft + tableCloth.leftToBeInTheCenter);
 	    tableCloth.left = Math.max(Math.min(tableCloth.left, 0), -1 * (Number(tableCloth.width) - tableFrame.width));
@@ -2498,15 +2190,17 @@ this.BX.UI = this.BX.UI || {};
 	        height: tableCloth.height,
 	        width: tableCloth.width
 	      }
-	    }); //endregion
-	    //region set Table sights
+	    });
+	    //endregion
 
+	    //region set Table sights
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _tableFrame)[_tableFrame], {
 	      style: {
 	        top: `${tableCloth.top * -1}px`,
 	        left: `${tableCloth.left * -1}px`
 	      }
-	    }); //endregion
+	    });
+	    //endregion
 
 	    this.emit('onScale', {
 	      zoomScale,
@@ -2518,7 +2212,6 @@ this.BX.UI = this.BX.UI || {};
 	      oldScale
 	    });
 	  }
-
 	  onScale({
 	    data: {
 	      oldScale,
@@ -2531,14 +2224,13 @@ this.BX.UI = this.BX.UI || {};
 	  }) {
 	    const deltaScale = scale / oldScale;
 	    let top, left, newScale;
-
 	    if (Number(oldScale) === Number(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].dataset.scale)) {
 	      newScale = scale;
 	    } else {
 	      newScale = babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].dataset.scale * deltaScale;
-	    } //region set image
+	    }
 
-
+	    //region set image
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1], {
 	      style: {
 	        transform: 'scale(' + newScale + ', ' + newScale + ')'
@@ -2547,9 +2239,10 @@ this.BX.UI = this.BX.UI || {};
 	        scale: newScale,
 	        hasChanged: true
 	      }
-	    }); //endregion
-	    //region set TableCloth
+	    });
+	    //endregion
 
+	    //region set TableCloth
 	    const tableFrame = {
 	      height: babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].height,
 	      width: babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width
@@ -2562,7 +2255,6 @@ this.BX.UI = this.BX.UI || {};
 	      top: null,
 	      left: null
 	    };
-
 	    if (Number(scale) === Number(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].dataset.scale)) {
 	      top = Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.topToBeInTheCenter) + topOffsetFromTheCenter;
 	      left = Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.leftToBeInTheCenter) + leftOffsetFromTheCenter;
@@ -2570,7 +2262,6 @@ this.BX.UI = this.BX.UI || {};
 	      top = Math.ceil(Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.topToBeInTheCenter) * topInPercent);
 	      left = Math.ceil(Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.leftToBeInTheCenter) * leftInPercent);
 	    }
-
 	    tableCloth.top = Math.max(Math.min(top, 0), -1 * (Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.height) - babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].height));
 	    tableCloth.left = Math.max(Math.min(left, 0), -1 * (Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.width) - babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width));
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth], {
@@ -2588,22 +2279,23 @@ this.BX.UI = this.BX.UI || {};
 	        height: tableCloth.height,
 	        width: tableCloth.width
 	      }
-	    }); //endregion
-	    //region set Table sights
+	    });
+	    //endregion
 
+	    //region set Table sights
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _tableFrame)[_tableFrame], {
 	      style: {
 	        top: `${tableCloth.top * -1}px`,
 	        left: `${tableCloth.left * -1}px`
 	      }
-	    }); //endregion
+	    });
+	    //endregion
 	  }
 
 	  enableToMove() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].style.cursor === 'move') {
 	      return;
 	    }
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].style.cursor = 'move';
 	    main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _table)[_table], 'mousedown', e => {
 	      this.cursor = {
@@ -2614,23 +2306,22 @@ this.BX.UI = this.BX.UI || {};
 	      main_core.Event.bind(document, 'mouseup', this.stopMoving);
 	    });
 	  }
-
 	  disableToMove() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].style.cursor = 'default';
 	    main_core.Event.unbindAll(babelHelpers.classPrivateFieldLooseBase(this, _table)[_table]);
 	    main_core.Event.unbind(document, 'mousemove', this.mouseMove);
 	    main_core.Event.unbind(document, 'mouseup', this.stopMoving);
 	  }
-
 	  move(deltaX, deltaY) {
 	    //region set image
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1], {
 	      dataset: {
 	        hasChanged: true
 	      }
-	    }); //endregion
-	    //region set TableCloth
+	    });
+	    //endregion
 
+	    //region set TableCloth
 	    const tableFrame = {
 	      height: babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].height,
 	      width: babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width
@@ -2653,14 +2344,15 @@ this.BX.UI = this.BX.UI || {};
 	      scale: babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].dataset.scale,
 	      topInPercent: Math.ceil(top * 1000 / Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.topToBeInTheCenter)) / 1000,
 	      leftInPercent: Math.ceil(left * 1000 / Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.leftToBeInTheCenter)) / 1000
-	    }); //region set Table sights
-
+	    });
+	    //region set Table sights
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _tableFrame)[_tableFrame], {
 	      style: {
 	        top: `${top * -1}px`,
 	        left: `${left * -1}px`
 	      }
-	    }); //endregion
+	    });
+	    //endregion
 	  }
 
 	  onMove({
@@ -2673,7 +2365,6 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }) {
 	    let top, left;
-
 	    if (Number(scale) === Number(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].dataset.scale)) {
 	      top = Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.topToBeInTheCenter) + topOffsetFromTheCenter;
 	      left = Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.leftToBeInTheCenter) + leftOffsetFromTheCenter;
@@ -2681,7 +2372,6 @@ this.BX.UI = this.BX.UI || {};
 	      top = Math.ceil(Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.topToBeInTheCenter) * topInPercent);
 	      left = Math.ceil(Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.leftToBeInTheCenter) * leftInPercent);
 	    }
-
 	    left = Math.max(Math.min(left, 0), -1 * (Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.width) - babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width));
 	    top = Math.max(Math.min(top, 0), -1 * (Number(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.height) - babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].height));
 	    main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth], {
@@ -2695,38 +2385,30 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    });
 	  }
-
 	  mouseMove(e) {
 	    if (this.cursor === null) {
 	      return;
 	    }
-
 	    this.move(this.cursor.startX - e.pageX, this.cursor.startY - e.pageY);
 	    this.cursor.startX = e.pageX;
 	    this.cursor.startY = e.pageY;
 	  }
-
 	  stopMoving() {
 	    BX.unbind(document, "mousemove", this.mouseMove);
 	    BX.unbind(document, "mouseup", this.stopMoving);
 	  }
-
 	  getCanvas() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1];
 	  }
-
 	  getContext() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _ctx)[_ctx];
 	  }
-
 	  getTable() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _table)[_table];
 	  }
-
 	  getTableCloth() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth];
 	  }
-
 	  packBlob() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _isSet)[_isSet] !== true) {
 	      return Promise.reject({
@@ -2734,29 +2416,23 @@ this.BX.UI = this.BX.UI || {};
 	        code: 'empty data'
 	      });
 	    }
-
 	    return new Promise((resolve, reject) => {
 	      //region set TableCloth
 	      const tableFrame = {
 	        height: babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].height,
 	        width: babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width
 	      };
-
 	      const scale = babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].dataset.scale;
-
 	      const size = Math.min(Options.imageSize, Math.max(babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width / scale, babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width));
-
 	      const scaleToResult = size / babelHelpers.classPrivateFieldLooseBase(this, _table)[_table].width;
-
 	      const loader = CanvasLoader.getInstance();
 	      loader.getCanvas().height = size;
 	      loader.getCanvas().width = size;
-	      loader.getContext().clearRect(0, 0, size, size); //region getY
-
+	      loader.getContext().clearRect(0, 0, size, size);
+	      //region getY
 	      let imageY, imageY1, imageY2;
 	      let canvasY1, canvasY2;
 	      imageY = -1 * (babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.topToBeInTheCenter - babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.top) + tableFrame.height / 2 - babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].height * scale / 2;
-
 	      if (imageY > 0) {
 	        canvasY1 = imageY;
 	        imageY1 = 0;
@@ -2764,23 +2440,19 @@ this.BX.UI = this.BX.UI || {};
 	        canvasY1 = 0;
 	        imageY1 = -1 * imageY;
 	      }
-
 	      imageY2 = imageY + babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].height * scale;
-
 	      if (imageY2 > tableFrame.height) {
 	        canvasY2 = tableFrame.height;
 	        imageY2 = tableFrame.height - imageY;
 	      } else {
 	        canvasY2 = imageY2;
 	        imageY2 = babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].height * scale;
-	      } //endregion
+	      }
+	      //endregion
 	      //region getX
-
-
 	      let imageX, imageX1, imageX2;
 	      let canvasX1, canvasX2;
 	      imageX = -1 * (babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.leftToBeInTheCenter - babelHelpers.classPrivateFieldLooseBase(this, _tableCloth)[_tableCloth].dataset.left) + tableFrame.width / 2 - babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].width * scale / 2;
-
 	      if (imageX > 0) {
 	        canvasX1 = imageX;
 	        imageX1 = 0;
@@ -2788,17 +2460,15 @@ this.BX.UI = this.BX.UI || {};
 	        canvasX1 = 0;
 	        imageX1 = -1 * imageX;
 	      }
-
 	      imageX2 = imageX + babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].width * scale;
-
 	      if (imageX2 > tableFrame.width) {
 	        canvasX2 = tableFrame.width;
 	        imageX2 = tableFrame.width - imageX;
 	      } else {
 	        canvasX2 = imageX2;
 	        imageX2 = babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].width * scale;
-	      } //endregion
-
+	      }
+	      //endregion
 
 	      imageX1 /= scale;
 	      imageX2 /= scale;
@@ -2809,9 +2479,7 @@ this.BX.UI = this.BX.UI || {};
 	      canvasX2 *= scaleToResult;
 	      canvasY2 *= scaleToResult;
 	      loader.getContext().drawImage(babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1], imageX1, imageY1, imageX2 - imageX1, imageY2 - imageY1, canvasX1, canvasY1, canvasX2 - canvasX1, canvasY2 - canvasY1);
-
 	      const changed = babelHelpers.classPrivateFieldLooseBase(this, _canvas$1)[_canvas$1].dataset.changed;
-
 	      loader.pack().then(blob => {
 	        blob.changed = changed;
 	        blob.width = size;
@@ -2822,7 +2490,6 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	}
 	CanvasDefault.imageSize = {
 	  width: 1024,
@@ -2830,9 +2497,7 @@ this.BX.UI = this.BX.UI || {};
 	};
 
 	var _fileName = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("fileName");
-
 	var _applyNameAndExtensionToBlob = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("applyNameAndExtensionToBlob");
-
 	class CanvasMaster extends CanvasDefault {
 	  constructor(...args) {
 	    super(...args);
@@ -2844,7 +2509,6 @@ this.BX.UI = this.BX.UI || {};
 	      value: void 0
 	    });
 	  }
-
 	  load(file) {
 	    this.emit('onLoad');
 	    babelHelpers.classPrivateFieldLooseBase(this, _fileName)[_fileName] = null;
@@ -2860,57 +2524,41 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  getBlob() {
 	    return new Promise((resolve, reject) => {
 	      this.packBlob().then(blob => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _applyNameAndExtensionToBlob)[_applyNameAndExtensionToBlob](blob);
-
 	        resolve({
 	          blob
 	        });
 	      }).catch(reject);
 	    });
 	  }
-
 	}
-
 	function _applyNameAndExtensionToBlob2(result) {
 	  result.name = babelHelpers.classPrivateFieldLooseBase(this, _fileName)[_fileName] || 'image';
 	  let ext = result.name.split('.').pop().toLowerCase();
 	  ext = ext === result.name ? '' : ext;
-
 	  if (result.type === 'image/png' && ext !== 'png') {
 	    if ('jpg,bmp,jpeg,jpe,gif,png,webp'.lastIndexOf(ext) > 0) {
 	      result.name = result.name.substr(0, result.name.lastIndexOf('.'));
 	    }
-
 	    result.name = [result.name || 'image', 'png'].join('.');
 	  }
-
 	  return result;
 	}
 
 	class CanvasPreview extends CanvasDefault {}
 
 	var _stepSize = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("stepSize");
-
 	var _value = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("value");
-
 	var _defaultValue = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("defaultValue");
-
 	var _containerWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("containerWidth");
-
 	var _scale = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("scale");
-
 	var _knob = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("knob");
-
 	var _getContainerWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getContainerWidth");
-
 	var _makeAStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("makeAStep");
-
 	var _adjust = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("adjust");
-
 	class CanvasZooming extends main_core_events.EventEmitter {
 	  constructor({
 	    knob,
@@ -2964,54 +2612,41 @@ this.BX.UI = this.BX.UI || {};
 	    main_core.Event.bind(knob, 'mousedown', event => {
 	      this.startMoving(event);
 	    });
-
 	    if (defaultValue) {
 	      this.setDefaultValue(defaultValue);
 	    }
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _scale)[_scale] = scale;
 	    babelHelpers.classPrivateFieldLooseBase(this, _knob)[_knob] = knob;
 	    this.reset();
 	  }
-
 	  setDefaultValue(defaultValue) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _defaultValue)[_defaultValue] = defaultValue > 0 && defaultValue <= 1 ? defaultValue : 0;
 	    return this;
 	  }
-
 	  getValue() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _value)[_value];
 	  }
-
 	  reset() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _value)[_value] = babelHelpers.classPrivateFieldLooseBase(this, _defaultValue)[_defaultValue];
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _adjust)[_adjust]();
 	  }
-
 	  setValue(value) {
 	    value = Math.ceil(value * 1000) / 1000;
-
 	    if (value !== babelHelpers.classPrivateFieldLooseBase(this, _value)[_value] && value >= 0 && value <= 1) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _value)[_value] = value;
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _adjust)[_adjust]();
-
 	      this.emit('onChange', babelHelpers.classPrivateFieldLooseBase(this, _value)[_value] - babelHelpers.classPrivateFieldLooseBase(this, _defaultValue)[_defaultValue]);
 	    }
 	  }
-
 	  move({
 	    pageX
 	  }) {
 	    if (pageX > 0 && babelHelpers.classPrivateFieldLooseBase(this, _getContainerWidth)[_getContainerWidth]() > 0) {
 	      const percent = (pageX - babelHelpers.classPrivateFieldLooseBase(this, _knob)[_knob].startPageX) / babelHelpers.classPrivateFieldLooseBase(this, _getContainerWidth)[_getContainerWidth]();
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _knob)[_knob].startPageX = pageX;
 	      this.setValue(this.getValue() + percent);
 	    }
 	  }
-
 	  startMoving({
 	    pageX
 	  }) {
@@ -3019,35 +2654,27 @@ this.BX.UI = this.BX.UI || {};
 	    main_core.Event.bind(document, 'mousemove', this.move);
 	    main_core.Event.bind(document, 'mouseup', this.stopMoving);
 	  }
-
 	  stopMoving() {
 	    main_core.Event.unbind(document, 'mousemove', this.move);
 	    main_core.Event.unbind(document, 'mouseup', this.stopMoving);
 	  }
-
 	}
-
 	function _getContainerWidth2() {
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _containerWidth)[_containerWidth] > 0) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _containerWidth)[_containerWidth];
 	  }
-
 	  const containerPos = main_core.Dom.getPosition(babelHelpers.classPrivateFieldLooseBase(this, _scale)[_scale]);
 	  let width = containerPos.width - main_core.Dom.getPosition(babelHelpers.classPrivateFieldLooseBase(this, _knob)[_knob]).width;
-
 	  if (width > 0) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _containerWidth)[_containerWidth] = width;
 	    return babelHelpers.classPrivateFieldLooseBase(this, _containerWidth)[_containerWidth];
 	  }
-
 	  return 0;
 	}
-
 	function _makeAStep2(increase) {
 	  const value = Math.min(Math.max(this.getValue() + (increase === false ? -1 : 1) * babelHelpers.classPrivateFieldLooseBase(this, _stepSize)[_stepSize], 0), 1);
 	  this.setValue(value);
 	}
-
 	function _adjust2() {
 	  main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _knob)[_knob], {
 	    style: {
@@ -3057,13 +2684,9 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	var _canvas$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canvas");
-
 	var _ctx$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("ctx");
-
 	var _container$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("container");
-
 	var _activeMask = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("activeMask");
-
 	class CanvasMask extends main_core_events.EventEmitter {
 	  constructor(container) {
 	    super();
@@ -3089,7 +2712,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.mask = this.mask.bind(this);
 	    this.unmask = this.unmask.bind(this);
 	  }
-
 	  mask({
 	    id,
 	    src,
@@ -3102,7 +2724,6 @@ this.BX.UI = this.BX.UI || {};
 	    };
 	    CanvasLoader.loadFile(src, this.set, this.unmask);
 	  }
-
 	  set(imageSource) {
 	    //region set image
 	    const trueK = Math.max(imageSource.width > 0 ? Options.maskSize / imageSource.width : 1, imageSource.height > 0 ? Options.maskSize / imageSource.height : 1);
@@ -3112,7 +2733,8 @@ this.BX.UI = this.BX.UI || {};
 	    this.getCanvas().width = Options.maskSize;
 	    this.getCanvas().height = Options.maskSize;
 	    this.getContext().clearRect(0, 0, Options.maskSize, Options.maskSize);
-	    this.getContext().drawImage(imageSource, sourceX, sourceY, sourceS, sourceS, 0, 0, Options.maskSize, Options.maskSize); //endregion
+	    this.getContext().drawImage(imageSource, sourceX, sourceY, sourceS, sourceS, 0, 0, Options.maskSize, Options.maskSize);
+	    //endregion
 	  }
 
 	  applyAndPack(imageSource) {
@@ -3122,7 +2744,6 @@ this.BX.UI = this.BX.UI || {};
 	        code: 'bad image'
 	      });
 	    }
-
 	    return new Promise(resolve => {
 	      const trueK = Math.max(imageSource.width > 0 ? Options.maskSize / imageSource.width : 1, imageSource.height > 0 ? Options.maskSize / imageSource.height : 1);
 	      const sourceS = parseInt(Options.maskSize / trueK);
@@ -3141,58 +2762,39 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  getCanvas() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _canvas$2)[_canvas$2]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvas$2)[_canvas$2] = document.createElement('CANVAS');
 	    }
-
 	    return babelHelpers.classPrivateFieldLooseBase(this, _canvas$2)[_canvas$2];
 	  }
-
 	  getContext() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _ctx$1)[_ctx$1]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _ctx$1)[_ctx$1] = this.getCanvas().getContext("2d");
 	    }
-
 	    return babelHelpers.classPrivateFieldLooseBase(this, _ctx$1)[_ctx$1];
 	  }
-
 	  unmask() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _container$1)[_container$1].style.backgroundImage = '';
 	    babelHelpers.classPrivateFieldLooseBase(this, _activeMask)[_activeMask] = null;
 	  }
-
 	}
 
 	let _$9 = t => t,
-	    _t$9;
+	  _t$9;
 	const hiddenCanvas = Symbol('hiddenCanvas');
-
 	var _id$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("id");
-
 	var _activeTabId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("activeTabId");
-
 	var _previousActiveTabId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("previousActiveTabId");
-
 	var _tabs = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tabs");
-
 	var _canvasMaster = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canvasMaster");
-
 	var _canvasPreview = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canvasPreview");
-
 	var _canvasZooming = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canvasZooming");
-
 	var _canvasMask = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canvasMask");
-
 	var _setActiveTabByDefault = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setActiveTabByDefault");
-
 	var _setPreviousActiveTab = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setPreviousActiveTab");
-
 	var _selectFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("selectFile");
-
 	var _snapAPicture = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("snapAPicture");
-
 	class Editor extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
@@ -3248,19 +2850,15 @@ this.BX.UI = this.BX.UI || {};
 	    tabsWithThePictureInside.forEach(([tabClass, enabled, initialOptions]) => {
 	      if (enabled === true && tabClass.isAvailable() !== false) {
 	        const tab = new tabClass(initialOptions);
-
 	        babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].set(tabClass.code, tab);
-
 	        tab.subscribe('onSetMask', ({
 	          data
 	        }) => {
 	          this.getContainer().setAttribute('data-badge-is-set', 'Y');
-
 	          babelHelpers.classPrivateFieldLooseBase(this, _canvasMask)[_canvasMask].mask(data);
 	        });
 	        tab.subscribe('onUnsetMask', () => {
 	          this.getContainer().removeAttribute('data-badge-is-set');
-
 	          babelHelpers.classPrivateFieldLooseBase(this, _canvasMask)[_canvasMask].unmask();
 	        });
 	      }
@@ -3269,9 +2867,7 @@ this.BX.UI = this.BX.UI || {};
 	    tabsWithConnectionsToThePicture.forEach(([tabClass, enabled, initialOptions]) => {
 	      if (enabled !== false && tabClass.isAvailable() !== false) {
 	        const tab = new tabClass(initialOptions);
-
 	        babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].set(tabClass.code, tab);
-
 	        tab.setParentTab(babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].get(CanvasTab.code));
 	        tab.subscribe('onClickBack', () => {
 	          this.setActiveTab(CanvasTab.code);
@@ -3284,10 +2880,8 @@ this.BX.UI = this.BX.UI || {};
 	          } else {
 	            babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].set(data);
 	          }
-
 	          this.setActiveTab(CanvasTab.code);
 	        });
-
 	        if (tab instanceof CameraTab) {
 	          this.subscribe('onOpen', () => {
 	            if (babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId] === CameraTab.code) {
@@ -3302,29 +2896,25 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }
 	    });
-
 	    let theFutureActiveTab = babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId];
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].forEach((tab, tabId) => {
 	      if (!theFutureActiveTab || babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].get(theFutureActiveTab).getPriority() < tab.getPriority()) {
 	        theFutureActiveTab = tabId;
 	      }
 	    });
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _setActiveTabByDefault)[_setActiveTabByDefault](theFutureActiveTab);
-
-	    main_core_events.EventEmitter.subscribe(this.getEventNamespace() + ':' + 'onEditMask', baseEvent => {//TODO describe that true mask has changed and this view is not actual.
+	    main_core_events.EventEmitter.subscribe(this.getEventNamespace() + ':' + 'onEditMask', baseEvent => {
+	      //TODO describe that true mask has changed and this view is not actual.
 	    });
-	    main_core_events.EventEmitter.subscribe(this.getEventNamespace() + ':' + 'onDeleteMask', baseEvent => {//TODO describe that true mask has changed and this view is not actual.
+	    main_core_events.EventEmitter.subscribe(this.getEventNamespace() + ':' + 'onDeleteMask', baseEvent => {
+	      //TODO describe that true mask has changed and this view is not actual.
 	    });
 	    this.init();
 	  }
-
 	  init() {
 	    if (!this.getContainer().querySelector('canvas[data-bx-canvas="canvas"]')) {
 	      return setTimeout(this.init.bind(this), 1);
 	    }
-
 	    const tabsWithConnectionsToThePicture = [UploadTab, CameraTab];
 	    tabsWithConnectionsToThePicture.forEach(tabClass => {
 	      this.getContainer().setAttribute('data-bx-' + tabClass.code + '-tab-available', babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].has(tabClass.code) ? 'Y' : 'N');
@@ -3340,91 +2930,65 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _canvasMask)[_canvasMask] = babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].has(MaskTab.code) ? new CanvasMask(this.getContainer().querySelector('[data-bx-role="canvas-mask"]')) : false;
 	    this.getContainer().querySelector('[data-bx-role="unset-canvas-mask"]').addEventListener('click', () => {
 	      this.getContainer().removeAttribute('data-badge-is-set');
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasMask)[_canvasMask].unmask();
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].get(MaskTab.code).unmask();
 	    });
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].subscribe('onLoad', event => {
 	      this.getContainer().setAttribute('data-bx-canvas-load-status', 'loading');
 	      this.emit('onChange');
 	    });
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].subscribe('onReset', event => {
 	      this.getContainer().setAttribute('data-bx-canvas-load-status', 'isnotset');
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasZooming)[_canvasZooming].reset();
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasPreview)[_canvasPreview].reset();
-
 	      this.emit('onChange');
 	    });
-
 	    this.getContainer().setAttribute('data-bx-canvas-load-status', 'isnotset');
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].subscribe('onSetImage', ({
 	      data: {
 	        canvas
 	      }
 	    }) => {
 	      this.getContainer().setAttribute('data-bx-canvas-load-status', 'set');
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasZooming)[_canvasZooming].reset();
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasPreview)[_canvasPreview].set(canvas);
-
 	      this.emit('onSet');
 	      this.emit('onChange');
 	    });
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].subscribe('onMove', event => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasPreview)[_canvasPreview].onMove(event);
-
 	      this.emit('onChange');
 	    });
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].subscribe('onScale', event => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasPreview)[_canvasPreview].onScale(event);
-
 	      this.emit('onChange');
 	    });
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _canvasZooming)[_canvasZooming].subscribe('onChange', ({
 	      data
 	    }) => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].scale(data);
 	    });
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].subscribe('onError', ({
 	      data
 	    }) => {
 	      this.getContainer().setAttribute('data-bx-canvas-load-status', 'errored');
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasZooming)[_canvasZooming].reset();
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasPreview)[_canvasPreview].reset();
-
 	      this.getContainer().querySelector('[data-bx-role="tab-canvas-error"]').innerHTML = data;
 	    });
-
 	    this.emit('onReady');
 	  }
-
 	  ready(callback) {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster]) {
 	      callback.call();
 	    } else {
 	      this.subscribe('onReady', callback);
 	    }
-
 	    return this;
 	  }
-
 	  getId() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _id$2)[_id$2];
 	  }
-
 	  getContainer() {
 	    return this.cache.remember('container', () => {
 	      const res = main_core.Tag.render(_t$9 || (_t$9 = _$9`
@@ -3463,11 +3027,9 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.append(itemTab.getHeaderContainer(), headers);
 	        main_core.Dom.append(itemTab.getBodyContainer(), bodies);
 	      });
-
 	      if (headers.querySelectorAll('[data-bx-state="visible"]').length > 1) {
 	        headers.style.display = "block";
 	      }
-
 	      [[UploadTab.code, res.querySelector('[data-bx-role="button-add-picture"][data-bx-id="upload-file"]'), () => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _selectFile)[_selectFile]();
 	      }], [CameraTab.code, res.querySelector('[data-bx-role="button-add-picture"][data-bx-id="snap-picture"]'), () => {
@@ -3482,64 +3044,50 @@ this.BX.UI = this.BX.UI || {};
 	      return res;
 	    });
 	  }
-
 	  setActiveTab(activeTab, isIt = false) {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].has(activeTab)) {
 	      return null;
 	    }
-
 	    const activeTabChangesCounter = this.cache.get('activeTabChangesCounter') || 0;
-
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId] !== activeTab) {
 	      if (babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId] === null) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId] = activeTab;
 	      } else if (babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].has(babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId])) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].get(babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId]).inactivate();
 	      }
-
 	      if (babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId] === UploadTab.code || babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId] === CameraTab.code) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _previousActiveTabId)[_previousActiveTabId] = babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId];
 	      }
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId] = activeTab;
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].get(babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId]).activate();
 	    }
-
 	    this.cache.set('activeTabChangesCounter', activeTabChangesCounter + 1);
 	    return babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].get(babelHelpers.classPrivateFieldLooseBase(this, _activeTabId)[_activeTabId]);
 	  }
-
 	  getTab(tabName) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].get(tabName);
 	  }
-
 	  loadJSON(data) {
 	    return this.loadData(JSON.parse(data));
 	  }
-
 	  loadData(data) {
 	    return new Promise((resolve, reject) => {
 	      if (main_core.Type.isPlainObject(data) && data['src']) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].load(data['src']).then(() => {
 	          if (data['maskId'] && babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].has(MaskTab.code)) {
 	            babelHelpers.classPrivateFieldLooseBase(this, _tabs)[_tabs].get(MaskTab.code).maskById(data['maskId']);
-
 	            babelHelpers.classPrivateFieldLooseBase(this, _setActiveTabByDefault)[_setActiveTabByDefault](MaskTab.code);
 	          } else {
 	            babelHelpers.classPrivateFieldLooseBase(this, _setActiveTabByDefault)[_setActiveTabByDefault](CanvasTab.code);
 	          }
-
 	          resolve(data['src'], this);
 	        }).catch(reject);
 	      } else {
 	        babelHelpers.classPrivateFieldLooseBase(this, _setActiveTabByDefault)[_setActiveTabByDefault](UploadTab.code);
-
 	        resolve(null, this);
 	      }
 	    });
 	  }
-
 	  loadSrc(src) {
 	    return new Promise((resolve, reject) => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].load(src).then(() => {
@@ -3547,41 +3095,33 @@ this.BX.UI = this.BX.UI || {};
 	        resolve(src, this);
 	      }).catch(() => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _setPreviousActiveTab)[_setPreviousActiveTab]();
-
 	        reject(src, this);
 	      });
 	    });
 	  }
-
 	  reset() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].reset();
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _setPreviousActiveTab)[_setPreviousActiveTab]();
-
 	    return this;
 	  }
-
 	  packBlobAndMask() {
 	    return new Promise((resolve, reject) => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].getBlob().then(({
 	        blob
 	      }) => {
 	        var _loader$hiddenCanvas;
-
 	        const loader = CanvasLoader.getInstance();
 	        loader[hiddenCanvas] = (_loader$hiddenCanvas = loader[hiddenCanvas]) != null ? _loader$hiddenCanvas : document.createElement('canvas');
 	        const canvas = loader[hiddenCanvas];
 	        canvas.width = blob.width;
 	        canvas.height = blob.height;
 	        canvas.getContext('2d').drawImage(loader.getCanvas(), 0, 0);
-
 	        if (!babelHelpers.classPrivateFieldLooseBase(this, _canvasMask)[_canvasMask]) {
 	          return resolve({
 	            blob,
 	            canvas
 	          });
 	        }
-
 	        babelHelpers.classPrivateFieldLooseBase(this, _canvasMask)[_canvasMask].applyAndPack(canvas).then((maskedBlob, maskId) => {
 	          resolve({
 	            blob,
@@ -3600,95 +3140,73 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    });
 	  }
-
 	  packBlob() {
 	    return new Promise((resolve, reject) => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].getBlob().then(resolve).catch(reject);
 	    });
 	  }
-
 	  isEmpty() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].isEmpty();
 	  }
-
 	  isModified() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster].imageFrame.changed;
 	  }
-
 	  getCanvasEditor() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _canvasMaster)[_canvasMaster];
 	  }
-
 	  getCanvasZooming() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _canvasZooming)[_canvasZooming];
 	  }
-
 	  destroy() {}
-
 	  static createInstance(id, options) {
 	    if (this.repo.has(id)) {
 	      this.repo.get(id).destroy();
 	    }
-
 	    const editor = new this(options);
-
 	    if (document.querySelector('#' + id)) {
 	      editor.ready(() => {
 	        editor.loadJSON(document.querySelector('#' + id).getAttribute('data-bx-ui-avatar-editor-info'));
 	      });
 	    }
-
 	    if (main_core.Type.isStringFilled(id)) {
 	      this.repo.set(id, editor);
 	    }
-
 	    return editor;
 	  }
-
 	  static getInstanceById(id) {
 	    if (this.repo.has(id)) {
 	      return this.repo.get(id);
 	    }
-
 	    return null;
 	  }
-
 	  static getOrCreateInstanceById(id, options) {
 	    return this.getInstanceById(id) || this.createInstance(...arguments);
 	  }
-
 	}
-
 	function _setActiveTabByDefault2(activeTab) {
 	  if (this.cache.get('activeTabChangesCounter') > 0) {
 	    return;
 	  }
-
 	  this.setActiveTab(activeTab);
 	  this.cache.delete('activeTabChangesCounter');
 	}
-
 	function _setPreviousActiveTab2() {
 	  this.setActiveTab(babelHelpers.classPrivateFieldLooseBase(this, _previousActiveTabId)[_previousActiveTabId]);
 	}
-
 	function _selectFile2() {
 	  // this.#canvasMaster.reset();
 	  this.setActiveTab(UploadTab.code);
 	  return this;
 	}
-
 	function _snapAPicture2() {
 	  // this.#canvasMaster.reset();
 	  this.setActiveTab(CameraTab.code);
 	  return this;
 	}
-
 	Editor.justANumber = 0;
 	Editor.repo = new Map();
 
 	var _getPopup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopup");
-
 	class EditorInPopup extends Editor {
 	  constructor(...args) {
 	    super(...args);
@@ -3696,31 +3214,25 @@ this.BX.UI = this.BX.UI || {};
 	      value: _getPopup2
 	    });
 	  }
-
 	  hide() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().close();
 	  }
-
 	  show(tabCode) {
 	    this.ready(() => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().show();
-
 	      if (main_core.Type.isStringFilled(tabCode)) {
 	        this.setActiveTab(tabCode);
 	      }
 	    });
 	  }
-
 	  showFile(url) {
 	    this.ready(() => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().show();
-
 	      if (url) {
 	        return this.loadSrc(url);
 	      }
 	    });
 	  }
-
 	  apply() {
 	    this.packBlobAndMask().then(({
 	      blob,
@@ -3732,7 +3244,6 @@ this.BX.UI = this.BX.UI || {};
 	        if (maskId > 0) {
 	          Backend.useRecently(maskId);
 	        }
-
 	        const ev = new main_core_events.BaseEvent({
 	          compatData: [blob, canvas],
 	          data: {
@@ -3749,12 +3260,10 @@ this.BX.UI = this.BX.UI || {};
 	      console.log('error: ', error);
 	    });
 	  }
-
 	  onApply(callback) {
 	    this.subscribe('onApply', callback);
 	    return this;
 	  }
-
 	  subscribeOnFormIsReady(fieldName, callback) {
 	    this.subscribe('onApply', event => {
 	      const formObj = new FormData();
@@ -3765,7 +3274,6 @@ this.BX.UI = this.BX.UI || {};
 	      formObj.append(fieldName, blob, blob['name']);
 	      const maskedFileId = ['maskedFile', Editor.justANumber++].join(':');
 	      formObj.append(main_core.Loc.getMessage('UI_AVATAR_MASK_REQUEST_FIELD_NAME') + fieldName, maskedFileId);
-
 	      if (maskedBlob) {
 	        formObj.append(main_core.Loc.getMessage('UI_AVATAR_MASK_REQUEST_FIELD_NAME') + '[' + maskedFileId + ']', maskedBlob, blob['name']);
 	        formObj.append(main_core.Loc.getMessage('UI_AVATAR_MASK_REQUEST_FIELD_NAME') + '[' + maskedFileId + '][maskId]', maskedBlob['maskId']);
@@ -3786,24 +3294,20 @@ this.BX.UI = this.BX.UI || {};
 	        }));
 	      }
 	    });
-	  } //region Compatibility
+	  }
 
-
+	  //region Compatibility
 	  click() {
 	    this.show();
 	  }
-
 	  get popup() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]();
 	  }
-
 	  static isCameraAvailable() {
 	    return CameraTab.isAvailable();
-	  } //endregion
-
-
+	  }
+	  //endregion
 	}
-
 	function _getPopup2() {
 	  this.cache.remember('okButton', () => {
 	    const okButton = new ui_buttons.SaveButton({
@@ -3811,18 +3315,15 @@ this.BX.UI = this.BX.UI || {};
 	        if (okButton.getState() === ui_buttons.ButtonState.ACTIVE) {
 	          this.apply();
 	        }
-
 	        this.hide();
 	      }
 	    });
-
 	    if (this.isEmpty()) {
 	      okButton.setState(ui_buttons.ButtonState.DISABLED);
 	      this.subscribeOnce('onSet', () => {
 	        okButton.setState(ui_buttons.ButtonState.ACTIVE);
 	      });
 	    }
-
 	    return okButton;
 	  });
 	  return this.cache.remember('popup', () => {
@@ -3859,26 +3360,21 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	var _id$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("id");
-
 	var _showSlider$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showSlider");
 
 	let currentEditor = EditorInPopup;
 	/**
 	 * @namespace BX.UI.AvatarEditor
 	 */
-
 	function createInstance() {
 	  return currentEditor.createInstance(...arguments);
 	}
-
 	function isCameraAvailable() {
 	  return currentEditor.isCameraAvailable();
 	}
-
 	function getInstanceById() {
 	  return currentEditor.getInstanceById(...arguments);
 	}
-
 	function getOrCreateInstanceById() {
 	  return currentEditor.getOrCreateInstanceById(...arguments);
 	}

@@ -388,7 +388,16 @@ class Event
 			self::processDeferredMessages();
 		}
 
-		static::executeEvents();
+		$executeResult = static::executeEvents();
+		if (!$executeResult->isSuccess())
+		{
+			foreach ($executeResult->getErrors() as $error)
+			{
+				$message = $error->getCode() ? $error->getCode() . ": " . $error->getMessage() : $error->getMessage();
+				trigger_error("Pull send error; {$message}", E_USER_WARNING);
+			}
+		}
+
 		static::executePushEvents();
 
 		return true;

@@ -6,7 +6,6 @@
 		this.REFRESH_DELAY = 500;
 		this.id = config.id;
 		this.showTasks = config.showTasks;
-		this.calDavConnections = config.connections;
 		this.util = new window.BXEventCalendar.Util(this, config, additionalParams);
 		this.needForReload = false;
 		this.pullEventList = new Set();
@@ -515,6 +514,7 @@
 					+ BX.message('EC_LOCATION_VIEW_UNLOCK_FEATURE')
 					+ '</a>',
 			}));
+			top.BX.UI.InfoHelper.show('limit_office_calendar_location');
 		},
 
 		setView: function(view, params)
@@ -1114,10 +1114,6 @@
 		{
 			if (BX.Calendar.Util.documentIsDisplayingNow())
 			{
-				if (params && params.syncGoogle)
-				{
-					this.reloadGoogle = true;
-				}
 				this.entryController.clearLoadIndexCache();
 				this.refresh();
 			}
@@ -1281,6 +1277,7 @@
 				case 'edit_section':
 				case 'delete_section':
 				case 'change_section_subscription':
+				case 'hidden_sections_updated':
 					this.sectionManager.handlePullChanges(data);
 					break;
 				case 'delete_room':

@@ -39,13 +39,27 @@ return array(
 	),
 	'style' => [
 		'block' => [
-			'type' => ['block-default-background-overlay', 'background'],
+			'type' => [
+				'display',
+				'background',
+				'background-attachment',
+				'background-size',
+				'padding-top',
+				'padding-bottom',
+				'padding-left',
+				'padding-right',
+				'margin-top',
+			],
 			'additional' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_44_4_SLIDER_5_COLS_WITH_PRICES_NODES_LANDINGBLOCKNODE_SLIDER'),
 				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show-extended', 'arrows', 'dots'],
 			]
 		],
 		'nodes' => [
+			'.landing-block-node-card' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_44.4.SLIDER_5_COLS_WITH_PRICES_CARDS_LANDINGBLOCKNODECARD'),
+				'type' => 'background-overlay',
+			),
 			'.landing-block-node-card-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_44.4.SLIDER_5_COLS_WITH_PRICES_CARDS_LANDINGBLOCKNODECARD'),
 				'type' => array('background-color', 'background-hover'),

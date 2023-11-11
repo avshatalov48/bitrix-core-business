@@ -1,5 +1,7 @@
+import { Type } from 'main.core';
 import { Store } from 'ui.vue3.vuex';
 
+import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
 import { RestMethod } from 'im.v2.const';
 import { runAction } from 'im.v2.lib.rest';
@@ -62,6 +64,7 @@ export class LoadService
 				return result.dialogId;
 			})
 			.catch((error) => {
+				// eslint-disable-next-line no-console
 				console.error('ChatService: Load: error preparing external id', error);
 			});
 	}
@@ -75,10 +78,21 @@ export class LoadService
 			.then((result: ChatLoadRestResult) => {
 				return this.#updateModels(result);
 			})
-			.then(() => {
-				this.#markDialogAsLoaded(dialogId);
+			.then((result?: { linesDialogId: string }) => {
+				if (Type.isStringFilled(result?.linesDialogId))
+				{
+					Messenger.openLines(result.linesDialogId);
+
+					return;
+				}
+
+				if (this.#isDialogLoadedMarkNeeded(actionName))
+				{
+					this.#markDialogAsLoaded(dialogId);
+				}
 			})
 			.catch((error) => {
+				// eslint-disable-next-line no-console
 				console.error('ChatService: Load: error loading chat', error);
 				throw error;
 			});
@@ -94,7 +108,7 @@ export class LoadService
 		});
 	}
 
-	#markDialogAsLoaded(dialogId: string)
+	#markDialogAsLoaded(dialogId: string): Promise
 	{
 		return this.#store.dispatch('dialogues/update', {
 			dialogId,
@@ -105,12 +119,17 @@ export class LoadService
 		});
 	}
 
+	#isDialogLoadedMarkNeeded(actionName: string): boolean
+	{
+		return actionName !== RestMethod.imV2ChatShallowLoad;
+	}
+
 	#updateModels(restResult: ChatLoadRestResult): Promise
 	{
 		const extractor = new ChatDataExtractor(restResult);
 		if (extractor.isOpenlinesChat())
 		{
-			return Promise.reject(new Error('OL chats are not supported'));
+			return Promise.resolve({ linesDialogId: extractor.getDialogId() });
 		}
 
 		const dialoguesPromise = this.#store.dispatch('dialogues/set', extractor.getChats());
@@ -121,7 +140,6 @@ export class LoadService
 			this.#store.dispatch('users/set', extractor.getUsers()),
 			userManager.addUsersToModel(extractor.getAdditionalUsers()),
 		]);
-
 		const messagesPromise = Promise.all([
 			this.#store.dispatch('messages/setChatCollection', {
 				messages: extractor.getMessages(),

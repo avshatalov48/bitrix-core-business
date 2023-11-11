@@ -1,30 +1,28 @@
-import {Type} from 'main.core';
+const isFunction = BX.Landing.Utils.isFunction;
+const isString = BX.Landing.Utils.isString;
+const isPlainObject = BX.Landing.Utils.isPlainObject;
+const isArray = BX.Landing.Utils.isArray;
+const bind = BX.Landing.Utils.bind;
+const proxy = BX.Landing.Utils.proxy;
+const data = BX.Landing.Utils.data;
 
 export class Node
 {
-	constructor()
+	constructor(options)
 	{
-		this.isFunction = BX.Landing.Utils.isFunction;
-		this.isString = BX.Landing.Utils.isString;
-		this.isPlainObject = BX.Landing.Utils.isPlainObject;
-		this.isArray = BX.Landing.Utils.isArray;
-		this.bind = BX.Landing.Utils.bind;
-		this.proxy = BX.Landing.Utils.proxy;
-		this.data = BX.Landing.Utils.data;
-
 		this.node = options.node;
-		this.manifest = this.isPlainObject(options.manifest) ? options.manifest : {};
-		this.selector = this.isString(options.selector) ? options.selector : "";
-		this.onChangeHandler = this.isFunction(options.onChange) ? options.onChange : (function() {});
-		this.onDesignShow = this.isFunction(options.onDesignShow) ? options.onDesignShow : (function() {});
-		this.changeOptionsHandler = this.isFunction(options.onChangeOptions) ? options.onChangeOptions : (function() {});
+		this.manifest = isPlainObject(options.manifest) ? options.manifest : {};
+		this.selector = isString(options.selector) ? options.selector : '';
+		this.onChangeHandler = isFunction(options.onChange) ? options.onChange : (function() {});
+		this.onDesignShow = isFunction(options.onDesignShow) ? options.onDesignShow : (function() {});
+		this.changeOptionsHandler = isFunction(options.onChangeOptions) ? options.onChangeOptions : (function() {});
 
-		this.onDocumentClick = this.proxy(this.onDocumentClick, this);
-		this.onDocumentKeydown = this.proxy(this.onDocumentKeydown, this);
+		this.onDocumentClick = proxy(this.onDocumentClick, this);
+		this.onDocumentKeydown = proxy(this.onDocumentKeydown, this);
 
 		// Bind on document events
-		this.bind(document, "click", this.onDocumentClick);
-		this.bind(document, "keydown", this.onDocumentKeydown);
+		bind(document, 'click', this.onDocumentClick);
+		bind(document, 'keydown', this.onDocumentKeydown);
 
 		// Make manifest as reed only
 		Object.freeze(this.manifest);
@@ -38,10 +36,12 @@ export class Node
 		}
 	}
 
+	/**
+	 * Handles document click event
+	 * @param {MouseEvent} event
+	 */
 	onDocumentClick(event)
-	{
-
-	}
+	{}
 
 	/**
 	 * Handles document keydown event
@@ -59,9 +59,7 @@ export class Node
 	 * Handles escape press event
 	 */
 	onEscapePress()
-	{
-
-	}
+	{}
 
 	/**
 	 * Gets field for editor form
@@ -70,32 +68,26 @@ export class Node
 	 */
 	getField()
 	{
-		throw new Error("Must be implemented by subclass");
+		throw new Error('Must be implemented by subclass');
 	}
 
 	/**
 	 * Shows node content editor
 	 */
 	showEditor()
-	{
-
-	}
+	{}
 
 	/**
 	 * Hides node content editor
 	 */
 	hideEditor()
-	{
-
-	}
+	{}
 
 	/**
 	 * Handles allow inline edit event
 	 */
 	onAllowInlineEdit()
-	{
-
-	}
+	{}
 
 	/**
 	 * Checks that allow inline edit
@@ -112,7 +104,7 @@ export class Node
 	 */
 	isGrouped()
 	{
-		return typeof this.manifest.group === "string" && this.manifest.group.length > 0;
+		return typeof this.manifest.group === 'string' && this.manifest.group.length > 0;
 	}
 
 	/**
@@ -121,10 +113,11 @@ export class Node
 	 * @param {*} value
 	 * @param {?boolean} [preventSave = false]
 	 * @param {?boolean} [preventHistory = false]
+	 * @return void
 	 */
 	setValue(value, preventSave, preventHistory)
 	{
-		throw new Error("Must be implemented by subclass");
+		throw new Error('Must be implemented by subclass');
 	}
 
 	/**
@@ -134,7 +127,7 @@ export class Node
 	 */
 	getValue()
 	{
-		throw new Error("Must be implemented by subclass");
+		throw new Error('Must be implemented by subclass');
 	}
 
 	/**
@@ -143,12 +136,14 @@ export class Node
 	 */
 	getAdditionalValue()
 	{
-		if (this.isPlainObject(this.manifest.extend) &&
-			this.isArray(this.manifest.extend.attrs))
+		if (
+			isPlainObject(this.manifest.extend)
+			&& isArray(this.manifest.extend.attrs)
+		)
 		{
-			return this.manifest.extend.attrs.reduce(function(accumulator, key) {
-				return (accumulator[key] = this.data(this.node, key)), accumulator;
-			}.bind(this), {});
+			return this.manifest.extend.attrs.reduce((accumulator, key) => {
+				return (accumulator[key] = data(this.node, key)), accumulator;
+			}, {});
 		}
 
 		return {};
@@ -156,10 +151,11 @@ export class Node
 
 	/**
 	 * Handles content change event and calls external onChange handler
+	 * @param {?boolean} [preventHistory = false]
 	 */
-	onChange()
+	onChange(preventHistory)
 	{
-		this.onChangeHandler.apply(null, [this]);
+		this.onChangeHandler.apply(null, [this, preventHistory]);
 	}
 
 	/**
@@ -168,8 +164,9 @@ export class Node
 	 */
 	getIndex()
 	{
-		var index = parseInt(this.selector.split("@")[1]);
+		let index = parseInt(this.selector.split('@')[1], 10);
 		index = index === index ? index : 0;
+
 		return index;
 	}
 
@@ -199,4 +196,53 @@ export class Node
 	{
 		return BX.Landing.PageObject.getBlocks().getByChildNode(this.node);
 	}
+
+	/**
+	 * Prepare pseudo url if needed
+	 * @param {object} url
+	 * @return {null|object}
+	 */
+	preparePseudoUrl(url)
+	{
+		let urlIsChange = false;
+		if (!(url.href === '#' && url.target === ''))
+		{
+			urlIsChange = true;
+		}
+
+		if (url.href === 'selectActions:')
+		{
+			url.href = '';
+			url.enabled = false;
+			urlIsChange = true;
+		}
+
+		if (url.href.startsWith('product:'))
+		{
+			url.target = '_self';
+			urlIsChange = true;
+		}
+
+		if (url.enabled !== false && (url.href === '' || url.href === '#'))
+		{
+			url.enabled = false;
+			urlIsChange = true;
+		}
+
+		if (url.target === '')
+		{
+			url.target = '_blank';
+			urlIsChange = true;
+		}
+
+		if (urlIsChange === true)
+		{
+			return url;
+		}
+
+		return null;
+	}
 }
+
+BX.Landing.Node = Node;
+BX.Landing.Node.storage = [];

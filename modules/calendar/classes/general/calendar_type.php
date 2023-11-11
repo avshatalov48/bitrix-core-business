@@ -15,11 +15,11 @@ class CCalendarType
 	public const OPERATION_EDIT_SECTION = 'calendar_type_edit_section';
 	public const OPERATION_EDIT_ACCESS = 'calendar_type_edit_access';
 	private static
-		$Permissions = array(),
-		$arOp = array(),
-		$userOperationsCache = array();
+		$Permissions = [],
+		$arOp = [],
+		$userOperationsCache = [];
 
-	public static function GetList($params = array())
+	public static function GetList($params = [])
 	{
 		global $DB;
 		$access = new CAccess();
@@ -57,23 +57,29 @@ class CCalendarType
 				"EXTERNAL_ID" => ["FIELD_NAME" => "CT.EXTERNAL_ID", "FIELD_TYPE" => "string"]
 			];
 
-			$arSqlSearch = array();
+			$arSqlSearch = [];
 			if(is_array($arFilter))
 			{
 				$filter_keys = array_keys($arFilter);
-				for($i=0, $l = count($filter_keys); $i<$l; $i++)
+				foreach ($filter_keys as $i => $value)
 				{
-					$n = mb_strtoupper($filter_keys[$i]);
-					$val = $arFilter[$filter_keys[$i]];
-					if(is_string($val) && $val == '')
+					$n = mb_strtoupper($value);
+					$val = $arFilter[$value];
+
+					if (is_string($val) && !$val)
+					{
 						continue;
-					if ($n == 'XML_ID')
+					}
+
+					if ($n === 'XML_ID')
 					{
 						if (is_array($val))
 						{
 							$strXml = "";
 							foreach($val as $xmlId)
-								$strXml .= ",'".$DB->ForSql($xmlId)."'";
+							{
+								$strXml .= ",'" . $DB->ForSql($xmlId) . "'";
+							}
 							$arSqlSearch[] = "CT.XML_ID in (".trim($strXml, ", ").")";
 						}
 						else
@@ -81,11 +87,11 @@ class CCalendarType
 							$arSqlSearch[] = GetFilterQuery("CT.XML_ID", $val, 'N');
 						}
 					}
-					if ($n == 'EXTERNAL_ID')
+					if ($n === 'EXTERNAL_ID')
 					{
 						$arSqlSearch[] = GetFilterQuery("CT.EXTERNAL_ID", $val, 'N');
 					}
-					elseif(isset($arFields[$n]))
+					elseif (isset($arFields[$n]))
 					{
 						$arSqlSearch[] = GetFilterQuery($arFields[$n]["FIELD_NAME"], $val);
 					}
@@ -94,11 +100,18 @@ class CCalendarType
 
 			$strOrderBy = '';
 			foreach($arOrder as $by=>$order)
-				if(isset($arFields[mb_strtoupper($by)]))
-					$strOrderBy .= $arFields[mb_strtoupper($by)]["FIELD_NAME"].' '.(mb_strtolower($order) == 'desc' ? 'desc' : 'asc').',';
+			{
+				if (isset($arFields[mb_strtoupper($by)]))
+				{
+					$strOrderBy .= $arFields[mb_strtoupper($by)]["FIELD_NAME"] . ' '
+						. (mb_strtolower($order) === 'desc' ? 'desc' : 'asc') . ',';
+				}
+			}
 
-			if($strOrderBy <> '')
-				$strOrderBy = "ORDER BY ".rtrim($strOrderBy, ",");
+			if ($strOrderBy)
+			{
+				$strOrderBy = "ORDER BY " . rtrim($strOrderBy, ",");
+			}
 
 			$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 
@@ -112,8 +125,8 @@ class CCalendarType
 				$strOrderBy";
 
 			$res = $DB->Query($strSql, false, "Function: CCalendarType::GetList<br>Line: ".__LINE__);
-			$result = Array();
-			$arTypeXmlIds = Array();
+			$result = [];
+			$arTypeXmlIds = [];
 			while($arRes = $res->Fetch())
 			{
 				$result[] = $arRes;
@@ -130,11 +143,11 @@ class CCalendarType
 			}
 		}
 
-		if ($checkPermissions && isset($arTypeXmlIds) && count($arTypeXmlIds) > 0)
+		if ($checkPermissions && !empty($arTypeXmlIds))
 		{
 			$arPerm = self::GetArrayPermissions($arTypeXmlIds);
-			$res = array();
-			$arAccessCodes = array();
+			$res = [];
+			$arAccessCodes = [];
 			$accessController = new TypeAccessController(CCalendar::GetCurUserId());
 
 			if (is_array($result))
@@ -162,11 +175,18 @@ class CCalendarType
 
 						if ($result[ActionDictionary::ACTION_TYPE_ACCESS])
 						{
-							$type['ACCESS'] = array();
-							if (count($arPerm[$typeXmlId]) > 0)
+							$type['ACCESS'] = [];
+							if (!empty($arPerm[$typeXmlId]))
 							{
 								// Add codes to get they full names for interface
-								$arAccessCodes = array_merge($arAccessCodes, array_keys($arPerm[$typeXmlId]));
+								$currentAccessCodes = array_keys($arPerm[$typeXmlId]);
+								foreach ($currentAccessCodes as $code)
+								{
+									if (!in_array($code, $arAccessCodes, true))
+									{
+										$arAccessCodes[] = $code;
+									}
+								}
 								$type['ACCESS'] = $arPerm[$typeXmlId];
 							}
 						}
@@ -189,7 +209,9 @@ class CCalendarType
 		$XML_ID = preg_replace("/[^a-zA-Z0-9_]/i", "", $arFields['XML_ID']);
 		$arFields['XML_ID'] = $XML_ID;
 		if (!isset($arFields['XML_ID']) || $XML_ID == "")
+		{
 			return false;
+		}
 
 		//return $APPLICATION->ThrowException(GetMessage("EC_ACCESS_DENIED"));
 
@@ -203,14 +225,20 @@ class CCalendarType
 				$strSql = "SELECT * FROM b_calendar_type WHERE XML_ID='".$DB->ForSql($XML_ID)."'";
 				$res = $DB->Query($strSql, false, __LINE__);
 				if (!($arRes = $res->Fetch()))
-					$DB->Add("b_calendar_type", $arFields, array('DESCRIPTION'));
+				{
+					$arInsert = $DB->PrepareInsert("b_calendar_type", $arFields);
+					$strSql ="INSERT INTO b_calendar_type(".$arInsert[0].") VALUES(".$arInsert[1].")";
+					$DB->Query($strSql);
+				}
 				else
+				{
 					false;
+				}
 			}
 			else // Update
 			{
 				unset($arFields['XML_ID']);
-				if (count($arFields) > 0)
+				if (!empty($arFields))
 				{
 					$strUpdate = $DB->PrepareUpdate("b_calendar_type", $arFields);
 					$strSql =
@@ -226,7 +254,7 @@ class CCalendarType
 		$accessController = new TypeAccessController(CCalendar::GetUserId());
 		$typeModel = TypeModel::createFromXmlId($arFields['XML_ID']);
 
-		if ($accessController->check(ActionDictionary::ACTION_TYPE_ACCESS, $typeModel) && is_array($access))
+		if (is_array($access) && $accessController->check(ActionDictionary::ACTION_TYPE_ACCESS, $typeModel))
 		{
 			self::SavePermissions($XML_ID, $access);
 		}
@@ -251,6 +279,7 @@ class CCalendarType
 		$DB->Query("DELETE FROM b_calendar_event WHERE CAL_TYPE='".$DB->ForSql($XML_ID)."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
 		CCalendar::ClearCache(array('type_list', 'section_list', 'event_list'));
+
 		return true;
 	}
 
@@ -263,7 +292,7 @@ class CCalendarType
 		{
 			foreach ($taskPerm as $accessCode => $taskId)
 			{
-				if (preg_match('/^SG/', $accessCode))
+				if (0 === strpos($accessCode, "SG"))
 				{
 					$accessCode = self::prepareGroupCode($accessCode);
 				}
@@ -296,12 +325,14 @@ class CCalendarType
 	}
 
 
-	public static function GetArrayPermissions($arTypes = array())
+	public static function GetArrayPermissions($arTypes = [])
 	{
 		global $DB;
 		$s = "'0'";
 		foreach($arTypes as $xmlid)
-			$s .= ",'".$DB->ForSql($xmlid)."'";
+		{
+			$s .= ",'" . $DB->ForSql($xmlid) . "'";
+		}
 
 		$strSql = 'SELECT *
 			FROM b_calendar_access CAP
@@ -313,18 +344,22 @@ class CCalendarType
 			$xmlId = $arRes['SECT_ID'];
 			if (!isset(self::$Permissions[$xmlId]) || !is_array(self::$Permissions[$xmlId]))
 			{
-				self::$Permissions[$xmlId] = array();
+				self::$Permissions[$xmlId] = [];
 			}
 			self::$Permissions[$xmlId][$arRes['ACCESS_CODE']] = $arRes['TASK_ID'];
 		}
 		foreach($arTypes as $xmlid)
+		{
 			if (!isset(self::$Permissions[$xmlid]))
-				self::$Permissions[$xmlid] = array();
+			{
+				self::$Permissions[$xmlid] = [];
+			}
+		}
 
 		return self::$Permissions;
 	}
 
-	public static function CanDo($operation, $xmlId = 0, $userId = false)
+	public static function CanDo($operation, $xmlId = 0, $userId = null)
 	{
 		global $USER;
 		if ((!$USER || !is_object($USER)) || $USER->CanDoOperation('edit_php'))
@@ -332,7 +367,7 @@ class CCalendarType
 			return true;
 		}
 
-		if (!is_numeric($userId))
+		if (!(int)$userId)
 		{
 			$userId = CCalendar::GetCurUserId();
 		}
@@ -346,7 +381,8 @@ class CCalendarType
 			return true;
 		}
 
-		if (($xmlId === 'group' || $xmlId === 'user' || CCalendar::IsBitrix24())
+		if (
+			($xmlId === 'group' || $xmlId === 'user' || CCalendar::IsBitrix24())
 			&& CCalendar::IsSocNet()
 			&& CCalendar::IsSocnetAdmin()
 		)
@@ -354,13 +390,13 @@ class CCalendarType
 			return true;
 		}
 
-		return in_array($operation, self::GetOperations($xmlId, $userId));
+		return in_array($operation, self::GetOperations($xmlId, $userId), true);
 	}
 
-	public static function GetOperations($xmlId, $userId = false)
+	public static function GetOperations($xmlId, $userId = null)
 	{
 		global $USER;
-		if ($userId === false)
+		if (!$userId)
 		{
 			$userId = CCalendar::GetCurUserId();
 		}
@@ -379,17 +415,17 @@ class CCalendarType
 				$arCodes = Util::getUserAccessCodes($userId);
 			}
 
-			if(!in_array('G2', $arCodes))
+			if(!in_array('G2', $arCodes, true))
 			{
 				$arCodes[] = 'G2';
 			}
 
-			if($userId && !in_array('AU', $arCodes) && $USER && (int)$USER->GetId() == $userId)
+			if($userId && !in_array('AU', $arCodes, true) && (int)$USER->GetId() === (int)$userId)
 			{
 				$arCodes[] = 'AU';
 			}
 
-			if($userId && !in_array('UA', $arCodes) && $USER && (int)$USER->GetId() == $userId)
+			if($userId && !in_array('UA', $arCodes, true) && (int)$USER->GetId() === (int)$userId)
 			{
 				$arCodes[] = 'UA';
 			}
@@ -398,15 +434,17 @@ class CCalendarType
 			if(!isset(self::$arOp[$key]) || !is_array(self::$arOp[$key]))
 			{
 				if(!isset(self::$Permissions[$xmlId]))
-					self::GetArrayPermissions(array($xmlId));
+				{
+					self::GetArrayPermissions([$xmlId]);
+				}
 				$perms = self::$Permissions[$xmlId];
 
-				self::$arOp[$key] = array();
+				self::$arOp[$key] = [];
 				if(is_array($perms))
 				{
 					foreach($perms as $code => $taskId)
 					{
-						if(in_array($code, $arCodes))
+						if (in_array($code, $arCodes, true))
 						{
 							self::$arOp[$key] = array_merge(self::$arOp[$key], CTask::GetOperations($taskId, true));
 						}

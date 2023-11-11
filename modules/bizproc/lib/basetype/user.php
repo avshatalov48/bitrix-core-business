@@ -410,7 +410,7 @@ HTML;
 	public static function validateValueMultiple($value, FieldType $fieldType): array
 	{
 		$value = parent::validateValueMultiple($value, $fieldType);
-		$value = array_filter($value, fn($v) => (!is_null($v)));
+		$value = array_filter($value, static fn($v) => ($v !== null));
 
 		return array_values(array_unique($value));
 	}

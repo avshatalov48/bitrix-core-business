@@ -850,7 +850,7 @@ class Manager
 	 */
 	private static function getRoomsAccess(array $roomsId, array $rooms): array
 	{
-		if (!$roomsId)
+		if (empty($roomsId))
 		{
 			return [];
 		}

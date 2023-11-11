@@ -107,6 +107,11 @@ class RedisSessionHandler extends AbstractSessionHandler
 		$connectionPool = Application::getInstance()->getConnectionPool();
 		/** @var RedisConnection $redisConnection */
 		$redisConnection = $connectionPool->getConnection(self::SESSION_REDIS_CONNECTION);
+		if (!$redisConnection)
+		{
+			return false;
+		}
+
 		$this->connection = $redisConnection->getResource();
 
 		return $redisConnection->isConnected();

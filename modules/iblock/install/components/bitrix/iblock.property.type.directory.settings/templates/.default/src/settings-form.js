@@ -171,9 +171,9 @@ export class SettingsForm
 							input.value = BX.translit(
 								input.value,
 								{
-									'change_case': 'L',
-									'replace_space': '',
-									'delete_repeat_replace': true,
+									change_case: 'L',
+									replace_space: '',
+									delete_repeat_replace: true,
 								}
 							);
 						}

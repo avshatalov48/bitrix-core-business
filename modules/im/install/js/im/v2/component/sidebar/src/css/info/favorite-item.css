@@ -5,11 +5,15 @@
 }
 
 .bx-im-favorite-item__container {
-	background-color: #f5f7f8;
+	background-color: var(--im-sidebar-favorite-detail__background-color_item);
 	border-radius: 12px;
-	padding: 6px 12px 10px 12px;
-	margin: 0 10px 12px 15px;
+	padding: 6px 12px 10px;
+	margin: 0 10px 0 15px;
 	cursor: pointer;
+}
+
+.bx-im-favorite-item__container + .bx-im-favorite-item__container {
+	margin-top: 8px;
 }
 
 .bx-im-favorite-item__author-container {
@@ -30,9 +34,10 @@
 }
 
 .bx-im-favorite-item__author-text .bx-im-chat-title__text {
+	--im-chat-title__font-color: var(--im-sidebar-favorite-detail__color_author-text);
+
 	font: var(--im-font-size-xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-medium);
-	--im-chat-title__font-color: var(--im-sidebar-favorite-detail__color_author-text);
 }
 
 .bx-im-favorite-item__author-text .bx-im-chat-title__icon::before {

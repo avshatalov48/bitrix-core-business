@@ -161,6 +161,9 @@ this.BX = this.BX || {};
 	  isCompanyCalendar() {
 	    return !this.isPseudo() && this.type !== 'user' && this.type !== 'group' && !this.ownerId;
 	  }
+	  isGroupCalendar() {
+	    return !this.isPseudo() && this.type === 'group';
+	  }
 	  hasConnection() {
 	    return !this.isPseudo() && this.data.connectionLinks && this.data.connectionLinks.length;
 	  }
@@ -184,7 +187,7 @@ this.BX = this.BX || {};
 	    return main_core.Type.isArray(this.data.connectionLinks) ? this.data.connectionLinks : [];
 	  }
 	  externalTypeIsLocal() {
-	    return this.getExternalType() === calendar_sectionmanager.SectionManager.EXTERNAL_TYPE_LOCAL;
+	    return this.getExternalType() === calendar_sectionmanager.SectionManager.EXTERNAL_TYPE_LOCAL || this.isCompanyCalendar() || this.isGroupCalendar();
 	  }
 	  isPrimaryForConnection() {
 	    return !this.externalTypeIsLocal() && this.getConnectionLinks().find(connection => {
@@ -345,6 +348,9 @@ this.BX = this.BX || {};
 	    } else if (params.command === 'edit_section') {
 	      this.reloadDataDebounce();
 	      calendar_util.Util.getBX().Event.EventEmitter.emit('BX.Calendar:doRefresh');
+	    } else if (params.command === 'hidden_sections_updated') {
+	      this.setHiddenSections(params.hiddenSections);
+	      this.reloadDataDebounce();
 	    } else {
 	      this.reloadDataDebounce();
 	    }

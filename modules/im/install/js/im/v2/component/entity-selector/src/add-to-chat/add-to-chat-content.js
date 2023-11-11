@@ -1,15 +1,15 @@
-import {TagSelector} from 'ui.entity-selector';
+import { TagSelector } from 'ui.entity-selector';
 
-import {Messenger} from 'im.public';
-import {Core} from 'im.v2.application.core';
-import {ChatService} from 'im.v2.provider.service';
-import {DialogType, Layout, SearchEntityIdTypes} from 'im.v2.const';
-import {SearchResult} from 'im.v2.component.search.search-result';
-import {Button, ButtonSize, ButtonColor} from 'im.v2.component.elements';
+import { Messenger } from 'im.public';
+import { Core } from 'im.v2.application.core';
+import { ChatService } from 'im.v2.provider.service';
+import { DialogType, SearchEntityIdTypes } from 'im.v2.const';
+import { SearchResult } from 'im.v2.component.search.search-result';
+import { Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
 
 import './add-to-chat-content.css';
 
-import type {ImModelDialog} from 'im.v2.model';
+import type { ImModelDialog } from 'im.v2.model';
 
 const searchConfig = {
 	currentUser: false,
@@ -20,16 +20,16 @@ const searchConfig = {
 // @vue/component
 export const AddToChatContent = {
 	name: 'AddToChatContent',
-	components: {SearchResult, Button},
+	components: { SearchResult, MessengerButton },
 	props: {
 		chatId: {
 			type: Number,
-			required: true
+			required: true,
 		},
 		dialogId: {
 			type: String,
-			required: true
-		}
+			required: true,
+		},
 	},
 	data() {
 		return {
@@ -53,7 +53,7 @@ export const AddToChatContent = {
 		isChat(): boolean
 		{
 			return this.dialog.type !== DialogType.user;
-		}
+		},
 	},
 	created()
 	{
@@ -69,7 +69,7 @@ export const AddToChatContent = {
 	{
 		getTagSelector(): TagSelector
 		{
-			let timeoutId;
+			let timeoutId = null;
 
 			return new TagSelector({
 				maxHeight: 111,
@@ -83,7 +83,7 @@ export const AddToChatContent = {
 						clearTimeout(timeoutId);
 					},
 					onAfterTagAdd: (event) => {
-						const {tag} = event.getData();
+						const { tag } = event.getData();
 						const itemUniqId = `${tag.entityId}|${tag.id}`;
 						this.selectedItems.add(itemUniqId);
 						this.focusSelector();
@@ -92,7 +92,7 @@ export const AddToChatContent = {
 						clearTimeout(timeoutId);
 					},
 					onAfterTagRemove: (event) => {
-						const {tag} = event.getData();
+						const { tag } = event.getData();
 						const itemUniqId = `${tag.entityId}|${tag.id}`;
 						this.selectedItems.delete(itemUniqId);
 						this.focusSelector();
@@ -100,7 +100,13 @@ export const AddToChatContent = {
 					onInput: () => {
 						this.searchQuery = this.membersSelector.getTextBoxValue();
 					},
-					onBlur: () => {
+					onBlur: (event) => {
+						const inputText = this.membersSelector.getTextBoxValue();
+						if (inputText.length > 0)
+						{
+							return;
+						}
+
 						timeoutId = setTimeout(() => {
 							this.membersSelector.hideTextBox();
 							this.membersSelector.showAddButton();
@@ -108,8 +114,8 @@ export const AddToChatContent = {
 					},
 					onContainerClick: () => {
 						this.focusSelector();
-					}
-				}
+					},
+				},
 			});
 		},
 		focusSelector()
@@ -121,7 +127,7 @@ export const AddToChatContent = {
 		prepareMembers(members: Set<string>): string[]
 		{
 			const preparedMembers = [];
-			[...members].forEach(item => {
+			[...members].forEach((item) => {
 				const [type, id] = item.split('|');
 				if (type === SearchEntityIdTypes.user || type === SearchEntityIdTypes.bot)
 				{
@@ -137,7 +143,7 @@ export const AddToChatContent = {
 		},
 		onSelectItem(event: {selectedItem: Object, selectedStatus: boolean})
 		{
-			const {selectedItem, selectedStatus, nativeEvent} = event;
+			const { selectedItem, selectedStatus, nativeEvent } = event;
 			if (selectedStatus)
 			{
 				this.membersSelector.addTag({
@@ -181,12 +187,12 @@ export const AddToChatContent = {
 
 			this.chatService.addToChat({
 				chatId: this.chatId,
-				members: members,
-				showHistory: this.showHistory
+				members,
+				showHistory: this.showHistory,
 			}).then(() => {
 				this.isLoading = false;
 				this.$emit('close');
-			}).catch(error => {
+			}).catch((error) => {
 				console.error(error);
 				this.isLoading = false;
 				this.$emit('close');
@@ -198,12 +204,15 @@ export const AddToChatContent = {
 			this.chatService.createChat({
 				title: null,
 				description: null,
-				members: members,
+				members,
 				ownerId: Core.getUserId(),
 				isPrivate: true,
 			}).then((newDialogId: string) => {
 				this.isLoading = false;
 				Messenger.openChat(newDialogId);
+			}).catch((error) => {
+				console.error(error);
+				this.isLoading = false;
 			});
 		},
 		onListScroll(event: Event)
@@ -213,6 +222,7 @@ export const AddToChatContent = {
 			if (event.target.scrollTop === 0)
 			{
 				this.needTopShadow = false;
+
 				return;
 			}
 
@@ -246,7 +256,7 @@ export const AddToChatContent = {
 				</div>
 			</div>
 			<div class="bx-im-entity-selector-add-to-chat__buttons">
-				<Button
+				<MessengerButton
 					:size="ButtonSize.L"
 					:color="ButtonColor.Primary"
 					:isRounded="true"
@@ -255,7 +265,7 @@ export const AddToChatContent = {
 					:isDisabled="selectedItems.size === 0"
 					@click="onInviteClick"
 				/>
-				<Button
+				<MessengerButton
 					:size="ButtonSize.L"
 					:color="ButtonColor.LightBorder"
 					:isRounded="true"
@@ -264,5 +274,5 @@ export const AddToChatContent = {
 				/>
 			</div>
 		</div>
-	`
+	`,
 };

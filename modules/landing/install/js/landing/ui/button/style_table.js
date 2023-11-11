@@ -246,7 +246,7 @@
 
 				context.applyTableStyles(setTableStyles, newTableStyle, styleNumber, menuItem);
 			}
-			BX.Landing.Block.Node.Text.currentNode.onChange(true);
+			BX.Landing.Node.Text.currentNode.onChange(true);
 		},
 
 		applyTableStyles: function(tableStyles, newTableStyle, styleNumber, menuItem)

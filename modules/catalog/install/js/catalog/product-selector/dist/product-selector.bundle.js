@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_designTokens,ui_forms,fileinput,catalog_skuTree,main_loader,ui_infoHelper,ui_entitySelector,catalog_productModel,catalog_productSelector,catalog_barcodeScanner,ui_notification,main_core,main_core_events,ui_qrauthorization,spotlight,ui_tour) {
 	'use strict';
@@ -1644,7 +1645,8 @@ this.BX = this.BX || {};
 	    return this.getConfig('ENABLE_IMAGE_INPUT', true) !== false;
 	  }
 	  isShowableEmptyProductError() {
-	    return this.isEnabledEmptyProductError() && (this.model.isEmpty() && this.model.isChanged() || this.model.isSimple());
+	    const emptyChanged = this.model.isEmpty() && this.model.isChanged();
+	    return this.isEnabledEmptyProductError() && (emptyChanged || this.model.isSimple());
 	  }
 	  isShowableErrors() {
 	    return this.isEnabledEmptyProductError() || this.isEnabledEmptyImagesError();
@@ -1689,7 +1691,9 @@ this.BX = this.BX || {};
 	      main_core.Dom.append(block, wrapper);
 	    }
 	    if (this.isImageFieldEnabled()) {
-	      if (!main_core.Reflection.getClass('BX.UI.ImageInput')) {
+	      if (main_core.Reflection.getClass('BX.UI.ImageInput')) {
+	        this.layoutImage();
+	      } else {
 	        if (ProductSelector.UIInputRequest instanceof Promise) {
 	          ProductSelector.UIInputRequest.then(() => {
 	            this.layoutImage();
@@ -1707,8 +1711,6 @@ this.BX = this.BX || {};
 	            });
 	          });
 	        }
-	      } else {
-	        this.layoutImage();
 	      }
 	      main_core.Dom.append(this.getImageContainer(), wrapper);
 	    }
@@ -1786,13 +1788,17 @@ this.BX = this.BX || {};
 	    this.getModel().getStoreCollection().clear();
 	  }
 	  clearLayout() {
+	    this.unsubscribeToVariationChange();
 	    const wrapper = this.getWrapper();
 	    if (wrapper) {
 	      wrapper.innerHTML = '';
 	    }
-	    this.unsubscribeToVariationChange();
 	  }
 	  subscribeEvents() {
+	    main_core_events.EventEmitter.incrementMaxListeners('ProductList::onChangeFields', 1);
+	    main_core_events.EventEmitter.incrementMaxListeners('ProductSelector::onNameChange', 1);
+	    main_core_events.EventEmitter.incrementMaxListeners('Catalog.ImageInput::save', 1);
+	    main_core_events.EventEmitter.incrementMaxListeners('onUploaderIsInited', 1);
 	    main_core_events.EventEmitter.subscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 	    main_core_events.EventEmitter.subscribe('ProductSelector::onNameChange', this.onNameChangeFieldHandler);
 	    main_core_events.EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);

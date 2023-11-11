@@ -1,5 +1,8 @@
 {
-  "require-dev": {
-    "symfony/console": "4.1.*"
-  }
+	"require-dev": {
+		"symfony/console": "6.0.*"
+	},
+	"require": {
+		"php": ">=8.0.0"
+	}
 }

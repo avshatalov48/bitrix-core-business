@@ -245,9 +245,10 @@ $strNameFormat = CSite::GetNameFormat(true);
 
 if (!(false == B_ADMIN_SUBCOUPONS_LIST && $bCopy))
 {
-	$arNavParams = (isset($_REQUEST['mode']) && 'excel' == $_REQUEST["mode"]
-		? false
-		: array("nPageSize" => CAdminSubResult::GetNavSize($sTableID, 20, $lAdmin->GetListUrl(true)))
+	$arNavParams = (
+		$lAdmin->isExportMode()
+			? false
+			: array("nPageSize" => CAdminSubResult::GetNavSize($sTableID, 20, $lAdmin->GetListUrl(true)))
 	);
 
 	$dbResultList = CCatalogDiscountCoupon::GetList(

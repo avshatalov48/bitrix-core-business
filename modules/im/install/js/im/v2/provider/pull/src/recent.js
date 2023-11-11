@@ -65,9 +65,11 @@ export class RecentPullHandler
 				date: params.message.date,
 				senderId: params.message.senderId,
 				sending: false,
+				status: MessageStatus.received,
 				attach,
 				file,
 			},
+			dateUpdate: new Date(),
 		};
 
 		const recentItem = this.store.getters['recent/get'](params.dialogId);
@@ -128,6 +130,7 @@ export class RecentPullHandler
 						withAttach: false,
 					},
 				},
+				dateUpdate: new Date(),
 			},
 		});
 	}
@@ -146,6 +149,7 @@ export class RecentPullHandler
 				id: params.dialogId,
 				fields: {
 					message: params.newLastMessage,
+					dateUpdate: new Date(),
 				},
 			});
 		}
@@ -161,6 +165,10 @@ export class RecentPullHandler
 
 	handleReadMessageChat(params)
 	{
+		if (params.lines)
+		{
+			return;
+		}
 		this.updateUnloadedChatCounter(params);
 	}
 
@@ -193,6 +201,7 @@ export class RecentPullHandler
 		this.store.dispatch('recent/unread', {
 			id: params.dialogId,
 			action: params.active,
+			dateUpdate: new Date(),
 		});
 	}
 	/* endregion Counters handling */
@@ -305,6 +314,7 @@ export class RecentPullHandler
 		this.store.dispatch('recent/pin', {
 			id: params.dialogId,
 			action: params.active,
+			dateUpdate: new Date(),
 		});
 	}
 

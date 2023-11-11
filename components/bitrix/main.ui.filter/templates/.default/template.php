@@ -98,24 +98,39 @@ $filterValue = $arResult["LIMITS_ENABLED"] ? '' : HtmlFilter::encode($arResult["
 ?>
 
 <!-- Final :: Search -->
-<div class="main-ui-filter-search <?=$filterSearchClass?>" id="<?=$arParams["FILTER_ID"]?>_search_container">
-	<input
-			type="text"
-			tabindex="1" <?
-			if($arParams["CONFIG"]["AUTOFOCUS"]):?>autofocus=""<?endif;
-			?>value="<?=$filterValue?>"
-			name="FIND"
-			placeholder="<?=Loc::getMessage($placeholder)?>"
-			class="main-ui-filter-search-filter"
-			id="<?=$arParams["FILTER_ID"]?>_search"
-			autocomplete="off">
-	<div class="main-ui-item-icon-block">
-		<span class="main-ui-item-icon main-ui-search"></span>
-		<span class="main-ui-item-icon main-ui-delete"></span>
+<?php if ($arResult['THEME'] === 'SPACES'): ?>
+	<div class="sn-spaces__toolbar-space_search main-ui-filter-search ui-ctl-element <?=$filterSearchClass?>"
+		 id="<?=$arParams["FILTER_ID"]?>_search_container"
+	>
+		<input id="<?=$arParams["FILTER_ID"]?>_search"
+			   type="text"
+			   class="sn-spaces__toolbar-space_search-input ui-ctl-element"
+			   placeholder="<?=Loc::getMessage($placeholder)?>"
+		>
+		<div class="sn-spaces__toolbar-search-btn ui-ctl-after">
+			<div class="ui-icon-set --search-2 sn-spaces__toolbar-search-icon"></div>
+		</div>
 	</div>
-</div>
+<?php else: ?>
+	<div class="main-ui-filter-search <?=$filterSearchClass?>" id="<?=$arParams["FILTER_ID"]?>_search_container">
+		<input
+				type="text"
+				tabindex="1" <?php
+				if($arParams["CONFIG"]["AUTOFOCUS"]):?>autofocus="" <?php endif;
+				?>value="<?=$filterValue?>"
+				name="FIND"
+				placeholder="<?=Loc::getMessage($placeholder)?>"
+				class="main-ui-filter-search-filter"
+				id="<?=$arParams["FILTER_ID"]?>_search"
+				autocomplete="off"
+		>
+		<div class="main-ui-item-icon-block">
+			<span class="main-ui-item-icon main-ui-search"></span>
+			<span class="main-ui-item-icon main-ui-delete"></span>
+		</div>
+	</div>
+<?php endif;
 
-<?
 $frame = $this->createFrame()->begin(false);
 
 $filterWrapperClass = "main-ui-filter-theme-".mb_strtolower($arResult["THEME"]);

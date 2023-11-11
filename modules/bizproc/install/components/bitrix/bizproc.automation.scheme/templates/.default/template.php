@@ -48,7 +48,7 @@ $component = $this->getComponent();
 		</div>
 		<div class="bizproc-automation-scheme__step-container">
 			<div class="bizproc-automation-scheme__step-head">
-				<div class="bizproc-automation-scheme__step-head--title"><?= Loc::getMessage("BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_{$arResult['action']}${arResult['locShard']}")?></div>
+				<div class="bizproc-automation-scheme__step-head--title"><?= Loc::getMessage("BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_{$arResult['action']}${arResult['locShard']}_MSGVER_1")?></div>
 			</div>
 			<div class="bizproc-automation-scheme__step-content">
 				<div class="bizproc-automation-scheme__content --padding-15">
@@ -133,7 +133,7 @@ $APPLICATION->IncludeComponent(
 	{
 		BX.message({
 			'BIZPROC_AUTOMATION_SCHEME_DROPDOWN_PLACEHOLDER': '<?=GetMessageJS("BIZPROC_AUTOMATION_SCHEME_DROPDOWN_PLACEHOLDER")?>',
-			'BIZPROC_AUTOMATION_SCHEME_CATEGORIES_NOT_EXISTS': '<?=GetMessageJS("BIZPROC_AUTOMATION_SCHEME_CATEGORIES_NOT_EXISTS")?>',
+			'BIZPROC_AUTOMATION_SCHEME_CATEGORIES_NOT_EXISTS': '<?=GetMessageJS("BIZPROC_AUTOMATION_SCHEME_CATEGORIES_NOT_EXISTS_MSGVER_1")?>',
 			'BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_COPY': '<?=GetMessageJS("BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_COPY{$arResult['locShard']}")?>',
 			'BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_MOVE': '<?=GetMessageJS("BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_MOVE{$arResult['locShard']}")?>',
 		});

@@ -185,7 +185,7 @@
 	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='26' height='26' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10.862 19.7c0 .012-.004.023-.004.034a2.157 2.157 0 004.313 0c0-.011-.003-.022-.003-.034h-4.306zm7.525-9.19c0-1.883-1.462-4.556-4.363-5.06v-.048c0-.588-.481-1.069-1.07-1.069-.588 0-1.069.481-1.069 1.07v.05C8.99 5.96 7.533 8.629 7.533 10.51c0 2.089.021 3.577.021 4.535 0 .765-1.413 1.783-1.984 2.162a.52.52 0 00-.235.432v.398a.5.5 0 00.5.5h14.25a.5.5 0 00.5-.5v-.398a.52.52 0 00-.235-.432c-.57-.38-1.982-1.397-1.982-2.162 0-.958.02-2.446.02-4.535z' fill='%23fff'/%3E%3C/svg%3E");
 }
 
-.bx-im-navigation__item_icon.--openline {
+.bx-im-navigation__item_icon.--openlines {
 	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='26' height='26' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M20.055 18.144c2.583-3.59 2.008-8.56-1.341-11.57-3.33-2.986-8.386-2.988-11.625-.004-3.256 3.008-3.68 7.977-.987 11.568 2.663 3.579 7.631 4.588 11.427 2.322.034.026.07.047.11.064l2.36.627a.582.582 0 00.565-.152c.146-.15.2-.365.143-.567l-.652-2.288zm-4.447-3.489a.566.566 0 00-.57-.165.596.596 0 00-.41.447.667.667 0 00.165.61l.302.317H9.64a.484.484 0 00-.465.507l.004.246a.502.502 0 00.48.507h5.459l-.292.319a.654.654 0 00-.144.608c.05.21.21.381.423.447a.553.553 0 00.565-.165l1.277-1.392a.665.665 0 00-.014-.891l-1.326-1.395zm-5.04-3.115a.547.547 0 00.412-.183.666.666 0 00-.014-.89l-.302-.319h5.459a.482.482 0 00.464-.506l-.004-.246a.5.5 0 00-.48-.506h-5.459l.292-.32a.662.662 0 00-.016-.887.563.563 0 00-.416-.185.545.545 0 00-.412.182L8.816 9.076a.664.664 0 00.015.89l1.321 1.391a.567.567 0 00.418.183zm-.797.874h-.002a.482.482 0 00-.465.507l.004.25a.501.501 0 00.481.507h6.598a.483.483 0 00.465-.507l-.005-.247a.502.502 0 00-.48-.51H9.771z' fill='%23fff'/%3E%3C/svg%3E");
 }
 
@@ -206,7 +206,7 @@
 }
 
 .bx-im-navigation__item_icon.--timemanager {
-	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='26' height='26' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.667 14a2.333 2.333 0 104.56-.697l2.267-2.87a.714.714 0 00-1.005-1l-2.9 2.308A2.336 2.336 0 0011.667 14zM14 18.404a4.391 4.391 0 003.169-1.345h2.284A6.25 6.25 0 0114 20.252a6.25 6.25 0 01-5.453-3.193h2.284c.801.83 1.925 1.345 3.17 1.345z' fill='%23fff'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4.667 14a9.333 9.333 0 1018.666 0 9.333 9.333 0 00-18.666 0zm16.582 0a7.25 7.25 0 11-14.498 0 7.25 7.25 0 0114.498 0z' fill='%23fff'/%3E%3C/svg%3E");
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='28' height='28' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14 15.671a1.672 1.672 0 01-1.666-1.527l-1.915-1.76a.649.649 0 01.719-1.063l2.303 1.102a1.67 1.67 0 01.912-.058l3.561-2.138a.61.61 0 01.737.964l-2.98 2.86c-.027.9-.765 1.62-1.67 1.62zM14.761 8.037a.791.791 0 11-1.582 0 .791.791 0 011.582 0zM14.761 19.96a.791.791 0 11-1.582 0 .791.791 0 011.582 0zM8.11 14.775a.791.791 0 100-1.582.791.791 0 000 1.582zM20.838 13.984a.791.791 0 11-1.582 0 .791.791 0 011.582 0z' fill='%23fff'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M14 23.333a9.333 9.333 0 110-18.667 9.333 9.333 0 010 18.667zm0-2.084a7.25 7.25 0 100-14.498 7.25 7.25 0 000 14.498z' fill='%23fff'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M14 21.25a7.25 7.25 0 100-14.5 7.25 7.25 0 000 14.5zm0 2.083a9.333 9.333 0 110-18.667 9.333 9.333 0 010 18.667zm0-7.661a1.672 1.672 0 01-1.666-1.528l-1.915-1.76a.649.649 0 01.719-1.063l2.303 1.102a1.67 1.67 0 01.912-.058l3.561-2.138a.61.61 0 01.737.964l-2.98 2.86c-.027.9-.765 1.62-1.67 1.62zm.761-7.635a.791.791 0 11-1.582 0 .791.791 0 011.582 0zm0 11.923a.791.791 0 11-1.582 0 .791.791 0 011.582 0zm-6.65-5.185a.791.791 0 100-1.582.791.791 0 000 1.582zm12.727-.79a.791.791 0 11-1.582 0 .791.791 0 011.582 0z' fill='%23fff'/%3E%3C/svg%3E");
 }
 
 .bx-im-navigation__item_counter {
@@ -477,7 +477,11 @@
 }
 
 .bx-im-user-settings-popup__list-item_icon.--background {
-	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='20' height='20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M17.08 4.161c.4-.583-.127-1.673-1.055-1.055-1.853 1.235-5.61 4.248-7.453 6.638-.257.333-.1.394.201.511.216.084.506.196.77.46.252.253.379.575.48.83.148.378.239.61.599.25 2.295-2.296 6.056-7.05 6.457-7.634zM5.081 13.022c-.124.345-.238.661-.422.884-.375.455-1.069.803-1.566 1.052-.26.13-.467.234-.544.311-.225.225 2.582 1.185 4.124.518C8.217 15.121 9 14.321 9.31 13.276c.31-1.045-.88-2.803-2.531-2.235-1.122.387-1.433 1.25-1.696 1.981z' fill='%23525C69'/%3E%3C/svg%3E");
+	background-image: url('./images/background.svg');
+}
+
+.bx-im-user-settings-popup__list-item_icon.--alignment {
+	background-image: url('./images/alignment.svg');
 }
 
 .bx-im-user-settings-popup__list-item_text {
@@ -603,51 +607,4 @@
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
-}
-.bx-im-background-select-popup__container {
-	--im-background-select-popup__background-color_selected: #00B0E8;
-	--im-background-select-popup__font-color_title: var(--im-color-palette-black-base);
-
-	min-width: 200px;
-	max-width: 302px;
-	padding: 16px;
-	position: relative;
-	box-sizing: border-box;
-}
-
-.bx-im-background-select-popup__container * {
-	box-sizing: border-box;
-}
-
-.bx-im-background-select-popup__title {
-	margin-bottom: 13px;
-
-	font: var(--im-font-size-sm)/20px var(--im-font-family-system);
-	font-weight: var(--im-font-weight-medium);
-	color: var(--im-background-select-popup__font-color_title);
-}
-
-.bx-im-background-select-popup__close {
-	position: absolute;
-	right: 8px;
-	top: 8px;
-}
-
-.bx-im-background-select-popup__list {
-	display: flex;
-	flex-wrap: wrap;
-	align-content: flex-start;
-	gap: 12px;
-}
-
-.bx-im-background-select-popup__item {
-	width: 82px;
-	height: 48px;
-	border-radius: 6px;
-	cursor: pointer;
-}
-
-.bx-im-background-select-popup__item.--active {
-	outline: 2px solid var(--im-background-select-popup__background-color_selected);
-	outline-offset: 2px;
 }

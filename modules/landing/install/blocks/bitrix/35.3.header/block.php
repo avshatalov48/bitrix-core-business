@@ -1,4 +1,4 @@
-<header class="landing-block landing-semantic-background-color g-bg-white g-pt-20 g-pb-20 g-brd-bottom g-brd-gray-light-v4 text-center text-lg-left">
+<header class="landing-block g-bg-white g-pt-20 g-pb-20 g-brd-bottom g-brd-gray-light-v4 text-center text-lg-left">
 	<div class="container">
 		<div class="row flex-lg-row align-items-center justify-content-lg-start">
 			<div class="col-12 col-sm-3 col-lg-2">
@@ -19,10 +19,10 @@
 								<i class="landing-block-node-card-contactlink-icon icon icon-screen-smartphone"></i>
 							</span>
 							<span class="landing-block-node-card-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
-								<span class="landing-block-node-menu-contactlink-title landing-block-node-card-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
+								<span class="landing-block-node-menu-contactlink-title landing-block-node-card-title-style g-color-main d-block text-uppercase g-font-size-13">
 									Call Us
 								</span>
-								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style landing-semantic-link-small d-block g-color-main g-font-weight-700 g-text-decoration-none g-text-underline--hover">
+								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style d-block g-color-main g-font-weight-700 g-text-decoration-none g-text-underline--hover">
 									#crmPhoneTitle1
 								</span>
 							</span>
@@ -35,10 +35,10 @@
 								<i class="landing-block-node-card-icon icon icon-clock"></i>
 							</div>
 							<div class="landing-block-node-card-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
-								<div class="landing-block-node-card-title landing-block-node-card-title-style landing-semantic-text-medium g-color-main text-uppercase g-font-size-13">
+								<div class="landing-block-node-card-title landing-block-node-card-title-style g-color-main text-uppercase g-font-size-13">
 									Opening time
 								</div>
-								<div class="landing-block-node-card-text landing-block-node-card-text-style landing-semantic-link-small g-color-main g-font-weight-700">
+								<div class="landing-block-node-card-text landing-block-node-card-text-style g-color-main g-font-weight-700">
 									Mon-Sat: 08.00 -18.00
 								</div>
 							</div>
@@ -52,10 +52,10 @@
 								<i class="landing-block-node-card-contactlink-icon icon icon-envelope"></i>
 							</span>
 							<span class="landing-block-node-card-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
-								<span class="landing-block-node-menu-contactlink-title landing-block-node-card-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
+								<span class="landing-block-node-menu-contactlink-title landing-block-node-card-title-style g-color-main d-block text-uppercase g-font-size-13">
 									Email us
 								</span>
-								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style landing-semantic-link-small d-block g-color-main g-font-weight-700 g-text-decoration-none g-text-underline--hover">
+								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style d-block g-color-main g-font-weight-700 g-text-decoration-none g-text-underline--hover">
 									#crmEmailTitle1
 								</span>
 							</span>

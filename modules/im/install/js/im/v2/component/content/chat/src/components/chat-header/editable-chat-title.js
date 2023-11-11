@@ -1,20 +1,21 @@
-import {ChatTitle} from 'im.v2.component.elements';
-import {ChatOption} from 'im.v2.const';
+import { ChatTitle } from 'im.v2.component.elements';
+import { ChatActionType } from 'im.v2.const';
+import { PermissionManager } from 'im.v2.lib.permission';
 
-import type {ImModelDialog} from 'im.v2.model';
+import type { ImModelDialog } from 'im.v2.model';
 
 const INPUT_PADDING = 5;
 
 // @vue/component
 export const EditableChatTitle = {
 	name: 'EditableChatTitle',
-	components: {ChatTitle},
+	components: { ChatTitle },
 	props:
 	{
 		dialogId: {
 			type: String,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['newTitleSubmit'],
 	data()
@@ -23,7 +24,7 @@ export const EditableChatTitle = {
 			isEditing: false,
 			inputWidth: 0,
 			showEditIcon: false,
-			chatTitle: ''
+			chatTitle: '',
 		};
 	},
 	computed:
@@ -34,26 +35,21 @@ export const EditableChatTitle = {
 		},
 		canBeRenamed(): boolean
 		{
-			if (this.dialog.extranet)
-			{
-				return false;
-			}
-
-			return this.$store.getters['dialogues/getChatOption'](this.dialog.type, ChatOption.rename);
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.rename, this.dialogId);
 		},
-		inputStyle()
+		inputStyle(): { width: string }
 		{
 			return {
-				width: `calc(${this.inputWidth}ch + ${INPUT_PADDING}px)`
+				width: `calc(${this.inputWidth}ch + ${INPUT_PADDING}px)`,
 			};
-		}
+		},
 	},
 	watch:
 	{
 		chatTitle()
 		{
 			this.inputWidth = this.chatTitle.length;
-		}
+		},
 	},
 	mounted()
 	{
@@ -75,7 +71,7 @@ export const EditableChatTitle = {
 
 			this.isEditing = true;
 			this.$nextTick().then(() => {
-				this.$refs['titleInput'].focus();
+				this.$refs.titleInput.focus();
 			});
 		},
 		onNewTitleSubmit()
@@ -107,6 +103,7 @@ export const EditableChatTitle = {
 			@mouseover="showEditIcon = true"
 			@mouseleave="showEditIcon = false"
 			class="bx-im-chat-header__title --chat"
+			:class="{'--can-rename': canBeRenamed}"
 		>
 			<div class="bx-im-chat-header__title_container">
 				<ChatTitle :dialogId="dialogId" :withMute="true" />
@@ -128,5 +125,5 @@ export const EditableChatTitle = {
 				ref="titleInput"
 			/>
 		</div>
-	`
+	`,
 };

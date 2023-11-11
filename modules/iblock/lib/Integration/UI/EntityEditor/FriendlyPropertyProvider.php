@@ -33,7 +33,6 @@ final class FriendlyPropertyProvider extends PropertyProvider
 	private function removeDifficultFields(array $fields): array
 	{
 		$names = array_fill_keys([
-			'FILTERABLE',
 			'WITH_DESCRIPTION',
 			'COL_COUNT',
 			'ROW_COUNT',

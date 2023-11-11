@@ -16,37 +16,37 @@
 					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-font-weight-700 g-font-size-11 g-pt-20 g-pt-0--lg ml-auto">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#ourTours"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Our
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Our
 								tours</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#popularTours"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Popular
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Popular
 								tours</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#subscribe"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Subscribe</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Subscribe</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#purposes"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Purposes</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Purposes</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#services"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Services</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Services</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#gallery"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Gallery</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Gallery</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#testimonials"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Testimonials</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Testimonials</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#contact"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Contact</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
 						</li>
 					</ul>
 				</div>

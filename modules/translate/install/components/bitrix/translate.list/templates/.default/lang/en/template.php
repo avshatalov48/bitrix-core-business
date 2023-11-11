@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TRANS_PATH"] = "Path:";
 $MESS["TRANS_PATH_SEARCH"] = "Path + search";
 $MESS["TR_ADD_UPDATE_LANG_FILES"] = "add new translations, update messages found in CSV file";
@@ -21,14 +21,19 @@ $MESS["TR_EXPORT_CSV_DLG_CANCELED"] = "Export has been canceled.";
 $MESS["TR_EXPORT_CSV_DLG_COMPLETED"] = "Messages have been exported.";
 $MESS["TR_EXPORT_CSV_DLG_SUMMARY"] = "This will export localization messages to CSV file. This operation may take some time.";
 $MESS["TR_EXPORT_CSV_DLG_TITLE"] = "Export messages to CSV";
+$MESS["TR_EXPORT_CSV_PARAM_APPEND_SAMPLES"] = "Try and find existing messages in translation database";
 $MESS["TR_EXPORT_CSV_PARAM_CONVERT_UTF8"] = "Convert to UTF-8";
 $MESS["TR_EXPORT_CSV_PARAM_FILE_LIST"] = "Export messages only for files and folders";
 $MESS["TR_EXPORT_CSV_PARAM_LANGUAGES"] = "Select languages to export";
 $MESS["TR_EXPORT_CSV_PARAM_LANGUAGES_ALL"] = "All";
+$MESS["TR_EXPORT_CSV_PARAM_SAMPLES_COUNT"] = "Maximum found translations per message";
+$MESS["TR_EXPORT_CSV_PARAM_SAMPLES_RESTRICTION"] = "Search for existing translations in selected folders only";
 $MESS["TR_EXPORT_CSV_PARAM_UNTRANSLATED"] = "Export untranslated messages only";
 $MESS["TR_EXPORT_CSV_PROGRESS"] = "Folders processed";
-$MESS["TR_EXPORT_DLG_CLEAR"] = "Delete export file";
-$MESS["TR_EXPORT_DLG_DOWNLOAD"] = "Download export file";
+$MESS["TR_EXPORT_DLG_CLEAR"] = "Delete exported file";
+$MESS["TR_EXPORT_DLG_CLEAR_MULTI"] = "Delete exported files";
+$MESS["TR_EXPORT_DLG_DOWNLOAD"] = "Download exported file";
+$MESS["TR_EXPORT_DLG_DOWNLOAD_MULTI"] = "Download exported files";
 $MESS["TR_IMPORT_ACTION_UPLOAD"] = "Step #NUM#/#LEN#: Upload file to server";
 $MESS["TR_IMPORT_ACTION_UPLOAD_PROGRESS"] = "Uploaded";
 $MESS["TR_IMPORT_CSV_DLG_BTN_MORE"] = "Import more";
@@ -64,4 +69,3 @@ $MESS["TR_STARTING_PATH"] = "Select folders to translate";
 $MESS["TR_UPDATE_LANG_FILES"] = "update existing messages";
 $MESS["TR_UPLOAD_CSV_FILE"] = "CSV file:";
 $MESS["TR_UPLOAD_CSV_FILE_EMPTY_ERROR"] = "File to upload is required";
-?>

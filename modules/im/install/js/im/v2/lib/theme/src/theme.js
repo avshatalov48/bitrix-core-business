@@ -22,7 +22,7 @@ const BackgroundPatternColor = Object.freeze({
 const ThemeManager = {
 	isLightTheme(): boolean
 	{
-		const selectedBackgroundId = Core.getStore().getters['application/settings/get'](Settings.dialog.background);
+		const selectedBackgroundId = Core.getStore().getters['application/settings/get'](Settings.appearance.background);
 		const selectedColorScheme: ThemeItem = ThemeColorScheme[selectedBackgroundId];
 
 		return selectedColorScheme?.type === ThemeType.light;
@@ -30,7 +30,7 @@ const ThemeManager = {
 
 	isDarkTheme(): boolean
 	{
-		const selectedBackgroundId = Core.getStore().getters['application/settings/get'](Settings.dialog.background);
+		const selectedBackgroundId = Core.getStore().getters['application/settings/get'](Settings.appearance.background);
 		const selectedColorScheme: ThemeItem = ThemeColorScheme[selectedBackgroundId];
 
 		return selectedColorScheme?.type === ThemeType.dark;
@@ -38,7 +38,7 @@ const ThemeManager = {
 
 	getCurrentBackgroundStyle(): BackgroundStyle
 	{
-		const selectedBackgroundId = Core.getStore().getters['application/settings/get'](Settings.dialog.background);
+		const selectedBackgroundId = Core.getStore().getters['application/settings/get'](Settings.appearance.background);
 
 		return this.getBackgroundStyleById(selectedBackgroundId);
 	},

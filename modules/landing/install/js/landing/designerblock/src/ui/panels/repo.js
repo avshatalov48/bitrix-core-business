@@ -64,23 +64,26 @@ export class RepoPanel extends Content
 			const className = selector.substring(1);
 			element.html = element.html.replaceAll(new RegExp(className + '([\\s"]{1})', 'g'), className + randPostfix + '$1');
 			newManifest[selector + randPostfix] = element.manifest.nodes[selector];
-			if (selector in element.manifest.style)
+			if (element.manifest.style && selector in element.manifest.style)
 			{
 				newStyleManifest[selector + randPostfix] = element.manifest.style[selector];
 			}
 		});
 		element.manifest.nodes = newManifest;
-		Object.keys(element.manifest.style).map(selector => {
-			if (selector in origNodes)
-			{
-				return;
-			}
-			const randPostfix = '-' + this.randomNum(1000, 9999);
-			const className = selector.substring(1);
-			element.html = element.html.replaceAll(new RegExp(className + '([\\s"]{1})', 'g'), className + randPostfix + '$1');
-			newStyleManifest[selector + randPostfix] = element.manifest.style[selector];
-		});
-		element.manifest.style = newStyleManifest;
+		if (element.manifest.style)
+		{
+			Object.keys(element.manifest.style).map(selector => {
+				if (selector in origNodes)
+				{
+					return;
+				}
+				const randPostfix = '-' + this.randomNum(1000, 9999);
+				const className = selector.substring(1);
+				element.html = element.html.replaceAll(new RegExp(className + '([\\s"]{1})', 'g'), className + randPostfix + '$1');
+				newStyleManifest[selector + randPostfix] = element.manifest.style[selector];
+			});
+			element.manifest.style = newStyleManifest;
+		}
 		return element;
 	}
 

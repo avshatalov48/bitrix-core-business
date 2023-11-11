@@ -392,7 +392,8 @@ create table if not exists b_catalog_store_barcode
 	CREATED_BY INT NULL,
 	MODIFIED_BY INT NULL,
 	PRIMARY KEY (ID),
-	UNIQUE INDEX IX_B_CATALOG_STORE_BARCODE1(BARCODE)
+	UNIQUE INDEX IX_B_CATALOG_STORE_BARCODE1(BARCODE),
+	INDEX IX_B_CATALOG_STORE_BARCODE2(PRODUCT_ID)
 );
 
 create table if not exists b_catalog_contractor

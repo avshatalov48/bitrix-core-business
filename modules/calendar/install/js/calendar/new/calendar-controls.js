@@ -1165,6 +1165,9 @@
 				this.undoList.pop();
 			}
 
+			realEntry.data.DATE_FROM = this.calendar.util.formatDateTime(timeInterval.from);
+			realEntry.data.DATE_TO = this.calendar.util.formatDateTime(timeInterval.to);
+
 			if (this.currentState.dayNode)
 			{
 				BX.removeClass(this.currentState.dayNode, 'calendar-timeline-drag-select');
@@ -1181,6 +1184,10 @@
 				entry.from = new Date(timeInterval.from.getTime());
 				entry.to = new Date(timeInterval.to.getTime());
 				entry.data.DT_LENGTH = (timeInterval.to.getTime() - timeInterval.from.getTime()) / 1000;
+				if (entry.fullDay)
+				{
+					entry.data.DT_LENGTH += 86400;
+				}
 				entry.startDayCode = timeInterval.from;
 				entry.endDayCode = timeInterval.to;
 			}

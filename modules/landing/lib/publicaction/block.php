@@ -703,7 +703,7 @@ class Block
 
 		if (Utils::isTrue($designed))
 		{
-			if (!Restriction\Manager::isAllowed('limit_crm_free_superblock1'))
+			if (!Restriction\Manager::isAllowed('limit_crm_superblock'))
 			{
 				return $result;
 			}

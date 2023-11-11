@@ -1070,9 +1070,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 			${0}
 		`), this.getContentActiveBodyHeader(), this.getContentActiveBodySectionsHeader(), this.getContentActiveBodySectionsManager());
 	  }
-	  showHelp() {
-	    if (BX.Helper) {
-	      BX.Helper.show("redirect=detail&code=" + this.helpdeskCode);
+	  showHelp(event) {
+	    if (top.BX.Helper) {
+	      top.BX.Helper.show("redirect=detail&code=" + this.helpdeskCode);
 	      event.preventDefault();
 	    }
 	  }
@@ -3230,7 +3230,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  constructor(provider, connection = null) {
 	    super({
 	      title: main_core.Loc.getMessage("CALENDAR_TITLE_YANDEX"),
-	      helpDeskCode: '10930170',
+	      helpDeskCode: '12925048',
 	      titleInfoHeader: main_core.Loc.getMessage('CAL_CONNECT_YANDEX_CALENDAR'),
 	      descriptionInfoHeader: main_core.Loc.getMessage('CAL_YANDEX_CONNECT_DESCRIPTION'),
 	      titleActiveHeader: main_core.Loc.getMessage('CAL_YANDEX_CALENDAR_IS_CONNECT'),

@@ -384,11 +384,14 @@ class Base extends Controller
 	 */
 	protected function existsByFilter($filter)
 	{
-		$r = new Result();
-		$ar = $this->getEntityTable()::getList(['filter'=>$filter])->fetchAll();
+		$result = new Result();
+		$entityData = $this->getEntityTable()::getList(['filter' => $filter, 'limit' => 1])->fetch();
 
-		if(count($ar) <= 0)
-			$r->addError(new Error('Entity is not exists'));
-		return $r;
+		if (!$entityData)
+		{
+			$result->addError(new Error('Entity is not exists'));
+		}
+
+		return $result;
 	}
 }

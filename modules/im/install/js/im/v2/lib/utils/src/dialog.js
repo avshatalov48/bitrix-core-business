@@ -1,7 +1,7 @@
 export const DialogUtil = {
 	isDialogId(dialogId)
 	{
-		return /(chat\d+)|\d+/i.test(dialogId);
+		return /^(chat\d+)$|^\d+$/i.test(dialogId);
 	},
 
 	isExternalId(dialogId: string): boolean
@@ -27,6 +27,11 @@ export const DialogUtil = {
 	{
 		const LINES_PREFIX = 'imol|';
 
-		return dialogId.startsWith(LINES_PREFIX);
+		return dialogId.toString().startsWith(LINES_PREFIX) && !this.isLinesHistoryId(dialogId);
+	},
+
+	isLinesHistoryId(dialogId): boolean
+	{
+		return /^imol\|\d+$/.test(dialogId);
 	},
 };

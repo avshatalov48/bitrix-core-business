@@ -4170,10 +4170,7 @@
 					}
 					else
 					{
-						if (!range && _this.editor.selection.lastCheckedRange && _this.editor.selection.lastCheckedRange.range)
-						{
-							range = _this.editor.selection.lastCheckedRange.range;
-						}
+						range = _this.editor.iframeView.GetSelection().getRangeAt(0);
 						_this.editor.iframeView.Focus();
 						if (range)
 						{

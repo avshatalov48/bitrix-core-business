@@ -1,4 +1,7 @@
-export const FileOrigin: Object<string, string> = {
+/**
+ * @namespace BX.UI.Uploader
+ */
+export const FileOrigin = {
 	CLIENT: 'client',
 	SERVER: 'server',
 };

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_loader,ui_notification,ui_switcher,main_popup,main_core_events,ui_entitySelector,main_core) {
 	'use strict';
@@ -1535,8 +1536,8 @@ this.BX = this.BX || {};
 	      }
 	      var hint = '';
 	      if (this.selector.getSelectedItems().length > 0) {
-	        var hintTitle = main_core.Type.isStringFilled(this.hintTitle) ? this.hintTitle : main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_SELECTED_ITEMS_TITLE');
-	        hint += '<p>' + hintTitle + ':</p>';
+	        var hintTitle = main_core.Type.isStringFilled(this.hintTitle) ? this.hintTitle : main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_SELECTED_ITEMS_TITLE_MSGVER_1');
+	        hint += '<p>' + hintTitle + '</p>';
 	        hint += '<ul>';
 	        this.selector.getSelectedItems().forEach(function (item) {
 	          return hint += '<li>' + main_core.Text.encode(item.getTitle());

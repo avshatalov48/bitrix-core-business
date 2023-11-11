@@ -8,12 +8,18 @@
 	--im-sidebar-detail-empty-state__background-image_meeting-icon: url('./images/meetings-empty-state.svg');
 	--im-sidebar-detail-empty-state__background-image_sign-icon: url('./images/sign-empty-state.svg');
 	--im-sidebar-detail-empty-state__background-image_brief-icon: url('./images/briefs-empty-state.svg');
+	--im-sidebar-detail-empty-state__background-image_message-search-icon: url('./images/search.svg');
 }
 
 .bx-im-sidebar-detail-empty-state__container {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: center;
 	align-items: center;
+	gap: 8px 5px;
+	max-width: 190px;
+	align-self: center;
+	text-align: center;
 }
 
 .bx-im-sidebar-detail-empty-state__icon {
@@ -27,8 +33,7 @@
 }
 
 .bx-im-sidebar-detail-empty-state__text {
-	margin-left: 5px;
-	font: var(--im-font-size-xs)/var(--im-font-line-height-md) var(--im-font-family-system);
+	font: var(--im-font-size-sm)/var(--im-font-line-height-md) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-medium);
 	color: var(--im-sidebar-detail-empty-state__color_text);
 }
@@ -66,4 +71,8 @@
 
 .bx-im-sidebar-detail-empty-state__icon.--brief {
 	background-image: var(--im-sidebar-detail-empty-state__background-image_brief-icon);
+}
+
+.bx-im-sidebar-detail-empty-state__icon.--message-search {
+	background-image: var(--im-sidebar-detail-empty-state__background-image_message-search-icon);
 }

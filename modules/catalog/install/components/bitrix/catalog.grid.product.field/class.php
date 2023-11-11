@@ -258,6 +258,7 @@ class CatalogGridProductFieldComponent
 			$this->arResult['IMAGE_VALUES'] = $imageField['values'] ?? [];
 			$this->arResult['MODE'] = ($this->arParams['MODE'] === 'edit') ? 'edit' : 'view';
 			$this->arResult['GUID'] = $this->arParams['GUID'] ?? "catalog_product_field_{$this->arParams['ROW_ID']}";
+			$this->arResult['COLUMN_NAME'] = $this->arParams['COLUMN_NAME'] ?? 'CATALOG_PRODUCT';
 
 			$this->includeComponentTemplate();
 		}

@@ -54,6 +54,7 @@ export class FilesModel extends BuilderModel
 	getGetters()
 	{
 		return {
+			/** @function files/get */
 			get: (state: FilesState) => (fileId: number, getTemporary = false): ?ImModelFile =>
 			{
 				if (!fileId)
@@ -68,6 +69,7 @@ export class FilesModel extends BuilderModel
 
 				return state.collection[fileId];
 			},
+			/** @function files/isInCollection */
 			isInCollection: (state: FilesState) => (payload: {fileId: number | string}): boolean =>
 			{
 				const {fileId} = payload;
@@ -80,12 +82,14 @@ export class FilesModel extends BuilderModel
 	getActions()
 	{
 		return {
+			/** @function files/add */
 			add: (store, payload: Object) =>
 			{
 				const preparedFile = {...this.getElementState(), ...this.validate(payload)};
 
 				store.commit('add', {files: [preparedFile]});
 			},
+			/** @function files/set */
 			set: (store, payload: Object[]) =>
 			{
 				if (!Array.isArray(payload) && Type.isPlainObject(payload))
@@ -99,6 +103,7 @@ export class FilesModel extends BuilderModel
 
 				store.commit('add', {files: payload});
 			},
+			/** @function files/update */
 			update: (store, payload) =>
 			{
 				const {id, fields} = payload;
@@ -115,6 +120,7 @@ export class FilesModel extends BuilderModel
 
 				return true;
 			},
+			/** @function files/updateWithId */
 			updateWithId: (store, payload: {id: string | number, fields: Object}) =>
 			{
 				const {id, fields} = payload;
@@ -128,6 +134,7 @@ export class FilesModel extends BuilderModel
 					fields: this.validate(fields)
 				});
 			},
+			/** @function files/delete */
 			delete: (store, payload: {id: string | number}) =>
 			{
 				const {id} = payload;
@@ -313,6 +320,7 @@ export class FilesModel extends BuilderModel
 				|| file.urlShow.startsWith('http')
 				|| file.urlShow.startsWith('bx')
 				|| file.urlShow.startsWith('file')
+				|| file.urlShow.startsWith('blob')
 			)
 			{
 				result.urlShow = file.urlShow;

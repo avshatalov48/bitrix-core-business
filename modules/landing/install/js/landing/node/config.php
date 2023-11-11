@@ -8,7 +8,7 @@ return [
 	'css' => 'dist/node.bundle.css',
 	'js' => 'dist/node.bundle.js',
 	'rel' => [
-		'main.core',
+		'main.polyfill.core',
 	],
-	'skip_core' => false,
+	'skip_core' => true,
 ];

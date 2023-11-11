@@ -97,7 +97,7 @@ class Stream extends Http\Stream
 	/**
 	 * @inheritdoc
 	 */
-	public function read($length)
+	public function read(int $length): string
 	{
 		$result = parent::read($length);
 
@@ -112,7 +112,7 @@ class Stream extends Http\Stream
 	/**
 	 * @inheritdoc
 	 */
-	public function write($string)
+	public function write(string $string): int
 	{
 		$result = parent::write($string);
 

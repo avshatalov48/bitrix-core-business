@@ -48,7 +48,7 @@ class AccessAuthProvider extends \CAuthProvider
 				$id = (int) $row['VALUE_ID'];
 				$sql = '
 				INSERT INTO b_user_access
-				(`USER_ID`, `PROVIDER_ID`, `ACCESS_CODE`)
+				(USER_ID, PROVIDER_ID, ACCESS_CODE)
 				VALUES
 				('.$userId.',"'.$this->id.'","'.AccessCode::ACCESS_DIRECTOR.'0"),
 				('.$userId.',"'.$this->id.'","'.AccessCode::ACCESS_DIRECTOR.$id.'")

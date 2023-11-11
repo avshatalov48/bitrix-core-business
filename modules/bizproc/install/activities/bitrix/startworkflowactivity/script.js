@@ -119,7 +119,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        }
 	      }
 	    },
-	    multiple: false
+	    multiple: false,
+	    tagMaxWidth: 500,
+	    textBoxWidth: 100
 	  });
 	  selector.renderTo(babelHelpers.classPrivateFieldGet(this, _templateNode));
 	}

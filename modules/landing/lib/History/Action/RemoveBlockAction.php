@@ -2,6 +2,9 @@
 
 namespace Bitrix\Landing\History\Action;
 
+use Bitrix\Landing\Block;
+use Bitrix\Landing\File;
+use Bitrix\Landing\Internals\BlockTable;
 use Bitrix\Landing\Landing;
 
 class RemoveBlockAction extends AddBlockAction
@@ -22,5 +25,32 @@ class RemoveBlockAction extends AddBlockAction
 		}
 
 		return false;
+	}
+
+	public function delete(): bool
+	{
+		if (!isset($this->params['block']))
+		{
+			return false;
+		}
+
+		$blockId = (int)$this->params['block'];
+		$query = BlockTable::query()
+			->setSelect(['ID', 'ACCESS'])
+			->where('ID', '=', $blockId)
+			->where('DELETED', '=', 'Y')
+			->exec()
+		;
+		$block = $query->fetch();
+		if (
+			$block
+			&& $block['ACCESS'] === Block::ACCESS_X
+		)
+		{
+			BlockTable::delete($blockId);
+			File::deleteFromBlock($blockId);
+		}
+
+		return parent::delete();
 	}
 }

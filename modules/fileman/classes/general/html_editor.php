@@ -4,12 +4,23 @@
  * @global CUser $USER
  */
 
+use Bitrix\AI;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
+use Bitrix\Main\Loader;
 
 IncludeModuleLangFile(__FILE__);
 class CHTMLEditor
 {
+	private const LIVEFEED_CATEGORY = 'livefeed';
+	private const LIVEFEED_COMMENTS_CATEGORY = 'livefeed_comments';
+	private const TASKS_CATEGORY = 'tasks';
+	private const TASKS_COMMENTS_CATEGORY = 'tasks_comments';
+	private const CALENDAR_CATEGORY = 'calendar';
+	private const CRM_CATEGORY = 'crm';
+	private const CRM_COMMENT_CATEGORY = 'crm_comment';
+	private const MAIL_CATEGORY = 'mail';
+
 	private static
 		$thirdLevelId,
 		$arComponents;
@@ -216,6 +227,7 @@ class CHTMLEditor
 		}
 
 		$this->bAllowPhp = $arParams['bAllowPhp'] !== false;
+
 		$arParams['limitPhpAccess'] = $arParams['limitPhpAccess'] === true;
 		$this->display = !isset($arParams['display']) || $arParams['display'];
 
@@ -371,9 +383,26 @@ class CHTMLEditor
 		}
 
 		$arParams["lazyLoad"] = isset($arParams["lazyLoad"]) ? $arParams["lazyLoad"] : false;
+		$arParams["copilotParams"] = is_array($arParams["copilotParams"] ?? null)
+			? $arParams["copilotParams"]
+			:
+			[
+				'moduleId' => 'main',
+				'contextId' => 'bxhtmled_copilot',
+				'category' => $this->GetAiCategory($this->id, $this->name),
+			]
+		;
+
+		$isCopilotEnabled = $this->isCopilotEnabled();
+		if (!$this->bAllowPhp && $isCopilotEnabled)
+		{
+			\Bitrix\Main\UI\Extension::load(['ai.copilot']);
+		}
 
 		$this->jsConfig = array(
 			'id' => $this->id,
+			'isCopilotEnabled' => $isCopilotEnabled,
+			'copilotParams' => $arParams["copilotParams"],
 			'inputName' => $this->inputName,
 			'content' => $this->content,
 			'width' => $arParams['width'],
@@ -488,6 +517,55 @@ class CHTMLEditor
 			$this->jsConfig['autoLink'] = $arParams['autoLink'];
 
 		return $arParams;
+	}
+
+	public function isCopilotEnabled(): bool
+	{
+		if (!Loader::includeModule('ai'))
+		{
+			return false;
+		}
+
+		$isCopilotFeatureEnabled = \COption::GetOptionString('fileman', 'isCopilotFeatureEnabled', 'N') === 'Y';
+		if (!$isCopilotFeatureEnabled)
+		{
+			return false;
+		}
+
+		$engine = AI\Engine::getByCategory(AI\Engine::CATEGORIES['text'], AI\Context::getFake());
+
+		return !is_null($engine);
+	}
+
+	function GetAiCategory(string $id, string $name): string
+	{
+		$isLiveFeed = str_contains($id, 'blogPostForm');
+		$isLiveFeedComments = str_contains($id, 'blogComment');
+		$isTasks = str_contains($id, 'tasks');
+		$isTasksComments = $name === 'REVIEW_TEXT';
+		$isCalendar = str_contains($id, 'calendar');
+		$isCrm = preg_match('(lead|deal|contact|company)', $id) === 1;
+		$isCrmComment = str_contains($id, 'CrmTimeLineComment');
+		$isMail = str_contains($id, 'mail');
+
+		if ($isLiveFeed)
+		{
+			return self::LIVEFEED_CATEGORY;
+		}
+		if ($isLiveFeedComments)
+		{
+			return self::LIVEFEED_COMMENTS_CATEGORY;
+		}
+		if ($isTasks)
+		{
+			return self::TASKS_CATEGORY;
+		}
+		if ($isTasksComments)
+		{
+			return self::TASKS_COMMENTS_CATEGORY;
+		}
+
+		return self::LIVEFEED_CATEGORY;
 	}
 
 	function GetActualPath($path)

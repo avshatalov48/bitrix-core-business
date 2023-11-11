@@ -1,14 +1,16 @@
-import {BrowserUtil} from './browser';
-import {DateUtil} from './date';
-import {DeviceUtil} from './device';
-import {PlatformUtil} from './platform';
-import {RestUtil} from './rest';
-import {TextUtil} from './text';
-import {UserUtil} from './user';
-import {FileUtil} from './file';
-import {KeyUtil} from './key';
-import {DomUtil} from './dom';
-import {DialogUtil} from './dialog';
+import { BrowserUtil } from './browser';
+import { DateUtil } from './date';
+import { DeviceUtil } from './device';
+import { PlatformUtil } from './platform';
+import { RestUtil } from './rest';
+import { TextUtil } from './text';
+import { UserUtil } from './user';
+import { FileUtil } from './file';
+import { KeyUtil } from './key';
+import { DomUtil } from './dom';
+import { DialogUtil } from './dialog';
+import { ConferenceUtil } from './conference';
+import { CallUtil } from './call';
 
 export const Utils = {
 	browser: BrowserUtil,
@@ -21,5 +23,7 @@ export const Utils = {
 	file: FileUtil,
 	dom: DomUtil,
 	key: KeyUtil,
-	dialog: DialogUtil
+	dialog: DialogUtil,
+	conference: ConferenceUtil,
+	call: CallUtil,
 };

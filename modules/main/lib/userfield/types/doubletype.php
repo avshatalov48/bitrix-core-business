@@ -34,7 +34,9 @@ class DoubleType extends BaseType
 	 */
 	public static function getDbColumnType(): string
 	{
-		return 'double';
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\FloatField('x'));
 	}
 
 	/**

@@ -337,8 +337,9 @@ class CAllIMContactList
 							$userExternalAuthId == \Bitrix\Im\Bot::EXTERNAL_AUTH_ID
 							&& $botType == \Bitrix\Im\Bot::TYPE_NETWORK
 							&& (
-								$botClassName === 'Bitrix\ImBot\Bot\Support24'
-								|| $botClassName === 'Bitrix\ImBot\Bot\Partner24'
+								$botClassName === \Bitrix\ImBot\Bot\Support24::class
+								|| $botClassName === \Bitrix\ImBot\Bot\Partner24::class
+								|| $botClassName === \Bitrix\ImBot\Bot\SaleSupport24::class
 							)
 						)
 						{
@@ -611,8 +612,9 @@ class CAllIMContactList
 				$userExternalAuthId == \Bitrix\Im\Bot::EXTERNAL_AUTH_ID
 				&& $bots[$arUser["ID"]]['TYPE'] == \Bitrix\Im\Bot::TYPE_NETWORK
 				&& (
-					$bots[$arUser["ITEM_ID"]]['CLASS'] == 'Bitrix\ImBot\Bot\Support24'
-					|| $bots[$arUser["ITEM_ID"]]['CLASS'] == 'Bitrix\ImBot\Bot\Partner24'
+					$bots[$arUser["ITEM_ID"]]['CLASS'] == \Bitrix\ImBot\Bot\Support24::class
+					|| $bots[$arUser["ITEM_ID"]]['CLASS'] == \Bitrix\ImBot\Bot\Partner24::class
+					|| $bots[$arUser["ITEM_ID"]]['CLASS'] == \Bitrix\ImBot\Bot\SaleSupport24::class
 				)
 			)
 			{
@@ -1001,8 +1003,9 @@ class CAllIMContactList
 				$userExternalAuthId == \Bitrix\Im\Bot::EXTERNAL_AUTH_ID
 				&& $bots[$arUser["ID"]]['TYPE'] == \Bitrix\Im\Bot::TYPE_NETWORK
 				&& (
-					$bots[$arUser["ID"]]['CLASS'] == 'Bitrix\ImBot\Bot\Support24'
-					|| $bots[$arUser["ID"]]['CLASS'] == 'Bitrix\ImBot\Bot\Partner24'
+					$bots[$arUser["ID"]]['CLASS'] == \Bitrix\ImBot\Bot\Support24::class
+					|| $bots[$arUser["ID"]]['CLASS'] == \Bitrix\ImBot\Bot\Partner24::class
+					|| $bots[$arUser["ID"]]['CLASS'] == \Bitrix\ImBot\Bot\SaleSupport24::class
 				)
 			)
 			{
@@ -1579,8 +1582,9 @@ class CAllIMContactList
 					$userExternalAuthId == \Bitrix\Im\Bot::EXTERNAL_AUTH_ID
 					&& $bots[$arRes["ITEM_ID"]]['TYPE'] == \Bitrix\Im\Bot::TYPE_NETWORK
 					&& (
-						$bots[$arRes["ITEM_ID"]]['CLASS'] == 'Bitrix\ImBot\Bot\Support24'
-						|| $bots[$arRes["ITEM_ID"]]['CLASS'] == 'Bitrix\ImBot\Bot\Partner24'
+						$bots[$arRes["ITEM_ID"]]['CLASS'] == \Bitrix\ImBot\Bot\Support24::class
+						|| $bots[$arRes["ITEM_ID"]]['CLASS'] == \Bitrix\ImBot\Bot\Partner24::class
+						|| $bots[$arRes["ITEM_ID"]]['CLASS'] == \Bitrix\ImBot\Bot\SaleSupport24::class
 					)
 				)
 				{

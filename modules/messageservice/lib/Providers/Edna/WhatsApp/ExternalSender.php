@@ -103,6 +103,11 @@ class ExternalSender extends \Bitrix\MessageService\Providers\Edna\ExternalSende
 		{
 			$errorMessage = '';
 
+			if (isset($response['title']))
+			{
+				$errorMessage = $response['title'];
+			}
+
 			if (isset($response['code']))
 			{
 				$errorMessage = $this->getErrorMessageByCode($response['code']);
@@ -140,6 +145,11 @@ class ExternalSender extends \Bitrix\MessageService\Providers\Edna\ExternalSende
 		if ($this->apiEndpoint === Old\Constants::API_ENDPOINT)
 		{
 			return (isset($response['code']) && $response['code'] === 'ok')	|| !isset($response['code']);
+		}
+
+		if (isset($response['title']) && $response['title'] === 'system-error')
+		{
+			return false;
 		}
 
 		return (isset($response['status']) && (int)$response['status'] === 200) || !isset($response['status']);

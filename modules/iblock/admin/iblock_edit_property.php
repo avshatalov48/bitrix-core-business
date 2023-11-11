@@ -1,8 +1,9 @@
 <?php
 
-use Bitrix\Main,
-	Bitrix\Main\Loader,
-	Bitrix\Iblock;
+use Bitrix\Main;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
+use Bitrix\Iblock;
 
 const STOP_STATISTICS = true;
 const BX_SECURITY_SHOW_MESSAGE = true;
@@ -98,6 +99,8 @@ function __AddListValueRow($intPropID, $arPropInfo): string
 	<td style="text-align:center">'.__AddListValueSortCell($intPropID,$arPropInfo).'</td>
 	<td style="text-align:center">'.__AddListValueDefCell($arPropInfo).'</td></tr>';
 }
+
+$showXmlId = Option::get('iblock', 'show_xml_id') === 'Y';
 
 $arDisabledPropFields = array(
 	'ID',
@@ -808,8 +811,10 @@ elseif(!$bReload && $isPost && (isset($_POST["save"]) || isset($_POST["apply"]))
 	if(!empty($arListValues))
 		$arFields["VALUES"] = $arListValues;
 
-	if (COption::GetOptionString("iblock", "show_xml_id", "N")=="Y")
+	if ($showXmlId)
+	{
 		$arFields["XML_ID"] = $_POST["PROPERTY_XML_ID"];
+	}
 
 	if (CIBlock::GetArrayByID($arFields["IBLOCK_ID"], "SECTION_PROPERTY") != "Y")
 	{
@@ -822,18 +827,18 @@ elseif(!$bReload && $isPost && (isset($_POST["save"]) || isset($_POST["apply"]))
 
 	if (isset($arFields['CODE']) && is_string($arFields['CODE']) && $arFields['CODE'] !== '')
 	{
-		$propertyFilter = array(
+		$propertyFilter = [
 			'=IBLOCK_ID' => $arFields["IBLOCK_ID"],
 			'=CODE' => $arFields['CODE']
-		);
+		];
 		if (!$isNewProperty)
 		{
 			$propertyFilter['!=ID'] = $str_PROPERTY_ID;
 		}
-		$existProperty = Iblock\PropertyTable::getList(array(
-			'select' => array('ID'),
-			'filter' => $propertyFilter
-		))->fetch();
+		$existProperty = Iblock\PropertyTable::getRow([
+			'select' => ['ID'],
+			'filter' => $propertyFilter,
+		]);
 		if (!empty($existProperty))
 		{
 			$strWarning .= GetMessage(
@@ -1014,23 +1019,31 @@ else
 			"NAME" => $_POST["PROPERTY_NAME"],
 			"SORT" => $_POST["PROPERTY_SORT"],
 			"CODE" => $_POST["PROPERTY_CODE"],
-			"MULTIPLE" => $_POST["PROPERTY_MULTIPLE"],
+			"MULTIPLE" => $_POST["PROPERTY_MULTIPLE"] ?? 'N',
 			"IS_REQUIRED" => $_POST["PROPERTY_IS_REQUIRED"],
-			"SEARCHABLE" => $_POST["PROPERTY_SEARCHABLE"],
-			"FILTRABLE" => $_POST["PROPERTY_FILTRABLE"],
-			"WITH_DESCRIPTION" => $_POST["PROPERTY_WITH_DESCRIPTION"],
-			"MULTIPLE_CNT" => $_POST["PROPERTY_MULTIPLE_CNT"],
+			"SEARCHABLE" => $_POST["PROPERTY_SEARCHABLE"] ?? 'N',
+			"FILTRABLE" => $_POST["PROPERTY_FILTRABLE"] ?? 'N',
+			"WITH_DESCRIPTION" => $_POST["PROPERTY_WITH_DESCRIPTION"] ?? 'N',
+			"MULTIPLE_CNT" => $_POST["PROPERTY_MULTIPLE_CNT"] ?? 5,
 			"HINT" => $_POST["PROPERTY_HINT"],
 			"SECTION_PROPERTY" => $_POST["PROPERTY_SECTION_PROPERTY"],
-			"SMART_FILTER" => $_POST["PROPERTY_SMART_FILTER"],
-			"DISPLAY_TYPE" => $_POST["PROPERTY_DISPLAY_TYPE"],
-			"DISPLAY_EXPANDED" => $_POST["PROPERTY_DISPLAY_EXPANDED"],
-			"FILTER_HINT" => $_POST["PROPERTY_FILTER_HINT"],
-			"ROW_COUNT" => $_POST["PROPERTY_ROW_COUNT"],
-			"COL_COUNT" => $_POST["PROPERTY_COL_COUNT"],
-			"DEFAULT_VALUE" => $_POST["PROPERTY_DEFAULT_VALUE"],
-			"FILE_TYPE" => $_POST["PROPERTY_FILE_TYPE"],
+			"SMART_FILTER" => $_POST["PROPERTY_SMART_FILTER"] ?? 'N',
+			"DISPLAY_TYPE" => $_POST["PROPERTY_DISPLAY_TYPE"] ?? '',
+			"DISPLAY_EXPANDED" => $_POST["PROPERTY_DISPLAY_EXPANDED"] ?? '',
+			"FILTER_HINT" => $_POST["PROPERTY_FILTER_HINT"] ?? '',
+			"ROW_COUNT" => $_POST["PROPERTY_ROW_COUNT"] ?? 30,
+			"COL_COUNT" => $_POST["PROPERTY_COL_COUNT"] ?? 1,
+			"DEFAULT_VALUE" => $_POST["PROPERTY_DEFAULT_VALUE"] ?? '',
+			"FILE_TYPE" => $_POST["PROPERTY_FILE_TYPE"] ?? '',
 		);
+		if ($showXmlId)
+		{
+			$arProperty['XML_ID'] = $_POST['XML_ID'] ?? '';
+			if (!is_string($arProperty['XML_ID']))
+			{
+				$arProperty['XML_ID'] = '';
+			}
+		}
 
 		if (isset($_POST["PROPERTY_PROPERTY_TYPE"]))
 		{
@@ -1307,7 +1320,7 @@ elseif($message)
 		<input type="hidden" name="IBLOCK_ID" value="<?php echo $intIBlockID?>">
 		<input type="hidden" name="checkAction" id="checkAction" value="">
 	<?php
-		$arProperty['USER_TYPE'] = trim($arProperty['USER_TYPE']);
+		$arProperty['USER_TYPE'] = trim((string)($arProperty['USER_TYPE'] ?? ''));
 		$arUserType = ('' != $arProperty['USER_TYPE'] ? CIBlockProperty::GetUserType($arProperty['USER_TYPE']) : array());
 
 		$arPropertyFields = array();
@@ -1450,11 +1463,14 @@ elseif($message)
 	<td><input type="text" size="50" maxlength="50" id="PROPERTY_CODE" name="PROPERTY_CODE" value="<?php echo htmlspecialcharsbx($arProperty['CODE'])?>"></td>
 </tr>
 			<?php
-	if (COption::GetOptionString("iblock", "show_xml_id", "N")=="Y")
-	{?><tr>
+	if ($showXmlId)
+	{
+		?>
+		<tr>
 		<td width="40%"><?php echo GetMessage("BT_ADM_IEP_PROP_EXTERNAL_CODE")?></td>
 		<td><input type="text" size="50" maxlength="50" id="PROPERTY_XML_ID" name="PROPERTY_XML_ID" value="<?php echo htmlspecialcharsbx($arProperty['XML_ID'])?>"></td>
-		</tr><?php
+		</tr>
+		<?php
 	}
 	$bShow = true;
 	if($showKeyExist && in_array("MULTIPLE", $arPropertyFields["SHOW"]))
@@ -1710,7 +1726,9 @@ elseif($message)
 
 // PROPERTY_TYPE specific properties
 	if ('L' == $arProperty['PROPERTY_TYPE'])
-	{?><tr>
+	{
+		$arProperty['LIST_TYPE'] ??= Iblock\PropertyTable::LISTBOX;
+		?><tr>
 	<td width="40%"><?php echo GetMessage("BT_ADM_IEP_PROP_APPEARANCE")?></td>
 	<td>
 		<select id="PROPERTY_LIST_TYPE" name="PROPERTY_LIST_TYPE">
@@ -1918,7 +1936,7 @@ elseif($message)
 		}
 
 		echo GetIBlockDropDownList(
-			$arProperty['LINK_IBLOCK_ID'],
+			$arProperty['LINK_IBLOCK_ID'] ?? 0,
 			"PROPERTY_LINK_IBLOCK_TYPE_ID",
 			"PROPERTY_LINK_IBLOCK_ID",
 			$b_f,

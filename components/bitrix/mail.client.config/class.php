@@ -256,6 +256,8 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				$this->arParams['SERVICE']['oauth'] = Mail\MailServicesTable::getOAuthHelper($service);
 			}
 		}
+		$this->arParams['SERVICE']['oauth_smtp_enabled'] = !empty($this->arParams['SERVICE']['oauth'])
+			&& $this->isOauthSmtpEnabled($this->arParams['SERVICE']['name']);
 
 		$ownerId = $new ? $USER->getId() : $mailbox['USER_ID'];
 		$access = array(
@@ -472,6 +474,34 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		$defaultMailConfiguration = Configuration::getValue("smtp");
 		$this->arParams['IS_SMTP_AVAILABLE'] = Main\ModuleManager::isModuleInstalled('bitrix24')
 			|| $defaultMailConfiguration['enabled'];
+	}
+
+	/**
+	 * Is OAuth for SMTP enabled for service
+	 *
+	 * @param string $serviceName Service name
+	 *
+	 * @return bool
+	 *
+	 * @throws Main\ArgumentNullException
+	 */
+	private function isOauthSmtpEnabled(string $serviceName): bool
+	{
+		switch ($serviceName)
+		{
+			case 'gmail':
+				return (bool)\Bitrix\Main\Config\Option::getRealValue('mail', '~smtp_oauth_enabled_gmail', '');
+			case 'yandex':
+				return (bool)\Bitrix\Main\Config\Option::getRealValue('mail', '~smtp_oauth_enabled_yandex', '');
+			case 'mail.ru':
+				return (bool)\Bitrix\Main\Config\Option::getRealValue('mail', '~smtp_oauth_enabled_mailru', '');
+			case 'office365':
+			case 'outlook.com':
+			case 'exchangeOnline':
+				return (bool)\Bitrix\Main\Config\Option::getRealValue('mail', '~smtp_oauth_enabled_outlook', '');
+			default:
+				return false;
+		}
 	}
 
 	public function saveAction($fields)
@@ -744,7 +774,10 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			return $this->error($errors instanceof Main\ErrorCollection ? $errors : $error);
 		}
 
-		if ($this->arParams['IS_SMTP_AVAILABLE'] && empty($fields['use_smtp']) && !empty($mailbox))
+		$isSmtpOauthEnabled = $this->isOauthSmtpEnabled($service['NAME']);
+		$useSmtp = !empty($fields['use_smtp']) || $isSmtpOauthEnabled;
+
+		if ($this->arParams['IS_SMTP_AVAILABLE'] && !$useSmtp && !empty($mailbox))
 		{
 			$res = Main\Mail\Internal\SenderTable::getList(array(
 				'filter' => array(
@@ -769,7 +802,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			Main\Mail\Sender::clearCustomSmtpCache($mailboxData['EMAIL']);
 		}
 
-		if ($this->arParams['IS_SMTP_AVAILABLE'] && !empty($fields['use_smtp']))
+		if ($this->arParams['IS_SMTP_AVAILABLE'] && $useSmtp)
 		{
 			$senderFields = array(
 				'NAME' => $mailboxData['USERNAME'],
@@ -815,11 +848,6 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 					}
 				}
 			}
-
-			if (empty($fields['use_smtp']) && empty($smtpConfirmed))
-			{
-				unset($senderFields);
-			}
 		}
 
 		if (!empty($senderFields))
@@ -838,9 +866,10 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				$smtpConfig = array_filter($smtpConfig) + $smtpConfirmed;
 			}
 
-			if ($service['SMTP_PASSWORD_AS_IMAP'] == 'Y' && !$fields['oauth_uid'])
+			if ($service['SMTP_PASSWORD_AS_IMAP'] == 'Y' && (!$fields['oauth_uid'] || $isSmtpOauthEnabled))
 			{
 				$smtpConfig['password'] = $mailboxData['PASSWORD'];
+				$smtpConfig['isOauth'] = !empty($fields['oauth_uid']) && $isSmtpOauthEnabled;
 			}
 			else if ($fields['pass_smtp'] <> '' && $fields['pass_smtp'] != $fields['pass_placeholder'])
 			{
@@ -885,7 +914,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			if (!empty($smtpConfirmed))
 			{
 				$senderFields['IS_CONFIRMED'] = !array_diff(
-					array('server', 'port', 'protocol', 'login', 'password'),
+					array('server', 'port', 'protocol', 'login', 'password', 'isOauth'),
 					array_keys(array_intersect_assoc($smtpConfig, $smtpConfirmed))
 				);
 			}
@@ -991,7 +1020,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 
 		if (!empty($senderFields) && empty($senderFields['IS_CONFIRMED']))
 		{
-			$result = Main\Mail\Sender::add($senderFields);
+			$result = $this->appendSender($senderFields, (string)($fields['user_principal_name'] ?? ''));
 
 			if (!empty($result['errors']) && $result['errors'] instanceof Main\ErrorCollection)
 			{
@@ -1135,6 +1164,32 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		}
 
 		return array('id' => $mailboxId);
+	}
+
+	/**
+	 * Append SMTP sender, with two attempts for outlook
+	 *
+	 * @param array $senderFields Sender fields data
+	 * @param string $userPrincipalName User Principal Name, appears in outlook oauth data only
+	 *
+	 * @return array
+	 */
+	private function appendSender(array $senderFields, string $userPrincipalName): array
+	{
+		$result = Main\Mail\Sender::add($senderFields);
+
+		if (empty($result['confirmed']) && $userPrincipalName)
+		{
+			$address = new \Bitrix\Main\Mail\Address($userPrincipalName);
+			$currentSmtpLogin = $senderFields['OPTIONS']['smtp']['login'] ?? '';
+			if ($currentSmtpLogin && $currentSmtpLogin !== $userPrincipalName && $address->validate())
+			{
+				// outlook workaround, sometimes SMTP auth only works with userPrincipalName
+				$senderFields['OPTIONS']['smtp']['login'] = $userPrincipalName;
+				$result = Main\Mail\Sender::add($senderFields);
+			}
+		}
+		return $result;
 	}
 
 	public function deleteAction($id)

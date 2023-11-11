@@ -8,7 +8,7 @@ use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\User;
-use Bitrix\Calendar\Internals\FlagRegistry;
+use Bitrix\Calendar\Sync\Util\FlagRegistry;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\ICloud;

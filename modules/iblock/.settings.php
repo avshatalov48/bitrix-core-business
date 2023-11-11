@@ -1,5 +1,4 @@
 <?php
-
 return [
 	'controllers' => [
 		'value' => [
@@ -7,6 +6,9 @@ return [
 			'restIntegration' => [
 				'enabled' => true,
 			],
+			'namespaces' => [
+				'\Bitrix\Iblock\Controller' => 'api'
+			]
 		],
 		'readonly' => true,
 	],

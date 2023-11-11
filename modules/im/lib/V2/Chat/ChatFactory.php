@@ -131,12 +131,7 @@ class ChatFactory
 	 */
 	public function getGeneralChat(): ?GeneralChat
 	{
-		$params = [
-			'TYPE' => Chat::IM_TYPE_OPEN,
-			'ENTITY_TYPE' => Chat::ENTITY_TYPE_GENERAL
-		];
-
-		return $this->getChat($params);
+		return GeneralChat::get();
 	}
 
 	/**
@@ -311,7 +306,6 @@ class ChatFactory
 	 */
 	public function getChatById(int $chatId): Chat
 	{
-		$chat = new NullChat();
 		$findResult = $this->findChat(['CHAT_ID' => $chatId]);
 		if ($findResult->hasResult())
 		{
@@ -319,7 +313,10 @@ class ChatFactory
 
 			/** @var Chat $chat */
 			$chat = $this->initChat($chatParams);
-			$chat->load($chatParams);
+		}
+		else
+		{
+			$chat = new NullChat();
 		}
 
 		return $chat;
@@ -546,7 +543,7 @@ class ChatFactory
 	{
 		$cacheSubDir = $id % 100;
 
-		return "/bx/imc/chatdata/2/{$cacheSubDir}/{$id}";
+		return "/bx/imc/chatdata/4/{$cacheSubDir}/{$id}";
 	}
 
 	//endregion

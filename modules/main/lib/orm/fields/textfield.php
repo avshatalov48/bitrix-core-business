@@ -18,6 +18,43 @@ use Bitrix\Main\DB\SqlExpression;
  */
 class TextField extends StringField
 {
+	/** @var bool */
+	protected $long = false;
+
+	/**
+	 * TextField constructor.
+	 *
+	 * @param       $name
+	 * @param array $parameters deprecated, use configure* and add* methods instead
+	 *
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	function __construct($name, $parameters = array())
+	{
+		parent::__construct($name, $parameters);
+
+		$this->unsigned = isset($parameters['long']) && (bool)$parameters['long'];
+	}
+
+	/**
+	 * @param $long
+	 *
+	 * @return $this
+	 */
+	public function configureLong($long = true)
+	{
+		$this->long = (bool)$long;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLong()
+	{
+		return $this->long;
+	}
+
 	/**
 	 * @param mixed $value
 	 *
@@ -41,9 +78,19 @@ class TextField extends StringField
 		{
 			return $value;
 		}
-		
+
 		return $value === null && $this->is_nullable
 			? $value
 			: $this->getConnection()->getSqlHelper()->convertToDbText($value);
+	}
+
+	public function isValueEmpty($value)
+	{
+		if ($this->isSerialized() && is_array($value))
+		{
+			return false;
+		}
+
+		return parent::isValueEmpty($value);
 	}
 }

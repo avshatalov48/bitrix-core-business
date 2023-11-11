@@ -28,11 +28,6 @@ class LandingBaseComponent extends \CBitrixComponent
 	const B24_DEFAULT_DNS_IP = '52.59.124.117';
 
 	/**
-	 * Manifest path template.
-	 */
-	const FILE_PATH_SITE_MANIFEST = '/bitrix/components/bitrix/landing.demo/data/site/#code#/.theme.php';
-
-	/**
 	 * Http status OK.
 	 */
 	const ERROR_STATUS_OK = '200 OK';
@@ -1147,27 +1142,6 @@ class LandingBaseComponent extends \CBitrixComponent
 	}
 
 	/**
-	 * Returns site theme manifest.
-	 * @param string $tplCode Site template code.
-	 * @return array|null
-	 */
-	protected function getThemeManifest(string $tplCode): ?array
-	{
-		$path = $this::FILE_PATH_SITE_MANIFEST;
-		$path = Manager::getDocRoot() . str_replace('#code#', $tplCode, $path);
-		if (file_exists($path))
-		{
-			$manifest = include $path;
-			if (is_array($manifest))
-			{
-				return $manifest;
-			}
-		}
-
-		return null;
-	}
-
-	/**
 	 * Detects site special type and returns it.
 	 * @param int $siteId Site id.
 	 * @deprecated since 21.700.0
@@ -1373,7 +1347,7 @@ class LandingBaseComponent extends \CBitrixComponent
 	 * @param array $urlParams - additional url params, join with url (old or new type)
 	 * @return string
 	 */
-	public function getUrlAdd(bool $isSite = true, array $urlParams = []): string
+	public function getUrlAdd(bool $isSite = true, array $urlParams = [], int $collectionId = 0): string
 	{
 		$paramName = $isSite ? 'PAGE_URL_SITE_EDIT' : 'PAGE_URL_LANDING_EDIT';
 
@@ -1417,9 +1391,7 @@ class LandingBaseComponent extends \CBitrixComponent
 		// additional url params
 		if (!empty($urlParams))
 		{
-			$createViaLandingUrl = $this->getPageParam($createViaLandingUrl, [
-				'super' => 'Y'
-			]);
+			$createViaLandingUrl = $this->getPageParam($createViaLandingUrl, $urlParams);
 		}
 
 		// OLD style showcase
@@ -1429,9 +1401,11 @@ class LandingBaseComponent extends \CBitrixComponent
 		}
 
 		// NEW - create via market module
-		$createViaMarketUrl = new Uri(
-			'/market/?placement=landings'
-		);
+		$marketUrl = $collectionId > 0
+			? '/market/collection/' . $collectionId . '/?placement=landings'
+			: '/market/?placement=landings'
+		;
+		$createViaMarketUrl = new Uri($marketUrl);
 		$createViaMarketUrl->addParams([
 			'create_uri' => $createViaLandingUrl
 		]);

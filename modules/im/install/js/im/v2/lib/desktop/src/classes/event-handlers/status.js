@@ -1,11 +1,13 @@
-import {Core} from 'im.v2.application.core';
-import {Utils} from 'im.v2.lib.utils';
-import {EventType, RestMethod} from 'im.v2.const';
-import {DesktopApi} from 'im.v2.lib.desktop-api';
+import { Core } from 'im.v2.application.core';
+import { DesktopManager } from '../../desktop-manager';
+import { Utils } from 'im.v2.lib.utils';
+import { EventType, RestMethod } from 'im.v2.const';
+import { DesktopApi } from 'im.v2.lib.desktop-api';
+import { Browser, Event } from 'main.core';
 
-import {Checker} from '../checker';
+import { Checker } from '../checker';
 
-import type {ImModelUser} from 'im.v2.model';
+import type { ImModelUser } from 'im.v2.model';
 
 export class StatusHandler
 {
@@ -21,12 +23,15 @@ export class StatusHandler
 		this.#initDate = new Date();
 		this.#subscribeToWakeUpEvent();
 		this.#subscribeToAwayEvent();
+		this.#subscribeToFocusEvent();
+		this.#subscribeToBlurEvent();
+		this.#subscribeToIconClickEvent();
 
 		this.#setInitialStatus();
 		this.#subscribeToStatusChange();
 	}
 
-	// wake up
+	// region wake up
 	#subscribeToWakeUpEvent()
 	{
 		DesktopApi.subscribe(EventType.desktop.onWakeUp, this.#onWakeUp.bind(this));
@@ -38,6 +43,7 @@ export class StatusHandler
 		if (!hasConnection)
 		{
 			console.error('NO INTERNET CONNECTION!');
+
 			return;
 		}
 
@@ -50,9 +56,22 @@ export class StatusHandler
 			DesktopApi.reloadWindow();
 		}
 	}
-	// end wake up
+	// endregion wake up
 
-	// away
+	// region icon click
+	#subscribeToIconClickEvent()
+	{
+		DesktopApi.subscribe(EventType.desktop.onIconClick, this.#onIconClick.bind(this));
+	}
+
+	#onIconClick()
+	{
+		DesktopManager.getInstance().toggleConference();
+	}
+
+	// endregion icon click
+
+	// region away
 	#subscribeToAwayEvent()
 	{
 		DesktopApi.subscribe(EventType.desktop.onUserAway, this.#onUserAway.bind(this));
@@ -62,13 +81,37 @@ export class StatusHandler
 	{
 		const method = away ? RestMethod.imUserStatusIdleStart : RestMethod.imUserStatusIdleEnd;
 		Core.getRestClient().callMethod(method)
-			.catch(error => {
+			.catch((error) => {
 				console.error(`Desktop: error in ${method}  - ${error}`);
-			});
+			})
+		;
 	}
-	// end away
+	// endregion away
 
-	// user status
+	// region focus/blur events
+	#subscribeToFocusEvent()
+	{
+		Event.bind(window, 'focus', this.#removeNativeNotifications.bind(this));
+	}
+
+	#subscribeToBlurEvent()
+	{
+		// TODO remove this after refactor notification balloons
+		Event.bind(window, 'blur', this.#removeNativeNotifications.bind(this));
+	}
+
+	#removeNativeNotifications()
+	{
+		if (!Browser.isWin() || !DesktopApi.isChatWindow())
+		{
+			return;
+		}
+
+		DesktopApi.removeNativeNotifications();
+	}
+	// endregion focus/blur events
+
+	// region user status
 	#setInitialStatus()
 	{
 		const userId = Core.getUserId();
@@ -92,5 +135,5 @@ export class StatusHandler
 			DesktopApi.setIconStatus(newStatus);
 		});
 	}
-	// user status
+	// endregion user status
 }

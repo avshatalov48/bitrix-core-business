@@ -8,10 +8,13 @@ return [
 	'css' => 'dist/registry.bundle.css',
 	'js' => 'dist/registry.bundle.js',
 	'rel' => [
+		'im.v2.lib.slider',
 		'ui.dialogs.messagebox',
 		'im.v2.lib.call',
 		'im.v2.provider.service',
 		'im.v2.lib.utils',
+		'im.v2.lib.permission',
+		'im.v2.lib.confirm',
 		'im.public',
 		'main.popup',
 		'main.core.events',

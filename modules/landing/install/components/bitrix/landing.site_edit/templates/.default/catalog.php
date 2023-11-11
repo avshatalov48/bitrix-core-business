@@ -263,14 +263,18 @@ else
 	BX.ready(function(){
 		new BX.UI.LayoutForm({container: BX('landing-site-catalog-set-form')});
 		const editComponent = new BX.Landing.EditComponent('<?= $template->getFieldId('ACTION_CLOSE') ?>');
-		top.window['landingSettingsSaved'] = false;
 		<?php if ($arParams['SUCCESS_SAVE']):?>
 			top.window['landingSettingsSaved'] = true;
 			top.BX.onCustomEvent('BX.Landing.Filter:apply');
 			editComponent.actionClose();
+		<?php else: ?>
+			top.window['landingSettingsSaved'] = false;
 		<?php endif;?>
 		BX.Landing.Env.createInstance({
-			params: {type: '<?= $arParams['TYPE'] ?>'}
+			site_id: '<?= $row['ID']['CURRENT'] ?>',
+			params: {
+				type: '<?= $arParams['TYPE'] ?>',
+			},
 		});
 	});
 </script>

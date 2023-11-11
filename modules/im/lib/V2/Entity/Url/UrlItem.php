@@ -36,7 +36,7 @@ class UrlItem implements RestEntity
 					{
 						$metadata = UrlPreview::getMetadataByUrl($this->getUrl(), true, false);
 					}
-					catch (\ErrorException $exception)
+					catch (\Exception $exception)
 					{
 						$metadata = false;
 					}

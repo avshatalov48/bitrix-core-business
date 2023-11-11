@@ -94,52 +94,30 @@ class CAllUserTypeEntity extends CDBResult
 {
 	function CreatePropertyTables($entity_id)
 	{
-		global $DB, $APPLICATION;
-		if(!$DB->TableExists("b_utm_".strtolower($entity_id)))
-		{
-			if(defined("MYSQL_TABLE_TYPE"))
-				$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
-			$rs = $DB->Query("
-				create table IF NOT EXISTS b_utm_".strtolower($entity_id)." (
-					ID int(11) not null auto_increment,
-					VALUE_ID int(11) not null,
-					FIELD_ID int(11) not null,
-					VALUE text,
-					VALUE_INT int,
-					VALUE_DOUBLE float,
-					VALUE_DATE datetime,
-					INDEX ix_utm_".$entity_id."_2(VALUE_ID),
-					INDEX ix_utm_".$entity_id."_4(FIELD_ID, VALUE_ID, VALUE_INT),
-					PRIMARY KEY (ID)
-				)
-			", false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
-			if(!$rs)
-			{
-				$APPLICATION->ThrowException(GetMessage("USER_TYPE_TABLE_CREATION_ERROR",array(
-					"#ENTITY_ID#"=>htmlspecialcharsbx($entity_id),
-				)));
-				return false;
-			}
-		}
-		if(!$DB->TableExists("b_uts_".strtolower($entity_id)))
-		{
-			if(defined("MYSQL_TABLE_TYPE"))
-				$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
+		$connection = \Bitrix\Main\Application::getConnection();
 
-			$rs = $DB->Query("
-				create table IF NOT EXISTS b_uts_".strtolower($entity_id)." (
-					VALUE_ID int(11) not null,
-					PRIMARY KEY (VALUE_ID)
-				)
-			", false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
-			if(!$rs)
-			{
-				$APPLICATION->ThrowException(GetMessage("USER_TYPE_TABLE_CREATION_ERROR",array(
-					"#ENTITY_ID#"=>htmlspecialcharsbx($entity_id),
-				)));
-				return false;
-			}
+		if (!$connection->isTableExists("b_utm_".strtolower($entity_id)))
+		{
+			$connection->createTable("b_utm_".strtolower($entity_id), [
+				'ID' => new \Bitrix\Main\ORM\Fields\IntegerField('ID'),
+				'VALUE_ID' => new \Bitrix\Main\ORM\Fields\IntegerField('VALUE_ID'),
+				'FIELD_ID' => new \Bitrix\Main\ORM\Fields\IntegerField('FIELD_ID'),
+				'VALUE' => new \Bitrix\Main\ORM\Fields\TextField('VALUE', ['nullable' => true]),
+				'VALUE_INT' => new \Bitrix\Main\ORM\Fields\IntegerField('VALUE_INT', ['nullable' => true]),
+				'VALUE_DOUBLE' => new \Bitrix\Main\ORM\Fields\FloatField('VALUE_DOUBLE', ['nullable' => true]),
+				'VALUE_DATE' => new \Bitrix\Main\ORM\Fields\DatetimeField('VALUE_DATE', ['nullable' => true]),
+			], ['ID'] ,['ID']);
+			$connection->createIndex("b_utm_".strtolower($entity_id), "ix_utm_".$entity_id."_2", ["VALUE_ID"]);
+			$connection->createIndex("b_utm_".strtolower($entity_id), "ix_utm_".$entity_id."_4", ["FIELD_ID", "VALUE_ID", "VALUE_INT"]);
 		}
+
+		if (!$connection->isTableExists("b_uts_".strtolower($entity_id)))
+		{
+			$connection->createTable("b_uts_".strtolower($entity_id), [
+				'VALUE_ID' => new \Bitrix\Main\ORM\Fields\IntegerField('VALUE_ID'),
+			], ['VALUE_ID']);
+		}
+
 		return true;
 	}
 
@@ -541,10 +519,12 @@ class CAllUserTypeEntity extends CDBResult
 				return false;
 			}
 
-			if(!$DB->Query("select ".$arFields["FIELD_NAME"]." from b_uts_".mb_strtolower($arFields["ENTITY_ID"]) . " where 1=0", true))
+			$tableName = 'b_uts_' . mb_strtolower($arFields['ENTITY_ID']);
+			$tableFields = $DB->GetTableFields($tableName);
+			if (!array_key_exists($arFields['FIELD_NAME'], $tableFields))
 			{
-				$ddl = "ALTER TABLE b_uts_".mb_strtolower($arFields["ENTITY_ID"]) . " ADD " . $arFields["FIELD_NAME"] . " " . $strType;
-				if(!$DB->DDL($ddl, true, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__))
+				$ddl = 'ALTER TABLE ' . $tableName . ' ADD ' . $arFields['FIELD_NAME'] . ' ' . $strType;
+				if (!$DB->DDL($ddl, true, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__))
 				{
 					$aMsg = array();
 					$aMsg[] = array(
@@ -583,7 +563,8 @@ class CAllUserTypeEntity extends CDBResult
 			{
 				$arLangFields["USER_FIELD_ID"] = $ID;
 				$arLangFields["LANGUAGE_ID"] = $lang;
-				$DB->Add("b_user_field_lang", $arLangFields);
+				$arInsert = $DB->PrepareInsert("b_user_field_lang", $arLangFields);
+				$DB->Query("INSERT INTO b_user_field_lang (".$arInsert[0].") VALUES (".$arInsert[1].")");
 			}
 		}
 
@@ -724,8 +705,9 @@ class CAllUserTypeEntity extends CDBResult
 				{
 					$arLangFields["USER_FIELD_ID"] = $ID;
 					$arLangFields["LANGUAGE_ID"] = $lang;
-					$DB->Add("b_user_field_lang", $arLangFields);
-				}
+					$arInsert = $DB->PrepareInsert("b_user_field_lang", $arLangFields);
+					$DB->Query("INSERT INTO b_user_field_lang (".$arInsert[0].") VALUES (".$arInsert[1].")");
+					}
 			}
 
 			foreach(GetModuleEvents("main", "OnAfterUserTypeUpdate", true) as $arEvent)
@@ -836,9 +818,8 @@ class CAllUserTypeEntity extends CDBResult
 				}
 				else
 				{
-					$DB->Query("DROP SEQUENCE SQ_B_UTM_" . $arField["ENTITY_ID"], true);
-					$DB->Query("DROP TABLE b_uts_".mb_strtolower($arField["ENTITY_ID"]), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
-					$rs = $DB->Query("DROP TABLE b_utm_".mb_strtolower($arField["ENTITY_ID"]), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+					$DB->Query("DROP TABLE IF EXISTS b_uts_".mb_strtolower($arField["ENTITY_ID"]), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+					$rs = $DB->Query("DROP TABLE IF EXISTS b_utm_".mb_strtolower($arField["ENTITY_ID"]), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 				}
 			}
 

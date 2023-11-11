@@ -1,5 +1,6 @@
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Editor} from '../editor';
+import {Copilot} from 'ai.copilot';
 
 export default function bindToolbar(editor: Editor, htmlEditor)
 {
@@ -100,5 +101,13 @@ export default function bindToolbar(editor: Editor, htmlEditor)
 			.addEventListener('click', () => {
 				editor.showPanelEditor();
 			});
+	}
+
+	const copilot = toolbar.querySelector('[data-id="copilot"]');
+	if (copilot)
+	{
+		copilot.addEventListener('click', () => {
+			editor.showCopilot();
+		});
 	}
 }

@@ -1,12 +1,3 @@
-/**
- * Bitrix Messenger
- * File constants
- *
- * @package bitrix
- * @subpackage im
- * @copyright 2001-2020 Bitrix
- */
-
 export const FileStatus = Object.freeze({
 	upload: 'upload',
 	wait: 'wait',
@@ -30,5 +21,5 @@ export const FileIconType = Object.freeze({
 	code: 'code',
 	call: 'call',
 	attach: 'attach',
-	quote: 'quote'
+	quote: 'quote',
 });

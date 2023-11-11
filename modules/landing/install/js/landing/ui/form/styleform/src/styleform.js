@@ -1,7 +1,8 @@
-import { Dom, Event, Type } from 'main.core';
+import { Dom, Event, Type, Tag, Loc } from 'main.core';
 import { BaseForm } from 'landing.ui.form.baseform';
 import { Highlight } from 'landing.ui.highlight';
 import { BaseField } from 'landing.ui.field.basefield';
+import {Env} from 'landing.env';
 import { fetchEventsFromOptions } from 'landing.ui.component.internal';
 
 import './css/style_form.css';
@@ -25,6 +26,8 @@ export class StyleForm extends BaseForm
 		this.node = 'node' in options ? options.node : null;
 		this.selector = 'selector' in options ? options.selector : null;
 		this.collapsed = 'collapsed' in options ? options.collapsed : null;
+		this.currentTarget = 'currentTarget' in options ? options.currentTarget : null;
+		this.specialType = 'specialType' in options ? options.specialType : null;
 		this.#styleFields = new Map();
 
 		this.onHeaderEnter = this.onHeaderEnter.bind(this);
@@ -45,6 +48,15 @@ export class StyleForm extends BaseForm
 		if (this.collapsed)
 		{
 			Dom.addClass(this.layout, 'landing-ui-form-style--collapsed');
+		}
+
+		if (
+			this.specialType && this.specialType === 'crm_forms'
+			&& Env.getInstance().getOptions().specialType === 'crm_forms'
+			&& Env.getInstance().getOptions().release_autumn_2023 === 'Y'
+		)
+		{
+			this.#addReplaceByTemplateCard();
 		}
 	}
 
@@ -138,12 +150,56 @@ export class StyleForm extends BaseForm
 
 	prepareHeader()
 	{
-		const headerText = document.createElement('div');
-		BX.Dom.addClass(headerText, 'landing-ui-form-header-text');
-		while (this.header.childNodes[0])
+		const headerText = BX.Dom.create({
+			tag: 'div',
+			props: {
+				classList: 'landing-ui-form-header-text',
+			},
+		});
+		if (this.header.childNodes)
 		{
-			BX.Dom.append(this.header.childNodes[0], headerText);
+			this.header.childNodes.forEach((childNode) => {
+				BX.Dom.append(childNode, headerText);
+			});
 		}
 		BX.Dom.append(headerText, this.header);
+	}
+
+	#addReplaceByTemplateCard()
+	{
+		const button = Tag.render`
+			<span class="ui-btn ui-btn-sm ui-btn-primary ui-btn-hover ui-btn-round">
+				${Loc.getMessage('LANDING_REPLACE_BY_TEMPLATES_BUTTON')}
+			</span>
+		`;
+		const card = Tag.render`<div class="landing-ui-form-replace-by-templates-card">
+			<div class="landing-ui-form-replace-by-templates-card-title">
+				${Loc.getMessage('LANDING_REPLACE_BY_TEMPLATES_TITLE')}
+			</div>
+			${button}
+		</div>`;
+		Dom.insertBefore(card, this.header);
+
+		Event.bind(button, 'click', () => {
+			const metrika = new BX.Landing.Metrika(true);
+			metrika.sendLabel(
+				null,
+				'templateMarket',
+				'open&replaceLid=' + landingParams['LANDING_ID']
+			);
+
+			const templatesMarketUrl = landingParams['PAGE_URL_LANDING_REPLACE'];
+			if (templatesMarketUrl)
+			{
+				BX.SidePanel.Instance.open(
+					templatesMarketUrl,
+					{
+						allowChangeHistory: false,
+						cacheable: false,
+						customLeftBoundary: 0,
+					}
+				);
+			}
+		});
 	}
 }

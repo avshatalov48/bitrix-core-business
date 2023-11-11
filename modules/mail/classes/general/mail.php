@@ -5,6 +5,7 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Config\Ini;
+use Bitrix\Mail\Internals\MessageClosureTable;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -1218,7 +1219,7 @@ class CMailHeader
 			}
 			else if (preg_match("'filename\*=([^;]+)'i", $cd, $res))
 			{
-				list($fncharset, $fnstr) = preg_split("/'[^']*'/", trim($res[1], '"'));
+				[$fncharset, $fnstr] = preg_split("/'[^']*'/", trim($res[1], '"'));
 				$this->filename = CMailUtil::ConvertCharset(rawurldecode($fnstr), $fncharset, $charset);
 			}
 			else if (preg_match("'filename\*0=([^;]+)'i", $cd, $res))
@@ -1237,7 +1238,7 @@ class CMailHeader
 				while (preg_match("'filename\*".(++$i)."\*?=([^;]+)'i", $cd, $res))
 					$fnstr .= trim($res[1], '"');
 
-				list($fncharset, $fnstr) = preg_split("/'[^']*'/", $fnstr);
+				[$fncharset, $fnstr] = preg_split("/'[^']*'/", $fnstr);
 				if (!empty($fnstr))
 				{
 					$fnstr = rawurldecode($fnstr);
@@ -1297,15 +1298,12 @@ class CMailMessageDBResult extends CDBResult
 ///////////////////////////////////////////////////////////////////////////////////
 class CAllMailMessage
 {
-	public const MAX_LENGTH_MESSAGE_BODY = 200000;
+	public const MAX_LENGTH_MESSAGE_BODY = 3000000;
 
 	public static function GetList($arOrder = Array(), $arFilter = Array(), $bCnt = false)
 	{
 		global $DB;
-		if($DB->type == "MYSQL")
-			$sum = "IF(NEW_MESSAGE='Y', 1, 0)";
-		else
-			$sum = "case when NEW_MESSAGE='Y' then 1 else 0 end";
+		$sum = "case when NEW_MESSAGE='Y' then 1 else 0 end";
 
 		$strSql =
 				"SELECT ".
@@ -1691,8 +1689,10 @@ class CAllMailMessage
 		$message_body_html = &$bodyHtml;
 		$message_body = &$bodyText;
 		$arMessageParts = &$attachments;
+		$initialHtmlLen = mb_strlen($message_body_html);
 
 		$isStrippedTagsToBody = false;
+		$isOriginalEmptyBody = empty(trim(strip_tags($message_body_html)));
 
 		if (self::isLongMessageBody($message_body))
 		{
@@ -1726,6 +1726,7 @@ class CAllMailMessage
 			'OPTIONS' => array(
 				'attachments' => count($arMessageParts),
 				'isStrippedTags' => $isStrippedTagsToBody,
+				'isOriginalEmptyBody' => $isOriginalEmptyBody,
 			),
 		);
 
@@ -1769,6 +1770,7 @@ class CAllMailMessage
 
 		// @TODO: MAX_ALLOWED_PACKET
 		$arFields['INDEX_VERSION'] = \Bitrix\Mail\Helper\MessageIndexStepper::INDEX_VERSION;
+		$arFields['SEARCH_CONTENT'] = \Bitrix\Mail\Helper\Message::prepareSearchContent($arFields);
 
 		if (isset($params['replaces']) && $params['replaces'] > 0)
 		{
@@ -1808,10 +1810,7 @@ class CAllMailMessage
 				 * By default, a chain is created for each new message that links the message to itself.
 				 * If the parents are not found for the message in the future, then the chain will remain like this.
 				 * */
-				$DB->query(sprintf(
-					'INSERT IGNORE INTO b_mail_message_closure (MESSAGE_ID, PARENT_ID) VALUES (%1$u, %1$u)',
-					$message_id
-				));
+				MessageClosureTable::insertIgnoreFromSql(sprintf('VALUES (%1$u, %1$u)', $message_id));
 
 				/**
 				 * We find the parents(in the standard case there should be one) of this message and create a chain.
@@ -1820,17 +1819,7 @@ class CAllMailMessage
 				 * */
 				if ($arFields['IN_REPLY_TO'])
 				{
-					$DB->query(sprintf(
-						"INSERT IGNORE INTO b_mail_message_closure (MESSAGE_ID, PARENT_ID)
-						(
-							SELECT DISTINCT %u, C.PARENT_ID
-							FROM b_mail_message M INNER JOIN b_mail_message_closure C ON M.ID = C.MESSAGE_ID
-							WHERE M.MAILBOX_ID = %u AND M.MSG_ID = '%s'
-						)",
-						$message_id,
-						$mailbox_id,
-						$DB->forSql($arFields['IN_REPLY_TO'])
-					));
+					self::makeMessageClosureChain($message_id, $mailbox_id, (string)$arFields['IN_REPLY_TO']);
 				}
 
 				$mailbox = Bitrix\Mail\MailboxTable::getList(array(
@@ -1919,9 +1908,11 @@ class CAllMailMessage
 
 				\CMailMessage::update($message_id, array('BODY_HTML' => $arFields['BODY_HTML']), $mailbox_id);
 			}
-
-			$arFields['SEARCH_CONTENT'] = \Bitrix\Mail\Helper\Message::prepareSearchContent($arFields);
-			\CMailMessage::update($message_id, ['SEARCH_CONTENT' => $arFields['SEARCH_CONTENT']], $mailbox_id);
+			else
+			{
+				self::logEmptyHtml($message_id, $initialHtmlLen, $params);
+				self::addDefferedDownload($mailboxId, $message_id);
+			}
 
 			if (!(isset($params['replaces']) && $params['replaces'] > 0))
 			{
@@ -1984,6 +1975,51 @@ class CAllMailMessage
 		}
 
 		return $message_id;
+	}
+
+	private static function logEmptyHtml($messageId, $initialHtmlLen, $params): void
+	{
+		if (isset($params['log_parts']))
+		{
+			if (is_array($params['log_parts']))
+			{
+				$logParts = count($params['log_parts']);
+			}
+			else
+			{
+				$logParts = -2;
+			}
+		}
+		else
+		{
+			$logParts = -1;
+		}
+		addMessage2Log(
+			sprintf('MAIL_EMPTY_BODY id: %s initalLen: %s parts: %s', $messageId, $initialHtmlLen, $logParts),
+			'mail');
+	}
+
+	/**
+	 * We find the parents(in the standard case there should be one) of this message and create a chain.
+	 * If the id of the parent (IN_REPLY_TO) matches the id of the message itself(MSG_ID),
+	 * then nothing will happen(INSERT IGNORE), since such a chain was created in the step above.
+	 *
+	 * @param int $messageId Mail message ID
+	 * @param int $mailboxId Mailbox ID
+	 * @param string $inReply In Replay To mail header value
+	 *
+	 * @return void
+	 */
+	private static function makeMessageClosureChain(int $messageId, int $mailboxId, string $inReply): void
+	{
+		$helper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
+		MessageClosureTable::insertIgnoreFromSelect(sprintf("SELECT DISTINCT %u, C.PARENT_ID
+			FROM b_mail_message M 
+			INNER JOIN b_mail_message_closure C ON M.ID = C.MESSAGE_ID
+			WHERE M.MAILBOX_ID = %u AND M.MSG_ID = '%s'",
+			$messageId,
+			$mailboxId,
+			$helper->forSql($inReply)));
 	}
 
 	/**
@@ -2056,15 +2092,20 @@ class CAllMailMessage
 			&& !$arFields['OPTIONS']['isStrippedTags']
 		)
 		{
-			\Bitrix\Mail\Internals\MailEntityOptionsTable::add([
-				'MAILBOX_ID' => $mailboxID,
-				'ENTITY_TYPE' => 'MESSAGE',
-				'ENTITY_ID' => $ID,
-				'PROPERTY_NAME' => 'UNSYNC_BODY',
-				'DATE_INSERT' => new \Bitrix\Main\Type\DateTime(),
-				'VALUE' => 'Y',
-			]);
+			self::addDefferedDownload($mailboxID, $ID);
 		}
+	}
+
+	private static function addDefferedDownload($mailboxID, $ID): void
+	{
+		\Bitrix\Mail\Internals\MailEntityOptionsTable::add([
+			'MAILBOX_ID' => $mailboxID,
+			'ENTITY_TYPE' => 'MESSAGE',
+			'ENTITY_ID' => $ID,
+			'PROPERTY_NAME' => 'UNSYNC_BODY',
+			'DATE_INSERT' => new \Bitrix\Main\Type\DateTime(),
+			'VALUE' => 'Y',
+		]);
 	}
 
 	public static function Update($ID, $arFields, $mailboxID = false)
@@ -2341,17 +2382,31 @@ class CAllMailMessage
 	}
 
 	/**
-	 * @param string|null $messageBody
+	 * Is message body to long
+	 *
+	 * @param string|null $messageBody Body string
+	 *
 	 * @return bool
 	 */
-	private static function isLongMessageBody(?string &$messageBody): bool
+	public static function isLongMessageBody(?string &$messageBody): bool
 	{
 		if (!$messageBody)
 		{
 			return false;
 		}
 
-		return mb_strlen($messageBody) > self::MAX_LENGTH_MESSAGE_BODY;
+		return mb_strlen($messageBody) > self::getBodyMaxLength();
+	}
+
+	/**
+	 * Get max allowed email body length in symbols
+	 *
+	 * @return int
+	 */
+	public static function getBodyMaxLength(): int
+	{
+		$limit = (int)\Bitrix\Main\Config\Option::get('mail', '~max_email_body_length', false);
+		return ($limit > 0) ? $limit : self::MAX_LENGTH_MESSAGE_BODY;
 	}
 
 	/**
@@ -2471,18 +2526,31 @@ class CAllMailMessage
 		{
 			$mainBodyHtml = $mainBody = explode('--- Below this line is a copy of the message', $messageBody)[0];
 		}
-		elseif (mb_stripos($messageBodyHtml, htmlspecialcharsbx('<blockquote>')))
+		elseif (mb_stripos($messageBodyHtml, '<blockquote'))
+		{
+			$mainBody = $mainBodyHtml = self::cutBlockQuote($messageBodyHtml);
+		}
+		elseif (mb_stripos($messageBodyHtml, htmlspecialcharsbx('<blockquote')))
 		{
 			$mainBody = $mainBodyHtml = self::cutBlockHtmlQuote($messageBodyHtml);
 		}
-		elseif (mb_stripos($messageBody, '<blockquote>'))
+		elseif (mb_stripos($messageBody, '<blockquote'))
 		{
 			$mainBody = $mainBodyHtml = self::cutBlockQuote($messageBody);
 		}
 		else
 		{
 			[$mainBody, $mainBodyHtml] = self::getTextHtmlBlock($messageBody);
+			if ($mainBody === '' && $mainBodyHtml === '')
+			{
+				$limit = self::getBodyMaxLength();
+				$mainBody = mb_substr($messageBody, 0, $limit);
+				$mainBodyHtml = mb_substr($messageBodyHtml, 0, $limit);
+			}
 		}
+
+		$mainBody = (string) $mainBody;
+		$mainBodyHtml = (string) $mainBodyHtml;
 
 		$mainBody = self::getClearBody($mainBody);
 
@@ -2523,9 +2591,9 @@ class CAllMailMessage
 	 * @param $messageBodyHtml
 	 * @return array|string|string[]|null
 	 */
-	private static function cutBlockQuote(&$messageBodyHtml)
+	private static function cutBlockQuote(&$messageBodyHtml): array|string|null
 	{
-		return preg_replace('|(<blockquote>)(.*?)(<\/blockquote>)|isU', '', $messageBodyHtml);
+		return preg_replace('|(<blockquote([^>]*)>)(.*?)(<\/blockquote>)|isU', '', $messageBodyHtml);
 	}
 
 	/**
@@ -3423,7 +3491,7 @@ class CMailFilter
 				FROM b_mail_filter f LEFT JOIN b_mail_filter_cond c ON f.ID = c.FILTER_ID
 				WHERE (f.MAILBOX_ID = ".$MAILBOX_ID." OR MAILBOX_ID IS NULL)
 					AND f.ACTIVE = 'Y'
-					AND (f.PARENT_FILTER_ID = " . ($PARENT_FILTER_ID > 0 ? $PARENT_FILTER_ID : "'' OR f.PARENT_FILTER_ID IS NULL") . ")" .
+					AND (f.PARENT_FILTER_ID = " . ($PARENT_FILTER_ID > 0 ? $PARENT_FILTER_ID : "0 OR f.PARENT_FILTER_ID IS NULL") . ")" .
 					$strSqlAdd."
 				ORDER BY f.SORT, f.ID";
 

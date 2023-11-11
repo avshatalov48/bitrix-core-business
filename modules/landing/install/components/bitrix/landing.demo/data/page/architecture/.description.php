@@ -739,10 +739,10 @@ return [
 
 			<div class="col-md-6 order-1 order-md-2">
 				<div class="text-center g-overflow-hidden">
-					<h3 class="landing-block-node-main-title landing-semantic-title-medium text-uppercase g-font-weight-700 g-mb-20">
+					<h3 class="landing-block-node-main-title text-uppercase g-font-weight-700 g-mb-20">
 						Contact Us</h3>
 
-					<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_5 text-left g-mb-40">
+					<div class="landing-block-node-text g-line-height-1_5 text-left g-mb-40">
 						<p>
 							Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor.
 							Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum,
@@ -757,9 +757,9 @@ return [
 								<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 									<i class="landing-block-card-contact-icon icon-anchor"></i>
 								</span>
-								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
+								<span class="landing-block-card-contact-title h3 d-block text-uppercase g-font-size-11 mb-0">
 									Address</span>
-								<span class="landing-block-card-contact-text landing-semantic-text-medium g-font-weight-700 g-font-size-11">
+								<span class="landing-block-card-contact-text g-font-weight-700 g-font-size-11">
 									Sit amet adipiscing
 								</span>
 							</div>
@@ -769,9 +769,9 @@ return [
 								<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 									<i class="landing-block-card-contact-icon fa fa-clock-o"></i>
 								</span>
-								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
+								<span class="landing-block-card-contact-title h3 d-block text-uppercase g-font-size-11 mb-0">
 									Opening time</span>
-								<span class="landing-block-card-contact-text landing-semantic-text-medium g-font-weight-700 g-font-size-11">
+								<span class="landing-block-card-contact-text g-font-weight-700 g-font-size-11">
 									Mon-Sat: 08.00 -18.00
 								</span>
 							</div>
@@ -782,10 +782,10 @@ return [
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-call-in"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
+									<span class="landing-block-card-linkcontact-title h3 d-block text-uppercase g-font-size-11 mb-0">
 										Phone number
 									</span>
-									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
+									<span class="landing-block-card-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
 										#crmPhoneTitle1
 									</span>
 								</a>
@@ -797,10 +797,10 @@ return [
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-line icon-envelope-letter"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
+									<span class="landing-block-card-linkcontact-title h3 d-block text-uppercase g-font-size-11 mb-0">
 										Email
 									</span>
-									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
+									<span class="landing-block-card-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
 										#crmEmailTitle1
 									</span>
 								</a>

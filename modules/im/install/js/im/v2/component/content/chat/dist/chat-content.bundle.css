@@ -55,6 +55,14 @@
 	align-self: center;
 }
 
+.bx-im-content-chat__textarea_placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 50px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.3) 100%);
+}
+
 .bx-im-content-chat__start_message {
 	display: flex;
 	flex-direction: column;
@@ -144,8 +152,16 @@
 	margin-right: 10px;
 }
 
+.bx-im-chat-header__avatar.--can-change {
+	cursor: pointer;
+}
+
 .bx-im-chat-header__avatar a {
 	text-decoration: none;
+}
+
+.bx-im-chat-header__avatar_input {
+	display: none;
 }
 
 .bx-im-chat-header__title_container {
@@ -162,7 +178,6 @@
 	max-width: 100%;
 	min-width: 0;
 	margin-bottom: 3px;
-	cursor: pointer;
 }
 
 .bx-im-chat-header__title.--chat {
@@ -171,6 +186,10 @@
 
 .bx-im-chat-header__title.--user {
 	align-items: baseline;
+}
+
+.bx-im-chat-header__title.--can-rename {
+	cursor: pointer;
 }
 
 .bx-im-chat-header__user-status {
@@ -212,14 +231,11 @@
 }
 
 .bx-im-chat-header__title-input {
-	/*width: auto;*/
-	/*max-width: 100%;*/
 	max-height: 100%;
 	padding: 1px 0;
 	outline: none;
 	border: none;
 	border-bottom: 1px solid var(--im-chat-header__background-color_input-border);
-
 	font: var(--im-chat-header__font_input);
 	font-weight: var(--im-font-weight-medium);
 	color: var(--im-chat-header__font-color_input);
@@ -234,6 +250,7 @@
 	white-space: nowrap;
 	overflow: hidden;
 }
+
 .bx-im-chat-header__subtitle.--click {
 	cursor: pointer;
 }
@@ -266,12 +283,19 @@
 }
 
 .bx-im-chat-header__icon.--search {
-	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='14' height='14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M9.16 11.06a5.783 5.783 0 111.912-1.911l2.58 2.582a1 1 0 010 1.415l-.497.497a1 1 0 01-1.414 0L9.159 11.06zm.624-4.931a3.645 3.645 0 11-7.29 0 3.645 3.645 0 017.29 0z' fill='%23525C69'/%3E%3C/svg%3E");
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='22' height='22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M13.355 15.44a6.309 6.309 0 112.085-2.085l2.817 2.817a1.091 1.091 0 010 1.543l-.542.543a1.09 1.09 0 01-1.543 0l-2.817-2.817zm.98-5.38a4.275 4.275 0 11-8.55 0 4.275 4.275 0 018.55 0z' fill='%23BDC1C6'/%3E%3C/svg%3E");
+	opacity: 1;
+}
+
+.bx-im-chat-header__icon.--search.--active {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='22' height='22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M13.355 15.44a6.309 6.309 0 112.085-2.085l2.817 2.817a1.091 1.091 0 010 1.543l-.542.543a1.09 1.09 0 01-1.543 0l-2.817-2.817zm.98-5.38a4.275 4.275 0 11-8.55 0 4.275 4.275 0 018.55 0z' fill='%2311A9D9'/%3E%3C/svg%3E");
+	opacity: 1;
 }
 
 .bx-im-chat-header__icon.--panel {
 	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='15' height='14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M3.273 0A3.273 3.273 0 000 3.273v7.454A3.273 3.273 0 003.273 14h8.454A3.273 3.273 0 0015 10.727V3.273A3.273 3.273 0 0011.727 0H3.273zM1.696 3.432c0-.96.777-1.736 1.736-1.736h8.136c.959 0 1.736.777 1.736 1.736v7.136c0 .959-.777 1.736-1.736 1.736H3.432a1.736 1.736 0 01-1.736-1.736V3.432zM8 4.09c0-.602.488-1.09 1.09-1.09h1.819C11.511 3 12 3.488 12 4.09v5.818c0 .603-.489 1.091-1.091 1.091H9.091A1.09 1.09 0 018 9.91V4.09z' fill='%23525C69'/%3E%3C/svg%3E");
 }
+
 .bx-im-chat-header__icon.--panel.--active {
 	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='15' height='14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M3.273 0A3.273 3.273 0 000 3.273v7.454A3.273 3.273 0 003.273 14h8.454A3.273 3.273 0 0015 10.727V3.273A3.273 3.273 0 0011.727 0H3.273zM1.696 3.432c0-.96.777-1.736 1.736-1.736h8.136c.959 0 1.736.777 1.736 1.736v7.136c0 .959-.777 1.736-1.736 1.736H3.432a1.736 1.736 0 01-1.736-1.736V3.432zM8 4.09c0-.602.488-1.09 1.09-1.09h1.819C11.511 3 12 3.488 12 4.09v5.818c0 .603-.489 1.091-1.091 1.091H9.091A1.09 1.09 0 018 9.91V4.09z' fill='%2311A9D9'/%3E%3C/svg%3E");
 	opacity: 1;
@@ -351,6 +375,14 @@
 .bx-im-chat-header-call-button__container.--disabled {
 	opacity: 0.4;
 	cursor: default;
+}
+
+.bx-im-chat-header-call-button__container.--conference {
+	padding-right: 13px;
+}
+
+.bx-im-chat-header-call-button__container.--conference .bx-im-chat-header-call-button__text {
+	margin-right: 0;
 }
 
 .bx-im-chat-header-call-button__text {

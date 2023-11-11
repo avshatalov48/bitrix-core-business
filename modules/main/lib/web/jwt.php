@@ -251,13 +251,13 @@ class JWT
 				if (function_exists('hash_equals')) {
 					return hash_equals($signature, $hash);
 				}
-				$len = min(static::safeStrlen($signature), static::safeStrlen($hash));
+				$len = min(strlen($signature), strlen($hash));
 
 				$status = 0;
 				for ($i = 0; $i < $len; $i++) {
 					$status |= (ord($signature[$i]) ^ ord($hash[$i]));
 				}
-				$status |= (static::safeStrlen($signature) ^ static::safeStrlen($hash));
+				$status |= (strlen($signature) ^ strlen($hash));
 
 				return ($status === 0);
 		}
@@ -366,21 +366,6 @@ class JWT
 		throw new DomainException(
 			$messages[$errno] ?? 'Unknown JSON error: '.$errno
 		);
-	}
-
-	/**
-	 * Get the number of bytes in cryptographic strings.
-	 *
-	 * @param string $str
-	 *
-	 * @return int
-	 */
-	private static function safeStrlen($str)
-	{
-		if (function_exists('mb_strlen')) {
-			return mb_strlen($str, '8bit');
-		}
-		return strlen($str);
 	}
 
 	/**

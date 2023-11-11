@@ -144,10 +144,16 @@ class RestManager extends \IRestService
 			throw new RestException("Unknown {$method}. There is not controller in module {$router->getModule()}");
 		}
 
+		$this->calculateTotalCount = true;
+		if ((int)$start === self::DONT_CALCULATE_COUNT)
+		{
+			$this->calculateTotalCount = false;
+		}
+
 		$autoWirings = $this->getAutoWirings();
 
 		$this->registerAutoWirings($autoWirings);
-		$result = $controller->run($action, [$params, ['__restServer' => $restServer]]);
+		$result = $controller->run($action, [$params, ['__restServer' => $restServer, '__calculateTotalCount' => $this->calculateTotalCount]]);
 		$this->unRegisterAutoWirings($autoWirings);
 
 		if ($result instanceof Engine\Response\File)
@@ -177,12 +183,6 @@ class RestManager extends \IRestService
 			{
 				throw $this->createExceptionFromErrors($errorCollection->toArray());
 			}
-		}
-
-		$this->calculateTotalCount = true;
-		if ((int)$start === self::DONT_CALCULATE_COUNT)
-		{
-			$this->calculateTotalCount = false;
 		}
 
 		return $this->processData($result);
@@ -378,7 +378,7 @@ class RestManager extends \IRestService
 	{
 		$buildRules = [
 			'restServer' => [
-				'class' => get_class($this->restServer),
+				'class' => \CRestServer::class,
 				'constructor' => function() {
 					return $this->restServer;
 				},

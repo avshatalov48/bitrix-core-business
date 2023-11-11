@@ -57,6 +57,7 @@
 		this.BXIM = params.bxim || {};
 		this.context = params.context || "DESKTOP";
 		this.design = params.design || "DESKTOP";
+		this.showMenu = params.showMenu !== false;
 
 		if (this.context == 'SLIDER')
 		{
@@ -560,7 +561,7 @@
 
 		this.content.innerHTML = '';
 		this.content.appendChild(
-			this.contentBox = BX.create("div", { props : { className : 'bx-desktop-appearance '+(BX.MessengerTheme.isDark()? 'bx-messenger-dark': '')}, style: {minHeight: this.minHeight+'px'}, children: [
+			this.contentBox = BX.create("div", { props : { className : 'bx-desktop-appearance'+(BX.MessengerTheme.isDark()? ' bx-messenger-dark': '')+(this.showMenu? '': ' bx-desktop-appearance-hide-menu')}, style: {minHeight: this.minHeight+'px'}, children: [
 				this.contentMenu = BX.create("div", { props : { className : 'bx-desktop-appearance-menu'}, children: [
 					this.contentAvatar = BX.create("div", { props : { className : 'bx-desktop-appearance-avatar'}}),
 					this.contentTab = BX.create("div", { props : { className : 'bx-desktop-appearance-tab'}})

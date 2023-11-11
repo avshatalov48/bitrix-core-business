@@ -226,7 +226,7 @@ class Query
 	protected $replaced_aliases;
 
 	/** @var array Replaced table aliases */
-	protected $replaced_taliases;
+	protected $replaced_taliases = [];
 
 	/** @var int */
 	protected $uniqueAliasCounter = 0;

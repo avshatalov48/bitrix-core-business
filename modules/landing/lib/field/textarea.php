@@ -19,8 +19,8 @@ class Textarea extends \Bitrix\Landing\Field\Text
 		?><?= isset($params['id']) ? 'id="' . \htmlspecialcharsbx($params['id']) . '" ' : ''?><?
 		?><?= $this->maxlength > 0 ? 'maxlength="'. $this->maxlength . '" ' : ''?><?
 		?><?= $this->placeholder != '' ? 'placeholder="'. $this->placeholder . '" ' : ''?><?
-		?><?= $params['rows'] != '' ? 'rows="'. $params['rows'] . '" ' : ''?><?
-		?><?= $params['autocomplete'] != '' ? 'autocomplete="'. $params['autocomplete'] . '" ' : ''?><?
+		?><?= isset($params['rows']) ? 'rows="'. $params['rows'] . '" ' : ''?><?
+		?><?= isset($params['autocomplete']) ? 'autocomplete="'. $params['autocomplete'] . '" ' : ''?><?
 		?>class="<?= isset($params['class']) ? \htmlspecialcharsbx($params['class']) : ''?>" <?
 		?>data-code="<?= \htmlspecialcharsbx($this->code)?>" <?
 		?>name="<?= \htmlspecialcharsbx(isset($params['name_format'])

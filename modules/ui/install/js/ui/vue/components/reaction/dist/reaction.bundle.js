@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,ui_fonts_opensans,ui_vue,main_core_events) {
 	'use strict';
 
@@ -60,21 +61,17 @@
 	  methods: {
 	    list: function list() {
 	      if (this.openList) ;
-
 	      this.$emit('list', {
 	        values: this.localValues
 	      });
 	    },
 	    press: function press() {
 	      var _this = this;
-
 	      var emotion = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ReactionType.like;
-
 	      if (this.userReaction === ReactionType.none) {
 	        if (!this.localValues[emotion]) {
 	          this.localValues = Object.assign({}, this.localValues, babelHelpers.defineProperty({}, emotion, []));
 	        }
-
 	        this.localValues[emotion].push(this.userId);
 	        this.buttonAnimate = true;
 	        setTimeout(function () {
@@ -90,7 +87,6 @@
 	            return element !== _this.userId;
 	          });
 	        }
-
 	        this.$emit('set', {
 	          action: 'remove',
 	          type: this.userReaction
@@ -99,32 +95,26 @@
 	    },
 	    onPress: function onPress(event) {
 	      var data = event.getData();
-
 	      if (!this.id || data.id !== this.id) {
 	        return false;
 	      }
-
 	      if (!data.emotion) {
 	        data.emotion = ReactionType.like;
 	      }
-
 	      this.press(data.emotion);
 	    }
 	  },
 	  computed: {
 	    types: function types() {
 	      var _this2 = this;
-
 	      this.userReaction = ReactionType.none;
 	      return ReactionOrder.filter(function (type) {
 	        if (typeof _this2.localValues[type] === 'undefined' || !(_this2.localValues[type] instanceof Array) || _this2.localValues[type].length <= 0) {
 	          return false;
 	        }
-
 	        if (_this2.userId > 0 && _this2.userReaction === ReactionType.none && _this2.localValues[type].includes(_this2.userId)) {
 	          _this2.userReaction = type;
 	        }
-
 	        return true;
 	      }).map(function (type) {
 	        return {
@@ -144,11 +134,9 @@
 	      if (this.counter <= 0) {
 	        return false;
 	      }
-
 	      if (this.userReaction !== ReactionType.none && this.counter === 1) {
 	        return false;
 	      }
-
 	      return true;
 	    },
 	    isMobile: function isMobile() {

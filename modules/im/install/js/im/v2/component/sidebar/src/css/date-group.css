@@ -1,11 +1,15 @@
 .bx-im-sidebar-date-group__scope {
-	--im-sidebar-date-group__color: #828b95;
-	--im-sidebar-date-group__background-color: #f5f7f8;
+	--im-sidebar-date-group__color: var(--im-color-palette-white-base, #fff);
+	--im-sidebar-date-group__background-color: rgb(0 0 0 / 20%);
 }
 
 .bx-im-sidebar-date-group__container {
-	margin: 14px auto 21px auto;
+	position: sticky;
+	top: 0;
+	margin: 0 auto;
 	max-width: 100%;
+	padding: 12px 0 10px;
+	z-index: 1;
 }
 
 .bx-im-sidebar-date-group__text {
@@ -16,7 +20,6 @@
 	padding: 0 10px;
 	border-radius: 77px;
 	font: var(--im-font-size-xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
-	font-weight: var(--im-font-weight-medium);
 	color: var(--im-sidebar-date-group__color);
 	text-transform: capitalize;
 	background-color: var(--im-sidebar-date-group__background-color);

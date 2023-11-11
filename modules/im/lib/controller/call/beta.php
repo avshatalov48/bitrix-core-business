@@ -68,11 +68,11 @@ class Beta extends Controller
 		]);
 
 		$message = new Message();
-		$message->setMessage($text);
+		$message->setMessage($text)->markAsImportant(true);
 		$message->getParams()
 			->fill([
-				Params::EXTENSION_ID => 'CallInviteExtension',
-				Params::EXTENSION_PARAMS => [
+				Params::COMPONENT_ID => 'CallInviteMessage',
+				Params::COMPONENT_PARAMS => [
 					'LINK' => $link
 				]
 			])

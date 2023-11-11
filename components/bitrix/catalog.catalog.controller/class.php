@@ -10,6 +10,7 @@ use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Url\InventoryBuilder;
 use Bitrix\Crm;
 use Bitrix\Iblock;
 
@@ -177,7 +178,15 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 		}
 		$this->initUiScope();
 		$this->arResult['PAGE_DESCRIPTION'] = $this->getPageDescription();
+		$this->arResult['IBLOCK_ID'] = $this->iblockId;
+		$this->arResult['URL_BUILDER'] = $this->getUrlBuilder();
+
 		$this->includeComponentTemplate($this->pageId);
+	}
+
+	protected function getUrlBuilder(): InventoryBuilder
+	{
+		return new InventoryBuilder();
 	}
 
 	protected function checkModules(): void

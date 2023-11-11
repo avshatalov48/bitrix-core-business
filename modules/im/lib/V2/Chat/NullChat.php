@@ -120,4 +120,14 @@ class NullChat extends Chat
 	{
 		return (new Result)->addError(new ChatError(ChatError::CREATION_ERROR));
 	}
+
+	protected function addIndex(): Chat
+	{
+		return $this;
+	}
+
+	protected function updateIndex(): Chat
+	{
+		return $this;
+	}
 }

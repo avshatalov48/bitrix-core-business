@@ -19,6 +19,8 @@ class InitLocalDataToGoogle extends Stepper
 
 	public function execute(array &$result)
 	{
+		return self::FINISH_EXECUTION;
+		
 		if (!Loader::includeModule("calendar") && !Loader::includeModule("dav"))
 		{
 			return self::FINISH_EXECUTION;
@@ -41,7 +43,7 @@ class InitLocalDataToGoogle extends Stepper
 				$connection = $this->stopChannels($connection);
 
 				$lastId = $connection['ID'];
-				\CCalendarSync::dataSync($connection);
+//				\CCalendarSync::dataSync($connection);
 			}
 
 			Option::set('calendar', 'initLocalDataToGoogleLastId', (string)$lastId);

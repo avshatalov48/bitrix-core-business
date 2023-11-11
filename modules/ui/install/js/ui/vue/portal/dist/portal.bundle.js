@@ -1,3 +1,4 @@
+/* eslint-disable */
 ;(function() {
 
 	if (
@@ -29,6 +30,7 @@ this.BX = this.BX || {};
 	 * @source: https://unpkg.com/portal-vue@2.1.7/dist/portal-vue.esm.js
 	*/
 
+	// origin-start
 	function _typeof(obj) {
 	  if (typeof Symbol === "function" && babelHelpers["typeof"](Symbol.iterator) === "symbol") {
 	    _typeof = function _typeof(obj) {
@@ -39,42 +41,30 @@ this.BX = this.BX || {};
 	      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : babelHelpers["typeof"](obj);
 	    };
 	  }
-
 	  return _typeof(obj);
 	}
-
 	function _toConsumableArray(arr) {
 	  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
 	}
-
 	function _arrayWithoutHoles(arr) {
 	  if (Array.isArray(arr)) {
-	    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {
-	      arr2[i] = arr[i];
-	    }
-
+	    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
 	    return arr2;
 	  }
 	}
-
 	function _iterableToArray(iter) {
 	  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
 	}
-
 	function _nonIterableSpread() {
 	  throw new TypeError("Invalid attempt to spread non-iterable instance");
 	}
-
 	var inBrowser = typeof window !== 'undefined';
-
 	function freeze(item) {
 	  if (Array.isArray(item) || _typeof(item) === 'object') {
 	    return Object.freeze(item);
 	  }
-
 	  return item;
 	}
-
 	function combinePassengers(transports) {
 	  var slotProps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	  return transports.reduce(function (passengers, transport) {
@@ -83,7 +73,6 @@ this.BX = this.BX || {};
 	    return passengers.concat(newPassengers);
 	  }, []);
 	}
-
 	function stableSort(array, compareFn) {
 	  return array.map(function (v, idx) {
 	    return [idx, v];
@@ -93,17 +82,14 @@ this.BX = this.BX || {};
 	    return c[1];
 	  });
 	}
-
 	function pick(obj, keys) {
 	  return keys.reduce(function (acc, key) {
 	    if (obj.hasOwnProperty(key)) {
 	      acc[key] = obj[key];
 	    }
-
 	    return acc;
 	  }, {});
 	}
-
 	var transports = {};
 	var targets = {};
 	var sources = {};
@@ -120,10 +106,10 @@ this.BX = this.BX || {};
 	    open: function open(transport) {
 	      if (!inBrowser) return;
 	      var to = transport.to,
-	          from = transport.from,
-	          passengers = transport.passengers,
-	          _transport$order = transport.order,
-	          order = _transport$order === void 0 ? Infinity : _transport$order;
+	        from = transport.from,
+	        passengers = transport.passengers,
+	        _transport$order = transport.order,
+	        order = _transport$order === void 0 ? Infinity : _transport$order;
 	      if (!to || !from || !passengers) return;
 	      var newTransport = {
 	        to: to,
@@ -132,21 +118,17 @@ this.BX = this.BX || {};
 	        order: order
 	      };
 	      var keys = Object.keys(this.transports);
-
 	      if (keys.indexOf(to) === -1) {
 	        ui_vue.VueVendor.set(this.transports, to, []);
 	      }
-
 	      var currentIndex = this.$_getTransportIndex(newTransport); // Copying the array here so that the PortalTarget change event will actually contain two distinct arrays
 
 	      var newTransports = this.transports[to].slice(0);
-
 	      if (currentIndex === -1) {
 	        newTransports.push(newTransport);
 	      } else {
 	        newTransports[currentIndex] = newTransport;
 	      }
-
 	      this.transports[to] = stableSort(newTransports, function (a, b) {
 	        return a.order - b.order;
 	      });
@@ -154,18 +136,15 @@ this.BX = this.BX || {};
 	    close: function close(transport) {
 	      var force = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	      var to = transport.to,
-	          from = transport.from;
+	        from = transport.from;
 	      if (!to || !from && force === false) return;
-
 	      if (!this.transports[to]) {
 	        return;
 	      }
-
 	      if (force) {
 	        this.transports[to] = [];
 	      } else {
 	        var index = this.$_getTransportIndex(transport);
-
 	        if (index >= 0) {
 	          // Copying the array here so that the PortalTarget change event will actually contain two distinct arrays
 	          var newTransports = this.transports[to].slice(0);
@@ -176,11 +155,9 @@ this.BX = this.BX || {};
 	    },
 	    registerTarget: function registerTarget(target, vm, force) {
 	      if (!inBrowser) return;
-
 	      if (this.trackInstances && !force && this.targets[target]) {
 	        console.warn("[portal-vue]: Target ".concat(target, " already exists"));
 	      }
-
 	      this.$set(this.targets, target, Object.freeze([vm]));
 	    },
 	    unregisterTarget: function unregisterTarget(target) {
@@ -188,11 +165,9 @@ this.BX = this.BX || {};
 	    },
 	    registerSource: function registerSource(source, vm, force) {
 	      if (!inBrowser) return;
-
 	      if (this.trackInstances && !force && this.sources[source]) {
 	        console.warn("[portal-vue]: source ".concat(source, " already exists"));
 	      }
-
 	      this.$set(this.sources, source, Object.freeze([vm]));
 	    },
 	    unregisterSource: function unregisterSource(source) {
@@ -210,14 +185,12 @@ this.BX = this.BX || {};
 	    // Internal
 	    $_getTransportIndex: function $_getTransportIndex(_ref) {
 	      var to = _ref.to,
-	          from = _ref.from;
-
+	        from = _ref.from;
 	      for (var i in this.transports[to]) {
 	        if (this.transports[to][i].from === from) {
 	          return +i;
 	        }
 	      }
-
 	      return -1;
 	    }
 	  }
@@ -262,7 +235,6 @@ this.BX = this.BX || {};
 	  },
 	  created: function created() {
 	    var _this = this;
-
 	    this.$nextTick(function () {
 	      wormhole.registerSource(_this.name, _this);
 	    });
@@ -305,7 +277,6 @@ this.BX = this.BX || {};
 	    },
 	    sendUpdate: function sendUpdate() {
 	      var slotContent = this.normalizeSlots();
-
 	      if (slotContent) {
 	        var transport = {
 	          from: this.name,
@@ -322,7 +293,6 @@ this.BX = this.BX || {};
 	  render: function render(h) {
 	    var children = this.$slots["default"] || this.$scopedSlots["default"] || [];
 	    var Tag = this.tag;
-
 	    if (children && this.disabled) {
 	      return children.length <= 1 && this.slim ? this.normalizeOwnChildren(children)[0] : h(Tag, [this.normalizeOwnChildren(children)]);
 	    } else {
@@ -375,7 +345,6 @@ this.BX = this.BX || {};
 	  },
 	  created: function created() {
 	    var _this = this;
-
 	    this.$nextTick(function () {
 	      wormhole.registerTarget(_this.name, _this);
 	    });
@@ -395,7 +364,6 @@ this.BX = this.BX || {};
 	  },
 	  mounted: function mounted() {
 	    var _this2 = this;
-
 	    if (this.transition) {
 	      this.$nextTick(function () {
 	        // only when we have a transition, because it causes a re-render
@@ -409,11 +377,9 @@ this.BX = this.BX || {};
 	  computed: {
 	    ownTransports: function ownTransports() {
 	      var transports = this.transports[this.name] || [];
-
 	      if (this.multiple) {
 	        return transports;
 	      }
-
 	      return transports.length === 0 ? [] : [transports[transports.length - 1]];
 	    },
 	    passengers: function passengers() {
@@ -428,11 +394,9 @@ this.BX = this.BX || {};
 	    // can't be a computed prop because it has to "react" to this.children().
 	    noWrapper: function noWrapper() {
 	      var noWrapper = this.slim && !this.transition;
-
 	      if (noWrapper && this.children().length > 1) {
 	        console.warn('[portal-vue]: PortalTarget with `slim` option received more than one child element.');
 	      }
-
 	      return noWrapper;
 	    }
 	  },
@@ -528,12 +492,10 @@ this.BX = this.BX || {};
 	  created: function created() {
 	    if (typeof document === 'undefined') return;
 	    var el = document.querySelector(this.mountTo);
-
 	    if (!el) {
 	      console.error("[portal-vue]: Mount Point '".concat(this.mountTo, "' not found in document"));
 	      return;
 	    }
-
 	    var props = this.$props; // Target already exists
 
 	    if (wormhole.targets[props.name]) {
@@ -542,12 +504,9 @@ this.BX = this.BX || {};
 	      } else {
 	        this.portalTarget = wormhole.targets[props.name];
 	      }
-
 	      return;
 	    }
-
 	    var append = props.append;
-
 	    if (append) {
 	      var type = typeof append === 'string' ? append : 'DIV';
 	      var mountEl = document.createElement(type);
@@ -556,9 +515,7 @@ this.BX = this.BX || {};
 	    } // get props for target from $props
 	    // we have to rename a few of them
 
-
 	    var _props = pick(this.$props, targetProps);
-
 	    _props.slim = this.targetSlim;
 	    _props.tag = this.targetTag;
 	    _props.slotProps = this.targetSlotProps;
@@ -571,12 +528,10 @@ this.BX = this.BX || {};
 	  },
 	  beforeDestroy: function beforeDestroy() {
 	    var target = this.portalTarget;
-
 	    if (this.append) {
 	      var el = target.$el;
 	      el.parentNode.removeChild(el);
 	    }
-
 	    target.$destroy();
 	  },
 	  render: function render(h) {
@@ -584,7 +539,6 @@ this.BX = this.BX || {};
 	      console.warn("[portal-vue] Target wasn't mounted");
 	      return h();
 	    } // if there's no "manual" scoped slot, so we create a <Portal> ourselves
-
 
 	    if (!this.$scopedSlots.manual) {
 	      var props = pick(this.$props, portalProps);
@@ -596,7 +550,6 @@ this.BX = this.BX || {};
 	      }, this.$slots["default"]);
 	    } // else, we render the scoped slot
 
-
 	    var content = this.$scopedSlots.manual({
 	      to: this.to
 	    }); // if user used <template> for the scoped slot
@@ -605,22 +558,20 @@ this.BX = this.BX || {};
 	    if (Array.isArray(content)) {
 	      content = content[0];
 	    }
-
 	    if (!content) return h();
 	    return content;
 	  }
 	});
-
 	function install(Vue$$1) {
 	  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	  Vue$$1.component(options.portalName || 'Portal', Portal);
 	  Vue$$1.component(options.portalTargetName || 'PortalTarget', PortalTarget);
 	  Vue$$1.component(options.MountingPortalName || 'MountingPortal', MountingPortal);
 	}
-
 	var index = {
 	  install: install
-	}; // origin-end
+	};
+	// origin-end
 
 	index.version = '2.1.7';
 

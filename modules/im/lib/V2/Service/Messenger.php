@@ -88,7 +88,7 @@ class Messenger
 
 	public function getGeneralChat(): Chat
 	{
-		return ChatFactory::getInstance()->getGeneralChat();
+		return Chat\GeneralChat::get();
 	}
 
 	/**

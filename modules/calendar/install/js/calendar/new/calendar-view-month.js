@@ -9,6 +9,7 @@
 		this.contClassName = 'calendar-month-view';
 		this.dayCount = 7;
 		this.slotHeight = 21;
+		this.hiddenStorageHeight = 17;
 		this.eventHolderTopOffset = 25;
 		this.hotkey = 'M';
 
@@ -541,16 +542,6 @@
 					day.entries.started.sort(this.calendar.entryController.sort);
 				}
 
-				const date = new Date(day.date.getFullYear(), day.date.getMonth(), day.date.getDate());
-				let visibleEntries = day.entries.list.map(e => {
-					return {
-						entry: e.entry,
-						entryWrap: e.entry.getWrap(e.part.partIndex),
-					}
-				}).filter(e =>
-					e.entry.from.getTime() < date.getTime()
-					&& e.entryWrap.style.display !== 'none'
-				);
 				for(i = 0; i < day.entries.started.length; i++)
 				{
 					element = day.entries.started[i];
@@ -567,47 +558,57 @@
 								this.occupySlot({slotIndex: j, startIndex: dayPos, endIndex: dayPos + entryPart.daysCount});
 								entryWrap.style.display = '';
 								entryWrap.style.top = (j * this.slotHeight) + 'px';
-								visibleEntries.push({entry, entryWrap});
 								break;
 							}
 						}
 					}
 				}
 
-				if (day.hiddenStorage)
-				{
-					day.hiddenStorage.style.display = 'none';
-				}
+				const visibleEntries = day.entries.list.map(e => {
+					return {
+						entry: e.entry,
+						entryWrap: e.entry.getWrap(e.part.partIndex),
+					};
+				}).filter(e => e.entryWrap.style.display !== 'none');
 
-				visibleEntries.sort((a, b) => parseInt(a.entryWrap.style.top) - parseInt(b.entryWrap.style.top));
-
-				if (visibleEntries.length >= this.slotsCount && visibleEntries.length < day.entries.list.length)
+				const spaceForHiddenStorage = this.rowHeight - this.eventHolderTopOffset - this.slotHeight * this.slotsCount;
+				const hasSpaceForHiddenStorage = spaceForHiddenStorage >= this.hiddenStorageHeight;
+				const allSlotsAreFilled = visibleEntries.length === this.slotsCount;
+				const hasHiddenEntries = visibleEntries.length < day.entries.list.length;
+				const needToHideLastEntry = !hasSpaceForHiddenStorage && allSlotsAreFilled && hasHiddenEntries;
+				if (needToHideLastEntry)
 				{
+					visibleEntries.sort((a, b) => parseInt(a.entryWrap.style.top) - parseInt(b.entryWrap.style.top));
 					const lastVisibleEntry = visibleEntries[visibleEntries.length - 1];
 					if (day.entries.started.find(e => e.entry.uid === lastVisibleEntry.entry.uid))
 					{
 						lastVisibleEntry.entryWrap.style.display = 'none';
 					}
-					visibleEntries = visibleEntries.slice(0, visibleEntries.length - 1);
 				}
+			}
 
-				if (visibleEntries.length < day.entries.list.length)
-				{
-					day.hiddenStorage = this.entryHolders[day.holderIndex].appendChild(BX.create('DIV', {
-						props: {
-							className: 'calendar-event-line-wrap calendar-event-more-btn-container'
-						},
-						attrs: {'data-bx-calendar-show-all-events': day.dayCode},
-						style: {
-							top: (this.rowHeight - 47) + 'px',
-							left: 'calc((100% / ' + this.dayCount + ') * (' + (day.dayOffset + 1) + ' - 1) + 2px)',
-							width: 'calc(100% / ' + this.dayCount + ' - 3px)'
-						}
-					}));
-					day.hiddenStorageText = day.hiddenStorage.appendChild(BX.create('span', {props: {className: 'calendar-event-more-btn'}}));
-					day.hiddenStorage.style.display = 'block';
-					day.hiddenStorageText.innerHTML = BX.message('EC_SHOW_ALL') + ' ' + day.entries.list.length;
-				}
+			if (day.hiddenStorage)
+			{
+				day.hiddenStorage.style.display = 'none';
+			}
+
+			const hiddenEntries = day.entries.list.filter(e => e.part.params.wrapNode.style.display === 'none');
+			if (hiddenEntries.length > 0)
+			{
+				day.hiddenStorage = this.entryHolders[day.holderIndex].appendChild(BX.create('DIV', {
+					props: {
+						className: 'calendar-event-line-wrap calendar-event-more-btn-container'
+					},
+					attrs: {'data-bx-calendar-show-all-events': day.dayCode},
+					style: {
+						top: (this.rowHeight - 47) + 'px',
+						left: 'calc((100% / ' + this.dayCount + ') * (' + (day.dayOffset + 1) + ' - 1) + 2px)',
+						width: 'calc(100% / ' + this.dayCount + ' - 3px)'
+					}
+				}));
+				day.hiddenStorageText = day.hiddenStorage.appendChild(BX.create('span', {props: {className: 'calendar-event-more-btn'}}));
+				day.hiddenStorage.style.display = 'block';
+				day.hiddenStorageText.innerHTML = BX.message('EC_SHOW_ALL') + ' ' + day.entries.list.length;
 			}
 		}
 

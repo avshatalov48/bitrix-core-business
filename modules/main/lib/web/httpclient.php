@@ -378,15 +378,17 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 	}
 
 	/**
-	 * Sets an array of headers for HTTP request. Clears all previously set headers.
+	 * Sets an array of headers for HTTP request.
 	 *
 	 * @param array $headers Array of header_name => value pairs.
 	 * @return $this
 	 */
 	public function setHeaders(array $headers)
 	{
-		$this->headers = new HttpHeaders($headers);
-
+		foreach ($headers as $name => $value)
+		{
+			$this->setHeader($name, $value);
+		}
 		return $this;
 	}
 

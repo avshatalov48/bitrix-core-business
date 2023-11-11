@@ -1,0 +1,66 @@
+.bx-im-search-input__scope {
+	--im-search-input__font_primary: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-font-family-system);
+	--im-search-input__font-color_primary: var(--im-color-palette-gray-90);
+	--im-search-input__font_placeholder: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-messenger__font_helvetica);
+	--im-search-input__font-color_placeholder: var(--im-color-palette-gray-40);
+	--im-search-input__border-color_active-input: #00ace3;
+	--im-search-input__background-color_input: rgb(82 92 105 / 5%);
+	--im-search-input__background-color_input-active: #fff;
+}
+
+.bx-im-search-input__container {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: var(--im-messenger__search-input_height);
+	background-color: var(--im-search-input__background-color_input);
+	border-radius: 80px;
+	border: 1px solid transparent;
+	padding: 5px 8px 5px 10px;
+}
+
+.bx-im-search-input__container.--has-focus {
+	border-color: var(--im-search-input__border-color_active-input);
+	background-color: var(--im-search-input__background-color_input-active);
+}
+
+.bx-im-search-input__search-icon {
+	flex-shrink: 0;
+	width: 24px;
+	height: 24px;
+	margin-right: 4px;
+	background-image: url('./images/search.svg');
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.bx-im-search-input__element {
+	width: 100%;
+	height: 100%;
+	border: none;
+	outline-color: transparent;
+	background-color: transparent;
+}
+
+.bx-im-search-input__element::placeholder {
+	opacity: 1;
+	font: var(--im-search-input__font_placeholder);
+	font-weight: var(--im-font-weight-normal);
+	color: var(--im-search-input__font-color_placeholder);
+}
+
+.bx-im-search-input__element:focus::placeholder {
+	color: transparent;
+}
+
+.bx-im-search-input__close-icon {
+	width: 20px;
+	height: 20px;
+	background-image: url('./images/close.svg');
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	cursor: pointer;
+	flex-shrink: 0;
+}

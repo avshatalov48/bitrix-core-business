@@ -4,8 +4,7 @@ namespace Bitrix\Translate\IO;
 use Bitrix\Main;
 use Bitrix\Translate;
 
-class Path
-	extends Main\IO\Path
+class Path extends Main\IO\Path
 {
 	/**
 	 * Normalizes path splitter symbols.
@@ -14,7 +13,7 @@ class Path
 	 *
 	 * @return string
 	 */
-	public static function tidy($path)
+	public static function tidy(string $path): string
 	{
 		$modifier = Translate\Config::isUtfMode() ? 'u' : '';
 
@@ -28,13 +27,12 @@ class Path
 	 *
 	 * @return string
 	 */
-	public static function secure($path)
+	public static function secure(string $path): string
 	{
 		$modifier = Translate\Config::isUtfMode() ? 'u' : '';
 
 		return \preg_replace("#\.\.+[\/\\\]+#i".$modifier, '', $path);
 	}
-
 
 	/**
 	 * Checks if it is translation folder.
@@ -44,7 +42,7 @@ class Path
 	 *
 	 * @return bool
 	 */
-	public static function isLangDir($path, $additionalCheck = false)
+	public static function isLangDir(string $path, bool $additionalCheck = false): bool
 	{
 		$modifier = Translate\Config::isUtfMode() ? 'u' : '';
 		if (\preg_match("#/lang/([^/]*?)(/|\$)#".$modifier, $path, $match))
@@ -77,7 +75,7 @@ class Path
 	 *
 	 * @return string|null
 	 */
-	public static function extractLangId($path)
+	public static function extractLangId(string $path): ?string
 	{
 		$arr = \explode(self::DIRECTORY_SEPARATOR, $path);
 		$pos = \array_search('lang', $arr);
@@ -97,7 +95,7 @@ class Path
 	 *
 	 * @return string
 	 */
-	public static function replaceLangId($path, $langId)
+	public static function replaceLangId(string $path, string $langId): string
 	{
 		$modifier = Translate\Config::isUtfMode() ? 'u' : '';
 
@@ -113,9 +111,9 @@ class Path
 	 *
 	 * @return string
 	 */
-	public static function removeLangId($path, $langs = null)
+	public static function removeLangId(string $path, ?array $langs = null): string
 	{
-		static $defLangs = array();
+		static $defLangs = [];
 		if (empty($langs))
 		{
 			if (empty($defLangs))
@@ -150,7 +148,7 @@ class Path
 	 *
 	 * @return string
 	 */
-	public static function addLangId($path, $langId, $langs = null)
+	public static function addLangId(string $path, string $langId, ?array $langs = null): string
 	{
 		$pathTemp = self::removeLangId($path, $langs);
 
@@ -177,9 +175,9 @@ class Path
 	 *
 	 * @param string $path Path to check.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public static function checkCreatePath($path)
+	public static function checkCreatePath(string $path): bool
 	{
 		$path = self::normalize($path);
 		$path = \rtrim($path, self::DIRECTORY_SEPARATOR);
@@ -196,5 +194,19 @@ class Path
 		}
 
 		return \is_dir($path);
+	}
+
+	/**
+	 * Checks if it is php file.
+	 *
+	 * @param string $path Path to check.
+	 * @param bool $cechExistence
+	 * @return bool
+	 */
+	public static function isPhpFile(string $path, bool $checkExistence = false): bool
+	{
+		return $checkExistence
+			? (\mb_substr($path, -4) === '.php') && \is_file($path)
+			: (\mb_substr($path, -4) === '.php');
 	}
 }

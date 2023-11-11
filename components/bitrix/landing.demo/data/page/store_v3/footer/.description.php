@@ -103,10 +103,10 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text landing-semantic-text-medium g-color-white-opacity-0_6 g-mb-10',
+					0 => 'landing-block-node-text g-color-white-opacity-0_6 g-mb-10',
 				],
 				'.landing-block-node-button' => [
-					0 => 'landing-block-node-button landing-semantic-link-image-medium btn text-uppercase g-btn-size-md g-btn-px-m g-rounded-50 g-btn-type-outline g-btn-gray g-color-white',
+					0 => 'landing-block-node-button btn text-uppercase g-btn-size-md g-btn-px-m g-rounded-50 g-btn-type-outline g-btn-gray g-color-white',
 				],
 				'#wrapper' => [
 					0 => 'landing-block text-center g-pt-20 g-pb-40 g-bg-black l-d-lg-none l-d-md-none',

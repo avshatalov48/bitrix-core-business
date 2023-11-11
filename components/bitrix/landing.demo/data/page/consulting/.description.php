@@ -1000,16 +1000,16 @@ return [
 			[
 				'CODE' => '33.1.form_1_transparent_black_left_text',
 				'SORT' => '11000',
-				'CONTENT' => '<section class="landing-block landing-block-node-bgimg landing-semantic-color-overlay g-pos-rel g-pt-120 g-pb-120 g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after"
+				'CONTENT' => '<section class="landing-block landing-block-node-bgimg g-pos-rel g-pt-120 g-pb-120 g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after"
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img4.jpg);">
 
 	<div class="container g-z-index-1 g-pos-rel">
 		<div class="row align-items-center">
 
 			<div class="col-md-4 g-mb-60">
-				<h2 class="landing-block-node-main-title landing-semantic-title-medium js-animation fadeInUp h1 g-color-white mb-4">Contact Us</h2>
+				<h2 class="landing-block-node-main-title js-animation fadeInUp h1 g-color-white mb-4">Contact Us</h2>
 
-				<div class="landing-block-node-text landing-semantic-text-medium js-animation fadeInUp g-line-height-1_5 text-left g-mb-40 g-color-white-opacity-0_6">
+				<div class="landing-block-node-text js-animation fadeInUp g-line-height-1_5 text-left g-mb-40 g-color-white-opacity-0_6">
 					<p>
 						Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor.
 						Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum,
@@ -1017,7 +1017,7 @@ return [
 					</p>
 				</div>
 
-				<h4 class="landing-block-node-title landing-semantic-subtitle-medium g-color-white mb-4">Contact Info</h4>
+				<h4 class="landing-block-node-title g-color-white mb-4">Contact Info</h4>
 
 				<div class="landing-block-node-card-contact-container">
 					<!-- Icon Block -->
@@ -1029,7 +1029,7 @@ return [
 								</span>
 							</div>
 							<div class="media-body">
-								<div class="landing-block-node-contact-text landing-semantic-text-medium g-color-white-opacity-0_6 mb-0">5B Streat, City
+								<div class="landing-block-node-contact-text g-color-white-opacity-0_6 mb-0">5B Streat, City
 									50987 New Town US
 								</div>
 							</div>
@@ -1046,7 +1046,7 @@ return [
 								</span>
 							</div>
 							<div class="media-body">
-								<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
+								<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 							</div>
 						</div>
 					</div>
@@ -1060,7 +1060,7 @@ return [
 								  <i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
+							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->
@@ -1073,7 +1073,7 @@ return [
 								  <i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
+							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->
@@ -1086,7 +1086,7 @@ return [
 									<i class="landing-block-card-contact-icon icon-communication-062 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="mailto:#crmEmail1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmEmailTitle1</a>
+							<a href="mailto:#crmEmail1" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">#crmEmailTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->

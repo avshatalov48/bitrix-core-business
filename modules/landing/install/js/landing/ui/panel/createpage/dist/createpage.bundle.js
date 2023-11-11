@@ -82,8 +82,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.style(this.footer, 'display', null);
 	      this.range = this.contextDocument.getSelection().getRangeAt(0);
 	      this.node = function () {
-	        if (BX.Landing.Block.Node.Text.currentNode && BX.Landing.Block.Node.Text.currentNode.isEditable()) {
-	          return BX.Landing.Block.Node.Text.currentNode;
+	        if (BX.Landing.Node.Text.currentNode && BX.Landing.Node.Text.currentNode.isEditable()) {
+	          return BX.Landing.Node.Text.currentNode;
 	        }
 	        return landing_ui_field_textfield.TextField.currentField;
 	      }();

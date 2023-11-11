@@ -208,6 +208,10 @@ class CAllCatalogStore
 		if ($store['IMAGE_ID'] !== null)
 		{
 			$store['IMAGE_ID'] = (int)$store['IMAGE_ID'];
+			if ($store['IMAGE_ID'] <= 0)
+			{
+				$store['IMAGE_ID'] = null;
+			}
 		}
 
 		foreach (GetModuleEvents("catalog", "OnBeforeCatalogStoreUpdate", true) as $arEvent)
@@ -283,6 +287,10 @@ class CAllCatalogStore
 			if ($store['IMAGE_ID'] !== null)
 			{
 				$store['IMAGE_ID'] = (int)$store['IMAGE_ID'];
+				if ($store['IMAGE_ID'] <= 0)
+				{
+					$store['IMAGE_ID'] = null;
+				}
 			}
 
 			foreach (GetModuleEvents("catalog", "OnBeforeCatalogStoreDelete", true) as $arEvent)

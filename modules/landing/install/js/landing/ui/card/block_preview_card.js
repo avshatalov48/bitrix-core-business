@@ -102,6 +102,9 @@
 						BX.UI.Dialogs.MessageBox.show({
 							message: BX.Landing.Loc.getMessage("LANDING_BLOCKS_LIST_PREVIEW_DELETE_MSG"),
 							buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL,
+							popupOptions: {
+								targetContainer: parent.document.body
+							},
 							onYes: () => {
 								return BX.Landing.Backend.getInstance()
 									.action(

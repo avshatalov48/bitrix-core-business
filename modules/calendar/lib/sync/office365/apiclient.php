@@ -2,8 +2,7 @@
 
 namespace Bitrix\Calendar\Sync\Office365;
 
-use Bitrix\Calendar\Internals\HasStatusInterface;
-use Bitrix\Calendar\Internals\ObjectStatusTrait;
+use Bitrix\Calendar\Sync\Office365\Util\ObjectStatusTrait;
 use Bitrix\Calendar\Sync\Exceptions\ApiException;
 use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Exceptions\GoneException;
@@ -20,7 +19,7 @@ use Exception;
 /**
  * Low level controller for working with rest-api.
  */
-class ApiClient implements HasStatusInterface
+class ApiClient
 {
 	use ObjectStatusTrait, HasContextTrait;
 

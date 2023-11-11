@@ -16,7 +16,8 @@
 	background-color: rgba(0, 0, 0, .07);
 }
 
-.bitrix24-default-theme .calendar-sharing__switcher-wrap {
+.bitrix24-default-theme .calendar-sharing__switcher-wrap,
+.ui-page-slider-wrapper-default-theme .calendar-sharing__switcher-wrap {
 	border-color: #c6cdd3;
 	background-color: transparent;
 }
@@ -83,7 +84,8 @@
 }
 
 .bitrix24-dark-theme .calendar-sharing__switcher_divider,
-.bitrix24-default-theme .calendar-sharing__switcher_divider {
+.bitrix24-default-theme .calendar-sharing__switcher_divider,
+.ui-page-slider-wrapper-default-theme .calendar-sharing__switcher_divider {
 	background-color: rgba(0, 0, 0, .14);
 }
 

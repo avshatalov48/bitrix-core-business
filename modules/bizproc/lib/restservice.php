@@ -506,15 +506,23 @@ class RestService extends \IRestService
 		$params = array_change_key_case($params, CASE_UPPER);
 		[$workflowId, $activityName, $eventId] = self::extractEventToken($params['EVENT_TOKEN']);
 
-		\CBPRuntime::sendExternalEvent(
+		$errors = [];
+		\CBPDocument::sendExternalEvent(
 			$workflowId,
 			$activityName,
-			array(
+			[
 				'EVENT_ID' => $eventId,
-				'RETURN_VALUES' => isset($params['RETURN_VALUES']) ? $params['RETURN_VALUES'] : array(),
-				'LOG_MESSAGE' => isset($params['LOG_MESSAGE']) ? $params['LOG_MESSAGE'] : '',
-			)
+				'RETURN_VALUES' => $params['RETURN_VALUES'] ?? [],
+				'LOG_MESSAGE' => $params['LOG_MESSAGE'] ?? '',
+			],
+			$errors,
 		);
+
+		if ($errors)
+		{
+			$error = current($errors);
+			throw new RestException($error['message'], $error['code']);
+		}
 
 		return true;
 	}
@@ -1666,16 +1674,18 @@ class RestService extends \IRestService
 
 	private static function getDocumentId($documentId): ?array
 	{
-		$documentId = \CBPHelper::parseDocumentId($documentId);
-		$documentService = \CBPRuntime::getRuntime(true)->getDocumentService();
-		$documentId = $documentService->normalizeDocumentId($documentId);
-
-		if (!$documentService->getDocument($documentId))
+		try
 		{
-			return null;
+			$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+			$documentId = $documentService->normalizeDocumentId($documentId);
+			if ($documentService->getDocument($documentId))
+			{
+				return $documentId;
+			}
 		}
+		catch (\CBPArgumentException $exception) {}
 
-		return $documentId;
+		return null;
 	}
 
 	private static function getDocumentType(array $documentId): ?array

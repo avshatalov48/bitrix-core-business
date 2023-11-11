@@ -1,9 +1,8 @@
-import {EventEmitter} from 'main.core.events';
 import {RestClient} from 'rest.client';
 
 import {Messenger} from 'im.public';
 import {Core} from 'im.v2.application.core';
-import {DialogType, EventType, Layout, RestMethod} from 'im.v2.const';
+import {DialogType, RestMethod, UserRole} from 'im.v2.const';
 import {Logger} from 'im.v2.lib.logger';
 
 import type {ImModelRecentItem} from 'im.v2.model';
@@ -36,9 +35,6 @@ export class RecentService
 	{
 		this.store = Core.getStore();
 		this.restClient = Core.getRestClient();
-
-		this.onUpdateStateHandler = this.onUpdateState.bind(this);
-		EventEmitter.subscribe(EventType.recent.updateState, this.onUpdateStateHandler);
 	}
 
 	// region public
@@ -168,12 +164,6 @@ export class RecentService
 		return Promise.all([usersPromise, dialoguesPromise, recentPromise]);
 	}
 
-	onUpdateState({data})
-	{
-		Logger.warn(`Im.RecentList: setting UpdateState data`, data);
-		this.updateModels(data);
-	}
-
 	prepareDataForModels({items, birthdayList = []}): {users: Array, dialogues: Array, recent: Array}
 	{
 		const result = {
@@ -267,7 +257,8 @@ export class RecentService
 			dialogId: item.id,
 			name: item.user.name,
 			type: DialogType.user,
-			counter: item.counter
+			counter: item.counter,
+			role: UserRole.member,
 		};
 	}
 
@@ -278,7 +269,8 @@ export class RecentService
 			avatar: user.avatar,
 			color: user.color,
 			name: user.name,
-			type: DialogType.user
+			type: DialogType.user,
+			role: UserRole.member,
 		};
 	}
 

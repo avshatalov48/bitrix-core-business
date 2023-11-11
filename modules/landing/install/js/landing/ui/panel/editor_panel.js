@@ -239,10 +239,10 @@
 					{
 						editor.currentElement.querySelector('.landing-ui-field-input').innerHTML = item.data.replace(/(\r\n|\r|\n)/g, "<br>");
 					}
-					else if (BX.Landing.Block.Node.Text.currentNode)
+					else if (BX.Landing.Node.Text.currentNode)
 					{
-						BX.Landing.Block.Node.Text.currentNode.node.innerHTML = item.data.replace(/(\r\n|\r|\n)/g, "<br>");
-						BX.Landing.Block.Node.Text.currentNode.onChange();
+						BX.Landing.Node.Text.currentNode.node.innerHTML = item.data.replace(/(\r\n|\r|\n)/g, "<br>");
+						BX.Landing.Node.Text.currentNode.onChange();
 					}
 				},
 			}));

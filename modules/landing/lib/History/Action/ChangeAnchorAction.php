@@ -15,8 +15,13 @@ class ChangeAnchorAction extends BaseAction
 	{
 		$value = $undo ? $this->params['valueBefore'] : $this->params['valueAfter'];
 
-		if ($this->params['block'] && $value)
+		if ($this->params['block'])
 		{
+			if ($value === '')
+			{
+				return true;
+			}
+
 			$block = new Block((int)$this->params['block']);
 			$block->setAnchor($value);
 

@@ -158,47 +158,51 @@
 }
 
 .bx-im-user-settings-popup__list-item_icon.--chevron {
-	background-image: url(./images/chevron.svg);
+	background-image: url('./images/chevron.svg');
 }
 
 .bx-im-user-settings-popup__list-item_icon.--drive {
-	background-image: url(./images/drive.svg);
+	background-image: url('./images/drive.svg');
 }
 
 .bx-im-user-settings-popup__list-item_icon.--more {
-	background-image: url(./images/more.svg);
+	background-image: url('./images/more.svg');
 }
 
 .bx-im-user-settings-popup__list-item_icon.--assistant {
-	background-image: url(./images/clock.svg);
+	background-image: url('./images/clock.svg');
 }
 
 .bx-im-user-settings-popup__list-item_icon.--settings {
-	background-image: url(./images/settings.svg);
+	background-image: url('./images/settings.svg');
 }
 
 .bx-im-user-settings-popup__list-item_icon.--customize {
-	background-image: url(./images/customize.svg);
+	background-image: url('./images/customize.svg');
 }
 
 .bx-im-user-settings-popup__list-item_icon.--add-account {
-	background-image: url(./images/add.svg);
+	background-image: url('./images/add.svg');
 }
 
 .bx-im-user-settings-popup__list-item_icon.--arrow-left {
-	background-image: url(./images/arrow-left.svg);
+	background-image: url('./images/arrow-left.svg');
 }
 
 .bx-im-user-settings-popup__list-item_icon.--help {
-	background-image: url(./images/help.svg);
+	background-image: url('./images/help.svg');
 }
 
 .bx-im-user-settings-popup__list-item_icon.--feedback {
-	background-image: url(./images/feedback.svg);
+	background-image: url('./images/feedback.svg');
 }
 
 .bx-im-user-settings-popup__list-item_icon.--background {
-	background-image: url(./images/background.svg);
+	background-image: url('./images/background.svg');
+}
+
+.bx-im-user-settings-popup__list-item_icon.--alignment {
+	background-image: url('./images/alignment.svg');
 }
 
 .bx-im-user-settings-popup__list-item_text {

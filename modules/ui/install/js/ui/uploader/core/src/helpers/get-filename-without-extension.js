@@ -1,5 +1,5 @@
 const getFilenameWithoutExtension = (name) => {
-	return name.substr(0, name.lastIndexOf('.')) || name;
+	return name.slice(0, Math.max(0, name.lastIndexOf('.'))) || name;
 };
 
 export default getFilenameWithoutExtension;

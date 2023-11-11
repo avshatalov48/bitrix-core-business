@@ -1,16 +1,16 @@
 const Marker = {
-	JPEG: 0xffd8,
-	APP1: 0xffe1,
+	JPEG: 0xFFD8,
+	APP1: 0xFFE1,
 	EXIF: 0x45786966,
 	TIFF: 0x4949,
 	Orientation: 0x0112,
-	Unknown: 0xff00
+	Unknown: 0xFF00,
 };
 
 const getUint16 = (view, offset, little = false) => view.getUint16(offset, little);
 const getUint32 = (view, offset, little = false) => view.getUint32(offset, little);
 
-const getJpegOrientation = file => {
+const getJpegOrientation = (file) => {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
 		reader.onload = function(e) {
@@ -18,6 +18,7 @@ const getJpegOrientation = file => {
 			if (getUint16(view, 0) !== Marker.JPEG)
 			{
 				resolve(-1);
+
 				return;
 			}
 
@@ -32,7 +33,8 @@ const getJpegOrientation = file => {
 				// APP1 Marker
 				if (marker === Marker.APP1)
 				{
-					if (getUint32(view, (offset += 2)) !== Marker.EXIF)
+					offset += 2;
+					if (getUint32(view, offset) !== Marker.EXIF)
 					{
 						// no EXIF
 						break;
@@ -54,15 +56,14 @@ const getJpegOrientation = file => {
 							return;
 						}
 					}
-
 				}
-				else if ((marker & Marker.Unknown) !== Marker.Unknown)
+				else if ((marker & Marker.Unknown) === Marker.Unknown)
 				{
-					break; // Invalid
+					offset += getUint16(view, offset);
 				}
 				else
 				{
-					offset += getUint16(view, offset);
+					break; // Invalid
 				}
 			}
 

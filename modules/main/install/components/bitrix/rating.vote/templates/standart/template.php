@@ -20,7 +20,12 @@ if ($arResult['VOTE_AVAILABLE'] === 'N')
 	$classList[] = 'rating-vote-disabled';
 }
 ?>
-<span id="rating-vote-<?= htmlspecialcharsbx($arResult['VOTE_ID']) ?>" class="<?= implode(' ', $classList) ?>" title="<?= ($arResult['VOTE_AVAILABLE'] === 'N' ? htmlspecialcharsbx($arResult['ALLOW_VOTE']['ERROR_MSG']) : '') ?>">
+<span
+	id="rating-vote-<?= htmlspecialcharsbx($arResult['VOTE_ID']) ?>"
+	data-vote-key-signed="<?= htmlspecialcharsbx($arResult['VOTE_KEY_SIGNED']) ?>"
+	class="<?= implode(' ', $classList) ?>"
+	title="<?= ($arResult['VOTE_AVAILABLE'] === 'N' ? htmlspecialcharsbx($arResult['ALLOW_VOTE']['ERROR_MSG']) : '') ?>"
+>
 	<span id="rating-vote-<?= htmlspecialcharsbx($arResult['VOTE_ID']) ?>-result" class="rating-vote-result rating-vote-result-<?= ($arResult['TOTAL_VALUE'] < 0 ? 'minus' : 'plus') ?>" title="<?= htmlspecialcharsbx($arResult['VOTE_TITLE']) ?>"> <?= htmlspecialcharsbx($arResult['TOTAL_VALUE']) ?></span>
 	<?php
 	$classList = [ 'rating-vote-plus' ];

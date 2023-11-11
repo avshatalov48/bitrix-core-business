@@ -1,5 +1,5 @@
 <header class="landing-block u-header u-header--sticky u-header--relative">
-	<div class="landing-block-node-top-block landing-semantic-background-color u-header__section u-header__section--hidden u-header__section--light g-bg-white g-brd-bottom g-brd-gray-light-v4 g-py-10 g-py-20--sm">
+	<div class="landing-block-node-top-block u-header__section u-header__section--hidden u-header__section--light g-bg-white g-brd-bottom g-brd-gray-light-v4 g-py-10 g-py-20--sm">
 		<div class="container">
 			<div class="row no-gutters flex-lg-row align-items-center justify-content-lg-start">
 				<div class="col-12 col-sm-3 col-lg-2 text-center text-md-left">
@@ -22,10 +22,10 @@
 											<i class="landing-block-node-menu-contact-img icon icon-screen-smartphone"></i>
 										</span>
 										<span class="landing-block-node-menu-contactlink-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
-											<span class="landing-block-node-menu-contactlink-title landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
+											<span class="landing-block-node-menu-contactlink-title landing-block-node-menu-contact-title-style g-color-main d-block text-uppercase g-font-size-13">
 												Call Us
 											</span>
-											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style landing-semantic-link-small d-block g-color-main g-font-weight-700 g-text-decoration-none g-text-underline--hover">
+											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style d-block g-color-main g-font-weight-700 g-text-decoration-none g-text-underline--hover">
 												#crmPhoneTitle1
 											</span>
 										</span>
@@ -38,10 +38,10 @@
 											<i class="landing-block-node-menu-contact-img icon icon-clock"></i>
 										</div>
 										<div class="landing-block-node-menu-contact-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
-											<div class="landing-block-node-menu-contact-title landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main text-uppercase g-font-size-13">
+											<div class="landing-block-node-menu-contact-title landing-block-node-menu-contact-title-style g-color-main text-uppercase g-font-size-13">
 												Opening time
 											</div>
-											<div class="landing-block-node-menu-contact-value landing-block-node-menu-contact-text-style landing-semantic-link-small g-color-main g-font-weight-700">
+											<div class="landing-block-node-menu-contact-value landing-block-node-menu-contact-text-style g-color-main g-font-weight-700">
 												Mon-Sat: 08.00 -18.00
 											</div>
 										</div>
@@ -54,10 +54,10 @@
 											<i class="landing-block-node-menu-contactlink-img icon icon-envelope"></i>
 										</span>
 										<span class="landing-block-node-menu-contactlink-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
-											<span class="landing-block-node-menu-contactlink-title  landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
+											<span class="landing-block-node-menu-contactlink-title  landing-block-node-menu-contact-title-style g-color-main d-block text-uppercase g-font-size-13">
 												Email us
 											</span>
-											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style landing-semantic-link-small d-block g-color-main g-font-weight-700 g-text-decoration-none g-text-underline--hover">
+											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style d-block g-color-main g-font-weight-700 g-text-decoration-none g-text-underline--hover">
 												#crmEmailTitle1
 											</span>
 										</span>
@@ -96,7 +96,7 @@
 		</div>
 	</div>
 
-	<div class="landing-block-node-bottom-block landing-semantic-background-color u-header__section g-bg-black g-py-15--lg g-py-10"
+	<div class="landing-block-node-bottom-block u-header__section g-bg-black g-py-15--lg g-py-10"
 		 data-header-fix-moment-classes="u-shadow-v18">
 		<nav class="navbar navbar-expand-lg py-0 g-px-10">
 			<div class="container">
@@ -105,41 +105,41 @@
 					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav w-100 g-ml-minus-15--lg text-uppercase g-font-weight-700 g-font-size-13 g-py-10--md">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#home"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Home
 							</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#flatsForRent"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Flats
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Flats
 								for rent</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#specialOffers"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Special offers</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Special offers</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#ourHouses"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Our houses</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Our houses</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#gallery"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Gallery</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Gallery</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#agents"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Agents</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Agents</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#discount"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Discount</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Discount</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#testimonials"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Testimonials</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Testimonials</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#contact"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Contact</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
 						</li>
 					</ul>
 				</div>

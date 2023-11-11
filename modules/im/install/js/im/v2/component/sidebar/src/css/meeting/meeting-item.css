@@ -18,6 +18,10 @@
 	margin: 0 10px 0 18px;
 }
 
+.bx-im-sidebar-meeting-item__container + .bx-im-sidebar-meeting-item__container {
+	margin-top: 10px;
+}
+
 .bx-im-sidebar-meeting-preview__container .bx-im-sidebar-meeting-item__container {
 	margin: 0;
 }

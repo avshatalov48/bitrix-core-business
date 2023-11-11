@@ -3,6 +3,7 @@ import { RoomsManager, RoomsSection } from 'calendar.roomsmanager';
 import { CategoryManager } from 'calendar.categorymanager';
 import {EventEmitter} from 'main.core.events';
 import { Util } from 'calendar.util';
+import { SelectInput } from 'calendar.controls';
 
 export class Location
 {
@@ -39,7 +40,7 @@ export class Location
 		this.setViewMode(params.viewMode === true);
 		this.processValue();
 		this.setCategoryManager();
-		this.setValuesDebounced = BX.debounce(this.setValues.bind(this), 70);
+		this.setValuesDebounced = BX.debounce(this.setValues.bind(this), 100);
 	}
 
 	create()
@@ -117,9 +118,10 @@ export class Location
 
 		if (!this.categoryManagerFromDB)
 		{
-			this.setValuesDebounced?.();
+			this.setValuesDebounced();
 			return;
 		}
+
 		this.prohibitClick();
 
 		let
@@ -146,8 +148,10 @@ export class Location
 					type: 'mr'
 				});
 
-				if (this.value.type === 'mr'
-					&& parseInt(this.value.value) === room.ID)
+				if (
+					this.value.type === 'mr'
+					&& parseInt(this.value.value) === room.ID
+				)
 				{
 					selectedIndex = menuItemList.length - 1;
 				}
@@ -175,19 +179,21 @@ export class Location
 				type: 'calendar'
 			});
 
-			if (this.value.type === 'calendar'
-				&& parseInt(this.value.value) === parseInt(room.id))
+			if (
+				this.value.type === 'calendar'
+				&& parseInt(this.value.value) === parseInt(room.id)
+			)
 			{
 				selectedIndex = menuItemList.length - 1;
 			}
 		};
-//TODO think about delimiter draw
+
 		if (Type.isObject(this.categoriesWithRooms))
 		{
 			if (this.categoriesWithRooms.categories.length || this.categoriesWithRooms.default.length)
 			{
 				this.categoriesWithRooms.categories.forEach((category) => {
-					if(category.rooms.length)
+					if (category.rooms.length)
 					{
 						menuItemList.push({text: category.name, delimiter: true});
 						category.rooms.forEach((room) => pushRoomToItemList(room), this);
@@ -197,7 +203,7 @@ export class Location
 				if (this.categoriesWithRooms.default.length)
 				{
 					menuItemList.push({
-						text:"\0",
+						text: "\0",
 						className: 'calendar-popup-window-delimiter-default-category',
 						delimiter: true,
 					});
@@ -240,7 +246,7 @@ export class Location
 
 		this.processValue();
 
-		this.selectContol = new BX.Calendar.Controls.SelectInput({
+		this.selectContol = new SelectInput({
 			input: this.DOM.input,
 			values: menuItemList,
 			valueIndex: selectedIndex,
@@ -305,8 +311,6 @@ export class Location
 
 	setValuesDebounce()
 	{
-		this.setCategoryManager();
-
 		this.setValuesDebounced();
 	}
 
@@ -329,7 +333,7 @@ export class Location
 		}
 
 		this.DOM.removeLocationButton = null;
-		if(Type.isDomNode(this.DOM.inlineEditLink))
+		if (Type.isDomNode(this.DOM.inlineEditLink))
 		{
 			this.displayInlineEditControls();
 		}
@@ -540,7 +544,6 @@ export class Location
 	loadRoomSlider()
 	{
 		this.setRoomsManager();
-		this.setCategoryManager();
 	}
 
 	openRoomsSlider()
@@ -952,7 +955,7 @@ export class Location
 
 	setCategoryManager()
 	{
-		if(!this.categoryManagerFromDB)
+		if (!this.categoryManagerFromDB)
 		{
 			this.getCategoryManager()
 				.then(

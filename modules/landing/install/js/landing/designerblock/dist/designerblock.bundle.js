@@ -111,21 +111,23 @@ this.BX = this.BX || {};
 	        var className = selector.substring(1);
 	        element.html = element.html.replaceAll(new RegExp(className + '([\\s"]{1})', 'g'), className + randPostfix + '$1');
 	        newManifest[selector + randPostfix] = element.manifest.nodes[selector];
-	        if (selector in element.manifest.style) {
+	        if (element.manifest.style && selector in element.manifest.style) {
 	          newStyleManifest[selector + randPostfix] = element.manifest.style[selector];
 	        }
 	      });
 	      element.manifest.nodes = newManifest;
-	      Object.keys(element.manifest.style).map(function (selector) {
-	        if (selector in origNodes) {
-	          return;
-	        }
-	        var randPostfix = '-' + _this3.randomNum(1000, 9999);
-	        var className = selector.substring(1);
-	        element.html = element.html.replaceAll(new RegExp(className + '([\\s"]{1})', 'g'), className + randPostfix + '$1');
-	        newStyleManifest[selector + randPostfix] = element.manifest.style[selector];
-	      });
-	      element.manifest.style = newStyleManifest;
+	      if (element.manifest.style) {
+	        Object.keys(element.manifest.style).map(function (selector) {
+	          if (selector in origNodes) {
+	            return;
+	          }
+	          var randPostfix = '-' + _this3.randomNum(1000, 9999);
+	          var className = selector.substring(1);
+	          element.html = element.html.replaceAll(new RegExp(className + '([\\s"]{1})', 'g'), className + randPostfix + '$1');
+	          newStyleManifest[selector + randPostfix] = element.manifest.style[selector];
+	        });
+	        element.manifest.style = newStyleManifest;
+	      }
 	      return element;
 	    }
 	  }, {
@@ -208,7 +210,6 @@ this.BX = this.BX || {};
 	    this.saveButton = parent.document.getElementById('landing-design-block-save') || top.document.getElementById('landing-design-block-save') || document.getElementById('landing-design-block-save');
 	    BX.addCustomEvent('Landing.Editor:load', function () {
 	      _this.preventEvents();
-	      // todo: force reinit history instance with D type
 	      _this.initHistoryEvents();
 	      _this.initTopPanel();
 	      _this.initNodes();
@@ -296,7 +297,7 @@ this.BX = this.BX || {};
 	          return;
 	        }
 	        if (!_this4.designAllowed) {
-	          top.BX.UI.InfoHelper.show('limit_crm_free_superblock1');
+	          top.BX.UI.InfoHelper.show('limit_crm_superblock');
 	          return;
 	        }
 	        _this4.saving = true;

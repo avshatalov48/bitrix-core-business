@@ -128,6 +128,8 @@ $MESS["SC_BX_UTF"] = "Необходимо установить в <i>/bitrix/ph
 $MESS["SC_BX_UTF_DISABLE"] = "Константа BX_UTF не должна быть установлена";
 $MESS["SC_T_PHP"] = "Обязательные параметры PHP";
 $MESS["SC_ERR_PHP_PARAM"] = "Параметр #PARAM# = #CUR#, требуется #REQ#";
+$MESS["SC_T_PGSQL_VER"] = "Версия PostgreSQL сервера";
+$MESS["SC_PGSQL_ERR_VER"] = "Установлена PostgreSQL версии #CUR#, требуется #REQ#";
 $MESS["SC_MYSQL_ERR_VER"] = "Установлена MySQL версии #CUR#, требуется #REQ#";
 $MESS["SC_T_SERVER"] = "Значения переменных сервера";
 $MESS["SC_CONNECTION_CHARSET_WRONG"] = "Кодировка соединения с базой данных должна быть #VAL#, текущее значение: #VAL1#";

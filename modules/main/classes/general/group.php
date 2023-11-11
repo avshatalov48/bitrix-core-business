@@ -7,6 +7,7 @@
  */
 
 use Bitrix\Main\Authentication\Internal\ModuleGroupTable;
+use Bitrix\Main\Type\Collection;
 
 /**
  * @deprecated Use CGroup
@@ -43,18 +44,7 @@ class CAllGroup
 		if(is_set($arFields, "ACTIVE") && $arFields["ACTIVE"]!="Y")
 			$arFields["ACTIVE"]="N";
 
-		$arInsert = $DB->PrepareInsert("b_group", $arFields);
-
-		$strSql = "
-			INSERT INTO b_group (
-				".$arInsert[0]."
-			) VALUES(
-				".$arInsert[1]."
-			)
-		";
-
-		$DB->Query($strSql);
-		$ID = $DB->LastID();
+		$ID = $DB->Add("b_group", $arFields);
 
 		if (is_array($arFields["USER_ID"]) && !empty($arFields["USER_ID"]))
 		{
@@ -108,11 +98,13 @@ class CAllGroup
 	public static function GetDropDownList($strSqlSearch="and ACTIVE='Y'", $strSqlOrder="ORDER BY C_SORT, NAME, ID")
 	{
 		global $DB;
-		$err_mess = (static::err_mess())."<br>Function: GetDropDownList<br>Line: ";
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$strSql = "
 			SELECT
 				ID as REFERENCE_ID,
-				concat(NAME, ' [', ID, ']') as REFERENCE
+				" . $helper->getConcatFunction("NAME", "' ['", "ID", "']'") . " as REFERENCE
 			FROM
 				b_group
 			WHERE
@@ -120,13 +112,16 @@ class CAllGroup
 			$strSqlSearch
 			$strSqlOrder
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
+
 		return $res;
 	}
 
 	public static function GetList($by = 'c_sort', $order = 'asc', $arFilter = [], $SHOW_USERS_AMOUNT = "N")
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$err_mess = (static::err_mess())."<br>Function: GetList<br>Line: ";
 		$arSqlSearch = $arSqlSearch_h = array();
@@ -244,9 +239,9 @@ class CAllGroup
 			SELECT
 				G.ID, G.ACTIVE, G.C_SORT, G.ANONYMOUS, G.NAME, G.DESCRIPTION, G.STRING_ID,
 				".$str_USERS."
-				G.ID										REFERENCE_ID,
-				concat(G.NAME, ' [', G.ID, ']')					REFERENCE,
-				".$DB->DateToCharFunction("G.TIMESTAMP_X")."	TIMESTAMP_X
+				G.ID REFERENCE_ID,
+				" . $helper->getConcatFunction("G.NAME", "' ['", "G.ID", "']'") . " REFERENCE,
+				" . $DB->DateToCharFunction("G.TIMESTAMP_X") . " TIMESTAMP_X
 			FROM
 				b_group G
 			".$str_TABLE."
@@ -690,7 +685,7 @@ class CAllGroup
 			}
 			else
 			{
-				// ÒÎËÜÊÎ ÄËß MYSQL!!! ÄËß ORACLE ÄÐÓÃÎÉ ÊÎÄ
+				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ MYSQL!!! ï¿½ï¿½ï¿½ ORACLE ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 				$cnt = $dbRes->SelectedRowsCount();
 			}
 
@@ -1026,47 +1021,26 @@ class CAllGroup
 		return $res;
 	}
 
-	public static function GetMaxSort()
-	{
-		global $DB;
-		$err_mess = (static::err_mess())."<br>Function: GetMaxSort<br>Line: ";
-		$z = $DB->Query("SELECT max(C_SORT) M FROM b_group", false, $err_mess.__LINE__);
-		$zr = $z->Fetch();
-		return intval($zr["M"])+100;
-	}
-
 	public static function GetSubordinateGroups($grId)
 	{
 		global $DB, $CACHE_MANAGER;
 
-		$groupFilter = array();
-		if (is_array($grId))
+		if (!is_array($grId))
 		{
-			foreach ($grId as $id)
-			{
-				$id = intval($id);
-				if ($id > 0)
-					$groupFilter[$id] = $id;
-			}
-		}
-		else
-		{
-			$id = intval($grId);
-			if ($id > 0)
-				$groupFilter[$id] = $id;
+			$grId = [$grId];
 		}
 
-		$result = array(2);
-		if (!empty($groupFilter))
+		Collection::normalizeArrayValuesByInt($grId, false);
+
+		$result = array("2");
+		if (!empty($grId))
 		{
 			if (CACHED_b_group_subordinate === false)
 			{
-				$z = $DB->Query("SELECT AR_SUBGROUP_ID FROM b_group_subordinate WHERE ID in (".implode(", ", $groupFilter).")");
+				$z = $DB->Query("SELECT AR_SUBGROUP_ID FROM b_group_subordinate WHERE ID in (".implode(", ", $grId).")");
 				while ($zr = $z->Fetch())
 				{
 					$subordinateGroups = explode(",", $zr['AR_SUBGROUP_ID']);
-					if (count($subordinateGroups) == 1 && !$subordinateGroups[0])
-						continue;
 					$result = array_merge($result, $subordinateGroups);
 				}
 			}
@@ -1083,8 +1057,6 @@ class CAllGroup
 					while ($zr = $z->Fetch())
 					{
 						$subordinateGroups = explode(",", $zr['AR_SUBGROUP_ID']);
-						if (count($subordinateGroups) == 1 && !$subordinateGroups[0])
-							continue;
 						$cache[$zr["ID"]] = $subordinateGroups;
 					}
 					$CACHE_MANAGER->Set("b_group_subordinate", $cache);
@@ -1092,7 +1064,7 @@ class CAllGroup
 
 				foreach ($cache as $groupId => $subordinateGroups)
 				{
-					if (isset($groupFilter[$groupId]))
+					if (in_array($groupId, $grId))
 					{
 						$result = array_merge($result, $subordinateGroups);
 					}
@@ -1100,7 +1072,9 @@ class CAllGroup
 			}
 		}
 
-		return array_unique($result);
+		Collection::normalizeArrayValuesByInt($result, false);
+
+		return $result;
 	}
 
 	public static function SetSubordinateGroups($grId, $arSubGroups=false)

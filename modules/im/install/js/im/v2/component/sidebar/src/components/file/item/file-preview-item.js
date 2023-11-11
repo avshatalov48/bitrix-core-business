@@ -1,17 +1,21 @@
-import {ImModelFile, ImModelSidebarFileItem} from 'im.v2.model';
-import {Utils} from 'im.v2.lib.utils';
 import 'ui.icons';
 import 'ui.viewer';
+
+import { ImModelFile, ImModelSidebarFileItem } from 'im.v2.model';
+import { Utils } from 'im.v2.lib.utils';
+import { lazyload } from 'ui.vue3.directives.lazyload';
+
 import '../../../css/file/file-preview-item.css';
 
 // @vue/component
 export const FilePreviewItem = {
 	name: 'FilePreviewItem',
+	directives: { lazyload },
 	props: {
 		fileItem: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	computed:
 	{
@@ -40,7 +44,7 @@ export const FilePreviewItem = {
 		},
 		fileShortName(): string
 		{
-			const NAME_MAX_LENGTH = 25;
+			const NAME_MAX_LENGTH = 22;
 
 			return Utils.file.getShortFileName(this.file.name, NAME_MAX_LENGTH);
 		},
@@ -67,7 +71,7 @@ export const FilePreviewItem = {
 		isViewerAvailable(): boolean
 		{
 			return Object.keys(this.viewerAttributes).length > 0;
-		}
+		},
 	},
 	methods:
 	{
@@ -80,7 +84,7 @@ export const FilePreviewItem = {
 
 			const urlToOpen = this.file.urlShow ? this.file.urlShow : this.file.urlDownload;
 			window.open(urlToOpen, '_blank');
-		}
+		},
 	},
 	template: `
 		<div 
@@ -89,7 +93,15 @@ export const FilePreviewItem = {
 			@click="download" 
 			:title="file.name"
 		>
-			<div v-if="isImage" class="bx-im-sidebar-file-preview-item__preview-box" :style="previewImageStyles"></div>
+			<img
+				v-if="isImage"
+				v-lazyload
+				data-lazyload-dont-hide
+				:data-lazyload-src="file.urlShow"
+				:title="file.name"
+				:alt="file.name"
+				class="bx-im-sidebar-file-preview-item__preview-box"
+			/>
 			<div 
 				v-else-if="isVideo" 
 				class="bx-im-sidebar-file-preview-item__preview-box bx-im-sidebar-file-preview-item__preview-video-box"
@@ -107,5 +119,5 @@ export const FilePreviewItem = {
 			</div>
 			<div class="bx-im-sidebar-file-preview-item__text">{{ fileShortName }}</div>
 		</div>
-	`
+	`,
 };

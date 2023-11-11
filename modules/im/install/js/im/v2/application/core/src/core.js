@@ -22,7 +22,8 @@ import {
 	BasePullHandler,
 	RecentPullHandler,
 	NotificationPullHandler,
-	NotifierPullHandler
+	NotifierPullHandler,
+	LinesPullHandler,
 } from 'im.v2.provider.pull';
 import {Logger} from 'im.v2.lib.logger';
 
@@ -108,6 +109,7 @@ class CoreApplication
 		this.pullClient.subscribe(new RecentPullHandler());
 		this.pullClient.subscribe(new NotificationPullHandler());
 		this.pullClient.subscribe(new NotifierPullHandler());
+		this.pullClient.subscribe(new LinesPullHandler());
 
 		this.pullClient.subscribe({
 			type: this.pullInstance.SubscriptionType.Status,

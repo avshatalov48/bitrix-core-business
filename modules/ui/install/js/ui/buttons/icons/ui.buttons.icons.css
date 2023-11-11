@@ -595,6 +595,26 @@
 
 /*endregion*/
 
+/*region ui-btn-icon-help*/
+.ui-btn-icon-help.ui-btn,
+.ui-btn-icon-help.ui-btn-split,
+.ui-btn-icon-help.ui-btn-danger,
+.ui-btn-icon-help.ui-btn-primary,
+.ui-btn-icon-help.ui-btn-default,
+.ui-btn-icon-help.ui-btn-danger-dark,
+.ui-btn-icon-help.ui-btn-success-dark,
+.ui-btn-icon-help.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-help.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-help-white.svg?v=1.1); }
+
+.ui-btn-icon-help.ui-btn-link,
+.ui-btn-icon-help.ui-btn-light,
+.ui-btn-icon-help.ui-btn-success,
+.ui-btn-icon-help.ui-btn-secondary,
+.ui-btn-icon-help.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-help.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-help-black.svg?v=1.1); }
+
+/*endregion*/
+
 /*region ui-btn-icon-copy*/
 .ui-btn-icon-copy.ui-btn-split,
 .ui-btn-icon-copy.ui-btn-danger,

@@ -1,10 +1,9 @@
 const loadImage = (file: File | Blob) => new Promise((resolve, reject) => {
-
 	const image: HTMLImageElement = document.createElement('img');
 	const url = URL.createObjectURL(file);
 	image.src = url;
 
-	image.onerror = error => {
+	image.onerror = (error) => {
 		URL.revokeObjectURL(image.src);
 		reject(error);
 	};
@@ -14,7 +13,7 @@ const loadImage = (file: File | Blob) => new Promise((resolve, reject) => {
 		resolve({
 			width: image.naturalWidth,
 			height: image.naturalHeight,
-			image
+			image,
 		});
 	};
 });

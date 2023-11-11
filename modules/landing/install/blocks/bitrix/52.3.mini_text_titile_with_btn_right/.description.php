@@ -52,7 +52,7 @@ return array(
 				'type' => array('button'),
 			),
 			'.landing-block-node-button-container' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_52_3-BTN'),
+				'name' => Loc::getMessage('LANDING_BLOCK_52_3_BTN_AREA'),
 				'type' => array('text-align', 'animation'),
 			),
 		],

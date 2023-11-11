@@ -16,7 +16,7 @@ import './css/search.css';
 import {Runtime, Extension} from 'main.core';
 import {SearchContextMenu} from './search-context-menu';
 import {EventEmitter} from 'main.core.events';
-import {EventType} from 'im.old-chat-embedding.const';
+import {ApplicationLayout, EventType} from 'im.old-chat-embedding.const';
 import {SearchUtils} from './search-utils';
 import {SearchItem} from './search-item';
 
@@ -76,7 +76,8 @@ export const Search = {
 				return false;
 			}
 
-			if (this.isNetworkAvailable && !this.isNetworkButtonClicked && this.isServerSearch)
+			const openLinesLayout = this.applicationLayout === ApplicationLayout.lines;
+			if (!openLinesLayout && this.isNetworkSearchEnabled && !this.isNetworkButtonClicked && this.isServerSearch)
 			{
 				return false;
 			}
@@ -109,6 +110,11 @@ export const Search = {
 		},
 		isNetworkAvailableForSearch(): boolean
 		{
+			if (this.applicationLayout !== ApplicationLayout.full)
+			{
+				return false;
+			}
+
 			if (!this.isNetworkAvailable)
 			{
 				return false;
@@ -165,6 +171,7 @@ export const Search = {
 		const recentList = new SearchRecentList(this.$Bitrix);
 		this.searchService = SearchService.getInstance(this.$Bitrix, cache, recentList);
 		this.searchOnServerDelayed = Runtime.debounce(this.searchOnServer, 1500, this);
+		this.applicationLayout = this.$Bitrix.Application.get().params.layout;
 
 		EventEmitter.subscribe(EventType.search.openContextMenu, this.onOpenContextMenu);
 		EventEmitter.subscribe(EventType.dialog.errors.accessDenied, this.onDelete);
@@ -246,9 +253,15 @@ export const Search = {
 			this.isNetworkLoading = this.isNetworkButtonClicked;
 
 			const config = {
-				network: this.isNetworkAvailableForSearch && this.isNetworkButtonClicked,
-				departments: !BX.MessengerProxy.isCurrentUserExtranet() && this.isDepartmentsAvailable,
+				lines: true,
 			};
+
+			if (this.applicationLayout === ApplicationLayout.full)
+			{
+				config.network = this.isNetworkAvailableForSearch && this.isNetworkButtonClicked;
+				config.departments = !BX.MessengerProxy.isCurrentUserExtranet() && this.isDepartmentsAvailable;
+				config.chats = true;
+			}
 
 			const queryBeforeRequest = query;
 			this.searchService.searchOnServer(query, config).then((searchResultFromServer: Object) => {
@@ -279,6 +292,7 @@ export const Search = {
 
 			this.isNetworkLoading = false;
 			this.isServerLoading = false;
+			this.isLocalLoading = false;
 		},
 		searchOnNetwork(query: string)
 		{

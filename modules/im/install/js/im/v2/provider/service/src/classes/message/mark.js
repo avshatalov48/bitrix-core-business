@@ -24,7 +24,8 @@ export class MarkService
 		const {dialogId} = this.#store.getters['dialogues/getByChatId'](this.#chatId);
 		this.#store.dispatch('recent/unread', {
 			id: dialogId,
-			action: true
+			action: true,
+			dateUpdate: new Date(),
 		});
 		this.#store.dispatch('dialogues/update', {
 			dialogId,

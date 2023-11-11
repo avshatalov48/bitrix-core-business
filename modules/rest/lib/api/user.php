@@ -1061,7 +1061,7 @@ class User extends \IRestService
 	{
 		switch ($code):
 			case 'ID':
-				if (is_array($value))
+				if (is_array($value) && !empty($value))
 				{
 					$value = array_map('intval', $value);
 				}
@@ -1134,6 +1134,10 @@ class User extends \IRestService
 				if ($filterType !== '' && in_array($code, $clearFilterType, true))
 				{
 					$filterType = '';
+				}
+				elseif ($filterType === '' && in_array($code, ['USER_TYPE', 'ACTIVE'], true))
+				{
+					$filterType = '=';
 				}
 
 				$filter[$filterType . $code] = static::prepareUserValue($code, $value);

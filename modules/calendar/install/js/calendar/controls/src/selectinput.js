@@ -1,4 +1,6 @@
-import { Loc } from 'main.core';
+import { Dom, Loc, Event, Type } from 'main.core';
+import { MenuManager } from 'main.popup';
+
 export class SelectInput
 {
 	constructor(params)
@@ -11,7 +13,10 @@ export class SelectInput
 		this.openTitle = params.openTitle || '';
 		this.className = params.className || '';
 
-		this.onChangeCallback = params.onChangeCallback || null;
+
+		this.onChangeCallback = Type.isFunction(params.onChangeCallback) ? params.onChangeCallback : () => {};
+		this.onPopupShowCallback = Type.isFunction(params.onPopupShowCallback) ? params.onPopupShowCallback : () => {};
+		this.onPopupCloseCallback = Type.isFunction(params.onPopupCloseCallback) ? params.onPopupCloseCallback : () => {};
 		this.zIndex = params.zIndex || 1200;
 		this.disabled = params.disabled;
 
@@ -22,23 +27,29 @@ export class SelectInput
 
 		this.curInd = false;
 
-		this.bindEventHandlers();
+		this.eventHandlers = {
+			click: this.onClick.bind(this),
+			focus: this.onFocus.bind(this),
+			blur: this.onBlur.bind(this),
+			keydown: this.onKeydown.bind(this),
+			change: this.onChangeCallback,
+		};
+		this.bindEventHandlers(this.eventHandlers);
 	}
 
-	bindEventHandlers()
+	bindEventHandlers(eventHandlers)
 	{
-		if (this.onChangeCallback)
+		for (const [eventName, handler] of Object.entries(eventHandlers))
 		{
-			BX.bind(this.input, 'change', this.onChangeCallback);
-			// BX.bind(this.input, 'keyup', this.onChangeCallback);
+			Event.bind(this.input, eventName, handler);
 		}
+	}
 
-		if (this.values)
+	unbindEventHandlers(eventHandlers)
+	{
+		for (const [eventName, handler] of Object.entries(eventHandlers))
 		{
-			BX.bind(this.input, 'click', BX.proxy(this.onClick, this));
-			BX.bind(this.input, 'focus', BX.proxy(this.onFocus, this));
-			BX.bind(this.input, 'blur', BX.proxy(this.onBlur, this));
-			BX.bind(this.input, 'keyup', BX.proxy(this.onKeyup, this));
+			Event.unbind(this.input, eventName, handler);
 		}
 	}
 
@@ -65,13 +76,15 @@ export class SelectInput
 	showPopup()
 	{
 		if (this.shown || this.disabled)
+		{
 			return;
+		}
 
 		let
 			ind = 0,
 			j = 0,
 			menuItems = [],
-			i, _this = this;
+			i;
 
 		for (i = 0; i < this.values.length; i++)
 		{
@@ -118,7 +131,7 @@ export class SelectInput
 						</span>`
 				}
 
-				if(this.values[i].color)
+				if (this.values[i].color)
 				{
 					menuItems.push({
 						id: this.values[i].value,
@@ -126,13 +139,12 @@ export class SelectInput
 						className: "menu-popup-display-flex calendar-location-popup-menu-item",
 						html: htmlTemp,
 						color: this.values[i].color,
-						onclick: this.values[i].callback || (function (value, label)
-						{
-							return function () {
-								_this.input.value = label;
-								_this.popupMenu.close();
-								_this.onChange();
-							}
+						onclick: this.values[i].callback || ((value, label) => {
+							return () => {
+								this.input.value = label;
+								this.popupMenu.close();
+								this.onChange();
+							};
 						})(this.values[i].value, this.values[i].labelRaw || this.values[i].label)
 					});
 				}
@@ -144,14 +156,12 @@ export class SelectInput
 						html: this.values[i].label + hint,
 						title: this.values[i].label,
 						className: "menu-popup-no-icon" + (this.values[i].selected ? ' calendar-menu-popup-time-selected' : ''),
-						onclick: this.values[i].callback || (function (value, label)
-						{
-							return function ()
-							{
-								_this.input.value = label;
-								_this.popupMenu.close();
-								_this.onChange(value);
-							}
+						onclick: this.values[i].callback || ((value, label) => {
+							return () => {
+								this.input.value = label;
+								this.popupMenu.close();
+								this.onChange(value);
+							};
 						})(this.values[i].value, this.values[i].labelRaw || this.values[i].label)
 					});
 				}
@@ -159,7 +169,7 @@ export class SelectInput
 			}
 		}
 
-		this.popupMenu = BX.PopupMenu.create(
+		this.popupMenu = MenuManager.create(
 			this.id,
 			this.input,
 			menuItems,
@@ -179,8 +189,8 @@ export class SelectInput
 
 		this.popupMenu.popupWindow.setMaxWidth(300);
 
-		let menuContainer = this.popupMenu.layout.menuContainer;
-		BX.addClass(this.popupMenu.layout.menuContainer, 'calendar-select-popup');
+		let menuContainer = this.popupMenu.getPopupWindow().getContentContainer();
+		Dom.addClass(this.popupMenu.layout.menuContainer, 'calendar-select-popup');
 		this.popupMenu.show();
 
 		let menuItem = this.popupMenu.menuItems[ind];
@@ -204,23 +214,24 @@ export class SelectInput
 			}
 		}
 
-		BX.addCustomEvent(this.popupMenu.popupWindow, 'onPopupClose', function()
-		{
-			BX.PopupMenu.destroy(this.id);
+		BX.addCustomEvent(this.popupMenu.popupWindow, 'onPopupClose', () => {
+			MenuManager.destroy(this.id);
 			this.shown = false;
 			this.popupMenu = null;
-		}.bind(this));
+		});
 
 		this.input.select();
 
 		this.shown = true;
+		this.onPopupShowCallback();
 	}
 
 	closePopup()
 	{
-		BX.PopupMenu.destroy(this.id);
+		MenuManager.destroy(this.id);
 		this.popupMenu = null;
 		this.shown = false;
+		this.onPopupCloseCallback();
 	}
 
 	onFocus()
@@ -247,42 +258,32 @@ export class SelectInput
 
 	onBlur()
 	{
+		this.onPopupCloseCallback();
 		setTimeout(BX.delegate(this.closePopup, this), 200);
 	}
 
-	onKeyup()
+	onKeydown()
 	{
+		this.onPopupCloseCallback();
 		setTimeout(BX.delegate(this.closePopup, this), 50);
 	}
 
 	onChange(value)
 	{
-		var inputValue = this.input.value;
+		const inputValue = this.input.value;
 		BX.onCustomEvent(this, 'onSelectInputChanged', [this, inputValue]);
-		if (BX.type.isFunction(this.onChangeCallback))
-		{
-			this.onChangeCallback({value: inputValue, dataValue: value});
-		}
+		this.onChangeCallback({value: inputValue, dataValue: value});
 	}
 
 	destroy()
 	{
-		if (this.onChangeCallback)
-		{
-			BX.unbind(this.input, 'change', this.onChangeCallback);
-			BX.unbind(this.input, 'keyup', this.onChangeCallback);
-		}
-
-		BX.unbind(this.input, 'click', BX.proxy(this.onClick, this));
-		BX.unbind(this.input, 'focus', BX.proxy(this.onFocus, this));
-		BX.unbind(this.input, 'blur', BX.proxy(this.onBlur, this));
-		BX.unbind(this.input, 'keyup', BX.proxy(this.onKeyup, this));
+		this.unbindEventHandlers(this.eventHandlers);
 
 		if (this.popupMenu)
 		{
 			this.popupMenu.close();
 		}
-		BX.PopupMenu.destroy(this.id);
+		MenuManager.destroy(this.id);
 		this.popupMenu = null;
 		this.shown = false;
 	}

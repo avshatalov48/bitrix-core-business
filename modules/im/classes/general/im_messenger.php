@@ -180,6 +180,8 @@ class CIMMessenger
 			$arFields['SYSTEM'] = 'N';
 		}
 
+		$isImportant = isset($arFields['IS_IMPORTANT']) && $arFields['IS_IMPORTANT'] === 'Y' ? 'Y' : 'N';
+
 		$arFields['MESSAGE_OUT'] = isset($arFields['MESSAGE_OUT'])? trim($arFields['MESSAGE_OUT']): "";
 
 		$arFields['URL_PREVIEW'] = isset($arFields['URL_PREVIEW']) && $arFields['URL_PREVIEW'] == 'N'? 'N': 'Y';
@@ -641,6 +643,8 @@ class CIMMessenger
 						->getResult()['COUNTERS']
 					;
 
+					$importantFor = self::getMentionUsers($arParams['MESSAGE'] ?? '');
+
 					if (CModule::IncludeModule("pull"))
 					{
 						$arParams['FROM_USER_ID'] = $arFields['FROM_USER_ID'];
@@ -662,7 +666,9 @@ class CIMMessenger
 								'DATE_CREATE' => time(),
 								'PARAMS' => self::PrepareParamsForPull($arFields['PARAMS']),
 								'FILES' => $arFields['FILES'],
-								'NOTIFY' => $incrementCounter
+								'NOTIFY' => $incrementCounter,
+								'IMPORTANT_FOR' => $importantFor,
+								'IS_IMPORTANT' => $isImportant,
 							)),
 							'extra' => \Bitrix\Im\Common::getPullExtra()
 						);
@@ -765,6 +771,7 @@ class CIMMessenger
 						C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3,
 						C.EXTRANET CHAT_EXTRANET,
 						C.PREV_MESSAGE_ID CHAT_PREV_MESSAGE_ID,
+						C.CAN_POST CHAT_CAN_POST,
 						'1' RID,
 						'Y' IS_MANAGER
 					FROM b_im_chat C
@@ -791,6 +798,7 @@ class CIMMessenger
 						C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3,
 						C.EXTRANET CHAT_EXTRANET,
 						C.PREV_MESSAGE_ID CHAT_PREV_MESSAGE_ID,
+						C.CAN_POST CHAT_CAN_POST,
 						R.USER_ID RID,
 						R.MANAGER IS_MANAGER
 					FROM b_im_chat C
@@ -815,6 +823,24 @@ class CIMMessenger
 
 				if ($arFields['SKIP_USER_CHECK'] == 'N')
 				{
+					if ((int)$arFields['FROM_USER_ID'] !== 0)
+					{
+						$userRole = \Bitrix\Im\V2\Chat::ROLE_MEMBER;
+						if ($arRes['IS_MANAGER'] === 'Y')
+						{
+							$userRole = \Bitrix\Im\V2\Chat::ROLE_MANAGER;
+						}
+						if ((int)$arRes['CHAT_AUTHOR_ID'] === (int)$arFields['FROM_USER_ID'])
+						{
+							$userRole = Bitrix\Im\V2\Chat::ROLE_OWNER;
+						}
+						if (!\Bitrix\Im\V2\Chat\Permission::compareRole($userRole, $arRes['CHAT_CAN_POST'] ?? ''))
+						{
+							$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_GROUP_CANCELED"), "CANCELED");
+							return false;
+						}
+					}
+
 					if ($arRes['CHAT_ENTITY_TYPE'] == 'ANNOUNCEMENT' && $arRes['IS_MANAGER'] !== 'Y')
 					{
 						$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_GROUP_CANCELED"), "CANCELED");
@@ -1114,6 +1140,8 @@ class CIMMessenger
 						->getResult()['COUNTERS']
 					;
 
+					$importantFor = self::getMentionUsers($arParams['MESSAGE'] ?? '');
+
 					$pullMessage = [
 						'module_id' => 'im',
 						'command' => 'messageChat',
@@ -1132,7 +1160,9 @@ class CIMMessenger
 							'FILES' => $arFields['FILES'],
 							'EXTRA_PARAMS' => $arFields['EXTRA_PARAMS'],
 							'COUNTER' => -1,
-							'NOTIFY' => $incrementCounter
+							'NOTIFY' => $incrementCounter,
+							'IMPORTANT_FOR' => $importantFor,
+							'IS_IMPORTANT' => $isImportant,
 						]),
 						'extra' => \Bitrix\Im\Common::getPullExtra()
 					];
@@ -1162,6 +1192,7 @@ class CIMMessenger
 							'MESSAGE' => $arParams['MESSAGE'],
 							'FILES' => $arFields['FILES'],
 							'FROM_USER_ID' => $arParams['FROM_USER_ID'],
+							'MENTION_USERS' => $importantFor,
 						]);
 					}
 
@@ -2895,11 +2926,17 @@ class CIMMessenger
 
 	public static function CheckInstallDesktop()
 	{
-		$status = CIMStatus::GetStatus($userId);
-		if ($status['DESKTOP_LAST_DATE'])
+		$status = CIMStatus::GetStatus();
+		if (
+			is_array($status)
+			&& isset($status['DESKTOP_LAST_DATE'])
+			&& $status['DESKTOP_LAST_DATE']
+		)
+		{
 			return true;
-		else
-			return false;
+		}
+
+		return false;
 	}
 
 	public static function EnableInVersion($version)
@@ -3017,6 +3054,16 @@ class CIMMessenger
 			\Bitrix\Voximplant\Security\Permissions::ACTION_PERFORM,
 			\Bitrix\Voximplant\Security\Permissions::PERMISSION_CALL_USERS
 		);
+	}
+
+	public static function CanCallByLimits()
+	{
+		if(!\Bitrix\Main\Loader::includeModule('voximplant'))
+		{
+			return false;
+		}
+
+		return \Bitrix\Voximplant\Limits::canCall();
 	}
 
 	public static function CanUserCallAnyNumber()
@@ -3564,7 +3611,24 @@ class CIMMessenger
 		$iframeRequest = $_REQUEST['IFRAME'] ?? null;
 		$iframeTypeRequest = $_REQUEST['IFRAME_TYPE'] ?? null;
 		$imMenuRequest = $_REQUEST['IM_MENU'] ?? null;
+		$imSearchRequest = $_REQUEST['IM_SEARCH'] ?? null;
+		$imStatusRequest = $_REQUEST['IM_STATUS'] ?? null;
 		$imRecentRequest = $_REQUEST['IM_RECENT'] ?? null;
+		$imLinesRequest = $_REQUEST['IM_LINES'] ?? null;
+		$imV2LayoutRequest = $_REQUEST['IM_V2_LAYOUT'] ?? null;
+		if (!isset($_REQUEST['IM_BACKGROUND']))
+		{
+			$imBackgroundRequest = 'auto';
+		}
+		else
+		{
+			$imBackgroundRequest = $_REQUEST['IM_BACKGROUND'] === 'dark'? 'dark': 'light';
+		}
+
+		if (is_bool($arTemplate["DESKTOP"]))
+		{
+			$arTemplate["DESKTOP"] = $arTemplate["DESKTOP"] ? 'true' : 'false';
+		}
 
 		$sJS = "
 			BX.ready(function() {
@@ -3655,7 +3719,7 @@ class CIMMessenger
 						'formatRecordDate': '".\Bitrix\Main\Context::getCurrent()->getCulture()->getShortDateFormat()."'
 					},
 					'openlines': ".\Bitrix\Im\Common::objectEncode($olConfig).",
-					'options': {'contactListLoad' : ".($contactListLoad? 'true': 'false').", 'contactListBirthday' : '".$contactListBirthday."', 'chatExtendShowHistory' : ".($chatExtendShowHistory? 'true': 'false').", 'frameMode': ".($iframeRequest === 'Y'? 'true': 'false').", 'frameType': '".($iframeTypeRequest === 'SIDE_SLIDER'? 'SIDE_SLIDER': 'NONE')."', 'showRecent': ".($imRecentRequest === 'N'? 'false': 'true').", 'showMenu': ".($imMenuRequest === 'N'? 'false': 'true')."},
+					'options': {'contactListLoad' : ".($contactListLoad? 'true': 'false').", 'contactListBirthday' : '".$contactListBirthday."', 'chatExtendShowHistory' : ".($chatExtendShowHistory? 'true': 'false').", 'frameMode': ".($iframeRequest === 'Y'? 'true': 'false').", 'frameType': '".($iframeTypeRequest === 'SIDE_SLIDER'? 'SIDE_SLIDER': 'NONE')."', 'showRecent': ".($imRecentRequest === 'N'? 'false': 'true').", 'showMenu': ".($imMenuRequest === 'N'? 'false': 'true').", 'showSearch': ".($imSearchRequest === 'N'? 'false': 'true').", 'showStatus': ".($imStatusRequest === 'N'? 'false': 'true').", 'openLinesRecent': ".($imLinesRequest === 'Y'? 'true': 'false').", 'v2layout': ".($imV2LayoutRequest === 'Y'? 'true': 'false').", 'background': '".$imBackgroundRequest."'},
 					'disk': {'enable' : ".($diskStatus? 'true': 'false').", 'external' : ".($diskExternalLinkStatus? 'true': 'false')."},
 					'zoomStatus': {'active' : ".(\Bitrix\Im\Call\Integration\Zoom::isActive()? 'true': 'false').", 'enabled' : ".(\Bitrix\Im\Call\Integration\Zoom::isAvailable()? 'true': 'false').", 'connected' : ".(\Bitrix\Im\Call\Integration\Zoom::isConnected($USER->GetID())? 'true': 'false')."},
 					'path' : {'lf' : '".CUtil::JSEscape($pathToLf)."', 'profile' : '".CUtil::JSEscape($arTemplate['PATH_TO_USER_PROFILE'])."', 'profileTemplate' : '".CUtil::JSEscape($arTemplate['PATH_TO_USER_PROFILE_TEMPLATE'])."', 'mail' : '".CUtil::JSEscape($arTemplate['PATH_TO_USER_MAIL'])."', 'im': '".CUtil::JSEscape($pathToIm)."', 'call': '".CUtil::JSEscape($pathToCall)."', 'file': '".CUtil::JSEscape($pathToFile)."', 'crm' : ".\Bitrix\Im\Common::objectEncode($crmPath).", 'disk' : ".\Bitrix\Im\Common::objectEncode($pathToDisk)."}
@@ -3679,7 +3743,14 @@ class CIMMessenger
 			//'SHORT_INFO' => 'Y',
 		]);
 
-		$chatOptions = CIMChat::GetChatOptions();
+		$isDesktop = $arResult['DESKTOP'] === true;
+
+		$permissionManager = new \Bitrix\Im\V2\Chat\Permission(true);
+		$permissions = [
+			'byChatType' => $permissionManager->getByChatTypes(),
+			'actionGroups' => $permissionManager->getActionGroupDefinitions(),
+			'actionGroupsDefaults' => $permissionManager->getDefaultPermissionForGroupActions()
+		];
 		$marketApps = (new \Bitrix\Im\V2\Marketplace\Application())->toRestFormat();
 		$currentUser =  \CIMContactList::GetUserData([
 			'ID' => $USER->GetID(),
@@ -3691,29 +3762,31 @@ class CIMMessenger
 		$currentUser['isAdmin'] = self::IsAdmin();
 		$loggerConfig = \Bitrix\Im\Settings::getLoggerConfig();
 		$settings = (new \Bitrix\Im\V2\Settings\UserConfiguration($USER->GetID()))->getGeneralSettings();
+		$sessionTime = (new \Bitrix\Im\V2\UpdateState())->getInterval();
+		$promoType = $isDesktop ? \Bitrix\Im\Promotion::DEVICE_TYPE_DESKTOP : \Bitrix\Im\Promotion::DEVICE_TYPE_BROWSER;
+		$promoList = \Bitrix\Im\Promotion::getActive($promoType);
 
-		$isDesktop = $arResult['DESKTOP'] === true;
 		$applicationName = $isDesktop ? 'messenger' : 'quickAccess';
 
-		$jsString = "
+		return "
 			BX.ready(function() {
 				BX.Messenger.v2.Application.Launch('" . $applicationName . "', {
 					node: '#bx-im-external-recent-list',
 					preloadedList: " . \Bitrix\Main\Web\Json::encode($recentList) . ",
-					chatOptions: " . \Bitrix\Main\Web\Json::encode($chatOptions) . ",
+					permissions: " . \Bitrix\Main\Web\Json::encode($permissions) . ",
 					marketApps: " . \Bitrix\Main\Web\Json::encode($marketApps) . ",
 					currentUser: " . \Bitrix\Main\Web\Json::encode($currentUser) . ",
 					loggerConfig: " . \Bitrix\Main\Web\Json::encode($loggerConfig) . ",
 					counters: " . \Bitrix\Main\Web\Json::encode($counters) . ",
 					settings: " . \Bitrix\Main\Web\Json::encode($settings) . ",
+					promoList: " . \Bitrix\Main\Web\Json::encode($promoList) . ",
 					phoneSettings: " . \Bitrix\Main\Web\Json::encode(self::getPhoneSettings()) . ",
+					sessionTime: " . \Bitrix\Main\Web\Json::encode($sessionTime) . ",
 				}).then((application) => {
 					" . ($isDesktop ? "application.initComponent('body')" : '') . "
 				});
 			});
 		";
-
-		return $jsString;
 	}
 
 	public static function getPhoneSettings()
@@ -3722,13 +3795,15 @@ class CIMMessenger
 
 		$phoneEnabled = self::CheckPhoneStatus();
 		$phoneDeviceActive = false;
-		$phoneCanPerformCalls = false;
+		$phoneCanPerformCallsByUser = false;
+		$phoneCanPerformCallsByLimits = false;
 		$phoneCanCallUserNumber = false;
 		if ($phoneEnabled && CModule::IncludeModule('voximplant'))
 		{
 			$phoneDeviceActive = CVoxImplantUser::GetPhoneActive($USER->GetId());
-			$phoneCanPerformCalls = self::CanUserPerformCalls();
+			$phoneCanPerformCallsByUser = self::CanUserPerformCalls();
 			$phoneCanCallUserNumber = self::CanUserCallUserNumber();
+			$phoneCanPerformCallsByLimits = self::CanCallByLimits();
 		}
 
 		return [
@@ -3737,7 +3812,8 @@ class CIMMessenger
 			'defaultLineId' => self::GetDefaultTelephonyLine(),
 			'availableLines' => self::GetTelephonyAvailableLines(),
 			'canInterceptCall' => self::CanInterceptCall(),
-			'canPerformCalls' => $phoneCanPerformCalls,
+			'canPerformCallsByUser' => $phoneCanPerformCallsByUser,
+			'canPerformCallsByLimits' => $phoneCanPerformCallsByLimits,
 			'canCallUserNumber' => $phoneCanCallUserNumber,
 			'restApps' => self::GetCallCardRestApps()
 		];
@@ -3797,6 +3873,8 @@ class CIMMessenger
 
 		$mobileAction = isset($arTemplate["ACTION"])? $arTemplate["ACTION"]: 'none';
 		$mobileCallMethod = isset($arTemplate["CALL_METHOD"])? $arTemplate["CALL_METHOD"]: 'device';
+
+		$counters = \Bitrix\Im\Counter::get(null, ['JSON' => 'Y']);
 
 		$initConfig = [
 			'mobileAction' => $mobileAction,
@@ -4065,46 +4143,8 @@ class CIMMessenger
 			$params['CHAT_RELATION'] = CIMChat::GetRelationById($params['CHAT_ID'], false, true, false);
 		}
 
-		$forUsers = Array();
-		if (preg_match_all("/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER]/i", $params['MESSAGE'], $matches))
-		{
-			if ($params['CHAT_TYPE'] == IM_MESSAGE_OPEN)
-			{
-				foreach($matches[1] as $userId)
-				{
-					if (!CIMSettings::GetNotifyAccess($userId, 'im', 'mention', CIMSettings::CLIENT_SITE))
-					{
-						continue;
-					}
-
-					if (
-						!isset($params['CHAT_RELATION'][$userId])
-						|| $params['CHAT_RELATION'][$userId]['NOTIFY_BLOCK'] == 'Y'
-					)
-					{
-						$forUsers[$userId] = $userId;
-					}
-				}
-			}
-			else
-			{
-				foreach($matches[1] as $userId)
-				{
-					if (!CIMSettings::GetNotifyAccess($userId, 'im', 'mention', CIMSettings::CLIENT_SITE))
-					{
-						continue;
-					}
-
-					if (
-						isset($params['CHAT_RELATION'][$userId])
-						&& $params['CHAT_RELATION'][$userId]['NOTIFY_BLOCK'] == 'Y'
-					)
-					{
-						$forUsers[$userId] = $userId;
-					}
-				}
-			}
-		}
+		$mentionUsers = $params['MENTION_USERS'] ?? self::getMentionUsers($params['MESSAGE'] ?? '');
+		$forUsers = self::prepareUsersForMention($mentionUsers, $params);
 
 		$chatTitle = mb_substr(htmlspecialcharsback($params['CHAT_TITLE']), 0, 32);
 		$notifyMail = GetMessage('IM_MESSAGE_MENTION_'.($userGender=='F'?'F':'M'), Array('#TITLE#' => $chatTitle));
@@ -4144,6 +4184,60 @@ class CIMMessenger
 		}
 
 		return true;
+	}
+
+	private static function prepareUsersForMention(array $forUsers, $params): array
+	{
+		if (empty($forUsers))
+		{
+			return [];
+		}
+
+		$usersForMention = [];
+		foreach ($forUsers as $userId)
+		{
+			if (!CIMSettings::GetNotifyAccess($userId, 'im', 'mention', CIMSettings::CLIENT_SITE))
+			{
+				continue;
+			}
+
+			if ($params['CHAT_TYPE'] == IM_MESSAGE_OPEN)
+			{
+				if (
+					!isset($params['CHAT_RELATION'][$userId])
+					|| $params['CHAT_RELATION'][$userId]['NOTIFY_BLOCK'] == 'Y'
+				)
+				{
+					$usersForMention[$userId] = $userId;
+				}
+			}
+			else
+			{
+				if (
+					isset($params['CHAT_RELATION'][$userId])
+					&& $params['CHAT_RELATION'][$userId]['NOTIFY_BLOCK'] == 'Y'
+				)
+				{
+					$usersForMention[$userId] = $userId;
+				}
+			}
+		}
+
+		return $usersForMention;
+	}
+
+	private static function getMentionUsers(string $message): array
+	{
+		$forUsers = [];
+		if (preg_match_all("/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER]/i", $message, $matches))
+		{
+			foreach ($matches[1] as $userId)
+			{
+				$forUsers[(int)$userId] = (int)$userId;
+			}
+		}
+
+		return $forUsers;
 	}
 
 	public static function PrepareParamsForPull($params)

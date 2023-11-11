@@ -79,7 +79,7 @@ class Manager
 				'\Bitrix\Landing\Restriction\Block', 'isDynamicEnabled'
 			]
 		],
-		'limit_crm_free_superblock1' => [
+		'limit_crm_superblock' => [
 			'check_callback' => [
 				'\Bitrix\Landing\Restriction\Block', 'isDesignerAllowed'
 			]

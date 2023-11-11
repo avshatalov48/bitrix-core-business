@@ -1,30 +1,31 @@
 /*------------------------------------
   Landing-slick
 ------------------------------------*/
-/*------------------------------------
-  Primary colors from Themes
-------------------------------------*/
 .slick-slide:focus {
   outline: 0 none;
 }
 
 [data-lazy] {
   opacity: 0;
+  -webkit-transition-property: opacity;
+  -o-transition-property: opacity;
   transition-property: opacity;
-  transition-duration: .4s;
-  transition-timing-function: ease-in;
+  -webkit-transition-duration: 0.4s;
+       -o-transition-duration: 0.4s;
+          transition-duration: 0.4s;
+  -webkit-transition-timing-function: ease-in;
+       -o-transition-timing-function: ease-in;
+          transition-timing-function: ease-in;
 }
 
 .js-carousel .js-next,
 .js-carousel .js-prev {
   opacity: 0;
 }
-
 .js-carousel.slick-initialized .js-next,
 .js-carousel.slick-initialized .js-prev {
   opacity: 1;
 }
-
 .js-slide:first-child {
   height: auto;
 }
@@ -40,7 +41,6 @@
 .slick-active .g-brd-primary--before--active::before {
   border-color: var(--primary) !important;
 }
-
 .slick-active .g-brd-primary--active {
   border-color: var(--primary) !important;
 }
@@ -60,14 +60,15 @@
   Box shadows
 ------------------------------------*/
 .g-parent.slick-current .u-shadow-v24--active {
-  box-shadow: 0 15px 20px 0 rgba(0, 0, 0, 0.06);
+  -webkit-box-shadow: 0 15px 20px 0 rgba(0, 0, 0, 0.06);
+          box-shadow: 0 15px 20px 0 rgba(0, 0, 0, 0.06);
 }
 
 /*------------------------------------
   Dot line v2
 ------------------------------------*/
-.slick-active .u-dot-line-v2__inner::before, .slick-active
-.u-dot-line-v2-2__inner::before {
+.slick-active .u-dot-line-v2__inner::before,
+.slick-active .u-dot-line-v2-2__inner::before {
   width: 100%;
   height: 100%;
 }
@@ -76,14 +77,14 @@
 .u-carousel-v5 .slick-list {
   height: 100%;
 }
-
 .u-carousel-v5 .slick-track {
+  display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   height: 100%;
 }
-
 .u-carousel-v5 .slick-track .slick-slide {
+  display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   height: auto;
@@ -98,30 +99,31 @@
 }
 
 .slick-track {
+  display: -webkit-box !important;
   display: -ms-flexbox !important;
   display: flex !important;
 }
 
 .slick-vertical .slick-track {
-  -ms-flex-direction: column;
-      flex-direction: column;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
 
 /*------------------------------------
   Carousel indicators
 ------------------------------------*/
-[class*="u-carousel-indicators"] {
+[class*=u-carousel-indicators] {
   display: block;
   position: absolute;
   padding-left: 0;
   margin-bottom: 0;
 }
-
-[class*="u-carousel-indicators"] li {
+[class*=u-carousel-indicators] li {
   list-style: none;
 }
-
-[class*="u-carousel-indicators"] span {
+[class*=u-carousel-indicators] span {
   display: block;
   cursor: pointer;
 }
@@ -132,29 +134,22 @@
 .u-carousel-indicators-v1,
 .u-carousel-indicators-v1--white-inverse,
 .u-carousel-indicators-v1--white {
+  display: -webkit-box !important;
   display: -ms-flexbox !important;
   display: flex !important;
   width: 100%;
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
   padding: 0 15px;
-  -ms-flex-pack: center;
-      justify-content: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
-
 .u-carousel-indicators-v1 li,
 .u-carousel-indicators-v1--white-inverse li,
 .u-carousel-indicators-v1--white li {
   margin: 0 5px 5px;
 }
-
-.u-carousel-indicators-v1 li.slick-active span,
-.u-carousel-indicators-v1--white-inverse li.slick-active span,
-.u-carousel-indicators-v1--white li.slick-active span {
-  background-color: var(--primary);
-  opacity: 1;
-}
-
 .u-carousel-indicators-v1 span,
 .u-carousel-indicators-v1--white-inverse span,
 .u-carousel-indicators-v1--white span {
@@ -162,24 +157,34 @@
   height: 10px;
   border-radius: 50%;
   background-color: #ccc;
-  opacity: .7;
+  opacity: 0.7;
+}
+
+.u-carousel-indicators-v1 li.slick-active span {
+  background-color: var(--primary);
+  opacity: 1;
+  border: 0.5px solid rgba(204, 204, 204, 0.5);
+}
+.u-carousel-indicators-v1 li span {
+  opacity: 0.5;
 }
 
 .u-carousel-indicators-v1--white li.slick-active span {
   background-color: #fff;
+  opacity: 0.1;
+  border: 0.5px solid #ccc;
 }
-
 .u-carousel-indicators-v1--white li span {
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .u-carousel-indicators-v1--white-inverse li.slick-active span {
   background-color: #fff;
-  opacity: .3;
+  opacity: 0.3;
+  border: 0.5px solid #ccc;
 }
-
 .u-carousel-indicators-v1--white-inverse li span {
-  opacity: .9;
+  opacity: 0.9;
 }
 
 /*------------------------------------
@@ -192,24 +197,22 @@
   bottom: auto;
   display: block;
   width: 7px;
-  -ms-transform: translateY(-50%);
-      transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+      -ms-transform: translateY(-50%);
+          transform: translateY(-50%);
 }
-
 .u-carousel-indicators-v7 span {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   background-color: #fff;
-  opacity: .3;
+  opacity: 0.3;
 }
-
 .u-carousel-indicators-v7 li {
   display: block;
   margin: 15px 0;
   float: none;
 }
-
 .u-carousel-indicators-v7 li.slick-active span {
   opacity: 1;
 }

@@ -770,7 +770,7 @@ class CBPTaskResult extends CDBResult
 
 		if ($res)
 		{
-			if ($res["DESCRIPTION"] <> '')
+			if (!empty($res["DESCRIPTION"]))
 			{
 				$res["DESCRIPTION"] = CBPHelper::convertBBtoText($res["DESCRIPTION"]);
 			}

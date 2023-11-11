@@ -496,7 +496,7 @@ INNER JOIN (
 
 		$connector = Connector\Manager::getConnector($this->endpoint);
 		$connector->setDataTypeId(null);
-
+		$connector->setCheckAccessRights(false);
 		$connector->setFieldValues($this->endpoint['FIELDS']);
 
 		$lastId = $connector->getEntityLimitInfo()['lastId'];
@@ -905,6 +905,7 @@ INNER JOIN (
 			$this->filterId = $endpoint['FILTER_ID'] ?? 'sender_crm_client_--filter--crmclient--';
 			if ($connector instanceof Contact)
 			{
+				$connector->setCheckAccessRights(false);
 				$connector->setFieldValues($endpoint['FIELDS']);
 			}
 			$counters[] = self::CONNECTOR_ENTITY[$connector->getCode()] ?

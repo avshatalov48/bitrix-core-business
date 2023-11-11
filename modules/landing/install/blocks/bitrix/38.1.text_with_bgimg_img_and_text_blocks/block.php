@@ -15,19 +15,19 @@
 
 						<!-- Article Content -->
 						<div class="g-py-40 g-px-35">
-							<h6 class="landing-block-node-leftblock-subtitle landing-semantic-subtitle-small text-uppercase g-font-weight-700 g-mb-15 g-color-white">
+							<h6 class="landing-block-node-leftblock-subtitle text-uppercase g-font-weight-700 g-mb-15 g-color-white">
 								In total we collected
 							</h6>
-							<h3 class="landing-block-node-leftblock-title landing-semantic-subtitle-medium d-block g-line-height-1_2 g-letter-spacing-minus-2 g-font-size-46 g-color-white">
+							<h3 class="landing-block-node-leftblock-title d-block g-line-height-1_2 g-letter-spacing-minus-2 g-font-size-46 g-color-white">
 								$8 789 576.00
 							</h3>
-							<div class="landing-block-node-leftblock-text landing-semantic-text-medium g-mb-35">
+							<div class="landing-block-node-leftblock-text g-mb-35">
 								<p>Runc ullamcorper, justo a iaculis
 									elementum,
 									enim orci viverra eros, fringilla porttitor lorem eros vel odio gravida sollicitudin
 									tortor.</p>
 							</div>
-							<a class="landing-block-node-leftblock-button landing-semantic-link-image-medium g-valign-middle btn text-uppercase g-btn-black rounded-0 g-btn-size-md g-btn-type-solid g-width-100x"
+							<a class="landing-block-node-leftblock-button g-valign-middle btn text-uppercase g-btn-black rounded-0 g-btn-size-md g-btn-type-solid g-width-100x"
 							   href="#">
 								Donate Now
 							</a>
@@ -39,11 +39,11 @@
 
 				<div class="landing-block-node-rightblock js-animation fadeInRight col-md-6 col-lg-8 g-py-20">
 					<div class="g-color-white g-mb-45">
-						<h4 class="landing-block-node-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-font-size-26 g-color-primary mb-0">
+						<h4 class="landing-block-node-subtitle text-uppercase g-font-weight-700 g-font-size-26 g-color-primary mb-0">
 							We make world better</h4>
-						<h2 class="landing-block-node-title landing-semantic-title-image-medium text-uppercase g-color-white g-font-weight-700 g-font-size-46 g-mb-30">
+						<h2 class="landing-block-node-title text-uppercase g-color-white g-font-weight-700 g-font-size-46 g-mb-30">
 							Let's do this together</h2>
-						<div class="landing-block-node-text landing-semantic-text-image-medium">
+						<div class="landing-block-node-text">
 							<p class="mb-0">Aenean bibendum purus eu nisi pulvinar venenatis vitae non velit. Sed et
 								eleifend mi. Fusce dictum orci libero, congue scelerisque lectus pulvinar eu.
 								Suspendisse pulvinar facilisis ligula vel pharetra. Vestibulum volutpat porttitor ex a
@@ -63,12 +63,12 @@
 								</div>
 
 								<div class="media-body align-self-center">
-									<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-small text-uppercase g-font-weight-700 g-color-white mb-0">
+									<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white mb-0">
 										Education</h6>
 								</div>
 							</div>
 
-							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-gray-dark-v5">
+							<div class="landing-block-node-card-text g-color-gray-dark-v5">
 								<p class="mb-0">Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum
 									fringilla velit rhoncus euismod rhoncus turpis. Mauris molestie ullamcorper nisl
 									eget
@@ -87,12 +87,12 @@
 								</div>
 
 								<div class="media-body align-self-center">
-									<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-small text-uppercase g-font-weight-700 g-color-white mb-0">
+									<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white mb-0">
 										Health</h6>
 								</div>
 							</div>
 
-							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-gray-dark-v5">
+							<div class="landing-block-node-card-text g-color-gray-dark-v5">
 								<p class="mb-0">Integer accumsan maximus leo, et consectetur metus vestibulum in.
 									Vestibulum
 									viverra justo odio purus a libero luctus. Proin tempor dolor ac dolor feugiat,
@@ -105,10 +105,10 @@
 					<!-- End Icon Blocks -->
 
 					<div class="clearfix text-uppercase g-color-white g-font-size-11">
-						<div class="landing-block-node-label-right landing-semantic-text-image-small float-right">Our Goal:
+						<div class="landing-block-node-label-right float-right">Our Goal:
 							<span style="font-weight: bold; color:#f5f219 !important">$15 500 000</span>
 						</div>
-						<div class="landing-block-node-label-left landing-semantic-text-image-small">
+						<div class="landing-block-node-label-left">
 							Time left: <span style="font-weight: bold; color:#f5f219 !important">365</span> Days
 						</div>
 					</div>

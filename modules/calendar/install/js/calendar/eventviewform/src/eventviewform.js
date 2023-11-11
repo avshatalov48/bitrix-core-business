@@ -3,10 +3,9 @@
 import { Util } from 'calendar.util';
 import { Type, Event, Loc, Dom, Runtime, Text, Tag } from 'main.core';
 import { Entry, EntryManager } from 'calendar.entry';
-import { MeetingStatusControl } from 'calendar.controls';
+import { MeetingStatusControl, IntranetButton } from 'calendar.controls';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { Planner } from 'calendar.planner';
-import { ControlButton } from 'intranet.control-button';
 import { BitrixVue } from 'ui.vue3';
 import { ViewEventSlider } from './view-event-slider';
 import { CalendarSection } from 'calendar.sectionmanager';
@@ -26,6 +25,7 @@ export class EventViewForm {
 	constructor(options = {})
 	{
 		this.type = options.type || 'user';
+		this.attendees = [];
 		this.ownerId = options.ownerId || 0;
 		this.userId = options.userId || 0;
 		this.zIndex = 3100;
@@ -147,6 +147,11 @@ export class EventViewForm {
 				{
 					let params = response.data;
 					params.eventExists = !!(params.entry.ID);
+					this.attendees = [];
+					for (const status in params.attendees)
+					{
+						this.attendees.push(...params.attendees[status]);
+					}
 
 					//load components' css and js
 					if (params.filesView)
@@ -369,17 +374,23 @@ export class EventViewForm {
 		)
 		{
 			this.DOM.videoCall.style.display = '';
-			this.intranetControllButton = new ControlButton({
-				container: this.DOM.videoCall,
-				entityType: 'calendar_event',
-				entityId: this.entry.parentId,
-				entityData: {
-					dateFrom: Util.formatDate(this.entry.from),
-					parentId: this.entry.parentId
+			this.intranetControllButton = new IntranetButton({
+				intranetControlButtonParams: {
+					container: this.DOM.videoCall,
+					entityType: 'calendar_event',
+					entityId: this.entry.parentId,
+					entityData: {
+						dateFrom: Util.formatDate(this.entry.from),
+						parentId: this.entry.parentId
+					},
+					analyticsLabel: {
+						formType: 'full'
+					}
 				},
-				analyticsLabel: {
-					formType: 'full'
-				}
+				callbacks: {
+					getUsersCount: () => this.attendees.length,
+					hasChat: () => this.entry.data?.MEETING?.CHAT_ID > 0,
+				},
 			});
 		}
 		else

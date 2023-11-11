@@ -1,7 +1,7 @@
-import { ajax } from "main.core";
-import { Alert, AlertColor } from "ui.alerts";
-import { GridController } from "./grid-controller";
-import { SettingsForm } from "./settings-form";
+import { ajax } from 'main.core';
+import { Alert, AlertColor } from 'ui.alerts';
+import { GridController } from './grid-controller';
+import { SettingsForm } from './settings-form';
 
 export class PropertyDirectorySettings
 {

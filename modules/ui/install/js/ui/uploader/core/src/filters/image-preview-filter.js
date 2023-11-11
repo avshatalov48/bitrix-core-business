@@ -68,7 +68,8 @@ export default class ImagePreviewFilter extends Filter
 					.catch((error): void => {
 						if (error)
 						{
-							console.log('Uploader: image resize error', error);
+							// eslint-disable-next-line no-console
+							console.warn('Uploader: image resize error', error);
 						}
 
 						resolve();
@@ -85,7 +86,8 @@ export default class ImagePreviewFilter extends Filter
 					.catch((error): void => {
 						if (error)
 						{
-							console.log('Uploader: video preview error', error);
+							// eslint-disable-next-line no-console
+							console.warn('Uploader: video preview error', error);
 						}
 
 						resolve();

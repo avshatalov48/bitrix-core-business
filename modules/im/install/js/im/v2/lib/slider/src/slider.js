@@ -1,13 +1,16 @@
-import { Event, ZIndexManager, Runtime, Extension, Loc, Type } from 'main.core';
+import { DesktopApi } from 'im.v2.lib.desktop-api';
+import { Event, ZIndexManager, Runtime, Extension } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
-import { EventType, Layout } from 'im.v2.const';
+import { EventType, Layout, GetParameter } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { Launch } from 'im.v2.application.launch';
 import { CallManager } from 'im.v2.lib.call';
+import { PhoneManager } from 'im.v2.lib.phone';
 import { Utils } from 'im.v2.lib.utils';
 import { DesktopManager } from 'im.v2.lib.desktop';
+import { LinesService } from 'im.v2.provider.service';
 
 import 'ui.notification';
 
@@ -52,76 +55,112 @@ export class MessengerSlider
 		this.store = Core.getStore();
 	}
 
-	openChat(dialogId: string | number = '', text: string = ''): Promise
+	async openChat(dialogId: string | number = ''): Promise
+	{
+		const preparedDialogId = dialogId.toString();
+		if (Utils.dialog.isLinesExternalId(preparedDialogId))
+		{
+			return this.openLines(preparedDialogId);
+		}
+
+		await this.openSlider();
+
+		await this.store.dispatch('application/setLayout', {
+			layoutName: Layout.chat.name,
+			entityId: preparedDialogId,
+		});
+		EventEmitter.emit(EventType.layout.onOpenChat, { dialogId: preparedDialogId });
+
+		return Promise.resolve();
+	}
+
+	async openLines(dialogId: string = ''): Promise
 	{
 		let preparedDialogId = dialogId.toString();
 		if (Utils.dialog.isLinesExternalId(preparedDialogId))
 		{
-			return this.openLines();
+			const linesService = new LinesService();
+			preparedDialogId = await linesService.getDialogIdByUserCode(preparedDialogId);
 		}
 
-		if (Type.isNumber(preparedDialogId))
+		await this.openSlider();
+
+		return this.store.dispatch('application/setLayout', {
+			layoutName: Layout.openlines.name,
+			entityId: preparedDialogId,
+		});
+	}
+
+	openHistory(dialogId: string | number = ''): Promise
+	{
+		if (!this.#checkHistoryDialogId(dialogId))
 		{
-			preparedDialogId = preparedDialogId.toString();
+			return Promise.reject();
 		}
 
-		return this.openSlider()
-			.then(() => {
-				return this.store.dispatch('application/setLayout', {
-					layoutName: Layout.chat.name,
-					entityId: preparedDialogId,
-				});
-			})
-			.then(() => {
-				EventEmitter.emit(EventType.layout.onOpenChat, { dialogId: preparedDialogId });
-			});
+		const sliderLink = this.#prepareHistorySliderLink(dialogId);
+		BX.SidePanel.Instance.open(sliderLink, {
+			width: Utils.dialog.isLinesExternalId(dialogId) ? 700 : 1000,
+			allowChangeHistory: false,
+			allowChangeTitle: false,
+			cacheable: false,
+		});
+
+		return Promise.resolve();
 	}
 
-	openLines(): Promise
+	async openNotifications(): Promise
 	{
+		await this.openSlider();
+		await this.store.dispatch('application/setLayout', {
+			layoutName: Layout.notification.name,
+		});
+
+		EventEmitter.emit(EventType.layout.onOpenNotifications);
+
+		return Promise.resolve();
+	}
+
+	async openRecentSearch(): Promise
+	{
+		await this.openSlider();
+		await this.store.dispatch('application/setLayout', {
+			layoutName: Layout.chat.name,
+		});
+
+		EventEmitter.emit(EventType.recent.openSearch);
+
+		return Promise.resolve();
+	}
+
+	async openSettings(options: ?Object = {}): Promise
+	{
+		Logger.warn('Slider: openSettings', options);
+		await this.openSlider();
+
+		await this.store.dispatch('application/setLayout', {
+			layoutName: Layout.settings.name,
+		});
+
+		return Promise.resolve();
+	}
+
+	openConference(code: string = ''): Promise
+	{
+		Logger.warn('Slider: openConference', code);
+
+		if (!Utils.conference.isValidCode(code))
+		{
+			return new Promise((resolve, reject) => {
+				reject();
+			});
+		}
+
+		const url = Utils.conference.getUrlByCode(code);
+		Utils.browser.openLink(url, Utils.conference.getWindowNameByCode(code));
+
 		return new Promise((resolve, reject) => {
-			BX.UI.Notification.Center.notify({
-				content: Loc.getMessage('IM_LIB_SLIDER_LINES_NOT_IMPLEMENTED_2'),
-				position: 'top-right',
-				autoHideDelay: 10000,
-			});
-			reject(new Error('Messenger: lines are not implemented yet'));
-		});
-	}
-
-	openNotifications(): Promise
-	{
-		return this.openSlider().then(() => {
-			return this.store.dispatch('application/setLayout', {
-				layoutName: Layout.notification.name
-			});
-		}).then(() => {
-			EventEmitter.emit(EventType.layout.onOpenNotifications);
-		});
-	}
-
-	openRecentSearch(): Promise
-	{
-		return this.openSlider().then(() => {
-			this.store.dispatch('application/setLayout', {
-				layoutName: Layout.chat.name,
-			});
-		}).then(() => {
-			EventEmitter.emit(EventType.recent.openSearch);
-		});
-	}
-
-	openSettings(selected: ?string = '', section: ?string = ''): Promise
-	{
-		Logger.warn('Slider: onOpenSettings', selected, section);
-
-		return new Promise((resolve, reject) => {
-			BX.UI.Notification.Center.notify({
-				content: Loc.getMessage('IM_LIB_SLIDER_SETTINGS_NOT_IMPLEMENTED'),
-				position: 'top-right',
-				autoHideDelay: 10000,
-			});
-			reject(new Error('Messenger: settings are not implemented yet'));
+			resolve();
 		});
 	}
 
@@ -138,6 +177,34 @@ export class MessengerSlider
 		CallManager.getInstance().startCall(dialogId, withVideo);
 
 		return Promise.resolve();
+	}
+
+	startPhoneCall(number: string, params: Object<any, string>): Promise
+	{
+		Logger.warn('Slider: startPhoneCall', number, params);
+		PhoneManager.getInstance().startCall(number, params);
+
+		return Promise.resolve();
+	}
+
+	startCallList(callListId: number, params: Object<string, any>): Promise
+	{
+		Logger.warn('Slider: startCallList', callListId, params);
+		PhoneManager.getInstance().startCallList(callListId, params);
+
+		return Promise.resolve();
+	}
+
+	openNewTab(path)
+	{
+		if (DesktopApi.getApiVersion() >= 75 && DesktopApi.isChatTab())
+		{
+			DesktopApi.createImTab(`${path}&${GetParameter.desktopChatTabMode}=Y`);
+		}
+		else
+		{
+			Utils.browser.openLink(path);
+		}
 	}
 
 	bindEvents(): boolean
@@ -166,8 +233,17 @@ export class MessengerSlider
 
 	openSlider(): Promise
 	{
-		if (DesktopManager.isDesktop())
+		if (DesktopManager.isChatWindow())
 		{
+			this.sidePanelManager.closeAll(true);
+
+			return Promise.resolve();
+		}
+
+		if (this.isOpened())
+		{
+			ZIndexManager.bringToFront(this.getCurrent().getOverlay());
+
 			return Promise.resolve();
 		}
 
@@ -233,7 +309,7 @@ export class MessengerSlider
 	initMessengerComponent(): Promise
 	{
 		return this.applicationPromise.then((application) => {
-			this.store.dispatch('application/setLayout', {layoutName: Layout.chat.name, entityId: ''});
+			this.store.dispatch('application/setLayout', { layoutName: Layout.chat.name, entityId: '' });
 
 			return application.initComponent(`.${SLIDER_CONTAINER_CLASS}`);
 		});
@@ -265,7 +341,12 @@ export class MessengerSlider
 		const id = this.getIdFromSliderId(sliderId);
 		delete this.instances[id];
 
-		this.openChat();
+		EventEmitter.emit(EventType.slider.onClose);
+
+		this.store.dispatch('application/setLayout', {
+			layoutName: Layout.chat.name,
+			entityId: '',
+		});
 	}
 
 	onCloseByEsc({ data: event })
@@ -362,5 +443,22 @@ export class MessengerSlider
 	getIdFromSliderId(sliderId: string): number
 	{
 		return Number.parseInt(sliderId.slice(SLIDER_PREFIX.length + 1), 10);
+	}
+
+	#checkHistoryDialogId(dialogId: string): boolean
+	{
+		return Utils.dialog.isDialogId(dialogId)
+			|| Utils.dialog.isLinesHistoryId(dialogId)
+			|| Utils.dialog.isLinesExternalId(dialogId);
+	}
+
+	#prepareHistorySliderLink(dialogId: string): string
+	{
+		const getParams = new URLSearchParams({
+			[GetParameter.openHistory]: dialogId,
+			[GetParameter.backgroundType]: 'light',
+		});
+
+		return `/desktop_app/history.php?${getParams.toString()}`;
 	}
 }

@@ -16,7 +16,6 @@ export default class Calendar
 	#nowTime;
 	#months;
 	#selectedDay;
-	#monthSlots;
 	#monthsSlotsMap;
 	#timezoneOffsetUtc;
 	#selectedTimezoneOffsetUtc;
@@ -59,7 +58,6 @@ export default class Calendar
 		this.#timezoneOffsetUtc = this.#nowTime.getTimezoneOffset();
 		this.#selectedTimezoneOffsetUtc = this.#nowTime.getTimezoneOffset();
 		this.#months = [];
-		this.#monthSlots = [];
 		this.#monthsSlotsMap = [];
 		this.#config = {
 			eventDurability: 3600000,
@@ -157,12 +155,7 @@ export default class Calendar
 
 	#initCurrentMonthSlots()
 	{
-		const slots = this.#calculateDateTimeSlots(this.#nowTime.getFullYear(), this.#nowTime.getMonth());
-		this.#monthSlots.push(slots);
-
-		const slotsMap = this.#getDateTimeSlotsMap(slots);
-		const accessibilityArrayKey = (this.#nowTime.getMonth() + 1) + '.' + this.#nowTime.getFullYear();
-		this.#monthsSlotsMap[accessibilityArrayKey] = slotsMap;
+		this.#calculateDateTimeSlots(this.#nowTime.getFullYear(), this.#nowTime.getMonth());
 
 		const month = this.#createMonth(this.#nowTime.getFullYear(), this.#nowTime.getMonth());
 		this.#months.push(month);
@@ -170,12 +163,11 @@ export default class Calendar
 
 	#calculateDateTimeSlots(year, month)
 	{
-		const result = [];
+		const map = [];
 		const daysCount = new Date(year, month + 1, 0).getDate();
 		const accessibilityArrayKey = (month + 1) + '.' + year;
 		const nowTimestamp = this.#nowTime.getTime();
-		const browserSelectedTimezoneOffset = (Util.getTimeZoneOffset(this.#selectedTimezoneId) - this.#nowTime.getTimezoneOffset()) * 60000;
-		const offset = Util.getTimezoneDateFromTimestampUTC(nowTimestamp, this.#selectedTimezoneId) - nowTimestamp;
+		const timezoneOffset = (this.#selectedTimezoneOffsetUtc - this.#timezoneOffsetUtc) * (-60) * 1000;
 
 		for (let dayIndex = 1; dayIndex <= daysCount; dayIndex++)
 		{
@@ -185,9 +177,10 @@ export default class Calendar
 			const to = new Date(year, month, dayIndex, this.#config.workTimeEndHours, this.#config.workTimeEndMinutes);
 
 			const dayAccessibility = this.#accessibility[accessibilityArrayKey].filter((event) => {
+				const parseUTC = !event.isFullDay;
 				return this.#doIntervalsIntersect(
-					parseInt(event.timestampFromUTC) * 1000,
-					parseInt(event.timestampToUTC) * 1000,
+					BX.parseDate(event.from, parseUTC).getTime(),
+					BX.parseDate(event.to, parseUTC).getTime(),
 					from.getTime(),
 					to.getTime(),
 				);
@@ -203,55 +196,34 @@ export default class Calendar
 					break;
 				}
 
-				const slotAccessibility = dayAccessibility.filter((currentSLot) => {
+				const slotAccessibility = dayAccessibility.filter((event) => {
+					const parseUTC = !event.isFullDay;
 					return this.#doIntervalsIntersect(
-						parseInt(currentSLot.timestampFromUTC) * 1000,
-						parseInt(currentSLot.timestampToUTC) * 1000,
+						BX.parseDate(event.from, parseUTC).getTime(),
+						BX.parseDate(event.to, parseUTC).getTime(),
 						slotStart,
 						slotEnd,
 					);
 				});
 
 				const available = slotAccessibility.length === 0 && !this.#isHoliday(currentDate) && slotStart > nowTimestamp;
-				const timeFrom = new Date(slotStart + browserSelectedTimezoneOffset + offset);
-				const timeTo = new Date(timeFrom.getTime() + (slotEnd - slotStart));
 				if (available)
 				{
-					result.push({ timeFrom, timeTo});
+					const timeFrom = new Date(slotStart + timezoneOffset);
+					const timeTo = new Date(timeFrom.getTime() + (slotEnd - slotStart));
+					const dateIndex = timeFrom.getDate();
+					map[dateIndex] ??= [];
+					if (timeFrom.getMonth() === month)
+					{
+						map[dateIndex].push({ timeFrom, timeTo });
+					}
 				}
 
 				from.setTime(from.getTime() + this.#config.stepSize);
 			}
 		}
 
-		return result;
-	}
-
-	#getDateTimeSlotsMap(slotList)
-	{
-		const result = [];
-
-		slotList.forEach((slot) => {
-			const timezoneOffset = (this.#selectedTimezoneOffsetUtc - this.#timezoneOffsetUtc) * (-60) * 1000;
-
-			const currentSlot = {
-				timeFrom: new Date(slot.timeFrom.getTime() + timezoneOffset),
-				timeTo: new Date(slot.timeTo.getTime() + timezoneOffset),
-			};
-			const dateIndex = currentSlot.timeFrom.getDate();
-
-			if (result[dateIndex] === undefined)
-			{
-				result[dateIndex] = [];
-			}
-
-			if (slot.timeFrom.getMonth() === currentSlot.timeFrom.getMonth())
-			{
-				result[dateIndex].push(currentSlot);
-			}
-		});
-
-		return result;
+		this.#monthsSlotsMap[accessibilityArrayKey] = map;
 	}
 
 	#createMonth(year, month)
@@ -274,22 +246,12 @@ export default class Calendar
 
 		this.#accessibility[arrayKey] = await this.#loadMonthAccessibility(currentYear, currentMonth);
 
-		this.#monthSlots[this.#currentMonthIndex] = this.#calculateDateTimeSlots(currentYear, currentMonth - 1);
-
 		this.#reCreateCurrentMonth();
 	}
 
 	#reCreateCurrentMonth()
 	{
-		const year = this.#months[this.#currentMonthIndex].year;
-		const month = this.#months[this.#currentMonthIndex].month;
-
-		const monthSlots = this.#monthSlots[this.#currentMonthIndex];
-		const arrayKey = (month + 1) + '.' + year;
-		this.#monthsSlotsMap[arrayKey] = this.#getDateTimeSlotsMap(monthSlots);
-
-		this.#months[this.#currentMonthIndex] = this.#createMonth(year, month);
-
+		this.#updateMonth(this.#currentMonthIndex);
 		this.#updateCalendar();
 	}
 
@@ -307,10 +269,7 @@ export default class Calendar
 
 		this.#accessibility[arrayKey] = await this.#loadMonthAccessibility(nextYear, nextMonth);
 
-		const slots = this.#calculateDateTimeSlots(nextYear, nextMonthIndex);
-		this.#monthSlots.push(slots);
-
-		this.#monthsSlotsMap[arrayKey] = this.#getDateTimeSlotsMap(slots);
+		this.#calculateDateTimeSlots(nextYear, nextMonthIndex);
 
 		const month = this.#createMonth(nextYear, nextMonthIndex);
 		this.#months.push(month);
@@ -766,6 +725,7 @@ export default class Calendar
 		}
 
 		this.#currentMonthIndex += 1;
+		this.#updateMonth(this.#currentMonthIndex);
 
 		EventEmitter.emit(this, 'clickNextMonth');
 		this.#updateCalendar('next');
@@ -780,10 +740,20 @@ export default class Calendar
 		}
 
 		this.#currentMonthIndex -= 1;
+		this.#updateMonth(this.#currentMonthIndex);
 
 		EventEmitter.emit(this, 'clickPrevMonth');
 		this.#updateCalendar('prev');
 		this.selectMonthDay();
+	}
+
+	#updateMonth(monthIndex)
+	{
+		const year = this.#months[monthIndex].year;
+		const month = this.#months[monthIndex].month;
+		this.#calculateDateTimeSlots(year, month);
+
+		this.#months[this.#currentMonthIndex] = this.#createMonth(year, month);
 	}
 
 	#getNodeBack(): HTMLElement

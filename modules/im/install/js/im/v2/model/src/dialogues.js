@@ -1,37 +1,37 @@
-import {Text, Type} from 'main.core';
-import {BuilderModel} from 'ui.vue3.vuex';
+import { Text, Type } from 'main.core';
+import { BuilderModel } from 'ui.vue3.vuex';
 
-import {Core} from 'im.v2.application.core';
-import {ChatOption, Color, DialogType} from 'im.v2.const';
-import {Utils} from 'im.v2.lib.utils';
+import { Core } from 'im.v2.application.core';
+import { Color, DialogType, UserRole } from 'im.v2.const';
+import { Utils } from 'im.v2.lib.utils';
 
-import type {Dialog as ImModelDialog} from './type/dialog';
+import type { GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
+import type { Dialog as ImModelDialog } from './type/dialog';
 
 const WRITING_STATUS_TIME = 35000;
 
 type DialogState = {
 	collection: {[dialogId: string]: ImModelDialog},
 	writingStatusTimers: {[timerId: string]: number},
-	chatOptions: {[chatType: string]: {[option: string]: boolean}}
 };
 
+/* eslint-disable no-param-reassign */
 export class DialoguesModel extends BuilderModel
 {
-	getName()
+	getName(): string
 	{
 		return 'dialogues';
 	}
 
-	getState()
+	getState(): DialogState
 	{
 		return {
 			collection: {},
 			writingStatusTimers: {},
-			chatOptions: {}
 		};
 	}
 
-	getElementState()
+	getElementState(): ImModelDialog
 	{
 		return {
 			dialogId: '0',
@@ -50,7 +50,7 @@ export class DialoguesModel extends BuilderModel
 			lastMessageViews: {
 				countOfViewers: 0,
 				firstViewer: null,
-				messageId: 0
+				messageId: 0,
 			},
 			savedPositionMessageId: 0,
 			managerList: [],
@@ -64,54 +64,51 @@ export class DialoguesModel extends BuilderModel
 			dateCreate: null,
 			public: {
 				code: '',
-				link: ''
+				link: '',
 			},
 			inited: false,
 			loading: false,
 			hasPrevPage: false,
 			hasNextPage: false,
 			diskFolderId: 0,
+			role: UserRole.guest,
+			permissions: {
+				manageUsers: UserRole.none,
+				manageUi: UserRole.none,
+				manageSettings: UserRole.none,
+				canPost: UserRole.none,
+			},
 		};
 	}
 
-	getGetters()
+	// eslint-disable-next-line max-lines-per-function
+	getGetters(): GetterTree
 	{
 		return {
-			get: (state: DialogState) => (dialogId: string, getBlank: boolean = false) =>
-			{
+			/** @function dialogues/get */
+			get: (state: DialogState) => (dialogId: string, getBlank: boolean = false) => {
 				if (!state.collection[dialogId] && getBlank)
 				{
 					return this.getElementState();
 				}
-				else if (!state.collection[dialogId] && !getBlank)
+
+				if (!state.collection[dialogId] && !getBlank)
 				{
 					return null;
 				}
 
 				return state.collection[dialogId];
 			},
-			getByChatId: (state: DialogState) => (chatId: number | string) =>
-			{
-				chatId = Number.parseInt(chatId, 10);
-				return Object.values(state.collection).find(item => {
-					return item.chatId === chatId;
+			/** @function dialogues/getByChatId */
+			getByChatId: (state: DialogState) => (chatId: number | string) => {
+				const preparedChatId = Number.parseInt(chatId, 10);
+
+				return Object.values(state.collection).find((item) => {
+					return item.chatId === preparedChatId;
 				});
 			},
-			getBlank: () =>
-			{
-				return this.getElementState();
-			},
-			getChatOption: (state: DialogState) => (chatType: string, option: string) =>
-			{
-				if (!state.chatOptions[chatType])
-				{
-					chatType = 'default';
-				}
-
-				return state.chatOptions[chatType][option];
-			},
-			getQuoteId: (state: DialogState) => (dialogId: string) =>
-			{
+			/** @function dialogues/getQuoteId */
+			getQuoteId: (state: DialogState) => (dialogId: string) => {
 				if (!state.collection[dialogId])
 				{
 					return 0;
@@ -119,8 +116,8 @@ export class DialoguesModel extends BuilderModel
 
 				return state.collection[dialogId].quoteId;
 			},
-			isUser: (state: DialogState) => (dialogId: string) =>
-			{
+			/** @function dialogues/isUser */
+			isUser: (state: DialogState) => (dialogId: string) => {
 				if (!state.collection[dialogId])
 				{
 					return false;
@@ -128,64 +125,25 @@ export class DialoguesModel extends BuilderModel
 
 				return state.collection[dialogId].type === DialogType.user;
 			},
-			canLeave: (state: DialogState) => (dialogId: string) =>
-			{
-				if (!state.collection[dialogId])
-				{
-					return false;
-				}
-
-				const dialog = state.collection[dialogId];
-
-				const isExternalTelephonyCall = dialog.type === DialogType.call;
-				const isUser = dialog.type === DialogType.user;
-				if (isExternalTelephonyCall || isUser)
-				{
-					return false;
-				}
-
-				const currentUserId = Core.getUserId();
-				const optionToCheck = dialog.owner === currentUserId ? ChatOption.leaveOwner : ChatOption.leave;
-
-				return this.store.getters['dialogues/getChatOption'](dialog.type, optionToCheck);
-			},
-			canMute: (state: DialogState) => (dialogId: string) =>
-			{
-				if (!state.collection[dialogId])
-				{
-					return false;
-				}
-
-				const dialog = state.collection[dialogId];
-
-				const isUser = dialog.type === DialogType.user;
-				const isAnnouncement = dialog.type === DialogType.announcement;
-				if (isUser || isAnnouncement)
-				{
-					return null;
-				}
-
-				return this.store.getters['dialogues/getChatOption'](dialog.type, ChatOption.mute);
-			},
-			getLastReadId: (state: DialogState) => (dialogId: string): number =>
-			{
+			/** @function dialogues/getLastReadId */
+			getLastReadId: (state: DialogState) => (dialogId: string): number => {
 				if (!state.collection[dialogId])
 				{
 					return 0;
 				}
 
-				const {lastReadId, lastMessageId} = state.collection[dialogId];
+				const { lastReadId, lastMessageId } = state.collection[dialogId];
 
 				return lastReadId === lastMessageId ? 0 : lastReadId;
 			},
-			getInitialMessageId: (state: DialogState) => (dialogId: string): number =>
-			{
+			/** @function dialogues/getInitialMessageId */
+			getInitialMessageId: (state: DialogState) => (dialogId: string): number => {
 				if (!state.collection[dialogId])
 				{
 					return 0;
 				}
 
-				const {lastReadId, markedId} = state.collection[dialogId];
+				const { lastReadId, markedId } = state.collection[dialogId];
 				if (markedId === 0)
 				{
 					return lastReadId;
@@ -196,106 +154,106 @@ export class DialoguesModel extends BuilderModel
 		};
 	}
 
-	getActions()
+	// eslint-disable-next-line max-lines-per-function
+	getActions(): ActionTree
 	{
 		return {
-			set: (store, payload: Array | Object) =>
-			{
+			/** @function dialogues/set */
+			set: (store, rawPayload: Array | Object) => {
+				let payload = rawPayload;
 				if (!Array.isArray(payload) && Type.isPlainObject(payload))
 				{
 					payload = [payload];
 				}
 
-				payload.map(element => {
+				payload.map((element) => {
 					return this.validate(element);
-				}).forEach(element => {
+				}).forEach((element) => {
 					const existingItem = store.state.collection[element.dialogId];
 					if (existingItem)
 					{
 						store.commit('update', {
 							dialogId: element.dialogId,
-							fields: element
+							fields: element,
 						});
 					}
 					else
 					{
 						store.commit('add', {
 							dialogId: element.dialogId,
-							fields: {...this.getElementState(), ...element}
+							fields: { ...this.getElementState(), ...element },
 						});
 					}
 				});
 			},
-
-			add: (store, payload: Array | Object) =>
-			{
+			/** @function dialogues/add */
+			add: (store, rawPayload: Array | Object) => {
+				let payload = rawPayload;
 				if (!Array.isArray(payload) && Type.isPlainObject(payload))
 				{
 					payload = [payload];
 				}
 
-				payload.map(element => {
+				payload.map((element) => {
 					return this.validate(element);
-				}).forEach(element => {
+				}).forEach((element) => {
 					const existingItem = store.state.collection[element.dialogId];
 					if (!existingItem)
 					{
 						store.commit('add', {
 							dialogId: element.dialogId,
-							fields: {...this.getElementState(), ...element}
+							fields: { ...this.getElementState(), ...element },
 						});
 					}
 				});
 			},
-
-			update: (store, payload: {dialogId: string, fields: Object}) =>
-			{
+			/** @function dialogues/update */
+			update: (store, payload: {dialogId: string, fields: Object}) => {
 				const existingItem = store.state.collection[payload.dialogId];
 				if (!existingItem)
 				{
-					return false;
+					return;
 				}
 
 				store.commit('update', {
 					dialogId: payload.dialogId,
-					fields: this.validate(payload.fields)
+					fields: this.validate(payload.fields),
 				});
 			},
-
-			delete: (store, payload: {dialogId: string}) =>
-			{
+			/** @function dialogues/delete */
+			delete: (store, payload: {dialogId: string}) => {
 				const existingItem = store.state.collection[payload.dialogId];
 				if (!existingItem)
 				{
-					return false;
+					return;
 				}
 
-				store.commit('delete', {dialogId: payload.dialogId});
+				store.commit('delete', { dialogId: payload.dialogId });
 			},
-
-			startWriting: (store, payload: {dialogId: string, userId: number, userName: string}) =>
-			{
+			/** @function dialogues/startWriting */
+			startWriting: (store, payload: {dialogId: string, userId: number, userName: string}) => {
 				const existingItem = store.state.collection[payload.dialogId];
 				if (!existingItem)
 				{
-					return false;
+					return;
 				}
 
 				const timerId = `${payload.dialogId}|${payload.userId}`;
-				const alreadyWriting = existingItem.writingList.some(el => el.userId === payload.userId);
+				const alreadyWriting = existingItem.writingList.some((el) => el.userId === payload.userId);
 				if (alreadyWriting)
 				{
 					clearTimeout(store.state.writingStatusTimers[timerId]);
 					store.state.writingStatusTimers[timerId] = this.setWritingStatusTimeout(payload);
-					return true;
+
+					return;
 				}
 
-				const newItem = {userId: payload.userId, userName: payload.userName};
+				const newItem = { userId: payload.userId, userName: payload.userName };
 				const newWritingList = [newItem, ...existingItem.writingList];
 				store.commit('update', {
 					actionName: 'startWriting',
 					dialogId: payload.dialogId,
-					fields: this.validate({writingList: newWritingList})
+					fields: this.validate({ writingList: newWritingList }),
 				});
 
 				if (!store.state.writingStatusTimers[timerId])
@@ -303,44 +261,42 @@ export class DialoguesModel extends BuilderModel
 					store.state.writingStatusTimers[timerId] = this.setWritingStatusTimeout(payload);
 				}
 			},
-
-			stopWriting: (store, payload: {dialogId: string, userId: number}) =>
-			{
+			/** @function dialogues/stopWriting */
+			stopWriting: (store, payload: {dialogId: string, userId: number}) => {
 				const existingItem = store.state.collection[payload.dialogId];
 				if (!existingItem)
 				{
-					return false;
+					return;
 				}
 
-				const alreadyWriting = existingItem.writingList.find(el => el.userId === payload.userId);
+				const alreadyWriting = existingItem.writingList.find((el) => el.userId === payload.userId);
 				if (!alreadyWriting)
 				{
-					return false;
+					return;
 				}
 
-				const newWritingList = existingItem.writingList.filter(item => item.userId !== payload.userId);
+				const newWritingList = existingItem.writingList.filter((item) => item.userId !== payload.userId);
 				store.commit('update', {
 					actionName: 'stopWriting',
 					dialogId: payload.dialogId,
-					fields: this.validate({writingList: newWritingList})
+					fields: this.validate({ writingList: newWritingList }),
 				});
 
 				const timerId = `${payload.dialogId}|${payload.userId}`;
 				clearTimeout(store.state.writingStatusTimers[timerId]);
 				delete store.state.writingStatusTimers[timerId];
 			},
-
-			increaseCounter: (store, payload: {dialogId: string, count: number}) =>
-			{
+			/** @function dialogues/increaseCounter */
+			increaseCounter: (store, payload: {dialogId: string, count: number}) => {
 				const existingItem = store.state.collection[payload.dialogId];
 				if (!existingItem)
 				{
-					return false;
+					return;
 				}
 
 				if (existingItem.counter === 100)
 				{
-					return true;
+					return;
 				}
 
 				let increasedCounter = existingItem.counter + payload.count;
@@ -355,21 +311,20 @@ export class DialoguesModel extends BuilderModel
 					fields: {
 						counter: increasedCounter,
 						previousCounter: existingItem.counter
-					}
+					},
 				});
 			},
-
-			decreaseCounter: (store, payload: {dialogId: string, count: number}) =>
-			{
+			/** @function dialogues/decreaseCounter */
+			decreaseCounter: (store, payload: {dialogId: string, count: number}) => {
 				const existingItem = store.state.collection[payload.dialogId];
 				if (!existingItem)
 				{
-					return false;
+					return;
 				}
 
 				if (existingItem.counter === 100)
 				{
-					return true;
+					return;
 				}
 
 				let decreasedCounter = existingItem.counter - payload.count;
@@ -383,71 +338,62 @@ export class DialoguesModel extends BuilderModel
 					dialogId: payload.dialogId,
 					fields: {
 						counter: decreasedCounter,
-						previousCounter: existingItem.counter
-					}
+						previousCounter: existingItem.counter,
+					},
 				});
 			},
-
-			clearCounters: (store) =>
-			{
+			/** @function dialogues/clearCounters */
+			clearCounters: (store) => {
 				store.commit('clearCounters');
 			},
-
-			mute: (store, payload: {dialogId: string}) =>
-			{
+			/** @function dialogues/mute */
+			mute: (store, payload: {dialogId: string}) => {
 				const existingItem = store.state.collection[payload.dialogId];
 				if (!existingItem)
 				{
-					return false;
+					return;
 				}
 
 				const currentUserId = Core.getUserId();
 				if (existingItem.muteList.includes(currentUserId))
 				{
-					return false;
+					return;
 				}
 				const muteList = [...existingItem.muteList, currentUserId];
 
 				store.commit('update', {
 					actionName: 'mute',
 					dialogId: payload.dialogId,
-					fields: this.validate({muteList})
+					fields: this.validate({ muteList }),
 				});
 			},
-
-			unmute: (store, payload: {dialogId: string}) =>
-			{
+			/** @function dialogues/unmute */
+			unmute: (store, payload: {dialogId: string}) => {
 				const existingItem = store.state.collection[payload.dialogId];
 				if (!existingItem)
 				{
-					return false;
+					return;
 				}
 
 				const currentUserId = Core.getUserId();
-				const muteList = existingItem.muteList.filter(item => item !== currentUserId);
+				const muteList = existingItem.muteList.filter((item) => item !== currentUserId);
 
 				store.commit('update', {
 					actionName: 'unmute',
 					dialogId: payload.dialogId,
-					fields: this.validate({muteList})
+					fields: this.validate({ muteList }),
 				});
 			},
-
-			setChatOptions: (store, payload: Object) =>
-			{
-				store.commit('setChatOptions', this.validateChatOptions(payload));
-			},
-
+			/** @function dialogues/setLastMessageViews */
 			setLastMessageViews: (store, payload: {
 				dialogId: string,
 				fields: {userId: number, userName: string, date: string, messageId: number}
-			}) =>
-			{
-				const {dialogId, fields: {userId, userName, date, messageId}} = payload;
+			}) => {
+				const { dialogId, fields: { userId, userName, date, messageId } } = payload;
 				const existingItem: ImModelDialog = store.state.collection[dialogId];
 				if (!existingItem)
 				{
-					return false;
+					return;
 				}
 
 				const newLastMessageViews = {
@@ -456,42 +402,40 @@ export class DialoguesModel extends BuilderModel
 					firstViewer: {
 						userId,
 						userName,
-						date: Utils.date.cast(date)
-					}
+						date: Utils.date.cast(date),
+					},
 				};
 				store.commit('update', {
 					actionName: 'setLastMessageViews',
-					dialogId: dialogId,
+					dialogId,
 					fields: {
-						lastMessageViews: newLastMessageViews
-					}
+						lastMessageViews: newLastMessageViews,
+					},
 				});
 			},
-
-			clearLastMessageViews: (store, payload: {dialogId: string}) =>
-			{
+			/** @function dialogues/clearLastMessageViews */
+			clearLastMessageViews: (store, payload: {dialogId: string}) => {
 				const existingItem = store.state.collection[payload.dialogId];
 				if (!existingItem)
 				{
-					return false;
+					return;
 				}
 
-				const {lastMessageViews: defaultLastMessageViews} = this.getElementState();
+				const { lastMessageViews: defaultLastMessageViews } = this.getElementState();
 				store.commit('update', {
 					actionName: 'clearLastMessageViews',
 					dialogId: payload.dialogId,
 					fields: {
-						lastMessageViews: defaultLastMessageViews
-					}
+						lastMessageViews: defaultLastMessageViews,
+					},
 				});
 			},
-
-			incrementLastMessageViews: (store, payload: {dialogId: string}) =>
-			{
+			/** @function dialogues/incrementLastMessageViews */
+			incrementLastMessageViews: (store, payload: {dialogId: string}) => {
 				const existingItem: ImModelDialog = store.state.collection[payload.dialogId];
 				if (!existingItem)
 				{
-					return false;
+					return;
 				}
 
 				const newCounter = existingItem.lastMessageViews.countOfViewers + 1;
@@ -499,35 +443,27 @@ export class DialoguesModel extends BuilderModel
 					actionName: 'incrementLastMessageViews',
 					dialogId: payload.dialogId,
 					fields: {
-						lastMessageViews: {...existingItem.lastMessageViews, countOfViewers: newCounter}
-					}
+						lastMessageViews: { ...existingItem.lastMessageViews, countOfViewers: newCounter },
+					},
 				});
-			}
+			},
 		};
 	}
 
-	getMutations()
+	getMutations(): MutationTree
 	{
 		return {
-			add: (state: DialogState, payload) =>
-			{
+			add: (state: DialogState, payload) => {
 				state.collection[payload.dialogId] = payload.fields;
 			},
-			update: (state: DialogState, payload) =>
-			{
-				state.collection[payload.dialogId] = {...state.collection[payload.dialogId], ...payload.fields};
+			update: (state: DialogState, payload) => {
+				state.collection[payload.dialogId] = { ...state.collection[payload.dialogId], ...payload.fields };
 			},
-			delete: (state: DialogState, payload) =>
-			{
+			delete: (state: DialogState, payload) => {
 				delete state.collection[payload.dialogId];
 			},
-			setChatOptions: (state: DialogState, payload) =>
-			{
-				state.chatOptions = payload;
-			},
-			clearCounters: (state: DialogState) =>
-			{
-				Object.keys(state.collection).forEach(key => {
+			clearCounters: (state: DialogState) => {
+				Object.keys(state.collection).forEach((key) => {
 					state.collection[key].counter = 0;
 					state.collection[key].markedId = 0;
 				});
@@ -540,7 +476,7 @@ export class DialoguesModel extends BuilderModel
 		return setTimeout(() => {
 			this.store.dispatch('dialogues/stopWriting', {
 				dialogId: payload.dialogId,
-				userId: payload.userId
+				userId: payload.userId,
 			});
 		}, WRITING_STATUS_TIME);
 	}
@@ -781,6 +717,89 @@ export class DialoguesModel extends BuilderModel
 			result.diskFolderId = fields.disk_folder_id;
 		}
 
+		fields.role = fields.role?.toString().toLowerCase();
+		if (UserRole[fields.role])
+		{
+			result.role = fields.role;
+		}
+
+		const preparedPermissions = this.preparePermissions(fields);
+		if (Object.values(preparedPermissions).length > 0)
+		{
+			result.permissions = preparedPermissions;
+		}
+
+		return result;
+	}
+
+	preparePermissions(fields: Object<string, any>): {manageUi?: string, manageUsers?: string, manageSettings?: string}
+	{
+		const result = {};
+
+		if (Type.isStringFilled(fields.manage_settings))
+		{
+			fields.manageSettings = fields.manage_settings;
+		}
+
+		if (Type.isStringFilled(fields.manage_ui))
+		{
+			fields.manageUi = fields.manage_ui;
+		}
+
+		if (Type.isStringFilled(fields.manage_users))
+		{
+			fields.manageUsers = fields.manage_users;
+		}
+
+		if (Type.isStringFilled(fields.can_post))
+		{
+			fields.canPost = fields.can_post;
+		}
+
+		fields.manageSettings = fields.manageSettings?.toString().toLowerCase();
+		if (fields.manageSettings === 'all')
+		{
+			fields.manageSettings = UserRole.member;
+		}
+
+		if (UserRole[fields.manageSettings])
+		{
+			result.manageSettings = fields.manageSettings;
+		}
+
+		fields.manageUsers = fields.manageUsers?.toString().toLowerCase();
+		if (fields.manageUsers === 'all')
+		{
+			fields.manageUsers = UserRole.member;
+		}
+
+		if (UserRole[fields.manageUsers])
+		{
+			result.manageUsers = fields.manageUsers;
+		}
+
+		fields.manageUi = fields.manageUi?.toString().toLowerCase();
+		if (fields.manageUi === 'all')
+		{
+			fields.manageUi = UserRole.member;
+		}
+
+		if (UserRole[fields.manageUi])
+		{
+			result.manageUi = fields.manageUi;
+		}
+
+		fields.canPost = fields.canPost?.toString().toLowerCase();
+		if (fields.canPost === 'all')
+		{
+			fields.canPost = UserRole.member;
+		}
+
+		if (UserRole[fields.canPost])
+		{
+			result.canPost = fields.canPost;
+		}
+
 		return result;
 	}
 
@@ -898,21 +917,5 @@ export class DialoguesModel extends BuilderModel
 			firstViewer,
 			messageId,
 		};
-	}
-
-	validateChatOptions(options: Object): Object
-	{
-		const result = {};
-
-		Object.entries(options).forEach(([type, typeOptions]) => {
-			const newType = Utils.text.convertSnakeToCamelCase(type.toLowerCase());
-			result[newType] = {};
-			Object.entries(typeOptions).forEach(([key, value]) => {
-				const newKey = Utils.text.convertSnakeToCamelCase(key.toLowerCase());
-				result[newType][newKey] = value;
-			});
-		});
-
-		return result;
 	}
 }

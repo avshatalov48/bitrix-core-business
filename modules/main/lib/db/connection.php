@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\DB;
 
 use Bitrix\Main;
@@ -15,7 +16,7 @@ use Bitrix\Main\ORM\Fields\ScalarField;
  */
 abstract class Connection extends Data\Connection
 {
-	/**@var SqlHelper */
+	/** @var MysqliSqlHelper | PgsqlSqlHelper */
 	protected $sqlHelper;
 
 	/** @var Diag\SqlTracker */
@@ -38,7 +39,7 @@ abstract class Connection extends Data\Connection
 	protected $lastQueryResult;
 
 	/**
-	 * @var bool Flag for static::query - if need to execute query or just to collect it
+	 * @var bool Flag for static::query - if needed to execute query or just to collect it
 	 * @see $disabledQueryExecutingDump
 	 */
 	protected $queryExecutingEnabled = true;
@@ -182,21 +183,20 @@ abstract class Connection extends Data\Connection
 	 * SqlHelper
 	 **********************************************************/
 
-	/**
-	 * @return SqlHelper
-	 */
 	abstract protected function createSqlHelper();
 
 	/**
-	 * Returns database depended SqlHelper object.
+	 * Returns database-depended SqlHelper object.
 	 * Creates new one on the first call per Connection object instance.
 	 *
-	 * @return SqlHelper
+	 * @return MysqliSqlHelper | PgsqlSqlHelper
 	 */
 	public function getSqlHelper()
 	{
 		if ($this->sqlHelper == null)
+		{
 			$this->sqlHelper = $this->createSqlHelper();
+		}
 
 		return $this->sqlHelper;
 	}
@@ -272,7 +272,7 @@ abstract class Connection extends Data\Connection
 	abstract protected function queryInternal($sql, array $binds = null, Diag\SqlTrackerQuery $trackerQuery = null);
 
 	/**
-	 * Returns database depended result of the query.
+	 * Returns database-depended result of the query.
 	 *
 	 * @param resource $result Result of internal query function.
 	 * @param Diag\SqlTrackerQuery|null $trackerQuery Debug collector object.
@@ -433,7 +433,7 @@ abstract class Connection extends Data\Connection
 	 * <p>
 	 * $identity parameter must be null when table does not have autoincrement column.
 	 *
-	 * @param string $tableName Name of the table for insertion of new row..
+	 * @param string $tableName Name of the table for insertion of new row.
 	 * @param array $data Array of columnName => Value pairs.
 	 * @param string $identity For Oracle only.
 	 *
@@ -523,7 +523,7 @@ abstract class Connection extends Data\Connection
 	/**
 	 * Parses the string containing multiple queries and executes the queries one by one.
 	 * Queries delimiter depends on database type.
-	 * @see \Bitrix\Main\Db\SqlHelper->getQueryDelimiter
+	 * @see SqlHelper->getQueryDelimiter
 	 *
 	 * @param string $sqlBatch String with queries, separated by database-specific delimiters.
 	 * @param bool $stopOnError Whether return after the first error.
@@ -568,7 +568,7 @@ abstract class Connection extends Data\Connection
 
 		do
 		{
-			if (preg_match("%^(.*?)(['\"`#]|--|".$delimiter.")%is", $sqlBatch, $match))
+			if (preg_match("%^(.*?)(['\"`#]|--|\\$\\$|".$delimiter.")%is", $sqlBatch, $match))
 			{
 				//Found string start
 				if ($match[2] == "\"" || $match[2] == "'" || $match[2] == "`")
@@ -617,6 +617,26 @@ abstract class Connection extends Data\Connection
 						$sqlBatch = mb_substr($sqlBatch, $p);
 					}
 				}
+				//$$ plpgsql body
+				elseif ($match[2] == '$$')
+				{
+					//Take that was before delimiter as part of sql
+					$sqlBatch = mb_substr($sqlBatch, mb_strlen($match[0]));
+					//Including $$
+					$sql .= $match[0];
+					//Find closing $$
+					$p = mb_strpos($sqlBatch, '$$');
+					if ($p === false)
+					{
+						$sql .= $sqlBatch;
+						$sqlBatch = '';
+					}
+					else
+					{
+						$sql .= mb_substr($sqlBatch, 0, $p + 2);
+						$sqlBatch = mb_substr($sqlBatch, $p + 2);
+					}
+				}
 				//Delimiter!
 				else
 				{
@@ -648,7 +668,7 @@ abstract class Connection extends Data\Connection
 		}
 		while (!empty($sqlBatch));
 
-		$sql = trim($sql);
+		$sql = trim($sql, " \t\n\r");
 		if (!empty($sql))
 		{
 			$statements[] = str_replace("\r\n", "\n", $sql);
@@ -680,7 +700,7 @@ abstract class Connection extends Data\Connection
 	/**
 	 * Checks if an index exists.
 	 * Actual columns in the index may differ from requested.
-	 * $columns may present an "prefix" of actual index columns.
+	 * $columns may present a "prefix" of actual index columns.
 	 *
 	 * @param string $tableName A table name.
 	 * @param array  $columns An array of columns in the index.
@@ -703,7 +723,7 @@ abstract class Connection extends Data\Connection
 
 	/**
 	 * Returns fields objects according to the columns of a table.
-	 * Table must exists.
+	 * Table must exist.
 	 *
 	 * @param string $tableName The table name.
 	 *
@@ -809,7 +829,7 @@ abstract class Connection extends Data\Connection
 	}
 
 	/**
-	 * Renames the table. Renamed table must exists and new name must not be occupied by any database object.
+	 * Renames the table. Renamed table must exist and new name must not be occupied by any database object.
 	 *
 	 * @param string $currentName Old name of the table.
 	 * @param string $newName New name of the table.
@@ -820,7 +840,7 @@ abstract class Connection extends Data\Connection
 	abstract public function renameTable($currentName, $newName);
 
 	/**
-	 * Drops a column. This column must exists and must be not the part of primary constraint.
+	 * Drops a column. This column must exist and must be not the part of primary constraint.
 	 * and must be not the last one in the table.
 	 *
 	 * @param string $tableName Name of the table to which column will be dropped.
@@ -984,7 +1004,7 @@ abstract class Connection extends Data\Connection
 	 *
 	 * @return string
 	 */
-	abstract protected function getErrorMessage();
+	abstract public function getErrorMessage();
 
 	/**
 	 * Clears all internal caches which may be used by some dictionary functions.
@@ -1069,7 +1089,7 @@ abstract class Connection extends Data\Connection
 			}
 			else
 			{
-				if (substr($indexColumnList, 0, strlen($columnsList)) === $columnsList)
+				if (str_starts_with($indexColumnList, $columnsList))
 				{
 					return $indexName;
 				}

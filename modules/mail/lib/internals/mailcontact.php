@@ -138,7 +138,7 @@ class MailContactTable extends Entity\DataManager
 		$values = implode('), (', $values);
 
 		$tableName = static::getTableName();
-		$sql = "INSERT IGNORE $tableName($keys) VALUES($values)";
+		$sql = $sqlHelper->getInsertIgnore($tableName, "($keys)", " VALUES($values)");
 		Application::getConnection()->query($sql);
 
 		return true;

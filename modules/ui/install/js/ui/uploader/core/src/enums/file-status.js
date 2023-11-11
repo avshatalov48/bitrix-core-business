@@ -1,3 +1,6 @@
+/**
+ * @namespace BX.UI.Uploader
+ */
 export type FileStatusType = {
 	INIT: string,
 	ADDED: string,
@@ -9,6 +12,9 @@ export type FileStatusType = {
 	UPLOAD_FAILED: string,
 };
 
+/**
+ * @namespace BX.UI.Uploader
+ */
 export const FileStatus: FileStatusType = {
 	INIT: 'init',
 	ADDED: 'added',
@@ -16,8 +22,8 @@ export const FileStatus: FileStatusType = {
 	PENDING: 'pending',
 	UPLOADING: 'uploading',
 	COMPLETE: 'complete',
-	//REMOVING: 'removing',
-	//REMOVE_FAILED: 'remove-failed',
+	// REMOVING: 'removing',
+	// REMOVE_FAILED: 'remove-failed',
 	LOAD_FAILED: 'load-failed',
 	UPLOAD_FAILED: 'upload-failed',
 };

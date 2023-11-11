@@ -67,6 +67,7 @@ export default class BrowserNotification extends UI.Notification.Balloon
 				<div
 					class="ui-notification-manager-browser-message"
 					onclick="${this.handleContentClick.bind(this)}"
+					oncontextmenu="${this.handleContextClick.bind(this)}"
 				>
 					${this.getIconNode()}
 					<div class="ui-notification-manager-browser-column">
@@ -282,6 +283,16 @@ export default class BrowserNotification extends UI.Notification.Balloon
 		}
 
 		this.close();
+	}
+
+	handleContextClick(event: Event): void
+	{
+		event.preventDefault();
+
+		if (Type.isFunction(this.getData().contextClickHandler))
+		{
+			this.getData().contextClickHandler();
+		}
 	}
 
 	handleUserInputEnter(event: Event): void

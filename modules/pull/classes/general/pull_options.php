@@ -533,7 +533,14 @@ class CPullOptions
 			'params' => Array()
 		);
 		CPullStack::AddShared($arMessage);
-		\Bitrix\Pull\Event::send();
+		try
+		{
+			\Bitrix\Pull\Event::send();
+		}
+		catch(Throwable $e)
+		{
+			// ignore exception
+		}
 	}
 
 	public static function GetDefaultOption($optionName)

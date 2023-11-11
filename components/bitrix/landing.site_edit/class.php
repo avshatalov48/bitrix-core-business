@@ -145,6 +145,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			$this->checkParam('SITE_ID', 0);
 			$this->checkParam('TYPE', '');
 			$this->checkParam('PAGE_URL_SITES', '');
+			$this->checkParam('PAGE_URL_LANDINGS', '');
 			$this->checkParam('PAGE_URL_LANDING_VIEW', '');
 			$this->checkParam('PAGE_URL_SITE_DOMAIN', '');
 			$this->checkParam('PAGE_URL_SITE_COOKIES', '');
@@ -167,6 +168,9 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			$this->arResult['REGISTER'] = Register::getInstance();
 			$this->arResult['SITE_INCLUDES_SCRIPT'] = Cookies::isSiteIncludesScript($this->id);
 			$this->arResult['COOKIES_AGREEMENT'] = Cookies::getMainAgreement();
+			$this->arResult['ALLOW_AI_TEXT'] = \Bitrix\Landing\Connector\Ai::isTextAvailable();
+			$this->arResult['ALLOW_AI_IMAGE'] = \Bitrix\Landing\Connector\Ai::isImageAvailable();
+			$this->arResult['SPECIAL_TYPE'] = Site\Type::getSiteTypeForms($this->arResult['SITE']['CODE']['CURRENT']);
 
 			if (
 				!defined('LANDING_DISABLE_B24_MODE') &&

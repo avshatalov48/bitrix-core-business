@@ -13,7 +13,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="facebook">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://facebook.com">
 					<i class="landing-block-card-social-icon fa fa-facebook"></i>
 				</a>
@@ -35,7 +35,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="instagram">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://instagram.com">
 					<i class="landing-block-card-social-icon fa fa-instagram"></i>
 				</a>
@@ -57,7 +57,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="whatsapp">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://whatsapp.com">
 					<i class="landing-block-card-social-icon fa fa-whatsapp"></i>
 				</a>
@@ -79,7 +79,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="viber">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://viber.com">
 					<i class="landing-block-card-social-icon fab fa-viber"></i>
 				</a>
@@ -101,7 +101,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="telegram">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://telegram.org">
 					<i class="landing-block-card-social-icon fa fa-telegram"></i>
 				</a>
@@ -123,7 +123,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="facebook-messenger">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://messenger.com">
 					<i class="landing-block-card-social-icon fab fa-facebook-messenger"></i>
 				</a>
@@ -145,7 +145,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="tiktok">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://tiktok.com">
 					<i class="landing-block-card-social-icon fab fa-tiktok"></i>
 				</a>
@@ -167,7 +167,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="youtube">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://youtube.com">
 					<i class="landing-block-card-social-icon fa fa-youtube"></i>
 				</a>
@@ -189,7 +189,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="vk">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://vk.com">
 					<i class="landing-block-card-social-icon fa fa-vk"></i>
 				</a>
@@ -211,7 +211,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="odnoklassniki">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://odnoklassniki.com">
 					<i class="landing-block-card-social-icon fa fa-odnoklassniki"></i>
 				</a>
@@ -233,7 +233,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="skype">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://skype.com">
 					<i class="landing-block-card-social-icon fa fa-skype"></i>
 				</a>
@@ -255,7 +255,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="twitter">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://twitter.com">
 					<i class="landing-block-card-social-icon fa fa-twitter"></i>
 				</a>
@@ -277,7 +277,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="tumblr">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://tumblr.com">
 					<i class="landing-block-card-social-icon fa fa-tumblr"></i>
 				</a>
@@ -299,7 +299,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="discord">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://discord.com">
 					<i class="landing-block-card-social-icon fab fa-discord"></i>
 				</a>
@@ -321,7 +321,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="wechat">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://wechat.com">
 					<i class="landing-block-card-social-icon fa fa-wechat"></i>
 				</a>
@@ -343,7 +343,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="pinterest">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://pinterest.com">
 					<i class="landing-block-card-social-icon fa fa-pinterest"></i>
 				</a>
@@ -365,7 +365,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="twitch">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://twitch.tv">
 					<i class="landing-block-card-social-icon fa fa-twitch"></i>
 				</a>
@@ -387,7 +387,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="linkedin">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://linkedin.com">
 					<i class="landing-block-card-social-icon fa fa-linkedin"></i>
 				</a>
@@ -409,7 +409,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="snapchat">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://snapchat.com">
 					<i class="landing-block-card-social-icon fa fa-snapchat"></i>
 				</a>
@@ -431,7 +431,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="flickr">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://flickr.com">
 					<i class="landing-block-card-social-icon fa fa-flickr"></i>
 				</a>
@@ -453,7 +453,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="soundcloud">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://soundcloud.com">
 					<i class="landing-block-card-social-icon fa fa-soundcloud"></i>
 				</a>
@@ -475,7 +475,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="dribbble">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://dribbble.com">
 					<i class="landing-block-card-social-icon fa fa-dribbble"></i>
 				</a>
@@ -497,7 +497,7 @@ $result = [
 		'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="rocketchat">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://rocket.chat">
 					<i class="landing-block-card-social-icon fab fa-rocketchat"></i>
 				</a>
@@ -523,7 +523,7 @@ if (Manager::getZone() === 'cn')
 			'html' => '
 			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="renren">
-				<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://www.renren.com">
 					<i class="landing-block-card-social-icon fab fa-renren"></i>
 				</a>

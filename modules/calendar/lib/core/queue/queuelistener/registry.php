@@ -8,7 +8,7 @@ use Bitrix\Calendar\Core\Queue\Agent\EventDelayedSyncAgent;
 use Bitrix\Calendar\Core\Queue\Agent\EventsWithEntityAttendeesFindAgent;
 use Bitrix\Calendar\Core\Queue\Examples\ConsumerClientExample;
 use Bitrix\Calendar\Core\Queue\Queue\QueueRegistry;
-use Bitrix\Calendar\Internals\SingletonTrait;
+use Bitrix\Calendar\Core\Base\SingletonTrait;
 use Bitrix\Calendar\Core\Queue;
 
 class Registry

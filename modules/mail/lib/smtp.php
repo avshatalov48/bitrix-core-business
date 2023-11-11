@@ -28,6 +28,13 @@ class Smtp
 	protected $options = array();
 
 	/**
+	 * Is password value OAuth meta build
+	 *
+	 * @var bool
+	 */
+	protected bool $isOauth = false;
+
+	/**
 	 * Smtp client constructor.
 	 *
 	 * @param string $host Host.
@@ -252,7 +259,11 @@ class Smtp
 
 		if ($capabilities = preg_grep('/^ AUTH \x20 /ix', $this->sessCapability))
 		{
-			if (preg_grep('/ \x20 PLAIN ( \x20 | $ ) /ix', $capabilities))
+			if ($this->isOauth)
+			{
+				$mech = 'oauth';
+			}
+			else if (preg_grep('/ \x20 PLAIN ( \x20 | $ ) /ix', $capabilities))
 			{
 				$mech = 'plain';
 			}
@@ -268,7 +279,18 @@ class Smtp
 			return false;
 		}
 
-		if ($mech == 'plain')
+		if ($mech === 'oauth')
+		{
+			$token = Helper\OAuth::getTokenByMeta($this->options['password']);
+			if (empty($token))
+			{
+				$error = $this->errorMessage(array(Smtp::ERR_AUTH, Smtp::ERR_AUTH_MECH));
+				return false;
+			}
+			$formatted = sprintf("user=%s\x01auth=Bearer %s\x01\x01", $this->options['login'], $token);
+			$response = $this->executeCommand(sprintf("AUTH XOAUTH2\x00%s", base64_encode($formatted)), $error);
+		}
+		else if ($mech === 'plain')
 		{
 			$response = $this->executeCommand(
 				sprintf(
@@ -507,6 +529,19 @@ class Smtp
 			default:
 				return Loc::getMessage('MAIL_SMTP_ERR_DEFAULT');
 		}
+	}
+
+	/**
+	 * Set flag is need to connect with OAuth
+	 *
+	 * @param bool $value
+	 *
+	 * @return $this
+	 */
+	public function setIsOauth(bool $value): self
+	{
+		$this->isOauth = $value;
+		return $this;
 	}
 
 }

@@ -1261,7 +1261,7 @@ class __CControllerPacketRequest extends __CControllerPacket
 			$this->Debug(array(
 				__FILE__.":".__LINE__,
 				"We send request to the $server_name:$server_port from member#".$this->member_id,
-				"strVars" => strVars,
+				"strVars" => $strVars,
 				"Packet" => $this,
 			));
 		}
@@ -1456,8 +1456,6 @@ class __CControllerPacketResponse extends __CControllerPacket
 				"Packet" => $this,
 			));
 		}
-
-		while (@ob_end_flush());
 
 		echo $this->GetResponseBody();
 	}

@@ -72,6 +72,9 @@ class SiteTable extends ORM\Data\DataManager
 
 	public static function getMap()
 	{
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		return array(
 			'LID' => array(
 				'data_type' => 'string',
@@ -130,8 +133,8 @@ class SiteTable extends ORM\Data\DataManager
 				'reference' => array('=this.LANGUAGE_ID' => 'ref.ID'),
 				'join_type' => 'INNER',
 			),
-			(new Fields\ExpressionField('DIR_LENGTH', 'LENGTH(%s)', 'DIR')),
-			(new Fields\ExpressionField('DOC_ROOT_LENGTH', 'IFNULL(LENGTH(%s), 0)', 'DOC_ROOT')),
+			(new Fields\ExpressionField('DIR_LENGTH', $helper->getLengthFunction('%s'), 'DIR')),
+			(new Fields\ExpressionField('DOC_ROOT_LENGTH', $helper->getIsNullFunction($helper->getLengthFunction('%s'), '0'), 'DOC_ROOT')),
 		);
 	}
 

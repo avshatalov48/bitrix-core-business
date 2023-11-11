@@ -38,7 +38,9 @@ class DateTimeType extends DateType
 	 */
 	public static function getDbColumnType(): string
 	{
-		return 'datetime';
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\DatetimeField('x'));
 	}
 
 	/**

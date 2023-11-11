@@ -391,10 +391,10 @@ a.ui-btn-split:focus,
 .ui-btn-danger-dark {
 	--ui-btn-background: #a21429;
 	--ui-btn-background-hover: #c43d51;
-	--ui-btn-background-active: #c43d51;
+	--ui-btn-background-active: #851021;
 	--ui-btn-border-color: #a21429;
 	--ui-btn-border-color-hover: #c43d51;
-	--ui-btn-border-color-active: #c43d51;
+	--ui-btn-border-color-active: #851021;
 	--ui-btn-opacity-after: .3;
 	--ui-btn-color: #fff;
 	--ui-btn-color-hover: #fff;
@@ -431,10 +431,10 @@ a.ui-btn-split:focus,
 .ui-btn-primary-dark {
 	--ui-btn-background: #399fc2;
 	--ui-btn-background-hover: #37aed4;
-	--ui-btn-background-active: #37aed4;
+	--ui-btn-background-active: #328ba9;
 	--ui-btn-border-color: #399fc2;
 	--ui-btn-border-color-hover: #37aed4;
-	--ui-btn-border-color-active: #37aed4;
+	--ui-btn-border-color-active: #328ba9;
 	--ui-btn-color: #fff;
 	--ui-btn-color-hover: #fff;
 	--ui-btn-color-active: #fff;

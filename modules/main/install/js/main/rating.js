@@ -24,6 +24,9 @@ Rating = function(voteId, entityTypeId, entityId, available, userId, localize, t
 		this.enabled = false;
 		return false;
 	}
+
+	this.keySigned = this.box.getAttribute('data-vote-key-signed') || '';
+
 	if (!this.light)
 	{
 		this.buttonPlus = BX('rating-vote-'+voteId+'-plus');
@@ -217,7 +220,15 @@ Rating.Vote = function(voteId, button, action)
 		url: BXRS[voteId].pathToAjax,
 		method: 'POST',
 		dataType: 'json',
-		data: {'RATING_VOTE' : 'Y', 'RATING_RESULT' : 'Y', 'RATING_VOTE_TYPE_ID' : BXRS[voteId].entityTypeId, 'RATING_VOTE_ENTITY_ID' : BXRS[voteId].entityId, 'RATING_VOTE_ACTION' : action, 'sessid': BX.bitrix_sessid()},
+		data: {
+			RATING_VOTE: 'Y',
+			RATING_RESULT: 'Y',
+			RATING_VOTE_TYPE_ID: BXRS[voteId].entityTypeId,
+			RATING_VOTE_ENTITY_ID: BXRS[voteId].entityId,
+			RATING_VOTE_KEY_SIGNED: BXRS[voteId].keySigned,
+			RATING_VOTE_ACTION: action,
+			sessid: BX.bitrix_sessid(),
+		},
 		onsuccess: function(data)
 		{
 			if (BXRS[voteId].light)

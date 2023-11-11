@@ -22,7 +22,7 @@ const getSmileManager = () => {
 const getBigSmileOption = () => {
 	if (v2)
 	{
-		const settingName = BX.Messenger.v2.Const.Settings.dialog.bigSmiles;
+		const settingName = BX.Messenger.v2.Const.Settings.message.bigSmiles;
 		return getCore().getStore().getters['application/settings/get'](settingName);
 	}
 

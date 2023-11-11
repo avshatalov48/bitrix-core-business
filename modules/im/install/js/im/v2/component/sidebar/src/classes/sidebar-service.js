@@ -1,24 +1,24 @@
-import {Text, Type} from 'main.core';
+import { Text, Type } from 'main.core';
 
-import {Core} from 'im.v2.application.core';
-import {SidebarDetailBlock, SidebarBlock} from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
+import { SidebarDetailBlock, SidebarBlock } from 'im.v2.const';
 
-import {Media} from './blocks/media';
-import {Audio} from './blocks/audio';
-import {Document} from './blocks/document';
-import {Other} from './blocks/other';
-import {Favorite} from './blocks/favorite';
-import {Link} from './blocks/link';
-import {Task} from './blocks/task';
-import {Main} from './blocks/main';
-import {Brief} from './blocks/brief';
-import {Meeting} from './blocks/meeting';
-import {FileUnsorted} from './blocks/file-unsorted';
-import {AvailabilityManager} from './availability-manager';
-
+import { Media } from './blocks/media';
+import { Audio } from './blocks/audio';
+import { Document } from './blocks/document';
+import { Other } from './blocks/other';
+import { Favorite } from './blocks/favorite';
+import { Link } from './blocks/link';
+import { Task } from './blocks/task';
+import { Main } from './blocks/main';
+import { Brief } from './blocks/brief';
+import { Meeting } from './blocks/meeting';
+import { FileUnsorted } from './blocks/file-unsorted';
+import { MessageSearch } from './blocks/message-search';
+import { AvailabilityManager } from './availability-manager';
 
 const BlockClasses = {
-	Main, Favorite, Link, Task, Media, Audio, Document, Other, Brief, Meeting, FileUnsorted
+	Main, Favorite, Link, Task, Media, Audio, Document, Other, Brief, Meeting, FileUnsorted, MessageSearch,
 };
 
 const BlockToServices = Object.freeze({
@@ -26,9 +26,15 @@ const BlockToServices = Object.freeze({
 	[SidebarBlock.info]: [SidebarDetailBlock.favorite, SidebarDetailBlock.link],
 	[SidebarBlock.task]: [SidebarDetailBlock.task],
 	[SidebarBlock.meeting]: [SidebarDetailBlock.meeting],
-	[SidebarBlock.brief]: [SidebarDetailBlock.brief],
-	[SidebarBlock.file]: [SidebarDetailBlock.media, SidebarDetailBlock.audio, SidebarDetailBlock.document, SidebarDetailBlock.other],
+	[SidebarBlock.file]: [
+		SidebarDetailBlock.media,
+		SidebarDetailBlock.audio,
+		SidebarDetailBlock.document,
+		SidebarDetailBlock.brief,
+		SidebarDetailBlock.other,
+	],
 	[SidebarBlock.fileUnsorted]: [SidebarDetailBlock.fileUnsorted],
+	[SidebarBlock.messageSearch]: [SidebarDetailBlock.messageSearch],
 });
 
 type BlockService = {
@@ -54,7 +60,7 @@ export class SidebarService
 		this.availabilityManager = availabilityManager;
 	}
 
-	//region public methods
+	// region public methods
 	requestInitialData(): Promise
 	{
 		if (!Type.isArrayFilled(this.blockServices))
@@ -66,7 +72,7 @@ export class SidebarService
 			this.restClient.callBatch(
 				this.getInitialRequestQuery(),
 				(result) => resolve(this.handleBatchRequestResult(result)),
-				(error) => reject(error)
+				(error) => reject(error),
 			);
 		});
 	}
@@ -90,7 +96,7 @@ export class SidebarService
 	{
 		this.dialogId = dialogId;
 	}
-	//endregion
+	// endregion
 
 	buildBlocks(): void
 	{
@@ -101,7 +107,7 @@ export class SidebarService
 
 			return {
 				type: className.toLowerCase(),
-				blockManager: blockManager,
+				blockManager,
 				initialRequest: blockManager.getInitialRequest(),
 				responseHandler: blockManager.getResponseHandler(),
 			};
@@ -121,13 +127,13 @@ export class SidebarService
 			}
 		});
 
-		return services.map(service => Text.capitalize(service));
+		return services.map((service) => Text.capitalize(service));
 	}
 
 	getInitialRequestQuery(): Object
 	{
 		let query = {};
-		this.blockServices.forEach(block => {
+		this.blockServices.forEach((block) => {
 			query = Object.assign(query, block.initialRequest);
 		});
 
@@ -137,13 +143,13 @@ export class SidebarService
 	handleBatchRequestResult(response): Promise
 	{
 		const responseHandlersResult = [];
-		this.blockServices.forEach(block => {
+		this.blockServices.forEach((block) => {
 			responseHandlersResult.push(block.responseHandler(response));
 		});
 
 		return Promise.all(responseHandlersResult).then(() => {
 			return this.setInited();
-		}).catch(error => console.error(error));
+		}).catch((error) => console.error(error));
 	}
 
 	setInited(): Promise

@@ -6,6 +6,7 @@ use Bitrix\Crm\Integration\UserConsent;
 use Bitrix\Crm\Settings\LeadSettings;
 use Bitrix\Crm\UI\Webpack;
 use Bitrix\Crm\WebForm;
+use Bitrix\Landing\History;
 use Bitrix\Landing\Landing;
 use Bitrix\Landing\Block;
 use Bitrix\Landing\Internals\BlockTable;
@@ -47,6 +48,8 @@ class Form
 		'ACTIVE',
 		'XML_ID',
 	];
+
+	private static array $errors = [];
 
 	// region replaces for view and public
 
@@ -282,6 +285,13 @@ class Form
 					$forms[$form['ID']] = $form;
 				}
 			}
+			else if (isset($res['error']))
+			{
+				self::$errors[] = [
+					'code' => $res['error'],
+					'message' => $res['error_description'] ?? $res['error'],
+				];
+			}
 		}
 
 		return $forms;
@@ -409,6 +419,9 @@ class Form
 		$manifest['callbacks'] = [
 			'afterAdd' => function (Block &$block)
 			{
+				$historyActivity = History::isActive();
+				History::deactivate();
+
 				$dom = $block->getDom();
 				if (!($node = $dom->querySelector(self::SELECTOR_FORM_NODE)))
 				{
@@ -468,6 +481,8 @@ class Form
 				// save
 				$block->setAttributes([self::SELECTOR_FORM_NODE => $attrsToSet]);
 				$block->save();
+
+				$historyActivity ? History::activate() : History::deactivate();
 			},
 		];
 
@@ -556,39 +571,17 @@ class Form
 		// no form - no settings, just message for user
 		else
 		{
-			// portal or SMN with b24connector
-			if (Manager::isB24() || Manager::isB24Connector())
-			{
-				// todo:need alert?
-				$attrs[] = [
-					'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
-					'attribute' => self::ATTR_FORM_PARAMS,
-					'type' => 'list',
-					'items' => [
-						[
-							'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_NO_FORM'),
-							'value' => false,
-						],
-					],
-				];
-			}
-			// siteman
-			else
-			{
-				// todo: need?
-				$attrs[] = [
-					'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
-					'attribute' => self::ATTR_FORM_PARAMS,
-					'type' => 'list',
-					'items' => [
-						[
-							'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_NO_FORM'),
-							'value' => false,
-						],
-					],
-
-				];
-			}
+			$attrs[] = [
+				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
+				'attribute' => self::ATTR_FORM_PARAMS,
+				'type' => 'list',
+				'items' => !empty(self::$errors)
+					? array_map(fn ($item) => ['name' => $item['message'], 'value' => false], self::$errors)
+					: [[
+						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_NO_FORM'),
+						'value' => false,
+					]],
+			];
 		}
 
 		return $attrs;

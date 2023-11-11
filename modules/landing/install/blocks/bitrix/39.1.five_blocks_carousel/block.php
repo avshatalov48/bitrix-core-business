@@ -34,15 +34,15 @@
 			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
-					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-mb-15">
+					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
+					<h6 class="landing-block-node-card-title text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h6>
 					<div class="text-uppercase">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
+						<a class="landing-block-node-card-link g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>
@@ -85,15 +85,15 @@
 			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
-					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-mb-15">
+					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
+					<h6 class="landing-block-node-card-title text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h6>
 					<div class="text-uppercase">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
+						<a class="landing-block-node-card-link g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>
@@ -131,18 +131,18 @@
 
 		<div class="landing-block-node-card h-auto d-flex js-slide g-px-15 col-12 col-sm-4 col-lg-3">
 			<!-- Article -->
-			<article class="landing-block-node-card-bg d-flex flex-column landing-semantic-subtitle-image-small js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
+			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
 					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
+					<h6 class="landing-block-node-card-title text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h6>
 					<div class="text-uppercase">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
+						<a class="landing-block-node-card-link g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>
@@ -183,15 +183,15 @@
 			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
-					<div class="landing-block-node-card-subtitle text-uppercase landing-semantic-subtitle-image-small g-letter-spacing-1 g-mb-15">
+					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
+					<h6 class="landing-block-node-card-title text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h6>
 					<div class="text-uppercase">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
+						<a class="landing-block-node-card-link g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>
@@ -232,15 +232,15 @@
 			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
-					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-mb-15">
+					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
+					<h6 class="landing-block-node-card-title text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h6>
 					<div class="text-uppercase">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
+						<a class="landing-block-node-card-link g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>
@@ -281,15 +281,15 @@
 			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
-					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-mb-15">
+					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
+					<h6 class="landing-block-node-card-title text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h6>
 					<div class="text-uppercase">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
+						<a class="landing-block-node-card-link g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>

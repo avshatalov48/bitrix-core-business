@@ -42,7 +42,7 @@ class Extract
 	 * @param Main\Engine\Controller $controller Parent controller object.
 	 * @param array $config Additional configuration.
 	 */
-	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
 		$this->keepField(['archiveFilePath', 'archiveFileType', 'tmpFolderPath', 'totalFileCount']);
 
@@ -69,7 +69,7 @@ class Extract
 		if (!$this->tmpFolder->isExists() || !$this->tmpFolder->isDirectory())
 		{
 			$this->addError(new Error(
-				Loc::getMessage('TR_ERROR_CREATE_TEMP_FOLDER', array('#PATH#' => $this->tmpFolder->getPhysicalPath()))
+				Loc::getMessage('TR_ERROR_CREATE_TEMP_FOLDER', ['#PATH#' => $this->tmpFolder->getPhysicalPath()])
 			));
 		}
 		else
@@ -81,7 +81,7 @@ class Extract
 		if (!$this->archiveFile->isExists() || !$this->archiveFile->isFile())
 		{
 			$this->addError(
-				new Error(Loc::getMessage('TR_ERROR_OPEN_FILE', array('#FILE#' => $this->archiveFilePath)))
+				new Error(Loc::getMessage('TR_ERROR_OPEN_FILE', ['#FILE#' => $this->archiveFilePath]))
 			);
 		}
 		elseif ($this->archiveFileType !== '.tar.gz' && $this->archiveFileType !== '.tar')
@@ -115,11 +115,11 @@ class Extract
 			$this->saveProgressParameters();
 		}
 
-		return array(
+		return [
 			'STATUS' => Translate\Controller\STATUS_COMPLETED,
 			'PROCESSED_ITEMS' => $this->totalFileCount,
 			'TOTAL_ITEMS' => $this->totalFileCount,
-		);
+		];
 	}
 
 

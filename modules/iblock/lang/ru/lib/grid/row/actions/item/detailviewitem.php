@@ -1,0 +1,2 @@
+<?php
+$MESS['IBLOCK_GRID_ROW_ACTIONS_DETAIL_VIEW_NAME'] = 'Изменить';

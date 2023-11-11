@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,ui_vue3_directives_hint,ui_dialogs_messagebox,timeman_monitor,im_v2_lib_slider,im_v2_lib_call,im_v2_lib_desktop,im_v2_lib_utils,im_v2_component_elements,im_v2_lib_theme,im_v2_lib_logger,im_v2_lib_rest,ui_buttons,ui_feedback_form,ui_fontawesome4,im_v2_application_core,im_v2_const,im_v2_lib_market) {
+(function (exports,ui_vue3_directives_hint,ui_dialogs_messagebox,im_v2_lib_slider,im_v2_lib_call,im_v2_lib_desktopApi,im_v2_lib_phone,im_v2_lib_desktop,main_core,im_v2_component_elements,im_v2_lib_utils,im_v2_lib_logger,im_v2_lib_rest,ui_buttons,ui_feedback_form,ui_fontawesome4,im_v2_application_core,im_v2_const,im_v2_lib_market) {
 	'use strict';
 
 	// @vue/component
@@ -154,100 +154,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
-	const BackgroundService = {
-	  changeBackground(backgroundId) {
-	    im_v2_lib_logger.Logger.warn('Navigation: BackgroundService: changeBackground', backgroundId);
-	    const preparedBackgroundId = Number.parseInt(backgroundId, 10);
-	    im_v2_application_core.Core.getStore().dispatch('application/settings/set', {
-	      [im_v2_const.Settings.dialog.background]: preparedBackgroundId
-	    });
-	    im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2SettingsGeneralUpdate, {
-	      data: {
-	        userId: im_v2_application_core.Core.getUserId(),
-	        name: im_v2_const.Settings.dialog.background,
-	        value: preparedBackgroundId
-	      }
-	    }).catch(error => {
-	      console.error('Navigation: BackgroundService: error changing background', error);
-	    });
-	  }
-	};
-
-	// @vue/component
-	const BackgroundContent = {
-	  name: 'BackgroundContent',
-	  emits: ['close'],
-	  computed: {
-	    currentBackgroundId() {
-	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.dialog.background).toString();
-	    },
-	    backgroundIdList() {
-	      return Object.keys(im_v2_lib_theme.ThemeColorScheme);
-	    }
-	  },
-	  methods: {
-	    getBackgroundStyleById(backgroundId) {
-	      return im_v2_lib_theme.ThemeManager.getBackgroundStyleById(backgroundId);
-	    },
-	    onBackgroundClick(backgroundId) {
-	      BackgroundService.changeBackground(backgroundId);
-	    }
-	  },
-	  template: `
-		<div class="bx-im-background-select-popup__container">
-			<!-- <div class="bx-im-background-select-popup__title">Chat background</div> -->
-			<div class="bx-im-background-select-popup__list">
-				<div
-					v-for="id in backgroundIdList"
-					:key="id"
-					:style="getBackgroundStyleById(id)"
-					class="bx-im-background-select-popup__item"
-					:class="{'--active': id === currentBackgroundId}"
-					@click="onBackgroundClick(id)"
-				></div>
-			</div>
-			<!-- <div @click="$emit('close')" class="bx-im-background-select-popup__close bx-im-messenger__cross-icon"></div> -->
-		</div>
-	`
-	};
-
-	const POPUP_ID$1 = 'im-background-select-popup';
-
-	// @vue/component
-	const BackgroundPopup = {
-	  name: 'BackgroundPopup',
-	  components: {
-	    MessengerPopup: im_v2_component_elements.MessengerPopup,
-	    BackgroundContent
-	  },
-	  props: {
-	    bindElement: {
-	      type: Object,
-	      required: true
-	    }
-	  },
-	  emits: ['close'],
-	  computed: {
-	    POPUP_ID: () => POPUP_ID$1,
-	    config() {
-	      return {
-	        bindElement: this.bindElement,
-	        offsetTop: 4,
-	        padding: 0
-	      };
-	    }
-	  },
-	  template: `
-		<MessengerPopup
-			:config="config"
-			@close="$emit('close')"
-			:id="POPUP_ID"
-		>
-			<BackgroundContent @close="$emit('close')" />
-		</MessengerPopup>
-	`
-	};
-
 	class VersionService {
 	  constructor() {
 	    this.store = null;
@@ -270,14 +176,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Avatar: im_v2_component_elements.Avatar,
 	    UserStatus: im_v2_component_elements.UserStatus,
 	    ButtonPanel,
-	    UserStatusPopup,
-	    BackgroundPopup
+	    UserStatusPopup
 	  },
 	  emits: ['closePopup', 'enableAutoHide', 'disableAutoHide'],
 	  data() {
 	    return {
 	      showStatusPopup: false,
-	      showBackgroundPopup: false,
 	      isChangingVersion: false
 	    };
 	  },
@@ -308,6 +212,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    profileUri() {
 	      return im_v2_lib_utils.Utils.user.getProfileLink(this.currentUserId);
+	    },
+	    showOldChatButton() {
+	      const settings = main_core.Extension.getSettings('im.v2.component.navigation');
+	      return Boolean(settings.get('force_beta')) === false;
 	    }
 	  },
 	  methods: {
@@ -330,40 +238,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    onStatusPopupClose() {
 	      this.showStatusPopup = false;
 	      this.$emit('enableAutoHide');
-	    },
-	    onBackgroundSelectClick() {
-	      this.showBackgroundPopup = true;
-	      this.$emit('disableAutoHide');
-	    },
-	    onBackgroundPopupClose() {
-	      this.showBackgroundPopup = false;
-	      this.$emit('enableAutoHide');
-	    },
-	    onHelpClick() {
-	      var _BX$Helper;
-	      const ARTICLE_CODE = '17373696';
-	      (_BX$Helper = BX.Helper) == null ? void 0 : _BX$Helper.show(`redirect=detail&code=${ARTICLE_CODE}`);
-	      this.$emit('closePopup');
-	    },
-	    onFeedbackClick() {
-	      BX.UI.Feedback.Form.open({
-	        id: 'im-v2-feedback',
-	        forms: [{
-	          zones: ['ru'],
-	          id: 550,
-	          sec: '50my2x',
-	          lang: 'ru'
-	        }, {
-	          zones: ['en'],
-	          id: 560,
-	          sec: '621lbr',
-	          lang: 'ru'
-	        }],
-	        presets: {
-	          sender_page: 'profile'
-	        }
-	      });
-	      this.$emit('closePopup');
 	    },
 	    getVersionService() {
 	      if (!this.versionService) {
@@ -403,35 +277,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 					<div class="bx-im-user-settings-popup__list-item_icon --chevron" ref="status-select"></div>
 				</div>
 				<div class="bx-im-user-settings-popup__separator"></div>
-				<!-- Background select -->
-				<div @click="onBackgroundSelectClick" class="bx-im-user-settings-popup__list-item --with-icon">
-					<div class="bx-im-user-settings-popup__list-item_left">
-						<div class="bx-im-user-settings-popup__list-item_icon --background"></div>
-						<div class="bx-im-user-settings-popup__list-item_text">{{ loc('IM_USER_SETTINGS_CHAT_BACKGROUND') }}</div>
-					</div>
-					<div class="bx-im-user-settings-popup__list-item_icon --chevron" ref="background-select"></div>
-				</div>
-				<div class="bx-im-user-settings-popup__separator"></div>
-				<!-- Help -->
-				<div @click="onHelpClick" class="bx-im-user-settings-popup__list-item">
-					<div class="bx-im-user-settings-popup__list-item_left">
-						<div class="bx-im-user-settings-popup__list-item_icon --help"></div>
-						<div class="bx-im-user-settings-popup__list-item_text">{{ loc('IM_USER_SETTINGS_HELP') }}</div>
-					</div>
-				</div>
-				<div class="bx-im-user-settings-popup__separator"></div>
-				<!-- Feedback -->
-				<div @click="onFeedbackClick" class="bx-im-user-settings-popup__list-item">
-					<div class="bx-im-user-settings-popup__list-item_left">
-						<div class="bx-im-user-settings-popup__list-item_icon --feedback"></div>
-						<div class="bx-im-user-settings-popup__list-item_text">{{ loc('IM_USER_SETTINGS_FEEDBACK') }}</div>
-					</div>
-				</div>
 			</div>
 			<!-- Back to old chat -->
-			<div :class="{'--loading': isChangingVersion}" class="bx-im-user-settings-popup__old-chat">
+			<div v-if="showOldChatButton" class="bx-im-user-settings-popup__old-chat" :class="{'--loading': isChangingVersion}" @click="onBackToOldChatClick">
 				<div class="bx-im-user-settings-popup__list-item_icon --arrow-left"></div>
-				<div @click="onBackToOldChatClick" class="bx-im-user-settings-popup__old-chat_text">
+				<div class="bx-im-user-settings-popup__old-chat_text">
 					{{ loc('IM_USER_SETTINGS_OLD_CHAT') }}
 				</div>
 			</div>
@@ -441,15 +291,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 			:bindElement="$refs['status-select'] || {}"
 			@close="onStatusPopupClose"
 		/>
-		<BackgroundPopup
-			v-if="showBackgroundPopup"
-			:bindElement="$refs['background-select'] || {}"
-			@close="onBackgroundPopupClose"
-		/>
 	`
 	};
 
-	const POPUP_ID$2 = 'im-user-settings-popup';
+	const POPUP_ID$1 = 'im-user-settings-popup';
 
 	// @vue/component
 	const UserSettingsPopup = {
@@ -466,7 +311,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  emits: ['close'],
 	  computed: {
-	    POPUP_ID: () => POPUP_ID$2,
+	    POPUP_ID: () => POPUP_ID$1,
 	    config() {
 	      return {
 	        width: 313,
@@ -651,7 +496,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      const menuItems = [{
 	        id: im_v2_const.Layout.chat.name,
 	        text: this.prepareNavigationText('IM_NAVIGATION_CHATS'),
-	        counter: this.formatCounter(this.$store.getters['recent/getTotalCounter']),
+	        counter: this.formatCounter(this.$store.getters['recent/getTotalChatCounter']),
 	        active: true
 	      }, {
 	        id: im_v2_const.Layout.notification.name,
@@ -659,21 +504,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        counter: this.formatCounter(this.$store.getters['notifications/getCounter']),
 	        active: true
 	      }, {
-	        id: im_v2_const.Layout.openline.name,
+	        id: im_v2_const.Layout.openlines.name,
 	        text: this.prepareNavigationText('IM_NAVIGATION_OPENLINES'),
-	        counter: 0,
-	        active: false
-	      }, {
-	        id: im_v2_const.Layout.call.name,
-	        text: this.prepareNavigationText('IM_NAVIGATION_CALLS'),
-	        counter: 0,
-	        active: false
-	      }, {
-	        id: 'settings',
-	        text: this.prepareNavigationText('IM_NAVIGATION_SETTINGS'),
-	        counter: 0,
-	        active: false
+	        counter: this.formatCounter(this.$store.getters['recent/getTotalLinesCounter']),
+	        active: true
 	      }];
+	      if (im_v2_lib_phone.PhoneManager.getInstance().canCall()) {
+	        menuItems.push({
+	          id: im_v2_const.Layout.call.name,
+	          text: this.prepareNavigationText('IM_NAVIGATION_CALLS'),
+	          active: true,
+	          clickHandler: this.onCallClick
+	        });
+	      }
+	      menuItems.push({
+	        id: im_v2_const.Layout.settings.name,
+	        text: this.prepareNavigationText('IM_NAVIGATION_SETTINGS'),
+	        active: true
+	      });
 	      if (this.isTimeManagerActive()) {
 	        menuItems.push({
 	          id: 'timemanager',
@@ -685,8 +533,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	      return menuItems;
 	    },
-	    isDesktop() {
-	      return im_v2_lib_desktop.DesktopManager.isDesktop();
+	    showCloseIcon() {
+	      return !im_v2_lib_desktopApi.DesktopApi.isChatTab();
 	    }
 	  },
 	  created() {
@@ -702,7 +550,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      if (main_core.Type.isFunction(item.clickHandler)) {
-	        item.clickHandler();
+	        item.clickHandler(event.target);
 	        return;
 	      }
 	      this.$emit('navigationClick', {
@@ -800,11 +648,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        behavior: 'smooth'
 	      });
 	    },
-	    isTimeManagerActive() {
-	      return Boolean(timeman_monitor.Monitor == null ? void 0 : timeman_monitor.Monitor.isEnabled());
+	    onCallClick(clickTarget) {
+	      const MENU_ITEM_CLASS = 'bx-im-navigation__item';
+	      const KEYPAD_OFFSET_TOP = -30;
+	      const KEYPAD_OFFSET_LEFT = 64;
+	      im_v2_lib_phone.PhoneManager.getInstance().openKeyPad({
+	        bindElement: clickTarget.closest(`.${MENU_ITEM_CLASS}`),
+	        offsetTop: KEYPAD_OFFSET_TOP,
+	        offsetLeft: KEYPAD_OFFSET_LEFT
+	      });
 	    },
-	    onTimeManagerClick() {
-	      timeman_monitor.Monitor == null ? void 0 : timeman_monitor.Monitor.openReport();
+	    isTimeManagerActive() {
+	      var _BX$Timeman, _BX$Timeman$Monitor;
+	      return Boolean((_BX$Timeman = BX.Timeman) == null ? void 0 : (_BX$Timeman$Monitor = _BX$Timeman.Monitor) == null ? void 0 : _BX$Timeman$Monitor.isEnabled());
+	    },
+	    async onTimeManagerClick() {
+	      var _BX$Timeman2, _BX$Timeman2$Monitor;
+	      (_BX$Timeman2 = BX.Timeman) == null ? void 0 : (_BX$Timeman2$Monitor = _BX$Timeman2.Monitor) == null ? void 0 : _BX$Timeman2$Monitor.openReport();
 	    }
 	  },
 	  template: `
@@ -813,7 +673,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 				<div class="bx-im-navigation__scroll-button" @click="onClickScrollUp"></div>
 			</div>
 			<div class="bx-im-navigation__top" @scroll="onScroll" ref="navigation">
-				<template v-if="!isDesktop">
+				<template v-if="showCloseIcon">
 					<!-- Close -->
 					<div class="bx-im-navigation__close_container" @click="closeSlider">
 						<div class="bx-im-navigation__close"></div>
@@ -855,5 +715,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.MessengerNavigation = MessengerNavigation;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX,BX.Vue3.Directives,BX.UI.Dialogs,BX.Timeman,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.UI,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3.Directives,BX.UI.Dialogs,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.UI,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
 //# sourceMappingURL=navigation.bundle.js.map

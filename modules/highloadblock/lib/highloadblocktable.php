@@ -24,9 +24,9 @@ Main\Localization\Loc::loadLanguageFile(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_HighloadBlock_Query query()
- * @method static EO_HighloadBlock_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_HighloadBlock_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_HighloadBlock_Result getById($id)
- * @method static EO_HighloadBlock_Result getList(array $parameters = array())
+ * @method static EO_HighloadBlock_Result getList(array $parameters = [])
  * @method static EO_HighloadBlock_Entity getEntity()
  * @method static \Bitrix\Highloadblock\HighloadBlock createObject($setDefaultValues = true)
  * @method static \Bitrix\Highloadblock\EO_HighloadBlock_Collection createCollection()
@@ -117,6 +117,12 @@ class HighloadBlockTable extends Entity\DataManager
 		{
 			$connection->query('
 				CREATE TABLE '.$sqlHelper->quote($data['TABLE_NAME']).' (ID int(11) unsigned NOT NULL AUTO_INCREMENT, PRIMARY KEY (ID))
+			');
+		}
+		elseif ($dbtype == 'pgsql')
+		{
+			$connection->query('
+				CREATE TABLE '.$sqlHelper->quote($data['TABLE_NAME']).' (ID serial NOT NULL, PRIMARY KEY (ID))
 			');
 		}
 		elseif ($dbtype == 'mssql')
@@ -325,7 +331,10 @@ class HighloadBlockTable extends Entity\DataManager
 		));
 		while ($row = $res->fetch())
 		{
-			HighloadBlockLangTable::delete($row['ID']);
+			HighloadBlockLangTable::delete([
+				'ID' => $row['ID'],
+				'LID' => $row['LID'],
+			]);
 		}
 
 		// clear rights

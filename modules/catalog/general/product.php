@@ -8,21 +8,63 @@ use	Bitrix\Sale;
 
 class CAllCatalogProduct
 {
-	const TYPE_PRODUCT = Catalog\ProductTable::TYPE_PRODUCT;
-	const TYPE_SET = Catalog\ProductTable::TYPE_SET;
-	const TYPE_SKU = Catalog\ProductTable::TYPE_SKU;
-	const TYPE_OFFER = Catalog\ProductTable::TYPE_OFFER;
-	const TYPE_FREE_OFFER = Catalog\ProductTable::TYPE_FREE_OFFER;
-	const TYPE_EMPTY_SKU = Catalog\ProductTable::TYPE_EMPTY_SKU;
+	/**
+	 * @deprecated
+	 */
+	public const TYPE_PRODUCT = Catalog\ProductTable::TYPE_PRODUCT;
+	/**
+	 * @deprecated
+	 */
+	public const TYPE_SET = Catalog\ProductTable::TYPE_SET;
+	/**
+	 * @deprecated
+	 */
+	public const TYPE_SKU = Catalog\ProductTable::TYPE_SKU;
+	/**
+	 * @deprecated
+	 */
+	public const TYPE_OFFER = Catalog\ProductTable::TYPE_OFFER;
+	/**
+	 * @deprecated
+	 */
+	public const TYPE_FREE_OFFER = Catalog\ProductTable::TYPE_FREE_OFFER;
+	/**
+	 * @deprecated
+	 */
+	public const TYPE_EMPTY_SKU = Catalog\ProductTable::TYPE_EMPTY_SKU;
 
-	const TIME_PERIOD_HOUR = Catalog\ProductTable::PAYMENT_PERIOD_HOUR;
-	const TIME_PERIOD_DAY = Catalog\ProductTable::PAYMENT_PERIOD_DAY;
-	const TIME_PERIOD_WEEK = Catalog\ProductTable::PAYMENT_PERIOD_WEEK;
-	const TIME_PERIOD_MONTH = Catalog\ProductTable::PAYMENT_PERIOD_MONTH;
-	const TIME_PERIOD_QUART = Catalog\ProductTable::PAYMENT_PERIOD_QUART;
-	const TIME_PERIOD_SEMIYEAR = Catalog\ProductTable::PAYMENT_PERIOD_SEMIYEAR;
-	const TIME_PERIOD_YEAR = Catalog\ProductTable::PAYMENT_PERIOD_YEAR;
-	const TIME_PERIOD_DOUBLE_YEAR = Catalog\ProductTable::PAYMENT_PERIOD_DOUBLE_YEAR;
+	/**
+	 * @deprecated
+	 */
+	public const TIME_PERIOD_HOUR = Catalog\ProductTable::PAYMENT_PERIOD_HOUR;
+	/**
+	 * @deprecated
+	 */
+	public const TIME_PERIOD_DAY = Catalog\ProductTable::PAYMENT_PERIOD_DAY;
+	/**
+	 * @deprecated
+	 */
+	public const TIME_PERIOD_WEEK = Catalog\ProductTable::PAYMENT_PERIOD_WEEK;
+	/**
+	 * @deprecated
+	 */
+	public const TIME_PERIOD_MONTH = Catalog\ProductTable::PAYMENT_PERIOD_MONTH;
+	/**
+	 * @deprecated
+	 */
+	public const TIME_PERIOD_QUART = Catalog\ProductTable::PAYMENT_PERIOD_QUART;
+	/**
+	 * @deprecated
+	 */
+	public const TIME_PERIOD_SEMIYEAR = Catalog\ProductTable::PAYMENT_PERIOD_SEMIYEAR;
+	/**
+	 * @deprecated
+	 */
+	public const TIME_PERIOD_YEAR = Catalog\ProductTable::PAYMENT_PERIOD_YEAR;
+	/**
+	 * @deprecated
+	 */
+	public const TIME_PERIOD_DOUBLE_YEAR = Catalog\ProductTable::PAYMENT_PERIOD_DOUBLE_YEAR;
 
 	/** @deprecated deprecated since catalog 17.6.3 */
 	protected static $arProductCache = array();

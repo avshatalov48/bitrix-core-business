@@ -10,7 +10,7 @@
 	font-size: 1px;
 	content: ' ';
 	height: 2px;
-	background: url(/bitrix/images/bizproc/act_line_bg.gif) repeat-x scroll 50% bottom;
+	background: url('/bitrix/images/bizproc/act_line_bg.gif') repeat-x scroll 50% bottom;
 }
 .parallelcontainer .trLine>td:first-child::before {
 	width: 50%;
@@ -53,7 +53,7 @@
 }
 
 .bizproc-designer-parallel-activity-add-branch-icon {
-	background: url(/bitrix/images/bizproc/add_br.gif) left center no-repeat;
+	background: url('/bitrix/images/bizproc/add_br.gif') left center no-repeat;
 	width: 16px;
 	cursor: pointer;
 	text-align: center;

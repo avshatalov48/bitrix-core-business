@@ -1,16 +1,18 @@
-import {Loc} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Loc } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
-import {Utils} from 'im.v2.lib.utils';
-import {CallManager} from 'im.v2.lib.call';
-import {EventType} from 'im.v2.const';
-import {ChatService} from 'im.v2.provider.service';
-import {Messenger} from 'im.public';
+import { Utils } from 'im.v2.lib.utils';
+import { CallManager } from 'im.v2.lib.call';
+import { showKickUserConfirm, showLeaveFromChatConfirm } from 'im.v2.lib.confirm';
+import { PermissionManager } from 'im.v2.lib.permission';
+import { ChatActionType, EventType } from 'im.v2.const';
+import { ChatService } from 'im.v2.provider.service';
+import { Messenger } from 'im.public';
 
-import {SidebarMenu} from '../sidebar-base-menu';
+import { SidebarMenu } from '../sidebar-base-menu';
 
-import type {ImModelUser} from 'im.v2.model';
-import type {MenuItem} from 'im.v2.lib.menu';
+import type { ImModelUser } from 'im.v2.model';
+import type { MenuItem } from 'im.v2.lib.menu';
 
 type MembersMenuContext = {
 	dialogId: string,
@@ -23,6 +25,7 @@ export class MembersMenu extends SidebarMenu
 	context: MembersMenuContext;
 	chatService: ChatService;
 	callManager: CallManager;
+	permissionManager: PermissionManager;
 
 	constructor()
 	{
@@ -30,6 +33,7 @@ export class MembersMenu extends SidebarMenu
 
 		this.chatService = new ChatService();
 		this.callManager = CallManager.getInstance();
+		this.permissionManager = PermissionManager.getInstance();
 	}
 
 	getMenuItems(): MenuItem[]
@@ -54,10 +58,10 @@ export class MembersMenu extends SidebarMenu
 			onclick: () => {
 				EventEmitter.emit(EventType.textarea.insertMention, {
 					mentionText: user.name,
-					mentionReplacement: Utils.user.getMentionBbCode(this.context.dialogId, user.name)
+					mentionReplacement: Utils.text.getMentionBbCode(this.context.dialogId, user.name),
 				});
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -68,23 +72,25 @@ export class MembersMenu extends SidebarMenu
 			onclick: () => {
 				Messenger.openChat(this.context.dialogId);
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
 	getCallItem(): ?MenuItem
 	{
-		if (!this.callManager.chatCanBeCalled(this.context.dialogId))
+		const chatCanBeCalled = this.callManager.chatCanBeCalled(this.context.dialogId);
+		const chatIsAllowedToCall = this.permissionManager.canPerformAction(ChatActionType.call, this.context.dialogId);
+		if (!chatCanBeCalled || !chatIsAllowedToCall)
 		{
 			return null;
 		}
 
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_CALL'),
+			text: Loc.getMessage('IM_LIB_MENU_CALL_2'),
 			onclick: () => {
-				EventEmitter.emit(EventType.dialog.call, this.context);
+				this.callManager.startCall(this.context.dialogId);
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -103,7 +109,7 @@ export class MembersMenu extends SidebarMenu
 			href: profileUri,
 			onclick: () => {
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -127,7 +133,7 @@ export class MembersMenu extends SidebarMenu
 			onclick: () => {
 				BX.SidePanel.Instance.open(profileUri);
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -135,22 +141,22 @@ export class MembersMenu extends SidebarMenu
 	{
 		const userIdToKick = Number.parseInt(this.context.dialogId, 10);
 		const isSelfKick = userIdToKick === this.getCurrentUserId();
-		const canLeaveChat = this.store.getters['dialogues/canLeave'](this.context.contextDialogId);
-		if (
-			isSelfKick
-			|| !this.isCurrentUserManager(this.context.contextDialogId)
-			|| !canLeaveChat
-		)
+		const canKick = this.permissionManager.canPerformKick(this.context.contextDialogId, this.context.dialogId);
+		if (isSelfKick || !canKick)
 		{
 			return null;
 		}
 
 		return {
 			text: Loc.getMessage('IM_SIDEBAR_MENU_KICK_FROM_CHAT'),
-			onclick: () => {
-				this.chatService.kickUserFromChat(this.context.contextDialogId, this.context.dialogId);
+			onclick: async () => {
 				this.menuInstance.close();
-			}
+				const userChoice = await showKickUserConfirm();
+				if (userChoice === true)
+				{
+					this.chatService.kickUserFromChat(this.context.contextDialogId, this.context.dialogId);
+				}
+			},
 		};
 	}
 
@@ -158,7 +164,8 @@ export class MembersMenu extends SidebarMenu
 	{
 		const userIdToKick = Number.parseInt(this.context.dialogId, 10);
 		const isSelfKick = userIdToKick === this.getCurrentUserId();
-		const canLeaveChat = this.store.getters['dialogues/canLeave'](this.context.contextDialogId);
+
+		const canLeaveChat = this.permissionManager.canPerformAction(ChatActionType.leave, this.context.contextDialogId);
 		if (!isSelfKick || !canLeaveChat)
 		{
 			return null;
@@ -166,21 +173,14 @@ export class MembersMenu extends SidebarMenu
 
 		return {
 			text: Loc.getMessage('IM_LIB_MENU_LEAVE'),
-			onclick: () => {
-				this.chatService.leaveChat(this.context.contextDialogId);
+			onclick: async () => {
 				this.menuInstance.close();
-			}
+				const userChoice = await showLeaveFromChatConfirm();
+				if (userChoice === true)
+				{
+					this.chatService.leaveChat(this.context.contextDialogId);
+				}
+			},
 		};
-	}
-
-	isCurrentUserManager(dialogId: string): boolean
-	{
-		const dialog = this.store.getters['dialogues/get'](dialogId);
-		if (!dialog)
-		{
-			return false;
-		}
-
-		return dialog.managerList.includes(this.getCurrentUserId());
 	}
 }

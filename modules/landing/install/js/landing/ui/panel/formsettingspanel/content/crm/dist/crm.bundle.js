@@ -201,7 +201,7 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    value: function getType4Header() {
 	      return this.cache.remember('type4header', function () {
 	        return new landing_ui_card_headercard.HeaderCard({
-	          title: landing_loc.Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_4').replace('&nbsp;', ' '),
+	          title: landing_loc.Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_4_MSGVER_1').replace('&nbsp;', ' '),
 	          level: 2
 	        });
 	      });
@@ -311,7 +311,7 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	          icon: 'landing-ui-crm-entity-type3'
 	        }, {
 	          id: '4',
-	          title: landing_loc.Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_4'),
+	          title: landing_loc.Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_4_MSGVER_1'),
 	          icon: 'landing-ui-crm-entity-type4'
 	        }, {
 	          id: '310',

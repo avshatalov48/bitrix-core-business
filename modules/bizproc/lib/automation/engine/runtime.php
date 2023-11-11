@@ -145,7 +145,7 @@ class Runtime
 
 			$args = [$template->getId(), $documentComplexId, $startParameters, $errors];
 
-			if ($isDebug)
+			if ($isDebug && $preGeneratedWorkflowId)
 			{
 				$session = Bizproc\Debugger\Session\Manager::getActiveSession();
 				$session->addWorkflowContext($preGeneratedWorkflowId, $template);

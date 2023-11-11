@@ -1,34 +1,48 @@
-import type { BackgroundStyle } from 'im.v2.lib.theme';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { getFilesFromDataTransfer, hasDataTransferOnlyFiles } from 'ui.uploader.core';
 
 import { Messenger } from 'im.public';
 import { ChatDialog } from 'im.v2.component.dialog.chat';
 import { ChatTextarea } from 'im.v2.component.textarea';
-import { ChatService, SendingService } from 'im.v2.provider.service';
+import { ChatService, UploadingService } from 'im.v2.provider.service';
 import { Logger } from 'im.v2.lib.logger';
 import { LocalStorageManager } from 'im.v2.lib.local-storage';
 import { ThemeManager } from 'im.v2.lib.theme';
 import { Utils } from 'im.v2.lib.utils';
-import { EventType, Layout, LocalStorageKey, SidebarDetailBlock } from 'im.v2.const';
+import { PermissionManager } from 'im.v2.lib.permission';
+import { EventType, Layout, LocalStorageKey, SidebarDetailBlock, ChatActionType, Settings, UserRole } from 'im.v2.const';
 
 import { ChatHeader } from './components/chat-header/chat-header';
 import { SidebarWrapper } from './components/chat-sidebar-wrapper';
 import { ResizeManager } from './classes/resize-manager';
 import { DropArea } from './components/drop-area';
+import { EmptyState } from './components/empty-state';
+import { MutePanel } from './components/mute-panel';
+import { JoinPanel } from './components/join-panel';
 
 import './css/chat-content.css';
 
 import 'ui.notification';
 
 import type { ImModelDialog, ImModelLayout } from 'im.v2.model';
+import type { BackgroundStyle } from 'im.v2.lib.theme';
 
 const CHAT_HEADER_HEIGHT = 64;
 
 // @vue/component
 export const ChatContent = {
 	name: 'ChatContent',
-	components: { ChatHeader, ChatDialog, ChatTextarea, SidebarWrapper, DropArea },
+	components:
+	{
+		ChatHeader,
+		ChatDialog,
+		ChatTextarea,
+		SidebarWrapper,
+		DropArea,
+		EmptyState,
+		MutePanel,
+		JoinPanel,
+	},
 	directives: {
 		'textarea-observer': {
 			mounted(element, binding)
@@ -56,6 +70,7 @@ export const ChatContent = {
 		return {
 			needSidebarTransition: false,
 			sidebarOpened: false,
+			searchSidebarOpened: false,
 			sidebarDetailBlock: null,
 			textareaHeight: 0,
 
@@ -77,9 +92,23 @@ export const ChatContent = {
 		{
 			return this.$store.getters['messages/pin/getPinned'](this.dialog.chatId).length > 0;
 		},
+		canPost(): boolean
+		{
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.send, this.dialog.dialogId);
+		},
+		isGuest(): boolean
+		{
+			return this.dialog.role === UserRole.guest;
+		},
 		sidebarTransitionName(): string
 		{
 			return this.needSidebarTransition ? 'sidebar-transition' : '';
+		},
+		containerClasses(): string[]
+		{
+			const alignment = this.$store.getters['application/settings/get'](Settings.appearance.alignment);
+
+			return [`--${alignment}-align`];
 		},
 		backgroundStyle(): BackgroundStyle
 		{
@@ -87,8 +116,16 @@ export const ChatContent = {
 		},
 		dialogContainerStyle(): Object
 		{
+			const TEXTAREA_PLACEHOLDER_HEIGHT = 50;
+
+			let textareaHeight = this.textareaHeight;
+			if (!this.canPost)
+			{
+				textareaHeight = TEXTAREA_PLACEHOLDER_HEIGHT;
+			}
+
 			return {
-				height: `calc(100% - ${CHAT_HEADER_HEIGHT}px - ${this.textareaHeight}px)`,
+				height: `calc(100% - ${CHAT_HEADER_HEIGHT}px - ${textareaHeight}px)`,
 			};
 		},
 		dropAreaStyles(): {[top: string]: string}
@@ -104,6 +141,10 @@ export const ChatContent = {
 			return {
 				top: `${dropAreaTopOffset}px`,
 			};
+		},
+		isSearchSidebarOpened(): boolean
+		{
+			return this.sidebarDetailBlock === SidebarDetailBlock.messageSearch;
 		},
 	},
 	watch:
@@ -181,19 +222,19 @@ export const ChatContent = {
 
 			if (this.layout.contextId)
 			{
-				this.loadChatWithContext();
+				await this.loadChatWithContext();
 
 				return;
 			}
 
-			this.loadChat().then(() => {
-				this.needSidebarTransition = true;
-			});
+			await this.loadChat();
+			this.needSidebarTransition = true;
 		},
-		loadChatWithContext()
+		loadChatWithContext(): Promise
 		{
 			Logger.warn(`ChatContent: loading chat ${this.entityId} with context - ${this.layout.contextId}`);
-			this.getChatService().loadChatWithContext(this.entityId, this.layout.contextId).then(() => {
+
+			return this.getChatService().loadChatWithContext(this.entityId, this.layout.contextId).then(() => {
 				Logger.warn(`ChatContent: chat ${this.entityId} is loaded with context of ${this.layout.contextId}`);
 			}).catch((error) => {
 				if (error.code === 'ACCESS_ERROR')
@@ -219,6 +260,34 @@ export const ChatContent = {
 			this.needSidebarTransition = true;
 			this.sidebarOpened = !this.sidebarOpened;
 			this.resetSidebarDetailState();
+		},
+		toggleSearchPanel()
+		{
+			this.needSidebarTransition = true;
+			if (this.sidebarDetailBlock === SidebarDetailBlock.messageSearch)
+			{
+				this.sidebarDetailBlock = null;
+				this.sidebarOpened = false;
+			}
+			else
+			{
+				this.sidebarOpened = true;
+				EventEmitter.emit(EventType.sidebar.open, { detailBlock: SidebarDetailBlock.messageSearch });
+			}
+		},
+		toggleMembersPanel()
+		{
+			this.needSidebarTransition = true;
+			if (this.sidebarDetailBlock === SidebarDetailBlock.main)
+			{
+				this.sidebarDetailBlock = null;
+				this.sidebarOpened = false;
+			}
+			else
+			{
+				this.sidebarOpened = true;
+				EventEmitter.emit(EventType.sidebar.open, { detailBlock: SidebarDetailBlock.main });
+			}
 		},
 		onClickBack()
 		{
@@ -274,12 +343,13 @@ export const ChatContent = {
 		},
 		onDragEnter(event: DragEvent)
 		{
-			hasDataTransferOnlyFiles(event.dataTransfer, false).then((success): void => {
-				if (success)
+			void hasDataTransferOnlyFiles(event.dataTransfer, false).then((success: boolean): void => {
+				if (!success)
 				{
-					this.lastDropAreaEnterTarget = event.target;
-					this.showDropArea = true;
+					return;
 				}
+				this.lastDropAreaEnterTarget = event.target;
+				this.showDropArea = true;
 			});
 		},
 		onDragLeave(event: DragEvent)
@@ -291,8 +361,8 @@ export const ChatContent = {
 		},
 		onDrop(event: DragEvent)
 		{
-			getFilesFromDataTransfer(event.dataTransfer).then((files: File[]): void => {
-				this.getSendingService().sendFilesFromInput(files, this.entityId);
+			void getFilesFromDataTransfer(event.dataTransfer).then((files: File[]): void => {
+				this.getUploadingService().addFilesFromInput(files, this.entityId);
 			});
 			this.showDropArea = false;
 		},
@@ -305,18 +375,18 @@ export const ChatContent = {
 
 			return this.chatService;
 		},
-		getSendingService(): SendingService
+		getUploadingService(): UploadingService
 		{
-			if (!this.sendingService)
+			if (!this.uploadingService)
 			{
-				this.sendingService = SendingService.getInstance();
+				this.uploadingService = UploadingService.getInstance();
 			}
 
-			return this.sendingService;
+			return this.uploadingService;
 		},
 	},
 	template: `
-		<div class="bx-im-content-chat__scope bx-im-content-chat__container" :style="backgroundStyle">
+		<div class="bx-im-content-chat__scope bx-im-content-chat__container" :class="containerClasses" :style="backgroundStyle">
 			<div 
 				class="bx-im-content-chat__content"
 				@drop.prevent="onDrop"
@@ -329,26 +399,26 @@ export const ChatContent = {
 						:dialogId="entityId" 
 						:key="entityId" 
 						:sidebarOpened="sidebarOpened"
+						:sidebarSearchOpened="isSearchSidebarOpened"
 						@toggleRightPanel="toggleSidebar" 
+						@toggleSearchPanel="toggleSearchPanel" 
+						@toggleMembersPanel="toggleMembersPanel" 
 					/>
 					<div :style="dialogContainerStyle" class="bx-im-content-chat__dialog_container">
 						<div class="bx-im-content-chat__dialog_content">
 							<ChatDialog :dialogId="entityId" :key="entityId" :textareaHeight="textareaHeight" />
 						</div>
 					</div>
-					<div v-textarea-observer class="bx-im-content-chat__textarea_container">
+					<!-- Textarea -->
+					<div v-if="canPost" v-textarea-observer class="bx-im-content-chat__textarea_container">
 						<ChatTextarea :dialogId="entityId" :key="entityId" />
 					</div>
-					<Transition name="drop-area-fade">
-						<DropArea v-if="showDropArea" :style="dropAreaStyles" />
-					</Transition>
+					<JoinPanel v-else-if="isGuest" :dialogId="entityId" />
+					<MutePanel v-else :dialogId="entityId" />
+					<!-- End textarea -->
+					<DropArea :show="showDropArea" :style="dropAreaStyles" />
 				</template>
-				<div v-else class="bx-im-content-chat__start_message">
-					<div class="bx-im-content-chat__start_message_icon"></div>
-					<div class="bx-im-content-chat__start_message_text">
-					  {{ loc('IM_CONTENT_CHAT_START_MESSAGE') }}
-					</div>
-				</div>
+				<EmptyState v-else />
 			</div>
 			<transition :name="sidebarTransitionName">
 				<SidebarWrapper 

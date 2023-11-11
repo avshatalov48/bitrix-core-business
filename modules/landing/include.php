@@ -11,6 +11,7 @@ $pathTemplate24 = getLocalPath($pathTemplate24);
 $pathCSS = '/bitrix/js/landing/css';
 $pathLang = BX_ROOT . '/modules/landing/lang/' . LANGUAGE_ID;
 
+
 $jsConfig = [
 	'landing_master' => [
 		'rel' => [
@@ -117,7 +118,6 @@ $jsConfig = [
 	'landing_critical_grid' => [
 		'css' => [
 			$pathTemplate24 . '/assets/vendor/bootstrap/bootstrap.css',
-			$pathTemplate24 . '/assets/css/custom-grid.css',
 			$pathTemplate24 . '/theme.css',
 			$pathCSS . '/landing_public.css',
 		],
@@ -253,6 +253,7 @@ $jsConfig = [
 			$pathTemplate24 . '/assets/js/helpers/form_init.js',
 		],
 		'lang' => $pathLang . '/js/webform_alerts.php',
+		'rel' => ['landing.backend'],
 	],
 
 	'landing_gallery_cards' => [
@@ -281,7 +282,7 @@ $jsConfig = [
 			$pathTemplate24 . '/assets/vendor/slick-carousel/slick/landing-slick.css',
 		],
 		'rel' => ['landing_core','landing_jquery'],
-],
+	],
 
 	'landing_countdown' => [
 		'js' => [
@@ -291,7 +292,7 @@ $jsConfig = [
 			$pathTemplate24 . '/assets/js/helpers/countdown_init.js',
 		],
 		'rel' => ['landing_core', 'landing_jquery'],
-],
+	],
 
 	'landing_google_maps_new' => [
 		'rel' => [

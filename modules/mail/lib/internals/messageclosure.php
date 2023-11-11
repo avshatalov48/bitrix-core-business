@@ -47,4 +47,33 @@ class MessageClosureTable extends Entity\DataManager
 		);
 	}
 
+	/**
+	 * Insert ignore with raw sql
+	 *
+	 * @param string $fromSelect Raw Sql
+	 *
+	 * @return int Affected rows
+	 */
+	public static function insertIgnoreFromSelect(string $fromSelect): int
+	{
+		return self::insertIgnoreFromSql("($fromSelect)");
+	}
+
+	/**
+	 * Insert ignore from select
+	 *
+	 * @param string $sql Sql for insert (values(), or select)
+	 *
+	 * @return int Affected rows
+	 */
+	public static function insertIgnoreFromSql(string $sql): int
+	{
+		$connection = \Bitrix\Main\Application::getConnection();
+		$sql = $connection->getSqlHelper()
+			->getInsertIgnore(self::getTableName(), ' (MESSAGE_ID, PARENT_ID) ', $sql);
+		$connection->query($sql);
+
+		return $connection->getAffectedRowsCount();
+	}
+
 }

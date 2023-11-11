@@ -1,40 +1,30 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports,main_core,landing_ui_panel_link) {
+(function (exports,landing_node,main_core) {
 	'use strict';
 
-	class Link extends Node {
+	const trim = BX.Landing.Utils.trim;
+	const isPlainObject = BX.Landing.Utils.isPlainObject;
+	const isString = BX.Landing.Utils.isString;
+	const textToPlaceholders = BX.Landing.Utils.textToPlaceholders;
+	const create = BX.Landing.Utils.create;
+	const escapeText = BX.Landing.Utils.escapeText;
+	const decodeDataValue = BX.Landing.Utils.decodeDataValue;
+	class Link extends landing_node.Node {
 	  constructor(options) {
-	    super();
-	    this.trim = BX.Landing.Utils.trim;
-	    this.isPlainObject = BX.Landing.Utils.isPlainObject;
-	    this.isString = BX.Landing.Utils.isString;
-	    this.textToPlaceholders = BX.Landing.Utils.textToPlaceholders;
-	    this.create = BX.Landing.Utils.create;
-	    this.escapeText = BX.Landing.Utils.escapeText;
-	    this.decodeDataValue = BX.Landing.Utils.decodeDataValue;
-	    BX.Landing.Block.Node.apply(this, arguments);
-	    this.type = "link";
+	    super(options);
+	    this.type = 'link';
 	    if (!this.isGrouped()) {
-	      this.node.addEventListener("click", this.onClick.bind(this));
+	      main_core.Event.bind(this.node, 'click', this.onClick.bind(this));
 	    }
 	    if (this.isAllowInlineEdit()) {
-	      this.node.setAttribute("title", BX.Landing.Loc.getMessage("LANDING_TITLE_OF_LINK_NODE"));
+	      main_core.Dom.attr(this.node, 'title', BX.Landing.Loc.getMessage('LANDING_TITLE_OF_LINK_NODE'));
 	    }
+	    this.onChange = BX.Runtime.debounce(this.onChange, 500);
+	    this.onContentUpdate = BX.Runtime.debounce(this.onContentUpdate, 500);
 	  }
 	  onContentUpdate() {
-	    var blockId = this.getBlock().id;
-	    clearTimeout(this.contentEditTimeout);
-	    this.contentEditTimeout = setTimeout(function () {
-	      BX.Landing.History.getInstance().push(new BX.Landing.History.Entry({
-	        block: blockId,
-	        selector: this.selector,
-	        command: "editLink",
-	        undo: this.startValue,
-	        redo: this.getValue()
-	      }));
-	      this.startValue = null;
-	    }.bind(this), 400);
+	    BX.Landing.History.getInstance().push();
 	    this.getField().setValue(this.getValue());
 	  }
 	  isMenuMode() {
@@ -45,7 +35,7 @@ this.BX.Landing = this.BX.Landing || {};
 	   * Handles click event
 	   * @param {MouseEvent} event
 	   */
-	  onClick() {
+	  onClick(event) {
 	    event.preventDefault();
 	    if (!this.isMenuMode()) {
 	      event.stopPropagation();
@@ -53,19 +43,9 @@ this.BX.Landing = this.BX.Landing || {};
 	    if (this.isAllowInlineEdit()) {
 	      BX.Landing.UI.Button.ColorAction.hideAll();
 	      if (!BX.Landing.UI.Panel.StylePanel.getInstance().isShown()) {
-	        const link = new landing_ui_panel_link.PanelLink();
-	        link.getInstance().show(this);
 	        BX.Landing.UI.Panel.Link.getInstance().show(this);
 	      }
 	    }
-	  }
-
-	  /**
-	   * Checks that button is prevented
-	   * @return {boolean}
-	   */
-	  isPrevented() {
-	    return this.getValue().target === "_popup";
 	  }
 
 	  /**
@@ -78,32 +58,33 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.startValue = this.startValue || this.getValue();
 	    this.preventSave(preventSave);
 	    if (!this.containsImage() && this.isAllowInlineEdit()) {
-	      var field = this.getField(true).hrefInput;
-	      if (this.isString(data.text) && data.text.includes("{{name}}")) {
-	        field.getPlaceholderData(data.href).then(function (placeholdersData) {
-	          this.node.innerHTML = data.text.replace(new RegExp("{{name}}"), "<span data-placeholder=\"name\">" + placeholdersData.name + "</span>");
-	        }.bind(this));
-	      } else {
-	        if (!this.getField().containsHtml() && !this.manifest.skipContent) {
-	          this.node.innerHTML = this.escapeText(data.text);
-	        }
+	      const field = this.getField(true).hrefInput;
+	      if (isString(data.text) && data.text.includes('{{name}}')) {
+	        field.getPlaceholderData(data.href).then(placeholdersData => {
+	          this.node.innerHTML = data.text.replace(/{{name}}/, `<span data-placeholder="name">${placeholdersData.name}</span>`);
+	        }).catch(() => {});
+	      } else if (!this.getField().containsHtml() && !this.manifest.skipContent) {
+	        this.node.innerHTML = escapeText(data.text);
 	      }
 	    }
-	    this.node.setAttribute("href", this.decodeDataValue(data.href));
-	    this.node.setAttribute("target", this.escapeText(data.target));
-	    if ("attrs" in data) {
-	      for (var attr in data.attrs) {
-	        if (data.attrs.hasOwnProperty(attr)) {
-	          this.node.setAttribute(attr, data.attrs[attr]);
-	        }
-	      }
-	    } else {
-	      this.node.removeAttribute("data-url");
-	      this.node.removeAttribute("data-embed");
-	    }
-	    this.onChange();
+	    this.setAttrValue(data);
+	    this.onChange(preventHistory);
 	    if (!preventHistory) {
 	      this.onContentUpdate();
+	    }
+	  }
+	  setAttrValue(data) {
+	    main_core.Dom.attr(this.node, 'href', decodeDataValue(data.href));
+	    main_core.Dom.attr(this.node, 'target', escapeText(data.target));
+	    if ('attrs' in data) {
+	      Object.keys(data.attrs).forEach(attr => {
+	        if (Object.prototype.hasOwnProperty.call(data.attrs, attr)) {
+	          main_core.Dom.attr(this.node, attr, data.attrs[attr]);
+	        }
+	      });
+	    } else {
+	      main_core.Dom.attr(this.node, 'data-url', null);
+	      main_core.Dom.attr(this.node, 'data-embed', null);
 	    }
 	  }
 
@@ -112,7 +93,7 @@ this.BX.Landing = this.BX.Landing || {};
 	   * @return {boolean}
 	   */
 	  containsImage() {
-	    return !!this.node.firstElementChild && this.node.firstElementChild.tagName === "IMG";
+	    return Boolean(this.node.firstElementChild) && this.node.firstElementChild.tagName === 'IMG';
 	  }
 
 	  /**
@@ -120,41 +101,44 @@ this.BX.Landing = this.BX.Landing || {};
 	   * @return {{text: string, href: string|*, target: string|*}}
 	   */
 	  getValue() {
-	    var value = {
-	      text: this.textToPlaceholders(this.trim(this.node.innerHTML)),
-	      href: this.trim(this.node.getAttribute("href")),
-	      target: this.trim(this.node.getAttribute("target") || "_self")
+	    const value = {
+	      text: textToPlaceholders(trim(this.node.innerHTML)),
+	      href: trim(this.node.getAttribute('href')),
+	      target: trim(this.node.getAttribute('target') || '_self')
 	    };
-	    if (this.node.getAttribute("data-url")) {
+	    if (this.node.getAttribute('data-url')) {
 	      value.attrs = {
-	        "data-url": this.trim(this.node.getAttribute("data-url"))
+	        'data-url': trim(this.node.getAttribute('data-url'))
 	      };
 	    }
-	    if (this.node.getAttribute("data-dynamic")) {
-	      if (!this.isPlainObject(value.attrs)) {
+	    if (this.node.getAttribute('data-dynamic')) {
+	      if (!isPlainObject(value.attrs)) {
 	        value.attrs = {};
 	      }
-	      value.attrs["data-dynamic"] = this.node.getAttribute("data-dynamic");
+	      value.attrs['data-dynamic'] = this.node.getAttribute('data-dynamic');
 	    }
 	    if (this.manifest.skipContent) {
-	      value['skipContent'] = true;
+	      value.skipContent = true;
 	      delete value.text;
+	    }
+	    if (value.href && value.href.startsWith('selectActions:')) {
+	      value.href = '#';
 	    }
 	    return value;
 	  }
 
 	  /**
 	   * Gets field
-	   * @param {boolean} [preventAdjustValue = false]
+	   * @param {boolean} preventAdjustValue
 	   * @return {BX.Landing.UI.Field.BaseField}
 	   */
 	  getField(preventAdjustValue) {
-	    var value = this.getValue();
-	    value.text = this.textToPlaceholders(this.create("div", {
+	    const value = this.getValue();
+	    value.text = textToPlaceholders(create('div', {
 	      html: value.text
 	    }).innerHTML);
 	    if (!this.field) {
-	      var allowedTypes = [BX.Landing.UI.Field.LinkUrl.TYPE_BLOCK, BX.Landing.UI.Field.LinkUrl.TYPE_PAGE, BX.Landing.UI.Field.LinkUrl.TYPE_CRM_FORM, BX.Landing.UI.Field.LinkUrl.TYPE_CRM_PHONE];
+	      const allowedTypes = [BX.Landing.UI.Field.LinkUrl.TYPE_BLOCK, BX.Landing.UI.Field.LinkUrl.TYPE_PAGE, BX.Landing.UI.Field.LinkUrl.TYPE_CRM_FORM, BX.Landing.UI.Field.LinkUrl.TYPE_CRM_PHONE];
 	      if (BX.Landing.Main.getInstance().options.params.type === BX.Landing.Main.TYPE_STORE) {
 	        allowedTypes.push(BX.Landing.UI.Field.LinkUrl.TYPE_CATALOG);
 	      }
@@ -170,23 +154,22 @@ this.BX.Landing = this.BX.Landing || {};
 	          siteId: BX.Landing.Main.getInstance().options.site_id,
 	          landingId: BX.Landing.Main.getInstance().id
 	        },
-	        allowedTypes: allowedTypes
+	        allowedTypes
 	      });
-	    } else {
-	      if (!preventAdjustValue) {
-	        this.field.setValue(value);
-	        this.field.content = value;
-	        this.field.hrefInput.content = value.href;
-	        this.field.hrefInput.makeDisplayedHrefValue();
-	        this.field.hrefInput.setHrefTypeSwitcherValue(this.field.hrefInput.getHrefStringType());
-	        this.field.hrefInput.removeHrefTypeFromHrefString();
-	      }
+	    } else if (!preventAdjustValue) {
+	      this.field.setValue(value);
+	      this.field.content = value;
+	      this.field.hrefInput.content = value.href;
+	      this.field.hrefInput.makeDisplayedHrefValue();
+	      this.field.hrefInput.setHrefTypeSwitcherValue(this.field.hrefInput.getHrefStringType());
+	      this.field.hrefInput.removeHrefTypeFromHrefString();
 	    }
 	    return this.field;
 	  }
 	}
+	BX.Landing.Node.Link = Link;
 
 	exports.Link = Link;
 
-}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX,BX.Landing.Ui.Panel));
+}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing,BX));
 //# sourceMappingURL=link.bundle.js.map

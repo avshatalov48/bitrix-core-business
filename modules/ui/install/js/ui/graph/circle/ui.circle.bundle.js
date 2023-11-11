@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core) {
@@ -18,7 +19,6 @@ this.BX.UI = this.BX.UI || {};
 	    this.fixCounter = fixCounter ? fixCounter : null;
 	    this.withoutWaves = withoutWaves ? withoutWaves : null;
 	  }
-
 	  babelHelpers.createClass(Circle, [{
 	    key: "getCircumFerence",
 	    value: function getCircumFerence() {
@@ -103,20 +103,16 @@ this.BX.UI = this.BX.UI || {};
 	    key: "animateWavesBlock",
 	    value: function animateWavesBlock(fixCounter) {
 	      var progress = this.progressBar;
-
 	      if (fixCounter) {
 	        if (progress <= 50) {
 	          progress = 45;
 	        }
-
 	        if (progress > 50) {
 	          progress = 85;
 	        }
-
 	        this.progressBar <= 25 ? progress = 25 : null;
 	        this.waves.style.transform = 'translateY(-' + progress + '%)';
 	      }
-
 	      this.progressBar <= 25 ? progress = 25 : null;
 	      this.waves.style.transform = 'translateY(-' + progress + '%)';
 	    }
@@ -130,12 +126,10 @@ this.BX.UI = this.BX.UI || {};
 	      var then = Date.now();
 	      var interval = 1000 / fps;
 	      var delta;
-
 	      function draw() {
 	        requestAnimationFrame(draw);
 	        now = Date.now();
 	        delta = now - then;
-
 	        if (delta > interval) {
 	          then = now - delta % interval;
 	          var leftWave = document.querySelector('.ui-graph-circle-waves-left');
@@ -144,17 +138,14 @@ this.BX.UI = this.BX.UI || {};
 	          currentPosWaveRight -= 1;
 	          leftWave.style.transform = 'translate3d(' + currentPosWaveLeft + '%, 0, 0)';
 	          rightWave.style.transform = 'translate3d(' + currentPosWaveRight + '%, 0, 0)';
-
 	          if (parseInt(currentPosWaveLeft, 10) >= 50) {
 	            currentPosWaveLeft = 0;
 	          }
-
 	          if (parseInt(currentPosWaveRight, 10) <= 0) {
 	            currentPosWaveRight = 50;
 	          }
 	        }
 	      }
-
 	      draw();
 	    }
 	  }, {
@@ -174,7 +165,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "addWrapperClass",
 	    value: function addWrapperClass() {
 	      main_core.Dom.addClass(this.graph, 'ui-graph-circle-wrapper-animate');
-
 	      if (this.fixCounter) {
 	        main_core.Dom.addClass(this.graph, 'ui-graph-circle-counter');
 	      }
@@ -183,21 +173,17 @@ this.BX.UI = this.BX.UI || {};
 	    key: "animateNumber",
 	    value: function animateNumber(fixCounter) {
 	      var progress = this.progressBar;
-
 	      if (fixCounter) {
 	        progress = fixCounter;
 	      }
-
 	      if (Number(progress) <= 0) {
 	        if (fixCounter) {
 	          this.number.innerHTML = '0';
 	        } else {
 	          this.number.innerHTML = '0' + ' <span>%</span>';
 	        }
-
 	        return;
 	      }
-
 	      if (fixCounter) {
 	        this.number.innerHTML = fixCounter;
 	        this.number.innerHTML.length >= 4 ? this.graph.classList.add('ui-graph-font-sm') : null;
@@ -215,13 +201,11 @@ this.BX.UI = this.BX.UI || {};
 	    key: "updateCounter",
 	    value: function updateCounter(counter, fixCounter) {
 	      this.progressBar = counter;
-
 	      if (fixCounter) {
 	        this.progressMove.setAttributeNS(null, 'stroke-dashoffset', 0);
 	      } else {
 	        this.progressMove.setAttributeNS(null, 'stroke-dashoffset', this.getCircumProgress());
 	      }
-
 	      this.animateNumber(fixCounter);
 	      this.animateWavesBlock(fixCounter);
 	    }
@@ -232,13 +216,11 @@ this.BX.UI = this.BX.UI || {};
 	      setTimeout(function () {
 	        this.addWrapperClass();
 	        this.animateNumber(this.fixCounter);
-
 	        if (this.fixCounter) {
 	          this.animateFixedBar();
 	        } else {
 	          this.animateProgressBar();
 	        }
-
 	        if (this.withoutWaves) {
 	          return;
 	        } else {

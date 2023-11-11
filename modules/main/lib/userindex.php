@@ -109,21 +109,21 @@ class UserIndexTable extends Main\Entity\DataManager
 		{
 			$value = $DB->forSql($updateData['SEARCH_USER_CONTENT']);
 			$encryptedValue = sha1($updateData['SEARCH_USER_CONTENT']);
-			$updateData['SEARCH_USER_CONTENT'] = new \Bitrix\Main\DB\SqlExpression("IF(SHA1(SEARCH_USER_CONTENT) = '{$encryptedValue}', SEARCH_USER_CONTENT, '{$value}')");
+			$updateData['SEARCH_USER_CONTENT'] = new \Bitrix\Main\DB\SqlExpression("case when " . $helper->getSha1Function(static::getTableName().".SEARCH_USER_CONTENT") . " = '{$encryptedValue}' then ".static::getTableName().".SEARCH_USER_CONTENT else '{$value}' end");
 		}
 
 		if (isset($updateData['SEARCH_DEPARTMENT_CONTENT']))
 		{
 			$value = $DB->forSql($updateData['SEARCH_DEPARTMENT_CONTENT']);
 			$encryptedValue = sha1($updateData['SEARCH_DEPARTMENT_CONTENT']);
-			$updateData['SEARCH_DEPARTMENT_CONTENT'] = new \Bitrix\Main\DB\SqlExpression("IF(SHA1(SEARCH_DEPARTMENT_CONTENT) = '{$encryptedValue}', SEARCH_DEPARTMENT_CONTENT, '{$value}')");
+			$updateData['SEARCH_DEPARTMENT_CONTENT'] = new \Bitrix\Main\DB\SqlExpression("case when " . $helper->getSha1Function(static::getTableName().".SEARCH_DEPARTMENT_CONTENT") ." = '{$encryptedValue}' then ".static::getTableName().".SEARCH_DEPARTMENT_CONTENT else '{$value}' end");
 		}
 
 		if (isset($updateData['SEARCH_ADMIN_CONTENT']))
 		{
 			$value = $DB->forSql($updateData['SEARCH_ADMIN_CONTENT']);
 			$encryptedValue = sha1($updateData['SEARCH_ADMIN_CONTENT']);
-			$updateData['SEARCH_ADMIN_CONTENT'] = new \Bitrix\Main\DB\SqlExpression("IF(SHA1(SEARCH_ADMIN_CONTENT) = '{$encryptedValue}', SEARCH_ADMIN_CONTENT, '{$value}')");
+			$updateData['SEARCH_ADMIN_CONTENT'] = new \Bitrix\Main\DB\SqlExpression("case when " . $helper->getSha1Function(static::getTableName().".SEARCH_ADMIN_CONTENT") . " = '{$encryptedValue}' then ".static::getTableName().".SEARCH_ADMIN_CONTENT else '{$value}' end");
 		}
 
 		$merge = $helper->prepareMerge(

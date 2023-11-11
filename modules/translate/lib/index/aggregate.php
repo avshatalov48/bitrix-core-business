@@ -23,7 +23,7 @@ class Aggregate
 	 * @return Main\ORM\Query\Query
 	 * @throws Main\ArgumentException
 	 */
-	public static function buildAggregateQuery(array $params)
+	public static function buildAggregateQuery(array $params): Main\ORM\Query\Query
 	{
 		if (empty($params['GROUP_BY']))
 		{
@@ -91,7 +91,7 @@ class Aggregate
 	 *
 	 * @throws Main\ArgumentException
 	 */
-	public static function buildQuery(array $params)
+	public static function buildQuery(array $params): Main\ORM\Query\Query
 	{
 		if (empty($params['PARENT_ID']))
 		{
@@ -137,7 +137,7 @@ class Aggregate
 				'FOLDER_NODE',
 				Translate\Index\Internals\PathIndexTable::class,
 				Main\ORM\Query\Join::on('ref.ID', '=', 'this.PATH_ID')->where('ref.IS_DIR', '=', 'Y'),
-				array('join_type' => 'INNER')
+				['join_type' => 'INNER']
 			));
 
 
@@ -145,13 +145,13 @@ class Aggregate
 				'FILE_LIST',
 				Translate\Index\Internals\PathTreeTable::class,
 				Main\ORM\Query\Join::on('ref.PARENT_ID', '=', 'this.PATH_ID'),
-				array('join_type' => 'INNER')
+				['join_type' => 'INNER']
 			));
 			$query->registerRuntimeField(new Main\ORM\Fields\Relations\Reference(
 				'FILE_NODE',
 				Translate\Index\Internals\PathIndexTable::class,
 				Main\ORM\Query\Join::on('ref.ID', '=', 'this.FILE_LIST.PATH_ID')->where('ref.IS_DIR', '=', 'N'),
-				array('join_type' => 'INNER')
+				['join_type' => 'INNER']
 			));
 
 			//$query->addSelect('PARENT_ID');
@@ -168,7 +168,7 @@ class Aggregate
 					$tblAlias,
 					Translate\Index\Internals\FileIndexTable::class,
 					Main\ORM\Query\Join::on('ref.PATH_ID', '=', 'this.FILE_NODE.ID')->where('ref.LANG_ID', '=', $langId),
-					array('join_type' => 'LEFT')
+					['join_type' => 'LEFT']
 				));
 
 				$query->addSelect(new Main\ORM\Fields\ExpressionField(

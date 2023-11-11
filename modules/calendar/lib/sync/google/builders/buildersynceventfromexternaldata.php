@@ -137,22 +137,6 @@ class BuilderSyncEventFromExternalData implements Core\Builders\Builder
 			$event->setIsPrivate(true);
 		}
 
-		if (!empty($this->item['created']))
-		{
-			$event->setDateCreate(
-				Core\Base\Date::createDateTimeFromFormat($this->item['created'],
-					Sync\Google\Helper::DATE_TIME_FORMAT_WITH_MICROSECONDS)
-			);
-		}
-
-		if (!empty($this->item['updated']))
-		{
-			$event->setDateModified(
-				Core\Base\Date::createDateTimeFromFormat($this->item['updated'],
-					Sync\Google\Helper::DATE_TIME_FORMAT_WITH_MICROSECONDS)
-			);
-		}
-
 		if (!empty($this->item['reminders']))
 		{
 			$event->setRemindCollection($this->getReminders($event->getStart()));

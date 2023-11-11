@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 this.BX.UI.Icons = this.BX.UI.Icons || {};

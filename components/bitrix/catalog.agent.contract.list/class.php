@@ -14,7 +14,7 @@ class CatalogAgentContractList extends \CBitrixComponent
 	private const GRID_ID = 'catalog_agent_contract_list';
 	private const FILTER_ID = 'catalog_agent_contract_list_filter';
 
-	private Catalog\Grid\Filter\AgentContractDataProvider $itemProvider;
+	private Catalog\Filter\DataProvider\AgentContractDataProvider $itemProvider;
 	private Main\Filter\Filter $filter;
 	private ?array $contractors = null;
 
@@ -45,7 +45,7 @@ class CatalogAgentContractList extends \CBitrixComponent
 
 	private function initFilter(): void
 	{
-		$this->itemProvider = new Catalog\Grid\Filter\AgentContractDataProvider();
+		$this->itemProvider = new Catalog\Filter\DataProvider\AgentContractDataProvider();
 		$this->filter = new Main\Filter\Filter(self::FILTER_ID, $this->itemProvider);
 	}
 

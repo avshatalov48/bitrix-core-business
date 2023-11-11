@@ -1,0 +1,41 @@
+.bx-im-message-audio__container {
+	position: relative;
+	padding: 9px 12px 0 14px;
+}
+
+.bx-im-message-audio__message-status-container {
+	position: absolute;
+	right: 9px;
+	bottom: 8px;
+}
+
+.bx-im-message-audio__default-message-container {
+	padding:
+		0
+		var(--im-message-base__padding-right_body)
+		var(--im-message-base__padding-bottom_body)
+		var(--im-message-base__padding-left_body)
+	;
+}
+
+.bx-im-message-audio__reaction-list-container {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 4px;
+}
+
+.--opponent .bx-im-message-audio__reaction-list-container {
+	justify-content: flex-start;
+}
+
+.bx-im-message-audio__container .bx-im-audio-player__container {
+	height: auto;
+}
+
+.bx-im-message-audio__container .bx-im-audio-player__timeline-container {
+	margin-top: 10px;
+}
+
+.bx-im-message-audio__container .bx-im-audio-player__track-container {
+	margin-bottom: 7px;
+}

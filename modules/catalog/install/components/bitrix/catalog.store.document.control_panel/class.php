@@ -128,7 +128,7 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 		array_push($buttons, ... $this->getPanelButtonsSettings());
 		array_push($buttons, ... $this->getPanelButtonsOther());
 
-		$buttons = array_filter($buttons, static fn($item) => !is_null($item));
+		$buttons = array_filter($buttons, static fn($item) => !is_null($item) && (($item['IS_ACTIVE'] ?? false) || !($item['IS_HIDE'] ?? false)));
 
 		return $buttons;
 	}
@@ -145,6 +145,16 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_ARRIVAL_BUTTON_TITLE'),
 				'URL_TYPE' => \CatalogStoreDocumentListComponent::ARRIVAL_MODE,
 				'SORT' => 10,
+				'IS_HIDE' =>
+					!$this->accessController->checkByValue(
+						ActionDictionary::ACTION_STORE_DOCUMENT_VIEW,
+						Catalog\StoreDocumentTable::TYPE_ARRIVAL
+					)
+					&& !$this->accessController->checkByValue(
+						ActionDictionary::ACTION_STORE_DOCUMENT_VIEW,
+						Catalog\StoreDocumentTable::TYPE_STORE_ADJUSTMENT
+					)
+				,
 			],
 			// this was `sales_order_docs`
 			[
@@ -152,12 +162,20 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_MOVING_BUTTON_TITLE'),
 				'URL_TYPE' => \CatalogStoreDocumentListComponent::MOVING_MODE,
 				'SORT' => 30,
+				'IS_HIDE' => !$this->accessController->checkByValue(
+					ActionDictionary::ACTION_STORE_DOCUMENT_VIEW,
+					Catalog\StoreDocumentTable::TYPE_MOVING
+				),
 			],
 			[
 				'ID' => 'deduct_docs',
 				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_DEDUCT_BUTTON_TITLE'),
 				'URL_TYPE' => \CatalogStoreDocumentListComponent::DEDUCT_MODE,
 				'SORT' => 40,
+				'IS_HIDE' => !$this->accessController->checkByValue(
+					ActionDictionary::ACTION_STORE_DOCUMENT_VIEW,
+					Catalog\StoreDocumentTable::TYPE_DEDUCT
+				),
 			],
 		];
 
@@ -169,6 +187,10 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 					'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SALES_ORDER_BUTTON_TITLE'),
 					'URL_TYPE' => 'sales_order',
 					'SORT' => 20,
+					'IS_HIDE' => !$this->accessController->checkByValue(
+						ActionDictionary::ACTION_STORE_DOCUMENT_VIEW,
+						Catalog\StoreDocumentTable::TYPE_SALES_ORDERS
+					),
 				],
 			]);
 		}

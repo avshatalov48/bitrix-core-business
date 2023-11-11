@@ -106,7 +106,10 @@ class Operator
 
 	public static function match($columnSql, $valueSql)
 	{
-		return "MATCH ({$columnSql}) AGAINST ({$valueSql} IN BOOLEAN MODE)";
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		return $helper->getMatchFunction($columnSql, $valueSql);
 	}
 
 	public static function expr($columnSql, $valueSql)

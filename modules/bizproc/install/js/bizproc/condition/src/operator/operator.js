@@ -1,4 +1,4 @@
-import {Loc} from "main.core";
+import { Loc } from 'main.core';
 
 export class Operator
 {
@@ -33,7 +33,7 @@ export class Operator
 			this.LESS_THEN,
 			this.LESS_THEN_OR_EQUAL,
 			this.MODIFIED,
-			//this.BETWEEN,
+			this.BETWEEN,
 		];
 	}
 
@@ -52,7 +52,7 @@ export class Operator
 			[this.GREATER_THEN_OR_EQUAL, Loc.getMessage('BIZPROC_JS_CONDITION_GTE')],
 			[this.LESS_THEN, Loc.getMessage('BIZPROC_JS_CONDITION_LT')],
 			[this.LESS_THEN_OR_EQUAL, Loc.getMessage('BIZPROC_JS_CONDITION_LTE')],
-			//[this.BETWEEN, Loc.getMessage('BIZPROC_JS_CONDITION_BETWEEN')],
+			[this.BETWEEN, Loc.getMessage('BIZPROC_JS_CONDITION_BETWEEN')],
 			[this.MODIFIED, Loc.getMessage('BIZPROC_JS_CONDITION_MODIFIED')],
 		]);
 	}
@@ -69,10 +69,10 @@ export class Operator
 			return [];
 		}
 
-		// if (operator === this.BETWEEN)
-		// {
-		// 	return ['int', 'double', 'date', 'datetime', 'time'];
-		// }
+		if (operator === this.BETWEEN)
+		{
+			return ['int', 'double', 'date', 'datetime', 'time'];
+		}
 
 		return [];
 	}
@@ -93,7 +93,7 @@ export class Operator
 			this.NOT_EMPTY,
 			this.EMPTY,
 			this.MODIFIED,
-			//this.BETWEEN,
+			this.BETWEEN,
 		];
 	}
 

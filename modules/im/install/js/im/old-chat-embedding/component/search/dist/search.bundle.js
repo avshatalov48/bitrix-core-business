@@ -193,7 +193,8 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	  chat: 'im-chat',
 	  chatUser: 'im-chat-user',
 	  department: 'department',
-	  network: 'imbot-network'
+	  network: 'imbot-network',
+	  lines: 'imol-chat'
 	});
 
 	const SearchUtils = {
@@ -208,6 +209,7 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	        return 'user';
 	      case EntityIdTypes.chat:
 	      case EntityIdTypes.chatUser:
+	      case EntityIdTypes.lines:
 	        return 'chat';
 	      case EntityIdTypes.department:
 	        return 'department';
@@ -457,6 +459,9 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	  isChat() {
 	    return !this.isUser();
 	  }
+	  isLines() {
+	    return this.isOpeLinesType();
+	  }
 	  isExtranet() {
 	    if (this.isFromProviderResponse(this.rawData)) {
 	      var _this$rawData$customD2, _this$rawData$customD3, _this$rawData$customD4, _this$rawData$customD5;
@@ -465,6 +470,7 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	      var _this$rawData$user;
 	      return !!((_this$rawData$user = this.rawData.user) != null && _this$rawData$user.extranet) || !!this.rawData.dialog.extranet;
 	    }
+	    return false;
 	  }
 	  getUserCustomData() {
 	    var _this$rawData$customD6;
@@ -1043,15 +1049,22 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	          filters: [{
 	            id: 'im.userDataFilter'
 	          }]
-	        }, {
-	          id: 'im-chat-user',
-	          options: {
-	            searchableChatTypes: ['C', 'O'],
-	            fillDialogWithDefaultValues: false
-	          },
-	          dynamicLoad: true,
-	          dynamicSearch: true
-	        }],
+	        }
+	        /* Disable - chat with users section
+	        {
+	        	id: 'im-chat-user',
+	        	options: {
+	        		searchableChatTypes: [
+	        			'C',
+	        			'O'
+	        		],
+	        		fillDialogWithDefaultValues: false,
+	        	},
+	        	dynamicLoad: true,
+	        	dynamicSearch: true,
+	        },
+	        */],
+
 	        preselectedItems: [],
 	        clearUnavailableItems: false,
 	        context: 'IM_CHAT_SEARCH',
@@ -1089,6 +1102,13 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	        searchableChatTypes: ['C', 'O', 'L'],
 	        fillDialogWithDefaultValues: false
 	      },
+	      dynamicLoad: true,
+	      dynamicSearch: true
+	    };
+	  },
+	  getLinesEntity: () => {
+	    return {
+	      id: 'imol-chat',
 	      dynamicLoad: true,
 	      dynamicSearch: true
 	    };
@@ -1175,6 +1195,8 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	}
 
 	const RestMethodImopenlinesNetworkJoin = 'imopenlines.network.join';
+	var _filterResult = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("filterResult");
+	var _isItemAllowedInLinesSearch = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isItemAllowedInLinesSearch");
 	class SearchService {
 	  static getInstance($Bitrix, cache, recentList) {
 	    if (!this.instance) {
@@ -1183,6 +1205,12 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	    return this.instance;
 	  }
 	  constructor($Bitrix, cache, recentList) {
+	    Object.defineProperty(this, _isItemAllowedInLinesSearch, {
+	      value: _isItemAllowedInLinesSearch2
+	    });
+	    Object.defineProperty(this, _filterResult, {
+	      value: _filterResult2
+	    });
 	    this.store = null;
 	    this.cache = null;
 	    this.recentList = null;
@@ -1190,6 +1218,7 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	    this.cache = cache;
 	    this.recentList = recentList;
 	    this.restClient = $Bitrix.RestClient.get();
+	    this.applicationLayout = $Bitrix.Application.get().params.layout;
 	    this.onItemSelectHandler = this.onItemSelect.bind(this);
 	    this.onOpenNetworkItemHandler = this.onOpenNetworkItem.bind(this);
 	    main_core_events.EventEmitter.subscribe(im_oldChatEmbedding_const.EventType.search.selectItem, this.onItemSelectHandler);
@@ -1208,8 +1237,9 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	        recentItems
 	      } = responseFromCache;
 	      const itemMap = SearchUtils.createItemMap(items);
-	      return this.updateModels(itemMap).then(() => {
-	        return this.getItemsFromRecentItems(recentItems, itemMap);
+	      const filteredItems = babelHelpers.classPrivateFieldLooseBase(this, _filterResult)[_filterResult](itemMap);
+	      return this.updateModels(filteredItems).then(() => {
+	        return this.getItemsFromRecentItems(recentItems, filteredItems);
 	      });
 	    });
 	  }
@@ -1218,8 +1248,9 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	      im_oldChatEmbedding_lib_logger.Logger.warn('Im.Search: Recent search loaded from server');
 	      const items = SearchUtils.createItemMap(responseFromServer.items);
 	      const recentItems = SearchUtils.prepareRecentItems(responseFromServer.recentItems);
-	      return this.updateModels(items, true).then(() => {
-	        return this.getItemsFromRecentItems(recentItems, items);
+	      const filteredItems = babelHelpers.classPrivateFieldLooseBase(this, _filterResult)[_filterResult](items);
+	      return this.updateModels(filteredItems, true).then(() => {
+	        return this.getItemsFromRecentItems(recentItems, filteredItems);
 	      });
 	    });
 	  }
@@ -1239,6 +1270,7 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	    let items = [];
 	    return this.searchRequest(originalLayoutQuery, config).then(itemsFromServer => {
 	      items = SearchUtils.createItemMap(itemsFromServer);
+	      items = babelHelpers.classPrivateFieldLooseBase(this, _filterResult)[_filterResult](items);
 	      return this.updateModels(items, true);
 	    }).then(() => {
 	      return this.allocateSearchResults(items, originalLayoutQuery);
@@ -1294,7 +1326,9 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	  }
 	  getItemsFromRecentListByQuery(query) {
 	    const queryWords = SearchUtils.getWordsFromString(query);
-	    return this.recentList.search(queryWords);
+	    return this.recentList.search(queryWords).then(items => {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _filterResult)[_filterResult](items);
+	    });
 	  }
 	  getSearchConfig() {
 	    return Config.get();
@@ -1357,7 +1391,8 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	    const queryWords = SearchUtils.getWordsFromString(query);
 	    return this.cache.search(queryWords).then(cacheItems => {
 	      const items = SearchUtils.createItemMap(cacheItems);
-	      return this.updateModels(items).then(() => items);
+	      const filteredItems = babelHelpers.classPrivateFieldLooseBase(this, _filterResult)[_filterResult](items);
+	      return this.updateModels(filteredItems).then(() => filteredItems);
 	    });
 	  }
 	  getSortedItems(items, originalLayoutQuery) {
@@ -1425,9 +1460,11 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	    const config = {
 	      json: this.getSearchConfig()
 	    };
-	    const chatEntity = Config.getChatEntity();
-	    chatEntity.options.searchableChatTypes = ['C', 'O'];
-	    config.json.dialog.entities.push(chatEntity);
+	    /*
+	    		const chatEntity = Config.getChatEntity();
+	    		chatEntity.options.searchableChatTypes = ['C', 'O'];
+	    		config.json.dialog.entities.push(chatEntity);
+	    */
 	    return new Promise((resolve, reject) => {
 	      main_core.ajax.runAction('ui.entityselector.load', config).then(response => {
 	        im_oldChatEmbedding_lib_logger.Logger.warn(`Im.Search: Recent search request result`, response);
@@ -1465,8 +1502,14 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	      const departmentEntity = Config.getDepartmentEntity();
 	      config.json.dialog.entities.push(departmentEntity);
 	    }
-	    const chatEntity = Config.getChatEntity();
-	    config.json.dialog.entities.push(chatEntity);
+	    if (requestConfig.chats) {
+	      const chatEntity = Config.getChatEntity();
+	      config.json.dialog.entities.push(chatEntity);
+	    }
+	    if (requestConfig.lines) {
+	      const chatEntity = Config.getLinesEntity();
+	      config.json.dialog.entities.push(chatEntity);
+	    }
 	    config.json.searchQuery = {
 	      'queryWords': SearchUtils.getWordsFromString(query.trim()),
 	      'query': query.trim()
@@ -1625,6 +1668,19 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	    const isIdenticalQuery = wrongLayoutQuery === originalLayoutQuery;
 	    return this.isRussianInterface() && !isIdenticalQuery;
 	  }
+	}
+	function _filterResult2(items) {
+	  if (this.applicationLayout === im_oldChatEmbedding_const.ApplicationLayout.full) {
+	    return items;
+	  }
+	  const filteredItems = [...items].filter(item => {
+	    const [, value] = item;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _isItemAllowedInLinesSearch)[_isItemAllowedInLinesSearch](value);
+	  });
+	  return new Map(filteredItems);
+	}
+	function _isItemAllowedInLinesSearch2(item) {
+	  return item.isUser() || item.isLines();
 	}
 	SearchService.instance = null;
 
@@ -1806,7 +1862,8 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	      if (this.isServerLoading || this.isLocalLoading || this.isNetworkLoading) {
 	        return false;
 	      }
-	      if (this.isNetworkAvailable && !this.isNetworkButtonClicked && this.isServerSearch) {
+	      const openLinesLayout = this.applicationLayout === im_oldChatEmbedding_const.ApplicationLayout.lines;
+	      if (!openLinesLayout && this.isNetworkSearchEnabled && !this.isNetworkButtonClicked && this.isServerSearch) {
 	        return false;
 	      }
 	      return this.result.usersAndChats.size === 0 && this.result.departments.size === 0 && this.result.chatUsers.size === 0 && this.result.openLines.size === 0 && this.result.network.size === 0;
@@ -1827,6 +1884,9 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	      return !!(this.searchQuery.length === 32 && /[\da-f]{32}/.test(this.searchQuery));
 	    },
 	    isNetworkAvailableForSearch() {
+	      if (this.applicationLayout !== im_oldChatEmbedding_const.ApplicationLayout.full) {
+	        return false;
+	      }
 	      if (!this.isNetworkAvailable) {
 	        return false;
 	      }
@@ -1872,6 +1932,7 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	    const recentList = new SearchRecentList(this.$Bitrix);
 	    this.searchService = SearchService.getInstance(this.$Bitrix, cache, recentList);
 	    this.searchOnServerDelayed = main_core.Runtime.debounce(this.searchOnServer, 1500, this);
+	    this.applicationLayout = this.$Bitrix.Application.get().params.layout;
 	    main_core_events.EventEmitter.subscribe(im_oldChatEmbedding_const.EventType.search.openContextMenu, this.onOpenContextMenu);
 	    main_core_events.EventEmitter.subscribe(im_oldChatEmbedding_const.EventType.dialog.errors.accessDenied, this.onDelete);
 	    main_core_events.EventEmitter.subscribe(im_oldChatEmbedding_const.EventType.search.selectItem, this.onSelectItem);
@@ -1936,9 +1997,13 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	      this.currentServerQueries++;
 	      this.isNetworkLoading = this.isNetworkButtonClicked;
 	      const config = {
-	        network: this.isNetworkAvailableForSearch && this.isNetworkButtonClicked,
-	        departments: !BX.MessengerProxy.isCurrentUserExtranet() && this.isDepartmentsAvailable
+	        lines: true
 	      };
+	      if (this.applicationLayout === im_oldChatEmbedding_const.ApplicationLayout.full) {
+	        config.network = this.isNetworkAvailableForSearch && this.isNetworkButtonClicked;
+	        config.departments = !BX.MessengerProxy.isCurrentUserExtranet() && this.isDepartmentsAvailable;
+	        config.chats = true;
+	      }
 	      const queryBeforeRequest = query;
 	      this.searchService.searchOnServer(query, config).then(searchResultFromServer => {
 	        if (queryBeforeRequest !== this.searchQuery.trim()) {
@@ -1963,6 +2028,7 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	      }
 	      this.isNetworkLoading = false;
 	      this.isServerLoading = false;
+	      this.isLocalLoading = false;
 	    },
 	    searchOnNetwork(query) {
 	      this.isNetworkLoading = true;

@@ -1,4 +1,7 @@
-export const FileEvent: Object<string, string> = {
+/**
+ * @namespace BX.UI.Uploader
+ */
+export const FileEvent = {
 	ADD: 'onAdd',
 	BEFORE_UPLOAD: 'onBeforeUpload',
 	UPLOAD_START: 'onUploadStart',

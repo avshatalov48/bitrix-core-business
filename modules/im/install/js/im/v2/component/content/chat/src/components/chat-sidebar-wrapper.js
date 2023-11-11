@@ -1,19 +1,20 @@
-import {ChatSidebar} from 'im.v2.component.sidebar';
+import { ChatSidebar } from 'im.v2.component.sidebar';
+
 import '../css/chat-sidebar-wrapper.css';
 
 // @vue/component
 export const SidebarWrapper = {
 	name: 'SidebarWrapper',
-	components: {ChatSidebar},
+	components: { ChatSidebar },
 	props: {
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		sidebarDetailBlock: {
 			type: String,
-			default: null
-		}
+			default: null,
+		},
 	},
 	emits: ['back'],
 	methods:
@@ -21,7 +22,7 @@ export const SidebarWrapper = {
 		onClickBack()
 		{
 			this.$emit('back');
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-wrapper__scope bx-im-sidebar-wrapper__container">
@@ -32,5 +33,5 @@ export const SidebarWrapper = {
 				@back="onClickBack"
 			/>
 		</div>
-	`
+	`,
 };

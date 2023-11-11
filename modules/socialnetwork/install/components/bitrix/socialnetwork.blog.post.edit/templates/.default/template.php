@@ -595,6 +595,7 @@ HTML;
 								"MentionUser",
 							],
 							"BUTTONS" => [
+								"Copilot",
 								"UploadImage",
 								"UploadFile",
 								"CreateLink",
@@ -691,6 +692,11 @@ HTML;
 									!$arResult['bVarsFromForm']
 									&& ($arParams["TOP_TABS_VISIBLE"] ?? null) === "Y"
 								),
+								'copilotParams' => [
+									'moduleId' => 'socialnetwork',
+									'contextId' => 'sonet_post_' . $USER->GetID(),
+									'category' => 'livefeed',
+								],
 							],
 							"USE_CLIENT_DATABASE" => "Y",
 							"DEST_CONTEXT" => "BLOG_POST",

@@ -336,6 +336,7 @@ class Builder
 			$connector->setDataTypeId($this->typeId);
 			if (is_array($group['ENDPOINT']['FIELDS']))
 			{
+				$connector->setCheckAccessRights(false);
 				$connector->setFieldValues($group['ENDPOINT']['FIELDS']);
 			}
 

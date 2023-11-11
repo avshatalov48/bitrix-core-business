@@ -154,15 +154,6 @@ class TaskService
 			\Bitrix\Main\Config\Option::get('intranet', 'search_user_url', SITE_DIR . 'company/personal/user/#USER_ID#/')
 		) . 'tasks/task/edit/0/';
 
-		$chatTypeModifier = ($chat->getType() === \IM_MESSAGE_PRIVATE) ? 'PRIVATE_' : '';
-		$locVersion = ($chat->getType() === \IM_MESSAGE_PRIVATE) ? '_MSGVER_1' : '';
-		$from = isset($message) ? 'MESSAGE' : 'CHAT';
-		$from = $chatTypeModifier . $from;
-
-		$data['PARAMS']['TITLE'] = Loc::getMessage(
-			"IM_CHAT_TASK_SERVICE_FROM_{$from}_NEW_TITLE{$locVersion}",
-			["#CHAT_TITLE#" => $chat->getDisplayedTitle()]
-		);
 		$data['PARAMS']['RESPONSIBLE_ID'] = $userId;
 		$data['PARAMS']['IM_CHAT_ID'] = $chat->getChatId();
 

@@ -300,7 +300,7 @@ class CComponentAjax
 	function _checkPcreLimit($data)
 	{
 		$pcre_backtrack_limit = intval(ini_get("pcre.backtrack_limit"));
-		$text_len = function_exists('mb_strlen')? mb_strlen($data, 'latin1') : mb_strlen($data);
+		$text_len = strlen($data);
 		$text_len++;
 
 		if ($pcre_backtrack_limit > 0 && $pcre_backtrack_limit < $text_len)

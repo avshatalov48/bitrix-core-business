@@ -82,7 +82,16 @@ BX.ready(function()
 			}
 		});
 
+		var folderCreating = false;
+
 		function ajaxAddFolder() {
+
+			if (folderCreating) {
+				return;
+			}
+
+			folderCreating = true;
+
 			BX.ajax({
 				url: '/bitrix/tools/landing/ajax.php?' + '' +
 					'action=Site::addFolder&' +
@@ -116,6 +125,8 @@ BX.ready(function()
 							}).then(
 								function()
 								{
+									folderCreating = false;
+
 									if (data.result[0].error === 'FOLDER_IS_NOT_UNIQUE')
 									{
 										createFolderText.value = '';
@@ -133,6 +144,10 @@ BX.ready(function()
 							window.location.reload();
 						}
 					}
+				},
+				onfailure: function(error)
+				{
+					folderCreating = false;
 				}
 			});
 		}

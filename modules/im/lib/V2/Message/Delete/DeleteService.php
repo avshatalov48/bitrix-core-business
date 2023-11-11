@@ -8,6 +8,7 @@ use Bitrix\Im\Common;
 use Bitrix\Im\Model\MessageIndexTable;
 use Bitrix\Im\Model\MessageTable;
 use Bitrix\Im\Model\MessageViewedTable;
+use Bitrix\Im\Model\RecentTable;
 use Bitrix\Im\Recent;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
@@ -488,21 +489,7 @@ class DeleteService
 
 	private function recountChat(): void
 	{
-		if ($this->chatLastMessage && (int)$this->chatLastMessage['ID'] !== $this->message->getId())
-		{
-			$dateCreate = DateTime::createFromText($this->chatLastMessage['DATE_CREATE'])->format('Y-m-d H:i:s');
-
-			(Application::getConnection())->queryExecute("
-				UPDATE b_im_recent
-				SET 
-					DATE_MESSAGE = '" . $dateCreate . "',
-					DATE_UPDATE = '" . $dateCreate . "',
-					ITEM_MID = " . ($this->chatLastMessage['ID'] ?? 0) . "
-				WHERE
-					ITEM_CID = " . $this->chat->getChatId() . "
-			");
-		}
-
+		$this->updateRecent();
 		if (!is_null($this->chatLastMessage))
 		{
 			$isMessageRead = !!MessageViewedTable::query()
@@ -537,6 +524,47 @@ class DeleteService
 			");
 	}
 
+	private function updateRecent(): void
+	{
+		if ($this->chatLastMessage && (int)$this->chatLastMessage['ID'] !== $this->message->getId())
+		{
+			$update = [
+				'DATE_MESSAGE' => $this->chatLastMessage['DATE_CREATE'],
+				'DATE_UPDATE' => $this->chatLastMessage['DATE_CREATE'],
+				'ITEM_MID' => $this->chatLastMessage['ID'] ?? 0,
+			];
+
+			if ($this->chat instanceof Chat\PrivateChat || $this->chat->getType() === Chat::IM_TYPE_PRIVATE)
+			{
+				$userId = $this->getContext()->getUserId();
+				$opponentId = $this->chat->getCompanion($userId)->getId();
+				RecentTable::updateByFilter(
+					[
+						'=USER_ID' => $userId,
+						'=ITEM_TYPE' => Chat::IM_TYPE_PRIVATE,
+						'=ITEM_ID' => $opponentId
+					],
+					$update
+				);
+				RecentTable::updateByFilter(
+					[
+						'=USER_ID' => $opponentId,
+						'=ITEM_TYPE' => Chat::IM_TYPE_PRIVATE,
+						'=ITEM_ID' => $userId
+					],
+					$update
+				);
+			}
+			else
+			{
+				RecentTable::updateByFilter(
+					['=ITEM_TYPE' => $this->chat->getType(), '=ITEM_ID' => $this->chat->getId()],
+					$update
+				);
+			}
+		}
+	}
+
 	private function getCounter(int $userId): int
 	{
 		$this->counters ??= (new Message\CounterService())
@@ -548,7 +576,10 @@ class DeleteService
 
 	private function formatNewLastMessage(Message $message): array
 	{
-		$result = $message->toRestFormat();
+		$result = $message
+			->setViewed(false) // todo: refactor this
+			->toRestFormat()
+		;
 
 		if ($message->getFiles()->count() <= 0)
 		{

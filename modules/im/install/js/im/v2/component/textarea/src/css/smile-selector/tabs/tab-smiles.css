@@ -6,6 +6,12 @@
 	--im-smiles-content__background-color_scroll: rgba(82, 92, 105, .3);
 	--im-smiles-content__background-color_scroll-hover: rgba(82, 92, 105, .5);
 	--im-smiles-content__background-color_scroll-active: rgba(82, 92, 105, .8);
+
+	--im-smiles-content__font_primary: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-font-family-system);
+	--im-smiles-content__font-color_primary: var(--im-color-palette-gray-90);
+	--im-smiles-content__font_placeholder: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-messenger__font_helvetica);
+	--im-smiles-content__font-color_placeholder: var(--im-color-palette-gray-40);
+	--im-smiles-content__border-color_active-input: #00ace3;
 }
 
 .bx-im-smiles-content__smiles-box {
@@ -22,7 +28,6 @@
 	left: 50%;
 	transform: translate(-50%, -50%);
 }
-
 
 .bx-im-smiles-content__smiles-box::-webkit-scrollbar {
 	width: 6px;
@@ -110,4 +115,45 @@
 	object-fit: contain;
 	height: var(--im-smiles-content__image-size_set);
 	width: var(--im-smiles-content__image-size_set);
+}
+
+.bx-im-smile-popup-giphy-content__search-icon {
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	left: 14px;
+	top: 8px;
+	background-image: url('../../../../../elements/src/search-input/images/search.svg');
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.bx-im-smile-popup-giphy-content__input {
+	width: 100%;
+	height: 100%;
+	padding: 8px 34px 8px 38px;
+	background-color: rgb(82 92 105 / 5%);
+	border-radius: 80px;
+	font: var(--im-smiles-content__font_primary);
+	font-weight: var(--im-font-weight-normal);
+	color: var(--im-smiles-content__font-color_primary);
+	border: 1px solid transparent;
+	outline: none;
+}
+
+.bx-im-smile-popup-giphy-content__input::placeholder {
+	opacity: 1;
+	color: var(--im-smiles-content__font-color_primary);
+}
+
+.bx-im-smile-popup-giphy-content__input::placeholder {
+	font: var(--im-smiles-content__font_placeholder);
+	font-weight: var(--im-font-weight-normal);
+	color: var(--im-smiles-content__font-color_placeholder);
+}
+
+.bx-im-smile-popup-giphy-content__input:active,
+.bx-im-smile-popup-giphy-content__input:focus {
+	border-color: var(--im-smiles-content__border-color_active-input)
 }

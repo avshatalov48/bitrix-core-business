@@ -24,10 +24,10 @@ this.BX.Messenger.Embedding.Provider = this.BX.Messenger.Embedding.Provider || {
 	    this.handleMessageAdd(params, extra);
 	  }
 	  handleMessageAdd(params, extra) {
-	    im_oldChatEmbedding_lib_logger.Logger.warn('handleMessageAdd', params);
 	    if (params.lines) {
 	      return false;
 	    }
+	    im_oldChatEmbedding_lib_logger.Logger.warn('handleMessageAdd', params);
 	    if (params != null && params.chat[params.chatId]) {
 	      const chatToAdd = {
 	        ...params.chat[params.chatId],

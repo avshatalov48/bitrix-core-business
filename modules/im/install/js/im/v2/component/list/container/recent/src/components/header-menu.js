@@ -26,7 +26,7 @@ export const HeaderMenu = {
 		},
 		unreadCounter(): number
 		{
-			return this.$store.getters['recent/getTotalCounter'];
+			return this.$store.getters['recent/getTotalChatCounter'];
 		}
 	},
 	methods:

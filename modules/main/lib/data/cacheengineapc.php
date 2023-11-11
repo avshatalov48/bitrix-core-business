@@ -143,7 +143,14 @@ class CacheEngineApc extends CacheEngine
 
 			if ($rewrite)
 			{
-				apcu_store($key, $list, 0);
+				if (empty($list))
+				{
+					apcu_delete($key);
+				}
+				else
+				{
+					apcu_store($key, $list, 0);
+				}
 			}
 		}
 	}

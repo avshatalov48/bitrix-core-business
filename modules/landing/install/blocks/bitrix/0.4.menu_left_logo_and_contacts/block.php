@@ -1,4 +1,4 @@
-<header class="landing-block landing-semantic-background-color g-bg-white u-header u-header--sticky u-header--relative g-z-index-9999 g-pt-15 g-pb-15">
+<header class="landing-block g-bg-white u-header u-header--sticky u-header--relative g-z-index-9999 g-pt-15 g-pb-15">
 	<div class="u-header__section u-header__section--light g-transition-0_3"
 		data-header-fix-moment-classes="u-shadow-v27">
 		<div class="container">
@@ -12,23 +12,23 @@
 					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-font-size-12 g-pt-20 g-pt-0--lg">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#home"
-								class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home</a>
+								class="landing-block-node-menu-list-item-link nav-link p-0">Home</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#about"
-								class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">About</a>
+								class="landing-block-node-menu-list-item-link nav-link p-0">About</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#presentation"
-								class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Presentation</a>
+								class="landing-block-node-menu-list-item-link nav-link p-0">Presentation</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#gallery"
-								class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Gallery</a>
+								class="landing-block-node-menu-list-item-link nav-link p-0">Gallery</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#services"
-								class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Services</a>
+								class="landing-block-node-menu-list-item-link nav-link p-0">Services</a>
 						</li>
 					</ul>
 				</div>
@@ -37,10 +37,10 @@
 				<div class="landing-block-node-contacts-container col-md-6 col-12 g-pr-0 text-right row justify-content-end align-items-center">
 					<div class="landing-block-node-contacts-texts g-ml-15">
 						<div class="landing-block-node-contact-text" data-card-preset="contact-link">
-							<div class="landing-block-node-menu-contact-title landing-semantic-text-small d-inline-block">
+							<div class="landing-block-node-menu-contact-title d-inline-block">
 								Tel:
 							</div>
-							<a href="tel:#crmPhone1" class="landing-block-node-menu-contact-link landing-semantic-link-small d-inline-block g-font-weight-700">
+							<a href="tel:#crmPhone1" class="landing-block-node-menu-contact-link d-inline-block g-font-weight-700">
 								#crmPhoneTitle1
 							</a>
 						</div>

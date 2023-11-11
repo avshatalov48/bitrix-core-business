@@ -6,9 +6,23 @@ import {Type} from 'main.core';
  */
 export default class Command
 {
-	constructor(options: {id: string, command: () => {}})
+	id: string;
+	command: () => {};
+	onBeforeCommand: () => {};
+
+	constructor(options: {
+		id: string,
+		command: () => {},
+		onBeforeCommand: () => {},
+	})
 	{
 		this.id = Type.isStringFilled(options.id) ? options.id : '#invalidCommand';
 		this.command = Type.isFunction(options.command) ? options.command : (() => {});
+		this.onBeforeCommand =
+			Type.isFunction(options.onBeforeCommand)
+				? options.onBeforeCommand
+				: () => {
+					return Promise.resolve()
+				};
 	}
 }

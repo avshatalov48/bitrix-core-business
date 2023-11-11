@@ -1,0 +1,27 @@
+.bx-im-video-item__scope {
+	--im-video-item__background-color_container: #f1f4f6
+}
+
+.bx-im-video-item__container {
+	overflow: hidden;
+	border-radius: 6px;
+	position: relative;
+	background-color: var(--im-video-item__background-color_container);
+}
+
+.bx-im-video-item__container .ui-vue-socialvideo-timers-container {
+	font: 11px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+}
+
+.bx-im-video-item__container .ui-vue-socialvideo-image-source,
+.bx-im-video-item__container .ui-vue-socialvideo-source {
+	max-width: 100%;
+}
+
+.bx-im-video-item__container .ui-vue-socialvideo-info-container {
+	padding-top: 40px;
+}
+
+.bx-im-video-item__container .ui-vue-socialvideo {
+	display: flex;
+}

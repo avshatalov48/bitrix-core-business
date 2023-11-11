@@ -1,6 +1,6 @@
 import {ajax as Ajax} from 'main.core';
 import {Logger} from 'im.old-chat-embedding.lib.logger';
-import {DialogType, EventType, RestMethod} from 'im.old-chat-embedding.const';
+import { ApplicationLayout, DialogType, EventType, RestMethod } from 'im.old-chat-embedding.const';
 import {EventEmitter} from 'main.core.events';
 import {SearchCache} from './search-cache';
 import {EntityIdTypes, ImSearchItem} from './types/search-item';
@@ -34,6 +34,7 @@ export class SearchService
 		this.cache = cache;
 		this.recentList = recentList;
 		this.restClient = $Bitrix.RestClient.get();
+		this.applicationLayout = $Bitrix.Application.get().params.layout;
 
 		this.onItemSelectHandler = this.onItemSelect.bind(this);
 		this.onOpenNetworkItemHandler = this.onOpenNetworkItem.bind(this);
@@ -50,11 +51,13 @@ export class SearchService
 
 			return responseFromCache;
 		}).then(responseFromCache => {
-			const {items, recentItems} = responseFromCache;
+			const { items, recentItems } = responseFromCache;
 			const itemMap = SearchUtils.createItemMap(items);
 
-			return this.updateModels(itemMap).then(() => {
-				return this.getItemsFromRecentItems(recentItems, itemMap);
+			const filteredItems = this.#filterResult(itemMap);
+
+			return this.updateModels(filteredItems).then(() => {
+				return this.getItemsFromRecentItems(recentItems, filteredItems);
 			});
 		});
 	}
@@ -66,8 +69,10 @@ export class SearchService
 			const items = SearchUtils.createItemMap(responseFromServer.items);
 			const recentItems = SearchUtils.prepareRecentItems(responseFromServer.recentItems);
 
-			return this.updateModels(items, true).then(() => {
-				return this.getItemsFromRecentItems(recentItems, items);
+			const filteredItems = this.#filterResult(items);
+
+			return this.updateModels(filteredItems, true).then(() => {
+				return this.getItemsFromRecentItems(recentItems, filteredItems);
 			});
 		});
 	}
@@ -93,8 +98,10 @@ export class SearchService
 		const originalLayoutQuery = query.trim().toLowerCase();
 
 		let items = [];
+
 		return this.searchRequest(originalLayoutQuery, config).then(itemsFromServer => {
 			items = SearchUtils.createItemMap(itemsFromServer);
+			items = this.#filterResult(items);
 
 			return this.updateModels(items, true);
 		}).then(() => {
@@ -172,7 +179,9 @@ export class SearchService
 	{
 		const queryWords = SearchUtils.getWordsFromString(query);
 
-		return this.recentList.search(queryWords);
+		return this.recentList.search(queryWords).then((items) => {
+			return this.#filterResult(items);
+		});
 	}
 
 	getSearchConfig(): Object
@@ -182,7 +191,7 @@ export class SearchService
 
 	onItemSelect(event): void
 	{
-		const {selectedItem, onlyOpen} = event.getData();
+		const { selectedItem, onlyOpen } = event.getData();
 		const item = [selectedItem.entityId, selectedItem.id];
 
 		if (!onlyOpen)
@@ -243,7 +252,7 @@ export class SearchService
 	getDataRequestQuery(code: string): Object
 	{
 		const query = {
-			[RestMethodImopenlinesNetworkJoin]: [RestMethodImopenlinesNetworkJoin, {code: code}]
+			[RestMethodImopenlinesNetworkJoin]: [RestMethodImopenlinesNetworkJoin, { code: code }]
 		};
 
 		query[RestMethod.imUserGet] = [
@@ -262,7 +271,9 @@ export class SearchService
 
 		return this.cache.search(queryWords).then(cacheItems => {
 			const items = SearchUtils.createItemMap(cacheItems);
-			return this.updateModels(items).then(() => items);
+			const filteredItems = this.#filterResult(items);
+
+			return this.updateModels(filteredItems).then(() => filteredItems);
 		});
 	}
 
@@ -358,11 +369,11 @@ export class SearchService
 		const config = {
 			json: this.getSearchConfig()
 		};
-
-		const chatEntity = Config.getChatEntity();
-		chatEntity.options.searchableChatTypes = ['C', 'O'];
-		config.json.dialog.entities.push(chatEntity);
-
+		/*
+				const chatEntity = Config.getChatEntity();
+				chatEntity.options.searchableChatTypes = ['C', 'O'];
+				config.json.dialog.entities.push(chatEntity);
+		*/
 		return new Promise((resolve, reject) => {
 			Ajax.runAction('ui.entityselector.load', config).then(response => {
 				Logger.warn(`Im.Search: Recent search request result`, response);
@@ -412,8 +423,17 @@ export class SearchService
 			config.json.dialog.entities.push(departmentEntity);
 		}
 
-		const chatEntity = Config.getChatEntity();
-		config.json.dialog.entities.push(chatEntity);
+		if (requestConfig.chats)
+		{
+			const chatEntity = Config.getChatEntity();
+			config.json.dialog.entities.push(chatEntity);
+		}
+
+		if (requestConfig.lines)
+		{
+			const chatEntity = Config.getLinesEntity();
+			config.json.dialog.entities.push(chatEntity);
+		}
 
 		config.json.searchQuery = {
 			'queryWords': SearchUtils.getWordsFromString(query.trim()),
@@ -456,7 +476,7 @@ export class SearchService
 	addItemsToRecentSearchResults(recentItem: Array<string, number>): void
 	{
 		const [entityId, id] = recentItem;
-		const recentItems = [{id, entityId}];
+		const recentItems = [{ id, entityId }];
 
 		const config = {
 			json: {
@@ -473,7 +493,7 @@ export class SearchService
 
 	updateModels(items: Map<string, SearchItem>, set: boolean = false): Promise
 	{
-		const {users, dialogues} = this.prepareDataForModels(items);
+		const { users, dialogues } = this.prepareDataForModels(items);
 
 		const usersActionName = set ? 'users/set' : 'users/add';
 		const dialoguesActionName = set ? 'dialogues/set' : 'dialogues/add';
@@ -600,7 +620,7 @@ export class SearchService
 		if (this.isRussianInterface() && BX.correctText)
 		{
 			// eslint-disable-next-line bitrix-rules/no-bx
-			return BX.correctText(query, {replace_way: 'AUTO'});
+			return BX.correctText(query, { replace_way: 'AUTO' });
 		}
 
 		return query;
@@ -612,5 +632,26 @@ export class SearchService
 		const isIdenticalQuery = wrongLayoutQuery === originalLayoutQuery;
 
 		return this.isRussianInterface() && !isIdenticalQuery;
+	}
+
+	#filterResult(items: Map<string, SearchItem>): Map<string, SearchItem>
+	{
+		if (this.applicationLayout === ApplicationLayout.full)
+		{
+			return items;
+		}
+
+		const filteredItems = [...items].filter((item) => {
+			const [, value] = item;
+
+			return this.#isItemAllowedInLinesSearch(value);
+		});
+
+		return new Map(filteredItems);
+	}
+
+	#isItemAllowedInLinesSearch(item: SearchItem): boolean
+	{
+		return item.isUser() || item.isLines();
 	}
 }

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Vue3 = this.BX.Vue3 || {};
 (function (exports,ui_vue3_directives_hint) {
@@ -10,6 +11,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	 * @subpackage ui
 	 * @copyright 2001-2021 Bitrix
 	 */
+
 	/*
 		<Hint :text="$Bitrix.Loc.getMessage('HINT_PLAIN')"/>
 		<Hint :html="$Bitrix.Loc.getMessage('HINT_PLAIN')"/>
@@ -31,7 +33,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      default() {
 	        return {};
 	      }
-
 	    }
 	  },
 	  directives: {

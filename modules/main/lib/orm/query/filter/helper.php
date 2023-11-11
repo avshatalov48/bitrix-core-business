@@ -31,14 +31,27 @@ class Helper
 	 */
 	public static function matchAgainstWildcard($phrase, $wildcard = '*', $minTokenSize = null)
 	{
-		$ftMinTokenSize = $minTokenSize ?: static::getMinTokenSize();
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		$orValues = static::parseFulltextPhrase($phrase, $minTokenSize);
 
+		foreach ($orValues as $i => $andValues)
+		{
+			$orValues[$i] = '(' . $helper->getMatchAndExpression($andValues, $wildcard == '*') . ')';
+		}
+
+		return $helper->getMatchOrExpression($orValues);
+	}
+
+	public static function parseFulltextPhrase($phrase, $minTokenSize = null)
+	{
+		$ftMinTokenSize = $minTokenSize ?: static::getMinTokenSize();
 		$orValues = array();
 
 		//split to words by any non-word symbols
 		$andValues = static::splitWords($phrase);
 
-		if(!empty($andValues))
+		if (!empty($andValues))
 		{
 			$andValues = array_filter(
 				$andValues,
@@ -48,18 +61,13 @@ class Helper
 				}
 			);
 
-			if(!empty($andValues))
+			if (!empty($andValues))
 			{
-				$orValues[] = "+".implode($wildcard." +", $andValues).$wildcard;
+				$orValues[] = $andValues;
 			}
 		}
 
-		if(!empty($orValues))
-		{
-			return "(".implode(") (", $orValues).")";
-		}
-
-		return '';
+		return $orValues;
 	}
 
 	/**

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,ui_uploader_core,ui_dialogs_messagebox,ui_sidepanel_layout,main_loader,ui_draganddrop_draggable,main_core,main_core_events,ui_buttons) {
@@ -1109,13 +1110,15 @@ this.BX.UI = this.BX.UI || {};
 	                this.setIsChanged(false);
 	                babelHelpers.classPrivateFieldLooseBase(this, _setPreventConfirmShow)[_setPreventConfirmShow](true);
 	                this.upload().then(uploaderFile => {
-	                  babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
-	                    this.getPreview().show(uploaderFile.getClientPreview());
-	                    this.getStatus().showPreparingStatus();
-	                  }, 1000);
-	                  return this.emitAsync('onSaveAsync', {
+	                  return Promise.all([new Promise(resolve => {
+	                    babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {
+	                      this.getPreview().show(uploaderFile.getClientPreview());
+	                      this.getStatus().showPreparingStatus();
+	                      resolve();
+	                    }, 1000);
+	                  }), this.emitAsync('onSaveAsync', {
 	                    file: uploaderFile.toJSON()
-	                  });
+	                  })]);
 	                }).then(() => {
 	                  this.getStatus().hide();
 	                  babelHelpers.classPrivateFieldLooseBase(Uploader, _delay)[_delay](() => {

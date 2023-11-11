@@ -1,11 +1,11 @@
-import {Store} from 'ui.vue3.vuex';
+import { Store } from 'ui.vue3.vuex';
 
-import {Core} from 'im.v2.application.core';
-import {UserStatus, SoundType, Settings} from 'im.v2.const';
-import {DesktopManager} from 'im.v2.lib.desktop';
-import {CallManager} from 'im.v2.lib.call';
+import { Core } from 'im.v2.application.core';
+import { UserStatus, SoundType, Settings } from 'im.v2.const';
+import { DesktopManager } from 'im.v2.lib.desktop';
+import { CallManager } from 'im.v2.lib.call';
 
-import {SoundPlayer} from './classes/sound-player';
+import { SoundPlayer } from './classes/sound-player';
 
 export class SoundNotificationManager
 {
@@ -15,7 +15,7 @@ export class SoundNotificationManager
 
 	static instance = null;
 
-	static getInstance()
+	static getInstance(): SoundNotificationManager
 	{
 		if (!this.instance)
 		{
@@ -28,7 +28,7 @@ export class SoundNotificationManager
 	constructor()
 	{
 		this.#store = Core.getStore();
-		this.#desktopManager = new DesktopManager();
+		this.#desktopManager = DesktopManager.getInstance();
 		this.#soundPlayer = new SoundPlayer();
 	}
 
@@ -39,7 +39,22 @@ export class SoundNotificationManager
 			return;
 		}
 
-		if (!this.#canPlayForUser(type))
+		if (!this.#canPlay(type) || this.#isUserDnd())
+		{
+			return;
+		}
+
+		this.#soundPlayer.playSingle(type);
+	}
+
+	forcePlayOnce(type: $Keys<typeof SoundType>)
+	{
+		if (this.#hasActiveCall() || !this.#canPlayInContext())
+		{
+			return;
+		}
+
+		if (!this.#canPlay(type))
 		{
 			return;
 		}
@@ -54,7 +69,7 @@ export class SoundNotificationManager
 			return;
 		}
 
-		if (!this.#canPlayInContext() || !this.#canPlayForUser(type))
+		if (!this.#canPlayInContext() || !this.#canPlay(type) || this.#isUserDnd())
 		{
 			return;
 		}
@@ -72,21 +87,21 @@ export class SoundNotificationManager
 		return DesktopManager.isDesktop() || !this.#desktopManager.isDesktopActive();
 	}
 
-	#canPlayForUser(type): boolean
+	#canPlay(type: $Keys<typeof SoundType>): boolean
 	{
 		if (this.#isPrioritySoundType(type))
 		{
 			return true;
 		}
 
-		if (!this.#isSoundEnabled())
-		{
-			return false;
-		}
+		return this.#isSoundEnabled();
+	}
 
+	#isUserDnd(): boolean
+	{
 		const status = this.#store.getters['users/getStatus'](Core.getUserId());
 
-		return status !== UserStatus.dnd;
+		return status === UserStatus.dnd;
 	}
 
 	#isPrioritySoundType(type: $Keys<typeof SoundType>): boolean
@@ -101,6 +116,6 @@ export class SoundNotificationManager
 
 	#isSoundEnabled(): boolean
 	{
-		return this.#store.getters['application/settings/get'](Settings.application.enableSound);
+		return this.#store.getters['application/settings/get'](Settings.notification.enableSound);
 	}
 }

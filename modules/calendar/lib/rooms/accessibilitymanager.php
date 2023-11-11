@@ -231,18 +231,24 @@ class AccessibilityManager
 
 			foreach ($entries as $entry)
 			{
-				$date = new DateTime($entry['DATE_FROM']);
-				$date = $date->format('d.m.Y');
-				if (!isset($result[$date]))
+
+				$dateStart = new DateTime($entry['DATE_FROM']);
+				$dateEnd = new DateTime($entry['DATE_TO']);
+				while ($dateStart->getTimestamp() <= $dateEnd->getTimestamp())
 				{
-					continue;
+					$date = $dateStart->format('d.m.Y');
+					$dateStart->add('1 day');
+					if (!isset($result[$date]))
+					{
+						continue;
+					}
+					if (!isset($result[$date][$roomId]))
+					{
+						$result[$date][$roomId] = [];
+					}
+
+					$result[$date][$roomId][] = $entry;
 				}
-				if (!isset($result[$date][$roomId]))
-				{
-					$result[$date][$roomId] = [];
-				}
-				
-				$result[$date][$roomId][] = $entry;
 			}
 		}
 		

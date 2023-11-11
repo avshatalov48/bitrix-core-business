@@ -96,13 +96,12 @@ function GetAccessArrTmp($path)
 }
 
 // If user can manage only subordinate groups
+$arSubordGroups = [];
+$subordinate = false;
 if ($USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('edit_all_users'))
 {
-	$arSubordGroups = Array();
-	$arGroups = explode(',', $USER->GetGroups());
-	for ($i = 0,$l = count($arGroups);$i < $l;$i++)
-		$arSubordGroups = array_merge($arSubordGroups,CGroup::GetSubordinateGroups($arGroups[$i]));
-	$arSubordGroups = array_values(array_unique($arSubordGroups));
+	$arSubordGroups = CGroup::GetSubordinateGroups($USER->GetUserGroupArray());
+	$subordinate = true;
 }
 
 if($REQUEST_METHOD=="POST" && is_array($files) && count($files)>0 && $saveperm <> '' && check_bitrix_sessid() && $USER->CanDoOperation('fileman_admin_folders'))
@@ -114,10 +113,9 @@ if($REQUEST_METHOD=="POST" && is_array($files) && count($files)>0 && $saveperm <
 	$db_groups = CGroup::GetList("sort", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 	while($arGroup = $db_groups->Fetch())
 	{
-		if(isset($arSubordGroups) && !in_array($arGroup['ID'],$arSubordGroups))
+		if ($subordinate && !in_array($arGroup['ID'], $arSubordGroups))
 		{
 			$arNotSetPerm[] = $arGroup["ID"];
-			continue;
 		}
 		else
 		{
@@ -304,8 +302,10 @@ $tabControl->Begin();
 		if($g_ANONYMOUS=="Y")
 			$anonym = $g_NAME;
 
-		if(isset($arSubordGroups) && !in_array($g_ID,$arSubordGroups))
+		if ($subordinate && !in_array($g_ID, $arSubordGroups))
+		{
 			continue;
+		}
 
 		//**** Inherit access level *******
 		if (!$bDiff)

@@ -119,6 +119,8 @@ namespace Bitrix\Catalog\Access\Permission {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Permission_Collection merge(?EO_Permission_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Permission_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\Access\Permission\PermissionTable */
@@ -247,6 +249,8 @@ namespace Bitrix\Catalog\Access\Role {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Role_Collection merge(?EO_Role_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Role_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\Access\Role\RoleTable */
@@ -387,6 +391,8 @@ namespace Bitrix\Catalog\Access\Role {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_RoleRelation_Collection merge(?EO_RoleRelation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_RoleRelation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\Access\Role\RoleRelationTable */
@@ -589,6 +595,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CatalogIblock_Collection merge(?EO_CatalogIblock_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CatalogIblock_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\CatalogIblockTable */
@@ -841,6 +849,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CatalogViewedProduct_Collection merge(?EO_CatalogViewedProduct_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CatalogViewedProduct_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\CatalogViewedProductTable */
@@ -1161,6 +1171,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Contractor_Collection merge(?EO_Contractor_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Contractor_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\ContractorTable */
@@ -1712,6 +1724,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Discount_Collection merge(?EO_Discount_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Discount_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\DiscountTable */
@@ -1987,6 +2001,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DiscountCoupon_Collection merge(?EO_DiscountCoupon_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DiscountCoupon_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\DiscountCouponTable */
@@ -2200,6 +2216,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DiscountEntity_Collection merge(?EO_DiscountEntity_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DiscountEntity_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\DiscountEntityTable */
@@ -2340,6 +2358,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DiscountModule_Collection merge(?EO_DiscountModule_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DiscountModule_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\DiscountModuleTable */
@@ -2517,6 +2537,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_DiscountRestriction_Collection merge(?EO_DiscountRestriction_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_DiscountRestriction_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\DiscountRestrictionTable */
@@ -2657,6 +2679,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Extra_Collection merge(?EO_Extra_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Extra_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\ExtraTable */
@@ -2921,6 +2945,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Group_Collection merge(?EO_Group_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Group_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\GroupTable */
@@ -3086,6 +3112,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_GroupAccess_Collection merge(?EO_GroupAccess_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_GroupAccess_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\GroupAccessTable */
@@ -3251,6 +3279,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_GroupLang_Collection merge(?EO_GroupLang_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_GroupLang_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\GroupLangTable */
@@ -3439,6 +3469,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Measure_Collection merge(?EO_Measure_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Measure_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\MeasureTable */
@@ -3604,6 +3636,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_MeasureRatio_Collection merge(?EO_MeasureRatio_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_MeasureRatio_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\MeasureRatioTable */
@@ -3879,6 +3913,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Price_Collection merge(?EO_Price_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Price_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\PriceTable */
@@ -4394,6 +4430,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Product_Collection merge(?EO_Product_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Product_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\ProductTable */
@@ -4570,6 +4608,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ProductCompilation_Collection merge(?EO_ProductCompilation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ProductCompilation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\ProductCompilationTable */
@@ -4747,6 +4787,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ProductGroupAccess_Collection merge(?EO_ProductGroupAccess_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ProductGroupAccess_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\ProductGroupAccessTable */
@@ -4985,6 +5027,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Rounding_Collection merge(?EO_Rounding_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Rounding_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\RoundingTable */
@@ -5391,6 +5435,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Store_Collection merge(?EO_Store_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Store_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\StoreTable */
@@ -5655,6 +5701,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_StoreBarcode_Collection merge(?EO_StoreBarcode_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_StoreBarcode_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\StoreBarcodeTable */
@@ -5833,6 +5881,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_StoreDocumentBarcode_Collection merge(?EO_StoreDocumentBarcode_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_StoreDocumentBarcode_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\StoreDocumentBarcodeTable */
@@ -5970,6 +6020,16 @@ namespace Bitrix\Catalog {
 	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetBasePriceExtraRate()
 	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetBasePriceExtraRate()
 	 * @method \string fillBasePriceExtraRate()
+	 * @method \string getComment()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setComment(\string|\Bitrix\Main\DB\SqlExpression $comment)
+	 * @method bool hasComment()
+	 * @method bool isCommentFilled()
+	 * @method bool isCommentChanged()
+	 * @method \string remindActualComment()
+	 * @method \string requireComment()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetComment()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetComment()
+	 * @method \string fillComment()
 	 * @method \Bitrix\Iblock\EO_Element getElement()
 	 * @method \Bitrix\Iblock\EO_Element remindActualElement()
 	 * @method \Bitrix\Iblock\EO_Element requireElement()
@@ -6082,6 +6142,8 @@ namespace Bitrix\Catalog {
 	 * @method \float[] fillBasePriceExtra()
 	 * @method \string[] getBasePriceExtraRateList()
 	 * @method \string[] fillBasePriceExtraRate()
+	 * @method \string[] getCommentList()
+	 * @method \string[] fillComment()
 	 * @method \Bitrix\Iblock\EO_Element[] getElementList()
 	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection getElementCollection()
 	 * @method \Bitrix\Iblock\EO_Element_Collection fillElement()
@@ -6122,6 +6184,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_StoreDocumentElement_Collection merge(?EO_StoreDocumentElement_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_StoreDocumentElement_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\StoreDocumentElementTable */
@@ -6288,6 +6352,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_StoreDocumentFile_Collection merge(?EO_StoreDocumentFile_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_StoreDocumentFile_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\StoreDocumentFileTable */
@@ -6723,6 +6789,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_StoreDocument_Collection merge(?EO_StoreDocument_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_StoreDocument_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\StoreDocumentTable */
@@ -6925,6 +6993,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_StoreProduct_Collection merge(?EO_StoreProduct_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_StoreProduct_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\StoreProductTable */
@@ -7188,6 +7258,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Subscribe_Collection merge(?EO_Subscribe_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Subscribe_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\SubscribeTable */
@@ -7353,6 +7425,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_SubscribeAccess_Collection merge(?EO_SubscribeAccess_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_SubscribeAccess_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\SubscribeAccessTable */
@@ -7517,6 +7591,8 @@ namespace Bitrix\Catalog\v2\Integration\Seo\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method ExportedProductCollection merge(?ExportedProductCollection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ExportedProduct_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductTable */
@@ -7645,6 +7721,8 @@ namespace Bitrix\Catalog\v2\Integration\Seo\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ExportedProductQueue_Collection merge(?EO_ExportedProductQueue_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ExportedProductQueue_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductQueueTable */
@@ -7742,6 +7820,26 @@ namespace Bitrix\Catalog {
 	 * @method \Bitrix\Catalog\EO_Vat resetRate()
 	 * @method \Bitrix\Catalog\EO_Vat unsetRate()
 	 * @method \float fillRate()
+	 * @method \boolean getExcludeVat()
+	 * @method \Bitrix\Catalog\EO_Vat setExcludeVat(\boolean|\Bitrix\Main\DB\SqlExpression $excludeVat)
+	 * @method bool hasExcludeVat()
+	 * @method bool isExcludeVatFilled()
+	 * @method bool isExcludeVatChanged()
+	 * @method \boolean remindActualExcludeVat()
+	 * @method \boolean requireExcludeVat()
+	 * @method \Bitrix\Catalog\EO_Vat resetExcludeVat()
+	 * @method \Bitrix\Catalog\EO_Vat unsetExcludeVat()
+	 * @method \boolean fillExcludeVat()
+	 * @method \string getXmlId()
+	 * @method \Bitrix\Catalog\EO_Vat setXmlId(\string|\Bitrix\Main\DB\SqlExpression $xmlId)
+	 * @method bool hasXmlId()
+	 * @method bool isXmlIdFilled()
+	 * @method bool isXmlIdChanged()
+	 * @method \string remindActualXmlId()
+	 * @method \string requireXmlId()
+	 * @method \Bitrix\Catalog\EO_Vat resetXmlId()
+	 * @method \Bitrix\Catalog\EO_Vat unsetXmlId()
+	 * @method \string fillXmlId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -7796,6 +7894,10 @@ namespace Bitrix\Catalog {
 	 * @method \string[] fillName()
 	 * @method \float[] getRateList()
 	 * @method \float[] fillRate()
+	 * @method \boolean[] getExcludeVatList()
+	 * @method \boolean[] fillExcludeVat()
+	 * @method \string[] getXmlIdList()
+	 * @method \string[] fillXmlId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -7821,6 +7923,8 @@ namespace Bitrix\Catalog {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Vat_Collection merge(?EO_Vat_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Vat_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Catalog\VatTable */

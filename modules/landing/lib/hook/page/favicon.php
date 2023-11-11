@@ -101,10 +101,13 @@ class Favicon extends \Bitrix\Landing\Hook\Page
 					),
 					BX_RESIZE_IMAGE_EXACT
 				);
-				$srcExplode = explode('.', $file['src']);
-				$ext = array_pop($srcExplode);
-				$icons .= '<link rel="icon" type="image/' . $ext .
-						  '" href="' . $file['src'] . '" sizes="' . $size . '">' . "\n";
+				if ($file)
+				{
+					$srcExplode = explode('.', $file['src']);
+					$ext = array_pop($srcExplode);
+					$icons .= '<link rel="icon" type="image/' . $ext .
+							  '" href="' . $file['src'] . '" sizes="' . $size . '">' . "\n";
+				}
 			}
 			// apple icons
 			$sizes = array('120x120', '180x180', '152x152', '167x167');
@@ -119,8 +122,11 @@ class Favicon extends \Bitrix\Landing\Hook\Page
 					),
 					BX_RESIZE_IMAGE_EXACT
 				);
-				$icons .= '<link rel="apple-touch-icon"' .
-						  ' href="' . $file['src'] . '" sizes="' . $size . '">' . "\n";
+				if ($file)
+				{
+					$icons .= '<link rel="apple-touch-icon"' .
+							  ' href="' . $file['src'] . '" sizes="' . $size . '">' . "\n";
+				}
 			}
 			if ($icons)
 			{

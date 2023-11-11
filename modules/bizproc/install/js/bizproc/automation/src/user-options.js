@@ -29,8 +29,10 @@ export class UserOptions
 				category,
 				key,
 				value,
-				false
+				false,
 			);
+
+			this.#options[category][key] = value;
 		}
 
 		return this;
@@ -49,6 +51,6 @@ export class UserOptions
 
 	has(category: string, key: string): boolean
 	{
-		return Type.isPlainObject(this.#options[category]) && Type.isPlainObject(this.#options[category][key]);
+		return Type.isPlainObject(this.#options[category]) && Object.keys(this.#options[category]).includes(key);
 	}
 }

@@ -50,6 +50,14 @@ $lAdmin = new CAdminUiList($sTableID, $oSort);
 $by = mb_strtoupper($oSort->getField());
 $order = mb_strtoupper($oSort->getOrder());
 
+$listOrder = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$listOrder['ID'] = 'ASC';
+}
+
 $arFilterFields = array();
 
 $lAdmin->InitFilter($arFilterFields);
@@ -82,9 +90,10 @@ if ($lAdmin->EditAction() && !$bReadOnly)
 	}
 }
 
-if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
+$arID = $lAdmin->GroupAction();
+if (!$bReadOnly && !empty($arID) && is_array($arID))
 {
-	if ($_REQUEST['action_target']=='selected')
+	if ($lAdmin->IsGroupActionToAll())
 	{
 		$arID = Array();
 		$dbResultList = CCatalogGroup::GetListEx(array(), $arFilter, false, false, array('ID'));
@@ -92,12 +101,13 @@ if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 			$arID[] = $arResult['ID'];
 	}
 
+	$action = $lAdmin->GetAction();
 	foreach ($arID as $ID)
 	{
 		if ($ID == '')
 			continue;
 
-		switch ($_REQUEST['action'])
+		switch ($action)
 		{
 			case "delete":
 				@set_time_limit(0);
@@ -255,7 +265,7 @@ if (!in_array('BASE', $arSelectFields))
 }
 
 $dbResultList = CCatalogGroup::GetList(
-	array($by => $order),
+	$listOrder,
 	array(),
 	false,
 	false,

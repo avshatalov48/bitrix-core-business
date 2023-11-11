@@ -158,7 +158,14 @@ class CacheEngineMemcache extends CacheEngine
 
 			if ($rewrite)
 			{
-				$this->set($key, 0, $list);
+				if (empty($list))
+				{
+					$this->del($key);
+				}
+				else
+				{
+					$this->set($key, 0, $list);
+				}
 			}
 		}
 	}

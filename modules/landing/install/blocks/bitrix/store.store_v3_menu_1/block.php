@@ -9,7 +9,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  * @var StoreV3Menu1 $classBlock
  */
 ?>
-<header class="landing-block landing-semantic-background-color u-header u-header--sticky u-header--relative g-z-index-9999 g-height-auto g-bg-white u-shadow-v41--header--lg">
+<header class="landing-block u-header u-header--sticky u-header--relative g-z-index-9999 g-height-auto g-bg-white u-shadow-v41--header--lg">
 	<div class="container u-header__section u-header__section--light g-transition-0_3 g-py-30--lg g-py-10">
 		<nav
 			class="navbar u-navbar-modal u-navbar-slider g-pa-0 u-navbar-color-gray-dark-v1 u-navbar-color-gray-dark-v1--hover flex-nowrap"

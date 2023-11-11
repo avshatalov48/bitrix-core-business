@@ -1,18 +1,20 @@
-import {ImModelSidebarFileItem, ImModelFile} from 'im.v2.model';
-import {Utils} from 'im.v2.lib.utils';
-import {Avatar, AvatarSize, ChatTitle} from 'im.v2.component.elements';
-import '../../css/brief/brief-item.css';
 import 'ui.icons';
+
+import { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
+import { Utils } from 'im.v2.lib.utils';
+import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+
+import '../../css/brief/brief-item.css';
 
 // @vue/component
 export const BriefItem = {
 	name: 'BriefItem',
-	components: {Avatar, ChatTitle},
+	components: { Avatar, ChatTitle },
 	props: {
 		brief: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['contextMenuClick'],
 	data() {
@@ -33,7 +35,7 @@ export const BriefItem = {
 		},
 		fileShortName(): string
 		{
-			const NAME_MAX_LENGTH = 21;
+			const NAME_MAX_LENGTH = 15;
 
 			return Utils.file.getShortFileName(this.file.name, NAME_MAX_LENGTH);
 		},
@@ -48,7 +50,7 @@ export const BriefItem = {
 		isViewerAvailable(): boolean
 		{
 			return Object.keys(this.viewerAttributes).length > 0;
-		}
+		},
 	},
 	methods:
 	{
@@ -69,7 +71,7 @@ export const BriefItem = {
 				file: this.file,
 				messageId: this.sidebarFileItem.messageId,
 			}, event.currentTarget);
-		}
+		},
 	},
 	template: `
 		<div 
@@ -101,5 +103,5 @@ export const BriefItem = {
 				@click="onContextMenuClick"
 			></button>
 		</div>
-	`
+	`,
 };

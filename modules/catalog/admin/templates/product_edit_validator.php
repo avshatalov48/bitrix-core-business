@@ -80,6 +80,10 @@ if ($allowEditPrices)
 
 		for ($i = 0; $i <= $CAT_ROW_COUNTER; $i++)
 		{
+			if (!isset(${"CAT_BASE_PRICE_".$i}))
+			{
+				continue;
+			}
 			${"CAT_BASE_PRICE_".$i} = str_replace([' ', ','], ['', '.'], ${"CAT_BASE_PRICE_".$i});
 
 			if (intval(${"CAT_BASE_QUANTITY_FROM_".$i}) > 0

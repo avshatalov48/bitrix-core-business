@@ -1,3 +1,7 @@
 .bx-im-sidebar-file-audio-detail-item__container {
-	margin: 0 8px 12px 16px;
+	margin: 0 8px 0 16px;
+}
+
+.bx-im-sidebar-file-audio-detail-item__container + .bx-im-sidebar-file-audio-detail-item__container {
+	margin-top: 14px;
 }

@@ -54,7 +54,7 @@ import {EventEmitter} from "main.core.events";
 					name: editObject.NAME,
 					style: 'height:' + height + 'px'
 				},
-				html: editObject.VALUE
+				html: editObject.VALUE || ''
 			});
 
 			return textarea;
@@ -333,7 +333,7 @@ import {EventEmitter} from "main.core.events";
 				return [];
 			})();
 			const layout = BX.Tag.render`
-				<div 
+				<div
 					class="main-grid-editor main-ui-control main-ui-multi-select"
 					name="${BX.Text.encode(editObject.NAME)}"
 					id="${`${BX.Text.encode(editObject.NAME)}_control`}"
@@ -344,7 +344,7 @@ import {EventEmitter} from "main.core.events";
 					</span>
 					<span class="main-ui-square-search">
 						<input type="text" class="main-ui-square-search-item">
-					</span>	
+					</span>
 				</div>
 			`;
 

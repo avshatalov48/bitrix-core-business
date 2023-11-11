@@ -16,7 +16,7 @@
 .bx-im-attach__border {
 	flex-shrink: 0;
 	display: inline-block;
-	margin-right: 10px;
+	margin-right: 14px;
 	border-left: 3px solid transparent;
 	border-radius: var(--im-border-radius-2xs)/var(--im-border-radius-xs);
 }

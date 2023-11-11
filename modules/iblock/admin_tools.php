@@ -49,7 +49,7 @@ function _ShowStringPropertyField($name, $property_fields, $values, $bInitDef = 
 		$val_description = "";
 		if (is_array($val) && array_key_exists("VALUE", $val))
 		{
-			$val_description = $val["DESCRIPTION"];
+			$val_description = $val["DESCRIPTION"] ?? '';
 			$val = $val["VALUE"];
 		}
 
@@ -183,7 +183,7 @@ function _ShowElementPropertyField($name, $property_fields, $values, $bVarsFromF
 		echo '<tr><td>'.
 		'<input name="'.$name.'['.$key.']" id="'.$name.'['.$key.']" value="'.htmlspecialcharsbx($val).'" size="5" type="text">'.
 		'<input type="button" value="..." onClick="jsUtils.OpenWindow(\''.$selfFolderUrl.'iblock_element_search.php?lang='.LANGUAGE_ID.'&amp;IBLOCK_ID='.$property_fields["LINK_IBLOCK_ID"].'&amp;n='.$name.'&amp;k='.$key.($fixIBlock ? '&amp;iblockfix=y' : '').'&amp;tableId='.$windowTableId.'\', 900, 700);">'.
-		'&nbsp;<span id="sp_'.md5($name).'_'.$key.'" >'.$ar_res['NAME'].'</span>'.
+		'&nbsp;<span id="sp_'.md5($name).'_'.$key.'" >' . ($ar_res['NAME'] ?? '') . '</span>'.
 		'</td></tr>';
 
 		if ($property_fields["MULTIPLE"] != "Y")
@@ -852,8 +852,9 @@ function IBlockShowRights($entity_type, $iblock_id, $id, $section_title, $variab
 							<a href="javascript:void(0);" onclick="JCIBlockAccess.DeleteRow(this, '<?=htmlspecialcharsbx(CUtil::addslashes($arRightSet["GROUP_CODE"]))?>', '<?=CUtil::JSEscape($variable_name)?>')" class="access-delete"></a>
 							<?if($bDefault):?>
 								<span title="<?echo GetMessage("IBLOCK_AT_OVERWRITE_TIP")?>"><?
-								if(
-									is_array($arRightSet["OVERWRITED"])
+								$existsOverwrited = !empty($arRightSet['OVERWRITED']) && is_array($arRightSet['OVERWRITED']);
+								if (
+									$existsOverwrited
 									&& $arRightSet["OVERWRITED"][0] > 0
 									&& $arRightSet["OVERWRITED"][1] > 0
 								)
@@ -863,7 +864,7 @@ function IBlockShowRights($entity_type, $iblock_id, $id, $section_title, $variab
 									<?
 								}
 								elseif(
-									is_array($arRightSet["OVERWRITED"])
+									$existsOverwrited
 									&& $arRightSet["OVERWRITED"][0] > 0
 								)
 								{
@@ -872,7 +873,7 @@ function IBlockShowRights($entity_type, $iblock_id, $id, $section_title, $variab
 									<?
 								}
 								elseif(
-									is_array($arRightSet["OVERWRITED"])
+									$existsOverwrited
 									&& $arRightSet["OVERWRITED"][1] > 0
 								)
 								{

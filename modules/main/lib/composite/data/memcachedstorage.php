@@ -49,16 +49,8 @@ final class MemcachedStorage extends AbstractStorage
 		$this->props->md5 = $md5;
 		$this->props->gzip = $this->compression;
 
-		if (function_exists("mb_strlen"))
-		{
-			$this->props->size = mb_strlen($content, "latin1");
-			$this->props->size += mb_strlen(serialize($this->props), "latin1");
-		}
-		else
-		{
-			$this->props->size = mb_strlen($content);
-			$this->props->size += mb_strlen(serialize($this->props));
-		}
+		$this->props->size = strlen($content);
+		$this->props->size += strlen(serialize($this->props));
 
 		$this->memcached->set("~".$this->cacheKey, $this->props);
 

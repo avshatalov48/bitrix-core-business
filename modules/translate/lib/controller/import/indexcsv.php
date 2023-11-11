@@ -51,7 +51,7 @@ class IndexCsv
 	 * @param Main\Engine\Controller $controller Parent controller object.
 	 * @param array $config Additional configuration.
 	 */
-	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
 		$fields = ['tabId', 'csvFilePath', 'seekLine', 'seekPath'];
 
@@ -97,16 +97,16 @@ class IndexCsv
 		{
 			$this->addError(new Main\Error(Loc::getMessage('TR_IMPORT_EMPTY_FILE_ERROR')));
 
-			return array(
+			return [
 				'STATUS' => Translate\Controller\STATUS_COMPLETED
-			);
+			];
 		}
 		if (!$this->verifyCsvFile())
 		{
 			$this->addError(new Main\Error(Loc::getMessage('TR_IMPORT_FILE_ERROR')));
-			return array(
+			return [
 				'STATUS' => Translate\Controller\STATUS_COMPLETED
-			);
+			];
 		}
 
 		if ($this->isNewProcess)
@@ -114,7 +114,7 @@ class IndexCsv
 			$this->clearProgressParameters();
 
 			$this->totalItems = 0;
-			$uniquePaths = array();
+			$uniquePaths = [];
 			$fileColumn = $this->columnList['file'];
 			while ($csvRow = $this->csvFile->fetch())
 			{
@@ -165,11 +165,11 @@ class IndexCsv
 	 *
 	 * @return array
 	 */
-	private function runIndexing()
+	private function runIndexing(): array
 	{
 		$fileColumn = $this->columnList['file'];
 
-		$uniquePaths = array();
+		$uniquePaths = [];
 
 		if (!empty($this->seekPath))
 		{
@@ -265,10 +265,10 @@ class IndexCsv
 			$this->clearProgressParameters();
 		}
 
-		return array(
+		return [
 			'PROCESSED_ITEMS' => $this->processedItems,
 			'TOTAL_ITEMS' => $this->totalItems,
-		);
+		];
 	}
 
 
@@ -277,13 +277,13 @@ class IndexCsv
 	 *
 	 * @return boolean
 	 */
-	private function verifyCsvFile()
+	private function verifyCsvFile(): bool
 	{
-		$testDelimiters = array(
+		$testDelimiters = [
 			Translate\IO\CsvFile::DELIMITER_TZP,
 			Translate\IO\CsvFile::DELIMITER_TAB,
 			Translate\IO\CsvFile::DELIMITER_ZPT,
-		);
+		];
 		foreach ($testDelimiters as $delimiter)
 		{
 			$this->csvFile->setFieldDelimiter($delimiter);

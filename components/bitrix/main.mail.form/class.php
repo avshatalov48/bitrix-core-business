@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Uri;
 
@@ -7,8 +8,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 Loc::loadMessages(__FILE__);
 
-class MainMailFormComponent extends CBitrixComponent
+class MainMailFormComponent extends CBitrixComponent implements Controllerable
 {
+	/**
+	 * Cache for compatibility
+	 *
+	 * @var array
+	 */
+	private array $signatures;
+
 	/**
 	 * @param array $params
 	 * @return array
@@ -284,7 +292,7 @@ class MainMailFormComponent extends CBitrixComponent
 
 				if($this->arParams['USE_SIGNATURES'])
 				{
-					$field['signatures'] = $this->loadSignatures($field['mailboxes']);
+					$field = array_merge($field, $this->getSignaturesParams($field['mailboxes']));
 				}
 
 				$defaultMailbox = reset($field['mailboxes']);
@@ -359,11 +367,16 @@ class MainMailFormComponent extends CBitrixComponent
 			{
 				if (array_key_exists($fileId, $objects))
 				{
+					$uri = (new Uri($diskUrlManager->getUrlUfController(
+						'show',
+						['attachedId' => $fileId]
+					)))
+						->addParams(['__bxacid' => $fileId])
+						->getUri();
+
 					$editor['value'] = preg_replace(
 						sprintf('/bxacid:%u/', $fileId),
-						(new Uri($diskUrlManager->getUrlForShowFile($objects[$fileId])))
-							->addParams(['__bxacid' => $fileId])
-							->getUri(),
+						$uri,
 						$editor['value']
 					);
 				}
@@ -430,26 +443,124 @@ class MainMailFormComponent extends CBitrixComponent
 	 */
 	protected function loadSignatures(array $mailboxes)
 	{
-		$signatures = [];
-
-		if(!empty($mailboxes) && \Bitrix\Main\Loader::includeModule('mail') && class_exists('\\Bitrix\\Mail\\Internals\\UserSignatureTable'))
+		if (!empty($mailboxes))
 		{
-			$signatureList = \Bitrix\Mail\Internals\UserSignatureTable::getList([
-				'order' => ['ID' => 'desc'],
-				'select' => ['SIGNATURE', 'SENDER'],
-				'filter' => [
-					'USER_ID' => \Bitrix\Main\Engine\CurrentUser::get()->getId(),
-				]
-			]);
-			while($signature = $signatureList->fetch())
+			$onlyFirst = [];
+			foreach ($this->getSignaturesFromDb() as $sender => $signatureFields)
 			{
-				if(!isset($signatures[$signature['SENDER']]))
+				if (!isset($onlyFirst[$sender]))
 				{
-					$signatures[$signature['SENDER']] = $signature['SIGNATURE'];
+					$onlyFirst[$sender] = $signatureFields;
 				}
 			}
+			return $onlyFirst;
 		}
 
-		return $signatures;
+		return [];
+	}
+
+	/**
+	 * Get signatures from database
+	 *
+	 * @return array [sender => [signature,...],...]
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	private function getSignaturesFromDb(): array
+	{
+		if (!isset($this->signatures))
+		{
+			$signatures = [];
+			if (
+				\Bitrix\Main\Loader::includeModule('mail')
+				&& class_exists('\\Bitrix\\Mail\\Internals\\UserSignatureTable')
+			)
+			{
+				$signatureList = \Bitrix\Mail\Internals\UserSignatureTable::getList([
+					'order' => ['ID' => 'desc'],
+					'select' => ['SIGNATURE', 'SENDER'],
+					'filter' => [
+						'USER_ID' => \Bitrix\Main\Engine\CurrentUser::get()->getId(),
+					],
+				]);
+				while ($signature = $signatureList->fetch())
+				{
+					$signatures[$signature['SENDER']][] = [
+						"list" => $this->getPreparedForTitleSignature((string)$signature['SIGNATURE']),
+						"full" => $signature['SIGNATURE'],
+					];
+				}
+			}
+			$this->signatures = $signatures;
+		}
+		return $this->signatures;
+	}
+
+	/**
+	 * Prepare string for correct display in title tag
+	 *
+	 * @param string $signature User signature text with html
+	 *
+	 * @return string
+	 */
+	private function getPreparedForTitleSignature(string $signature): string
+	{
+		$signature = mb_substr(strip_tags($signature), 0, 500);
+		$signature = preg_replace("#\t#u", " ", $signature);
+		$signature = preg_replace("#\n+#u", "\n", $signature);
+		$signature = preg_replace("# +#u", " ", $signature);
+		$signature = trim($signature);
+		$encoding = (defined("BX_UTF") ? "UTF-8" : "ISO-8859-1");
+		return html_entity_decode($signature, ENT_COMPAT, $encoding);
+	}
+
+	/**
+	 * Get signatures related field params
+	 *
+	 * @param array $mailboxes Mailboxes array
+	 *
+	 * @return array
+	 */
+	private function getSignaturesParams(array $mailboxes): array
+	{
+		$signaturesUrl = (string)($this->arParams['PATH_TO_MAIL_SIGNATURES'] ?? '');
+		$signaturesUrl = strpos($signaturesUrl, '/') === 0 ? $signaturesUrl : '/mail/signatures';
+		$params = [
+			'signatures' => $this->loadSignatures($mailboxes), // compatibility
+		];
+
+		if (\Bitrix\Main\Loader::includeModule('mail'))
+		{
+			$params['allUserSignatures'] = empty($mailboxes) ? [] : $this->getSignaturesFromDb();
+			$params['signatureSelectTitle'] = Loc::getMessage('MAIN_MAIL_FORM_EDITOR_SIGNATURE_SELECT');
+			$params['signatureConfigureTitle'] = Loc::getMessage('MAIN_MAIL_FORM_EDITOR_SIGNATURE_CONFIGURE');
+			$params['pathToMailSignatures'] = $signaturesUrl;
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Interface Controllable requirement
+	 *
+	 * @return array
+	 */
+	public function configureActions(): array
+	{
+		return [];
+	}
+
+	/**
+	 * Get current user signatures from ajax action
+	 *
+	 * @return array
+	 */
+	public function signaturesAction(): array
+	{
+		return [
+			'signatures' => $this->getSignaturesFromDb(),
+		];
 	}
 }

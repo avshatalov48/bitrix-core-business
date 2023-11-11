@@ -135,6 +135,7 @@ class General extends Base
 			'privacyProfile' => Option::get("im", "privacy_profile"),
 			'callAcceptIncomingVideo' => VideoStrategyType::ALLOW_ALL,
 			'backgroundImageId' => 1,
+			'chatAlignment' => 'left',
 			'next' => false,
 		];
 	}
@@ -724,6 +725,13 @@ class General extends Base
 					$verifiedSettings[$name] = (int)$value > 0 ? (int)$value : 1;
 					break;
 					//'break' is missing  specially
+				case 'chatAlignment':
+					$verifiedSettings[$name] =
+						in_array($value, ['left', 'center'])
+							? $value
+							: $defaultSettings[$name]
+					;
+					break;
 				default:
 					if (array_key_exists($name, $defaultSettings))
 					{

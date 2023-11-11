@@ -412,7 +412,14 @@ class Helper
 		if (!isset(static::$documentFields[$key]))
 		{
 			$documentService = \CBPRuntime::getRuntime()->getDocumentService();
-			static::$documentFields[$key] = $documentService->GetDocumentFields($documentType);
+			try
+			{
+				static::$documentFields[$key] = $documentService->GetDocumentFields($documentType);
+			}
+			catch (\Exception $exception)
+			{
+				static::$documentFields[$key] = [];
+			}
 		}
 
 		$resultFields = [];
@@ -676,6 +683,15 @@ class Helper
 		elseif (\CBPDocument::IsExpression($interval))
 		{
 			$result['basis'] = $interval;
+
+			if ($result['basis'] !== static::CURRENT_DATETIME_BASIS)
+			{
+				$result['type'] = DelayInterval::TYPE_IN;
+			}
+			else
+			{
+				$result['type'] = DelayInterval::TYPE_AFTER;
+			}
 		}
 
 		$minutes = $values['i'] + $values['h'] * 60 + $values['d'] * 60 * 24;
@@ -739,8 +755,6 @@ class Helper
 		}
 
 		$add = '';
-		if (isset($interval['type']) && $interval['type'] == DelayInterval::TYPE_BEFORE)
-			$add = '-';
 
 		if ($days > 0)
 			$add .= $days.'d';
@@ -748,6 +762,11 @@ class Helper
 			$add .= $hours.'h';
 		if ($minutes > 0)
 			$add .= $minutes.'i';
+
+		if ($add && isset($interval['type']) && $interval['type'] === DelayInterval::TYPE_BEFORE)
+		{
+			$add = '-' . $add;
+		}
 
 		$fn = !empty($interval['workTime']) ? 'workdateadd' : 'dateadd';
 
@@ -762,24 +781,26 @@ class Helper
 			$worker = $interval['worker'];
 		}
 
-		$result = $fn . '(' . $interval['basis'] . ',"' . $add . '"' . ($worker ? ',' . $worker : '') . ')';
-
-		if (isset($interval['type']) && $interval['type'] === DelayInterval::TYPE_IN && isset($interval['inTime']))
+		$result = $interval['basis'];
+		$isFunctionInResult = false;
+		if ($add)
 		{
-			if (empty($interval['workTime']))
-			{
-				$result = $interval['basis'];
-			}
+			$result = $fn . '(' . $interval['basis'] . ',"' . $add . '"' . ($worker ? ',' . $worker : '') . ')';
+			$isFunctionInResult = true;
+		}
 
+		if (isset($interval['inTime']))
+		{
 			$result = sprintf(
 				'settime(%s, %d, %d)',
 				$result,
 				$interval['inTime'][0] ?? 0,
 				$interval['inTime'][1] ?? 0
 			);
+			$isFunctionInResult = true;
 		}
 
-		return '=' . $result;
+		return $isFunctionInResult ? '=' . $result : $result;
 	}
 
 	public static function parseTimeString($time)

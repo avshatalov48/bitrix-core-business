@@ -34,9 +34,6 @@ $bReadOnly = !$accessController->check(ActionDictionary::ACTION_MEASURE_EDIT);
 IncludeModuleLangFile(__FILE__);
 
 $bCanAdd = true;
-$bExport = false;
-if($_REQUEST["mode"] == "excel")
-	$bExport = true;
 
 if($ex = $APPLICATION->GetException())
 {
@@ -57,6 +54,13 @@ $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $by = mb_strtoupper($oSort->getField());
 $order = mb_strtoupper($oSort->getOrder());
+$listOrder = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$listOrder['ID'] = 'ASC';
+}
 
 $arFilter = array();
 
@@ -86,9 +90,10 @@ if($lAdmin->EditAction() && !$bReadOnly)
 	}
 }
 
-if(($arID = $lAdmin->GroupAction()) && !$bReadOnly)
+$arID = $lAdmin->GroupAction();
+if (!$bReadOnly && !empty($arID) && is_array($arID))
 {
-	if($_REQUEST['action_target']=='selected')
+	if ($lAdmin->IsGroupActionToAll())
 	{
 		$arID = Array();
 		$dbResultList = CCatalogMeasure::getList(array($_REQUEST["by"] => $_REQUEST["order"]), $arFilter, false, false, array('ID'));
@@ -96,12 +101,13 @@ if(($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 			$arID[] = $arResult['ID'];
 	}
 
+	$action = $lAdmin->GetAction();
 	foreach ($arID as $ID)
 	{
 		if($ID == '')
 			continue;
 
-		switch ($_REQUEST['action'])
+		switch ($action)
 		{
 			case "delete":
 				@set_time_limit(0);
@@ -141,13 +147,14 @@ $arSelect = array(
 	"IS_DEFAULT",
 );
 
-if(array_key_exists("mode", $_REQUEST) && $_REQUEST["mode"] == "excel")
-	$arNavParams = false;
-else
-	$arNavParams = array("nPageSize"=>CAdminUiResult::GetNavSize($sTableID));
+$arNavParams = (
+	$lAdmin->isExportMode()
+		? false
+		: ["nPageSize" => CAdminUiResult::GetNavSize($sTableID)]
+);
 
 $dbResultList = CCatalogMeasure::getList(
-	array($by => $order),
+	$listOrder,
 	array(),
 	false,
 	$arNavParams,

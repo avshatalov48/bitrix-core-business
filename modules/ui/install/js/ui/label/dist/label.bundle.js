@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
@@ -19,7 +20,9 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(LabelColor, "TAG_LIGHT", 'ui-label-tag-light');
 	babelHelpers.defineProperty(LabelColor, "LIGHT_BLUE", 'ui-label-lightblue');
 	babelHelpers.defineProperty(LabelColor, "LIGHT_GREEN", 'ui-label-lightgreen');
+	babelHelpers.defineProperty(LabelColor, "ORANGE", 'ui-label-orange');
 	babelHelpers.defineProperty(LabelColor, "LIGHT_ORANGE", 'ui-label-lightorange');
+	babelHelpers.defineProperty(LabelColor, "YELLOW", 'ui-label-yellow');
 	babelHelpers.defineProperty(LabelColor, "LIGHT_YELLOW", 'ui-label-lightyellow');
 	babelHelpers.defineProperty(LabelColor, "LIGHT_RED", 'ui-label-lightred');
 

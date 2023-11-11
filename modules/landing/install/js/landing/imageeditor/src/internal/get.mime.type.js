@@ -1,5 +1,10 @@
-export default function getMimeType(path)
+export default function getMimeType(path): string
 {
-	const imageExtension = BX.util.getExtension(path);
+	let imageExtension = BX.util.getExtension(path);
+	if (imageExtension.length > 4)
+	{
+		imageExtension = imageExtension.split('_').pop();
+	}
+
 	return `image/${imageExtension === 'jpg' ? 'jpeg' : imageExtension}`;
 }

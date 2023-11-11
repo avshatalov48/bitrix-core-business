@@ -154,7 +154,7 @@ while ($arResultItem = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("WORKFLOW_STATE", $f_WORKFLOW_STATE);
 	$row->AddField("WORKFLOW_STARTED", FormatDateFromDB($f_WORKFLOW_STARTED));
 
-	if (intval($f_STARTED_BY) > 0)
+	if (intval($f_STARTED_BY ?? 0) > 0)
 	{
 		$dbUserTmp = CUser::GetByID($f_STARTED_BY);
 		$arUserTmp = $dbUserTmp->fetch();
@@ -227,7 +227,7 @@ if ($allowAdminAccess && isset($arFilter['USER_STATUS']) && $arFilter['USER_STAT
 	);
 }
 
-if ($bizprocModulePermissions >= "W")
+if (($bizprocModulePermissions ?? '') >= "W")
 {
 	$aContext = array(
 //		array(

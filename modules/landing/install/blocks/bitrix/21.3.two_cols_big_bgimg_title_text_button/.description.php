@@ -59,7 +59,7 @@ return array(
 				'type' => array('button', 'animation'),
 			),
 			'.landing-block-node-button-container' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_7_FOUR_COLS_BIG_BGIMG_TITLE_TEXT_BUTTON_NODES_LANDINGBLOCKNODEBUTTON'),
+				'name' => Loc::getMessage('LANDING_BLOCK_21_3_BUTTON_AREA'),
 				'type' => 'text-align',
 			),
 			'.landing-block-inner' => array(

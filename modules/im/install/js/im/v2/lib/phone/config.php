@@ -9,11 +9,15 @@ return [
 		'./dist/phone.bundle.js',
 	],
 	'rel' => [
-		'main.polyfill.core',
 		'voximplant',
 		'voximplant.phone-calls',
-		'applayout',
+		'main.core',
+		'main.core.events',
 		'im.v2.application.core',
+		'im.v2.lib.logger',
+		'im.v2.lib.desktop-api',
+		'im.v2.lib.call',
+		'im.v2.lib.sound-notification',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

@@ -9,14 +9,13 @@ use Bitrix\Calendar\Core\Queue\Message\HandledMessageMapper;
 use Bitrix\Calendar\Core\Queue\Message\Message;
 use Bitrix\Calendar\Core\Queue\Message\MessageMapper;
 use Bitrix\Calendar\Core\Queue\QueueListener;
-use Bitrix\Calendar\Internals\Mutex;
+use Bitrix\Calendar\Core\Base\Mutex;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\SystemException;
-use COption;
 use Generator;
 use Throwable;
-use Bitrix;
 
 class RuleMaster
 {
@@ -123,7 +122,7 @@ class RuleMaster
 	 */
 	private function getLastProcessedId(): int
 	{
-		return COption::GetOptionInt("calendar", self::LAST_PROCESSED_OPTION_NAME, 0);
+		return \COption::GetOptionInt("calendar", self::LAST_PROCESSED_OPTION_NAME, 0);
 	}
 
 	/**
@@ -133,7 +132,7 @@ class RuleMaster
 	 */
 	private function setLastProcessedId(int $id = 0)
 	{
-		COption::SetOptionInt("calendar", self::LAST_PROCESSED_OPTION_NAME, $id);
+		\COption::SetOptionInt("calendar", self::LAST_PROCESSED_OPTION_NAME, $id);
 	}
 
 	/**
@@ -146,7 +145,7 @@ class RuleMaster
 
 		foreach ($this->getRoutedQueues() as $queue)
 		{
-			$event = new Bitrix\Main\Event(
+			$event = new Event(
 				"calendar",
 				self::ON_QUEUE_PUSHED_EVENT_NAME,
 				[

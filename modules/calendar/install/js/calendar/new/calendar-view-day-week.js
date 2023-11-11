@@ -116,7 +116,9 @@
 		this.setTitle();
 
 		if (this.gridWrap)
+		{
 			this.gridWrap.style.overflowX = 'hidden';
+		}
 
 		var nextGrid = this.outerGrid.appendChild(BX.create('DIV', {props: {className: this.gridClass + ' ' + this.gridClassNext + ' ' + this.animateClass}}));
 		BX.addClass(this.grid, this.animateClass);
@@ -990,6 +992,8 @@
 								else if (backEntry.part.params.nameNode)
 								{
 									backEntry.part.params.nameNode.style.whiteSpace = 'nowrap';
+									backEntry.part.params.nameNode.style.display = 'block';
+									backEntry.part.params.nameNode.style.textOverflow = 'ellipsis';
 									backEntry.part.params.nameNode.style.lineHeight = '11px';
 									backEntry.part.params.timeNode.style.lineHeight = '11px';
 								}
@@ -2263,9 +2267,12 @@
 					});
 				}
 			}
-			else if ((!this.calendar.util.readOnlyMode())
+			else if (
+				!this.calendar.util.readOnlyMode()
 				&& this.entryController.canDo(true, 'add_event')
-				&& (dayCode = params.specialTarget && params.specialTarget.getAttribute('data-bx-calendar-week-day')))
+				&& (dayCode = params.specialTarget && params.specialTarget.getAttribute('data-bx-calendar-week-day'))
+				&& !this.isCompactFormShown()
+			)
 			{
 				this.deselectEntry();
 				this.showCompactEditFormForNewEntry({
@@ -2382,13 +2389,8 @@
 
 	DayView.prototype.handleMousedown = function(e)
 	{
-		if (!this.isActive())
-		{
-			return;
-		}
-
-		var compactForm = BX.Calendar.EntryManager.getCompactViewForm(false);
-		if (compactForm && compactForm.isShown())
+		const isRightButton = e.which === 3;
+		if (isRightButton || !this.isActive() || this.isCompactFormShown())
 		{
 			return;
 		}
@@ -2516,6 +2518,12 @@
 		}
 	};
 
+	DayView.prototype.isCompactFormShown = function()
+	{
+		const compactForm = BX.Calendar.EntryManager.getCompactViewForm(false);
+		return compactForm && compactForm.isShown();
+	};
+
 	DayView.prototype.buildTopNewEntryWrap = function(params)
 	{
 		var
@@ -2575,6 +2583,8 @@
 
 		var entry = {
 			entryNode: entryClone,
+			nameNode: nameNode,
+			timeNode: timeNode,
 			innerNode: innerNode,
 			section: section,
 			entryName: entryName,
@@ -2712,7 +2722,6 @@
 		}
 		// clear all compact levels
 		BX.removeClass(entryNode, 'calendar-event-block-compact');
-		BX.removeClass(entryNode, 'calendar-event-block-super-compact');
 		nameNode.style.overflow = 'visible';
 
 		// add compactness level by level
@@ -2725,10 +2734,28 @@
 			if (lineCount <= 1)
 			{
 				BX.addClass(entryNode, 'calendar-event-block-compact');
-				BX.addClass(entryNode, 'calendar-event-block-super-compact');
 			}
 		}
 		nameNode.style.overflow = '';
+
+		const titleNode = entryNode.querySelector('.calendar-event-block-title');
+		if (!titleNode)
+		{
+			return;
+		}
+
+		if (BX.hasClass(entryNode, 'calendar-event-block-compact'))
+		{
+			const titleWidth = titleNode.offsetWidth;
+			const textWidth = [...titleNode.children].reduce((width, child) => {
+				return width + child.offsetWidth + parseInt(getComputedStyle(child).marginRight);
+			}, 0);
+
+			if (textWidth < titleWidth)
+			{
+				titleNode.style.width = `${textWidth + 1}px`;
+			}
+		}
 	}
 
 	DayView.prototype.showCompactEditFormForNewEntry = function(params)

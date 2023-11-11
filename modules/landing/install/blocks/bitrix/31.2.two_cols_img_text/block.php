@@ -5,10 +5,10 @@
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1200x960/img1.jpg);"></div>
 			
 			<div class="col-md-6 col-lg-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md order-1 order-md-2">
-				<h3 class="landing-block-node-title landing-semantic-subtitle-image-medium js-animation fadeInUp text-uppercase g-font-weight-700 g-color-white g-mb-25">
+				<h3 class="landing-block-node-title js-animation fadeInUp text-uppercase g-font-weight-700 g-color-white g-mb-25">
 					Part-time
 					cfo/controller</h3>
-				<div class="landing-block-node-text landing-semantic-text-image-medium js-animation fadeInUp g-mb-30 g-color-gray-light-v2">
+				<div class="landing-block-node-text js-animation fadeInUp g-mb-30 g-color-gray-light-v2">
 					<p>Aliquam mattis neque justo, non maximus dui ornare nec. Praesent efficitur velit
 						nisl, sed tincidunt mi imperdiet at. Cras urna libero, fringilla vitae luctus eu, egestas eget
 						metus. Nam et massa eros. Maecenas sit amet lacinia lectus.</p>
@@ -20,7 +20,7 @@
 						nulla vehicula risus pulvinar feugiat ullamcorper sit amet mi.</p>
 				</div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button landing-semantic-link-image-medium js-animation fadeInUp text-uppercase btn g-btn-primary g-rounded-50 g-btn-type-solid g-btn-size-md g-btn-px-m"
+					<a class="landing-block-node-button js-animation fadeInUp text-uppercase btn g-btn-primary g-rounded-50 g-btn-type-solid g-btn-size-md g-btn-px-m"
 					   href="#" tabindex="0">Contact us for more info</a>
 				</div>
 			</div>

@@ -155,7 +155,7 @@ class DatetimeField extends DateField
 	 */
 	public function getGetterTypeHint()
 	{
-		return '\\'.DateTime::class;
+		return $this->getNullableTypeHint('\\'.DateTime::class);
 	}
 
 	/**
@@ -163,6 +163,6 @@ class DatetimeField extends DateField
 	 */
 	public function getSetterTypeHint()
 	{
-		return '\\'.DateTime::class;
+		return $this->getNullableTypeHint('\\'.DateTime::class);
 	}
 }

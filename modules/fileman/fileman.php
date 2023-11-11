@@ -273,10 +273,14 @@ class CFileMan
 			if($i>1)
 				$strMenuLinksTmp .= ",";
 
+			$strMenuLinkHref = $arMenuItem[1] ?? '';
+			$isExternalLink = mb_strpos($strMenuLinkHref, 'http://') === 0 || mb_strpos($strMenuLinkHref, 'https://') === 0;
+			$strSiteDir = !$isExternalLink ? 'SITE_DIR.' : '';
+
 			$strMenuLinksTmp .= "\n".
 				"	Array(\n".
 				"		\"".CFileMan::EscapePHPString(($arMenuItem[0] ?? null))."\", \n".
-				"		SITE_DIR.\"".CFileMan::EscapePHPString(($arMenuItem[1] ?? null))."\", \n".
+				"		$strSiteDir\"".CFileMan::EscapePHPString($strMenuLinkHref)."\", \n".
 				"		Array(";
 
 			if(is_array(($arMenuItem[2] ?? null)))

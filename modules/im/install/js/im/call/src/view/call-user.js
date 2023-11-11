@@ -11,6 +11,7 @@ type CallUserElements = {
 	videoContainer?: HTMLElement,
 	video?: HTMLVideoElement,
 	audio?: HTMLAudioElement,
+	preview?: HTMLVideoElement,
 	videoBorder?: HTMLElement,
 	avatarContainer?: HTMLElement,
 	avatar?: HTMLElement,
@@ -24,6 +25,7 @@ type CallUserElements = {
 	changeNameLoader?: HTMLElement,
 	introduceYourselfContainer?: HTMLElement,
 	floorRequest?: HTMLElement,
+	badNetworkIndicator?: HTMLElement,
 	state?: HTMLElement,
 	removeButton?: HTMLElement,
 	micState?: HTMLElement,
@@ -77,11 +79,14 @@ export class CallUser
 		this._videoTrack = config.videoTrack;
 		this._stream = this._videoTrack ? new MediaStream([this._videoTrack]) : null;
 		this._videoRenderer = null;
+		this._previewRenderer = null;
 		this._flipVideo = false;
 
 		this.hidden = false;
 		this.videoBlurState = false;
 		this.isChangingName = false;
+
+		this._badNetworkIndicator = false;
 
 		this.incomingVideoConstraints = {
 			width: 0, height: 0
@@ -100,6 +105,14 @@ export class CallUser
 			onUnPin: Type.isFunction(config.onUnPin) ? config.onUnPin : BX.DoNothing,
 		};
 		this.checkAspectInterval = setInterval(this.checkVideoAspect.bind(this), 500);
+
+		this.hintManager = BX.UI.Hint.createInstance({
+			popupParameters: {
+				targetContainer: document.body,
+				className: `bx-messenger-videocall-panel-item-hotkey-hint ${this.userModel.id}`,
+				bindOptions: {forceBindPosition: true}
+			}
+		});
 	};
 
 	get id()
@@ -181,7 +194,49 @@ export class CallUser
 
 	set videoRenderer(videoRenderer)
 	{
-		this._videoRenderer = videoRenderer;
+		if (this._badNetworkIndicator)
+		{
+			// Voximplant calls logic with support of streams disabling
+			if (videoRenderer)
+			{
+				this._tempVideoRenderer = videoRenderer;
+				this._videoRenderer = null;
+			}
+			else
+			{
+				this._tempVideoRenderer = this._videoRenderer = null;
+			}
+		}
+		else
+		{
+			// Bitrix calls logic with support of preview
+			this._tempVideoRenderer = null;
+			const currentVideoRendererKind = this._videoRenderer?.kind;
+			const newVideoRendererKind = videoRenderer?.kind;
+
+			if (!currentVideoRendererKind || currentVideoRendererKind === newVideoRendererKind)
+			{
+				this._videoRenderer = videoRenderer;
+			}
+			else
+			{
+				if (videoRenderer && this._videoRenderer)
+				{
+					this._previewRenderer = this._videoRenderer;
+					this._videoRenderer = videoRenderer;
+				}
+				else if (!videoRenderer && this._previewRenderer)
+				{
+					this._videoRenderer = this._previewRenderer;
+					this._previewRenderer = videoRenderer;
+				}
+				else
+				{
+					this._videoRenderer = videoRenderer;
+				}
+			}
+		}
+
 		this.update();
 		this.updateRendererState();
 	}
@@ -200,6 +255,36 @@ export class CallUser
 		this._videoTrack = videoTrack;
 		this._stream = this._videoTrack ? new MediaStream([this._videoTrack]) : null;
 		this.update()
+	}
+
+	set badNetworkIndicator(badNetworkIndicator)
+	{
+		if (this._badNetworkIndicator === badNetworkIndicator)
+		{
+			return;
+		}
+
+		this._badNetworkIndicator = badNetworkIndicator;
+		if (this._badNetworkIndicator)
+		{
+			this.elements.badNetworkIndicator.classList.add("bx-messenger-videocall-user-bad-network-indicator-visible");
+			if (this._videoRenderer)
+			{
+				this._tempVideoRenderer = this._videoRenderer;
+				this._videoRenderer = null;
+			}
+		}
+		else
+		{
+			this.elements.badNetworkIndicator.classList.remove("bx-messenger-videocall-user-bad-network-indicator-visible");
+			if (this._tempVideoRenderer)
+			{
+				this._videoRenderer = this._tempVideoRenderer;
+				this._tempVideoRenderer = null;
+			}
+		}
+
+		this.update();
 	}
 
 	render()
@@ -241,6 +326,19 @@ export class CallUser
 						this.elements.state = Dom.create("div", {
 							props: {className: "bx-messenger-videocall-user-status-text"},
 							text: this.getStateMessage(this.userModel.state)
+						}),
+						this.elements.badNetworkIndicator = Dom.create("span", {
+							props: {className: "bx-messenger-videocall-user-bad-network-indicator"},
+							events: {
+								mouseover: (e) =>
+								{
+									this.hintManager.show(e.currentTarget, BX.message("IM_M_CALL_BAD_NETWORK_HINT"));
+								},
+								mouseout: (e) =>
+								{
+									this.hintManager.hide();
+								}
+							}
 						}),
 						Dom.create("div", {
 							props: {className: "bx-messenger-videocall-user-bottom"},
@@ -356,13 +454,39 @@ export class CallUser
 		this.elements.videoContainer = Dom.create("div", {
 			props: {
 				className: "bx-messenger-videocall-video-container",
-			}, children: [this.elements.video = Dom.create("video", {
-				props: {
-					className: "bx-messenger-videocall-video", volume: 0, autoplay: true
-				}, attrs: {
-					playsinline: true, muted: true
-				}
-			}),]
+			},
+			children: [
+				this.elements.video = Dom.create("video", {
+					props: {
+						className: "bx-messenger-videocall-video", volume: 0, autoplay: true
+					},
+					attrs: {
+						playsinline: true, muted: true
+					}
+				}),
+				Dom.create("div", {
+					props: {
+						className: "bx-messenger-videocall-preview",
+					},
+					children: [
+						Dom.create("div", {
+							props: {
+								className: "bx-messenger-videocall-preview-container",
+							},
+							children: [
+								this.elements.preview = Dom.create("video", {
+									props: {
+										className: "bx-messenger-videocall-preview-video", volume: 0, autoplay: true,
+									},
+									attrs: {
+										playsinline: true, muted: true
+									}
+								})
+							]
+						})
+					]
+				}),
+			]
 		});
 		this.elements.container.appendChild(this.elements.videoContainer);
 
@@ -896,6 +1020,14 @@ export class CallUser
 				if (this.videoRenderer)
 				{
 					this.videoRenderer.render(this.elements.video);
+					if (this._previewRenderer)
+					{
+						this._previewRenderer.render(this.elements.preview);
+					}
+					else
+					{
+						this.elements.preview.srcObject = null;
+					}
 				}
 				else if (this.elements.video.srcObject != this.stream)
 				{
@@ -1205,6 +1337,11 @@ export class CallUser
 
 	destroy()
 	{
+		if (this.hintManager)
+		{
+			this.hintManager.hide();
+			this.hintManager = null;
+		}
 		this.releaseStream();
 		clearInterval(this.checkAspectInterval);
 	};

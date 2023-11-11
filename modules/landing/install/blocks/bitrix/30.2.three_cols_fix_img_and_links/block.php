@@ -27,10 +27,10 @@
 					<div class="g-pos-rel">
 						<div class="g-pos-rel g-z-index-1 g-pa-30">
 							<h3 class="h5 mb-3">
-								<a class="landing-block-node-link landing-semantic-subtitle-image-small u-link-v5 g-color-main g-color-primary--hover" href="#">Free
+								<a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#">Free
 									virtual conference to take your agile ux skills to the next</a>
 							</h3>
-							<a class="landing-block-node-link-more landing-semantic-link-image-medium u-link-v5 g-color-text g-color-primary--hover"
+							<a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover"
 							   href="#">Read More</a>
 						</div>
 					</div>
@@ -61,10 +61,10 @@
 					<div class="g-pos-rel">
 						<div class="g-pos-rel g-z-index-1 g-pa-30">
 							<h3 class="h5 mb-3">
-								<a class="landing-block-node-link landing-semantic-subtitle-image-small u-link-v5 g-color-main g-color-primary--hover" href="#">Free
+								<a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#">Free
 									virtual conference to take your agile ux skills to the next</a>
 							</h3>
-							<a class="landing-block-node-link-more landing-semantic-link-image-medium u-link-v5 g-color-text g-color-primary--hover"
+							<a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover"
 							   href="#">Read More</a>
 						</div>
 					</div>
@@ -96,10 +96,10 @@
 					<div class="g-pos-rel">
 						<div class="g-pos-rel g-z-index-1 g-pa-30">
 							<h3 class="h5 mb-3">
-								<a class="landing-block-node-link landing-semantic-subtitle-image-small u-link-v5 g-color-main g-color-primary--hover" href="#">Multi-Swipe:
+								<a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#">Multi-Swipe:
 									New UX to act on many items (emails) really fast</a>
 							</h3>
-							<a class="landing-block-node-link-more landing-semantic-link-image-medium u-link-v5 g-color-text g-color-primary--hover"
+							<a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover"
 							   href="#">Read More</a>
 						</div>
 					</div>

@@ -67,10 +67,6 @@ return [
 			'type' => ['block-default-wo-paddings', 'header-on-scroll', 'header-position'],
 		],
 		'nodes' => [
-			'.landing-block-node-title-container' => [
-				'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_2_TITLE'),
-				'type' => 'typo-link',
-			],
 			'.landing-block-node-text' => [
 				'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_2_LINK_TEXT_2'),
 				'type' => ['typo'],

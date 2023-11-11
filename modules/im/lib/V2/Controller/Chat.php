@@ -7,8 +7,11 @@ use Bitrix\Im\Dialog;
 use Bitrix\Im\Recent;
 use Bitrix\Im\V2\Chat\ChatError;
 use Bitrix\Im\V2\Chat\ChatFactory;
+use Bitrix\Im\V2\Chat\OpenChat;
+use Bitrix\Im\V2\Chat\OpenLineChat;
 use Bitrix\Im\V2\Chat\PrivateChat;
 use Bitrix\Im\V2\Controller\Chat\Pin;
+use Bitrix\Im\V2\Controller\Filter\ChatTypeFilter;
 use Bitrix\Im\V2\Controller\Filter\CheckAvatarId;
 use Bitrix\Im\V2\Controller\Filter\CheckAvatarIdInFields;
 use Bitrix\Im\V2\Controller\Filter\CheckChatAccess;
@@ -18,12 +21,12 @@ use Bitrix\Im\V2\Controller\Filter\CheckChatManageUpdate;
 use Bitrix\Im\V2\Controller\Filter\CheckChatOwner;
 use Bitrix\Im\V2\Controller\Filter\CheckChatUpdate;
 use Bitrix\Im\V2\Controller\Filter\CheckDisappearingDuration;
+use Bitrix\Im\V2\Controller\Filter\ExtendPullWatchPrefilter;
+use Bitrix\Im\V2\Controller\Filter\UpdateStatus;
 use Bitrix\Im\V2\Entity\User\UserPopupItem;
 use Bitrix\Im\V2\Link\Pin\PinCollection;
 use Bitrix\Im\V2\Message;
-use Bitrix\Im\V2\Message\Delete\DeleteService;
 use Bitrix\Im\V2\Message\MessageService;
-use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Intranet\ActionFilter\IntranetUser;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
@@ -142,6 +145,42 @@ class Chat extends BaseController
 					new CheckChatUpdate(),
 				]
 			],
+			'load' => [
+				'+prefilters' => [
+					new ExtendPullWatchPrefilter(),
+				],
+				'+postfilters' => [
+					new UpdateStatus(),
+				],
+			],
+			'loadInContext' => [
+				'+prefilters' => [
+					new ExtendPullWatchPrefilter(),
+				],
+				'+postfilters' => [
+					new UpdateStatus(),
+				],
+			],
+			'join' => [
+				'+prefilters' => [
+					new ChatTypeFilter([OpenChat::class, OpenLineChat::class]),
+				],
+			],
+			'extendPullWatch' => [
+				'+prefilters' => [
+					new ChatTypeFilter([OpenChat::class, OpenLineChat::class]),
+				],
+			],
+			'read' => [
+				'+postfilters' => [
+					new UpdateStatus(),
+				],
+			],
+			'readAll' => [
+				'+postfilters' => [
+					new UpdateStatus(),
+				],
+			],
 		];
 	}
 
@@ -233,9 +272,9 @@ class Chat extends BaseController
 	/**
 	 * @restMethod im.v2.Chat.read
 	 */
-	public function readAction(\Bitrix\Im\V2\Chat $chat, bool $onlyRecent = false): ?array
+	public function readAction(\Bitrix\Im\V2\Chat $chat, string $onlyRecent = 'N'): ?array
 	{
-		$result = $chat->read($onlyRecent);
+		$result = $chat->read($this->convertCharToBool($onlyRecent));
 
 		return $this->convertKeysToCamelCase($result->getResult());
 	}
@@ -261,11 +300,30 @@ class Chat extends BaseController
 	}
 
 	/**
+	 * @restMethod im.v2.Chat.startRecordVoice
+	 */
+	public function startRecordVoiceAction(\Bitrix\Im\V2\Chat $chat): ?array
+	{
+		$chat->startRecordVoice();
+
+		return ['result' => true];
+	}
+
+	/**
 	 * @restMethod im.v2.Chat.add
 	 */
 	public function addAction(array $fields): ?array
 	{
 		$fields['type'] = ($fields['type'] === 'CHANNEL') ? \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL : \Bitrix\Im\V2\Chat::IM_TYPE_CHAT;
+
+		if (
+			!isset($fields['entityType'])
+			|| $fields['entityType'] !== 'VIDEOCONF'
+			|| !isset($fields['conferencePassword'])
+		)
+		{
+			unset($fields['conferencePassword']);
+		}
 
 		$data = self::recursiveWhiteList($fields, \Bitrix\Im\V2\Chat::AVAILABLE_PARAMS);
 		$result = ChatFactory::getInstance()->addChat($data);
@@ -290,27 +348,30 @@ class Chat extends BaseController
 
 		$changeSettings = false;
 		$changeUI = false;
-		if ($chat->getAuthorId() === (int)$userId)
+		if (!($chat instanceof PrivateChat))
 		{
-			$changeSettings = true;
-			$changeUI = true;
-		}
-		elseif ($relation->getManager())
-		{
-			if ($chat->getManageSettings() === \Bitrix\Im\V2\Chat::MANAGE_RIGHTS_MANAGERS)
+			if ($chat->getAuthorId() === (int)$userId)
 			{
 				$changeSettings = true;
-			}
-			if ($chat->getManageUI() === \Bitrix\Im\V2\Chat::MANAGE_RIGHTS_MANAGERS)
-			{
 				$changeUI = true;
 			}
-		}
-		else
-		{
-			if ($chat->getManageUI() === \Bitrix\Im\V2\Chat::MANAGE_RIGHTS_ALL)
+			elseif ($relation->getManager())
 			{
-				$changeUI = true;
+				if ($chat->getManageSettings() === \Bitrix\Im\V2\Chat::MANAGE_RIGHTS_MANAGERS)
+				{
+					$changeSettings = true;
+				}
+				if ($chat->getManageUI() === \Bitrix\Im\V2\Chat::MANAGE_RIGHTS_MANAGERS)
+				{
+					$changeUI = true;
+				}
+			}
+			else
+			{
+				if ($chat->getManageUI() === \Bitrix\Im\V2\Chat::MANAGE_RIGHTS_MEMBER)
+				{
+					$changeUI = true;
+				}
 			}
 		}
 
@@ -403,21 +464,52 @@ class Chat extends BaseController
 	/**
 	 * @restMethod im.v2.Chat.addUsers
 	 */
-	public function addUsersAction(\Bitrix\Im\V2\Chat $chat, array $userIds)
+	public function addUsersAction(\Bitrix\Im\V2\Chat $chat, array $userIds, ?string $hideHistory = null): ?array
 	{
-		$chat->addUsers($userIds);
+		$hideHistoryBool = $hideHistory === null ? null : $this->convertCharToBool($hideHistory, true);
+		$chat->addUsers($userIds, [], $hideHistoryBool);
 
-		return true;
+		return ['result' => true];
 	}
 
 	/**
-	 * @restMethod im.v2.Chat.removeUsers
+	 * @restMethod im.v2.Chat.join
 	 */
-	public function removeUsersAction(\Bitrix\Im\V2\Chat $chat, array $userIds): bool
+	public function joinAction(\Bitrix\Im\V2\Chat $chat): ?array
 	{
-		$chat->removeUsers($userIds);
+		$chat->join();
 
-		return true;
+		return ['result' => true];
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.extendPullWatch
+	 */
+	public function extendPullWatchAction(\Bitrix\Im\V2\Chat $chat): ?array
+	{
+		if ($chat instanceof OpenChat || $chat instanceof OpenLineChat)
+		{
+			$chat->extendPullWatch();
+		}
+
+		return ['result' => true];
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.deleteUser
+	 */
+	public function deleteUserAction(\Bitrix\Im\V2\Chat $chat, int $userId): ?array
+	{
+		$result = $chat->deleteUser($userId);
+
+		if (!$result->isSuccess())
+		{
+			$this->addErrors($result->getErrors());
+
+			return null;
+		}
+
+		return ['result' => true];
 	}
 	//endregion
 

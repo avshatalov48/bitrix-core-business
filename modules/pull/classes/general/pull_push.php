@@ -99,7 +99,7 @@ class CPullPush
 		global $DB;
 
 		/**
-		 * @var $DB CAllDatabase
+		 * @var $DB CDatabase
 		 */
 		$killTime = ConvertTimeStamp(getmicrotime() - 24 * 3600 * 14, "FULL");
 		$sqlString = "DELETE FROM b_pull_push WHERE DATE_AUTH < " . $DB->CharToDateFunction($killTime);

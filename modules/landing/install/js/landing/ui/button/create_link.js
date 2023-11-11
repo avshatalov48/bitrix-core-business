@@ -30,7 +30,7 @@
 			event.preventDefault();
 			event.stopPropagation();
 
-			this.textNode = BX.Landing.Block.Node.Text.currentNode;
+			this.textNode = BX.Landing.Node.Text.currentNode;
 			this.textField = BX.Landing.UI.Field.BaseField.currentField;
 
 			if (!!this.textField && this.textField.isEditable())

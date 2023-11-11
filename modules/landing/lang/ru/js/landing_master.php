@@ -466,7 +466,6 @@ $MESS["LANDING_TABLE_DND_ROWS"] = "Потяните для перемещени�
 $MESS["LANDING_TABLE_DND_COLS"] = "Потяните для перемещения столбца";
 $MESS["LANDING_TABLE_RESIZE_COLS"] = "Потяните для изменения ширины столбца";
 $MESS["LANDING_TABLE_SELECT_TABLE"] = "Выбрать всю таблицу";
-$MESS["LANDING_TABLE_BUTTON_CHANGE_TEXT"] = "Отредактировать текст";
 $MESS['LANDING_FONTS_PANEL_MORE_BUTTON_LABEL'] = 'Загрузить еще';
 $MESS['LANDING_FONTS_PANEL_EMPTY_STUB'] = 'Шрифты не найдены...';
 

@@ -5,9 +5,11 @@ class CIBlockRSS extends CAllIBlockRSS
 	public static function GetCache($cacheKey)
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$db_res = $DB->Query(
-			"SELECT CACHE, IF(CACHE_DATE>NOW(), 'Y', 'N') as VALID ".
+			"SELECT CACHE, case when CACHE_DATE > " . $helper->getCurrentDateTimeFunction() . " then 'Y' else 'N' end as VALID ".
 			"FROM b_iblock_cache ".
 			"WHERE CACHE_KEY = '".$DB->ForSql($cacheKey, 0)."' ");
 		return $db_res->Fetch();
@@ -25,6 +27,8 @@ class CIBlockRSS extends CAllIBlockRSS
 	public static function UpdateCache($cacheKey, $CACHE, $HOURS_CACHE, $bCACHED)
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		if(is_array($HOURS_CACHE) && array_key_exists("minutes", $HOURS_CACHE))
 			$TTL = intval($HOURS_CACHE["minutes"]) * 60;
@@ -36,16 +40,16 @@ class CIBlockRSS extends CAllIBlockRSS
 			$db_res = $DB->Query(
 				"UPDATE b_iblock_cache SET ".
 				"	CACHE = '".$DB->ForSql($CACHE, 0)."', ".
-				"	CACHE_DATE = date_add(NOW(), interval ".intval($TTL)." second) ".
-				"WHERE CACHE_KEY = '".$DB->ForSql($cacheKey, 0)."' ");
+				"	CACHE_DATE = " . $helper->addSecondsToDateTime(intval($TTL)) .
+				" WHERE CACHE_KEY = '".$DB->ForSql($cacheKey, 0)."' ");
 		}
 		else
 		{
 			$db_res = $DB->Query(
 				"INSERT INTO b_iblock_cache (CACHE_KEY, CACHE, CACHE_DATE) ".
-				"VALUES('".$DB->ForSql($cacheKey, 0)."', '".$DB->ForSql($CACHE, 0)."', date_add(NOW(), interval ".intval($TTL)." second)) ");
+				"VALUES('".$DB->ForSql($cacheKey, 0)."', '".$DB->ForSql($CACHE, 0)."', " . $helper->addSecondsToDateTime(intval($TTL)) . ") ");
 		}
-		$db_res = $DB->Query("DELETE from b_iblock_cache WHERE CACHE_DATE < NOW()");
+		$db_res = $DB->Query("DELETE from b_iblock_cache WHERE CACHE_DATE < " . $helper->getCurrentDateTimeFunction());
 	}
 
 	public static function GetRSSText($arIBLOCK, $LIMIT_NUM = false, $LIMIT_DAY = false, $yandex = false)

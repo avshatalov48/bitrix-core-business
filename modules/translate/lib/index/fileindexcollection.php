@@ -23,7 +23,7 @@ class FileIndexCollection
 	private static $enabledLanguages;
 
 	/** @var string[] */
-	private $checkLanguages = array();
+	private $checkLanguages = [];
 
 
 	/**
@@ -42,11 +42,11 @@ class FileIndexCollection
 	/**
 	 * Counts items to process.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
 	 * @return int
 	 */
-	public function countItemsToProcess(Translate\Filter $filter = null)
+	public function countItemsToProcess(Translate\Filter $filter = null): int
 	{
 		if (isset($filter, $filter->path))
 		{
@@ -62,13 +62,13 @@ class FileIndexCollection
 				return 0;
 			}
 
-			$pathFilter = array(
+			$pathFilter = [
 				'=IS_DIR' => 'N',
 				'=IS_LANG' => 'Y',
 				'=%PATH' => $relPath.'%#LANG_ID#%',
 				'=DESCENDANTS.PARENT_ID' => $topPath['ID'],//ancestor
 				//todo: add filter by INDEXED_TIME
-			);
+			];
 			$totalItems = (int)Index\Internals\PathIndexTable::getCount($pathFilter);
 		}
 		else
@@ -83,13 +83,13 @@ class FileIndexCollection
 	/**
 	 * Collect index file.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
-	 * @param Translate\Controller\ITimeLimit $timer Time counter.
-	 * @param Translate\Filter $seek Params to seek position.
+	 * @param Translate\Filter|null $filter Params to filter file list.
+	 * @param Translate\Controller\ITimeLimit|null $timer Time counter.
+	 * @param Translate\Filter|null $seek Params to seek position.
 	 *
 	 * @return int
 	 */
-	public function collect(Translate\Filter $filter = null, Translate\Controller\ITimeLimit $timer = null, Translate\Filter $seek = null)
+	public function collect(Translate\Filter $filter = null, Translate\Controller\ITimeLimit $timer = null, Translate\Filter $seek = null): int
 	{
 		self::configure();
 
@@ -121,13 +121,13 @@ class FileIndexCollection
 			return 0;
 		}
 
-		$pathFilter = array(
+		$pathFilter = [
 			'=IS_DIR' => 'N',
 			'=IS_LANG' => 'Y',
 			'=%PATH' => $relPath.'%#LANG_ID#%',
 			'=DESCENDANTS.PARENT_ID' => $topPath['ID'],//ancestor
 			//todo: add filter by INDEXED_TIME
-		);
+		];
 		if (isset($seek, $seek->pathId))
 		{
 			$pathFilter['>ID'] = $seek->pathId;
@@ -146,8 +146,8 @@ class FileIndexCollection
 		while (true)
 		{
 			$lastPathId = null;
-			$pathPortion = array();
-			$pathIdPortion = array();
+			$pathPortion = [];
+			$pathIdPortion = [];
 			while ($pathRow = $pathListRes->fetch())
 			{
 				$pathIdPortion[] = $lastPathId = (int)$pathRow['ID'];
@@ -169,19 +169,19 @@ class FileIndexCollection
 					'=LANG_ID' => $this->checkLanguages,
 				]
 			]);
-			$indexFileCache = array();
+			$indexFileCache = [];
 			while ($indexFile = $indexFileCacheRes->fetch())
 			{
 				if (!isset($indexFileCache[(int)$indexFile['PATH_ID']]))
 				{
-					$indexFileCache[(int)$indexFile['PATH_ID']] = array();
+					$indexFileCache[(int)$indexFile['PATH_ID']] = [];
 				}
 				$indexFileCache[(int)$indexFile['PATH_ID']][$indexFile['LANG_ID']] = (int)$indexFile['ID'];
 			}
 			unset($indexFileCacheRes, $indexFile);
 
-			$nonexistentFiles = array();
-			$fileData = array();
+			$nonexistentFiles = [];
+			$fileData = [];
 
 			foreach ($pathPortion as $pathId => $path)
 			{
@@ -207,11 +207,11 @@ class FileIndexCollection
 
 					if (!isset($indexFileCache[$pathId][$langId]))
 					{
-						$fileData[] = array(
+						$fileData[] = [
 							'PATH_ID' => $pathId,
 							'LANG_ID' => $langId,
 							'FULL_PATH' => $fullPath,
-						);
+						];
 					}
 				}
 			}
@@ -244,12 +244,12 @@ class FileIndexCollection
 	/**
 	 * Drop index.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 * @param bool $recursively Drop index recursively.
 	 *
 	 * @return self
 	 */
-	public function purge(Translate\Filter $filter = null, $recursively = true)
+	public function purge(Translate\Filter $filter = null, $recursively = true): self
 	{
 		Index\Internals\FileIndexTable::purge($filter, $recursively);
 
@@ -259,11 +259,11 @@ class FileIndexCollection
 	/**
 	 * Unvalidate index.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
 	 * @return self
 	 */
-	public function unvalidate(Translate\Filter $filter = null)
+	public function unvalidate(Translate\Filter $filter = null): self
 	{
 		if (($filterOut = Index\Internals\FileIndexTable::processFilter($filter)) !== false)
 		{

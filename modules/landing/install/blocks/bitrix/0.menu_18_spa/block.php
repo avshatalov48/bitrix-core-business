@@ -22,34 +22,34 @@
 				<div class="collapse navbar-collapse align-items-center flex-sm-row" id="navBar">
 					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-font-weight-700 g-font-size-11 g-pt-20 g-pt-0--lg ml-auto">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-12--lg g-mb-7 g-mb-0--lg">
-							<a href="#home" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home</a>
+							<a href="#home" class="landing-block-node-menu-list-item-link nav-link p-0">Home</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-12--lg g-mb-7 g-mb-0--lg">
-							<a href="#about" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">About</a>
+							<a href="#about" class="landing-block-node-menu-list-item-link nav-link p-0">About</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-12--lg g-mb-7 g-mb-0--lg">
-							<a href="#bestOffers" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Best
+							<a href="#bestOffers" class="landing-block-node-menu-list-item-link nav-link p-0">Best
 								offers</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-12--lg g-mb-7 g-mb-0--lg">
-							<a href="#ourProcedures" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Our
+							<a href="#ourProcedures" class="landing-block-node-menu-list-item-link nav-link p-0">Our
 								procedures</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-12--lg g-mb-7 g-mb-0--lg">
-							<a href="#advices" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Advices</a>
+							<a href="#advices" class="landing-block-node-menu-list-item-link nav-link p-0">Advices</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-12--lg g-mb-7 g-mb-0--lg">
 							<a href="#subscribe"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Subscribe</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Subscribe</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-12--lg g-mb-7 g-mb-0--lg">
-							<a href="#gallery" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Gallery</a>
+							<a href="#gallery" class="landing-block-node-menu-list-item-link nav-link p-0">Gallery</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-12--lg g-mb-7 g-mb-0--lg">
-							<a href="#products" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Products</a>
+							<a href="#products" class="landing-block-node-menu-list-item-link nav-link p-0">Products</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-12--lg g-mb-7 g-mb-0--lg">
-							<a href="#contact" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Contact</a>
+							<a href="#contact" class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
 						</li>
 					</ul>
 				</div>

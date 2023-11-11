@@ -58,16 +58,6 @@ class Departments extends EntityCollection
 		return $newCollection;
 	}
 
-	public function getAny(): ?Department
-	{
-		foreach ($this as $department)
-		{
-			return $department;
-		}
-
-		return null;
-	}
-
 	public static function getRestEntityName(): string
 	{
 		return 'departments';

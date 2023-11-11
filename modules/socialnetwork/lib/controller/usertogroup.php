@@ -419,10 +419,10 @@ class UserToGroup extends Base
 		]);
 	}
 
-	public static function repeatInviteAction(int $userId, int $groupId): bool
+	public function repeatInviteAction(int $userId, int $groupId): bool
 	{
 		return \CSocNetUserToGroup::SendRequestToJoinGroup(
-			1,
+			$this->getCurrentUser()->getId(),
 			$userId,
 			$groupId,
 			''

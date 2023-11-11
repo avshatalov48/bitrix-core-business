@@ -121,7 +121,9 @@
 				monthRowCurrent = Math.ceil((monthView.dayIndex[newViewDateCode] + 1) / monthView.dayCount) - 1;
 
 			if (!monthView.monthRows[monthRowCurrent])
+			{
 				monthRowCurrent = 0;
+			}
 
 			var
 				nodes = monthView.monthRows[monthRowCurrent].querySelectorAll('.calendar-grid-cell-inner');
@@ -133,11 +135,12 @@
 			weekView.viewCont.style.width = weekViewOffsets.width + "px";
 			weekView.viewCont.style.height = weekViewOffsets.height + "px";
 			weekView.viewCont.style.zIndex = 100;
-			monthView.gridWrap.style.overflow = "hidden";
-			monthView.gridWrap.style.height = BX.pos(weekView.gridWrap).height + "px";
 			weekView.outerGrid.style.paddingLeft = 0;
 			weekView.fullDayEventsCont.style.height = 0;
 			weekView.titleCont.style.paddingLeft = 0;
+
+			monthView.gridWrap.style.overflow = "hidden";
+			monthView.gridWrap.style.height = BX.pos(weekView.gridWrap).height + "px";
 
 			BX.addClass(monthView.viewCont, "calendar-animate-mod");
 
@@ -229,7 +232,7 @@
 				{
 					weekView.outerGrid.style.paddingLeft = state.paddingLeft + "px";
 					weekView.titleCont.style.paddingLeft = state.paddingLeft + "px";
-					weekView.fullDayEventsCont.style.height = state.topHolderHeight + 'px';
+					// weekView.fullDayEventsCont.style.height = state.topHolderHeight + 'px';
 				},
 				complete: BX.delegate(function ()
 				{
@@ -238,6 +241,7 @@
 					monthView.gridMonthContainer.style.paddingLeft = "";
 					monthView.monthRows[monthRowCurrent].style.background = "";
 					BX.removeClass(monthView.viewCont, "calendar-change-animate-month-to-week");
+
 					this.adjustViewAnimate(monthView, weekView);
 				}, this)
 			});
@@ -775,24 +779,27 @@
 				red = 255, green = 255, blue = 255,
 				selRed = 234, selGreen = 249, selBlue = 254,
 				duration1 = 100,
-				duration2 = 100;
+				duration2 = 310,
+				duration3 = 100;
 
 			setTimeout(BX.delegate(function()
 			{
 				weekView.viewCont.style.opacity = 0;
 				weekView.show();
-				weekView.viewCont.style.display = "block";
 				var
 					topHolderHeight = parseInt(weekView.fullDayEventsCont.style.height) || this.WEEK_TOP_MIN_HEIGHT,
 					weekViewOffsets = BX.pos(weekView.viewCont);
 
+				weekView.viewCont.style.display = "block";
 				weekView.viewCont.style.position = "absolute";
 				weekView.viewCont.style.top = 0;
 				weekView.viewCont.style.left = 0;
 				weekView.viewCont.style.width = weekViewOffsets.width + "px";
 				weekView.viewCont.style.height = weekViewOffsets.height + "px";
 				weekView.viewCont.style.zIndex = 100;
-				weekView.fullDayEventsCont.style.height = this.WEEK_TOP_MIN_HEIGHT + 'px';
+				// weekView.outerGrid.style.paddingLeft = 0;
+				weekView.fullDayEventsCont.style.height = 0;
+
 				this.calendar.viewsCont.style.height = weekView.viewCont.offsetHeight + 'px';
 
 				BX.removeClass(weekView.grid, 'calendar-events-holder-show');
@@ -816,8 +823,6 @@
 				{
 					weekView.titleCont.children[day.dayOffset].style.background = "rgb(" + selRed + "," + selGreen + "," + selBlue + ")";
 				}
-
-				BX.addClass(dayView.viewCont, "calendar-change-animate-day-to-week");
 
 				for (var i = 0; i < weekCellLength; i++)
 				{
@@ -852,9 +857,11 @@
 					},
 					complete: BX.delegate(function ()
 					{
-						BX.removeClass(dayView.viewCont, "calendar-animate-mod");
 						setTimeout(function ()
 						{
+							BX.addClass(dayView.viewCont, "calendar-change-animate-day-to-week");
+							BX.removeClass(dayView.viewCont, "calendar-animate-mod");
+
 							dayView.outerGrid.children[0].style.background = "";
 							weekView.viewCont.style.opacity = 1;
 							BX.addClass(weekView.viewCont, "calendar-animate-mod");
@@ -867,33 +874,51 @@
 							setTimeout(function ()
 							{
 								secondStage.animate();
-							}, 310);
+							}, 50);
 						}, 100);
 					}, this)
 				});
 
 				var secondStage = new BX.easing({
 					duration: duration2,
-					start:
-					{
-						fadeHide: 100,
-						topHolderHeight: this.WEEK_TOP_MIN_HEIGHT,
-						red: selRed,
-						green: selGreen,
-						blue: selBlue
+					start: {
+						fadeHide: 100
 					},
-					finish:
-					{
-						fadeHide: 0,
-						topHolderHeight: topHolderHeight,
-						red: red,
-						green: green,
-						blue: blue
+					finish: {
+						fadeHide: 0
 					},
-					step: function (state)
+					step: function(state)
 					{
 						dayView.viewCont.style.opacity = state.fadeHide / 100;
-						weekView.fullDayEventsCont.style.height = state.topHolderHeight + 'px';
+					},
+					complete: BX.delegate(function()
+					{
+						thirdStage.animate();
+						BX.addClass(weekView.grid, 'calendar-events-holder-show');
+						BX.addClass(weekView.fullDayEventsCont, 'calendar-events-holder-show');
+					}, this)
+				});
+
+				var thirdStage = new BX.easing({
+					duration: duration3,
+					start:
+						{
+							topHolderHeight: this.WEEK_TOP_MIN_HEIGHT,
+							red: selRed,
+							green: selGreen,
+							blue: selBlue
+						},
+					finish:
+						{
+							topHolderHeight: topHolderHeight,
+							red: red,
+							green: green,
+							blue: blue
+						},
+					step: function (state)
+					{
+						// dayView.viewCont.style.opacity = state.fadeHide / 100;
+						// weekView.fullDayEventsCont.style.height = state.topHolderHeight + 'px';
 
 						day.node.style.background = "rgb(" + state.red + "," + state.green + "," + state.blue + ")";
 						if (weekView.titleCont.children[day.dayOffset])
@@ -911,8 +936,8 @@
 						day.node.style.background = "";
 						BX.removeClass(dayView.viewCont, "calendar-change-animate-day-to-week");
 
-						BX.addClass(weekView.grid, 'calendar-events-holder-show');
-						BX.addClass(weekView.fullDayEventsCont, 'calendar-events-holder-show');
+						// BX.addClass(weekView.grid, 'calendar-events-holder-show');
+						// BX.addClass(weekView.fullDayEventsCont, 'calendar-events-holder-show');
 
 						this.adjustViewAnimate(dayView, weekView);
 					}, this)
@@ -1042,6 +1067,7 @@
 			currentView.viewCont.style.display = "none";
 
 			BX.addClass(newView.gridMonthContainer, "calendar-events-holder-show");
+			this.calendar.viewsCont.style.height = newView.viewCont.offsetHeight + 'px';
 
 			if (newView.getName() !== this.calendar.currentViewName)
 			{

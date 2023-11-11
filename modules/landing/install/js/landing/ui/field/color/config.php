@@ -15,6 +15,7 @@ return [
 		'main.core.events',
 		'landing.ui.field.image',
 		'landing.backend',
+		'landing.env',
 		'landing.pageobject',
 		'main.core',
 	],

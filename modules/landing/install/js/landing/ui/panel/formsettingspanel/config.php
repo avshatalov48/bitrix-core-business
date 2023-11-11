@@ -27,6 +27,7 @@ return [
 		'ui.switcher',
 		'ui.hint',
 		'ui.fonts.opensans',
+		'landing.history',
 	],
 	'skip_core' => false,
 ];

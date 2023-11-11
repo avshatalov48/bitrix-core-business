@@ -1267,7 +1267,9 @@ class CIMMessage
 				'text' => \Bitrix\Im\Text::parse($arParams['MESSAGE']),
 				'textLegacy' => \Bitrix\Im\Text::parseLegacyFormat($arParams['MESSAGE']),
 				'params' => $arParams['PARAMS'],
-				'counter' => isset($arParams['COUNTER']) && (int)$arParams['COUNTER'] > 0 ? (int)$arParams['COUNTER'] : 0
+				'counter' => isset($arParams['COUNTER']) && (int)$arParams['COUNTER'] > 0 ? (int)$arParams['COUNTER'] : 0,
+				'importantFor' => array_values($arParams['IMPORTANT_FOR'] ?? []),
+				'isImportant' => isset($arParams['IS_IMPORTANT']) && $arParams['IS_IMPORTANT'] === 'Y',
 			),
 			'files' => isset($arParams['FILES'])? $arParams['FILES']: [],
 			'notify' => $arParams['NOTIFY'],

@@ -14,6 +14,10 @@
 	background-color: var(--im-sidebar-task-item__background-color_container);
 }
 
+.bx-im-sidebar-task-item__container + .bx-im-sidebar-task-item__container {
+	margin-top: 10px;
+}
+
 .bx-im-sidebar-task-preview__container .bx-im-sidebar-task-item__container {
 	margin: 0;
 }

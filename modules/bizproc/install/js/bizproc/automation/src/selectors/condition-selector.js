@@ -8,12 +8,17 @@ import {
 	SelectorManager,
 } from 'bizproc.automation';
 import { Dom, Type, Event, Loc, Runtime, Tag, Text } from 'main.core';
+import { Popup } from 'main.popup';
+import { Button, CancelButton } from 'ui.buttons';
 
 import type { ConditionSelectorOptions } from './types';
-import { BaseEvent } from 'main.core.events';
+import { BaseEvent, EventEmitter } from 'main.core.events';
 import { Operator } from 'bizproc.condition';
 
-export class ConditionSelector
+import 'ui.icon-set.main';
+import 'ui.icon-set.actions';
+
+export class ConditionSelector extends EventEmitter
 {
 	#condition: ?Condition;
 	#fields: Array<Object>;
@@ -32,12 +37,15 @@ export class ConditionSelector
 	valueNode: ?HTMLElement;
 	#valueNode2: ?HTMLElement = null;
 
-	popup: BX.PopupWindow;
+	popup: Popup;
 	fieldDialog: ?InlineSelectorCondition;
 	#selectedField;
 
 	constructor(condition, options: ?ConditionSelectorOptions)
 	{
+		super();
+		this.setEventNamespace('BX.Bizproc.Automation.Condition');
+
 		this.#condition = condition;
 		this.#fields = [];
 		this.#joiner = ConditionGroup.JOINER.And;
@@ -47,7 +55,7 @@ export class ConditionSelector
 		{
 			if (Type.isArray(options.fields))
 			{
-				this.#fields = options.fields.map(field => {
+				this.#fields = options.fields.map((field) => {
 					field.ObjectId = 'Document';
 
 					return field;
@@ -58,6 +66,7 @@ export class ConditionSelector
 			{
 				this.#joiner = ConditionGroup.JOINER.Or;
 			}
+
 			if (options.fieldPrefix)
 			{
 				this.#fieldPrefix = options.fieldPrefix;
@@ -72,94 +81,71 @@ export class ConditionSelector
 
 	createNode()
 	{
-		const conditionObjectNode = this.objectNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: this.#fieldPrefix + "object[]",
-				value: this.#condition.object
-			}
-		});
-		const conditionFieldNode = this.fieldNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: this.#fieldPrefix + "field[]",
-				value: this.#condition.field
-			}
-		});
-		const conditionOperatorNode = this.operatorNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: this.#fieldPrefix + "operator[]",
-				value: this.#condition.operator
-			}
-		});
-
 		const value = Type.isArrayFilled(this.#condition.value) ? this.#condition.value[0] : this.#condition.value;
-		this.valueNode = this.#createValueNode(value)
-		const conditionValueNode = this.valueNode;
+		const conditionValueNode = this.#createValueNode(value);
 
-		let conditionValueNode2;
-		if (this.#condition.operator === Operator.BETWEEN)
-		{
-			const value2 =
-				(Type.isArrayFilled(this.#condition.value) && this.#condition.value.length > 1)
-					? this.#condition.value[1]
-					: ''
-			;
+		const conditionValueNode2 = (
+			this.#condition.operator === Operator.BETWEEN
+				? this.#createValueNode(
+					Type.isArrayFilled(this.#condition.value) && this.#condition.value.length > 1
+						? this.#condition.value[1]
+						: '',
+				)
+				: ''
+		);
 
-			this.#valueNode2 = this.#createValueNode(value2);
-			conditionValueNode2 = this.#valueNode2;
-		}
+		const {
+			root,
+			conditionObjectNode,
+			conditionFieldNode,
+			conditionOperatorNode,
+			labelNode,
+		} = Tag.render`
+			<div class="bizproc-automation-popup-settings__condition-selector ui-draggable--item">
+				<div class="bizproc-automation-popup-settings__condition-item">
+					<input
+						ref="conditionObjectNode"
+						type="hidden"
+						name="${Text.encode(`${this.#fieldPrefix}object[]`)}"
+						value="${Text.encode(this.#condition.object)}"
+					/>
+					<input
+						ref="conditionFieldNode"
+						type="hidden"
+						name="${Text.encode(`${this.#fieldPrefix}field[]`)}"
+						value="${Text.encode(this.#condition.field)}"
+					/>
+					<input
+						ref="conditionOperatorNode"
+						type="hidden"
+						name="${Text.encode(`${this.#fieldPrefix}operator[]`)}"
+						value="${Text.encode(this.#condition.operator)}"
+					/>
+					${conditionValueNode}
+					${conditionValueNode2}
+					<div class="bizproc-automation-popup-settings__condition-item_draggable">
+						<div class="ui-icon-set --more-points"></div>
+					</div>
+					<div
+						ref="labelNode"
+						class="bizproc-automation-popup-settings__condition-item_content"
+					></div>
+					${this.#createRemoveButton()}
+				</div>
+				${this.#createJoinerSwitcher()}
+			</div>
+		`;
 
-		const conditionJoinerNode = this.joinerNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: this.#fieldPrefix + "joiner[]",
-				value: this.#joiner
-			}
-		});
-
-		const labelNode = this.labelNode = Dom.create("span", {
-			attrs: {
-				className: "bizproc-automation-popup-settings-link-wrapper"
-			}
-		});
+		this.node = root;
+		this.objectNode = conditionObjectNode;
+		this.fieldNode = conditionFieldNode;
+		this.operatorNode = conditionOperatorNode;
+		this.valueNode = conditionValueNode;
+		this.#valueNode2 = conditionValueNode2 === '' ? null : conditionValueNode2;
+		this.labelNode = labelNode;
 
 		this.setLabelText();
 		this.bindLabelNode();
-
-		const removeButtonNode = Dom.create("span", {
-			attrs: {
-				className: "bizproc-automation-popup-settings-link-remove"
-			},
-			events: {
-				click: this.removeCondition.bind(this)
-			}
-		});
-
-		const joinerButtonNode = Dom.create("span", {
-			attrs: {
-				className: "bizproc-automation-popup-settings-link bizproc-automation-condition-joiner"
-			},
-			text: ConditionGroup.JOINER.message(this.#joiner),
-		});
-
-		Event.bind(joinerButtonNode, 'click', this.changeJoiner.bind(this, joinerButtonNode));
-
-		this.node = Dom.create("span", {
-			attrs: { className: "bizproc-automation-popup-settings-link-wrapper bizproc-automation-condition-wrapper" },
-			children: [
-				conditionObjectNode,
-				conditionFieldNode,
-				conditionOperatorNode,
-				conditionValueNode,
-				conditionValueNode2,
-				conditionJoinerNode,
-				labelNode,
-				removeButtonNode,
-				joinerButtonNode
-			]
-		});
 
 		return this.node;
 	}
@@ -169,10 +155,64 @@ export class ConditionSelector
 		return Tag.render`
 			<input
 				type="hidden"
-				name="${Text.encode(this.#fieldPrefix + 'value[]')}"
+				name="${Text.encode(`${this.#fieldPrefix}value[]`)}"
 				value="${Text.encode(value)}"
 			>
 		`;
+	}
+
+	#createRemoveButton(): HTMLDivElement
+	{
+		const { root, removeButtonNode } = Tag.render`
+			<div class="bizproc-automation-popup-settings__condition-item_close">
+				<div ref="removeButtonNode" class="ui-icon-set --cross-20"></div>
+			</div>
+		`;
+		Event.bind(removeButtonNode, 'click', this.removeCondition.bind(this));
+
+		return root;
+	}
+
+	#createJoinerSwitcher(): HTMLDivElement
+	{
+		const { root, switcherBtnAnd, switcherBtnOr, inputNode } = Tag.render`
+			<div class="bizproc-automation-popup-settings__condition-switcher">
+				<div class="bizproc-automation-popup-settings__condition-switcher_wrapper">
+					<span
+						ref="switcherBtnAnd"
+						class="bizproc-automation-popup-settings__condition-switcher_btn ${this.#joiner === 'AND' ? '--active' : ''}"
+					>
+						${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_AND')}
+					</span>
+					<span
+						ref="switcherBtnOr"
+						class="bizproc-automation-popup-settings__condition-switcher_btn ${this.#joiner === 'OR' ? '--active' : ''}"
+					>
+						${Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_OR')}
+					</span>
+				</div>
+				<input
+					ref="inputNode"
+					type="hidden"
+					name="${Text.encode(`${this.#fieldPrefix}joiner[]`)}"
+					value="${Text.encode(this.#joiner)}"
+				/>
+			</div>
+		`;
+		this.joinerNode = inputNode;
+
+		Event.bind(root, 'click', () => {
+			this.#joiner = (this.#joiner === ConditionGroup.JOINER.Or ? ConditionGroup.JOINER.And : ConditionGroup.JOINER.Or);
+			if (this.joinerNode)
+			{
+				this.joinerNode.value = this.#joiner;
+			}
+
+			Dom.toggleClass(switcherBtnOr, '--active');
+			Dom.toggleClass(switcherBtnAnd, '--active');
+		});
+
+		return root;
 	}
 
 	init(condition: Condition)
@@ -191,42 +231,42 @@ export class ConditionSelector
 
 		Dom.clean(this.labelNode);
 
-		if (this.#condition.field !== '')
+		if (this.#condition.field === '')
+		{
+			Dom.append(
+				Tag.render`
+					<span class="bizproc-automation-popup-settings__condition-text">
+						${Text.encode(this.getOperatorLabel(Operator.EMPTY))}
+					</span>
+				`,
+				this.labelNode,
+			);
+		}
+		else
 		{
 			const field = this.getField(this.#condition.object, this.#condition.field) || '?';
 			const valueLabel = this.#getValueLabel(field);
 
 			Dom.append(
-				Tag.render`<span class="bizproc-automation-popup-settings-link">${Text.encode(field.Name)}</span>`,
-				this.labelNode
+				Tag.render`<span class="bizproc-automation-popup-settings__condition-text">${Text.encode(field.Name)}</span>`,
+				this.labelNode,
 			);
 			Dom.append(
 				Tag.render`
-					<span class="bizproc-automation-popup-settings-link">
+					<span class="bizproc-automation-popup-settings__condition-text">
 						${Text.encode(this.getOperatorLabel(this.#condition.operator))}
 					</span>
 				`,
-				this.labelNode
+				this.labelNode,
 			);
 
 			if (valueLabel)
 			{
 				Dom.append(
-					Tag.render`<span class="bizproc-automation-popup-settings-link">${Text.encode(valueLabel)}</span>`,
-					this.labelNode
+					Tag.render`<span class="bizproc-automation-popup-settings__condition-text">${Text.encode(valueLabel)}</span>`,
+					this.labelNode,
 				);
 			}
-		}
-		else
-		{
-			Dom.append(
-				Tag.render`
-					<span class="bizproc-automation-popup-settings-link">
-						${Text.encode(this.getOperatorLabel(Operator.EMPTY))}
-					</span>
-				`,
-				this.labelNode
-			);
 		}
 	}
 
@@ -239,22 +279,22 @@ export class ConditionSelector
 		{
 			return (
 				Loc.getMessage(
-				'BIZPROC_AUTOMATION_ROBOT_CONDITION_BETWEEN_VALUE',
+					'BIZPROC_AUTOMATION_ROBOT_CONDITION_BETWEEN_VALUE_1',
 					{
 						'#VALUE_1#': BX.Bizproc.FieldType.formatValuePrintable(
 							field,
-							Type.isArrayFilled(value) ? value[0] : value
+							Type.isArrayFilled(value) ? value[0] : value,
 						),
 						'#VALUE_2#': BX.Bizproc.FieldType.formatValuePrintable(
 							field,
-							Type.isArrayFilled(value) ? value[1] : ''
-						)
-					}
+							Type.isArrayFilled(value) ? value[1] : '',
+						),
+					},
 				)
-				?? ''
 			);
 		}
-		else if(operator.indexOf('empty') < 0)
+
+		if (!operator.includes('empty'))
 		{
 			return BX.Bizproc.FieldType.formatValuePrintable(field, value);
 		}
@@ -280,35 +320,23 @@ export class ConditionSelector
 		if (this.popup)
 		{
 			this.popup.show();
+
 			return;
 		}
 
 		const fields = this.filterFields();
 
-		const objectSelect = Dom.create('input', {
-			attrs: {
-				type: 'hidden',
-				className: 'bizproc-automation-popup-settings-dropdown'
-			}
-		});
-		const fieldSelect = Dom.create('input', {
-			attrs: {
-				type: 'hidden',
-				className: 'bizproc-automation-popup-settings-dropdown'
-			}
-		});
-		const fieldSelectLabel = Dom.create('div', {
-			attrs: {
-				className: 'bizproc-automation-popup-settings-dropdown',
-				readonly: 'readonly'
-			},
-			children: [fieldSelect]
-		});
+		const objectSelect = Tag.render`<input type="hidden" class="bizproc-automation-popup-settings-dropdown"/>`;
+		const { root: fieldSelectLabel, fieldSelect } = Tag.render`
+			<div class="bizproc-automation-popup-settings-dropdown" readonly="readonly">
+				<input ref="fieldSelect" type="hidden" class="bizproc-automation-popup-settings-dropdown"/>
+			</div>
+		`;
 
 		Event.bind(
 			fieldSelectLabel,
 			'click',
-			this.onFieldSelectorClick.bind(this, fieldSelectLabel, fieldSelect, fields, objectSelect)
+			this.onFieldSelectorClick.bind(this, fieldSelectLabel, fieldSelect, fields, objectSelect),
 		);
 
 		let selectedField = this.getField(this.#condition.object, this.#condition.field);
@@ -324,125 +352,99 @@ export class ConditionSelector
 		fieldSelectLabel.textContent = selectedField.Name;
 
 		const valueInput = this.#getValueNode(selectedField, this.#condition.value, this.#condition.operator);
-
-		const valueWrapper = Dom.create('div', {
-			attrs: {
-				className: 'bizproc-automation-popup-settings'
-			},
-			children: [valueInput]
-		});
+		const valueWrapper = Tag.render`<div class="bizproc-automation-popup-settings">${valueInput}</div>`;
 
 		const operatorSelect = this.createOperatorNode(selectedField, valueWrapper);
-		const operatorWrapper = Dom.create('div', {
-			attrs: {
-				className: 'bizproc-automation-popup-settings'
-			},
-			children: [operatorSelect]
-		});
-
 		if (this.#condition.field !== '')
 		{
 			operatorSelect.value = this.#condition.operator;
 		}
 
-		const form = Dom.create("form", {
-			attrs: { className: "bizproc-automation-popup-select-block" },
-			children: [
-				Dom.create('div', {
-					attrs: {
-						className: 'bizproc-automation-popup-settings'
-					},
-					children: [fieldSelectLabel]
-				}),
-				operatorWrapper,
-				valueWrapper
-			]
-		});
-
+		const { root: form, operatorWrapper } = Tag.render`
+			<form class="bizproc-automation-popup-select-block">
+				<div class="bizproc-automation-popup-settings">${fieldSelectLabel}</div>
+				<div ref="operatorWrapper" class="bizproc-automation-popup-settings">${operatorSelect}</div>
+				${valueWrapper}
+			</form>
+		`;
 		Event.bind(fieldSelect, 'change', this.onFieldChange.bind(
 			this,
 			fieldSelect,
 			operatorWrapper,
 			valueWrapper,
-			objectSelect
+			objectSelect,
 		));
 
-		const self = this;
-		this.popup = new BX.PopupWindow('bizproc-automation-popup-set', this.labelNode, {
-			className: 'bizproc-automation-popup-set',
-			autoHide: false,
+		this.popup = new Popup({
+			id: 'bizproc-automation-popup-set',
+			bindElement: this.labelNode,
+			content: form,
 			closeByEsc: true,
+			buttons: [
+				new Button({
+					color: Button.Color.PRIMARY,
+					text: Loc.getMessage('BIZPROC_JS_AUTOMATION_CHOOSE_BUTTON_CAPS'),
+					onclick: () => {
+						this.#condition.setObject(objectSelect.value);
+						this.#condition.setField(fieldSelect.value);
+						this.#condition.setOperator(operatorWrapper.firstChild.value);
+
+						const valueInputs = valueWrapper.querySelectorAll(`[name^="${this.#fieldPrefix}value"]`);
+
+						if (valueInputs.length > 0)
+						{
+							let value = valueInputs[valueInputs.length - 1].value;
+
+							if (this.#condition.operator === Operator.BETWEEN && valueInputs.length > 1)
+							{
+								value = [valueInputs[0].value, valueInputs[1].value];
+							}
+
+							this.#condition.setValue(value);
+						}
+						else
+						{
+							this.#condition.setValue('');
+						}
+
+						this.setLabelText();
+
+						const field = this.getField(this.#condition.object, this.#condition.field);
+						if (field && field.Type === 'UF:address')
+						{
+							const input = valueWrapper.querySelector(`[name="${this.#fieldPrefix}value"]`);
+							this.#condition.setValue(input ? input.value : '');
+						}
+						this.updateValueNode();
+						this.popup.close();
+					},
+				}),
+				new CancelButton({
+					text: Loc.getMessage('BIZPROC_JS_AUTOMATION_CANCEL_BUTTON_CAPS'),
+					onclick: () => {
+						this.popup.close();
+					},
+				}),
+			],
+			className: 'bizproc-automation-popup-set',
 			closeIcon: false,
+			autoHide: false,
+			events: {
+				onClose: () => {
+					this.popup.destroy();
+					if (this.fieldDialog)
+					{
+						this.fieldDialog.destroy();
+						delete this.fieldDialog;
+					}
+
+					delete this.popup;
+				},
+			},
 			titleBar: false,
 			angle: true,
-			offsetLeft: 45,
 			overlay: { backgroundColor: 'transparent' },
-			content: form,
-			buttons: [
-				new BX.PopupWindowButton({
-					text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHOOSE'),
-					className: "webform-button webform-button-create" ,
-					events: {
-						click()
-						{
-							self.#condition.setObject(objectSelect.value);
-							self.#condition.setField(fieldSelect.value);
-							self.#condition.setOperator(operatorWrapper.firstChild.value);
-
-							const valueInputs = valueWrapper.querySelectorAll('[name^="' + self.#fieldPrefix + 'value"]');
-
-							if (valueInputs.length > 0)
-							{
-								let value = valueInputs[valueInputs.length - 1].value;
-
-								if (self.#condition.operator === Operator.BETWEEN && valueInputs.length > 1)
-								{
-									value = [valueInputs[0].value, valueInputs[1].value];
-								}
-
-								self.#condition.setValue(value);
-							}
-							else
-							{
-								self.#condition.setValue('');
-							}
-
-							self.setLabelText();
-
-							const field = self.getField(self.#condition.object, self.#condition.field);
-							if (field && field.Type === 'UF:address')
-							{
-								const input = valueWrapper.querySelector('[name="' + self.#fieldPrefix + 'value"]');
-								self.#condition.setValue(input ? input.value : '');
-							}
-							self.updateValueNode();
-							this.popupWindow.close();
-						}
-					}
-				}),
-				new BX.PopupWindowButtonLink({
-					text : Loc.getMessage('JS_CORE_WINDOW_CANCEL'),
-					className : "popup-window-button-link-cancel",
-					events : {
-						click()
-						{
-							this.popupWindow.close()
-						}
-					}
-				})
-			],
-			events: {
-				onPopupClose()
-				{
-					this.destroy();
-					if (self.fieldDialog)
-					{
-						self.fieldDialog.destroy();
-						delete(self.fieldDialog);
-					}
-					delete(self.popup);
-				}
-			}
+			offsetLeft: 45,
 		});
 
 		this.popup.show();
@@ -454,7 +456,7 @@ export class ConditionSelector
 		{
 			const globalContext = getGlobalContext();
 			const fields = Runtime.clone(
-				Type.isArrayFilled(this.#fields) ? this.#fields : globalContext.document.getFields()
+				Type.isArrayFilled(this.#fields) ? this.#fields : globalContext.document.getFields(),
 			);
 
 			this.fieldDialog = new InlineSelectorCondition({
@@ -472,7 +474,7 @@ export class ConditionSelector
 
 			this.fieldDialog.subscribe('change', (event) => {
 				const property = event.getData().field;
-				fieldSelectLabel.textContent = property.Name
+				fieldSelectLabel.textContent = property.Name;
 				fieldSelect.value = property.Id;
 				objectSelect.value = property.ObjectId;
 				BX.fireEvent(fieldSelect, 'change');
@@ -492,17 +494,24 @@ export class ConditionSelector
 			{
 				this.objectNode.value = this.#condition.object;
 			}
+
 			if (this.fieldNode)
 			{
 				this.fieldNode.value = this.#condition.field;
 			}
+
 			if (this.operatorNode)
 			{
 				this.operatorNode.value = this.#condition.operator;
 			}
+
 			if (this.valueNode)
 			{
-				this.valueNode.value = Type.isArrayFilled(this.#condition.value) ? this.#condition.value[0] : this.#condition.value;
+				this.valueNode.value = (
+					Type.isArrayFilled(this.#condition.value)
+						? this.#condition.value[0]
+						: this.#condition.value
+				);
 			}
 
 			if (this.#condition.operator === Operator.BETWEEN)
@@ -531,15 +540,15 @@ export class ConditionSelector
 		const field = this.getField(objectSelect.value, selectNode.value);
 		const operatorNode = this.createOperatorNode(field, valueWrapper);
 
-		//clean value if field types are different
+		// clean value if field types are different
 		if (field.Type !== this.#selectedField?.Type)
 		{
 			Dom.clean(valueWrapper);
 		}
 		this.#selectedField = field;
 
-		//keep selected operator if possible
-		if (this.getOperators(field['Type'], field['Multiple'])[conditionWrapper.firstChild.value])
+		// keep selected operator if possible
+		if (this.getOperators(field.Type, field.Multiple)[conditionWrapper.firstChild.value])
 		{
 			operatorNode.value = conditionWrapper.firstChild.value;
 		}
@@ -550,12 +559,12 @@ export class ConditionSelector
 
 	onOperatorChange(selectNode: Node, field: Object, valueWrapper: HTMLElement)
 	{
-		const valueInput = valueWrapper.querySelector('[name^="' + this.#fieldPrefix + 'value"]');
+		const valueInput = valueWrapper.querySelector(`[name^="${this.#fieldPrefix}value"]`);
 		Dom.clean(valueWrapper);
 
 		Dom.append(
 			this.#getValueNode(field, valueInput?.value || this.#condition.value, selectNode.value),
-			valueWrapper
+			valueWrapper,
 		);
 	}
 
@@ -563,18 +572,16 @@ export class ConditionSelector
 	{
 		if (operator === Operator.BETWEEN)
 		{
-			const valueNode1 = this.createValueNode(field, Type.isArrayFilled(value) ? value[0] : value);
-			const valueNode2 = this.createValueNode(field, Type.isArrayFilled(value) ? value[1] : '');
-
 			return Tag.render`
 				<div>
-					${valueNode1}
-					<div>${ConditionGroup.JOINER.message('AND')}</div>
-					${valueNode2}
+					${this.createValueNode(field, Type.isArrayFilled(value) ? value[0] : value)}
+					<div style="height: 8px;"></div>
+					${this.createValueNode(field, Type.isArrayFilled(value) ? value[1] : '')}
 				</div>
 			`;
 		}
-		else if (operator.indexOf('empty') < 0)
+
+		if (!operator.includes('empty'))
 		{
 			return this.createValueNode(field, value);
 		}
@@ -588,7 +595,7 @@ export class ConditionSelector
 		let field;
 		const robot = Designer.getInstance().robot;
 		const component = Designer.getInstance().component;
-		const tpl = robot? robot.getTemplate() : null;
+		const tpl = robot ? robot.getTemplate() : null;
 
 		switch (object)
 		{
@@ -640,7 +647,7 @@ export class ConditionSelector
 			Name: id,
 			Type: 'string',
 			Expression: id,
-			SystemExpression: '{='+object+':'+id+'}'
+			SystemExpression: `{=${object}:${id}}`,
 		};
 	}
 
@@ -698,11 +705,10 @@ export class ConditionSelector
 				list[Operator.LESS_THEN_OR_EQUAL] = allLabels[Operator.LESS_THEN_OR_EQUAL];
 		}
 
-		// todo: interface
-		// if (['time', 'date', 'datetime', 'int', 'double'].includes(fieldType) || Type.isUndefined(fieldType))
-		// {
-		// 	list[Operator.BETWEEN] = allLabels[Operator.BETWEEN];
-		// }
+		if (['time', 'date', 'datetime', 'int', 'double'].includes(fieldType) || Type.isUndefined(fieldType))
+		{
+			list[Operator.BETWEEN] = allLabels[Operator.BETWEEN];
+		}
 
 		return list;
 	}
@@ -717,7 +723,7 @@ export class ConditionSelector
 		const filtered = [];
 		for (let i = 0; i < this.#fields.length; ++i)
 		{
-			const type = this.#fields[i]['Type'];
+			const type = this.#fields[i].Type;
 
 			if (
 				type === 'bool'
@@ -740,7 +746,7 @@ export class ConditionSelector
 			}
 			else
 			{
-				//TODO add support of custom types
+				// TODO add support of custom types
 			}
 		}
 
@@ -763,9 +769,9 @@ export class ConditionSelector
 		const valueNodes = BX.Bizproc.FieldType.renderControlPublic(
 			docType,
 			field,
-			this.#fieldPrefix + 'value',
+			`${this.#fieldPrefix}value`,
 			value,
-			false
+			false,
 		);
 
 		valueNodes.querySelectorAll('[data-role]').forEach((node) => {
@@ -801,28 +807,30 @@ export class ConditionSelector
 	createOperatorNode(field, valueWrapper)
 	{
 		const select = Dom.create('select', {
-			attrs: {className: 'bizproc-automation-popup-settings-dropdown'}
+			attrs: { className: 'bizproc-automation-popup-settings-dropdown' },
 		});
 
-		const operatorList = this.getOperators(field['Type'], field['Multiple']);
-		for (var operatorId in operatorList)
+		const operatorList = this.getOperators(field.Type, field.Multiple);
+		for (const operatorId in operatorList)
 		{
 			if (!operatorList.hasOwnProperty(operatorId))
 			{
 				continue;
 			}
 
-			select.appendChild(Dom.create('option', {
-				props: {value: operatorId},
-				text: operatorList[operatorId]
-			}));
+			Dom.append(
+				Tag.render`
+					<option value="${Text.encode(operatorId)}">${Text.encode(operatorList[operatorId])}</option>
+				`,
+				select,
+			);
 		}
 
 		Event.bind(select, 'change', this.onOperatorChange.bind(
 			this,
 			select,
 			field,
-			valueWrapper
+			valueWrapper,
 		));
 
 		return select;
@@ -830,6 +838,8 @@ export class ConditionSelector
 
 	removeCondition(event: Event)
 	{
+		this.emit('onRemoveConditionClick', new BaseEvent({ data: { conditionSelector: this } }));
+
 		this.#condition = null;
 		Dom.remove(this.node);
 
@@ -844,17 +854,7 @@ export class ConditionSelector
 	}
 
 	changeJoiner(btn: Element, event: Event)
-	{
-		this.#joiner = (this.#joiner === ConditionGroup.JOINER.Or ? ConditionGroup.JOINER.And : ConditionGroup.JOINER.Or);
-		btn.textContent = ConditionGroup.JOINER.message(this.#joiner);
-
-		if (this.joinerNode)
-		{
-			this.joinerNode.value = this.#joiner;
-		}
-
-		event.preventDefault();
-	}
+	{}
 
 	destroy()
 	{

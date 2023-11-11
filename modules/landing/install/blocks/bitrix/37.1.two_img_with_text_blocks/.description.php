@@ -54,7 +54,7 @@ return array(
 			'type' => 'color',
 		),
 		'.landing-block-node-button-container' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_37.1.TWO_IMG_WITH_TEXT_BLOCKS_NODES_LANDINGBLOCKNODEBUTTON'),
+			'name' => Loc::getMessage('LANDING_BLOCK_37_1_BUTTON_AREA'),
 			'type' => 'text-align',
 		),
 		'.landing-block-node-img' => array(

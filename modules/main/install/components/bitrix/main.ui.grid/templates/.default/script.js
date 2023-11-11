@@ -2219,7 +2219,7 @@
 	          name: editObject.NAME,
 	          style: 'height:' + height + 'px'
 	        },
-	        html: editObject.VALUE
+	        html: editObject.VALUE || ''
 	      });
 	      return textarea;
 	    },
@@ -2428,7 +2428,7 @@
 	        }
 	        return [];
 	      }();
-	      var layout = BX.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"main-grid-editor main-ui-control main-ui-multi-select\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t<span class=\"main-ui-square-container\">", "</span>\n\t\t\t\t\t<span class=\"main-ui-hide main-ui-control-value-delete\">\n\t\t\t\t\t\t<span class=\"main-ui-control-value-delete-item\"></span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class=\"main-ui-square-search\">\n\t\t\t\t\t\t<input type=\"text\" class=\"main-ui-square-search-item\">\n\t\t\t\t\t</span>\t\n\t\t\t\t</div>\n\t\t\t"])), BX.Text.encode(editObject.NAME), "".concat(BX.Text.encode(editObject.NAME), "_control"), squares);
+	      var layout = BX.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div\n\t\t\t\t\tclass=\"main-grid-editor main-ui-control main-ui-multi-select\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t<span class=\"main-ui-square-container\">", "</span>\n\t\t\t\t\t<span class=\"main-ui-hide main-ui-control-value-delete\">\n\t\t\t\t\t\t<span class=\"main-ui-control-value-delete-item\"></span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class=\"main-ui-square-search\">\n\t\t\t\t\t\t<input type=\"text\" class=\"main-ui-square-search-item\">\n\t\t\t\t\t</span>\n\t\t\t\t</div>\n\t\t\t"])), BX.Text.encode(editObject.NAME), "".concat(BX.Text.encode(editObject.NAME), "_control"), squares);
 	      BX.Dom.attr(layout, {
 	        'data-params': {
 	          isMulti: true
@@ -3761,10 +3761,17 @@
 	      return result;
 	    },
 	    getCustomValue: function getCustomValue(editor) {
+	      var _this = this;
 	      var map = new Map(),
 	        name = editor.getAttribute('data-name');
-	      var inputs = [].slice.call(editor.querySelectorAll('input, select, checkbox, textarea'));
+	      var inputs = [].slice.call(editor.querySelectorAll('input, select, textarea'));
 	      inputs.forEach(function (element) {
+	        if (element.name === '') {
+	          return;
+	        }
+	        if (element.hasAttribute('data-ignore-field')) {
+	          return;
+	        }
 	        var resultObject = {
 	          'NAME': name,
 	          'RAW_NAME': element.name,
@@ -3791,15 +3798,23 @@
 	            switch (element.type.toUpperCase()) {
 	              case 'RADIO':
 	                if (element.checked) {
-	                  resultObject['RAW_VALUE'] = element.value;
-	                  resultObject['VALUE'] = element.value;
 	                  map.set(element.name, resultObject);
 	                }
 	                break;
 	              case 'CHECKBOX':
-	                resultObject['RAW_VALUE'] = element.checked ? element.value : '';
-	                resultObject['VALUE'] = element.checked ? element.value : '';
-	                map.set(element.name, resultObject);
+	                if (element.checked) {
+	                  if (_this.isMultipleCustomValue(element.name)) {
+	                    if (map.has(element.name)) {
+	                      resultObject = map.get(element.name);
+	                      resultObject.RAW_VALUE.push(element.value);
+	                      resultObject.VALUE.push(element.value);
+	                    } else {
+	                      resultObject.RAW_VALUE = [element.value];
+	                      resultObject.VALUE = [element.value];
+	                    }
+	                  }
+	                  map.set(element.name, resultObject);
+	                }
 	                break;
 	              case 'FILE':
 	                resultObject['RAW_VALUE'] = element.files[0];
@@ -3807,11 +3822,22 @@
 	                map.set(element.name, resultObject);
 	                break;
 	              default:
+	                if (_this.isMultipleCustomValue(element.name)) {
+	                  if (map.has(element.name)) {
+	                    resultObject = map.get(element.name);
+	                    resultObject.RAW_VALUE.push(element.value);
+	                    resultObject.VALUE.push(element.value);
+	                  } else {
+	                    resultObject.RAW_VALUE = [element.value];
+	                    resultObject.VALUE = [element.value];
+	                  }
+	                }
 	                map.set(element.name, resultObject);
 	            }
 	            break;
 	          default:
 	            map.set(element.name, resultObject);
+	            break;
 	        }
 	      });
 	      var result = [];
@@ -3819,6 +3845,9 @@
 	        result.push(value);
 	      });
 	      return result;
+	    },
+	    isMultipleCustomValue: function isMultipleCustomValue(elementName) {
+	      return elementName.length > 2 && elementName.lastIndexOf('[]') === elementName.length - 2;
 	    },
 	    getImageValue: function getImageValue(editor) {
 	      var result = null;
@@ -4450,13 +4479,13 @@
 	      return null;
 	    },
 	    setCellsContent: function setCellsContent(content) {
-	      var _this = this;
+	      var _this2 = this;
 	      var headRow = this.parent.getRows().getHeadFirstChild();
 	      babelHelpers.toConsumableArray(this.getCells()).forEach(function (cell, cellIndex) {
 	        var cellName = headRow.getCellNameByCellIndex(cellIndex);
 	        if (Reflect.has(content, cellName)) {
-	          var columnOptions = _this.getColumnOptions(cellName);
-	          var container = _this.getContentContainer(cell);
+	          var columnOptions = _this2.getColumnOptions(cellName);
+	          var container = _this2.getContentContainer(cell);
 	          var cellContent = content[cellName];
 	          if (columnOptions.type === 'labels' && BX.Type.isArray(cellContent)) {
 	            var labels = cellContent.map(function (labelOptions) {
@@ -4468,7 +4497,7 @@
 	                if (Reflect.has(labelOptions.events, 'click')) {
 	                  BX.Dom.addClass(label, 'ui-label-link');
 	                }
-	                _this.bindOnEvents(label, labelOptions.events);
+	                _this2.bindOnEvents(label, labelOptions.events);
 	              }
 	              var labelContent = function () {
 	                if (BX.Type.isStringFilled(labelOptions.html)) {
@@ -4486,7 +4515,7 @@
 	                  return BX.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t\t<span class=\"main-grid-label-remove-button ", "\"></span>\t\n\t\t\t\t\t\t\t\t\t"])), labelOptions.removeButton.type);
 	                }();
 	                if (BX.Type.isPlainObject(labelOptions.removeButton.events)) {
-	                  _this.bindOnEvents(button, labelOptions.removeButton.events);
+	                  _this2.bindOnEvents(button, labelOptions.removeButton.events);
 	                }
 	                BX.Dom.append(button, label);
 	              }
@@ -4503,7 +4532,7 @@
 	          } else if (columnOptions.type === 'tags' && BX.Type.isPlainObject(cellContent)) {
 	            var tags = cellContent.items.map(function (tagOptions) {
 	              var tag = BX.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"main-grid-tag\"></span>\n\t\t\t\t\t\t\t"])));
-	              _this.bindOnEvents(tag, tagOptions.events);
+	              _this2.bindOnEvents(tag, tagOptions.events);
 	              if (tagOptions.active === true) {
 	                BX.Dom.addClass(tag, 'main-grid-tag-active');
 	              }
@@ -4519,7 +4548,7 @@
 	                var removeButton = BX.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t<span class=\"main-grid-tag-remove\"></span>\n\t\t\t\t\t\t\t\t"])));
 	                BX.Dom.append(removeButton, tag);
 	                if (BX.Type.isPlainObject(tagOptions.removeButton)) {
-	                  _this.bindOnEvents(removeButton, tagOptions.removeButton.events);
+	                  _this2.bindOnEvents(removeButton, tagOptions.removeButton.events);
 	                }
 	              }
 	              return tag;
@@ -4527,7 +4556,7 @@
 	            var tagsContainer = BX.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"main-grid-tags\">", "</span>\n\t\t\t\t\t\t"])), tags);
 	            var addButton = BX.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"main-grid-tag-add\"></span>\n\t\t\t\t\t\t"])));
 	            if (BX.Type.isPlainObject(cellContent.addButton)) {
-	              _this.bindOnEvents(addButton, cellContent.addButton.events);
+	              _this2.bindOnEvents(addButton, cellContent.addButton.events);
 	            }
 	            BX.Dom.append(addButton, tagsContainer);
 	            var oldTagsContainer = container.querySelector('.main-grid-tags');
@@ -4569,12 +4598,12 @@
 	      return BX.Text.toNumber(BX.Dom.style(this.getNode(), 'height'));
 	    },
 	    setCellActions: function setCellActions(cellActions) {
-	      var _this2 = this;
+	      var _this3 = this;
 	      Object.entries(cellActions).forEach(function (_ref) {
 	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
 	          cellId = _ref2[0],
 	          actions = _ref2[1];
-	        var cell = _this2.getCellById(cellId);
+	        var cell = _this3.getCellById(cellId);
 	        if (cell) {
 	          var inner = cell.querySelector('.main-grid-cell-inner');
 	          if (inner) {
@@ -4598,7 +4627,7 @@
 	                }();
 	                var button = BX.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t<span class=\"main-grid-cell-content-action ", "\"></span>\n\t\t\t\t\t\t\t\t"])), actionClass);
 	                if (BX.Type.isPlainObject(action.events)) {
-	                  _this2.bindOnEvents(button, action.events);
+	                  _this3.bindOnEvents(button, action.events);
 	                }
 	                if (BX.Type.isPlainObject(action.attributes)) {
 	                  BX.Dom.attr(button, action.attributes);
@@ -4614,14 +4643,14 @@
 	     * @private
 	     */
 	    initElementsEvents: function initElementsEvents() {
-	      var _this3 = this;
+	      var _this4 = this;
 	      var buttons = babelHelpers.toConsumableArray(this.getNode().querySelectorAll('.main-grid-cell [data-events]'));
 	      if (BX.Type.isArrayFilled(buttons)) {
 	        buttons.forEach(function (button) {
 	          var events = eval(BX.Dom.attr(button, 'data-events'));
 	          if (BX.Type.isPlainObject(events)) {
 	            BX.Dom.attr(button, 'data-events', null);
-	            _this3.bindOnEvents(button, events);
+	            _this4.bindOnEvents(button, events);
 	          }
 	        });
 	      }
@@ -4664,13 +4693,13 @@
 	      }
 	    },
 	    setCounters: function setCounters(counters) {
-	      var _this4 = this;
+	      var _this5 = this;
 	      if (BX.Type.isPlainObject(counters)) {
 	        Object.entries(counters).forEach(function (_ref5) {
 	          var _ref6 = babelHelpers.slicedToArray(_ref5, 2),
 	            columnId = _ref6[0],
 	            counter = _ref6[1];
-	          var cell = _this4.getCellById(columnId);
+	          var cell = _this5.getCellById(columnId);
 	          if (BX.Type.isDomNode(cell)) {
 	            var cellInner = cell.querySelector('.main-grid-cell-inner');
 	            var counterContainer = function () {
@@ -4690,7 +4719,7 @@
 	              return newCounter;
 	            }();
 	            if (BX.Type.isPlainObject(counter.events)) {
-	              _this4.bindOnEvents(uiCounter, counter.events);
+	              _this5.bindOnEvents(uiCounter, counter.events);
 	            }
 	            var counterInner = function () {
 	              var currentInner = uiCounter.querySelector('.ui-counter-inner');

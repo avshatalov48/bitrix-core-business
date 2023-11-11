@@ -45,25 +45,22 @@ export class SectionSelector
 		}
 		else
 		{
-			this.DOM.select = this.DOM.outerWrap.appendChild(Dom.create('DIV', {
-				props: {className: 'calendar-field calendar-field-select' + (this.mode === 'compact' ? ' calendar-field-tiny' : '')}
-			}));
+			this.DOM.select = this.DOM.outerWrap.appendChild(Tag.render`<div class="calendar-field calendar-field-select"></div>`);
 
-			this.DOM.innerValue = this.DOM.select.appendChild(Dom.create('DIV', {
-				props: {className: 'calendar-field-select-icon'},
-				style: {backgroundColor : this.getCurrentColor()}
-			}));
+			this.DOM.innerValue = this.DOM.select.appendChild(Tag.render`
+				<div class="calendar-field-select-icon" style="background-color: ${this.getCurrentColor()}"></div>`
+			);
 
 			if (this.mode === 'full')
 			{
-				this.DOM.selectInnerText = this.DOM.select.appendChild(Dom.create('SPAN', {text: this.getCurrentTitle()}));
+				this.DOM.selectInnerText = this.DOM.select.appendChild(Tag.render`<span>${Text.encode(this.getCurrentTitle())}</span>`)
 			}
 		}
 	}
 
 	initEventHandlers()
 	{
-		Event.bind(this.DOM.select, 'click', BX.delegate(this.openPopup, this));
+		Event.bind(this.DOM.select, 'click', this.openPopup.bind(this));
 	}
 
 	openPopup()
@@ -152,7 +149,7 @@ export class SectionSelector
 		{
 			offsetLeft = 40;
 		}
-		else if(this.mode === 'textselect' || this.mode === 'location')
+		else if (this.mode === 'textselect' || this.mode === 'location')
 		{
 			offsetLeft = 0;
 		}
@@ -195,7 +192,7 @@ export class SectionSelector
 			}
 		}
 
-		BX.addClass(this.DOM.select, 'active');
+		Dom.addClass(this.DOM.select, 'active');
 
 		if (Type.isFunction(this.openPopupCallback))
 		{
@@ -208,8 +205,8 @@ export class SectionSelector
 			{
 				this.closePopupCallback();
 			}
-			BX.removeClass(this.DOM.select, 'active');
-			BX.PopupMenu.destroy(this.id);
+			Dom.removeClass(this.DOM.select, 'active');
+			MenuManager.destroy(this.id);
 			this.sectionMenu = null;
 		}, this));
 	}
@@ -253,11 +250,11 @@ export class SectionSelector
 			{
 				imageNode = Tag.render`<img class="calendar-field-choice-calendar-img-value" src="${encodeURI(imageSrc)}">`;
 			}
-			else if(section.type === 'group')
+			else if (section.type === 'group')
 			{
 				imageNode = Tag.render`<div class="ui-icon ui-icon-common-user-group"><i></i></div>`;
 			}
-			else if(section.type === 'user')
+			else if (section.type === 'user')
 			{
 				imageNode = Tag.render`<div class="ui-icon ui-icon-common-user"><i></i></div>`;
 			}
@@ -278,21 +275,20 @@ export class SectionSelector
 
 	getMenuItem(sectionItem)
 	{
-		let _this = this;
 		return {
 			html: BX.util.htmlspecialchars(sectionItem.name || sectionItem.NAME),
 			color: sectionItem.color || sectionItem.COLOR,
 			className: 'calendar-add-popup-section-menu-item' + (this.mode === 'full' ? ' section-menu-item-full' : ''),
-			onclick: (function (section)
+			onclick: ((section) =>
 			{
 				return () => {
-					if (Type.isDomNode(_this.DOM.innerValue))
+					if (Type.isDomNode(this.DOM.innerValue))
 					{
-						_this.DOM.innerValue.style.backgroundColor = section.color || sectionItem.COLOR;
+						this.DOM.innerValue.style.backgroundColor = section.color || sectionItem.COLOR;
 					}
 
-					_this.updateSectionImageNode(section);
-					if (Type.isFunction(_this.selectCallback))
+					this.updateSectionImageNode(section);
+					if (Type.isFunction(this.selectCallback))
 					{
 						if (!section.color && sectionItem.COLOR)
 						{
@@ -302,10 +298,10 @@ export class SectionSelector
 						{
 							section.id = sectionItem.ID;
 						}
-						_this.selectCallback(section);
+						this.selectCallback(section);
 					}
-					_this.sectionMenu.close();
-					_this.updateValue();
+					this.sectionMenu.close();
+					this.updateValue();
 				}
 			})(sectionItem)
 		}
@@ -352,7 +348,7 @@ export class SectionSelector
 				text: Loc.getMessage('EC_CALENDAR_SECTION_TITLE') + ' ' + this.getCurrentTitle(),
 			}));
 		}
-		else if(this.mode === 'location')
+		else if (this.mode === 'location')
 		{
 			this.updateSectionImageNode();
 			this.DOM.select.appendChild(Dom.adjust(this.DOM.selectInnerText, {

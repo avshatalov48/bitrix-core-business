@@ -73,6 +73,8 @@ export class AbstractCall
 			this.initEventListeners(params.events);
 		}
 
+		this.connectionData = params.connectionData;
+
 		this._microphoneLevel = 0;
 	};
 
@@ -211,7 +213,7 @@ export class AbstractCall
 
 		if (DesktopApi.isDesktop())
 		{
-			DesktopApi.log(BX.message('USER_ID') + '.video.log', text.substr(3));
+			DesktopApi.writeToLogFile(BX.message('USER_ID') + '.video.log', text.substr(3));
 		}
 		if (CallEngine.debugFlag && console)
 		{

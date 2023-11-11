@@ -1030,6 +1030,13 @@ class Controller implements Errorable, Controllerable
 		throw new SystemException('Invalid csrf token');
 	}
 
+	/**
+	 * Redirect to URL.
+	 *
+	 * @param string $url
+	 *
+	 * @return \Bitrix\Main\Engine\Response\Redirect
+	 */
 	public function redirectTo($url): HttpResponse
 	{
 		return Context::getCurrent()->getResponse()->redirectTo($url);

@@ -1,7 +1,8 @@
-import {MessagePullHandler} from './base/message';
-import {ChatPullHandler} from './base/chat';
-import {UserPullHandler} from './base/user';
-import {DesktopPullHandler} from './base/desktop';
+import { MessagePullHandler } from './base/message';
+import { ChatPullHandler } from './base/chat';
+import { UserPullHandler } from './base/user';
+import { DesktopPullHandler } from './base/desktop';
+import { SettingsPullHandler } from './base/settings';
 
 export class BasePullHandler
 {
@@ -9,6 +10,7 @@ export class BasePullHandler
 	#chatHandler: ChatPullHandler;
 	#userHandler: UserPullHandler;
 	#desktopHandler: DesktopPullHandler;
+	#settingsHandler: SettingsPullHandler;
 
 	constructor()
 	{
@@ -16,6 +18,7 @@ export class BasePullHandler
 		this.#chatHandler = new ChatPullHandler();
 		this.#userHandler = new UserPullHandler();
 		this.#desktopHandler = new DesktopPullHandler();
+		this.#settingsHandler = new SettingsPullHandler();
 	}
 
 	getModuleId()
@@ -165,4 +168,11 @@ export class BasePullHandler
 		this.#desktopHandler.handleDesktopOffline();
 	}
 	// endregion 'desktop'
+
+	// region 'settings'
+	handleSettingsUpdate(params)
+	{
+		this.#settingsHandler.handleSettingsUpdate(params);
+	}
+	// endregion 'settings'
 }

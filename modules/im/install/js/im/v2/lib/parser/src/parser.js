@@ -12,9 +12,8 @@ import { ParserCall } from './functions/call';
 import { ParserMention } from './functions/mention';
 import { ParserCommon } from './functions/common';
 import { ParserIcon } from './functions/icon';
-import { ParserRecursionPrevention } from './utils/recursion-prevention';
-import { ParserReplace } from './functions/replace';
 import { ParserDisk } from './functions/disk';
+import { ParserRecursionPrevention } from './utils/recursion-prevention';
 
 import { getCore, getLogger } from './utils/core-proxy';
 
@@ -64,6 +63,11 @@ export const Parser = {
 		return this.decode({ text });
 	},
 
+	decodeSmile(text: string, options: {}): string
+	{
+		return ParserSmile.decodeSmile(text, options);
+	},
+
 	decodeSmileForLegacyCore(text: string, options: {}): string
 	{
 		const legacyConfig = { ...options };
@@ -88,7 +92,6 @@ export const Parser = {
 		const {
 			attach = false,
 			files = false,
-			replaces = [],
 			removeLinks = false,
 			showIconIfEmptyText = true,
 			showImageFromLink = true,
@@ -115,7 +118,6 @@ export const Parser = {
 			return text.trim();
 		}
 
-		text = ParserReplace.decode(text, replaces);
 		text = Text.encode(text.trim());
 
 		text = ParserCommon.decodeNewLine(text);
@@ -127,8 +129,6 @@ export const Parser = {
 
 		text = ParserSmile.decodeSmile(text);
 		text = ParserSlashCommand.decode(text);
-		text = ParserQuote.decodeArrowQuote(text);
-		text = ParserQuote.decodeQuote(text);
 		text = ParserUrl.decode(text, { urlTarget, removeLinks });
 		text = ParserFont.decode(text);
 		text = ParserLines.decode(text);
@@ -141,9 +141,10 @@ export const Parser = {
 		}
 		text = ParserDisk.decode(text);
 		text = ParserAction.decodeDate(text);
-		text = ParserRecursionPrevention.cutStartTag(text);
 
-		text = ParserRecursionPrevention.recoverStartTag(text);
+		text = ParserQuote.decodeArrowQuote(text);
+		text = ParserQuote.decodeQuote(text);
+
 		text = ParserRecursionPrevention.recoverSendTag(text);
 		text = ParserAction.decodeSend(text);
 
@@ -242,9 +243,9 @@ export const Parser = {
 		text = ParserFont.purify(text);
 		text = ParserLines.purify(text);
 		text = ParserCall.purify(text);
+		text = ParserUrl.purify(text);
 		text = ParserImage.purifyLink(text);
 		text = ParserImage.purifyIcon(text);
-		text = ParserUrl.purify(text);
 		text = ParserDisk.purify(text);
 		text = ParserCommon.purifyNewLine(text);
 		text = ParserIcon.addIconToShortText({ text, attach, files });
@@ -261,10 +262,11 @@ export const Parser = {
 		return text.trim();
 	},
 
-	prepareQuote(message: ImModelMessage): string
+	prepareQuote(message: ImModelMessage, quoteText: string = ''): string
 	{
 		const { id, attach } = message;
-		let { text } = message;
+
+		let text = quoteText === '' ? message.text : quoteText;
 
 		const files = getCore().store.getters['messages/getMessageFiles'](id);
 
@@ -298,15 +300,12 @@ export const Parser = {
 	prepareCopy(message: ImModelMessage): string
 	{
 		const { id } = message;
-		let { text } = message;
 
 		const files = getCore().store.getters['messages/getMessageFiles'](id).map((file) => {
 			return `[DISK=${file.id}]\n`;
 		});
 
-		text = files.join('\n') + text;
-
-		return text.trim();
+		return files.join('\n').trim();
 	},
 
 	prepareConfigForRecent(recentMessage: ImModelRecentItem): ResultRecentConfig

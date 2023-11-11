@@ -52,7 +52,7 @@ class PathIndexTable extends DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_translate_path';
 	}
@@ -62,7 +62,7 @@ class PathIndexTable extends DataManager
 	 *
 	 * @return string
 	 */
-	public static function getObjectClass()
+	public static function getObjectClass(): string
 	{
 		return Index\PathIndex::class;
 	}
@@ -72,7 +72,7 @@ class PathIndexTable extends DataManager
 	 *
 	 * @return string
 	 */
-	public static function getCollectionClass()
+	public static function getCollectionClass(): string
 	{
 		return Index\PathIndexCollection::class;
 	}
@@ -82,80 +82,80 @@ class PathIndexTable extends DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
-			'ID' => array(
+			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-			),
-			'PARENT_ID' => array(
+			],
+			'PARENT_ID' => [
 				'data_type' => 'integer',
-			),
-			'PATH' => array(
+			],
+			'PATH' => [
 				'data_type' => 'string',
-			),
-			'NAME' => array(
+			],
+			'NAME' => [
 				'data_type' => 'string',
-			),
-			'MODULE_ID' => array(
+			],
+			'MODULE_ID' => [
 				'data_type' => 'string',
-			),
-			'ASSIGNMENT' => array(
+			],
+			'ASSIGNMENT' => [
 				'data_type' => 'enum',
 				'values' => Translate\ASSIGNMENT_TYPES,
-			),
-			'DEPTH_LEVEL' => array(
+			],
+			'DEPTH_LEVEL' => [
 				'data_type' => 'integer',
 				'default_value' => 0,
-			),
-			'SORT' => array(
+			],
+			'SORT' => [
 				'data_type' => 'integer',
 				'default_value' => 0,
-			),
-			'IS_LANG' => array(
+			],
+			'IS_LANG' => [
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
+				'values' => ['N', 'Y'],
 				'default_value' => 'N',
-			),
-			'IS_DIR' => array(
+			],
+			'IS_DIR' => [
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
+				'values' => ['N', 'Y'],
 				'default_value' => 'N',
-			),
-			'OBLIGATORY_LANGS' => array(
+			],
+			'OBLIGATORY_LANGS' => [
 				'data_type' => 'string',
-			),
-			'INDEXED' => array(
+			],
+			'INDEXED' => [
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
+				'values' => ['N', 'Y'],
 				'default_value' => 'N',
-			),
-			'INDEXED_TIME' => array(
+			],
+			'INDEXED_TIME' => [
 				'data_type' => 'datetime',
-			),
-			'FILE' => array(
-				'data_type' => '\Bitrix\Translate\Index\Internals\FileIndexTable',
-				'reference' => array(
+			],
+			'FILE' => [
+				'data_type' => Index\Internals\FileIndexTable::class,
+				'reference' => [
 					'=this.ID' => 'ref.PATH_ID'
-				),
+				],
 				'join_type' => 'LEFT',
-			),
-			'ANCESTORS' => array(
-				'data_type' => '\Bitrix\Translate\Index\Internals\PathTreeTable',
-				'reference' => array(
+			],
+			'ANCESTORS' => [
+				'data_type' => Index\Internals\PathTreeTable::class,
+				'reference' => [
 					'=this.ID' => 'ref.PARENT_ID',
-				),
+				],
 				'join_type' => 'INNER',
-			),
-			'DESCENDANTS' => array(
-				'data_type' => '\Bitrix\Translate\Index\Internals\PathTreeTable',
-				'reference' => array(
+			],
+			'DESCENDANTS' => [
+				'data_type' => Index\Internals\PathTreeTable::class,
+				'reference' => [
 					'=this.ID' => 'ref.PATH_ID',
-				),
+				],
 				'join_type' => 'INNER',
-			),
+			],
 		);
 	}
 
@@ -164,9 +164,9 @@ class PathIndexTable extends DataManager
 	/**
 	 * @param ORM\Event $event Triggered ORM event.
 	 *
-	 * @return ORM\EventResult|void
+	 * @return ORM\EventResult
 	 */
-	public static function onAfterAdd(ORM\Event $event)
+	public static function onAfterAdd(ORM\Event $event): ORM\EventResult
 	{
 		$result = new ORM\EventResult();
 		$primary = $event->getParameter('primary');
@@ -192,9 +192,9 @@ class PathIndexTable extends DataManager
 	/**
 	 * @param ORM\Event $event Triggered ORM event.
 	 *
-	 * @return ORM\EventResult|void
+	 * @return ORM\EventResult
 	 */
-	public static function onAfterDelete(ORM\Event $event)
+	public static function onAfterDelete(ORM\Event $event): ORM\EventResult
 	{
 		$result = new ORM\EventResult();
 		$primary = $event->getParameter('primary');
@@ -213,12 +213,12 @@ class PathIndexTable extends DataManager
 	/**
 	 * Drop index.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 * @param bool $recursively Drop index recursively.
 	 *
 	 * @return void
 	 */
-	public static function purge(Translate\Filter $filter = null, $recursively = true)
+	public static function purge(?Translate\Filter $filter = null, $recursively = true): void
 	{
 		if (($filterOut = static::processFilter($filter)) !== false)
 		{
@@ -241,15 +241,15 @@ class PathIndexTable extends DataManager
 	/**
 	 * Processes filter params to convert them into orm type.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
-	 * @return array|bool
+	 * @return array
 	 */
-	public static function processFilter(Translate\Filter $filter = null)
+	public static function processFilter(?Translate\Filter $filter = null): array
 	{
-		$filterOut = array();
+		$filterOut = [];
 
-		if ($filter !== null && ($filter instanceof Translate\Filter || $filter instanceof \Traversable))
+		if ($filter !== null)
 		{
 			foreach ($filter as $key => $value)
 			{

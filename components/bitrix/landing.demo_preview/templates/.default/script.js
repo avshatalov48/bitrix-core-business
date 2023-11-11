@@ -60,6 +60,7 @@
 						? params.langId
 						: '';
 		this.folderId = params.folderId || 0;
+		this.replaceLid = params.replaceLid || 0;
 		this.urlPreview = params.urlPreview || '';
 
 		this.onCreateButtonClick = proxy(this.onCreateButtonClick, this);
@@ -573,6 +574,10 @@
 
 				add['additional[siteId]'] = this.siteId;
 				add['additional[folderId]'] = this.folderId;
+				if (this.replaceLid > 0)
+				{
+					add['additional[replaceLid]'] = this.replaceLid;
+				}
 				add['from'] = this.createParamsStrFromUrl(url);
 
 				if (this.adminSection && this.langId !== '')

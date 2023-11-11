@@ -1885,10 +1885,6 @@ else if (isImPostRequest('IM_SHARING') && intval($_POST['USER_ID']) > 0)
 		));
 	}
 }
-else if (isImPostRequest('IM_PHONE') && CModule::IncludeModule('voximplant'))
-{
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/voximplant/ajax_hit.php");
-}
 else if ((isImPostRequest('IM_OPEN_LINES') || isImPostRequest('IM_OPEN_LINES_CLIENT')) && CModule::IncludeModule('imopenlines'))
 {
 	$_POST['IM_OPEN_LINES_CLIENT'] = $_POST['IM_OPEN_LINES'] == 'Y'? 'N': 'Y';

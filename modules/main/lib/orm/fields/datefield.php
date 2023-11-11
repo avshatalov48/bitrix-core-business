@@ -149,7 +149,7 @@ class DateField extends ScalarField
 	 */
 	public function getGetterTypeHint()
 	{
-		return '\\'.Date::class;
+		return $this->getNullableTypeHint('\\'.Date::class);
 	}
 
 	/**
@@ -157,6 +157,6 @@ class DateField extends ScalarField
 	 */
 	public function getSetterTypeHint()
 	{
-		return '\\'.Date::class;
+		return $this->getNullableTypeHint('\\'.Date::class);
 	}
 }

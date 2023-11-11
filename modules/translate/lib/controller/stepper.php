@@ -11,23 +11,17 @@ use Bitrix\Translate;
  */
 trait Stepper
 {
-	/** @var string */
-	protected $processToken;
+	protected ?string $processToken;
 
-	/** @var boolean */
-	protected $isNewProcess = true;
+	protected bool $isNewProcess = true;
 
-	/** @var boolean */
-	protected $isProcessCompleted = false;
+	protected bool $isProcessCompleted = false;
 
-	/** @var int */
-	protected $processedItems = 0;
+	protected int $processedItems = 0;
 
-	/** @var int */
-	protected $totalItems = 0;
+	protected int $totalItems = 0;
 
-	/** @var Translate\Controller\Timer */
-	protected $timer;
+	protected ?Translate\Controller\Timer $timer = null;
 
 
 	/**
@@ -40,10 +34,10 @@ trait Stepper
 	{
 		if ($this instanceof IProcessParameters)
 		{
-			$this->keepField(array(
+			$this->keepField([
 				'processedItems',
 				'totalItems',
-			));
+			]);
 
 			/** @var Main\Engine\Action $this */
 			$this->processToken = $this->getController()->getRequest()->get('PROCESS_TOKEN');
@@ -62,7 +56,7 @@ trait Stepper
 			$this->keepField('processToken');
 		}
 
-		if($this->processToken === '')
+		if (empty($this->processToken))
 		{
 			$this->addError(new Main\Error('Process token is not specified.'));
 		}
@@ -101,9 +95,9 @@ trait Stepper
 		{
 			$result = \call_user_func($action, $params);
 		}
-		elseif (\is_string($action) && \is_callable(array($this, $action)))
+		elseif (\is_string($action) && \is_callable([$this, $action]))
 		{
-			$result = \call_user_func(array($this, $action), $params);
+			$result = \call_user_func([$this, $action], $params);
 		}
 		else
 		{
@@ -135,11 +129,11 @@ trait Stepper
 	/**
 	 * Switch accomplishment flag of the process.
 	 *
-	 * @param boolean $flag Accomplishment flag value.
+	 * @param bool $flag Accomplishment flag value.
 	 *
 	 * @return void
 	 */
-	public function declareAccomplishment($flag = true)
+	public function declareAccomplishment(bool $flag = true): void
 	{
 		$this->isProcessCompleted = $flag;
 	}
@@ -147,9 +141,9 @@ trait Stepper
 	/**
 	 * Tells true if process has completed.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function hasProcessCompleted()
+	public function hasProcessCompleted(): bool
 	{
 		return $this->isProcessCompleted;
 	}
@@ -157,9 +151,9 @@ trait Stepper
 
 	/**
 	 * Getting array of errors.
-	 * @return boolean
+	 * @return bool
 	 */
-	public function hasErrors()
+	public function hasErrors(): bool
 	{
 		/** @property \Bitrix\Main\ErrorCollection $errorCollection */
 		if ($this->errorCollection instanceof Main\ErrorCollection)
@@ -175,9 +169,9 @@ trait Stepper
 	 *
 	 * @return Translate\Controller\Timer
 	 */
-	public function instanceTimer()
+	public function instanceTimer(): Translate\Controller\Timer
 	{
-		if (!($this->timer instanceof Translate\Controller\Timer))
+		if ($this->timer === null)
 		{
 			$this->timer = new Translate\Controller\Timer();
 		}
@@ -192,7 +186,7 @@ trait Stepper
 	 *
 	 * @return void
 	 */
-	public function startTimer()
+	public function startTimer(): void
 	{
 		$this->instanceTimer()->startTimer((int)\START_EXEC_TIME);
 	}
@@ -202,9 +196,9 @@ trait Stepper
 	 *
 	 * @see Translate\Controller\ITimeLimit
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function hasTimeLimitReached()
+	public function hasTimeLimitReached(): bool
 	{
 		return $this->instanceTimer()->hasTimeLimitReached();
 	}

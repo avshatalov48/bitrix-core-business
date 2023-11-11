@@ -15,6 +15,7 @@ return [
 		'main.core.events',
 		'im.v2.application.core',
 		'im.v2.lib.parser',
+		'im.v2.lib.desktop',
 		'im.public',
 		'im.v2.const',
 		'im.v2.provider.service',

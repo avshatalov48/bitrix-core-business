@@ -1,14 +1,17 @@
-import {Button as ChatButton, ButtonSize, ButtonColor} from 'im.v2.component.elements';
-import {SidebarDetailBlock, SidebarFileTabTypes, ChatOption} from 'im.v2.const';
-import {EntityCreator} from 'im.v2.lib.entity-creator';
+import { Button as ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
+import { SidebarDetailBlock, SidebarFileTabTypes, ChatActionType } from 'im.v2.const';
+import { PermissionManager } from 'im.v2.lib.permission';
+import { EntityCreator } from 'im.v2.lib.entity-creator';
+import { AddToChat } from 'im.v2.component.entity-selector';
+
 import '../css/detail-header.css';
-import type {ImModelDialog} from 'im.v2.model';
-import {AddToChat} from 'im.v2.component.entity-selector';
+
+import type { ImModelDialog } from 'im.v2.model';
 
 // @vue/component
 export const DetailHeader = {
 	name: 'DetailHeader',
-	components: {ChatButton, AddToChat},
+	components: { ChatButton, AddToChat },
 	props: {
 		detailBlock: {
 			type: String,
@@ -16,17 +19,17 @@ export const DetailHeader = {
 		},
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		chatId: {
 			type: Number,
-			required: true
+			required: true,
 		},
 	},
 	emits: ['back'],
 	data() {
 		return {
-			showAddToChatPopup: false
+			showAddToChatPopup: false,
 		};
 	},
 	computed:
@@ -38,12 +41,12 @@ export const DetailHeader = {
 			const detailsWithAddButton = [
 				SidebarDetailBlock.main,
 				SidebarDetailBlock.task,
-				SidebarDetailBlock.meeting
+				SidebarDetailBlock.meeting,
 			];
 
 			if (this.detailBlock === SidebarDetailBlock.main)
 			{
-				return this.$store.getters['dialogues/getChatOption'](this.dialog.type, ChatOption.extend);
+				return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
 			}
 
 			return detailsWithAddButton.includes(this.detailBlock);
@@ -99,11 +102,13 @@ export const DetailHeader = {
 					this.entityCreator.createMeetingForChat();
 					break;
 				}
+
 				case SidebarDetailBlock.task:
 				{
 					this.entityCreator.createTaskForChat();
 					break;
 				}
+
 				case SidebarDetailBlock.main:
 				{
 					this.showAddToChatPopup = true;
@@ -112,7 +117,7 @@ export const DetailHeader = {
 				default:
 					break;
 			}
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-detail-header__container bx-im-sidebar-detail-header__scope">
@@ -147,5 +152,5 @@ export const DetailHeader = {
 				@close="showAddToChatPopup = false"
 			/>
 		</div>
-	`
+	`,
 };

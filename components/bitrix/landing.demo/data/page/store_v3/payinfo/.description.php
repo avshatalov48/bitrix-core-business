@@ -53,7 +53,7 @@ return [
 					0 => 'landing-block text-center container g-pb-10 g-pt-0 l-d-xs-none l-d-md-none',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title landing-semantic-title-medium g-my-0 container g-pl-0 g-pr-0 text-left g-font-size-30 g-font-weight-500',
+					0 => 'landing-block-node-title g-my-0 container g-pl-0 g-pr-0 text-left g-font-size-30 g-font-weight-500',
 				],
 			],
 		],
@@ -76,7 +76,7 @@ return [
 					0 => 'landing-block-node-title h2 text-left g-mb-15 g-font-weight-500 g-font-size-20',
 				],
 				'.landing-block-node-text-container' => [
-					0 => 'landing-block-node-text-container landing-semantic-text-width container g-max-width-container',
+					0 => 'landing-block-node-text-container container g-max-width-container',
 				],
 				'.landing-block-node-text' => [
 					0 => 'landing-block-node-text text-left g-font-weight-400 g-font-size-17',
@@ -108,7 +108,7 @@ return [
 					0 => 'landing-block-node-title h2 text-left g-mb-15 g-font-weight-500 g-font-size-20',
 				],
 				'.landing-block-node-text-container' => [
-					0 => 'landing-block-node-text-container landing-semantic-text-width container g-max-width-container',
+					0 => 'landing-block-node-text-container container g-max-width-container',
 				],
 				'.landing-block-node-text' => [
 					0 => 'landing-block-node-text text-left g-font-weight-400 g-font-size-17',
@@ -134,7 +134,7 @@ return [
 					0 => 'landing-block-node-title h2 text-left g-mb-15 g-font-weight-500 g-font-size-20',
 				],
 				'.landing-block-node-text-container' => [
-					0 => 'landing-block-node-text-container landing-semantic-text-width container g-max-width-container',
+					0 => 'landing-block-node-text-container container g-max-width-container',
 				],
 				'.landing-block-node-text' => [
 					0 => 'landing-block-node-text text-left g-font-weight-400 g-font-size-17',

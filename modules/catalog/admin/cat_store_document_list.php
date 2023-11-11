@@ -34,7 +34,7 @@ if (
 	&& Catalog\v2\Contractor\Provider\Manager::isActiveProviderExists()
 )
 {
-	$APPLICATION->SetTitle(Loc::getMessage("CAT_DOCS"));
+	$APPLICATION->SetTitle(Loc::getMessage("CAT_DOCS_MSGVER_1"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	$APPLICATION->IncludeComponent("bitrix:sale.admin.page.stub", "");
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
@@ -245,25 +245,23 @@ if (isset($arFilter['STATUS']))
 	unset($statusFilter);
 }
 
-switch ($by)
+$docsOrder = match ($by)
 {
-	case 'STATUS':
-		$docsOrder = [
-			'STATUS' => $order,
-			'WAS_CANCELLED' => $order,
-			'ID' => 'DESC',
-		];
-		break;
-	default:
-		$docsOrder = [
-			$by => $order,
-			'ID' => 'DESC',
-		];
-}
+	'STATUS' => [
+		'STATUS' => $order,
+		'WAS_CANCELLED' => $order,
+		'ID' => 'DESC',
+	],
+	default => [
+		$by => $order,
+		'ID' => 'DESC',
+	],
+};
 
-if ($arID = $lAdmin->GroupAction())
+$arID = $lAdmin->GroupAction();
+if (!empty($arID) && is_array($arID))
 {
-	if ($_REQUEST['action_target'] == 'selected')
+	if ($lAdmin->IsGroupActionToAll())
 	{
 		$arID = array();
 		$filteredProduct = 0;
@@ -285,14 +283,15 @@ if ($arID = $lAdmin->GroupAction())
 		}
 	}
 
+	$action = $lAdmin->GetAction();
 	$blockedList = array();
 	$arID = array_filter($arID);
 	if (!empty($arID))
 	{
 		if (
-			$_REQUEST['action'] == 'delete'
-			|| $_REQUEST['action'] == 'conduct'
-			|| $_REQUEST['action'] == 'cancellation'
+			$action === 'delete'
+			|| $action === 'conduct'
+			|| $action === 'cancellation'
 		)
 		{
 			$filteredID = array();
@@ -315,7 +314,7 @@ if ($arID = $lAdmin->GroupAction())
 	{
 		foreach($arID as $ID)
 		{
-			switch($_REQUEST['action'])
+			switch($action)
 			{
 				case "delete":
 					@set_time_limit(0);
@@ -432,7 +431,7 @@ if ($arID = $lAdmin->GroupAction())
 	if (!empty($blockedList))
 	{
 		$strError = '';
-		switch($_REQUEST['action'])
+		switch($action)
 		{
 			case 'delete':
 				$strError = Loc::getMessage('CAT_DOC_GROUP_ERR_DELETE');
@@ -826,7 +825,7 @@ $lAdmin->AddGroupActionTable($actionList);
 
 $lAdmin->CheckListMode();
 
-$APPLICATION->SetTitle(Loc::getMessage("CAT_DOCS"));
+$APPLICATION->SetTitle(Loc::getMessage("CAT_DOCS_MSGVER_1"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
 $lAdmin->DisplayFilter($filterFields);

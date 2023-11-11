@@ -15,7 +15,7 @@ class CheckChatOwner extends Base
 		$currentUser = $this->getAction()->getCurrentUser();
 		$currentUserId = (int)(isset($currentUser) ? $currentUser->getId() : null);
 
-		if ($this->getAction()->getName() == 'setOwner')
+		if ($this->getAction()->getName() === 'setOwner' || $this->getAction()->getName() === 'setowner')
 		{
 
 			$arguments = $this->getAction()->getArguments();

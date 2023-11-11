@@ -230,8 +230,6 @@ class ConditionGroup
 		$mixedCondition = [];
 		$bizprocJoiner = 0;
 
-		$documentService = \CBPRuntime::GetRuntime()->getDocumentService();
-
 		/** @var Condition $condition */
 		foreach ($this->getItems() as [$condition, $joiner])
 		{
@@ -248,48 +246,10 @@ class ConditionGroup
 			);
 			if ($property && $isOperatorWithValue)
 			{
-				$currentValues = ['field' => $value];
-				$errors = [];
-
-				$isBetweenOperator = $operator === \Bitrix\Bizproc\Activity\Operator\BetweenOperator::getCode();
-				$valueInternal =
-					$isBetweenOperator
-						? []
-						: $documentService->getFieldInputValue(
-							$documentType,
-							$property,
-							'field',
-							$currentValues,
-							$errors
-					)
-				;
-				if ($isBetweenOperator)
+				$fieldInputValueResult = $this->getFieldInputValue($property, $documentType, $condition);
+				if ($fieldInputValueResult->isSuccess())
 				{
-					$currentValues['field_greater_then'] = is_array($value) && isset($value[0]) ? $value[0] : $value;
-					$currentValues['field_less_then'] = is_array($value) && isset($value[1]) ? $value[1] : '';
-
-					$property['Multiple'] = false;
-					$valueInternal1 = $documentService->getFieldInputValue(
-						$documentType,
-						$property,
-						'field_greater_then',
-						$currentValues,
-						$errors
-					);
-					$valueInternal2 = $documentService->getFieldInputValue(
-						$documentType,
-						$property,
-						'field_less_then',
-						$currentValues,
-						$errors
-					);
-
-					$valueInternal = [$valueInternal1 ?? '', $valueInternal2 ?? ''];
-				}
-
-				if (!$errors)
-				{
-					$value = $valueInternal;
+					$value = $fieldInputValueResult->getData()['value'];
 				}
 			}
 
@@ -385,6 +345,15 @@ class ConditionGroup
 					);
 				}
 
+				if ($property && $property['Type'] === 'time')
+				{
+					$offset = \CTimeZone::GetOffset();
+					$condition['value'] = array_map(
+						static fn($value) => Bizproc\BaseType\Value\Time::tryMakeCorrectFormat($value, $offset),
+						(array)$condition['value']
+					);
+				}
+
 				$conditionItem = new Condition(array(
 					'object' => $condition['object'],
 					'field' => $condition['field'],
@@ -431,22 +400,15 @@ class ConditionGroup
 		{
 			$field = $condition->getField();
 			$value = $condition->getValue();
-			$property = isset($documentFields[$field]) ? $documentFields[$field] : null;
+			$property = $documentFields[$field] ?? null;
 			if ($property && !in_array($condition->getOperator(), ['empty', '!empty']))
 			{
-				$value = self::unConvertExpressions($value, $documentType);
-				$valueInternal = $documentService->GetFieldInputValue(
-					$documentType,
-					$property,
-					'field',
-					['field' => $value],
-					$errors
-				);
+				$condition->setValue(self::unConvertExpressions($value, $documentType));
+				$fieldInputValueResult = $this->getFieldInputValue($property, $documentType, $condition);
 
-				if (!$errors)
-				{
-					$condition->setValue($valueInternal);
-				}
+				$condition->setValue(
+					$fieldInputValueResult->isSuccess() ? $fieldInputValueResult->getData()['value'] : $value
+				);
 			}
 		}
 
@@ -487,6 +449,15 @@ class ConditionGroup
 						$documentType
 					);
 				}
+				if ($property['Type'] === 'time')
+				{
+					$offset = \CTimeZone::GetOffset();
+					$value = array_map(
+						static fn($value) => Bizproc\BaseType\Value\Time::tryMakeCorrectFormat($value, $offset),
+						(array)$value
+					);
+				}
+
 				$condition->setValue($value);
 			}
 		}
@@ -550,5 +521,66 @@ class ConditionGroup
 	public function getEvaluateResults(): array
 	{
 		return $this->evaluateResults;
+	}
+
+	private function getFieldInputValue(array $property, array $documentType, Condition $condition): \Bitrix\Main\Result
+	{
+		$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+		$conditionValue = $condition->getValue();
+		$currentValues = ['field' => $conditionValue];
+		$errors = [];
+
+		$isBetweenOperator = $condition->getOperator() === Bizproc\Activity\Operator\BetweenOperator::getCode();
+		$valueInternal =
+			$isBetweenOperator
+				? []
+				: $documentService->getFieldInputValue($documentType, $property, 'field', $currentValues,$errors)
+		;
+		if ($isBetweenOperator)
+		{
+			$currentValues['field_greater_then'] =
+				is_array($conditionValue) && isset($conditionValue[0])
+					? $conditionValue[0]
+					: $conditionValue
+			;
+			$currentValues['field_less_then'] =
+				is_array($conditionValue) && isset($conditionValue[1])
+					? $conditionValue[1]
+					: ''
+			;
+			$property['Multiple'] = false;
+			$valueInternal1 = $documentService->getFieldInputValue(
+				$documentType,
+				$property,
+				'field_greater_then',
+				$currentValues,
+				$errors
+			);
+			$valueInternal2 = $documentService->getFieldInputValue(
+				$documentType,
+				$property,
+				'field_less_then',
+				$currentValues,
+				$errors
+			);
+
+			$valueInternal = [$valueInternal1 ?? '', $valueInternal2 ?? ''];
+		}
+
+		$result = new \Bitrix\Main\Result();
+		$result->setData(['value' => $valueInternal]);
+
+		if ($errors)
+		{
+			foreach ($errors as $error)
+			{
+				if (isset($error['message'], $error['code']))
+				{
+					$result->addError(new \Bitrix\Main\Error($error['message'], $error['code']));
+				}
+			}
+		}
+
+		return $result;
 	}
 }

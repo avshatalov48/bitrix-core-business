@@ -3,6 +3,7 @@
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Mail;
+use Bitrix\Mail\Internals\MessageAccessTable;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
@@ -26,28 +27,10 @@ class CMailMessageActionsComponent extends CBitrixComponent
 		else if (!empty($this->arParams['MESSAGE_ID']))
 		{
 			$message = Mail\MailMessageTable::getList(array(
-				'runtime' => array(
-					new Main\ORM\Fields\Relations\Reference(
-						'MESSAGE_ACCESS',
-						Mail\Internals\MessageAccessTable::class,
-						array(
-							'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
-							'=this.ID' => 'ref.MESSAGE_ID',
-						)
-					),
-				),
 				'select' => array(
 					'ID',
 					'MAILBOX_ID',
 					'SUBJECT',
-					new Main\ORM\Fields\ExpressionField(
-						'BIND',
-						'GROUP_CONCAT(DISTINCT CONCAT(%s, "-", %s))',
-						array(
-							'MESSAGE_ACCESS.ENTITY_TYPE',
-							'MESSAGE_ACCESS.ENTITY_ID',
-						)
-					),
 				),
 				'filter' => array(
 					'=ID' => (int) $this->arParams['MESSAGE_ID'],
@@ -56,7 +39,7 @@ class CMailMessageActionsComponent extends CBitrixComponent
 
 			if (!empty($message))
 			{
-				$message['BIND'] = explode(',', $message['BIND']);
+				$message['BIND'] = MessageAccessTable::getBinds($message['MAILBOX_ID'], $message['ID']);
 			}
 		}
 

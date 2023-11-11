@@ -1,0 +1,8 @@
+<?php
+$MESS["IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_ACTIVATE_NAME"] = "activate";
+$MESS["IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_ADD_TO_SECTION_NAME"] = "add link to section";
+$MESS["IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_CLEAR_COUNTER_NAME"] = "reset view counter";
+$MESS["IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_CREATE_CODE_CONFIRM"] = "Are you sure you want to change the symbolic code for the selected items and sections? This may affect links to website section and item pages.";
+$MESS["IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_CREATE_CODE_NAME"] = "create symbolic code";
+$MESS["IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_DEACTIVATE_NAME"] = "deactivate";
+$MESS["IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_MOVE_TO_SECTION_NAME"] = "move to section";

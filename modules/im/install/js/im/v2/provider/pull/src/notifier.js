@@ -1,12 +1,13 @@
-import {Core} from 'im.v2.application.core';
-import {DialogType, SoundType, UserStatus} from 'im.v2.const';
-import {NotifierManager} from 'im.v2.lib.notifier';
-import {DesktopManager} from 'im.v2.lib.desktop';
-import {CallManager} from 'im.v2.lib.call';
-import {SoundNotificationManager} from 'im.v2.lib.sound-notification';
+import { Core } from 'im.v2.application.core';
+import { DesktopApi } from 'im.v2.lib.desktop-api';
+import { SoundType, UserStatus } from 'im.v2.const';
+import { NotifierManager } from 'im.v2.lib.notifier';
+import { DesktopManager } from 'im.v2.lib.desktop';
+import { CallManager } from 'im.v2.lib.call';
+import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
 
-import type {MessageAddParams} from './types/message';
-import type {NotifyAddParams} from './types/notification';
+import type { MessageAddParams } from './types/message';
+import type { NotifyAddParams } from './types/notification';
 
 export class NotifierPullHandler
 {
@@ -15,7 +16,7 @@ export class NotifierPullHandler
 		this.store = Core.getStore();
 	}
 
-	getModuleId()
+	getModuleId(): string
 	{
 		return 'im';
 	}
@@ -37,25 +38,36 @@ export class NotifierPullHandler
 			return;
 		}
 
-		if (this.#isChatOpened(params))
+		if (this.#isChatOpened(params.dialogId))
 		{
-			SoundNotificationManager.getInstance().playOnce(SoundType.newMessage2);
+			this.#playOpenedChatMessageSound(params);
 
 			return;
 		}
 
-		SoundNotificationManager.getInstance().playOnce(SoundType.newMessage1);
+		this.#playMessageSound(params);
+		this.#flashDesktopIcon();
 
 		const message = this.store.getters['messages/getById'](params.message.id);
 		const dialog = this.store.getters['dialogues/get'](params.dialogId, true);
 		const user = this.store.getters['users/get'](message.authorId);
 
-		NotifierManager.getInstance().showMessage(message, dialog, user);
+		NotifierManager.getInstance().showMessage({
+			message,
+			dialog,
+			user,
+			lines: Boolean(params.lines),
+		});
 	}
 
 	handleNotifyAdd(params: NotifyAddParams)
 	{
-		if (params.onlyFlash === true || this.#isUserDnd() || this.#desktopWillShowNotification())
+		if (
+			params.onlyFlash === true
+			|| this.#isUserDnd()
+			|| this.#desktopWillShowNotification()
+			|| CallManager.getInstance().hasCurrentCall()
+		)
 		{
 			return;
 		}
@@ -77,6 +89,8 @@ export class NotifierPullHandler
 			SoundNotificationManager.getInstance().playOnce(SoundType.reminder);
 		}
 
+		this.#flashDesktopIcon();
+
 		NotifierManager.getInstance().showNotification(notification, user);
 	}
 
@@ -87,24 +101,19 @@ export class NotifierPullHandler
 			return false;
 		}
 
-		if (
-			!params.notify
-			|| params.message?.params?.NOTIFY === 'N'
-			|| this.#isUserDnd()
-			|| this.#desktopWillShowNotification()
-		)
+		if (params.lines && !this.#shouldShowLinesNotification(params))
 		{
 			return false;
 		}
 
-		const dialog = this.store.getters['dialogues/get'](params.dialogId, true);
-		if (dialog.type === DialogType.lines)
+		const messageWithoutNotification = !params.notify || params.message?.params?.NOTIFY === 'N';
+		if (messageWithoutNotification || !this.#shouldShowToUser(params) || this.#desktopWillShowNotification())
 		{
-			return;
+			return false;
 		}
 
-		const isMuted = dialog.muteList.includes(Core.getUserId());
-		if (isMuted)
+		const callIsActive = CallManager.getInstance().hasCurrentCall();
+		if (callIsActive && CallManager.getInstance().getCurrentCallDialogId() !== params.dialogId.toString())
 		{
 			return false;
 		}
@@ -118,11 +127,56 @@ export class NotifierPullHandler
 		return true;
 	}
 
-	#isChatOpened(params): boolean
+	#shouldShowLinesNotification(params: MessageAddParams): boolean
 	{
-		const isChatOpen = this.store.getters['application/isChatOpen'](params.dialogId);
+		if (this.#isLinesChatOpened(params.dialogId))
+		{
+			return false;
+		}
 
-		return !!(document.hasFocus() && isChatOpen);
+		const authorId = params.message.senderId;
+		if (authorId > 0 && params.users[authorId].extranet === false)
+		{
+			return true;
+		}
+
+		const counter = this.store.getters['recent/getSpecificLinesCounter'](params.chatId);
+
+		return counter === 0;
+	}
+
+	#isChatOpened(dialogId: string): boolean
+	{
+		const isChatOpen = this.store.getters['application/isChatOpen'](dialogId);
+
+		return Boolean(document.hasFocus() && isChatOpen);
+	}
+
+	#isLinesChatOpened(dialogId: string): boolean
+	{
+		const isLinesChatOpen = this.store.getters['application/isLinesChatOpen'](dialogId);
+
+		return Boolean(document.hasFocus() && isLinesChatOpen);
+	}
+
+	#isImportantMessage(params: MessageAddParams): boolean
+	{
+		const { message } = params;
+
+		return message.isImportant || message.importantFor.includes(Core.getUserId());
+	}
+
+	#shouldShowToUser(params: MessageAddParams): boolean
+	{
+		if (this.#isImportantMessage(params))
+		{
+			return true;
+		}
+
+		const dialog = this.store.getters['dialogues/get'](params.dialogId, true);
+		const isMuted = dialog.muteList.includes(Core.getUserId());
+
+		return !this.#isUserDnd() && !isMuted;
 	}
 
 	#isUserDnd(): boolean
@@ -134,8 +188,42 @@ export class NotifierPullHandler
 
 	#desktopWillShowNotification(): boolean
 	{
-		const isDesktopChatWindow = DesktopManager.isDesktop() && DesktopManager.isChatWindow();
+		const isDesktopChatWindow = DesktopManager.isChatWindow();
 
 		return !isDesktopChatWindow && DesktopManager.getInstance().isDesktopActive();
+	}
+
+	#flashDesktopIcon(): void
+	{
+		if (!DesktopManager.isDesktop())
+		{
+			return;
+		}
+
+		DesktopApi.flashIcon();
+	}
+
+	#playOpenedChatMessageSound(params: MessageAddParams)
+	{
+		if (this.#isImportantMessage(params))
+		{
+			SoundNotificationManager.getInstance().forcePlayOnce(SoundType.newMessage2);
+
+			return;
+		}
+
+		SoundNotificationManager.getInstance().playOnce(SoundType.newMessage2);
+	}
+
+	#playMessageSound(params: MessageAddParams)
+	{
+		if (this.#isImportantMessage(params))
+		{
+			SoundNotificationManager.getInstance().forcePlayOnce(SoundType.newMessage1);
+
+			return;
+		}
+
+		SoundNotificationManager.getInstance().playOnce(SoundType.newMessage1);
 	}
 }

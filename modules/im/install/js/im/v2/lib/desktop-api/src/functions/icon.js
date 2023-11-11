@@ -1,9 +1,15 @@
+import { Browser } from 'main.core';
+
 export const iconFunctions = {
 	setCounter(counter: number, important: boolean = false)
 	{
 		const preparedCounter = counter.toString();
 		BXDesktopSystem?.SetIconBadge(preparedCounter, important);
 		BXDesktopSystem?.SetTabBadge(0, preparedCounter);
+	},
+	setBrowserIconBadge(counter: string | number)
+	{
+		BXDesktopSystem?.SetBrowserIconBadge(counter.toString());
 	},
 	setIconStatus(status: string)
 	{
@@ -13,8 +19,13 @@ export const iconFunctions = {
 	{
 		BXDesktopSystem?.SetIconStatus('offline');
 	},
-	setBrowserIconBadge(counter: string | number)
+	flashIcon()
 	{
-		BXDesktopSystem?.SetBrowserIconBadge(counter.toString());
+		if (!Browser.isWin())
+		{
+			return;
+		}
+
+		BXDesktopSystem?.FlashIcon();
 	},
 };

@@ -30,6 +30,7 @@ export class Image extends TextField
 		this.type = this.content.type || "image";
 		this.contextType = data.contextType || Image.CONTEXT_TYPE_CONTENT;
 		this.allowClear = data.allowClear;
+		this.allowAiImage = Type.isBoolean(data.allowAiImage) ? data.allowAiImage : false;
 		this.input.innerText = this.content.src;
 		this.input.hidden = true;
 		this.input2x = this.createInput();
@@ -108,10 +109,6 @@ export class Image extends TextField
 		this.left.appendChild(this.altField.layout);
 		this.left.appendChild(this.linkInput.layout);
 
-		this.aiButton = Image.createAiButton(this.compactMode);
-		this.aiButton.on("click", this.onAiClick.bind(this));
-		this.aiPicker = null;
-
 		this.uploadButton = Image.createUploadButton(this.compactMode);
 		this.uploadButton.on("click", this.onUploadClick.bind(this));
 
@@ -119,13 +116,20 @@ export class Image extends TextField
 		this.editButton.on("click", this.onEditClick.bind(this));
 
 		this.right = Image.createRightLayout();
+
+		// ai images
+		this.aiButton = null;
+		this.aiPicker = null;
 		if (
-			Env.getInstance().getOptions()['allow_ai_image']
+			this.allowAiImage
 			&& (this.type === "background" || this.type === "image")
 		)
 		{
+			this.aiButton = Image.createAiButton(this.compactMode);
+			this.aiButton.on("click", this.onAiClick.bind(this));
 			this.right.appendChild(this.aiButton.layout);
 		}
+
 		this.right.appendChild(this.uploadButton.layout);
 		this.right.appendChild(this.editButton.layout);
 		this.form = Image.createForm();
@@ -475,6 +479,14 @@ export class Image extends TextField
 		this.getAiPicker().image()
 	}
 
+	/**
+	 * Return AI image button, if exists (if allow)
+	 */
+	getAiButton(): ?BaseButton
+	{
+		return this.aiButton;
+	}
+
 	getAiPicker(): Picker
 	{
 		if (!this.aiPicker)
@@ -484,6 +496,7 @@ export class Image extends TextField
 					? 'large, heart shaped bouquet of red roses on a white background'
 					: 'background, smooth, blue color'
 			;
+			const Picker = top.BX.AI ? top.BX.AI.Picker : BX.AI.Picker;
 			this.aiPicker = new Picker({
 				startMessage: demoPrompt,
 				moduleId: 'landing',
@@ -920,6 +933,13 @@ export class Image extends TextField
 			})
 			.then(function (file)
 			{
+				let ext = file.name.split('.').pop();
+				if (!file.name.includes('.') || ext.length > 4)
+				{
+					ext = `.${file.name.split('_').pop()}`;
+					file.name = file.name + ext;
+				}
+
 				return this.upload(file, {context: "imageEditor"});
 			}.bind(this))
 			.then(function (result)

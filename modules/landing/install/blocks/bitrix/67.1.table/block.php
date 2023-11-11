@@ -1,5 +1,5 @@
 <section class="landing-block js-animation g-pt-50 g-pb-50 u-block-border-none">
-	<div class="landing-block-node-text landing-semantic-text-medium landing-semantic-text-width js-animation fadeIn g-pb-1 container g-max-width-container">
+	<div class="landing-block-node-text js-animation fadeIn g-pb-1 container g-max-width-container">
 		<div class="landing-table-container">
 			<table class="landing-table landing-table-style-1" text-color="#333333">
 				<tbody>

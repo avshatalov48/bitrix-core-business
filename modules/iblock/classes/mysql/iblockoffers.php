@@ -4,6 +4,8 @@ class CIBlockOffersTmp extends CAllIBlockOffersTmp
 	public static function GetOldID($intProductIBlockID, $intOffersIBlockID, $intInterval = 1800)
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$intProductIBlockID = (int)$intProductIBlockID;
 		$intOffersIBlockID = (int)$intOffersIBlockID;
@@ -20,7 +22,7 @@ class CIBlockOffersTmp extends CAllIBlockOffersTmp
 			from b_iblock_offers_tmp
 			where PRODUCT_IBLOCK_ID = '.$intProductIBlockID.'
 			and OFFERS_IBLOCK_ID = '.$intOffersIBlockID.'
-			and TIMESTAMP_X < (NOW()-'.$intInterval.')
+			and TIMESTAMP_X < ' . $helper->addSecondsToDateTime(-$intInterval) . '
 		';
 		return $DB->Query($strQuery);
 	}
@@ -28,6 +30,8 @@ class CIBlockOffersTmp extends CAllIBlockOffersTmp
 	public static function DeleteOldID($intProductIBlockID, $intOffersIBlockID = 0, $intInterval = 86400)
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$intProductIBlockID = (int)$intProductIBlockID;
 		$intOffersIBlockID = (int)$intOffersIBlockID;
@@ -43,7 +47,7 @@ class CIBlockOffersTmp extends CAllIBlockOffersTmp
 			delete from b_iblock_offers_tmp
 			where PRODUCT_IBLOCK_ID = '.$intProductIBlockID.'
 			'.(0 < $intOffersIBlockID ? 'and OFFERS_IBLOCK_ID = '.$intOffersIBlockID : '').'
-			and TIMESTAMP_X < (NOW()-'.$intInterval.')
+			and TIMESTAMP_X < ' . $helper->addSecondsToDateTime(-$intInterval) . '
 		';
 		return is_object($DB->Query($strQuery));
 	}

@@ -8,8 +8,8 @@ use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Handlers\UpdateMasterExdateHandler;
 use Bitrix\Calendar\Core\Managers\Compare\EventCompareManager;
-use Bitrix\Calendar\Internals\FlagRegistry;
-use Bitrix\Calendar\Internals\HandleStatusTrait;
+use Bitrix\Calendar\Sync\Util\FlagRegistry;
+use Bitrix\Calendar\Sync\Util\HandleStatusTrait;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Entities\SyncEvent;
@@ -422,13 +422,10 @@ class VendorDataExchangeManager
 			$this->handleDeleteSingleEvent($syncEvent);
 		}
 
-		$this->eventMapper->delete(
-			$event,
-			[
-				'softDelete' => true,
-				'originalFrom' => $syncEvent->getEventConnection()->getConnection()->getVendor()->getCode(),
-			]
-		);
+		$this->eventMapper->delete($event, [
+			'softDelete' => true,
+			'originalFrom' => $syncEvent->getEventConnection()->getConnection()->getVendor()->getCode(),
+		]);
 
 		$this->eventConnectionMapper->delete($syncEvent->getEventConnection());
 
@@ -1626,7 +1623,7 @@ class VendorDataExchangeManager
 	private function removeDeprecatedInstances(
 		Sync\Entities\SyncEvent $existsExternalSyncEvent,
 		Sync\Entities\SyncEvent $syncEvent
-	)
+	): void
 	{
 		if ($existsExternalSyncEvent->hasInstances())
 		{
@@ -1636,7 +1633,11 @@ class VendorDataExchangeManager
 				if (!$syncEvent->hasInstances() || empty($syncEvent->getInstanceMap()->getItem($key)))
 				{
 					$this->eventConnectionMapper->delete($oldInstance->getEventConnection(), ['softDelete' => false]);
-					$this->eventMapper->delete($oldInstance->getEvent(), ['softDelete' => false]);
+					$this->eventMapper->delete($oldInstance->getEvent(), [
+						'softDelete' => false,
+						'originalFrom' => $syncEvent->getEventConnection()?->getConnection()->getVendor()->getCode(),
+						'recursionMode' => 'this',
+					]);
 				}
 			}
 		}
@@ -1733,66 +1734,6 @@ class VendorDataExchangeManager
 				]
 			);
 		}
-	}
-
-	/**
-	 * @param Event $baseEvent
-	 * @param Event $importedEvent
-	 *
-	 * @return bool
-	 *
-	 * @throws ObjectException
-	 */
-	private function checkAttendeesAccessibility(
-		Event $baseEvent,
-		Event $importedEvent
-	): bool
-	{
-		if (
-			$importedEvent->getStart()->format('c') === $baseEvent->getStart()->format('c')
-			&& $importedEvent->getEnd()->format('c') === $baseEvent->getEnd()->format('c')
-		)
-		{
-			return true;
-		}
-
-		$codes = $baseEvent->getAttendeesCollection()->getAttendeesCodes();
-		if (count($codes) > 1)
-		{
-			$userIds = CCalendar::GetDestinationUsers($codes);
-			if ($userIds = array_filter($userIds))
-			{
-				$localTime = new \DateTime();
-				$start = clone $importedEvent->getStart();
-				$end = clone $importedEvent->getEnd();
-				$accessibility = CCalendar::GetAccessibilityForUsers([
-					'users' => $userIds,
-					'from' => $start->setTimezone($localTime->getTimezone())->setTime(0,0,0)->toString(),
-					'to' => $end->setTimezone($localTime->getTimezone())->setTime(23,59,59)->toString(),
-					'curEventId' => $baseEvent->getId(),
-					'checkPermissions' => false,
-				]);
-
-				foreach ($accessibility as $events)
-				{
-					foreach ($events as $eventData)
-					{
-						$eventFrom  = new Date(new DateTime($eventData['DATE_FROM']));
-						$eventTo  = new Date(new DateTime($eventData['DATE_TO']));
-						if ($eventFrom >= $importedEvent->getEnd() || $eventTo <=$importedEvent->getStart())
-						{
-							continue;
-						}
-						if ($eventData['ACCESSIBILITY'] === 'busy')
-						{
-							return false;
-						}
-					}
-				}
-			}
-		}
-
-		return true;
 	}
 
 	/**

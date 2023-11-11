@@ -1,44 +1,48 @@
-import {Type} from 'main.core';
-import {BuilderModel, GetterTree, ActionTree, MutationTree} from 'ui.vue3.vuex';
+import { Type } from 'main.core';
+import { BuilderModel, GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
 
-import {Settings} from 'im.v2.const';
+import { Settings, DialogAlignment } from 'im.v2.const';
 
 type SettingsState = {[settingName: string]: any};
 
+/* eslint-disable no-param-reassign */
 export class SettingsModel extends BuilderModel
 {
 	getState()
 	{
 		return {
-			[Settings.application.darkTheme]: false,
-			[Settings.application.enableSound]: true,
+			[Settings.appearance.background]: 1,
+			[Settings.appearance.alignment]: DialogAlignment.left,
 
-			[Settings.dialog.bigSmiles]: true,
-			[Settings.dialog.background]: 1,
+			[Settings.notification.enableSound]: true,
+
+			[Settings.message.bigSmiles]: true,
 
 			[Settings.recent.showBirthday]: true,
 			[Settings.recent.showInvited]: true,
 			[Settings.recent.showLastMessage]: true,
+
+			[Settings.desktop.enableRedirect]: true,
 		};
 	}
 
 	getGetters(): GetterTree
 	{
 		return {
-			get: (state: SettingsState) => (key: string): any =>
-			{
+			/** @function application/settings/get */
+			get: (state: SettingsState) => (key: string): any => {
 				return state[key];
-			}
+			},
 		};
 	}
 
 	getActions(): ActionTree
 	{
 		return {
-			set: (store, payload: {[settingName: string]: any}) =>
-			{
+			/** @function application/settings/set */
+			set: (store, payload: {[settingName: string]: any}) => {
 				store.commit('set', this.validate(payload));
-			}
+			},
 		};
 	}
 
@@ -49,7 +53,7 @@ export class SettingsModel extends BuilderModel
 				Object.entries(payload).forEach(([key, value]) => {
 					state[key] = value;
 				});
-			}
+			},
 		};
 	}
 
@@ -57,28 +61,27 @@ export class SettingsModel extends BuilderModel
 	{
 		const result = {};
 
-		if (Type.isBoolean(fields[Settings.application.darkTheme]))
+		if (Type.isBoolean(fields[Settings.notification.enableSound]))
 		{
-			result[Settings.application.darkTheme] = fields[Settings.application.darkTheme];
+			result[Settings.notification.enableSound] = fields[Settings.notification.enableSound];
 		}
 
-		if (Type.isBoolean(fields[Settings.application.enableSound]))
+		if (Type.isBoolean(fields[Settings.message.bigSmiles]))
 		{
-			result[Settings.application.enableSound] = fields[Settings.application.enableSound];
+			result[Settings.message.bigSmiles] = fields[Settings.message.bigSmiles];
 		}
 
-		if (Type.isBoolean(fields[Settings.dialog.bigSmiles]))
+		if (
+			Type.isStringFilled(fields[Settings.appearance.background])
+			|| Type.isNumber(fields[Settings.appearance.background])
+		)
 		{
-			result[Settings.dialog.bigSmiles] = fields[Settings.dialog.bigSmiles];
+			result[Settings.appearance.background] = Number.parseInt(fields[Settings.appearance.background], 10);
 		}
 
-		if (Type.isStringFilled(fields[Settings.dialog.background]))
+		if (Type.isString(fields[Settings.appearance.alignment]))
 		{
-			fields[Settings.dialog.background] = Number.parseInt(fields[Settings.dialog.background], 10);
-		}
-		if (Type.isNumber(fields[Settings.dialog.background]))
-		{
-			result[Settings.dialog.background] = fields[Settings.dialog.background];
+			result[Settings.appearance.alignment] = fields[Settings.appearance.alignment];
 		}
 
 		if (Type.isBoolean(fields[Settings.recent.showBirthday]))
@@ -94,6 +97,21 @@ export class SettingsModel extends BuilderModel
 		if (Type.isBoolean(fields[Settings.recent.showLastMessage]))
 		{
 			result[Settings.recent.showLastMessage] = fields[Settings.recent.showLastMessage];
+		}
+
+		if (Type.isStringFilled(fields[Settings.hotkey.sendByEnter]))
+		{
+			result[Settings.hotkey.sendByEnter] = fields[Settings.hotkey.sendByEnter] === 'Y' || fields[Settings.hotkey.sendByEnter] === '1';
+		}
+
+		if (Type.isBoolean(fields[Settings.hotkey.sendByEnter]))
+		{
+			result[Settings.hotkey.sendByEnter] = fields[Settings.hotkey.sendByEnter];
+		}
+
+		if (Type.isBoolean(fields[Settings.desktop.enableRedirect]))
+		{
+			result[Settings.desktop.enableRedirect] = fields[Settings.desktop.enableRedirect];
 		}
 
 		return result;

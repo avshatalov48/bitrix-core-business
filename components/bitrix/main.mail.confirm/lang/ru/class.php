@@ -6,6 +6,7 @@ $MESS['MAIN_MAIL_CONFIRM_AJAX_ERROR'] = 'Ошибка при обработке 
 $MESS['MAIN_MAIL_CONFIRM_MENU'] = 'Добавить отправителя';
 $MESS['MAIN_MAIL_CONFIRM_TITLE'] = 'Добавление нового адреса';
 $MESS['MAIN_MAIL_CONFIRM_EDIT_TITLE'] = 'Редактирование адреса';
+$MESS["MAIN_MAIL_CONFIRM_EDIT_TITLE_EMAIL"] = "Редактирование адреса #EMAIL#";
 $MESS['MAIN_MAIL_CONFIRM_GET_CODE'] = 'Получить код';
 $MESS['MAIN_MAIL_CONFIRM_SAVE'] = 'Сохранить';
 $MESS['MAIN_MAIL_CONFIRM_CANCEL'] = 'Отменить';
@@ -18,7 +19,14 @@ $MESS['MAIN_MAIL_CONFIRM_EMAIL_HINT_SMTP'] = 'Введите имя и email в 
 $MESS['MAIN_MAIL_CONFIRM_EMAIL_HINT_SMTP_2'] = 'Введите имя и email (и данные <a href="#" class="new-from-email-dialog-smtp-link">SMTP-сервера</a> при необходимости) в поля ниже. Вам будет отправлено письмо с кодом подтверждения.';
 $MESS['MAIN_MAIL_CONFIRM_CODE_HINT'] = 'На указанный email отправлено письмо с кодом. Пожалуйста, скопируйте код из письма и вставьте его в поле ниже.';
 
-$MESS['MAIN_MAIL_CONFIRM_NAME'] = 'Имя';
+$MESS["MAIN_MAIL_CONFIRM_NAME_MSGVER_1"] = "Имя отправителя";
+$MESS["MAIN_MAIL_CONFIRM_NAME_HINT_GENERAL"] = "Имя отправителя – это первое, на что смотрят получатели письма. Помогите получателю узнать вас.";
+$MESS["MAIN_MAIL_CONFIRM_NAME_HINT_VARIANTS"] = "Чаще всего пишут:";
+$MESS["MAIN_MAIL_CONFIRM_NAME_HINT_VARIANT_COMPANY"] = "Название компании";
+$MESS["MAIN_MAIL_CONFIRM_NAME_HINT_VARIANT_COMPANY_SENDER"] = "Название компании и имя менеджера";
+$MESS["MAIN_MAIL_CONFIRM_NAME_HINT_VARIANT_NAME"] = "Имя и фамилию менеджера";
+$MESS["MAIN_MAIL_CONFIRM_NAME_HINT_VARIANT_COMPANY_CATEGORY"] = "Название рубрики";
+
 $MESS['MAIN_MAIL_CONFIRM_EMAIL'] = 'Email';
 $MESS['MAIN_MAIL_CONFIRM_PUBLIC'] = 'Доступен всем';
 $MESS['MAIN_MAIL_CONFIRM_PUBLIC_HINT1'] = 'Добавленный адрес сможет выбрать любой сотрудник';
@@ -70,3 +78,4 @@ $MESS['MAIN_MAIL_CONFIRM_POST_DELETE_ACCESS_ERROR'] = "Вы не можете у
 
 $MESS['MAIN_MAIL_CONFIRM_POST_DELETE_SUCCESS'] = "Удаление отправителей прошло успешно";
 $MESS['MAIN_MAIL_CONFIRM_POST_DELETE_SUCCESS_TITLE'] = "Удалено";
+$MESS["MAIN_MAIL_CONFIRM_SMTP_SENDER_NO_EDIT_HINT"] = "Изменить имя отправителя можно в настройках ящика";

@@ -353,6 +353,7 @@ class User
 			"TO_CHAT_ID" =>  $chatId,
 			"FROM_USER_ID" => $fromUserId,
 			"MESSAGE_OUT" => IM_MAIL_SKIP,
+			"SKIP_USER_CHECK" => 'Y',
 		]);
 
 		$result = \CIMChat::AddMessage($params);

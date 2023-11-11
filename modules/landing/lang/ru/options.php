@@ -2,6 +2,7 @@
 $MESS['LANDING_OPT_SITE_TEMPLATE_ID'] = 'Код шаблона лендинга';
 $MESS['LANDING_OPT_SITE_TEMPLATE_ID_SITES'] = 'Индивидуальные шаблоны для сайтов';
 $MESS['LANDING_OPT_DELETED_LIFETIME_DAYS'] = 'Сколько дней хранить удаленные элементы';
+$MESS['LANDING_OPT_HISTORY_LIFETIME'] = 'Сколько дней хранить историю редактирования';
 $MESS['LANDING_OPT_PORTAL_URL'] = 'Адрес портала для публикации';
 $MESS['LANDING_OPT_GOOGLE_IMAGES_KEY'] = 'Ключ API для Google Images';
 $MESS['LANDING_OPT_PUB_PATH_HEADER'] = 'Пути к публикации относительно корня сайта';

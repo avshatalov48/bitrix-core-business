@@ -17,7 +17,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  name: 'AddToChatContent',
 	  components: {
 	    SearchResult: im_v2_component_search_searchResult.SearchResult,
-	    Button: im_v2_component_elements.Button
+	    MessengerButton: im_v2_component_elements.Button
 	  },
 	  props: {
 	    chatId: {
@@ -60,7 +60,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  methods: {
 	    getTagSelector() {
-	      let timeoutId;
+	      let timeoutId = null;
 	      return new ui_entitySelector.TagSelector({
 	        maxHeight: 111,
 	        showAddButton: false,
@@ -94,7 +94,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	          onInput: () => {
 	            this.searchQuery = this.membersSelector.getTextBoxValue();
 	          },
-	          onBlur: () => {
+	          onBlur: event => {
+	            const inputText = this.membersSelector.getTextBoxValue();
+	            if (inputText.length > 0) {
+	              return;
+	            }
 	            timeoutId = setTimeout(() => {
 	              this.membersSelector.hideTextBox();
 	              this.membersSelector.showAddButton();
@@ -161,7 +165,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.isLoading = true;
 	      this.chatService.addToChat({
 	        chatId: this.chatId,
-	        members: members,
+	        members,
 	        showHistory: this.showHistory
 	      }).then(() => {
 	        this.isLoading = false;
@@ -177,12 +181,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.chatService.createChat({
 	        title: null,
 	        description: null,
-	        members: members,
+	        members,
 	        ownerId: im_v2_application_core.Core.getUserId(),
 	        isPrivate: true
 	      }).then(newDialogId => {
 	        this.isLoading = false;
 	        im_public.Messenger.openChat(newDialogId);
+	      }).catch(error => {
+	        console.error(error);
+	        this.isLoading = false;
 	      });
 	    },
 	    onListScroll(event) {
@@ -221,7 +228,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				</div>
 			</div>
 			<div class="bx-im-entity-selector-add-to-chat__buttons">
-				<Button
+				<MessengerButton
 					:size="ButtonSize.L"
 					:color="ButtonColor.Primary"
 					:isRounded="true"
@@ -230,7 +237,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					:isDisabled="selectedItems.size === 0"
 					@click="onInviteClick"
 				/>
-				<Button
+				<MessengerButton
 					:size="ButtonSize.L"
 					:color="ButtonColor.LightBorder"
 					:isRounded="true"

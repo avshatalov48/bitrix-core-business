@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core,main_popup,main_loader,pull_client) {
 	'use strict';
@@ -20,14 +21,11 @@ this.BX = this.BX || {};
 	    this.loadingNode = null;
 	    this.isSubscribe = false;
 	  }
-
 	  babelHelpers.createClass(QrAuthorization, [{
 	    key: "createQrCodeImage",
 	    value: function createQrCodeImage() {
 	      var _this = this;
-
 	      main_core.Dom.clean(this.getQrNode());
-
 	      if (main_core.Type.isString(this.qr)) {
 	        this.clean();
 	        new QRCode(this.getQrNode(), {
@@ -37,7 +35,6 @@ this.BX = this.BX || {};
 	        });
 	        return;
 	      }
-
 	      this.loading();
 	      main_core.ajax.runAction('mobile.deeplink.get', {
 	        data: {
@@ -45,21 +42,16 @@ this.BX = this.BX || {};
 	        }
 	      }).then(function (response) {
 	        var _response$data;
-
 	        var link = (_response$data = response.data) === null || _response$data === void 0 ? void 0 : _response$data.link;
-
 	        if (link) {
 	          _this.clean();
-
 	          new QRCode(_this.getQrNode(), {
 	            text: link,
 	            width: 180,
 	            height: 180
 	          });
-
 	          if (!_this.isSubscribe) {
 	            _this.isSubscribe = true;
-
 	            _this.subscribe();
 	          }
 	        }
@@ -69,7 +61,6 @@ this.BX = this.BX || {};
 	    key: "subscribe",
 	    value: function subscribe() {
 	      var _this2 = this;
-
 	      if (pull_client.PULL) {
 	        pull_client.PULL.subscribe({
 	          type: 'BX.PullClient.SubscriptionType.Server',
@@ -87,17 +78,14 @@ this.BX = this.BX || {};
 	      if (!this.qrNode) {
 	        this.qrNode = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-qr-authorization__popup-qr\"></div>\n\t\t\t"])));
 	      }
-
 	      return this.qrNode;
 	    }
 	  }, {
 	    key: "getPopup",
 	    value: function getPopup() {
 	      var _this3 = this;
-
 	      if (!this.popup) {
 	        var _this$title, _this$title2, _this$bottomText, _this$bottomText2, _this$popupParam, _this$popupParam2, _this$popupParam3, _this$popupParam4, _this$popupParam5, _this$popupParam6, _this$popupParam7, _this$popupParam8, _this$popupParam9, _this$popupParam10;
-
 	        var title = main_core.Type.isObject(this.title) ? (_this$title = this.title) === null || _this$title === void 0 ? void 0 : _this$title.text : this.title;
 	        var titleSize = main_core.Type.isObject(this.title) ? (_this$title2 = this.title) === null || _this$title2 === void 0 ? void 0 : _this$title2.size : '';
 	        var bottomText = main_core.Type.isObject(this.bottomText) ? (_this$bottomText = this.bottomText) === null || _this$bottomText === void 0 ? void 0 : _this$bottomText.text : this.bottomText;
@@ -118,9 +106,7 @@ this.BX = this.BX || {};
 	          events: {
 	            onPopupShow: function onPopupShow() {
 	              _this3.createQrCodeImage();
-
 	              var qrTarget = _this3.getPopup().getContentContainer().querySelector('[data-role="ui-qr-authorization__qr-node"]');
-
 	              if (qrTarget) {
 	                qrTarget.appendChild(_this3.getQrNode());
 	              }
@@ -131,7 +117,6 @@ this.BX = this.BX || {};
 	        };
 	        this.popup = new main_popup.Popup(popupParam);
 	      }
-
 	      return this.popup;
 	    }
 	  }, {
@@ -147,7 +132,6 @@ this.BX = this.BX || {};
 	      if (!this.successNode) {
 	        this.successNode = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-qr-authorization__popup-qr-success\"></div>\n\t\t\t"])));
 	      }
-
 	      return this.successNode;
 	    }
 	  }, {
@@ -164,7 +148,6 @@ this.BX = this.BX || {};
 	      if (!this.loadingNode) {
 	        this.loadingNode = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-qr-authorization__popup-qr-loading\"></div>\n\t\t\t"])));
 	      }
-
 	      return this.loadingNode;
 	    }
 	  }, {
@@ -176,7 +159,6 @@ this.BX = this.BX || {};
 	          size: 150
 	        });
 	      }
-
 	      return this.loader;
 	    }
 	  }, {

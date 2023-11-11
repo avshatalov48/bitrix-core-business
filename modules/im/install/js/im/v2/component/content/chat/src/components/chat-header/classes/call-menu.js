@@ -1,8 +1,9 @@
 import { Extension, Loc } from 'main.core';
 
-import { Messenger } from 'im.public';
 import { BaseMenu } from 'im.v2.lib.menu';
 import { CallManager } from 'im.v2.lib.call';
+
+import { CallTypes } from '../call-button/call-types';
 
 import type { ImModelDialog } from 'im.v2.model';
 import type { MenuItem } from 'im.v2.lib.menu';
@@ -12,6 +13,10 @@ import type { PopupOptions } from 'main.popup';
 export class CallMenu extends BaseMenu
 {
 	context: ImModelDialog;
+
+	static events = {
+		onMenuItemClick: 'onMenuItemClick',
+	};
 
 	constructor()
 	{
@@ -42,25 +47,40 @@ export class CallMenu extends BaseMenu
 
 	#getVideoCallItem(): MenuItem
 	{
-		return {
-			text: Loc.getMessage('IM_CONTENT_CHAT_HEADER_VIDEOCALL_HD'),
-			onclick: () => {
-				Messenger.startVideoCall(this.context.dialogId);
+		const isAvailable = CallManager.getInstance().chatCanBeCalled(this.context.dialogId);
 
+		return {
+			text: Loc.getMessage('IM_CONTENT_CHAT_HEADER_VIDEOCALL'),
+			onclick: () => {
+				if (!isAvailable)
+				{
+					return;
+				}
+				CallTypes.video.start(this.context.dialogId);
+				this.emit(CallMenu.events.onMenuItemClick, CallTypes.video);
 				this.menuInstance.close();
 			},
+			disabled: !isAvailable,
 		};
 	}
 
 	#getAudioCallItem(): MenuItem
 	{
+		const isAvailable = CallManager.getInstance().chatCanBeCalled(this.context.dialogId);
+
 		return {
 			text: Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_AUDIO'),
 			onclick: () => {
-				Messenger.startVideoCall(this.context.dialogId, false);
+				if (!isAvailable)
+				{
+					return;
+				}
+				CallTypes.audio.start(this.context.dialogId);
 
+				this.emit(CallMenu.events.onMenuItemClick, CallTypes.audio);
 				this.menuInstance.close();
 			},
+			disabled: !isAvailable,
 		};
 	}
 
@@ -72,10 +92,15 @@ export class CallMenu extends BaseMenu
 		}
 
 		return {
-			text: Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_BETA'),
+			text: Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_BETA_2'),
 			onclick: () => {
-				CallManager.getInstance().createBetaCallRoom(this.context.chatId);
+				if (!this.#isCallBetaAvailable())
+				{
+					return;
+				}
+				CallTypes.beta.start(this.context.dialogId);
 
+				this.emit(CallMenu.events.onMenuItemClick, CallTypes.beta);
 				this.menuInstance.close();
 			},
 		};

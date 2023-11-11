@@ -1,0 +1,27 @@
+.bx-im-message-unsupported__scope {
+	--im-message-unsupported__color_text: var(--im-color-palette-gray-60);
+}
+
+.bx-im-message-unsupported__container {
+	padding: var(--im-message-base__padding_body);
+}
+
+.bx-im-message-unsupported__content {
+	display: flex;
+	align-items: center;
+	margin-left: -5px;
+}
+
+.bx-im-message-unsupported__icon {
+	width: 17px;
+	height: 17px;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='14' height='12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M13.026 9.778l-5.16-8.593a1.007 1.007 0 00-1.733 0L.973 9.778c-.406.677.085 1.531.872 1.531h10.318a1.01 1.01 0 00.863-1.53zM6.26 4.18c0-.38.304-.685.685-.685h.093c.38 0 .685.305.685.685v2.563c0 .38-.305.685-.685.685h-.093a.682.682 0 01-.685-.685V4.18zm1.598 4.974c0 .473-.389.862-.863.862a.866.866 0 01-.862-.862c0-.474.389-.863.862-.863.474 0 .863.389.863.863z' fill='%23A8ADB4'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: center;
+	margin-right: 3px;
+}
+
+.bx-im-message-unsupported__text {
+	font: var(--im-font-size-lg) var(--im-font-family-system);
+	color: var(--im-message-unsupported__color_text);
+}

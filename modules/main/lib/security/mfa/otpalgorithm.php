@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Security\Mfa;
 
 use Bitrix\Main\ArgumentTypeException;
@@ -31,8 +32,8 @@ abstract class OtpAlgorithm
 	 *
 	 * @param string $inputA First code.
 	 * @param string|null $inputB Second code. Must be provided if current OtpAlgorithm required it (see isTwoCodeRequired).
-	 * @throws OtpException
 	 * @return string
+	 * @throws OtpException
 	 */
 	abstract public function getSyncParameters($inputA, $inputB);
 
@@ -58,7 +59,9 @@ abstract class OtpAlgorithm
 
 		// Backward compatibility. Use sha256 for eToken with 256bits key
 		if (strlen($this->secret) > 25)
+		{
 			$this->digest = 'sha256';
+		}
 
 		return $this;
 	}
@@ -79,18 +82,18 @@ abstract class OtpAlgorithm
 	 * @link https://code.google.com/p/google-authenticator/wiki/KeyUriFormat
 	 * @param string $label User label.
 	 * @param array $opts Additional URI parameters, e.g. ['image' => 'http://example.com/my_logo.png'] .
-	 * @throws \Bitrix\Main\ArgumentTypeException
+	 * @throws ArgumentTypeException
 	 * @return string
 	 */
-	public function generateUri($label, array $opts = array())
+	public function generateUri($label, array $opts = [])
 	{
-		$positionalOpts = array(
+		$positionalOpts = [
 			// Don't change order!
-			'secret' => Base32::encode($this->getSecret())
-		);
+			'secret' => Base32::encode($this->getSecret()),
+		];
 
 		$opts['algorithm'] = $this->getDigest();
-		// Digest must be in upper case for some OTP apps (e.g Google Authenticator for iOS)
+		// Digest must be in upper case for some OTP apps (e.g. Google Authenticator for iOS)
 		$opts['algorithm'] = mb_strtoupper($opts['algorithm']);
 		$opts['digits'] = $this->getDigits();
 
@@ -122,14 +125,14 @@ abstract class OtpAlgorithm
 	public function generateOTP($counter)
 	{
 		$hash = hash_hmac($this->getDigest(), static::toByte($counter), $this->getSecret());
-		$hmac = array();
+		$hmac = [];
 		foreach (str_split($hash, 2) as $hex)
 		{
 			$hmac[] = hexdec($hex);
 		}
 
-		$offset = $hmac[count($hmac)  - 1] & 0xf;
-		$code = ($hmac[$offset + 0] & 0x7F) << 24;
+		$offset = $hmac[count($hmac) - 1] & 0xf;
+		$code = ($hmac[$offset] & 0x7F) << 24;
 		$code |= ($hmac[$offset + 1] & 0xFF) << 16;
 		$code |= ($hmac[$offset + 2] & 0xFF) << 8;
 		$code |= ($hmac[$offset + 3] & 0xFF);
@@ -146,7 +149,7 @@ abstract class OtpAlgorithm
 	 */
 	protected static function toByte($value)
 	{
-		$result = array();
+		$result = [];
 		while ($value > 0)
 		{
 			$result[] = chr($value & 0xFF);
@@ -161,8 +164,8 @@ abstract class OtpAlgorithm
 	 *
 	 * @param string $expected Expected string (e.g. input from user).
 	 * @param string $actual Actual string (e.g. generated password).
-	 * @throws ArgumentTypeException
 	 * @return bool
+	 * @throws ArgumentTypeException
 	 */
 	protected function isStringsEqual($expected, $actual)
 	{

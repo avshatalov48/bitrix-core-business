@@ -1,6 +1,6 @@
 <?php
 $MESS["ACCESS_DENIED"] = "Access denied.";
-$MESS["CAT_DOCS"] = "Documents";
+$MESS["CAT_DOCS_MSGVER_1"] = "Inventory";
 $MESS["CAT_DOC_ADD"] = "New document";
 $MESS["CAT_DOC_ADD_ITEMS"] = "Add product";
 $MESS["CAT_DOC_ADD_TITLE"] = "Create a new document";

@@ -219,7 +219,8 @@ class Bot
 
 					\CIMChat::AddGeneralMessage(Array(
 						'MESSAGE' => $message,
-						'ATTACH' => $attach
+						'ATTACH' => $attach,
+						'SKIP_USER_CHECK' => 'Y',
 					));
 				}
 			}
@@ -1347,17 +1348,20 @@ class Bot
 			{
 				$type = 'network';
 
-				if ($bot['CLASS'] == 'Bitrix\ImBot\Bot\Support24')
+				if (
+					$bot['CLASS'] == \Bitrix\ImBot\Bot\Support24::class
+					|| $bot['CLASS'] == \Bitrix\ImBot\Bot\SaleSupport24::class
+				)
 				{
 					$type = 'support24';
 					$code = 'network_cloud';
 				}
-				else if ($bot['CLASS'] == 'Bitrix\ImBot\Bot\Partner24')
+				else if ($bot['CLASS'] == \Bitrix\ImBot\Bot\Partner24::class)
 				{
 					$type = 'support24';
 					$code = 'network_partner';
 				}
-				else if ($bot['CLASS'] == 'Bitrix\ImBot\Bot\SupportBox')
+				else if ($bot['CLASS'] == \Bitrix\ImBot\Bot\SupportBox::class)
 				{
 					$type = 'support24';
 					$code = 'network_box';

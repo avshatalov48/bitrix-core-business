@@ -24,7 +24,7 @@ export class AuthHandler
 	{
 		runAction(RestMethod.imV2DesktopLogout)
 			.finally(() => {
-				DesktopApi.exit();
+				DesktopApi.shutdown();
 			});
 	}
 }

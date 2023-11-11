@@ -236,7 +236,7 @@ if ($request->isPost() && $STEP > 1 && check_bitrix_sessid())
 			$bNeedGroups = false;
 			$bNeedProps  = false;
 			$arNeedFields = array();
-			foreach($field_code as  $i => $value)
+			foreach ($field_code as $i => $value)
 			{
 				if (isset($field_needed[$i]) && $field_needed[$i] === "Y")
 				{
@@ -254,8 +254,8 @@ if ($request->isPost() && $STEP > 1 && check_bitrix_sessid())
 						$bNeedProps = true;
 					}
 
-					$j = $field_num[$i];
-					while(array_key_exists($j, $arNeedFields))
+					$j = (int)($field_num[$i] ?? 0);
+					while (array_key_exists($j, $arNeedFields))
 					{
 						$j++;
 					}
@@ -692,18 +692,19 @@ if ($STEP == 2)
 				</tr><?php
 				for ($i = 0; $i < $intCountFields; $i++)
 				{
+					$fieldNumValue = (int)($field_num[$i] ?? (10 * ($i + 1)));
 					?>
 					<tr>
 						<td style="text-align: left !important;">
-							<input type="checkbox" name="field_needed[<?= $i ?>]" id="field_needed_<?= $i; ?>"<?= (in_array($i,$arCheckID) ? ' checked' : ''); ?> value="Y" onclick="checkOne(this,<?= $intCountFields; ?>);">
+							<input type="checkbox" name="field_needed[<?= $i ?>]" id="field_needed_<?= $i; ?>"<?= (in_array($i, $arCheckID) ? ' checked' : ''); ?> value="Y" onclick="checkOne(this,<?= $intCountFields; ?>);">
 						</td>
 						<td>
 							<?= ($i < 2 ? '<b>' : '') . $arAvailFields[$i]["name"] . ($i < 2 ? '</b>' : ''); ?>
 						</td>
 						<td align="center">
 							<?= ($i < 2 ? '<b>' : ''); ?>
-							<input type="text" name="field_num[<?= $i ?>]" value="<?= $field_num[$i] ?? (10 * ($i + 1)) ?>" size="2">
-							<input type="hidden" name="field_code[<?= $i ?>]" value="<?= $arAvailFields[$i]["value"] ?>">
+							<input type="text" name="field_num[<?= $i ?>]" value="<?= $fieldNumValue; ?>" size="2">
+							<input type="hidden" name="field_code[<?= $i ?>]" value="<?= htmlspecialcharsbx($arAvailFields[$i]["value"]); ?>">
 							<?= ($i < 2 ? '</b>' : ''); ?>
 						</td>
 					</tr>
@@ -724,10 +725,10 @@ if ($STEP == 2)
 			}
 			function checkOne(obj,cnt)
 			{
-				var boolCheck = obj.checked;
-				var intCurrent = parseInt(BX('count_checked').value);
+				const boolCheck = obj.checked;
+				let intCurrent = parseInt(BX('count_checked').value);
 				intCurrent += (boolCheck ? 1 : -1);
-				BX('field_needed_all').checked = (intCurrent < cnt ? false : true);
+				BX('field_needed_all').checked = (intCurrent >= cnt);
 				BX('count_checked').value = intCurrent;
 			}
 			</script>
@@ -824,8 +825,7 @@ endif;
 $tabControl->End();
 if (!$bPublicMode):
 ?>
-<script type="text/javaScript">
-<!--
+<script>
 BX.ready(function() {
 <?php
 if ($STEP < 2):
@@ -849,7 +849,6 @@ elseif ($STEP > 2):
 endif;
 ?>
 });
-//-->
 </script>
 <?php
 endif;

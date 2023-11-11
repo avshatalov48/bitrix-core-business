@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,ui_designTokens,ui_progressbar,main_core_events,main_popup,ui_alerts,ui_buttons,main_core) {
@@ -33,45 +34,47 @@ this.BX.UI = this.BX.UI || {};
 	    this.type = options.type;
 	    this.title = options.title;
 	    this.obligatory = !!options.obligatory;
-
 	    if ('value' in options) {
 	      this.setValue(options.value);
 	    }
-
 	    if ('emptyMessage' in options) {
 	      this.emptyMessage = options.emptyMessage;
 	    } else {
 	      this.emptyMessage = main_core.Loc.getMessage('UI_STEP_PROCESSING_EMPTY_ERROR') || '';
 	    }
 	  }
-
 	  babelHelpers.createClass(BaseField, [{
 	    key: "setValue",
 	    value: function setValue(value) {
-	      throw new Error('BX.UI.StepProcessing: Must be implemented by a subclass'); //this.value = value;
+	      throw new Error('BX.UI.StepProcessing: Must be implemented by a subclass');
+	      //this.value = value;
 	      //return this;
 	    }
 	  }, {
 	    key: "getValue",
 	    value: function getValue() {
-	      throw new Error('BX.UI.StepProcessing: Must be implemented by a subclass'); //return this.value;
+	      throw new Error('BX.UI.StepProcessing: Must be implemented by a subclass');
+	      //return this.value;
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      throw new Error('BX.UI.StepProcessing: Must be implemented by a subclass'); //return this.field;
+	      throw new Error('BX.UI.StepProcessing: Must be implemented by a subclass');
+	      //return this.field;
 	    }
 	  }, {
 	    key: "lock",
 	    value: function lock() {
-	      throw new Error('BX.UI.StepProcessing: Must be implemented by a subclass'); //this.disabled = flag;
+	      throw new Error('BX.UI.StepProcessing: Must be implemented by a subclass');
+	      //this.disabled = flag;
 	      //this.field.disabled = !!flag;
 	      //return this;
 	    }
 	  }, {
 	    key: "isFilled",
 	    value: function isFilled() {
-	      throw new Error('BX.UI.StepProcessing: Must be implemented by a subclass'); //return this.field;
+	      throw new Error('BX.UI.StepProcessing: Must be implemented by a subclass');
+	      //return this.field;
 	    }
 	  }, {
 	    key: "getInput",
@@ -85,13 +88,11 @@ this.BX.UI = this.BX.UI || {};
 	        this.container = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"", " ", "\"></div>"])), DialogStyle.ProcessOptionContainer, this.className);
 	        this.container.appendChild(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\"></div>"])), DialogStyle.ProcessOptionsTitle)).appendChild(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<label for=\"", "_inp\">", "</label>"])), this.id, this.title));
 	        this.container.appendChild(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\"></div>"])), DialogStyle.ProcessOptionsInput)).appendChild(this.render());
-
 	        if (this.obligatory) {
 	          var alertId = this.id + '_alert';
 	          this.container.appendChild(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"", "\" style=\"display:none\"></div>"])), alertId, DialogStyle.ProcessOptionsObligatory)).appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-alert-message\">", "</span>"])), this.emptyMessage));
 	        }
 	      }
-
 	      return this.container;
 	    }
 	  }, {
@@ -99,22 +100,18 @@ this.BX.UI = this.BX.UI || {};
 	    value: function showWarning(message) {
 	      var alertId = this.id + '_alert';
 	      var optionElement = this.container.querySelector('#' + alertId);
-
 	      if (optionElement) {
 	        if (main_core.Type.isStringFilled(message)) {
 	          var messageElement = optionElement.querySelector('.ui-alert-message');
 	          messageElement.innerHTML = message;
 	        }
-
 	        optionElement.style.display = 'block';
 	      } else {
 	        var _message = _message ? _message : this.emptyMessage;
-
 	        if (main_core.Type.isStringFilled(_message)) {
 	          this.container.appendChild(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"", "\"></div>"])), alertId, DialogStyle.ProcessOptionsObligatory)).appendChild(main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-alert-message\">", "</span>"])), _message));
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -122,11 +119,9 @@ this.BX.UI = this.BX.UI || {};
 	    value: function hideWarning() {
 	      var alertId = this.id + '_alert';
 	      var optionElement = this.container.querySelector('#' + alertId);
-
 	      if (optionElement) {
 	        optionElement.style.display = 'none';
 	      }
-
 	      return this;
 	    }
 	  }]);
@@ -136,37 +131,29 @@ this.BX.UI = this.BX.UI || {};
 	var _templateObject$1;
 	var TextField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(TextField, _BaseField);
-
 	  function TextField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, TextField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TextField).call(this, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "type", 'text');
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "className", DialogStyle.ProcessOptionText);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "rows", 10);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cols", 50);
-
 	    if (options.textSize) {
 	      _this.cols = options.textSize;
 	    }
-
 	    if (options.textLine) {
 	      _this.rows = options.textLine;
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(TextField, [{
 	    key: "setValue",
 	    value: function setValue(value) {
 	      this.value = value;
-
 	      if (this.field) {
 	        this.field.value = this.value;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -177,7 +164,6 @@ this.BX.UI = this.BX.UI || {};
 	          this.value = this.field.value;
 	        }
 	      }
-
 	      return this.value;
 	    }
 	  }, {
@@ -188,7 +174,6 @@ this.BX.UI = this.BX.UI || {};
 	          return main_core.Type.isStringFilled(this.field.value);
 	        }
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -197,11 +182,9 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.field) {
 	        this.field = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<textarea id=\"", "\" name=\"", "\" cols=\"", "\" rows=\"", "\"></textarea>"])), this.id, this.name, this.cols, this.rows);
 	      }
-
 	      if (this.value) {
 	        this.field.value = this.value;
 	      }
-
 	      return this.field;
 	    }
 	  }, {
@@ -219,27 +202,21 @@ this.BX.UI = this.BX.UI || {};
 	var _templateObject$2;
 	var FileField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(FileField, _BaseField);
-
 	  function FileField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, FileField);
-
 	    if (!('emptyMessage' in options)) {
 	      options.emptyMessage = main_core.Loc.getMessage('UI_STEP_PROCESSING_FILE_EMPTY_ERROR');
 	    }
-
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FileField).call(this, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "type", 'file');
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "className", DialogStyle.ProcessOptionFile);
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(FileField, [{
 	    key: "setValue",
 	    value: function setValue(value) {
 	      this.value = value;
-
 	      if (this.field) {
 	        if (value instanceof FileList) {
 	          this.field.files = value;
@@ -247,7 +224,6 @@ this.BX.UI = this.BX.UI || {};
 	          this.field.files[0] = value;
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -258,7 +234,6 @@ this.BX.UI = this.BX.UI || {};
 	          this.value = this.field.files[0];
 	        }
 	      }
-
 	      return this.value;
 	    }
 	  }, {
@@ -269,7 +244,6 @@ this.BX.UI = this.BX.UI || {};
 	          return true;
 	        }
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -278,7 +252,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.field) {
 	        this.field = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<input type=\"file\" id=\"", "\" name=\"", "\">"])), this.id, this.name);
 	      }
-
 	      return this.field;
 	    }
 	  }, {
@@ -296,30 +269,23 @@ this.BX.UI = this.BX.UI || {};
 	var _templateObject$3, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1, _templateObject7$1;
 	var CheckboxField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(CheckboxField, _BaseField);
-
 	  function CheckboxField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, CheckboxField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(CheckboxField).call(this, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "type", 'checkbox');
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "list", []);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "multiple", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "className", DialogStyle.ProcessOptionCheckbox);
-
 	    if ('list' in options) {
 	      _this.list = options.list;
 	    }
-
 	    _this.multiple = _this.list.length > 1;
-
 	    if (_this.multiple) {
 	      _this["class"] = DialogStyle.ProcessOptionMultiple;
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(CheckboxField, [{
 	    key: "setValue",
 	    value: function setValue(value) {
@@ -332,11 +298,9 @@ this.BX.UI = this.BX.UI || {};
 
 	        this.value = value;
 	      }
-
 	      if (this.field) {
 	        if (this.multiple) {
 	          var optionElements = this.field.querySelectorAll("input[type=checkbox]");
-
 	          if (optionElements) {
 	            for (var k = 0; k < optionElements.length; k++) {
 	              optionElements[k].checked = this.value.indexOf(optionElements[k].value) !== -1;
@@ -344,13 +308,11 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        } else {
 	          var optionElement = this.field.querySelector("input[type=checkbox]");
-
 	          if (optionElement) {
 	            optionElement.checked = main_core.Type.isBoolean(this.value) ? this.value : optionElement.value === this.value;
 	          }
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -360,7 +322,6 @@ this.BX.UI = this.BX.UI || {};
 	        if (this.multiple) {
 	          this.value = [];
 	          var optionElements = this.field.querySelectorAll("input[type=checkbox]");
-
 	          if (optionElements) {
 	            for (var k = 0; k < optionElements.length; k++) {
 	              if (optionElements[k].checked) {
@@ -370,7 +331,6 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        } else {
 	          var optionElement = this.field.querySelector("input[type=checkbox]");
-
 	          if (optionElement) {
 	            if (optionElement.value && optionElement.value !== 'Y') {
 	              this.value = optionElement.checked ? optionElement.value : '';
@@ -380,7 +340,6 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        }
 	      }
-
 	      return this.value;
 	    }
 	  }, {
@@ -388,12 +347,10 @@ this.BX.UI = this.BX.UI || {};
 	    value: function isFilled() {
 	      if (this.field) {
 	        var optionElements = this.field.querySelectorAll("input[type=checkbox]");
-
 	        if (optionElements) {
 	          return true;
 	        }
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -402,30 +359,25 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.field) {
 	        if (this.multiple) {
 	          var optionElements = this.field.querySelectorAll("input[type=checkbox]");
-
 	          if (optionElements) {
 	            return optionElements;
 	          }
 	        } else {
 	          var optionElement = this.field.querySelector("input[type=checkbox]");
-
 	          if (optionElement) {
 	            return optionElement;
 	          }
 	        }
 	      }
-
 	      return null;
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
 	      var _this2 = this;
-
 	      if (!this.field) {
 	        this.field = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\"></div>"])), this.id);
 	      }
-
 	      if (this.multiple) {
 	        Object.keys(this.list).forEach(function (itemId) {
 	          if (_this2.value.indexOf(itemId) !== -1) {
@@ -449,7 +401,6 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        }
 	      }
-
 	      return this.field;
 	    }
 	  }, {
@@ -457,17 +408,14 @@ this.BX.UI = this.BX.UI || {};
 	    value: function lock() {
 	      var flag = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 	      this.disabled = flag;
-
 	      if (this.field) {
 	        var optionElements = this.field.querySelectorAll("input[type=checkbox]");
-
 	        if (optionElements) {
 	          for (var k = 0; k < optionElements.length; k++) {
 	            optionElements[k].disabled = !!flag;
 	          }
 	        }
 	      }
-
 	      return this;
 	    }
 	  }]);
@@ -477,34 +425,27 @@ this.BX.UI = this.BX.UI || {};
 	var _templateObject$4, _templateObject2$2;
 	var SelectField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(SelectField, _BaseField);
-
 	  function SelectField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, SelectField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SelectField).call(this, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "type", 'select');
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "multiple", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "list", []);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "className", DialogStyle.ProcessOptionSelect);
-
 	    if ('multiple' in options) {
 	      _this.multiple = main_core.Type.isBoolean(options.multiple) ? options.multiple === true : options.multiple === 'Y';
 	    }
-
 	    if (_this.multiple) {
 	      if ('size' in options) {
 	        _this.size = options.size;
 	      }
 	    }
-
 	    if ('list' in options) {
 	      _this.list = options.list;
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(SelectField, [{
 	    key: "setValue",
 	    value: function setValue(value) {
@@ -513,7 +454,6 @@ this.BX.UI = this.BX.UI || {};
 	      } else {
 	        this.value = value;
 	      }
-
 	      if (this.field) {
 	        if (this.multiple) {
 	          for (var k = 0; k < this.field.options.length; k++) {
@@ -523,7 +463,6 @@ this.BX.UI = this.BX.UI || {};
 	          this.field.value = this.value;
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -532,7 +471,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.field && this.disabled !== true) {
 	        if (this.multiple) {
 	          this.value = [];
-
 	          for (var k = 0; k < this.field.options.length; k++) {
 	            if (this.field.options[k].selected) {
 	              this.value.push(this.field.options[k].value);
@@ -542,7 +480,6 @@ this.BX.UI = this.BX.UI || {};
 	          this.value = this.field.value;
 	        }
 	      }
-
 	      return this.value;
 	    }
 	  }, {
@@ -555,37 +492,29 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        }
 	      }
-
 	      return false;
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
 	      var _this2 = this;
-
 	      if (!this.field) {
 	        this.field = main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<select id=\"", "\" name=\"", "\"></select>"])), this.id, this.name);
 	      }
-
 	      if (this.multiple) {
 	        this.field.multiple = 'multiple';
-
 	        if (this.size) {
 	          this.field.size = this.size;
 	        }
 	      }
-
 	      Object.keys(this.list).forEach(function (itemId) {
 	        var selected;
-
 	        if (_this2.multiple === true) {
 	          selected = _this2.value.indexOf(itemId) !== -1;
 	        } else {
 	          selected = itemId === _this2.value;
 	        }
-
 	        var option = _this2.field.appendChild(main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["<option value=\"", "\">", "</option>"])), itemId, _this2.list[itemId]));
-
 	        if (selected) {
 	          option.selected = 'selected';
 	        }
@@ -607,38 +536,30 @@ this.BX.UI = this.BX.UI || {};
 	var _templateObject$5, _templateObject2$3, _templateObject3$2;
 	var RadioField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(RadioField, _BaseField);
-
 	  function RadioField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, RadioField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(RadioField).call(this, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "type", 'radio');
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "list", []);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "className", DialogStyle.ProcessOptionMultiple);
-
 	    if ('list' in options) {
 	      _this.list = options.list;
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(RadioField, [{
 	    key: "setValue",
 	    value: function setValue(value) {
 	      this.value = value;
-
 	      if (this.field) {
 	        var optionElements = this.field.querySelectorAll("input[type=radio]");
-
 	        if (optionElements) {
 	          for (var k = 0; k < optionElements.length; k++) {
 	            optionElements[k].checked = optionElements[k].value === this.value;
 	          }
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -646,7 +567,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getValue() {
 	      if (this.field) {
 	        var optionElements = this.field.querySelectorAll("input[type=radio]");
-
 	        if (optionElements) {
 	          for (var k = 0; k < optionElements.length; k++) {
 	            if (optionElements[k].checked) {
@@ -656,7 +576,6 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        }
 	      }
-
 	      return this.value;
 	    }
 	  }, {
@@ -664,7 +583,6 @@ this.BX.UI = this.BX.UI || {};
 	    value: function isFilled() {
 	      if (this.field) {
 	        var optionElements = this.field.querySelectorAll("input[type=radio]");
-
 	        if (optionElements) {
 	          for (var k = 0; k < optionElements.length; k++) {
 	            if (optionElements[k].checked) {
@@ -673,7 +591,6 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        }
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -681,23 +598,19 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getInput() {
 	      if (this.field && this.disabled !== true) {
 	        var optionElement = this.field.querySelector("input[type=radio]");
-
 	        if (optionElement) {
 	          return optionElement;
 	        }
 	      }
-
 	      return null;
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
 	      var _this2 = this;
-
 	      if (!this.field) {
 	        this.field = main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\"></div>"])), this.id);
 	      }
-
 	      Object.keys(this.list).forEach(function (itemId) {
 	        if (itemId === _this2.value) {
 	          _this2.field.appendChild(main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["<label><input type=\"radio\" name=\"", "\" value=\"", "\" checked>", "</label>"])), _this2.name, itemId, _this2.list[itemId]));
@@ -712,17 +625,14 @@ this.BX.UI = this.BX.UI || {};
 	    value: function lock() {
 	      var flag = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 	      this.disabled = flag;
-
 	      if (this.field) {
 	        var optionElements = this.field.querySelectorAll("input[type=radio]");
-
 	        if (optionElements) {
 	          for (var k = 0; k < optionElements.length; k++) {
 	            optionElements[k].disabled = !!flag;
 	          }
 	        }
 	      }
-
 	      return this;
 	    }
 	  }]);
@@ -730,6 +640,7 @@ this.BX.UI = this.BX.UI || {};
 	}(BaseField);
 
 	var _templateObject$6, _templateObject2$4, _templateObject3$3, _templateObject4$2;
+
 	/**
 	 * @namespace {BX.UI.StepProcessing}
 	 */
@@ -761,6 +672,7 @@ this.BX.UI = this.BX.UI || {};
 	  Start: 'BX.UI.StepProcessing.Dialog.Start',
 	  Stop: 'BX.UI.StepProcessing.Dialog.Stop'
 	};
+
 	/**
 	 * UI of process dialog
 	 *
@@ -770,7 +682,6 @@ this.BX.UI = this.BX.UI || {};
 	 * @event BX.UI.StepProcessing.Dialog.Start
 	 * @event BX.UI.StepProcessing.Dialog.Stop
 	 */
-
 	var Dialog = /*#__PURE__*/function () {
 	  /**
 	   * @type {DialogOptions}
@@ -788,6 +699,7 @@ this.BX.UI = this.BX.UI || {};
 	  /**
 	   * @private
 	   */
+
 	  function Dialog() {
 	    var settings = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Dialog);
@@ -804,7 +716,6 @@ this.BX.UI = this.BX.UI || {};
 	    this._messages = this.getSetting('messages', {});
 	    var optionsFields = {};
 	    var fields = this.getSetting('optionsFields');
-
 	    if (main_core.Type.isArray(fields)) {
 	      fields.forEach(function (option) {
 	        if (main_core.Type.isPlainObject(option) && option.hasOwnProperty('name') && option.hasOwnProperty('type') && option.hasOwnProperty('title')) {
@@ -814,22 +725,17 @@ this.BX.UI = this.BX.UI || {};
 	    } else if (main_core.Type.isPlainObject(fields)) {
 	      Object.keys(fields).forEach(function (optionName) {
 	        var option = fields[optionName];
-
 	        if (main_core.Type.isPlainObject(option) && option.hasOwnProperty('name') && option.hasOwnProperty('type') && option.hasOwnProperty('title')) {
 	          optionsFields[option.name] = option;
 	        }
 	      });
 	    }
-
 	    this.setSetting('optionsFields', optionsFields);
 	    var optionsFieldsValue = this.getSetting('optionsFieldsValue');
-
 	    if (!optionsFieldsValue) {
 	      this.setSetting('optionsFieldsValue', {});
 	    }
-
 	    var showButtons = this.getSetting('showButtons');
-
 	    if (!showButtons) {
 	      this.setSetting('showButtons', {
 	        'start': true,
@@ -837,10 +743,8 @@ this.BX.UI = this.BX.UI || {};
 	        'close': true
 	      });
 	    }
-
 	    this._handlers = this.getSetting('handlers', {});
 	  }
-
 	  babelHelpers.createClass(Dialog, [{
 	    key: "destroy",
 	    value: function destroy() {
@@ -877,14 +781,12 @@ this.BX.UI = this.BX.UI || {};
 	      this._messages[name] = text;
 	      return this;
 	    } //region Event handlers
-
 	  }, {
 	    key: "setHandler",
 	    value: function setHandler(type, handler) {
 	      if (typeof handler == 'function') {
 	        this._handlers[type] = handler;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -895,7 +797,6 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    } //endregion
 	    //region Run
-
 	  }, {
 	    key: "start",
 	    value: function start() {
@@ -918,13 +819,10 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.isShown) {
 	        return;
 	      }
-
 	      var optionElement = document.querySelector('#bx-admin-prefix');
-
 	      if (optionElement) {
 	        this.isAdminPanel = true;
 	      }
-
 	      this.progressBar = new BX.UI.ProgressBar({
 	        statusType: BX.UI.ProgressBar.Status.COUNTER,
 	        size: this.isAdminPanel ? BX.UI.ProgressBar.Size.LARGE : BX.UI.ProgressBar.Size.MEDIUM,
@@ -963,20 +861,16 @@ this.BX.UI = this.BX.UI || {};
 	        minWidth: Number.parseInt(this.getSetting('minWidth', 500)),
 	        maxWidth: Number.parseInt(this.getSetting('maxWidth', 1000))
 	      });
-
 	      if (!this.popupWindow.isShown()) {
 	        this.popupWindow.show();
 	      }
-
 	      this.isShown = this.popupWindow.isShown();
-
 	      if (this.isShown) {
 	        this.callHandler('dialogShown');
 	        main_core_events.EventEmitter.emit(DialogEvent.Shown, new main_core_events.BaseEvent({
 	          dialog: this
 	        }));
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -985,11 +879,9 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.isShown) {
 	        return;
 	      }
-
 	      if (this.popupWindow) {
 	        this.popupWindow.close();
 	      }
-
 	      this.isShown = false;
 	      this.callHandler('dialogClosed');
 	      main_core_events.EventEmitter.emit(DialogEvent.Closed, new main_core_events.BaseEvent({
@@ -998,43 +890,34 @@ this.BX.UI = this.BX.UI || {};
 	      return this;
 	    } // endregion
 	    //region Dialog
-
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "_prepareDialogContent",
 	    value: function _prepareDialogContent() {
 	      var _this = this;
-
 	      this.summaryBlock = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"])), DialogStyle.ProcessSummary, this.getMessage('summary'));
 	      this.errorBlock = this.error.getContainer();
 	      this.warningBlock = this.warning.getContainer();
 	      this.errorBlock.style.display = 'none';
 	      this.warningBlock.style.display = 'none';
-
 	      if (this.progressBar) {
 	        this.progressBarBlock = main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\" style=\"display:none\"></div>"])), DialogStyle.ProcessProgressbar);
 	        this.progressBarBlock.appendChild(this.progressBar.getContainer());
 	      }
-
 	      if (!this.optionsFieldsBlock) {
 	        this.optionsFieldsBlock = main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\" style=\"display:none\"></div>"])), DialogStyle.ProcessOptions);
 	      } else {
 	        main_core.Dom.clean(this.optionsFieldsBlock);
 	      }
-
 	      var optionsFields = this.getSetting('optionsFields', {});
 	      var optionsFieldsValue = this.getSetting('optionsFieldsValue', {});
 	      Object.keys(optionsFields).forEach(function (optionName) {
 	        var optionValue = optionsFieldsValue[optionName] ? optionsFieldsValue[optionName] : null;
-
 	        var optionBlock = _this._renderOption(optionsFields[optionName], optionValue);
-
 	        if (optionBlock instanceof HTMLElement) {
 	          _this.optionsFieldsBlock.appendChild(optionBlock);
-
 	          _this.optionsFieldsBlock.style.display = 'block';
 	        }
 	      });
@@ -1042,58 +925,46 @@ this.BX.UI = this.BX.UI || {};
 	      dialogContent.appendChild(this.summaryBlock);
 	      dialogContent.appendChild(this.warningBlock);
 	      dialogContent.appendChild(this.errorBlock);
-
 	      if (this.progressBarBlock) {
 	        dialogContent.appendChild(this.progressBarBlock);
 	      }
-
 	      if (this.optionsFieldsBlock) {
 	        dialogContent.appendChild(this.optionsFieldsBlock);
 	      }
-
 	      return dialogContent;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "_renderOption",
 	    value: function _renderOption(option) {
 	      var optionValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      option.id = this.id + '_opt_' + option.name;
-
 	      switch (option.type) {
 	        case 'text':
 	          this.fields[option.name] = new TextField(option);
 	          break;
-
 	        case 'file':
 	          this.fields[option.name] = new FileField(option);
 	          break;
-
 	        case 'checkbox':
 	          this.fields[option.name] = new CheckboxField(option);
 	          break;
-
 	        case 'select':
 	          this.fields[option.name] = new SelectField(option);
 	          break;
-
 	        case 'radio':
 	          this.fields[option.name] = new RadioField(option);
 	          break;
 	      }
-
 	      if (optionValue !== null) {
 	        this.fields[option.name].setValue(optionValue);
 	      }
-
 	      var optionBlock = this.fields[option.name].getContainer();
 	      return optionBlock;
 	    } //endregion
 	    //region Events
-
 	  }, {
 	    key: "onDialogClose",
 	    value: function onDialogClose() {
@@ -1101,7 +972,6 @@ this.BX.UI = this.BX.UI || {};
 	        this.popupWindow.destroy();
 	        this.popupWindow = null;
 	      }
-
 	      this.buttons = {};
 	      this.fields = {};
 	      this.summaryBlock = null;
@@ -1115,22 +985,18 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleStartButtonClick",
 	    value: function handleStartButtonClick() {
 	      var btn = this.getButton('start');
-
 	      if (btn && btn.isDisabled()) {
 	        return;
 	      }
-
 	      this.start();
 	    }
 	  }, {
 	    key: "handleStopButtonClick",
 	    value: function handleStopButtonClick() {
 	      var btn = this.getButton('stop');
-
 	      if (btn && btn.isDisabled()) {
 	        return;
 	      }
-
 	      this.stop();
 	    }
 	  }, {
@@ -1139,18 +1005,15 @@ this.BX.UI = this.BX.UI || {};
 	      this.popupWindow.close();
 	    } //endregion
 	    //region Buttons
-
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "_prepareDialogButtons",
 	    value: function _prepareDialogButtons() {
 	      var showButtons = this.getSetting('showButtons');
 	      var ret = [];
 	      this.buttons = {};
-
 	      if (showButtons.start) {
 	        var startButtonText = this.getMessage('startButton');
 	        this.buttons.start = new ui_buttons.Button({
@@ -1164,7 +1027,6 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	        ret.push(this.buttons.start);
 	      }
-
 	      if (showButtons.stop) {
 	        var stopButtonText = this.getMessage('stopButton');
 	        this.buttons.stop = new ui_buttons.Button({
@@ -1179,7 +1041,6 @@ this.BX.UI = this.BX.UI || {};
 	        this.buttons.stop.setDisabled();
 	        ret.push(this.buttons.stop);
 	      }
-
 	      if (showButtons.close) {
 	        var closeButtonText = this.getMessage('closeButton');
 	        this.buttons.close = new ui_buttons.CancelButton({
@@ -1192,7 +1053,6 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	        ret.push(this.buttons.close);
 	      }
-
 	      return ret;
 	    }
 	    /**
@@ -1201,12 +1061,10 @@ this.BX.UI = this.BX.UI || {};
 	     * @param {function} purgeHandler
 	     * @return self
 	     */
-
 	  }, {
 	    key: "setDownloadButtons",
 	    value: function setDownloadButtons(downloadLink, fileName, purgeHandler) {
 	      var ret = [];
-
 	      if (downloadLink) {
 	        var downloadButtonText = this.getMessage("downloadButton");
 	        downloadButtonText = downloadButtonText !== "" ? downloadButtonText : "Download file";
@@ -1224,7 +1082,6 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	        ret.push(downloadButton);
 	      }
-
 	      if (typeof purgeHandler == 'function') {
 	        var clearButtonText = this.getMessage("clearButton");
 	        clearButtonText = clearButtonText !== "" ? clearButtonText : "Delete file";
@@ -1239,15 +1096,12 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	        ret.push(clearButton);
 	      }
-
 	      if (this.buttons.close) {
 	        ret.push(this.buttons.close);
 	      }
-
 	      if (ret.length > 0 && this.popupWindow) {
 	        this.popupWindow.setButtons(ret);
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -1258,81 +1112,64 @@ this.BX.UI = this.BX.UI || {};
 	        'stop': true,
 	        'close': true
 	      };
-
 	      this._prepareDialogButtons();
-
 	      showButtons = showButtons || this.getSetting('showButtons');
 	      var ret = [];
-
 	      if (showButtons.start) {
 	        ret.push(this.buttons.start);
 	      }
-
 	      if (showButtons.stop) {
 	        ret.push(this.buttons.stop);
 	      }
-
 	      if (showButtons.close) {
 	        ret.push(this.buttons.close);
 	      }
-
 	      if (ret.length > 0 && this.popupWindow) {
 	        this.popupWindow.setButtons(ret);
 	      }
-
 	      return this;
 	    }
 	  }, {
 	    key: "getButton",
 	    value: function getButton(bid) {
 	      var _this$buttons$bid;
-
 	      return (_this$buttons$bid = this.buttons[bid]) !== null && _this$buttons$bid !== void 0 ? _this$buttons$bid : null;
 	    }
 	  }, {
 	    key: "lockButton",
 	    value: function lockButton(bid, lock, wait) {
 	      var btn = this.getButton(bid);
-
 	      if (btn) {
 	        btn.setDisabled(lock);
-
 	        if (main_core.Type.isBoolean(wait)) {
 	          btn.setWaiting(wait);
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
 	    key: "showButton",
 	    value: function showButton(bid, show) {
 	      var btn = this.getButton(bid);
-
 	      if (btn) {
 	        btn.getContainer().style.display = !!show ? '' : 'none';
 	      }
-
 	      if (bid === 'close') {
 	        if (this.popupWindow && this.popupWindow.closeIcon) {
 	          this.popupWindow.closeIcon.style.display = !!show ? '' : 'none';
 	        }
 	      }
-
 	      return this;
 	    } // endregion
 	    //region Summary
-
 	  }, {
 	    key: "setSummary",
 	    value: function setSummary(content) {
 	      var isHtml = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
 	      if (this.optionsFieldsBlock) {
 	        BX.clean(this.optionsFieldsBlock);
 	        this.optionsFieldsBlock.style.display = 'none';
 	      }
-
 	      if (main_core.Type.isStringFilled(content)) {
 	        if (this.summaryBlock) {
 	          if (!!isHtml) this.summaryBlock.innerHTML = content;else this.summaryBlock.innerHTML = BX.util.htmlspecialchars(content);
@@ -1342,16 +1179,13 @@ this.BX.UI = this.BX.UI || {};
 	        this.summaryBlock.innerHTML = "";
 	        this.summaryBlock.style.display = "none";
 	      }
-
 	      return this;
 	    } //endregion
 	    //region Errors
-
 	  }, {
 	    key: "setErrors",
 	    value: function setErrors(errors) {
 	      var _this2 = this;
-
 	      var isHtml = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	      errors.forEach(function (err) {
 	        return _this2.setError(err, isHtml);
@@ -1363,20 +1197,16 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setError(content, isHtml) {
 	      if (main_core.Type.isStringFilled(content)) {
 	        this.setSummary('');
-
 	        if (this.progressBar) {
 	          this.progressBar.setColor(BX.UI.ProgressBar.Color.DANGER);
 	        }
-
 	        if (!!isHtml) {
 	          this.error.setText(content);
 	        } else {
 	          this.error.setText(BX.util.htmlspecialchars(content));
 	        }
-
 	        this.errorBlock.style.display = "flex";
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -1385,28 +1215,23 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.error) {
 	        this.error.setText('');
 	      }
-
 	      if (this.errorBlock) {
 	        this.errorBlock.style.display = 'none';
 	      }
-
 	      return this;
 	    }
 	  }, {
 	    key: "setWarning",
 	    value: function setWarning(err) {
 	      var isHtml = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
 	      if (main_core.Type.isStringFilled(err)) {
 	        if (!!isHtml) {
 	          this.warning.setText(err);
 	        } else {
 	          this.warning.setText(BX.util.htmlspecialchars(err));
 	        }
-
 	        this.warningBlock.style.display = "flex";
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -1415,15 +1240,12 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.warning) {
 	        this.warning.setText("");
 	      }
-
 	      if (this.warningBlock) {
 	        this.warningBlock.style.display = 'none';
 	      }
-
 	      return this;
 	    } //endregion
 	    //region Progressbar
-
 	  }, {
 	    key: "setProgressBar",
 	    value: function setProgressBar(totalItems, processedItems, textBefore) {
@@ -1439,7 +1261,6 @@ this.BX.UI = this.BX.UI || {};
 	          this.hideProgressBar();
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -1448,11 +1269,9 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.progressBar) {
 	        BX.hide(this.progressBarBlock);
 	      }
-
 	      return this;
 	    } //endregion
 	    //region Initial options
-
 	  }, {
 	    key: "getOptionField",
 	    value: function getOptionField(name) {
@@ -1461,22 +1280,17 @@ this.BX.UI = this.BX.UI || {};
 	          return this.fields[name];
 	        }
 	      }
-
 	      return null;
 	    }
 	  }, {
 	    key: "getOptionFieldValues",
 	    value: function getOptionFieldValues() {
 	      var _this3 = this;
-
 	      var initialOptions = {};
-
 	      if (this.optionsFieldsBlock) {
 	        Object.keys(this.fields).forEach(function (optionName) {
 	          var field = _this3.getOptionField(optionName);
-
 	          var val = field.getValue();
-
 	          if (field.type === 'checkbox' && main_core.Type.isBoolean(val)) {
 	            initialOptions[optionName] = val ? 'Y' : 'N';
 	          } else if (main_core.Type.isArray(val)) {
@@ -1488,20 +1302,16 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        });
 	      }
-
 	      return initialOptions;
 	    }
 	  }, {
 	    key: "checkOptionFields",
 	    value: function checkOptionFields() {
 	      var _this4 = this;
-
 	      var checked = true;
-
 	      if (this.optionsFieldsBlock) {
 	        Object.keys(this.fields).forEach(function (optionName) {
 	          var field = _this4.getOptionField(optionName);
-
 	          if (field.obligatory) {
 	            if (!field.isFilled()) {
 	              field.showWarning();
@@ -1512,29 +1322,23 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        });
 	      }
-
 	      return checked;
 	    }
 	  }, {
 	    key: "lockOptionFields",
 	    value: function lockOptionFields() {
 	      var _this5 = this;
-
 	      var flag = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
 	      if (this.optionsFieldsBlock) {
 	        Object.keys(this.fields).forEach(function (optionName) {
 	          var field = _this5.getOptionField(optionName);
-
 	          if (field) {
 	            field.lock(flag);
 	          }
 	        });
 	      }
-
 	      return this;
 	    } //endregion
-
 	  }]);
 	  return Dialog;
 	}();
@@ -1542,15 +1346,14 @@ this.BX.UI = this.BX.UI || {};
 	/**
 	 * @namespace {BX.UI.StepProcessing}
 	 */
-
 	var ProcessEvent = {
 	  StateChanged: 'BX.UI.StepProcessing.StateChanged',
 	  BeforeRequest: 'BX.UI.StepProcessing.BeforeRequest'
 	};
+
 	/**
 	 * @namespace {BX.UI.StepProcessing}
 	 */
-
 	var ProcessCallback = {
 	  StateChanged: 'StateChanged',
 	  RequestStart: 'RequestStart',
@@ -1575,6 +1378,7 @@ this.BX.UI = this.BX.UI || {};
 	  Controller: 'controller',
 	  Component: 'component'
 	};
+
 	/**
 	 * Long running process.
 	 *
@@ -1582,12 +1386,15 @@ this.BX.UI = this.BX.UI || {};
 	 * @event BX.UI.StepProcessing.StateChanged
 	 * @event BX.UI.StepProcessing.BeforeRequest
 	 */
-
 	var Process = /*#__PURE__*/function () {
 	  // Ajax endpoint
+
 	  // Queue
+
 	  // Events
+
 	  // Messages
+
 	  function Process(options) {
 	    babelHelpers.classCallCheck(this, Process);
 	    babelHelpers.defineProperty(this, "action", '');
@@ -1603,14 +1410,11 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "messages", new Map());
 	    this.options = main_core.Type.isPlainObject(options) ? options : {};
 	    this.id = this.getOption('id', '');
-
 	    if (!main_core.Type.isStringFilled(this.id)) {
 	      this.id = 'Process_' + main_core.Text.getRandom().toLowerCase();
 	    }
-
 	    var controller = this.getOption('controller', '');
 	    var component = this.getOption('component', '');
-
 	    if (main_core.Type.isStringFilled(controller)) {
 	      this.controller = controller;
 	      this.controllerDefault = controller;
@@ -1620,16 +1424,13 @@ this.BX.UI = this.BX.UI || {};
 	      this.endpointType = EndpointType.Component;
 	      this.componentMode = this.getOption('componentMode', 'class');
 	    }
-
 	    if (!main_core.Type.isStringFilled(this.controller)) {
 	      if (!main_core.Type.isStringFilled(this.component)) {
 	        throw new TypeError("BX.UI.StepProcessing: There no any ajax endpoint was defined.");
 	      }
 	    }
-
 	    this.setQueue(this.getOption('queue', [])).setParams(this.getOption('params', {})).setOptionsFields(this.getOption('optionsFields', {})).setHandlers(this.getOption('handlers', {})).setMessages(ProcessDefaultLabels).setMessages(this.getOption('messages', {}));
 	  }
-
 	  babelHelpers.createClass(Process, [{
 	    key: "destroy",
 	    value: function destroy() {
@@ -1637,47 +1438,35 @@ this.BX.UI = this.BX.UI || {};
 	        this.dialog.close().destroy();
 	        this.dialog = null;
 	      }
-
 	      this._closeConnection();
 	    } //region Run
-
 	  }, {
 	    key: "start",
 	    value: function start() {
 	      var startStep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-
 	      this._refreshHash();
-
 	      startStep = startStep || 1;
-
 	      if (this.state === ProcessState.intermediate || this.state === ProcessState.stopped || this.state === ProcessState.completed) {
 	        if (!this.getDialog().checkOptionFields()) {
 	          return;
 	        }
-
 	        this.getDialog().clearErrors().clearWarnings();
 	        this.networkErrorCount = 0;
-
 	        if (this.getQueueLength() > 0) {
 	          this.currentStep = 0;
-
 	          if (startStep > 1) {
 	            this.currentStep = startStep - 1;
 	          }
-
 	          if (this.endpointType === EndpointType.Controller) {
 	            if (main_core.Type.isStringFilled(this.queue[this.currentStep].controller)) {
 	              this.setController(this.queue[this.currentStep].controller);
 	            }
 	          }
-
 	          if (!main_core.Type.isStringFilled(this.queue[this.currentStep].action)) {
 	            throw new Error("BX.UI.StepProcessing: Could not find controller action at the queue position.");
 	          }
-
 	          this.setAction(this.queue[this.currentStep].action);
 	          this.startRequest();
-
 	          if (this.queue[this.currentStep].title) {
 	            this.getDialog().setSummary(this.queue[this.currentStep].title);
 	          } else {
@@ -1687,7 +1476,6 @@ this.BX.UI = this.BX.UI || {};
 	          this.startRequest();
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -1697,33 +1485,26 @@ this.BX.UI = this.BX.UI || {};
 	        this.stopRequest();
 	        this.currentStep = -1;
 	      }
-
 	      return this;
 	    } //endregion
 	    //region Request
-
 	  }, {
 	    key: "startRequest",
 	    value: function startRequest() {
 	      var _this = this;
-
 	      if (this.isRequestRunning || this.state === ProcessState.canceling) {
 	        return this.ajaxPromise;
 	      }
-
 	      this.isRequestRunning = true;
 	      this.ajaxPromise = null;
 	      var actionData = new FormData();
-
 	      var appendData = function appendData(data, prefix) {
 	        if (main_core.Type.isPlainObject(data)) {
 	          Object.keys(data).forEach(function (name) {
 	            var id = name;
-
 	            if (prefix) {
 	              id = prefix + '[' + name + ']';
 	            }
-
 	            if (main_core.Type.isArray(data[name]) || main_core.Type.isPlainObject(data[name])) {
 	              appendData(data[name], id);
 	            } else {
@@ -1736,15 +1517,11 @@ this.BX.UI = this.BX.UI || {};
 	          });
 	        }
 	      };
-
 	      appendData(this.params);
-
 	      if (this.queue[this.currentStep].params) {
 	        appendData(this.queue[this.currentStep].params);
 	      }
-
 	      var initialOptions = this.getDialog().getOptionFieldValues();
-
 	      if (BX.type.isNotEmptyObject(initialOptions)) {
 	        appendData(initialOptions);
 	        this.initialOptionValues = initialOptions;
@@ -1758,15 +1535,12 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	        appendData(this.initialOptionValues);
 	      }
-
 	      this.setState(ProcessState.running);
-
 	      if (this.hasActionHandler(ProcessCallback.RequestStart)) {
 	        this.callActionHandler(ProcessCallback.RequestStart, [actionData]);
 	      } else if (this.hasHandler(ProcessCallback.RequestStart)) {
 	        this.callHandler(ProcessCallback.RequestStart, [actionData]);
 	      }
-
 	      main_core_events.EventEmitter.emit(ProcessEvent.BeforeRequest, new main_core_events.BaseEvent({
 	        data: {
 	          process: this,
@@ -1778,20 +1552,16 @@ this.BX.UI = this.BX.UI || {};
 	        method: this.method,
 	        onrequeststart: this._onRequestStart.bind(this)
 	      };
-
 	      if (this.endpointType === EndpointType.Controller) {
 	        this.ajaxPromise = BX.ajax.runAction(this.controller + '.' + this.getAction(), params).then(this._onRequestSuccess.bind(this), this._onRequestFailure.bind(this));
 	      } else if (this.endpointType === EndpointType.Component) {
 	        params.data.mode = this.componentMode;
-
 	        if ('signedParameters' in params.data) {
 	          params.signedParameters = params.data.signedParameters;
 	          delete params.data.signedParameters;
 	        }
-
 	        this.ajaxPromise = BX.ajax.runComponentAction(this.component, this.getAction(), params).then(this._onRequestSuccess.bind(this), this._onRequestFailure.bind(this));
 	      }
-
 	      return this.ajaxPromise;
 	    }
 	  }, {
@@ -1800,16 +1570,12 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.state === ProcessState.canceling) {
 	        return this.ajaxPromise;
 	      }
-
 	      this.setState(ProcessState.canceling);
-
 	      this._closeConnection();
-
 	      var actionData = BX.clone(this.params);
 	      actionData.cancelingAction = this.getAction();
 	      this.getDialog().setSummary(this.getMessage("RequestCanceling"));
 	      var proceedAction = true;
-
 	      if (this.hasActionHandler(ProcessCallback.RequestStop)) {
 	        proceedAction = false;
 	        this.callActionHandler(ProcessCallback.RequestStop, [actionData]);
@@ -1817,7 +1583,6 @@ this.BX.UI = this.BX.UI || {};
 	        proceedAction = false;
 	        this.callHandler(ProcessCallback.RequestStop, [actionData]);
 	      }
-
 	      main_core_events.EventEmitter.emit(ProcessEvent.BeforeRequest, new main_core_events.BaseEvent({
 	        data: {
 	          process: this,
@@ -1825,29 +1590,24 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }));
 	      this.ajaxPromise = null;
-
 	      if (proceedAction) {
 	        var params = {
 	          data: actionData,
 	          method: this.method,
 	          onrequeststart: this._onRequestStart.bind(this)
 	        };
-
 	        if (this.endpointType === EndpointType.Controller) {
 	          this.setController(this.controllerDefault);
 	          this.ajaxPromise = BX.ajax.runAction(this.controller + '.cancel', params).then(this._onRequestSuccess.bind(this), this._onRequestFailure.bind(this));
 	        } else if (this.endpointType === EndpointType.Component) {
 	          params.data.mode = this.componentMode;
-
 	          if ('signedParameters' in params.data) {
 	            params.signedParameters = params.data.signedParameters;
 	            delete params.data.signedParameters;
 	          }
-
 	          this.ajaxPromise = BX.ajax.runComponentAction(this.component, 'cancel', params).then(this._onRequestSuccess.bind(this), this._onRequestFailure.bind(this));
 	        }
 	      }
-
 	      return this.ajaxPromise;
 	    }
 	  }, {
@@ -1856,10 +1616,8 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.state === ProcessState.canceling) {
 	        return this.ajaxPromise;
 	      }
-
 	      var actionData = BX.clone(this.params);
 	      var proceedAction = true;
-
 	      if (this.hasActionHandler(ProcessCallback.RequestFinalize)) {
 	        proceedAction = false;
 	        this.callActionHandler(ProcessCallback.RequestFinalize, [actionData]);
@@ -1867,7 +1625,6 @@ this.BX.UI = this.BX.UI || {};
 	        proceedAction = false;
 	        this.callHandler(ProcessCallback.RequestFinalize, [actionData]);
 	      }
-
 	      main_core_events.EventEmitter.emit(ProcessEvent.BeforeRequest, new main_core_events.BaseEvent({
 	        data: {
 	          process: this,
@@ -1875,35 +1632,29 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }));
 	      this.ajaxPromise = null;
-
 	      if (proceedAction) {
 	        var params = {
 	          data: actionData,
 	          method: this.method,
 	          onrequeststart: this._onRequestStart.bind(this)
 	        };
-
 	        if (this.endpointType === EndpointType.Controller) {
 	          this.setController(this.controllerDefault);
 	          this.ajaxPromise = BX.ajax.runAction(this.controller + '.finalize', params);
 	        } else if (this.endpointType === EndpointType.Component) {
 	          params.data.mode = this.componentMode;
-
 	          if ('signedParameters' in params.data) {
 	            params.signedParameters = params.data.signedParameters;
 	            delete params.data.signedParameters;
 	          }
-
 	          this.ajaxPromise = BX.ajax.runComponentAction(this.component, 'finalize', params);
 	        }
 	      }
-
 	      return this.ajaxPromise;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "_refreshHash",
 	    value: function _refreshHash() {
@@ -1914,20 +1665,17 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "_onRequestSuccess",
 	    value: function _onRequestSuccess(response) {
 	      this.isRequestRunning = false;
 	      this.xhr = null;
 	      this.ajaxPromise = null;
-
 	      if (!response) {
 	        this.getDialog().setError(this.getMessage('RequestError'));
 	        this.setState(ProcessState.error);
 	        return;
 	      }
-
 	      if (main_core.Type.isArrayFilled(response.errors)) {
 	        var errors = response.errors.slice(-10);
 	        var errMessages = [];
@@ -1938,30 +1686,24 @@ this.BX.UI = this.BX.UI || {};
 	        this.setState(ProcessState.error);
 	        return;
 	      }
-
 	      this.networkErrorCount = 0;
 	      var result = response.data;
 	      var status = main_core.Type.isStringFilled(result.STATUS) ? result.STATUS : "";
 	      var summary = "";
-
 	      if (main_core.Type.isStringFilled(result.SUMMARY)) {
 	        summary = result.SUMMARY;
 	      } else if (main_core.Type.isStringFilled(result.SUMMARY_HTML)) {
 	        summary = result.SUMMARY_HTML;
 	      }
-
 	      var processedItems = main_core.Type.isNumber(result.PROCESSED_ITEMS) ? result.PROCESSED_ITEMS : 0;
 	      var totalItems = main_core.Type.isNumber(result.TOTAL_ITEMS) ? result.TOTAL_ITEMS : 0;
 	      var finalize = !!result.FINALIZE;
-
 	      if (this.hasActionHandler(ProcessCallback.StepCompleted)) {
 	        this.callActionHandler(ProcessCallback.StepCompleted, [status, result]);
 	      }
-
 	      if (main_core.Type.isStringFilled(result.WARNING)) {
 	        this.getDialog().setWarning(result.WARNING);
 	      }
-
 	      if (status === ProcessResultStatus.progress || status === ProcessResultStatus.completed) {
 	        if (totalItems > 0) {
 	          if (this.queue[this.currentStep].progressBarTitle) {
@@ -1973,18 +1715,15 @@ this.BX.UI = this.BX.UI || {};
 	          this.getDialog().hideProgressBar();
 	        }
 	      }
-
 	      if (status === ProcessResultStatus.progress) {
 	        if (summary !== "") {
 	          this.getDialog().setSummary(summary, true);
 	        }
-
 	        if (this.state === ProcessState.canceling) {
 	          this.setState(ProcessState.stopped);
 	        } else {
 	          if (this.endpointType === EndpointType.Controller) {
 	            var nextController = main_core.Type.isStringFilled(result.NEXT_CONTROLLER) ? result.NEXT_CONTROLLER : "";
-
 	            if (nextController !== "") {
 	              this.setController(nextController);
 	            } else if (main_core.Type.isStringFilled(this.queue[this.currentStep].controller)) {
@@ -1993,19 +1732,14 @@ this.BX.UI = this.BX.UI || {};
 	              this.setController(this.controllerDefault);
 	            }
 	          }
-
 	          var nextAction = main_core.Type.isStringFilled(result.NEXT_ACTION) ? result.NEXT_ACTION : "";
-
 	          if (nextAction !== "") {
 	            this.setAction(nextAction);
 	          }
-
 	          setTimeout(BX.delegate(this.startRequest, this), 100);
 	        }
-
 	        return;
 	      }
-
 	      if (this.state === ProcessState.canceling) {
 	        this.getDialog().setSummary(this.getMessage("RequestCanceled"));
 	        this.setState(ProcessState.completed);
@@ -2013,7 +1747,6 @@ this.BX.UI = this.BX.UI || {};
 	        if (this.getQueueLength() > 0 && this.currentStep + 1 < this.getQueueLength()) {
 	          // next
 	          this.currentStep++;
-
 	          if (this.endpointType === EndpointType.Controller) {
 	            if (main_core.Type.isStringFilled(this.queue[this.currentStep].controller)) {
 	              this.setController(this.queue[this.currentStep].controller);
@@ -2021,11 +1754,9 @@ this.BX.UI = this.BX.UI || {};
 	              this.setController(this.controllerDefault);
 	            }
 	          }
-
 	          if (!main_core.Type.isStringFilled(this.queue[this.currentStep].action)) {
 	            throw new Error("BX.UI.StepProcessing: Could not find controller action at the queue position.");
 	          }
-
 	          if ('finalize' in this.queue[this.currentStep]) {
 	            finalize = true;
 	            this.setAction(this.queue[this.currentStep].action);
@@ -2036,29 +1767,24 @@ this.BX.UI = this.BX.UI || {};
 	            return;
 	          }
 	        }
-
 	        if (summary !== "") {
 	          this.getDialog().setSummary(summary, true);
 	        } else {
 	          this.getDialog().setSummary(this.getMessage("RequestCompleted"));
 	        }
-
 	        if (main_core.Type.isStringFilled(result.DOWNLOAD_LINK)) {
 	          if (main_core.Type.isStringFilled(result.DOWNLOAD_LINK_NAME)) {
 	            this.getDialog().setMessage('downloadButton', result.DOWNLOAD_LINK_NAME);
 	          }
-
 	          if (main_core.Type.isStringFilled(result.CLEAR_LINK_NAME)) {
 	            this.getDialog().setMessage('clearButton', result.CLEAR_LINK_NAME);
 	          }
-
 	          this.getDialog().setDownloadButtons(result.DOWNLOAD_LINK, result.FILE_NAME, BX.delegate(function () {
 	            this.getDialog().resetButtons({
 	              stop: true,
 	              close: true
 	            });
 	            this.callAction('clear'); //.then
-
 	            setTimeout(BX.delegate(function () {
 	              this.getDialog().resetButtons({
 	                close: true
@@ -2066,9 +1792,7 @@ this.BX.UI = this.BX.UI || {};
 	            }, this), 1000);
 	          }, this));
 	        }
-
 	        this.setState(ProcessState.completed, result);
-
 	        if (finalize) {
 	          setTimeout(BX.delegate(this.finalizeRequest, this), 100);
 	        }
@@ -2080,12 +1804,10 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "_onRequestFailure",
 	    value: function _onRequestFailure(response) {
 	      var _this2 = this;
-
 	      /*
 	      // check if it's manual aborting
 	      if (this.state === ProcessState.canceling)
@@ -2094,11 +1816,13 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      */
 	      this.isRequestRunning = false;
-	      this.ajaxPromise = null; // check non auth
+	      this.ajaxPromise = null;
 
+	      // check non auth
 	      if (main_core.Type.isPlainObject(response) && 'data' in response && main_core.Type.isPlainObject(response.data) && 'ajaxRejectData' in response.data && main_core.Type.isPlainObject(response.data.ajaxRejectData) && 'reason' in response.data.ajaxRejectData && response.data.ajaxRejectData.reason === 'status' && 'data' in response.data.ajaxRejectData && response.data.ajaxRejectData.data === 401) {
 	        this.getDialog().setError(this.getMessage('AuthError'));
-	      } // check errors
+	      }
+	      // check errors
 	      else if (main_core.Type.isPlainObject(response) && 'errors' in response && main_core.Type.isArrayFilled(response.errors)) {
 	        var abortingState = false;
 	        var networkError = false;
@@ -2110,21 +1834,20 @@ this.BX.UI = this.BX.UI || {};
 	              networkError = true;
 	            }
 	          }
-	        }); // ignoring error of manual aborting
+	        });
 
+	        // ignoring error of manual aborting
 	        if (abortingState) {
 	          return;
 	        }
-
 	        if (networkError) {
-	          this.networkErrorCount++; // Let's give it more chance to complete
-
+	          this.networkErrorCount++;
+	          // Let's give it more chance to complete
 	          if (this.networkErrorCount <= 2) {
 	            setTimeout(BX.delegate(this.startRequest, this), 15000);
 	            return;
 	          }
 	        }
-
 	        var errors = response.errors.slice(-10);
 	        var errMessages = [];
 	        errors.forEach(function (err) {
@@ -2138,17 +1861,14 @@ this.BX.UI = this.BX.UI || {};
 	      } else {
 	        this.getDialog().setError(this.getMessage('RequestError'));
 	      }
-
 	      this.xhr = null;
 	      this.currentStep = -1;
 	      this.setState(ProcessState.error);
 	    } //endregion
 	    //region Connection
-
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "_closeConnection",
 	    value: function _closeConnection() {
@@ -2162,14 +1882,12 @@ this.BX.UI = this.BX.UI || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "_onRequestStart",
 	    value: function _onRequestStart(xhr) {
 	      this.xhr = xhr;
 	    } //endregion
 	    //region Set & Get
-
 	  }, {
 	    key: "setId",
 	    value: function setId(id) {
@@ -2181,12 +1899,10 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getId() {
 	      return this.id;
 	    } //region Queue actions
-
 	  }, {
 	    key: "setQueue",
 	    value: function setQueue(queue) {
 	      var _this3 = this;
-
 	      queue.forEach(function (action) {
 	        return _this3.addQueueAction(action);
 	      });
@@ -2204,7 +1920,6 @@ this.BX.UI = this.BX.UI || {};
 	      return this.queue.length;
 	    } //endregion
 	    //region Process options
-
 	  }, {
 	    key: "setOption",
 	    value: function setOption(name, value) {
@@ -2218,12 +1933,10 @@ this.BX.UI = this.BX.UI || {};
 	      return this.options.hasOwnProperty(name) ? this.options[name] : defaultValue;
 	    } //endregion
 	    //region Initial fields
-
 	  }, {
 	    key: "setOptionsFields",
 	    value: function setOptionsFields(optionsFields) {
 	      var _this4 = this;
-
 	      Object.keys(optionsFields).forEach(function (id) {
 	        return _this4.addOptionsField(id, optionsFields[id]);
 	      });
@@ -2239,12 +1952,10 @@ this.BX.UI = this.BX.UI || {};
 	    key: "storeOptionFieldValues",
 	    value: function storeOptionFieldValues(values) {
 	      var _this5 = this;
-
 	      if ('sessionStorage' in window) {
 	        var valuesToStore = {};
 	        Object.keys(this.optionsFields).forEach(function (name) {
 	          var field = _this5.optionsFields[name];
-
 	          switch (field.type) {
 	            case 'checkbox':
 	            case 'select':
@@ -2252,37 +1963,30 @@ this.BX.UI = this.BX.UI || {};
 	              if (field.name in values) {
 	                valuesToStore[field.name] = values[field.name];
 	              }
-
 	              break;
 	          }
 	        });
 	        window.sessionStorage.setItem('bx.' + this.getId(), JSON.stringify(valuesToStore));
 	      }
-
 	      return this;
 	    }
 	  }, {
 	    key: "restoreOptionFieldValues",
 	    value: function restoreOptionFieldValues() {
 	      var values = {};
-
 	      if ('sessionStorage' in window) {
 	        values = JSON.parse(window.sessionStorage.getItem('bx.' + this.getId()));
-
 	        if (!main_core.Type.isPlainObject(values)) {
 	          values = {};
 	        }
 	      }
-
 	      return values;
 	    } //endregion
 	    //region Request parameters
-
 	  }, {
 	    key: "setParams",
 	    value: function setParams(params) {
 	      var _this6 = this;
-
 	      this.params = {};
 	      Object.keys(params).forEach(function (name) {
 	        return _this6.setParam(name, params[name]);
@@ -2306,18 +2010,14 @@ this.BX.UI = this.BX.UI || {};
 	      return this.params[key] ? this.params[key] : null;
 	    } //endregion
 	    //region Process state
-
 	  }, {
 	    key: "setState",
 	    value: function setState(state) {
 	      var result = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
 	      if (this.state === state) {
 	        return this;
 	      }
-
 	      this.state = state;
-
 	      if (state === ProcessState.intermediate || state === ProcessState.stopped) {
 	        this.getDialog().lockButton('start', false).lockButton('stop', true).showButton('close', true);
 	      } else if (state === ProcessState.running) {
@@ -2329,13 +2029,11 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (state === ProcessState.completed) {
 	        this.getDialog().lockButton('start', true).lockButton('stop', true).showButton('close', true).hideProgressBar();
 	      }
-
 	      if (this.hasActionHandler(ProcessCallback.StateChanged)) {
 	        this.callActionHandler(ProcessCallback.StateChanged, [state, result]);
 	      } else if (this.hasHandler(ProcessCallback.StateChanged)) {
 	        this.callHandler(ProcessCallback.StateChanged, [state, result]);
 	      }
-
 	      main_core_events.EventEmitter.emit(ProcessEvent.StateChanged, new main_core_events.BaseEvent({
 	        data: {
 	          state: state,
@@ -2350,7 +2048,6 @@ this.BX.UI = this.BX.UI || {};
 	      return this.state;
 	    } //endregion
 	    //region Controller
-
 	  }, {
 	    key: "setController",
 	    value: function setController(controller) {
@@ -2390,16 +2087,13 @@ this.BX.UI = this.BX.UI || {};
 	    key: "callAction",
 	    value: function callAction(action) {
 	      this.setAction(action)._refreshHash();
-
 	      return this.startRequest();
 	    } //endregion
 	    //region Event handlers
-
 	  }, {
 	    key: "setHandlers",
 	    value: function setHandlers(handlers) {
 	      var _this7 = this;
-
 	      Object.keys(handlers).forEach(function (type) {
 	        return _this7.setHandler(type, handlers[type]);
 	      });
@@ -2411,7 +2105,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isFunction(handler)) {
 	        this.handlers[type] = handler;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -2434,7 +2127,6 @@ this.BX.UI = this.BX.UI || {};
 	          return main_core.Type.isFunction(this.queue[this.currentStep].handlers[type]);
 	        }
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -2445,12 +2137,10 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    } //endregion
 	    //region lang messages
-
 	  }, {
 	    key: "setMessages",
 	    value: function setMessages(messages) {
 	      var _this8 = this;
-
 	      Object.keys(messages).forEach(function (id) {
 	        return _this8.setMessage(id, messages[id]);
 	      });
@@ -2467,18 +2157,15 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getMessage(id) {
 	      var placeholders = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var phrase = this.messages.has(id) ? this.messages.get(id) : '';
-
 	      if (main_core.Type.isStringFilled(phrase) && main_core.Type.isPlainObject(placeholders)) {
 	        Object.keys(placeholders).forEach(function (placeholder) {
 	          phrase = phrase.replace('#' + placeholder + '#', placeholders[placeholder]);
 	        });
 	      }
-
 	      return phrase;
 	    } //endregion
 	    //endregion
 	    //region Dialog
-
 	  }, {
 	    key: "getDialog",
 	    value: function getDialog() {
@@ -2507,18 +2194,15 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        });
 	      }
-
 	      return this.dialog;
 	    }
 	  }, {
 	    key: "showDialog",
 	    value: function showDialog() {
 	      this.getDialog().setSetting('optionsFieldsValue', this.restoreOptionFieldValues()).resetButtons(this.getOption('optionsFields')).show();
-
 	      if (!this.isRequestRunning) {
 	        this.setState(ProcessState.intermediate);
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -2527,11 +2211,9 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.isRequestRunning) {
 	        this.stop();
 	      }
-
 	      this.getDialog().close();
 	      return this;
 	    } //endregion
-
 	  }]);
 	  return Process;
 	}();
@@ -2539,19 +2221,16 @@ this.BX.UI = this.BX.UI || {};
 	/**
 	 * @namespace {BX.UI.StepProcessing}
 	 */
-
 	var ProcessManager = /*#__PURE__*/function () {
 	  function ProcessManager() {
 	    babelHelpers.classCallCheck(this, ProcessManager);
 	  }
-
 	  babelHelpers.createClass(ProcessManager, null, [{
 	    key: "create",
 	    value: function create(props) {
 	      if (!this.instances) {
 	        this.instances = new Map();
 	      }
-
 	      var process = new Process(props);
 	      this.instances.set(process.getId(), process);
 	      return process;
@@ -2564,7 +2243,6 @@ this.BX.UI = this.BX.UI || {};
 	          return this.instances.get(id);
 	        }
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -2573,7 +2251,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.instances) {
 	        return this.instances.has(id);
 	      }
-
 	      return false;
 	    }
 	  }, {

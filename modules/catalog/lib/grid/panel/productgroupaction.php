@@ -11,6 +11,11 @@ use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Currency;
 
+/**
+ * @internal used only in admin panel, for public area use `ProductActionPanel`.
+ *
+ * @see \Bitrix\Catalog\Grid\Panel\UI\ProductActionPanel
+ */
 class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 {
 	private const FIELD_ID_PREFIX = 'product_';

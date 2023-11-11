@@ -36,6 +36,13 @@ $lAdmin = new CAdminList($sTableID, $oSort);
 
 $by = mb_strtoupper($oSort->getField());
 $order = mb_strtoupper($oSort->getOrder());
+$listOrder = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$listOrder['ID'] = 'DESC';
+}
 
 $FilterArr = array(
 	"find_id_from",
@@ -116,22 +123,24 @@ if($lAdmin->EditAction() && !$bReadOnly)
 	}
 }
 
-if(($arID = $lAdmin->GroupAction()) && !$bReadOnly)
+$arID = $lAdmin->GroupAction();
+if (!$bReadOnly && !empty($arID) && is_array($arID))
 {
 	$obDiscSave = new CCatalogDiscountSave();
-	if($_REQUEST['action_target']=='selected')
+	if ($lAdmin->IsGroupActionToAll())
 	{
 		$rsDiscSaves = $obDiscSave->GetList(array(), $arFilter, false, false, array('ID'));
 		while($arRes = $rsDiscSaves->Fetch())
 			$arID[] = (int)$arRes['ID'];
 	}
 
+	$action = $lAdmin->GetAction();
 	foreach($arID as $ID)
 	{
 		if($ID <= 0)
 			continue;
 
-		switch($_REQUEST['action'])
+		switch($action)
 		{
 		case "delete":
 			@set_time_limit(0);
@@ -157,7 +166,7 @@ if(($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 		case "deactivate":
 			if(($rsDiscSaves = $obDiscSave->GetByID($ID)) && ($arFields = $rsDiscSaves->Fetch()))
 			{
-				$arFields["ACTIVE"] = ($_REQUEST['action'] == "activate" ? "Y" : "N");
+				$arFields["ACTIVE"] = ($action === "activate" ? "Y" : "N");
 				if(!$obDiscSave->Update($ID, $arFields))
 				{
 					if ($ex = $APPLICATION->GetException())
@@ -355,14 +364,15 @@ $arUserList = array();
 $arUserID = array();
 $strNameFormat = CSite::GetNameFormat(true);
 
-$arNavParams = (isset($_REQUEST["mode"]) && "excel" == $_REQUEST["mode"]
-	? false
-	: array("nPageSize" => CAdminResult::GetNavSize($sTableID))
+$arNavParams = (
+	$lAdmin->isExportMode()
+		? false
+		: ["nPageSize" => CAdminResult::GetNavSize($sTableID)]
 );
 
 $obDiscSave = new CCatalogDiscountSave();
 $rsDiscSaves = $obDiscSave->GetList(
-	array($by=>$order),
+	$listOrder,
 	$arFilter,
 	false,
 	$arNavParams,

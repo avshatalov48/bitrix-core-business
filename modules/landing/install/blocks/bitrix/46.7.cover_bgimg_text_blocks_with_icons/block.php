@@ -5,7 +5,7 @@
 			<div class="container g-pos-rel g-z-index-1 g-mt-50--md">
 				<div class="row align-items-center">
 					<div class="landing-block-node-container js-animation fadeInLeft col-sm-10 col-lg-8">
-						<h2 class="landing-block-node-title landing-semantic-title-image-medium g-color-white g-font-size-50 g-mb-30 g-mb-50--sm">
+						<h2 class="landing-block-node-title g-color-white g-font-size-50 g-mb-30 g-mb-50--sm">
 							Company24 Responsive
 							Template</h2>
 
@@ -16,10 +16,10 @@
                         <i class="landing-block-node-card-icon icon-communication-114 u-line-icon-pro"></i>
                       </span>
 									<div class="media-body">
-										<div class="landing-block-node-card-title landing-semantic-subtitle-image-medium g-color-white g-font-size-30">
+										<div class="landing-block-node-card-title g-color-white g-font-size-30">
 											31,500+
 										</div>
-										<h2 class="landing-block-node-card-text landing-semantic-text-image-medium lead g-color-white-opacity-0_9">Happy
+										<h2 class="landing-block-node-card-text lead g-color-white-opacity-0_9">Happy
 											clients all over the world</h2>
 									</div>
 								</div>
@@ -31,10 +31,10 @@
                         <i class="landing-block-node-card-icon icon-communication-116 u-line-icon-pro"></i>
                       </span>
 									<div class="media-body">
-										<div class="landing-block-node-card-title landing-semantic-subtitle-image-medium g-color-white g-font-size-30">
+										<div class="landing-block-node-card-title g-color-white g-font-size-30">
 											1610+
 										</div>
-										<h2 class="landing-block-node-card-text landing-semantic-text-image-medium lead g-color-white-opacity-0_9">UI
+										<h2 class="landing-block-node-card-text lead g-color-white-opacity-0_9">UI
 											Elements &amp; Features</h2>
 									</div>
 								</div>
@@ -46,10 +46,10 @@
                         <i class="landing-block-node-card-icon icon-finance-091 u-line-icon-pro"></i>
                       </span>
 									<div class="media-body">
-										<div class="landing-block-node-card-title landing-semantic-subtitle-image-medium g-color-white g-font-size-30">
+										<div class="landing-block-node-card-title g-color-white g-font-size-30">
 											No. 1
 										</div>
-										<h2 class="landing-block-node-card-text landing-semantic-text-image-medium lead g-color-white-opacity-0_9">
+										<h2 class="landing-block-node-card-text lead g-color-white-opacity-0_9">
 											WrapBootstrap theme of all time</h2>
 									</div>
 								</div>
@@ -61,10 +61,10 @@
                         <i class="landing-block-node-card-icon icon-education-085 u-line-icon-pro"></i>
                       </span>
 									<div class="media-body">
-										<div class="landing-block-node-card-title landing-semantic-subtitle-image-medium g-color-white g-font-size-30">
+										<div class="landing-block-node-card-title g-color-white g-font-size-30">
 											AAA
 										</div>
-										<h2 class="landing-block-node-card-text landing-semantic-text-image-medium lead g-color-white-opacity-0_9">Maximum
+										<h2 class="landing-block-node-card-text lead g-color-white-opacity-0_9">Maximum
 											reliability rating</h2>
 									</div>
 								</div>

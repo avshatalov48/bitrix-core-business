@@ -36,11 +36,12 @@ class iblock extends CModule
 	function InstallDB()
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
-		if(!$DB->Query("SELECT 'x' FROM b_iblock_type", true))
+		if(!$DB->TableExists('b_iblock_type'))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/iblock/install/db/mysql/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/iblock/install/db/' . $connection->getType() . '/install.sql');
 		}
 
 		if($this->errors !== false)
@@ -79,7 +80,6 @@ class iblock extends CModule
 
 		$eventManager->registerEventHandler("main", "onVirtualClassBuildList", "iblock", \Bitrix\Iblock\IblockTable::class, "compileAllEntities");
 		//$eventManager->registerEventHandler("landing", "OnBuildSourceList", "iblock", "\\Bitrix\\Iblock\\LandingSource\\Element", "onBuildSourceListHandler");
-
 		unset($eventManager);
 
 		$this->InstallTasks();
@@ -90,6 +90,7 @@ class iblock extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 		$arSQLErrors = array();
 
@@ -122,7 +123,7 @@ class iblock extends CModule
 			while($arRes = $db_res->Fetch())
 				CFile::Delete($arRes["ID"]);
 
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/iblock/install/db/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/iblock/install/db/".$connection->getType()."/uninstall.sql");
 
 			$this->UnInstallTasks();
 		}

@@ -3,3 +3,8 @@ export const ApplicationName = {
 	quickAccess: 'quickAccess',
 	messenger: 'messenger'
 };
+
+export const ApplicationLayout = {
+	lines: 'lines',
+	full: 'full',
+};

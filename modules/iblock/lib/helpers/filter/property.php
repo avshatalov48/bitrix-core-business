@@ -98,7 +98,7 @@ class Property
 				{
 					'contact': '<?=GetMessageJS('FIP_CRM_FF_CONTACT')?>',
 					'company': '<?=GetMessageJS('FIP_CRM_FF_COMPANY')?>',
-					'quote': '<?=GetMessageJS('FIP_CRM_FF_QUOTE')?>',
+					'quote': '<?=GetMessageJS('FIP_CRM_FF_QUOTE_MSGVER_1')?>',
 					'lead': '<?=GetMessageJS('FIP_CRM_FF_LEAD')?>',
 					'deal': '<?=GetMessageJS('FIP_CRM_FF_DEAL')?>',
 					'selectButton': '<?=GetMessageJS('CRM_ENTITY_SEL_BTN')?>',

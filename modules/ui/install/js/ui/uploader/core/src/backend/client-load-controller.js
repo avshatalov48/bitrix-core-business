@@ -26,7 +26,6 @@ export default class ClientLoadController extends AbstractLoadController
 
 	abort(): void
 	{
-
+		// silent abort
 	}
-
 }

@@ -15,9 +15,10 @@ return [
 		'im.v2.component.list.container.openline',
 		'im.v2.component.content.chat',
 		'im.v2.component.content.create-chat',
-		'im.v2.component.content.openline',
+		'im.v2.component.content.openlines',
 		'im.v2.component.content.notification',
 		'im.v2.component.content.market',
+		'im.v2.component.content.settings',
 		'im.v2.lib.logger',
 		'im.v2.lib.init',
 		'im.v2.const',
@@ -27,4 +28,7 @@ return [
 		'ui.fonts.opensans',
 	],
 	'skip_core' => true,
+	'settings' => [
+		'isLinesOperator' => \Bitrix\Im\Integration\Imopenlines\User::isOperator()
+	]
 ];

@@ -7,29 +7,17 @@ import type {History} from '../history';
  * @param {History} history
  * @return {Promise<History>}
  */
-export default function loadStack(history: History)
+export default function loadStack(history: History): Promise<History>
 {
-	let currentPageId;
-
-	try
-	{
-		currentPageId = Main.getInstance().id;
-	}
-	catch (err)
-	{
-		currentPageId = -1;
-	}
-
-	// todo: if design - no?
-
 	return BX.Landing.Backend.getInstance()
 		.action(
-			"History::getForLanding",
-			{lid: currentPageId},
+			history.getLoadBackendActionName(),
+			history.getLoadBackendParams(),
 		)
-		.then((data: {stackCount: number, step: number}) => {
-			history.stack = Text.toNumber(data.stackCount);
-			history.step = Math.min(Text.toNumber(data.step), history.stack);
+		.then((data: {stack: {[number]: string}, stackCount: number, step: number}) => {
+			history.stack = Type.isObject(data.stack) ? data.stack : {};
+			history.stackCount = Text.toNumber(data.stackCount);
+			history.step = Math.min(Text.toNumber(data.step), history.stackCount);
 
 			return history;
 		})

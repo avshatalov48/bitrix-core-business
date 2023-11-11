@@ -94,7 +94,9 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 	public static function getDBColumnType()
 	{
-		return "text";
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\TextField('x'));
 	}
 
 	public static function checkFields($userField, $value)
@@ -121,15 +123,13 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		$entityTitle = '';
 		$fields = [];
 
-		$resourseList = Internals\ResourceTable::getList(
-			array(
-				"filter" => array(
-					"PARENT_TYPE" => $userField['ENTITY_ID'],
-					"PARENT_ID" => $userField['VALUE_ID'],
-					"UF_ID" => $userField['ID']
-				)
-			)
-		);
+		$resourseList = Internals\ResourceTable::getList([
+			"filter" => [
+				"PARENT_TYPE" => $userField['ENTITY_ID'],
+				"PARENT_ID" => $userField['VALUE_ID'],
+				"UF_ID" => $userField['ID']
+			]
+		]);
 
 		$currentEntriesIndex = [];
 		while ($resourse = $resourseList->fetch())
@@ -173,20 +173,21 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		$valuesToMerge = [];
 		foreach ($values as $value)
 		{
-			if (strval($value) === strval(intval($value)))
+			if ((string)$value === (string)((int)$value))
 			{
 				$currentValue = static::fetchFieldValue($value);
-				$skipTime = is_array($userField['SETTINGS']) && $userField['SETTINGS']['FULL_DAY'] == 'Y';
+				$skipTime = is_array($userField['SETTINGS']) && $userField['SETTINGS']['FULL_DAY'] === 'Y';
 				$fromTs = \CCalendar::timestamp($currentValue['DATE_FROM'], true, !$skipTime);
 				$toTs = \CCalendar::timestamp($currentValue['DATE_TO'], true, !$skipTime);
 
-				foreach($currentValue['ENTRIES'] as $entry)
+				foreach ($currentValue['ENTRIES'] as $entry)
 				{
 					$entryExist = false;
-					for($i = 0; $i < $l; $i++)
+
+					foreach ($values as $iValue)
 					{
 						$str = $entry['TYPE'].'|'.$entry['RESOURCE_ID'];
-						if($str === mb_substr($values[$i], 0, mb_strlen($str)))
+						if (str_starts_with($iValue, $str))
 						{
 							$entryExist = true;
 							break;
@@ -202,19 +203,6 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 							$toTs - $fromTs,
 							$currentValue['SERVICE_NAME']
 						);
-
-						// Release resource from previous booking
-						$resourseList = Internals\ResourceTable::getList(
-							array(
-								"filter" => array(
-									"=ID" => $value
-								)
-							)
-						);
-						if ($resourse = $resourseList->fetch())
-						{
-							self::releaseResource($resourse);
-						}
 					}
 				}
 			}
@@ -240,12 +228,12 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 				$dateTo = \CCalendar::date($dateFromTimestamp + ($skipTime ? $duration - \CCalendar::DAY_LENGTH : $duration), !$skipTime);
 				$serviceName = trim($value['serviceName']);
 
-				$fields = array(
+				$fields = [
 					"DATE_FROM" => $dateFrom,
 					"DATE_TO" => $dateTo,
 					"SKIP_TIME" => $skipTime,
 					"NAME" => $entityTitle
-				);
+				];
 
 				if (
 					$userField['ENTITY_ID'] === self::CRM_SUSPENDED_DEAL_ENTITY_ID
@@ -284,7 +272,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 			}
 
 			$entryId = false;
-			if (isset($currentEntriesIndex[$value['type'].$value['id']]))
+			if (isset($currentEntriesIndex[$value['type'] . $value['id']]))
 			{
 				$fields['ID'] = $currentEntriesIndex[$value['type'].$value['id']]['EVENT_ID'];
 				$entryId = $currentEntriesIndex[$value['type'].$value['id']]['ID'];
@@ -299,10 +287,10 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 				$value['type'],
 				$value['id'],
 				$fields,
-				array(
+				[
 					'userField' => $userField,
 					'serviceName' => $serviceName
-				)
+				]
 			);
 
 			if ($resourceBookingId)
@@ -493,41 +481,6 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 	private static function isCrmEntity($entityId)
 	{
 		return in_array($entityId, [self::CRM_LEAD_ENTITY_ID, self::CRM_SUSPENDED_LEAD_ENTITY_ID,self::CRM_DEAL_ENTITY_ID, self::CRM_SUSPENDED_DEAL_ENTITY_ID]);
-	}
-
-	private static function isUserAvailable($params)
-	{
-		$fromTs = \CCalendar::Timestamp($params["DATE_FROM"]);
-		$toTs = \CCalendar::Timestamp($params["DATE_TO"]);
-		$fromTs = $fromTs - \CCalendar::GetTimezoneOffset($params["TZ_FROM"], $fromTs);
-		$toTs = $toTs - \CCalendar::GetTimezoneOffset($params["TZ_TO"], $toTs);
-
-		$accessibility = \CCalendar::GetAccessibilityForUsers(array(
-			'users' => [$params['id']],
-			'from' => \CCalendar::Date($fromTs), // date or datetime in UTC
-			'to' => \CCalendar::Date($toTs), // date or datetime in UTC
-			'getFromHR' => true,
-			'checkPermissions' => false
-		));
-
-		if ($accessibility[$params['id']])
-		{
-			foreach($accessibility[$params['id']] as $entry)
-			{
-				$entFromTs = \CCalendar::Timestamp($entry["DATE_FROM"]);
-				$entToTs = \CCalendar::Timestamp($entry["DATE_TO"]);
-
-				$entFromTs -= \CCalendar::GetTimezoneOffset($entry['TZ_FROM'], $entFromTs);
-				$entToTs -= \CCalendar::GetTimezoneOffset($entry['TZ_TO'], $entToTs);
-
-				if ($entFromTs < $toTs && $entToTs > $fromTs)
-				{
-					return false;
-				}
-			}
-		}
-
-		return true;
 	}
 
 	private static function isResourceAvailable()

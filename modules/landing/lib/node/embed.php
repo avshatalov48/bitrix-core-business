@@ -24,7 +24,7 @@ class Embed extends \Bitrix\Landing\Node
 	 */
 	public static function getHandlerJS()
 	{
-		return 'BX.Landing.Block.Node.Embed';
+		return 'BX.Landing.Node.Embed';
 	}
 
 	/**

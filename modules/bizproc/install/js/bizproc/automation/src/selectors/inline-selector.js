@@ -1,11 +1,10 @@
 import { SelectorContext, DelayIntervalSelector, Helper, DelayInterval } from 'bizproc.automation';
-import { Dom, Event, Type, Loc, Tag, Runtime } from "main.core";
-import { EventEmitter } from "main.core.events";
+import { Dom, Event, Type, Loc, Tag, Runtime } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
-import { Field, MenuGroupItem }  from "./types";
+import { Field, MenuGroupItem } from './types';
 import { MenuManager, Menu } from 'main.popup';
 import { Dialog } from 'ui.entity-selector';
-import {InlineTimeSelector} from "./inline-time-selector";
 
 export class InlineSelector extends EventEmitter
 {
@@ -108,7 +107,7 @@ export class InlineSelector extends EventEmitter
 
 		if (!this.fieldProperty && propertyType)
 		{
-			this.fieldProperty = {Type: propertyType};
+			this.fieldProperty = { Type: propertyType };
 		}
 
 		if (this.fieldProperty)
@@ -126,7 +125,7 @@ export class InlineSelector extends EventEmitter
 
 	#prepareSelectorUsingFieldType(): void
 	{
-		this.basisFields = this.basisFields.filter(field => this.#shouldShowField(field));
+		this.basisFields = this.basisFields.filter((field) => this.#shouldShowField(field));
 
 		const type = this.fieldProperty?.Type;
 		if (type === 'file')
@@ -145,20 +144,12 @@ export class InlineSelector extends EventEmitter
 				{
 					this.targetInput.value = delay.toExpression(
 						this.basisFields,
-						Helper.getResponsibleUserExpression(this.context.fields)
+						Helper.getResponsibleUserExpression(this.context.fields),
 					);
-				}).bind(this)
+				}).bind(this),
 			});
 
 			delayIntervalSelector.init(DelayInterval.fromString(this.targetInput.value, this.basisFields));
-		}
-		else if (type === 'time')
-		{
-			this.replaceOnWrite = true;
-
-			const timeSelector = new InlineTimeSelector({labelNode: this.targetInput});
-
-			timeSelector.init(this.targetInput.value);
 		}
 	}
 

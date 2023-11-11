@@ -12,6 +12,8 @@ import './css/avatar.css';
 import './css/percent.css';
 import './css/counter.css';
 
+import 'ui.design-tokens';
+
 class Controller
 {
 	static repo = new Map();

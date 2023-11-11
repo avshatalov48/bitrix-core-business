@@ -1,4 +1,4 @@
-import { ajax as Ajax, Type } from 'main.core';
+import { ajax as Ajax, Type, type AjaxResponse, type JsonObject } from 'main.core';
 
 import Server from './server';
 import Chunk from './chunk';
@@ -110,7 +110,7 @@ export default class UploadController extends AbstractUploadController
 				}
 			},
 		})
-			.then(response => {
+			.then((response) => {
 				if (response.data.token)
 				{
 					this.setToken(response.data.token);
@@ -141,14 +141,17 @@ export default class UploadController extends AbstractUploadController
 					this.emit('onError', { error: new UploaderError('SERVER_ERROR') });
 				}
 			})
-			.catch(response => {
+			.catch((response: AjaxResponse<JsonObject>) => {
 				if (this.#aborted)
 				{
 					return;
 				}
 
 				const error: UploaderError = UploaderError.createFromAjaxErrors(response.errors);
-				const shouldRetry: boolean = error.getCode() === 'NETWORK_ERROR' || error.getType() === UploaderError.Type.UNKNOWN;
+				const shouldRetry: boolean = (
+					error.getCode() === 'NETWORK_ERROR'
+					|| error.getType() === UploaderError.Type.UNKNOWN
+				);
 
 				if (!shouldRetry || !this.#retryUploadChunk(chunk))
 				{
@@ -189,7 +192,7 @@ export default class UploadController extends AbstractUploadController
 			this.#chunkOffset = 0;
 		}
 
-		let chunk: Chunk;
+		let chunk: Chunk = null;
 		if (this.getChunkOffset() === 0 && this.getFile().getSize() <= this.getChunkSize())
 		{
 			chunk = new Chunk(this.getFile().getBinary(), this.getChunkOffset());

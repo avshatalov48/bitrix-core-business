@@ -1,8 +1,10 @@
 <?php
 namespace Bitrix\Im\Model;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
+use Bitrix\Im\V2\Entity\User\UserBot;
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Event;
 
 Loc::loadMessages(__FILE__);
 
@@ -234,5 +236,37 @@ class BotTable extends Main\Entity\DataManager
 		return array(
 			new  Main\Entity\Validator\Length(null, 50),
 		);
+	}
+
+	public static function onAfterUpdate(\Bitrix\Main\ORM\Event $event)
+	{
+		$id = (int)$event->getParameter('primary')['BOT_ID'];
+		$fields = $event->getParameter('fields');
+
+		if (static::needCacheInvalidate($fields))
+		{
+			UserBot::cleanCache($id);
+		}
+
+		return new Main\Entity\EventResult();
+	}
+
+	public static function onAfterDelete(Event $event)
+	{
+		$id = (int)$event->getParameter('primary')['BOT_ID'];
+		UserBot::cleanCache($id);
+
+		return new Main\Entity\EventResult();
+	}
+
+	protected static function needCacheInvalidate(array $updatedFields): bool
+	{
+		$cacheInvalidatingFields = [
+			'CODE',
+			'TYPE',
+			'APP_ID',
+		];
+
+		return !empty(array_intersect($cacheInvalidatingFields, array_keys($updatedFields)));
 	}
 }

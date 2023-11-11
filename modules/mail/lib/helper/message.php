@@ -107,7 +107,7 @@ class Message
 				];
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -413,7 +413,7 @@ class Message
 				$fields['FIELD_CC'],
 				$fields['FIELD_BCC'],
 				$fields['SUBJECT'],
-				strlen($fields['BODY_HTML']) > 0 ? HTMLToTxt($fields['BODY_HTML']) : $fields['BODY'],
+				self::isolateBase64Files((string)$fields['BODY']),
 			)
 		));
 	}
@@ -527,6 +527,7 @@ class Message
 			return false;
 		}
 
+		$originalBody = $message['BODY_HTML'] ?? null;
 		foreach ($attachments as $i => $item)
 		{
 			$attachFields = array(
@@ -543,20 +544,30 @@ class Message
 			{
 				$message['ATTACHMENTS']++;
 
-				$message['BODY_HTML'] = preg_replace(
-					sprintf(
-						'/<img([^>]+)src\s*=\s*(\'|\")?\s*(http:\/\/cid:%s)\s*\2([^>]*)>/is',
-						preg_quote($item['CONTENT-ID'], '/')
-					),
-					sprintf('<img\1src="aid:%u"\4>', $attachmentId),
-					$message['BODY_HTML']
-				);
+				if (isset($message['BODY_HTML']) && mb_strlen($message['BODY_HTML']) > 0)
+				{
+					$bodyWithReplaced = preg_replace(
+						sprintf(
+							'/<img([^>]+)src\s*=\s*(\'|\")?\s*(http:\/\/cid:%s)\s*\2([^>]*)>/is',
+							preg_quote($item['CONTENT-ID'], '/')
+						),
+						sprintf('<img\1src="aid:%u"\4>', $attachmentId),
+						$message['BODY_HTML']
+					);
+					if ($bodyWithReplaced)
+					{
+						$message['BODY_HTML'] = $bodyWithReplaced;
+					}
+				}
 			}
 		}
 
 		if ($message['ATTACHMENTS'] > 0)
 		{
-			\CMailMessage::update($message['ID'], array('BODY_HTML' => $message['BODY_HTML']), $message['MAILBOX_ID']);
+			if ($originalBody !== $message['BODY_HTML'])
+			{
+				\CMailMessage::update($message['ID'], ['BODY_HTML' => $message['BODY_HTML']], $message['MAILBOX_ID']);
+			}
 
 			return $message['ID'];
 		}
@@ -680,24 +691,29 @@ class Message
 			while ($message = $messages->fetch())
 			{
 				$technicalTitle = $mailboxHelper->downloadMessage($message);
-				$charset = $mailbox['CHARSET'] ?: $mailbox['LANG_CHARSET'];
-				[$header, $html, $text, $attachments] = \CMailMessage::parseMessage($technicalTitle, $charset);
-
-				if (mb_strlen($text) > \CMailMessage::MAX_LENGTH_MESSAGE_BODY)
+				if ($technicalTitle)
 				{
-					[$text, $html] = \CMailMessage::prepareLongMessage($text, $html);
+					$charset = $mailbox['CHARSET'] ?: $mailbox['LANG_CHARSET'];
+					[$header, $html, $text, $attachments] = \CMailMessage::parseMessage($technicalTitle, $charset);
+
+					if (\CMailMessage::isLongMessageBody($text))
+					{
+						[$text, $html] = \CMailMessage::prepareLongMessage($text, $html);
+					}
+
+					$html = empty(trim(strip_tags($html))) ? '' : static::sanitizeHtml($html, true);
+
+					if (rtrim($text) || $html)
+					{
+						\CMailMessage::update(
+							$message['MESSAGE_ID'],
+							[
+								'BODY' => rtrim($text),
+								'BODY_HTML' => $html,
+							]
+						);
+					}
 				}
-
-				$html = empty(trim(strip_tags($html))) ? '' : static::sanitizeHtml($html, true);
-
-				\CMailMessage::update(
-					$message['MESSAGE_ID'],
-					[
-						'BODY' => rtrim($text),
-						'BODY_HTML' => $html,
-					]
-				);
-
 				self::updateMailEntityOptionsRow($mailboxId, (int)$message['MESSAGE_ID']);
 			}
 		}
@@ -754,5 +770,23 @@ class Message
 				'VALUE' => 'N',
 			]
 		);
+	}
+
+	/**
+	 * Is message body contains link to attachment
+	 *
+	 * @param string $body HTML body of message
+	 *
+	 * @return bool
+	 */
+	public static function isBodyNeedUpdateAfterLoadAttachments(string $body): bool
+	{
+		return preg_match('/<img([^>]+)src\s*=\s*([\'"])?\s*(http:\/\/cid:.+)\s*\2([^>]*)>/is', $body);
+	}
+
+	public static function isolateBase64Files(string $text): string
+	{
+		$pattern = '/\[\s*data:(?!text\b)[^;]+;base64,\S+ \]/';
+		return preg_replace($pattern, '', $text);
 	}
 }

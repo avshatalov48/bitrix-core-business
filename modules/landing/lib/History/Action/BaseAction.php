@@ -43,6 +43,7 @@ abstract class BaseAction
 	 */
 	public function isNeedPush(): bool
 	{
+		// todo: compare valuebefore||valueafter (see examples in some actions)
 		return !empty($this->params);
 	}
 
@@ -56,6 +57,15 @@ abstract class BaseAction
 			'command' => static::JS_COMMAND,
 			'params' => $this->params,
 		];
+	}
+
+	/**
+	 * Get name of JS action command
+	 * @return string
+	 */
+	public static function getJsCommandName(): string
+	{
+		return static::JS_COMMAND;
 	}
 
 	/**

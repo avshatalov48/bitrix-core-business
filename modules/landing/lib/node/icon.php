@@ -11,7 +11,7 @@ class Icon extends \Bitrix\Landing\Node
 	 */
 	public static function getHandlerJS()
 	{
-		return 'BX.Landing.Block.Node.Icon';
+		return 'BX.Landing.Node.Icon';
 	}
 
 

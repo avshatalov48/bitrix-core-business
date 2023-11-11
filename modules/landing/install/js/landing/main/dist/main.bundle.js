@@ -1253,10 +1253,14 @@ this.BX = this.BX || {};
 	        self.currentBlock = null;
 	        self.currentArea = null;
 	        var blockId = parseInt(res.id);
-	        var oldBlock = BX.Landing.PageObject.getBlocks().get(blockId);
-	        if (oldBlock) {
-	          main_core.Dom.remove(oldBlock.node);
-	          BX.Landing.PageObject.getBlocks().remove(oldBlock);
+	        var allOldBlocks = BX.Landing.PageObject.getBlocks();
+	        if (allOldBlocks) {
+	          allOldBlocks.forEach(function (oldBlock) {
+	            if (oldBlock.id === blockId) {
+	              main_core.Dom.remove(oldBlock.node);
+	              BX.Landing.PageObject.getBlocks().remove(oldBlock);
+	            }
+	          });
 	        }
 
 	        // Init block entity

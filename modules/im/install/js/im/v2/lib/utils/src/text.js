@@ -1,5 +1,7 @@
 import {Type, Loc, Text, Dom} from 'main.core';
 
+import { emojiRegex } from './emoji-regex';
+
 export const TextUtil = {
 
 	convertHtmlEntities(text: string): string
@@ -149,6 +151,13 @@ export const TextUtil = {
 		return allowList.indexOf(element.protocol) > -1;
 	},
 
+	isEmojiOnly(messageText: string): boolean
+	{
+		const text = messageText.replaceAll(emojiRegex, '');
+
+		return text.replaceAll(/\s/g, '').length === 0;
+	},
+
 	/**
 	 * @deprecated
 	 * @use Text.encode from main.core
@@ -165,5 +174,36 @@ export const TextUtil = {
 	htmlspecialcharsback(text): string
 	{
 		return Text.decode(text);
+	},
+
+	getWordsFromString(string: string): string[]
+	{
+		const clearedString = string
+			.replaceAll('(', ' ')
+			.replaceAll(')', ' ')
+			.replaceAll('[', ' ')
+			.replaceAll(']', ' ')
+			.replaceAll('{', ' ')
+			.replaceAll('}', ' ')
+			.replaceAll('<', ' ')
+			.replaceAll('>', ' ')
+			.replaceAll('-', ' ')
+			.replaceAll('#', ' ')
+			.replaceAll('"', ' ')
+			.replaceAll('\'', ' ')
+			.replaceAll(/\s\s+/g, ' ')
+		;
+
+		return clearedString.split(' ').filter((word) => word !== '');
+	},
+
+	getMentionBbCode(dialogId: number | string, name: string): string
+	{
+		if (Type.isString(dialogId) && dialogId.startsWith('chat'))
+		{
+			return `[CHAT=${dialogId.slice(4)}]${name}[/CHAT]`;
+		}
+
+		return `[USER=${dialogId}]${name}[/USER]`;
 	},
 };

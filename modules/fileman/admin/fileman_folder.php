@@ -19,6 +19,7 @@ $addUrl = 'lang='.LANGUAGE_ID.($logical == "Y"?'&logical=Y':'');
 
 $io = CBXVirtualIo::GetInstance();
 
+$site ??= $_REQUEST['site'] ?? null;
 $site = CFileMan::__CheckSite($site);
 $DOC_ROOT = CSite::GetSiteDocRoot($site);
 
@@ -430,17 +431,6 @@ $oldind = $oldind ?? null;
 					if (!($r = $z->Fetch()))
 						$inh_taskId = 'NOT_REF';
 				}
-				// *****************************
-				// If user can manage only subordinate groups
-				if (false && $USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('edit_all_users'))
-				{
-					$arSubordGroups = Array();
-					$arGroups = explode(',',$USER->GetGroups());
-					for ($i = 0,$l = count($arGroups);$i < $l;$i++)
-						$arSubordGroups = array_merge($arSubordGroups,CGroup::GetSubordinateGroups($arGroups[$i]));
-					$arSubordGroups = array_values(array_unique($arSubordGroups));
-					$hide_groups = '';
-				}
 
 				//for each groups
 				$db_groups = CGroup::GetList("sort", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -465,11 +455,6 @@ $oldind = $oldind ?? null;
 						if (!($r = $z->Fetch()))
 							$taskId = 'NOT_REF';
 					}
-					//if(isset($arSubordGroups) && !in_array($g_ID,$arSubordGroups))
-					//{
-					//	$hidden_groups .= '<input type="hidden" name="g_'.$g_ID.'" value="'.$taskId.'">';
-					//	continue;
-					//}
 				?>
 				<tr>
 					<td>

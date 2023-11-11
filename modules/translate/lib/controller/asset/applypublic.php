@@ -48,7 +48,7 @@ class ApplyPublic
 	private $seekAncestors;
 
 
-	const TARGET_FOLDERS = array(
+	const TARGET_FOLDERS = [
 		'component' => '#BX_ROOT#/components/bitrix',
 		'activities' => '#BX_ROOT#/activities/bitrix',
 		'gadgets' => '#BX_ROOT#/gadgets/bitrix',
@@ -57,8 +57,8 @@ class ApplyPublic
 		'template' => '#BX_ROOT#/templates',
 		'mobileapp' => '#BX_ROOT#/mobileapp',
 		'js' => '#BX_ROOT#/js',
-	);
-	const SOURCE_FOLDERS = array(
+	];
+	const SOURCE_FOLDERS = [
 		'component' => '/install/components/bitrix',
 		'activities' => '/install/activities/bitrix',
 		'gadgets' => '/install/gadgets/bitrix',
@@ -67,7 +67,7 @@ class ApplyPublic
 		'template' => '/install/templates',
 		'mobileapp' => '/install/mobileapp',
 		'js' => '/install/js',
-	);
+	];
 
 
 
@@ -78,7 +78,7 @@ class ApplyPublic
 	 * @param Main\Engine\Controller $controller Parent controller object.
 	 * @param array $config Additional configuration.
 	 */
-	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
 		$this->keepField([
 			'languageId', 'tmpFolderPath', 'totalFileCount', 'sourceFolderPath',
@@ -110,11 +110,11 @@ class ApplyPublic
 		if ($updatePublic === null || $updatePublic !== 'Y')
 		{
 			// finish it
-			return array(
+			return [
 				'STATUS' => Translate\Controller\STATUS_COMPLETED,
 				'PROCESSED_ITEMS' => $progressParams['totalFileCount'],
 				'TOTAL_ITEMS' => $progressParams['totalItems'],
-			);
+			];
 		}
 
 
@@ -149,17 +149,17 @@ class ApplyPublic
 			if (!$sourceDirectory->isExists())
 			{
 				$this->addError(
-					new Error(Loc::getMessage('TR_ERROR_CREATE_TARGET_FOLDER', array('#PATH#' => $this->sourceFolderPath)))
+					new Error(Loc::getMessage('TR_ERROR_CREATE_TARGET_FOLDER', ['#PATH#' => $this->sourceFolderPath]))
 				);
 			}
 
 			$this->saveProgressParameters();
 
-			return array(
+			return [
 				'STATUS' => ($this->totalItems > 0 ? Translate\Controller\STATUS_PROGRESS : Translate\Controller\STATUS_COMPLETED),
 				'PROCESSED_ITEMS' => 0,
 				'TOTAL_ITEMS' => $this->totalItems,
-			);
+			];
 		}
 
 		$this->targetFolderPath = $progressParams['targetFolderPath'];
@@ -176,7 +176,7 @@ class ApplyPublic
 	 *
 	 * @return array
 	 */
-	private function runApplying()
+	private function runApplying(): array
 	{
 		$processedItemCount = 0;
 
@@ -294,10 +294,10 @@ class ApplyPublic
 
 		$this->processedItems += $processedItemCount;
 
-		$result = array(
+		$result = [
 			'PROCESSED_ITEMS' => $this->processedItems,
 			'TOTAL_ITEMS' => $this->totalItems,
-		);
+		];
 
 		if ($this->instanceTimer()->hasTimeLimitReached() !== true)
 		{
@@ -316,9 +316,9 @@ class ApplyPublic
 	 *
 	 * @param string $tmpFolderFullPath Full path of the temp folder to look through.
 	 *
-	 * @return \Generator|array
+	 * @return \Generator|array|iterable
 	 */
-	private function lookThroughTmpFolder($tmpFolderFullPath)
+	private function lookThroughTmpFolder($tmpFolderFullPath): iterable
 	{
 		$files = [];
 		$folders = [];
@@ -348,7 +348,7 @@ class ApplyPublic
 					continue;
 				}
 
-				if ((\mb_substr($name, -4) === '.php') && \is_file($fullPath))
+				if (Translate\IO\Path::isPhpFile($fullPath, true))
 				{
 					$files[$langFolderRelPath.'/'.$name] = $fullPath;
 				}
@@ -411,7 +411,6 @@ class ApplyPublic
 			}
 		}
 	}
-
 
 	/**
 	 * Returns progress option name

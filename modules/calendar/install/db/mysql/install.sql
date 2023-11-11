@@ -107,7 +107,8 @@ create table b_calendar_event
   INDEX ix_event_location (LOCATION),
   INDEX ix_event_section_del (SECTION_ID,DELETED),
   INDEX ix_cal_google_sync_status (SYNC_STATUS),
-  INDEX ix_cal_event_section_del_date (SECTION_ID, DELETED, DATE_TO_TS_UTC, DATE_FROM_TS_UTC)
+  INDEX ix_cal_event_section_del_date (SECTION_ID, DELETED, DATE_TO_TS_UTC, DATE_FROM_TS_UTC),
+  FULLTEXT INDEX IXF_B_CALENDAR_EVENT_SEARCHABLE_CONTENT (SEARCHABLE_CONTENT)
 );
 
 create table b_calendar_event_sect

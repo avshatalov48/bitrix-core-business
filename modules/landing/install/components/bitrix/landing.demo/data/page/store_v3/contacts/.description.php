@@ -52,7 +52,7 @@ return [
 					0 => 'landing-block text-center container g-pb-10 g-pt-0 l-d-xs-none l-d-md-none',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title landing-semantic-title-medium g-my-0 container g-pl-0 g-pr-0 text-left g-font-size-30 g-font-weight-500',
+					0 => 'landing-block-node-title g-my-0 container g-pl-0 g-pr-0 text-left g-font-size-30 g-font-weight-500',
 				],
 			],
 		],
@@ -122,7 +122,7 @@ return [
 					0 => 'landing-block-node-text g-pb-1 g-color-gray-dark-v1 g-font-size-18 text-left',
 				],
 				'.landing-block-node-text-container' => [
-					0 => 'landing-block-node-text-container landing-semantic-text-width container g-max-width-container',
+					0 => 'landing-block-node-text-container container g-max-width-container',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation animation-none g-pt-10 g-pb-10 u-block-border-none g-bg-white',
@@ -157,7 +157,7 @@ return [
 					0 => 'landing-block-node-text g-pb-1 g-color-gray-dark-v1 g-font-size-18 text-left',
 				],
 				'.landing-block-node-text-container' => [
-					0 => 'landing-block-node-text-container landing-semantic-text-width container g-max-width-container',
+					0 => 'landing-block-node-text-container container g-max-width-container',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation animation-none g-pt-10 g-pb-0 u-block-border-none g-bg-white',

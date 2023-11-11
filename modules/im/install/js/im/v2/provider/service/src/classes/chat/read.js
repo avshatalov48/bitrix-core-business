@@ -45,7 +45,11 @@ export class ReadService
 	readDialog(dialogId: string)
 	{
 		Logger.warn('ReadService: readDialog', dialogId);
-		this.#store.dispatch('recent/unread', {id: dialogId, action: false});
+		this.#store.dispatch('recent/unread', {
+			id: dialogId,
+			action: false,
+			dateUpdate: new Date(),
+		});
 		this.#store.dispatch('dialogues/update', {
 			dialogId,
 			fields: {counter: 0}
@@ -58,7 +62,11 @@ export class ReadService
 	unreadDialog(dialogId: string)
 	{
 		Logger.warn('ReadService: unreadDialog', dialogId);
-		this.#store.dispatch('recent/unread', {id: dialogId, action: true});
+		this.#store.dispatch('recent/unread', {
+			id: dialogId,
+			action: true,
+			dateUpdate: new Date(),
+		});
 		this.#restClient.callMethod(RestMethod.imV2ChatUnread, {dialogId}).catch(error => {
 			console.error('ReadService: error setting chat as unread', error);
 			this.#store.dispatch('recent/unread', {id: dialogId, action: false});
@@ -105,13 +113,14 @@ export class ReadService
 		Logger.warn('ReadService: clear dialog mark', dialogId);
 		const dialog: ImModelDialog = this.#store.getters['dialogues/get'](dialogId);
 		const recentItem: ImModelRecentItem = this.#store.getters['recent/get'](dialogId);
-		if (dialog.markedId === 0 && recentItem && !recentItem.unread)
+		if (dialog.markedId === 0 && !recentItem?.unread)
 		{
 			return;
 		}
 		this.#store.dispatch('recent/unread', {
 			id: dialogId,
 			action: false,
+			dateUpdate: new Date(),
 		});
 		this.#store.dispatch('dialogues/update', {
 			dialogId,
@@ -121,7 +130,7 @@ export class ReadService
 		});
 		this.#restClient.callMethod(RestMethod.imV2ChatRead, {
 			dialogId,
-			onlyRecent: true,
+			onlyRecent: 'Y',
 		}).catch(error => {
 			console.error('ReadService: error clearing dialog mark', error);
 		});

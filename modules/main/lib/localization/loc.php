@@ -261,7 +261,10 @@ final class Loc
 				{
 					if ($convertEncoding)
 					{
-						$val = Encoding::convertEncoding($val, $sourceEncoding, $targetEncoding);
+						if ($targetEncoding !== 'utf-8' || !preg_match('//u', $val))
+						{
+							$val = Encoding::convertEncoding($val, $sourceEncoding, $targetEncoding);
+						}
 						$mess[$key] = $val;
 					}
 
@@ -302,7 +305,11 @@ final class Loc
 			{
 				if ($convertEncoding)
 				{
-					$val = $mess[$key] = Encoding::convertEncoding($val, $sourceEncoding, $targetEncoding);
+					if ($targetEncoding !== 'utf-8' || !preg_match('//u', $val))
+					{
+						$val = Encoding::convertEncoding($val, $sourceEncoding, $targetEncoding);
+					}
+					$mess[$key] = $val;
 				}
 
 				self::$customMessages[$language][$key] = $val;

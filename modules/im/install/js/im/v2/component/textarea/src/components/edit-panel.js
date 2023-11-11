@@ -1,8 +1,8 @@
-import {Parser} from 'im.v2.lib.parser';
+import { Parser } from 'im.v2.lib.parser';
 
-import '../css/edit-panel.css';
+import '../css/message-panel.css';
 
-import type {ImModelMessage} from 'im.v2.model';
+import type { ImModelMessage } from 'im.v2.model';
 
 // @vue/component
 export const EditPanel = {
@@ -10,15 +10,11 @@ export const EditPanel = {
 	props:
 	{
 		messageId: {
-			type: Number,
-			required: true
+			type: [Number, String],
+			required: true,
 		},
 	},
 	emits: ['close'],
-	data()
-	{
-		return {};
-	},
 	computed:
 	{
 		message(): ImModelMessage
@@ -28,23 +24,23 @@ export const EditPanel = {
 		preparedText(): string
 		{
 			return Parser.purifyMessage(this.message);
-		}
+		},
 	},
 	methods:
 	{
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
-		}
+		},
 	},
 	template: `
-		<div class="bx-im-edit-message__container">
-			<div class="bx-im-edit-message__icon"></div>
-			<div class="bx-im-edit-message__content">
-				<div class="bx-im-edit-message__title">{{ loc('IM_TEXTAREA_EDIT_MESSAGE_TITLE') }}</div>
-				<div class="bx-im-edit-message__text">{{ preparedText }}</div>
+		<div class="bx-im-message-panel__container">
+			<div class="bx-im-message-panel__icon"></div>
+			<div class="bx-im-message-panel__content">
+				<div class="bx-im-message-panel__title">{{ loc('IM_TEXTAREA_EDIT_MESSAGE_TITLE') }}</div>
+				<div class="bx-im-message-panel__text">{{ preparedText }}</div>
 			</div>
-			<div @click="$emit('close')" class="bx-im-edit-message__close"></div>
+			<div @click="$emit('close')" class="bx-im-message-panel__close"></div>
 		</div>
-	`
+	`,
 };

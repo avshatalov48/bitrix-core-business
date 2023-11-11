@@ -146,8 +146,8 @@ class PropertyProvider extends BaseProvider
 	{
 		$fields = [
 			[
-				'name' => 'FILTERABLE',
-				'title' => Loc::getMessage('IBLOCK_ENTITY_EDITOR_PROPERTY_FILTERABLE'),
+				'name' => 'FILTRABLE',
+				'title' => Loc::getMessage('IBLOCK_ENTITY_EDITOR_PROPERTY_FILTERABLE_MSGVER_1'),
 				'type' => 'boolean',
 			],
 			[

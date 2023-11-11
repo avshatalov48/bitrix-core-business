@@ -72,7 +72,27 @@ export class AstProcessor
 			if (selector.props.length > 0)
 			{
 				return selector.props.every(([key, value]) => {
-					return node[key] === value;
+					const propValue = (() => {
+						const name = `${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+						if (Type.isFunction(node[`get${name}`]))
+						{
+							return node[`get${name}`]();
+						}
+
+						if (Type.isFunction(node[`is${name}`]))
+						{
+							return node[`is${name}`]();
+						}
+
+						return null;
+					})();
+
+					if (['true', 'false'].includes(value))
+					{
+						return propValue === (value === 'true');
+					}
+
+					return propValue === value;
 				});
 			}
 

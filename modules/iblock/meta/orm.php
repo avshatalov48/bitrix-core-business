@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Iblock\ElementPropertyTable:iblock/lib/elementpropertytable.php:4ab1bcd8cbe95715e7dcd2f4609c9daa */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\ElementPropertyTable:iblock\lib\elementpropertytable.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_ElementProperty
@@ -193,6 +193,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ElementProperty_Collection merge(?EO_ElementProperty_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ElementProperty_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\ElementPropertyTable */
@@ -226,7 +228,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_ElementProperty_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\ElementTable:iblock/lib/elementtable.php:643e85b8c014fa2baa89cc9e22ecd431 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\ElementTable:iblock\lib\elementtable.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_Element
@@ -759,6 +761,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Element_Collection merge(?EO_Element_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Element_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\ElementTable */
@@ -792,7 +796,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_Element_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockTable:iblock/lib/iblocktable.php:09185b290936f8e46030834abf457fd0 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockTable:iblock\lib\iblocktable.php */
 namespace Bitrix\Iblock {
 	/**
 	 * Iblock
@@ -1286,6 +1290,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Iblock_Collection merge(?EO_Iblock_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Iblock_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\IblockTable */
@@ -1319,7 +1325,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_Iblock_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockFieldTable:iblock/lib/iblockfield.php:454adef96c4ef621b9a766741b7dcb9e */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockFieldTable:iblock\lib\iblockfield.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_IblockField
@@ -1445,6 +1451,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_IblockField_Collection merge(?EO_IblockField_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_IblockField_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\IblockFieldTable */
@@ -1478,7 +1486,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_IblockField_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockGroupTable:iblock/lib/iblockgroup.php:2918f47edc6784c824ad1232c801ede1 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockGroupTable:iblock\lib\iblockgroup.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_IblockGroup
@@ -1605,6 +1613,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_IblockGroup_Collection merge(?EO_IblockGroup_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_IblockGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\IblockGroupTable */
@@ -1638,7 +1648,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_IblockGroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockMessageTable:iblock/lib/iblockmessage.php:ee5d0204cf4f5075e80706bb63b11dcf */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockMessageTable:iblock\lib\iblockmessage.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_IblockMessage
@@ -1752,6 +1762,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_IblockMessage_Collection merge(?EO_IblockMessage_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_IblockMessage_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\IblockMessageTable */
@@ -1785,7 +1797,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_IblockMessage_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockRssTable:iblock/lib/iblockrss.php:8cbee456c516ed874e3c23f414e997b0 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockRssTable:iblock\lib\iblockrss.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_IblockRss
@@ -1917,6 +1929,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_IblockRss_Collection merge(?EO_IblockRss_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_IblockRss_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\IblockRssTable */
@@ -1950,7 +1964,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_IblockRss_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockSiteTable:iblock/lib/iblocksite.php:43dcc35c6580d899f5089941bbc884a1 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockSiteTable:iblock\lib\iblocksite.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_IblockSite
@@ -2065,6 +2079,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_IblockSite_Collection merge(?EO_IblockSite_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_IblockSite_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\IblockSiteTable */
@@ -2098,7 +2114,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_IblockSite_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\InheritedPropertyTable:iblock/lib/inheritedproperty.php:ce128f88463af44d89cb4bcac863fb61 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\InheritedPropertyTable:iblock\lib\inheritedproperty.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_InheritedProperty
@@ -2241,6 +2257,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_InheritedProperty_Collection merge(?EO_InheritedProperty_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_InheritedProperty_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\InheritedPropertyTable */
@@ -2274,7 +2292,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_InheritedProperty_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\ORM\ElementV1Table:iblock/lib/orm/elementv1table.php:458c0edb3d3cad92c74ac0d4675d3489 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\ORM\ElementV1Table:iblock\lib\orm\elementv1table.php */
 namespace Bitrix\Iblock\ORM {
 	/**
 	 * EO_ElementV1
@@ -2807,6 +2825,8 @@ namespace Bitrix\Iblock\ORM {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ElementV1_Collection merge(?EO_ElementV1_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ElementV1_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\ORM\ElementV1Table */
@@ -2840,7 +2860,7 @@ namespace Bitrix\Iblock\ORM {
 	 */
 	class EO_ElementV1_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\ORM\ElementV2Table:iblock/lib/orm/elementv2table.php:c84ed76e7ebef1aff54f2d9c8c2bd2dc */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\ORM\ElementV2Table:iblock\lib\orm\elementv2table.php */
 namespace Bitrix\Iblock\ORM {
 	/**
 	 * EO_ElementV2
@@ -3373,6 +3393,8 @@ namespace Bitrix\Iblock\ORM {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ElementV2_Collection merge(?EO_ElementV2_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ElementV2_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\ORM\ElementV2Table */
@@ -3406,7 +3428,7 @@ namespace Bitrix\Iblock\ORM {
 	 */
 	class EO_ElementV2_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\PropertyTable:iblock/lib/propertytable.php:f975f0fadc4e4ebf8d2ace90ba0906bf */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\PropertyTable:iblock\lib\propertytable.php */
 namespace Bitrix\Iblock {
 	/**
 	 * Property
@@ -3827,6 +3849,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Property_Collection merge(?EO_Property_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Property_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\PropertyTable */
@@ -3860,7 +3884,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_Property_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\PropertyEnumerationTable:iblock/lib/propertyenumeration.php:cb348c0edda3783bf888f702b6ea3852 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\PropertyEnumerationTable:iblock\lib\propertyenumeration.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_PropertyEnumeration
@@ -4022,6 +4046,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_PropertyEnumeration_Collection merge(?EO_PropertyEnumeration_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_PropertyEnumeration_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\PropertyEnumerationTable */
@@ -4055,7 +4081,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_PropertyEnumeration_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\PropertyFeatureTable:iblock/lib/propertyfeature.php:e44b169485c9a17af41ccad4ff23dea4 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\PropertyFeatureTable:iblock\lib\propertyfeature.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_PropertyFeature
@@ -4199,6 +4225,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_PropertyFeature_Collection merge(?EO_PropertyFeature_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_PropertyFeature_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\PropertyFeatureTable */
@@ -4232,7 +4260,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_PropertyFeature_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\SectionElementTable:iblock/lib/sectionelementtable.php:7634ac036b400256a7b779a4bae3e467 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\SectionElementTable:iblock\lib\sectionelementtable.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_SectionElement
@@ -4359,6 +4387,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_SectionElement_Collection merge(?EO_SectionElement_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_SectionElement_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\SectionElementTable */
@@ -4392,7 +4422,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_SectionElement_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\SectionPropertyTable:iblock/lib/sectionpropertytable.php:5c334f1830454198e226124611437bda */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\SectionPropertyTable:iblock\lib\sectionpropertytable.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_SectionProperty
@@ -4574,6 +4604,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_SectionProperty_Collection merge(?EO_SectionProperty_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_SectionProperty_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\SectionPropertyTable */
@@ -4607,7 +4639,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_SectionProperty_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\SectionTable:iblock/lib/sectiontable.php:bf9f2b4e51964bc0d060de4c3d7ea218 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\SectionTable:iblock\lib\sectiontable.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_Section
@@ -5006,6 +5038,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Section_Collection merge(?EO_Section_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Section_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\SectionTable */
@@ -5039,7 +5073,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_Section_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\SequenceTable:iblock/lib/sequence.php:d58dd0ad5b72b1666498e7953375cadb */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\SequenceTable:iblock\lib\sequence.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_Sequence
@@ -5153,6 +5187,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Sequence_Collection merge(?EO_Sequence_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Sequence_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\SequenceTable */
@@ -5186,7 +5222,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_Sequence_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\SiteTable:iblock/lib/site.php:c5e740890b8a9731aab866f3bb4ae01d */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\SiteTable:iblock\lib\site.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_Site
@@ -5301,6 +5337,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Site_Collection merge(?EO_Site_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Site_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\SiteTable */
@@ -5334,7 +5372,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_Site_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\TypeTable:iblock/lib/type.php:e5097a2449e5645553c7833b1eb10008 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\TypeTable:iblock\lib\type.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_Type
@@ -5490,6 +5528,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Type_Collection merge(?EO_Type_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Type_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\TypeTable */
@@ -5523,7 +5563,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_Type_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\TypeLanguageTable:iblock/lib/typelanguage.php:419def59859fefccd51523bf7bb868ca */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\TypeLanguageTable:iblock\lib\typelanguage.php */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_TypeLanguage
@@ -5661,6 +5701,8 @@ namespace Bitrix\Iblock {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_TypeLanguage_Collection merge(?EO_TypeLanguage_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_TypeLanguage_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Iblock\TypeLanguageTable */

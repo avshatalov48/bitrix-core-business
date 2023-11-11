@@ -1,0 +1,38 @@
+.bx-im-list-recent-create-chat__container {
+	--im-list-recent-create-chat__background-color_not-active: var(--im-color-palette-blue-15);
+	--im-list-recent-create-chat__font-color_header: var(--im-color-palette-white-base);
+
+	margin: 4px 4px 6px 4px;
+}
+
+.bx-im-list-recent-create-chat__container .bx-im-list-recent-item__wrap:not(.--selected) {
+	background-color: var(--im-list-recent-create-chat__background-color_not-active);
+}
+
+.bx-im-list-recent-create-chat__avatar {
+	width: 48px;
+	height: 48px;
+}
+
+.bx-im-list-recent-create-chat__avatar.--default {
+	background-image: url('images/create-chat-default-avatar.svg');
+}
+
+.bx-im-list-recent-create-chat__avatar.--image {
+	object-fit: cover;
+	border-radius: 50%;
+}
+
+.bx-im-list-recent-create-chat__header {
+	font: var(--im-font-size-lg) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-list-recent-create-chat__font-color_header);
+
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.bx-im-list-recent-create-chat__container .bx-im-list-recent-item__wrap:not(.--selected) .bx-im-list-recent-create-chat__header {
+	--im-list-recent-create-chat__font-color_header: var(--im-color-palette-black-base)
+}

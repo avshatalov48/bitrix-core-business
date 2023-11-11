@@ -142,14 +142,14 @@ BX.UI.Notification.Stack.prototype =
 		}
 	},
 
-	/**
-	 * @public
-	 * @param {BX.UI.Notification.Balloon} balloonToRemove
-	 */
-	remove: function(balloonToRemove)
+	clear()
 	{
-		this.balloons = this.balloons.filter(function(balloon) {
-			return balloonToRemove !== balloon;
+		const balloons = [...this.balloons, ...this.queueStack];
+		this.queueStack = [];
+		this.balloons = [];
+
+		balloons.forEach((balloon) => {
+			return balloon.close();
 		});
 	},
 
@@ -245,13 +245,16 @@ BX.UI.Notification.Stack.prototype =
 	 */
 	handleBalloonClose: function(event)
 	{
-		var balloon = event.getBalloon();
-		if (balloon.getStack() !== this)
+		const closingBalloon = event.getBalloon();
+		if (closingBalloon.getStack() !== this)
 		{
 			return;
 		}
 
-		this.remove(balloon);
+		this.balloons = this.balloons.filter((balloon) => {
+			return closingBalloon !== balloon;
+		});
+
 		this.adjustPosition();
 		this.checkQueue();
 	},

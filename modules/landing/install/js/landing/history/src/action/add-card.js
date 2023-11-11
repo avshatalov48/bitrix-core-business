@@ -20,42 +20,30 @@ export default function addCard(entry)
 				return Promise.reject();
 			}
 
-			return block;
-		})
-		.then((block) => {
-			return BX.Landing.PageObject.getInstance().view()
-				.then((iframe) => {
-					const parentNode = iframe.contentDocument.querySelector(entry.params.selector).parentNode;
-					return [
-						block,
-						parentNode,
-					];
-				});
-		})
-		.then((elements) => {
-			return scrollTo(elements[1])
-				.then(() => {
-					return elements;
-				});
-		})
-		.then((elements) => {
-			let block = elements[0];
-			return block
-				.addCard({
-					index: entry.params.position,
-					container: elements[1],
-					content: entry.params.content,
-					selector: entry.params.selector,
-				}, true)
-				.then(() => {
-					const card = block.cards.getBySelector(entry.params.selector);
-					if (!card)
-					{
-						return Promise.reject();
-					}
+			const parentNode = block.node.querySelector(entry.params.selector).parentNode;
 
-					return highlight(card.node);
-				})
+			return scrollTo(parentNode)
+				.then(() => {
+					return block
+						.addCard({
+							index: entry.params.position,
+							container: parentNode,
+							content: entry.params.content,
+							selector: entry.params.selector,
+						}, true)
+						.then(() => {
+							const cardSelector = entry.params.selector + '@' + entry.params.position;
+							const card = block.cards.getBySelector(cardSelector);
+							if (!card)
+							{
+								return Promise.reject();
+							}
+
+							return highlight(card.node);
+						})
+				});
 		})
-		.catch(() => {});
+		.catch((err) => {
+			console.log("Error in history action addCard", err);
+		});
 }

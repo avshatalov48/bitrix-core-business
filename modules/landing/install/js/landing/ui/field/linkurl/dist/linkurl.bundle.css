@@ -113,8 +113,7 @@
 }
 
 .grid-dissallow .landing-ui-field-input {
-	width: -webkit-fit-content !important;
-	width: fit-content !important;
+	width: 100% !important;
 }
 .grid-dissallow .landing-ui-field-input:after {
 	display: none;

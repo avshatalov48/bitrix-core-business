@@ -46,9 +46,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	  }
 	  playSingle(type) {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isPlayingLoop)[_isPlayingLoop]) {
-	      return;
-	    }
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _currentPlayingSound)[_currentPlayingSound]) {
 	      this.stop(type);
 	    }
@@ -80,6 +77,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _currentPlayingSound)[_currentPlayingSound]) {
 	      return;
 	    }
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _currentPlayingSound)[_currentPlayingSound].src.endsWith(SoundFile[type])) {
+	      return;
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _currentPlayingSound)[_currentPlayingSound].pause();
 	    babelHelpers.classPrivateFieldLooseBase(this, _currentPlayingSound)[_currentPlayingSound].currentTime = 0;
 	    babelHelpers.classPrivateFieldLooseBase(this, _currentPlayingSound)[_currentPlayingSound] = null;
@@ -97,7 +97,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _desktopManager = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("desktopManager");
 	var _soundPlayer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("soundPlayer");
 	var _canPlayInContext = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canPlayInContext");
-	var _canPlayForUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canPlayForUser");
+	var _canPlay = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canPlay");
+	var _isUserDnd = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isUserDnd");
 	var _isPrioritySoundType = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isPrioritySoundType");
 	var _hasActiveCall = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasActiveCall");
 	var _isSoundEnabled = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isSoundEnabled");
@@ -118,8 +119,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _isPrioritySoundType, {
 	      value: _isPrioritySoundType2
 	    });
-	    Object.defineProperty(this, _canPlayForUser, {
-	      value: _canPlayForUser2
+	    Object.defineProperty(this, _isUserDnd, {
+	      value: _isUserDnd2
+	    });
+	    Object.defineProperty(this, _canPlay, {
+	      value: _canPlay2
 	    });
 	    Object.defineProperty(this, _canPlayInContext, {
 	      value: _canPlayInContext2
@@ -137,14 +141,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
-	    babelHelpers.classPrivateFieldLooseBase(this, _desktopManager)[_desktopManager] = new im_v2_lib_desktop.DesktopManager();
+	    babelHelpers.classPrivateFieldLooseBase(this, _desktopManager)[_desktopManager] = im_v2_lib_desktop.DesktopManager.getInstance();
 	    babelHelpers.classPrivateFieldLooseBase(this, _soundPlayer)[_soundPlayer] = new SoundPlayer();
 	  }
 	  playOnce(type) {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _hasActiveCall)[_hasActiveCall]() || !babelHelpers.classPrivateFieldLooseBase(this, _canPlayInContext)[_canPlayInContext]()) {
 	      return;
 	    }
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _canPlayForUser)[_canPlayForUser](type)) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _canPlay)[_canPlay](type) || babelHelpers.classPrivateFieldLooseBase(this, _isUserDnd)[_isUserDnd]()) {
+	      return;
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _soundPlayer)[_soundPlayer].playSingle(type);
+	  }
+	  forcePlayOnce(type) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _hasActiveCall)[_hasActiveCall]() || !babelHelpers.classPrivateFieldLooseBase(this, _canPlayInContext)[_canPlayInContext]()) {
+	      return;
+	    }
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _canPlay)[_canPlay](type)) {
 	      return;
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _soundPlayer)[_soundPlayer].playSingle(type);
@@ -153,7 +166,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _hasActiveCall)[_hasActiveCall]() && !force) {
 	      return;
 	    }
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _canPlayInContext)[_canPlayInContext]() || !babelHelpers.classPrivateFieldLooseBase(this, _canPlayForUser)[_canPlayForUser](type)) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _canPlayInContext)[_canPlayInContext]() || !babelHelpers.classPrivateFieldLooseBase(this, _canPlay)[_canPlay](type) || babelHelpers.classPrivateFieldLooseBase(this, _isUserDnd)[_isUserDnd]()) {
 	      return;
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _soundPlayer)[_soundPlayer].playLoop(type, timeout);
@@ -165,15 +178,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	function _canPlayInContext2() {
 	  return im_v2_lib_desktop.DesktopManager.isDesktop() || !babelHelpers.classPrivateFieldLooseBase(this, _desktopManager)[_desktopManager].isDesktopActive();
 	}
-	function _canPlayForUser2(type) {
+	function _canPlay2(type) {
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _isPrioritySoundType)[_isPrioritySoundType](type)) {
 	    return true;
 	  }
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isSoundEnabled)[_isSoundEnabled]()) {
-	    return false;
-	  }
+	  return babelHelpers.classPrivateFieldLooseBase(this, _isSoundEnabled)[_isSoundEnabled]();
+	}
+	function _isUserDnd2() {
 	  const status = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['users/getStatus'](im_v2_application_core.Core.getUserId());
-	  return status !== im_v2_const.UserStatus.dnd;
+	  return status === im_v2_const.UserStatus.dnd;
 	}
 	function _isPrioritySoundType2(type) {
 	  return [im_v2_const.SoundType.start, im_v2_const.SoundType.dialtone, im_v2_const.SoundType.ringtone].includes(type);
@@ -182,7 +195,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return im_v2_lib_call.CallManager.getInstance().hasCurrentCall();
 	}
 	function _isSoundEnabled2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['application/settings/get'](im_v2_const.Settings.application.enableSound);
+	  return babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['application/settings/get'](im_v2_const.Settings.notification.enableSound);
 	}
 	SoundNotificationManager.instance = null;
 

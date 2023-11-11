@@ -148,6 +148,13 @@ class CSiteCheckerTest
 			array('check_mysql_table_structure' => GetMessage('SC_T_STRUCTURE')),
 		);
 
+		$arGroupName[64] = GetMessage('SC_GR_MYSQL');
+		$arTestGroup[64] = array(
+			array('check_pgsql_version' => GetMessage('SC_T_PGSQL_VER')),
+			array('check_mysql_time' => GetMessage('SC_T_TIME')),
+			array('check_pgsql_connection_charset' => GetMessage('SC_CONNECTION_CHARSET')),
+		);
+
 		if ($this->fix_mode)
 		{
 			switch ($this->fix_mode)
@@ -197,7 +204,15 @@ class CSiteCheckerTest
 			else
 			{
 				$profile |= 16;
-				$profile |= 32;
+				switch (\Bitrix\Main\Application::getConnection()->getType())
+				{
+					case 'mysql':
+						$profile |= 32;
+						break;
+					case 'pgsql':
+						$profile |= 64;
+						break;
+				}
 			}
 			$this->arTest = array();
 			$step0 = $step;
@@ -1965,6 +1980,76 @@ class CSiteCheckerTest
 		return $this->Result(null, GetMessage("MAIN_AGENTS_HITS"));
 	}
 
+	function check_pgsql_version()
+	{
+		$connection = \Bitrix\Main\Application::getConnection();
+
+		$PgSql_vercheck_min = '11.0.0';
+
+		$ver = $connection->getVersion()[0];
+		if (version_compare($ver, $PgSql_vercheck_min, '<'))
+		{
+			return $this->Result(false, GetMessage('SC_PGSQL_ERR_VER', [
+				'#CUR#' => $ver,
+				'#REQ#' => $PgSql_vercheck_min,
+			]));
+		}
+
+		return true;
+	}
+
+	function check_pgsql_connection_charset()
+	{
+		$connection = \Bitrix\Main\Application::getConnection();
+		$strError = '';
+
+		if ($this->arTestVars['check_mbstring_fail'])
+		{
+			return $this->Result(null, GetMessage('SC_MBSTRING_NA'));
+		}
+
+		$res = $connection->query('SHOW client_encoding');
+		$f = $res->fetch();
+		$character_set_connection = $f['CLIENT_ENCODING'];
+
+		$bAllIn1251 = true;
+		$res1 = $connection->query('SELECT C.CHARSET FROM b_lang L, b_culture C WHERE C.ID=L.CULTURE_ID AND L.ACTIVE=\'Y\''); // for 'no kernel mode'
+		while ($f1 = $res1->fetch())
+		{
+			$bAllIn1251 = $bAllIn1251 && trim(strtolower($f1['CHARSET'])) == 'windows-1251';
+		}
+
+		if (defined('BX_UTF') && BX_UTF === true)
+		{
+			if ($character_set_connection != 'UTF8')
+			{
+				$strError = GetMessage('SC_CONNECTION_CHARSET_WRONG', ['#VAL#' => 'utf8', '#VAL1#' => $character_set_connection]);
+			}
+		}
+		else
+		{
+			if ($bAllIn1251 && $character_set_connection != 'WIN1251')
+			{
+				$strError = GetMessage('SC_CONNECTION_CHARSET_WRONG', ['#VAL#' => 'cp1251', '#VAL1#' => $character_set_connection]);
+			}
+			elseif ($character_set_connection == 'UTF8')
+			{
+				$strError = GetMessage('SC_CONNECTION_CHARSET_WRONG_NOT_UTF', ['#VAL#' => $character_set_connection]);
+			}
+		}
+
+		echo 'character_set_connection=' . $character_set_connection;
+
+		if (!$strError)
+		{
+			return true;
+		}
+
+		$this->arTestVars['check_connection_charset_fail'] = true;
+
+		return $this->Result(false, $strError);
+	}
+
 	##############################
 	# MYSQL Tests follow
 	##############################
@@ -2043,9 +2128,9 @@ class CSiteCheckerTest
 //				$result.= $this->Result(null,GetMessage('SC_TABLE_SIZE_WARN',array('#TABLE#'=>$table,'#SIZE#'=>floor($f0['Data_length']/1024/1024))))."<br>";
 
 			if (!$this->fix_mode)
-				$res0 = $DB->Query('CHECK TABLE `' . $table . '`');
+				$res0 = $DB->Query('CHECK TABLE ' . $DB->quote($table));
 			else
-				$res0 = $DB->Query('REPAIR TABLE `' . $table . '`');
+				$res0 = $DB->Query('REPAIR TABLE ' . $DB->quote($table));
 
 			$f0 = $res0->Fetch();
 			if ($f0['Msg_type'] == 'error' || $f0['Msg_type'] == 'warning')
@@ -2079,64 +2164,66 @@ class CSiteCheckerTest
 		$strError = '';
 
 		if ($this->arTestVars['check_mbstring_fail'])
+		{
 			return $this->Result(null, GetMessage('SC_MBSTRING_NA'));
+		}
 
 		$res = $DB->Query('SHOW VARIABLES LIKE "character_set_connection"');
 		$f = $res->Fetch();
 		$character_set_connection = $f['Value'];
 
-		if ($character_set_connection == 'utf8mb3')
-		{
-			$character_set_connection = 'utf8';
-		}
-
 		$res = $DB->Query('SHOW VARIABLES LIKE "character_set_results"');
 		$f = $res->Fetch();
 		$character_set_results = $f['Value'];
-
-		if ($character_set_results == 'utf8mb3')
-		{
-			$character_set_results = 'utf8';
-		}
 
 		$res = $DB->Query('SHOW VARIABLES LIKE "collation_connection"');
 		$f = $res->Fetch();
 		$collation_connection = $f['Value'];
 
-		if ($collation_connection == 'utf8mb3_unicode_ci')
-		{
-			$collation_connection = 'utf8_unicode_ci';
-		}
-
 		$bAllIn1251 = true;
 		$res1 = $DB->Query('SELECT C.CHARSET FROM b_lang L, b_culture C WHERE C.ID=L.CULTURE_ID AND L.ACTIVE="Y"'); // for 'no kernel mode'
 		while($f1 = $res1->Fetch())
+		{
 			$bAllIn1251 = $bAllIn1251 && trim(strtolower($f1['CHARSET'])) == 'windows-1251';
+		}
 
 		if (defined('BX_UTF') && BX_UTF === true)
 		{
-			if ($character_set_connection != 'utf8')
-				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG", array('#VAL#' => 'utf8', '#VAL1#' => $character_set_connection));
-			elseif ($collation_connection != 'utf8_unicode_ci')
-				$strError = GetMessage("SC_CONNECTION_COLLATION_WRONG_UTF", array('#VAL#' => $collation_connection));
+			if (!in_array($character_set_connection, ['utf8', 'utf8mb3']))
+			{
+				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG", ['#VAL#' => 'utf8', '#VAL1#' => $character_set_connection]);
+			}
+			elseif (!in_array($collation_connection, ['utf8_unicode_ci', 'utf8mb3_unicode_ci', 'utf8mb3_general_ci']))
+			{
+				$strError = GetMessage("SC_CONNECTION_COLLATION_WRONG_UTF", ['#VAL#' => $collation_connection]);
+			}
 		}
 		else
 		{
 			if ($bAllIn1251 && $character_set_connection != 'cp1251')
-				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG", array('#VAL#' => 'cp1251', '#VAL1#' => $character_set_connection));
+			{
+				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG", ['#VAL#' => 'cp1251', '#VAL1#' => $character_set_connection]);
+			}
 			elseif ($character_set_connection == 'utf8')
-				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG_NOT_UTF", array('#VAL#' => $character_set_connection));
+			{
+				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG_NOT_UTF", ['#VAL#' => $character_set_connection]);
+			}
 		}
 
 		if (!$strError && $character_set_connection != $character_set_results)
-			$strError = GetMessage('SC_CHARSET_CONN_VS_RES',array('#CONN#' => $character_set_connection, '#RES#' => $character_set_results));
+		{
+			$strError = GetMessage('SC_CHARSET_CONN_VS_RES',['#CONN#' => $character_set_connection, '#RES#' => $character_set_results]);
+		}
 
 		echo 'character_set_connection='.$character_set_connection.', collation_connection='.$collation_connection.', character_set_results='.$character_set_results;
 
 		if (!$strError)
+		{
 			return true;
+		}
 
 		$this->arTestVars['check_connection_charset_fail'] = true;
+
 		return $this->Result(false, $strError);
 	}
 
@@ -2170,7 +2257,7 @@ class CSiteCheckerTest
 
 		if ($this->fix_mode)
 		{
-			if (!$DB->Query($sql = 'ALTER DATABASE `' . $DB->DBName. '` DEFAULT CHARACTER SET ' . $character_set_connection . ' COLLATE ' . $collation_connection, true))
+			if (!$DB->Query($sql = 'ALTER DATABASE ' . $DB->quote($DB->DBName). ' DEFAULT CHARACTER SET ' . $character_set_connection . ' COLLATE ' . $collation_connection, true))
 			{
 				$strError = $sql . ' [' . $DB->db_Error . ']';
 			}
@@ -2214,11 +2301,6 @@ class CSiteCheckerTest
 		$f = $res->Fetch();
 		$charset = trim($f['Value']);
 
-		if ($charset == 'utf8mb3')
-		{
-			$charset = 'utf8';
-		}
-
 		$res = $DB->Query('SHOW VARIABLES LIKE "collation_database"');
 		$f = $res->Fetch();
 		$collation = trim($f['Value']);
@@ -2249,12 +2331,12 @@ class CSiteCheckerTest
 				continue;
 			}
 
-			$res0 = $DB->Query('SHOW CREATE TABLE `' . $table . '`', true);
+			$res0 = $DB->Query('SHOW CREATE TABLE ' . $DB->quote($table), true);
 			if ($res0 === false)
 			{
 				if ($this->fix_mode)
 				{
-					$res0 = $DB->Query('DROP TABLE `' . $table . '`', true);
+					$res0 = $DB->Query('DROP TABLE ' . $DB->quote($table), true);
 				}
 				else
 				{
@@ -2287,11 +2369,6 @@ class CSiteCheckerTest
 				$t_charset = getCharsetByCollation($t_collation);
 			}
 
-			if ($t_charset == 'utf8mb3')
-			{
-				$t_charset = 'utf8';
-			}
-
 			if ($charset != $t_charset)
 			{
 				// table charset differs
@@ -2302,7 +2379,7 @@ class CSiteCheckerTest
 					if ($this->force_repair)
 						$this->arTestVars['iErrorAutoFix']++;
 				}
-				elseif ($this->force_repair && !$DB->Query($sql = 'ALTER TABLE `' . $table . '` CHARACTER SET ' . $charset, true))
+				elseif ($this->force_repair && !$DB->Query($sql = 'ALTER TABLE ' . $DB->quote($table) . ' CHARACTER SET ' . $charset, true))
 				{
 					$strError .= $sql . ' [' . $DB->db_Error . ']';
 					break;
@@ -2316,7 +2393,7 @@ class CSiteCheckerTest
 					$this->arTestVars['iError']++;
 					$this->arTestVars['iErrorAutoFix']++;
 				}
-				elseif (!$DB->Query($sql = 'ALTER TABLE `' . $table . '` COLLATE ' . $collation, true))
+				elseif (!$DB->Query($sql = 'ALTER TABLE ' . $DB->quote($table) . ' COLLATE ' . $collation, true))
 				{
 					$strError .= $sql . ' [' . $DB->db_Error . ']';
 					break;
@@ -2325,7 +2402,7 @@ class CSiteCheckerTest
 
 			// fields check
 			$arFix = array();
-			$res0 = $DB->Query("SHOW FULL COLUMNS FROM `" . $table . "`");
+			$res0 = $DB->Query("SHOW FULL COLUMNS FROM " . $DB->quote($table));
 			while($f0 = $res0->Fetch())
 			{
 				$f_collation = $f0['Collation'];
@@ -2333,11 +2410,6 @@ class CSiteCheckerTest
 					continue;
 
 				$f_charset = getCharsetByCollation($f_collation);
-
-				if ($f_charset == 'utf8mb3')
-				{
-					$f_charset = 'utf8';
-				}
 
 				if ($charset != $f_charset)
 				{
@@ -2350,8 +2422,14 @@ class CSiteCheckerTest
 							$this->arTestVars['iErrorAutoFix']++;
 					}
 					elseif ($this->force_repair)
-						$arFix[] = ' MODIFY `'.$f0['Field'].'` '.$f0['Type'].' CHARACTER SET '.$charset.($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL').
-							($f0['Default'] === null ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.str_ireplace('DEFAULT_GENERATED', '', $f0['Extra']);
+						$arFix[] = ' MODIFY ' . $DB->quote($f0['Field'])
+							. ' ' . $f0['Type']
+							. ' CHARACTER SET ' . $charset
+							. ($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL')
+							. ($f0['Default'] === null ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT ' . ($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"' . $DB->ForSQL($f0['Default']) . '"'))
+							. ' ' . str_ireplace('DEFAULT_GENERATED', '', $f0['Extra'])
+							. ($f0['Comment'] ? ' COMMENT \'' . $DB->ForSql($f0['Comment']) . '\'': '')
+						;
 				}
 				elseif ($collation != $f_collation)
 				{
@@ -2366,14 +2444,19 @@ class CSiteCheckerTest
 						$this->arTestVars['iErrorAutoFix']++;
 					}
 					else
-						$arFix[] = ' MODIFY `'.$f0['Field'].'` '.$f0['Type'].' COLLATE '.$collation.($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL').
-							($f0['Default'] === null ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.str_ireplace('DEFAULT_GENERATED', '', $f0['Extra']);
+						$arFix[] = ' MODIFY ' . $DB->quote($f0['Field'])
+							. ' '.$f0['Type']
+							. ' COLLATE ' . $collation.($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL')
+							.($f0['Default'] === null ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"'))
+							. ' ' . str_ireplace('DEFAULT_GENERATED', '', $f0['Extra'])
+							. ($f0['Comment'] ? ' COMMENT \'' . $DB->ForSql($f0['Comment']) . '\'': '')
+						;
 				}
 			}
 
 			if ($this->fix_mode && count($arFix))
 			{
-				if (!$DB->Query($sql = 'ALTER TABLE `'.$table.'` '.implode(",\n", $arFix), true))
+				if (!$DB->Query($sql = 'ALTER TABLE ' . $DB->quote($table) . ' ' . implode(",\n", $arFix), true))
 				{
 					$strError .= $sql . ' [' . $DB->db_Error . ']';
 					break;
@@ -2461,7 +2544,7 @@ class CSiteCheckerTest
 			$arQuery = $DB->ParseSQLBatch(str_replace("\r", "", $query));
 			foreach($arQuery as $sql)
 			{
-				if (preg_match('#^(CREATE TABLE )(IF NOT EXISTS)? *`?([a-z0-9_]+)`?(.*);?$#mis',$sql,$regs))
+				if (preg_match('#^(CREATE TABLE )(IF NOT EXISTS)? *`?([a-z0-9_]+)`?(.*);?$#mis', $sql, $regs))
 				{
 					$table = $regs[3];
 					if (preg_match('#^site_checker_#', $table))
@@ -2490,17 +2573,17 @@ class CSiteCheckerTest
 					{
 						$arTables[$table] = $sql;
 						$tmp_table = 'site_checker_'.$table;
-						$DB->Query('DROP TABLE IF EXISTS `'.$tmp_table.'`');
-						$DB->Query($regs[1].' `'.$tmp_table.'`'.$regs[4]);
+						$DB->Query('DROP TABLE IF EXISTS ' . $DB->quote($tmp_table));
+						$DB->Query($regs[1].' ' . $DB->quote($tmp_table) . $regs[4]);
 					}
 				}
-				elseif (preg_match('#^(ALTER TABLE)( )?`?([a-z0-9_]+)`?(.*);?$#mis',$sql,$regs))
+				elseif (preg_match('#^(ALTER TABLE)( )?`?([a-z0-9_]+)`?(.*);?$#mis', $sql, $regs))
 				{
 					$table = $regs[3];
 					if (!$arTables[$table])
 						continue;
 					$tmp_table = 'site_checker_'.$table;
-					$DB->Query($regs[1].' `'.$tmp_table.'`'.$regs[4]);
+					$DB->Query($regs[1] . ' ' . $DB->quote($tmp_table) . $regs[4]);
 				}
 				elseif (preg_match('#^INSERT INTO *`?([a-z0-9_]+)`?[^\(]*\(?([^)]*)\)?[^V]*VALUES[^\(]*\((.+)\);?$#mis',$sql,$regs))
 				{
@@ -2515,7 +2598,7 @@ class CSiteCheckerTest
 					{
 						if (!$arTableColumns[$tmp_table])
 						{
-							$rs = $DB->Query('SHOW COLUMNS FROM `'.$tmp_table.'`');
+							$rs = $DB->Query('SHOW COLUMNS FROM ' . $DB->quote($tmp_table));
 							while($f = $rs->Fetch())
 								$arTableColumns[$tmp_table][] = $f['Field'];
 						}
@@ -2540,7 +2623,7 @@ class CSiteCheckerTest
 
 					if (!$str)
 					{
-						$sqlSelect = 'SELECT * FROM `'.$table.'` WHERE 1=1 ';
+						$sqlSelect = 'SELECT * FROM ' . $DB->quote($table) . ' WHERE 1=1 ';
 						foreach($arColumns as $k => $c)
 						{
 							$v = $arValues[$k];
@@ -2587,7 +2670,7 @@ class CSiteCheckerTest
 			{
 				$tmp_table = 'site_checker_'.$table;
 				$arIndexes = array();
-				$rs = $DB->Query('SHOW INDEXES FROM `'.$table.'`');
+				$rs = $DB->Query('SHOW INDEXES FROM ' . $DB->quote($table));
 				while($f = $rs->Fetch())
 				{
 					$column = strtolower($f['Column_name'].($f['Sub_part']? '('.$f['Sub_part'].')' : ''));
@@ -2599,7 +2682,7 @@ class CSiteCheckerTest
 
 				$arIndexes_tmp = array();
 				$arFT = array();
-				$rs = $DB->Query('SHOW INDEXES FROM `'.$tmp_table.'`');
+				$rs = $DB->Query('SHOW INDEXES FROM ' . $DB->quote($tmp_table));
 				while($f = $rs->Fetch())
 				{
 					$column = strtolower($f['Column_name'].($f['Sub_part']? '('.$f['Sub_part'].')' : ''));
@@ -2620,7 +2703,7 @@ class CSiteCheckerTest
 							if ($name == 'PRIMARY') // dropping primary is not supported
 								continue;
 
-							$sql = 'ALTER TABLE `'.$table.'` DROP INDEX `'.$name.'`';
+							$sql = 'ALTER TABLE ' . $DB->quote($table) . ' DROP INDEX ' . $DB->quote($name);
 							if ($this->fix_mode)
 							{
 								if (!$DB->Query($sql, true))
@@ -2637,11 +2720,11 @@ class CSiteCheckerTest
 				}
 
 				$arColumns = array();
-				$rs = $DB->Query('SHOW COLUMNS FROM `'.$table.'`');
+				$rs = $DB->Query('SHOW COLUMNS FROM ' . $DB->quote($table));
 				while($f = $rs->Fetch())
 					$arColumns[strtolower($f['Field'])] = $f;
 
-				$rs = $DB->Query('SHOW COLUMNS FROM `'.$tmp_table.'`');
+				$rs = $DB->Query('SHOW COLUMNS FROM ' . $DB->quote($tmp_table));
 				while($f_tmp = $rs->Fetch())
 				{
 					$tmp = TableFieldConstruct($f_tmp);
@@ -2649,7 +2732,7 @@ class CSiteCheckerTest
 					{
 						if (($cur = TableFieldConstruct($f)) != $tmp)
 						{
-							$sql = 'ALTER TABLE `'.$table.'` CHANGE `'.$f['Field'].'` '.$tmp;
+							$sql = 'ALTER TABLE ' . $DB->quote($table) . ' CHANGE ' . $DB->quote($f['Field']) . ' '.$tmp;
 							if ($this->fix_mode)
 							{
 								if ($this->TableFieldCanBeAltered($f, $f_tmp))
@@ -2673,7 +2756,7 @@ class CSiteCheckerTest
 					}
 					else
 					{
-						$sql = 'ALTER TABLE `'.$table.'` ADD '.preg_replace('#auto_increment#i', '' , $tmp); // if only Primary Key is missing we will have to pass the test twice
+						$sql = 'ALTER TABLE ' . $DB->quote($table) . ' ADD ' . preg_replace('#auto_increment#i', '' , $tmp); // if only Primary Key is missing we will have to pass the test twice
 						if ($this->fix_mode)
 						{
 							if (!$DB->Query($sql, true))
@@ -2701,7 +2784,7 @@ class CSiteCheckerTest
 							continue;
 						}
 
-						$sql = $name == 'PRIMARY' ? 'ALTER TABLE `'.$table.'` ADD PRIMARY KEY ('.$ix.')' : 'CREATE '.($arFT[$name] ? 'FULLTEXT ' : '').'INDEX `'.$name.'` ON `'.$table.'` ('.$ix.')';
+						$sql = $name == 'PRIMARY' ? 'ALTER TABLE ' . $DB->quote($table) . ' ADD PRIMARY KEY ('.$ix.')' : 'CREATE '.($arFT[$name] ? 'FULLTEXT ' : '').'INDEX ' . $DB->quote($name) .' ON ' . $DB->quote($table) . ' ('.$ix.')';
 						if ($this->fix_mode)
 						{
 							if (!$DB->Query($sql, true))
@@ -2718,7 +2801,7 @@ class CSiteCheckerTest
 					}
 				}
 
-				$DB->Query('DROP TABLE `'.$tmp_table.'`');
+				$DB->Query('DROP TABLE ' . $DB->quote($tmp_table));
 			}
 
 			echo $strError; // to log
@@ -3118,7 +3201,14 @@ function InitPureDB()
 
 	$application = \Bitrix\Main\HttpApplication::getInstance();
 
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/mysql/database.php");
+	$connectionType = $application->getConnection()->getType();
+	\Bitrix\Main\Loader::registerAutoLoadClasses(
+		'main',
+		[
+			'CDatabase' => 'classes/' . $connectionType . '/database.php',
+			'CDBResult' => 'classes/' . $connectionType . '/dbresult.php',
+		]
+	);
 
 	$DB = new CDatabase;
 	$DB->debug = $DBDebug;
@@ -3135,7 +3225,7 @@ function TableFieldConstruct($field)
 {
 	global $DB;
 
-	$tmp = '`'.$field['Field'].'` ';
+	$tmp = $DB->quote($field['Field']) .' ';
 
 	if (preg_match("/^(TINYINT|SMALLINT|MEDIUMINT|INT|BIGINT)\\(\d+\\)(.*)/i", $field['Type'], $matches))
 	{

@@ -122,7 +122,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 					</div>
 				</div>
 			</div>
-		`), babelHelpers.classPrivateFieldLooseBase(this, _getNodeLabel)[_getNodeLabel](), babelHelpers.classPrivateFieldLooseBase(this, _photo)[_photo] ? `style="background-image: url(${babelHelpers.classPrivateFieldLooseBase(this, _photo)[_photo]})"` : '', babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] ? babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] : '', babelHelpers.classPrivateFieldLooseBase(this, _lastName)[_lastName] ? babelHelpers.classPrivateFieldLooseBase(this, _lastName)[_lastName] : '', babelHelpers.classPrivateFieldLooseBase(this, _getNodeInfo)[_getNodeInfo](), babelHelpers.classPrivateFieldLooseBase(this, _getNodeButton)[_getNodeButton]());
+		`), babelHelpers.classPrivateFieldLooseBase(this, _getNodeLabel)[_getNodeLabel](), babelHelpers.classPrivateFieldLooseBase(this, _photo)[_photo] ? `style="background-image: url(${encodeURI(babelHelpers.classPrivateFieldLooseBase(this, _photo)[_photo])})"` : '', babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] ? babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] : '', babelHelpers.classPrivateFieldLooseBase(this, _lastName)[_lastName] ? babelHelpers.classPrivateFieldLooseBase(this, _lastName)[_lastName] : '', babelHelpers.classPrivateFieldLooseBase(this, _getNodeInfo)[_getNodeInfo](), babelHelpers.classPrivateFieldLooseBase(this, _getNodeButton)[_getNodeButton]());
 	  }
 	}
 	function _handleTimelineNotify2(mode) {
@@ -327,7 +327,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	var _nowTime = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("nowTime");
 	var _months = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("months");
 	var _selectedDay = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("selectedDay");
-	var _monthSlots = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("monthSlots");
 	var _monthsSlotsMap = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("monthsSlotsMap");
 	var _timezoneOffsetUtc = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("timezoneOffsetUtc");
 	var _selectedTimezoneOffsetUtc = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("selectedTimezoneOffsetUtc");
@@ -345,7 +344,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	var _setConfig = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setConfig");
 	var _initCurrentMonthSlots = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initCurrentMonthSlots");
 	var _calculateDateTimeSlots = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("calculateDateTimeSlots");
-	var _getDateTimeSlotsMap = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDateTimeSlotsMap");
 	var _createMonth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createMonth");
 	var _reCreateCurrentMonth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("reCreateCurrentMonth");
 	var _createNextMonth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createNextMonth");
@@ -372,6 +370,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	var _getNodeNavigation = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getNodeNavigation");
 	var _handleNextMonthArrowClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleNextMonthArrowClick");
 	var _handlePreviousMonthArrowClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handlePreviousMonthArrowClick");
+	var _updateMonth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateMonth");
 	var _getNodeBack = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getNodeBack");
 	var _getNodeWrapper$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getNodeWrapper");
 	class Calendar {
@@ -381,6 +380,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	    Object.defineProperty(this, _getNodeBack, {
 	      value: _getNodeBack2
+	    });
+	    Object.defineProperty(this, _updateMonth, {
+	      value: _updateMonth2
 	    });
 	    Object.defineProperty(this, _handlePreviousMonthArrowClick, {
 	      value: _handlePreviousMonthArrowClick2
@@ -460,9 +462,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    Object.defineProperty(this, _createMonth, {
 	      value: _createMonth2
 	    });
-	    Object.defineProperty(this, _getDateTimeSlotsMap, {
-	      value: _getDateTimeSlotsMap2
-	    });
 	    Object.defineProperty(this, _calculateDateTimeSlots, {
 	      value: _calculateDateTimeSlots2
 	    });
@@ -507,10 +506,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      value: void 0
 	    });
 	    Object.defineProperty(this, _selectedDay, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _monthSlots, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -587,7 +582,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _timezoneOffsetUtc)[_timezoneOffsetUtc] = babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getTimezoneOffset();
 	    babelHelpers.classPrivateFieldLooseBase(this, _selectedTimezoneOffsetUtc)[_selectedTimezoneOffsetUtc] = babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getTimezoneOffset();
 	    babelHelpers.classPrivateFieldLooseBase(this, _months)[_months] = [];
-	    babelHelpers.classPrivateFieldLooseBase(this, _monthSlots)[_monthSlots] = [];
 	    babelHelpers.classPrivateFieldLooseBase(this, _monthsSlotsMap)[_monthsSlotsMap] = [];
 	    babelHelpers.classPrivateFieldLooseBase(this, _config)[_config] = {
 	      eventDurability: 3600000,
@@ -610,7 +604,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    const currentMonth = month.month + 1;
 	    const arrayKey = currentMonth + '.' + currentYear;
 	    babelHelpers.classPrivateFieldLooseBase(this, _accessibility)[_accessibility][arrayKey] = await babelHelpers.classPrivateFieldLooseBase(this, _loadMonthAccessibility)[_loadMonthAccessibility](currentYear, currentMonth);
-	    babelHelpers.classPrivateFieldLooseBase(this, _monthSlots)[_monthSlots][babelHelpers.classPrivateFieldLooseBase(this, _currentMonthIndex)[_currentMonthIndex]] = babelHelpers.classPrivateFieldLooseBase(this, _calculateDateTimeSlots)[_calculateDateTimeSlots](currentYear, currentMonth - 1);
 	    babelHelpers.classPrivateFieldLooseBase(this, _reCreateCurrentMonth)[_reCreateCurrentMonth]();
 	  }
 	  selectFirstAvailableDay() {
@@ -703,27 +696,23 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 	function _initCurrentMonthSlots2() {
-	  const slots = babelHelpers.classPrivateFieldLooseBase(this, _calculateDateTimeSlots)[_calculateDateTimeSlots](babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getFullYear(), babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getMonth());
-	  babelHelpers.classPrivateFieldLooseBase(this, _monthSlots)[_monthSlots].push(slots);
-	  const slotsMap = babelHelpers.classPrivateFieldLooseBase(this, _getDateTimeSlotsMap)[_getDateTimeSlotsMap](slots);
-	  const accessibilityArrayKey = babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getMonth() + 1 + '.' + babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getFullYear();
-	  babelHelpers.classPrivateFieldLooseBase(this, _monthsSlotsMap)[_monthsSlotsMap][accessibilityArrayKey] = slotsMap;
+	  babelHelpers.classPrivateFieldLooseBase(this, _calculateDateTimeSlots)[_calculateDateTimeSlots](babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getFullYear(), babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getMonth());
 	  const month = babelHelpers.classPrivateFieldLooseBase(this, _createMonth)[_createMonth](babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getFullYear(), babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getMonth());
 	  babelHelpers.classPrivateFieldLooseBase(this, _months)[_months].push(month);
 	}
 	function _calculateDateTimeSlots2(year, month) {
-	  const result = [];
+	  const map = [];
 	  const daysCount = new Date(year, month + 1, 0).getDate();
 	  const accessibilityArrayKey = month + 1 + '.' + year;
 	  const nowTimestamp = babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getTime();
-	  const browserSelectedTimezoneOffset = (calendar_util.Util.getTimeZoneOffset(babelHelpers.classPrivateFieldLooseBase(this, _selectedTimezoneId)[_selectedTimezoneId]) - babelHelpers.classPrivateFieldLooseBase(this, _nowTime)[_nowTime].getTimezoneOffset()) * 60000;
-	  const offset = calendar_util.Util.getTimezoneDateFromTimestampUTC(nowTimestamp, babelHelpers.classPrivateFieldLooseBase(this, _selectedTimezoneId)[_selectedTimezoneId]) - nowTimestamp;
+	  const timezoneOffset = (babelHelpers.classPrivateFieldLooseBase(this, _selectedTimezoneOffsetUtc)[_selectedTimezoneOffsetUtc] - babelHelpers.classPrivateFieldLooseBase(this, _timezoneOffsetUtc)[_timezoneOffsetUtc]) * -60 * 1000;
 	  for (let dayIndex = 1; dayIndex <= daysCount; dayIndex++) {
 	    const currentDate = new Date(year, month, dayIndex);
 	    const from = new Date(year, month, dayIndex, babelHelpers.classPrivateFieldLooseBase(this, _config)[_config].workTimeStartHours, babelHelpers.classPrivateFieldLooseBase(this, _config)[_config].workTimeStartMinutes);
 	    const to = new Date(year, month, dayIndex, babelHelpers.classPrivateFieldLooseBase(this, _config)[_config].workTimeEndHours, babelHelpers.classPrivateFieldLooseBase(this, _config)[_config].workTimeEndMinutes);
 	    const dayAccessibility = babelHelpers.classPrivateFieldLooseBase(this, _accessibility)[_accessibility][accessibilityArrayKey].filter(event => {
-	      return babelHelpers.classPrivateFieldLooseBase(this, _doIntervalsIntersect)[_doIntervalsIntersect](parseInt(event.timestampFromUTC) * 1000, parseInt(event.timestampToUTC) * 1000, from.getTime(), to.getTime());
+	      const parseUTC = !event.isFullDay;
+	      return babelHelpers.classPrivateFieldLooseBase(this, _doIntervalsIntersect)[_doIntervalsIntersect](BX.parseDate(event.from, parseUTC).getTime(), BX.parseDate(event.to, parseUTC).getTime(), from.getTime(), to.getTime());
 	    });
 	    while (from.getTime() < to.getTime()) {
 	      const slotStart = from.getTime();
@@ -731,40 +720,28 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      if (slotEnd > to.getTime()) {
 	        break;
 	      }
-	      const slotAccessibility = dayAccessibility.filter(currentSLot => {
-	        return babelHelpers.classPrivateFieldLooseBase(this, _doIntervalsIntersect)[_doIntervalsIntersect](parseInt(currentSLot.timestampFromUTC) * 1000, parseInt(currentSLot.timestampToUTC) * 1000, slotStart, slotEnd);
+	      const slotAccessibility = dayAccessibility.filter(event => {
+	        const parseUTC = !event.isFullDay;
+	        return babelHelpers.classPrivateFieldLooseBase(this, _doIntervalsIntersect)[_doIntervalsIntersect](BX.parseDate(event.from, parseUTC).getTime(), BX.parseDate(event.to, parseUTC).getTime(), slotStart, slotEnd);
 	      });
 	      const available = slotAccessibility.length === 0 && !babelHelpers.classPrivateFieldLooseBase(this, _isHoliday)[_isHoliday](currentDate) && slotStart > nowTimestamp;
-	      const timeFrom = new Date(slotStart + browserSelectedTimezoneOffset + offset);
-	      const timeTo = new Date(timeFrom.getTime() + (slotEnd - slotStart));
 	      if (available) {
-	        result.push({
-	          timeFrom,
-	          timeTo
-	        });
+	        var _map$dateIndex;
+	        const timeFrom = new Date(slotStart + timezoneOffset);
+	        const timeTo = new Date(timeFrom.getTime() + (slotEnd - slotStart));
+	        const dateIndex = timeFrom.getDate();
+	        (_map$dateIndex = map[dateIndex]) != null ? _map$dateIndex : map[dateIndex] = [];
+	        if (timeFrom.getMonth() === month) {
+	          map[dateIndex].push({
+	            timeFrom,
+	            timeTo
+	          });
+	        }
 	      }
 	      from.setTime(from.getTime() + babelHelpers.classPrivateFieldLooseBase(this, _config)[_config].stepSize);
 	    }
 	  }
-	  return result;
-	}
-	function _getDateTimeSlotsMap2(slotList) {
-	  const result = [];
-	  slotList.forEach(slot => {
-	    const timezoneOffset = (babelHelpers.classPrivateFieldLooseBase(this, _selectedTimezoneOffsetUtc)[_selectedTimezoneOffsetUtc] - babelHelpers.classPrivateFieldLooseBase(this, _timezoneOffsetUtc)[_timezoneOffsetUtc]) * -60 * 1000;
-	    const currentSlot = {
-	      timeFrom: new Date(slot.timeFrom.getTime() + timezoneOffset),
-	      timeTo: new Date(slot.timeTo.getTime() + timezoneOffset)
-	    };
-	    const dateIndex = currentSlot.timeFrom.getDate();
-	    if (result[dateIndex] === undefined) {
-	      result[dateIndex] = [];
-	    }
-	    if (slot.timeFrom.getMonth() === currentSlot.timeFrom.getMonth()) {
-	      result[dateIndex].push(currentSlot);
-	    }
-	  });
-	  return result;
+	  babelHelpers.classPrivateFieldLooseBase(this, _monthsSlotsMap)[_monthsSlotsMap][accessibilityArrayKey] = map;
 	}
 	function _createMonth2(year, month) {
 	  return {
@@ -776,12 +753,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  };
 	}
 	function _reCreateCurrentMonth2() {
-	  const year = babelHelpers.classPrivateFieldLooseBase(this, _months)[_months][babelHelpers.classPrivateFieldLooseBase(this, _currentMonthIndex)[_currentMonthIndex]].year;
-	  const month = babelHelpers.classPrivateFieldLooseBase(this, _months)[_months][babelHelpers.classPrivateFieldLooseBase(this, _currentMonthIndex)[_currentMonthIndex]].month;
-	  const monthSlots = babelHelpers.classPrivateFieldLooseBase(this, _monthSlots)[_monthSlots][babelHelpers.classPrivateFieldLooseBase(this, _currentMonthIndex)[_currentMonthIndex]];
-	  const arrayKey = month + 1 + '.' + year;
-	  babelHelpers.classPrivateFieldLooseBase(this, _monthsSlotsMap)[_monthsSlotsMap][arrayKey] = babelHelpers.classPrivateFieldLooseBase(this, _getDateTimeSlotsMap)[_getDateTimeSlotsMap](monthSlots);
-	  babelHelpers.classPrivateFieldLooseBase(this, _months)[_months][babelHelpers.classPrivateFieldLooseBase(this, _currentMonthIndex)[_currentMonthIndex]] = babelHelpers.classPrivateFieldLooseBase(this, _createMonth)[_createMonth](year, month);
+	  babelHelpers.classPrivateFieldLooseBase(this, _updateMonth)[_updateMonth](babelHelpers.classPrivateFieldLooseBase(this, _currentMonthIndex)[_currentMonthIndex]);
 	  babelHelpers.classPrivateFieldLooseBase(this, _updateCalendar)[_updateCalendar]();
 	}
 	async function _createNextMonth2() {
@@ -793,9 +765,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  const nextMonth = nextMonthIndex + 1;
 	  const arrayKey = nextMonth + '.' + nextYear;
 	  babelHelpers.classPrivateFieldLooseBase(this, _accessibility)[_accessibility][arrayKey] = await babelHelpers.classPrivateFieldLooseBase(this, _loadMonthAccessibility)[_loadMonthAccessibility](nextYear, nextMonth);
-	  const slots = babelHelpers.classPrivateFieldLooseBase(this, _calculateDateTimeSlots)[_calculateDateTimeSlots](nextYear, nextMonthIndex);
-	  babelHelpers.classPrivateFieldLooseBase(this, _monthSlots)[_monthSlots].push(slots);
-	  babelHelpers.classPrivateFieldLooseBase(this, _monthsSlotsMap)[_monthsSlotsMap][arrayKey] = babelHelpers.classPrivateFieldLooseBase(this, _getDateTimeSlotsMap)[_getDateTimeSlotsMap](slots);
+	  babelHelpers.classPrivateFieldLooseBase(this, _calculateDateTimeSlots)[_calculateDateTimeSlots](nextYear, nextMonthIndex);
 	  const month = babelHelpers.classPrivateFieldLooseBase(this, _createMonth)[_createMonth](nextYear, nextMonthIndex);
 	  babelHelpers.classPrivateFieldLooseBase(this, _months)[_months].push(month);
 	}
@@ -1093,6 +1063,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    await babelHelpers.classPrivateFieldLooseBase(this, _createNextMonth)[_createNextMonth]();
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _currentMonthIndex)[_currentMonthIndex] += 1;
+	  babelHelpers.classPrivateFieldLooseBase(this, _updateMonth)[_updateMonth](babelHelpers.classPrivateFieldLooseBase(this, _currentMonthIndex)[_currentMonthIndex]);
 	  main_core_events.EventEmitter.emit(this, 'clickNextMonth');
 	  babelHelpers.classPrivateFieldLooseBase(this, _updateCalendar)[_updateCalendar]('next');
 	  this.selectMonthDay();
@@ -1102,9 +1073,16 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return;
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _currentMonthIndex)[_currentMonthIndex] -= 1;
+	  babelHelpers.classPrivateFieldLooseBase(this, _updateMonth)[_updateMonth](babelHelpers.classPrivateFieldLooseBase(this, _currentMonthIndex)[_currentMonthIndex]);
 	  main_core_events.EventEmitter.emit(this, 'clickPrevMonth');
 	  babelHelpers.classPrivateFieldLooseBase(this, _updateCalendar)[_updateCalendar]('prev');
 	  this.selectMonthDay();
+	}
+	function _updateMonth2(monthIndex) {
+	  const year = babelHelpers.classPrivateFieldLooseBase(this, _months)[_months][monthIndex].year;
+	  const month = babelHelpers.classPrivateFieldLooseBase(this, _months)[_months][monthIndex].month;
+	  babelHelpers.classPrivateFieldLooseBase(this, _calculateDateTimeSlots)[_calculateDateTimeSlots](year, month);
+	  babelHelpers.classPrivateFieldLooseBase(this, _months)[_months][babelHelpers.classPrivateFieldLooseBase(this, _currentMonthIndex)[_currentMonthIndex]] = babelHelpers.classPrivateFieldLooseBase(this, _createMonth)[_createMonth](year, month);
 	}
 	function _getNodeBack2() {
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].back) {

@@ -1,9 +1,10 @@
-import {Popup, PopupManager} from 'main.popup';
-import {Type} from 'main.core';
+import { Popup, PopupManager, PopupOptions } from 'main.popup';
+import { Type } from 'main.core';
 
-import {Logger} from 'im.v2.lib.logger';
+import { Logger } from 'im.v2.lib.logger';
 
 const POPUP_CONTAINER_PREFIX = '#popup-window-content-';
+const POPUP_BORDER_RADIUS = '10px';
 
 // @vue/component
 export const MessengerPopup = {
@@ -12,20 +13,20 @@ export const MessengerPopup = {
 	{
 		id: {
 			type: String,
-			required: true
+			required: true,
 		},
 		config: {
 			type: Object,
 			required: false,
-			default: function() {
+			default() {
 				return {};
-			}
-		}
+			},
+		},
 	},
 	emits: ['close'],
 	computed:
 	{
-		popupContainer()
+		popupContainer(): string
 		{
 			return `${POPUP_CONTAINER_PREFIX}${this.id}`;
 		},
@@ -62,14 +63,15 @@ export const MessengerPopup = {
 
 				this.instance = new Popup(this.getPopupConfig());
 			}
+
 			return this.instance;
 		},
-		getDefaultConfig(): Object
+		getDefaultConfig(): PopupOptions
 		{
 			return {
 				id: this.id,
 				bindOptions: {
-					position: 'bottom'
+					position: 'bottom',
 				},
 				offsetTop: 0,
 				offsetLeft: 0,
@@ -80,8 +82,10 @@ export const MessengerPopup = {
 				closeByEsc: true,
 				animation: 'fading',
 				events: {
-					onPopupClose: this.closePopup.bind(this)
-				}
+					onPopupClose: this.closePopup.bind(this),
+					onPopupDestroy: this.closePopup.bind(this),
+				},
+				contentBorderRadius: POPUP_BORDER_RADIUS,
 			};
 		},
 		getPopupConfig(): Object
@@ -92,17 +96,17 @@ export const MessengerPopup = {
 			const defaultClassName = defaultConfig.className;
 			if (this.config.className)
 			{
-				modifiedOptions['className'] = `${defaultClassName} ${this.config.className}`;
+				modifiedOptions.className = `${defaultClassName} ${this.config.className}`;
 			}
 
 			const offsetTop = this.config.offsetTop ?? defaultConfig.offsetTop;
 			// adjust for default popup margin for shadow
 			if (this.config.bindOptions?.position === 'top' && Type.isNumber(this.config.offsetTop))
 			{
-				modifiedOptions['offsetTop'] = offsetTop - 10;
+				modifiedOptions.offsetTop = offsetTop - 10;
 			}
 
-			return {...defaultConfig, ...this.config, ...modifiedOptions};
+			return { ...defaultConfig, ...this.config, ...modifiedOptions };
 		},
 		closePopup()
 		{
@@ -125,7 +129,7 @@ export const MessengerPopup = {
 				forceBindPosition: true,
 				position: this.getPopupConfig().bindOptions.position
 			});
-		}
+		},
 	},
 	template: `
 		<Teleport :to="popupContainer">
@@ -135,5 +139,5 @@ export const MessengerPopup = {
 				:disableAutoHide="disableAutoHide"
 			></slot>
 		</Teleport>
-	`
+	`,
 };

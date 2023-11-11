@@ -280,9 +280,8 @@
 
 		onFrameLoad: function ()
 		{
-
 			const classes = Array.from(this.element.classList.value.matchAll(REG_CLASS_FONT));
-			if (classes)
+			if (classes && classes.length > 0)
 			{
 				const family = classes[classes.length - 1][1]
 					.split('-')

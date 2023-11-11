@@ -35,7 +35,6 @@ class Landing
 				'DETAIL_PAGE' => false
 			],
 			'SOURCE_FILTER' => [
-				'=SYS' => 'N'
 			],
 			'DATA_SETTINGS' => [
 				'FIELDS' => [

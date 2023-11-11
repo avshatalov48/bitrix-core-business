@@ -169,28 +169,32 @@ final class RoundingRule extends Controller implements EventBindInterface
 
 		if (array_key_exists('ROUND_TYPE', $fields))
 		{
-			if (!in_array($fields['ROUND_TYPE'], RoundingTable::getRoundTypes()))
+			$roundTypes = RoundingTable::getRoundTypes();
+			if (!in_array($fields['ROUND_TYPE'], $roundTypes))
 			{
 				$result->addError(
 					new Error(
 						'Invalid rounding type provided. The available values are: '
-						. implode(', ', RoundingTable::getRoundTypes())
+						. implode(', ', $roundTypes)
 					)
 				);
 			}
+			unset($roundTypes);
 		}
 
 		if (array_key_exists('ROUND_PRECISION', $fields))
 		{
-			if (!in_array($fields['ROUND_PRECISION'], RoundingTable::getPresetRoundingValues()))
+			$precisionList = RoundingTable::getPresetRoundingValues();
+			if (!in_array($fields['ROUND_PRECISION'], $precisionList))
 			{
 				$result->addError(
 					new Error(
 						'Invalid rounding precision provided. The available values are: '
-						. implode(', ', RoundingTable::getPresetRoundingValues())
+						. implode(', ', $precisionList)
 					)
 				);
 			}
+			unset($precisionList);
 		}
 
 		return $result;

@@ -66,7 +66,7 @@ return array(
 			'type' => array('button', 'animation'),
 		),
 		'.landing-block-node-card-button-container' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_41.4.TEXT_BLOCKS_SLIDER_ON_COLOR_BG_STYLE_LANDINGBLOCKNODECARDBUTTON'),
+			'name' => Loc::getMessage('LANDING_BLOCK_41_2_BUTTON_AREA'),
 			'type' => array('text-align'),
 		),
 		'.landing-block-node-card-container' => array(

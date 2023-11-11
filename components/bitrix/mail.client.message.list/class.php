@@ -359,10 +359,10 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					new ORM\Fields\ExpressionField(
 						'MESSAGE_CLOSURE', "EXISTS(".$closureSubquery->getQuery().")", ['ID', 'ID']
 					),
-					new ORM\Fields\ExpressionField('DISTINCT_ID', 'DISTINCT %s', ['ID']),
+					new ORM\Fields\ExpressionField('FIELD_MAX_SORT', 'MAX(%s)', ['FIELD_DATE']),
 				],
 				'select' => [
-					'DISTINCT_ID'
+					'DISTINCT_ID' => 'ID'
 				],
 				'filter' => array_merge(
 					$filter,
@@ -372,8 +372,9 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 						'!@MESSAGE_UID.IS_OLD' => ['M', 'R'],
 					]
 				),
+				'group' => ['ID'],
 				'order' => [
-					'FIELD_DATE' => 'DESC',
+					'FIELD_MAX_SORT' => 'DESC',
 					'ID' => 'DESC',
 				],
 				'offset' => $navigation->getOffset(),
@@ -384,6 +385,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 		if (!empty($items))
 		{
+			$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
 			$select = [
 				'MID' => 'ID',
 				'SUBJECT',
@@ -397,18 +399,16 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 				'IS_OLD' => 'MESSAGE_UID.IS_OLD',
 				'DIR_MD5' => 'MESSAGE_UID.DIR_MD5',
 				'MSG_UID' => 'MESSAGE_UID.MSG_UID',
-				new ORM\Fields\ExpressionField(
-					'BIND', 'CONCAT(%s, "-", %s)', [
-						'MESSAGE_ACCESS.ENTITY_TYPE',
-						'MESSAGE_ACCESS.ENTITY_ID',
-					]
-				),
+				new ORM\Fields\ExpressionField('BIND', $sqlHelper->getConcatFunction('%s', "'-'", '%s'), [
+					'MESSAGE_ACCESS.ENTITY_TYPE',
+					'MESSAGE_ACCESS.ENTITY_ID',
+				]),
 			];
 
 			if (Main\Loader::includeModule('crm'))
 			{
 				$select['CRM_ACTIVITY_OWNER'] = new ORM\Fields\ExpressionField(
-					'CRM_ACTIVITY_OWNER', 'CONCAT(%s, "-", %s)', [
+					'CRM_ACTIVITY_OWNER', $sqlHelper->getConcatFunction('%s', "'-'", '%s'), [
 											'MESSAGE_ACCESS.CRM_ACTIVITY.OWNER_TYPE_ID',
 											'MESSAGE_ACCESS.CRM_ACTIVITY.OWNER_ID',
 										]

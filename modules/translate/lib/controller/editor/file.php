@@ -76,10 +76,10 @@ class File
 	/**
 	 * @return array
 	 */
-	public function cancelAction()
+	public function cancelAction(): array
 	{
-		return array(
+		return [
 			'STATUS' => Translate\Controller\STATUS_COMPLETED
-		);
+		];
 	}
 }

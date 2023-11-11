@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BT_UT_SAUTOCOMPLETE_DESCR"] = "Привязка к разделам с автозаполнением";
 $MESS["BT_UT_SAUTOCOMPLETE_SETTING_TITLE"] = "Настройки привязки к разделам с автозаполнением";
 $MESS["BT_UT_SAUTOCOMPLETE_SETTING_SHOW_ADD"] = "Показывать кнопку добавления разделов";
@@ -28,4 +28,7 @@ $MESS["BT_UT_SAUTOCOMPLETE_MESS_SEARCH_ELEMENT_MULTI_DESCR"] = "Выбор не�
 $MESS["BT_UT_SAUTOCOMPLETE_MESS_NEW_ELEMENT"] = "Добавить раздел";
 $MESS["BT_UT_SAUTOCOMPLETE_MESS_NEW_ELEMENT_DESCR"] = "Добавить новый раздел и выбрать его";
 $MESS["BT_UT_SAUTOCOMPLETE_MESS_ELEMENT_EDIT"] = "Перейти на страницу редактирования раздела";
-?>
+$MESS["BT_UT_SAUTOCOMPLETE_SEARCH_NOT_FOUND"] = "По вашему запросу ничего не найдено";
+$MESS["BT_UT_SAUTOCOMPLETE_SEARCH_CHANGE_QUERY"] = "Попробуйте использовать другой запрос";
+$MESS["BT_UT_SAUTOCOMPLETE_SEARCH_ENTER_QUERY"] = "Введите запрос для поиска";
+$MESS["BT_UT_SAUTOCOMPLETE_SEARCH_ENTER_QUERY_SUBTITLE"] = "Поиск по разделам инфоблока";

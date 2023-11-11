@@ -11,8 +11,8 @@
 						</span>
 					</div>
 					<div class="media-body align-self-center">
-						<h5 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700">Criminal law</h5>
-						<div class="landing-block-node-card-text landing-semantic-text-small mb-0">
+						<h5 class="landing-block-node-card-title text-uppercase g-font-weight-700">Criminal law</h5>
+						<div class="landing-block-node-card-text mb-0">
 							<p>Proin dignissim eget enim id aliquam.
 								Proin ornare dictum leo, non elementum tellus molestie et. Vivamus sit amet scelerisque
 								leo.
@@ -33,8 +33,8 @@
 						</span>
 					</div>
 					<div class="media-body align-self-center">
-						<h5 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700">Civil law</h5>
-						<div class="landing-block-node-card-text landing-semantic-text-small mb-0">
+						<h5 class="landing-block-node-card-title text-uppercase g-font-weight-700">Civil law</h5>
+						<div class="landing-block-node-card-text mb-0">
 							<p>Nteger commodo est id erat bibendum, eu
 								convallis dolor tempus. Fusce mollis blandit eros. Nunc quis sapien in massa varius
 								convallis at sed justo. Praesent nec consectetur nibh, sed lobortis turpis.</p>
@@ -52,8 +52,8 @@
 						</span>
 					</div>
 					<div class="media-body align-self-center">
-						<h5 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700">Business law</h5>
-						<div class="landing-block-node-card-text landing-semantic-text-small mb-0">
+						<h5 class="landing-block-node-card-title text-uppercase g-font-weight-700">Business law</h5>
+						<div class="landing-block-node-card-text mb-0">
 							<p>Aenean lobortis ante ac porttitor
 								eleifend. Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus.
 								In
@@ -73,8 +73,8 @@
 						</span>
 					</div>
 					<div class="media-body align-self-center">
-						<h5 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700">Tax law</h5>
-						<div class="landing-block-node-card-text landing-semantic-text-small mb-0">
+						<h5 class="landing-block-node-card-title text-uppercase g-font-weight-700">Tax law</h5>
+						<div class="landing-block-node-card-text mb-0">
 							<p>Nam et nulla rutrum, dignissim eros
 								quis, dictum eros. In ullamcorper molestie neque, ac faucibus felis efficitur sed. Nam
 								et

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\Component;
 
+use Bitrix\Catalog;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\StoreDocumentElementTable;
@@ -629,7 +630,7 @@ abstract class ReportProductList extends ProductList
 				'id' => 'product_variation',
 				'options' => [
 					'iblockId' => \Bitrix\Crm\Product\Catalog::getDefaultId(),
-					'basePriceId' => \Bitrix\Crm\Product\Price::getBaseId(),
+					'basePriceId' => Catalog\GroupTable::getBasePriceTypeId(),
 					'showPriceInCaption' => false,
 				],
 			];

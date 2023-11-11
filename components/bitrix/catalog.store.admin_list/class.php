@@ -12,6 +12,7 @@ use Bitrix\Catalog\Access\Permission\PermissionDictionary;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
+use Bitrix\UI;
 use Bitrix\UI\Buttons\JsHandler;
 use Bitrix\UI\Buttons\SettingsButton;
 use Bitrix\UI\Toolbar\ButtonLocation;
@@ -28,7 +29,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 	];
 	private $navParamName = 'page';
 
-	/** @var \Bitrix\Catalog\Grid\Filter\StoreDataProvider $itemProvider */
+	/** @var \Bitrix\Catalog\Filter\DataProvider\StoreDataProvider $itemProvider */
 	private $itemProvider;
 	/** @var \Bitrix\Main\Filter\Filter $filter */
 	private $filter;
@@ -67,7 +68,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 	private function init()
 	{
-		$this->itemProvider = new \Bitrix\Catalog\Grid\Filter\StoreDataProvider();
+		$this->itemProvider = new \Bitrix\Catalog\Filter\DataProvider\StoreDataProvider();
 		$this->filter = new \Bitrix\Main\Filter\Filter(self::FILTER_ID, $this->itemProvider);
 	}
 
@@ -370,6 +371,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 		if ($button)
 		{
+			$button->addDataAttribute('toolbar-collapsed-icon', UI\Buttons\Icon::ADD);
 			\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($button, \Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE);
 		}
 	}

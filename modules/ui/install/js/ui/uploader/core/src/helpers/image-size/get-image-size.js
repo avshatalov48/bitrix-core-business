@@ -12,10 +12,10 @@ const typeHandlers = {
 	gif: new Gif(),
 	png: new Png(),
 	bmp: new Bmp(),
-	jpg: jpg,
+	jpg,
 	jpeg: jpg,
 	jpe: jpg,
-	webp: new Webp()
+	webp: new Webp(),
 };
 
 const getImageSize = (file: File): Promise<ImageSize> => {
@@ -36,4 +36,3 @@ const getImageSize = (file: File): Promise<ImageSize> => {
 };
 
 export default getImageSize;
-

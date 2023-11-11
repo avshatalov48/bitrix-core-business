@@ -1,8 +1,9 @@
-<?
+<?php
 
+use Bitrix\Calendar\Core\Managers\Accessibility;
 use Bitrix\Calendar\Rooms;
-
-use \Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Calendar\Util;
 
 class CCalendarPlanner
 {
@@ -96,7 +97,7 @@ class CCalendarPlanner
 		{
 			foreach($users as $user)
 			{
-				if (!in_array((int)$user['USER_ID'], $prevUsersId))
+				if (!in_array((int)$user['USER_ID'], $prevUsersId, true))
 				{
 					$userIds[] = (int)$user['USER_ID'];
 				}
@@ -149,56 +150,43 @@ class CCalendarPlanner
 
 		if ($isPlannerFeatureEnabled)
 		{
-			$accessibility = CCalendar::GetAccessibilityForUsers(
-				[
-					'users' => $userIds,
-					'from' => $from, // date or datetime in UTC
-					'to' => $to, // date or datetime in UTC
-					'curEventId' => $curEventId,
-					'getFromHR' => true,
-					'checkPermissions' => false
-				]
-			);
+			$accessibility = (new Accessibility())
+				->setCheckPermissions(false)
+				->setSkipEventId($curEventId)
+				->getAccessibility($userIds, CCalendar::TimestampUTC($from), CCalendar::TimestampUTC($to))
+			;
 
+			$timezoneName = \CCalendar::GetUserTimezoneName(\CCalendar::GetUserId());
 			foreach ($accessibility as $userId => $entries)
 			{
-				if (empty($entries))
-				{
-					continue;
-				}
-
 				$result['accessibility'][$userId] = [];
 				foreach ($entries as $entry)
 				{
-					if (in_array($entry['ID'], $skipEntryList))
+					if (isset($entry['id']) && in_array($entry['id'], $skipEntryList))
 					{
 						continue;
 					}
 
-					$dateFrom = $entry['DATE_FROM'];
-					$dateTo = $entry['DATE_TO'];
-
-					if ($entry['DT_SKIP_TIME'] !== "Y")
+					if ($entry['isFullDay'])
 					{
-						$dateFrom = CCalendar::Date(
-							CCalendar::Timestamp($entry['DATE_FROM']) - $entry['~USER_OFFSET_FROM']
-						);
-						$dateTo = CCalendar::Date(
-							CCalendar::Timestamp($entry['DATE_TO']) - $entry['~USER_OFFSET_TO']
-						);
+						$dateFrom = $entry['from'];
+						$dateTo = $entry['to'];
+					}
+					else
+					{
+						$dateFrom = Util::formatDateTimeTimestamp(CCalendar::TimestampUTC($entry['from']), $timezoneName);
+						$dateTo = Util::formatDateTimeTimestamp(CCalendar::TimestampUTC($entry['to']), $timezoneName);
 					}
 
 					$result['accessibility'][$userId][] = [
-						'id' => $entry['ID'],
-						'name' => $entry['NAME'],
+						'name' => $entry['name'],
 						'dateFrom' => $dateFrom,
 						'dateTo' => $dateTo,
-						'type' => ($entry['FROM_HR'] ?? null) ? 'hr' : 'event'
+						'isFullDay' => $entry['isFullDay'],
 					];
 				}
 			}
 		}
-
 
 		if (isset($params['location']))
 		{
@@ -273,6 +261,7 @@ class CCalendarPlanner
 					if ((int)$room['ID'] === (int)$location['room_id'])
 					{
 						$entry['name'] = $room['NAME'];
+						break;
 					}
 				}
 
@@ -295,8 +284,6 @@ class CCalendarPlanner
 						}
 
 						$dateFrom = $entry['DATE_FROM'];
-						$dateTo = $entry['DATE_TO'];
-
 						if ($entry['DT_SKIP_TIME'] !== "Y")
 						{
 							$dateFrom = CCalendar::Date(
@@ -304,6 +291,12 @@ class CCalendarPlanner
 							);
 							$dateTo = CCalendar::Date(
 								CCalendar::Timestamp($entry['DATE_TO']) - $entry['~USER_OFFSET_TO']
+							);
+						}
+						else
+						{
+							$dateTo = CCalendar::Date(
+								CCalendar::Timestamp($entry['DATE_TO']) + CCalendar::GetDayLen()
 							);
 						}
 
@@ -367,7 +360,7 @@ class CCalendarPlanner
 
 		if (($params['initPullWatches'] ?? null) === true)
 		{
-			\Bitrix\Calendar\Util::initPlannerPullWatches(
+			Util::initPlannerPullWatches(
 				$curUserId,
 				$userIds
 			);
@@ -381,5 +374,3 @@ class CCalendarPlanner
 
 	}
 }
-
-?>

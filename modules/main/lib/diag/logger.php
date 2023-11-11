@@ -54,13 +54,9 @@ abstract class Logger extends Log\AbstractLogger
 	}
 
 	/**
-     * Logs with an arbitrary level.
-	 * @param string $level
-	 * @param mixed $message
-	 * @param array $context
-     * @throws Log\InvalidArgumentException
+	 * @inheritdoc
 	 */
-	public function log($level, $message, array $context = [])
+	public function log($level, string|\Stringable $message, array $context = []): void
 	{
 		// Calling this method with a level not defined by this specification MUST throw a Psr\Log\InvalidArgumentException if the implementation does not know about the level.
 		if (!isset(static::$supportedLevels[$level]))

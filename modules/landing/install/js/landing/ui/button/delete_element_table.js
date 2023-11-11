@@ -32,7 +32,7 @@
 			}
 			BX.Event.EventEmitter.emit('BX.Landing.TableEditor:onDeleteElementTable');
 			BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
-			BX.Landing.Block.Node.Text.currentNode.onChange(true);
+			BX.Landing.Node.Text.currentNode.onChange(true);
 		}
 	};
 })();

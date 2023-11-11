@@ -211,7 +211,7 @@ $MESS["MAIN_TRANSLATE_KEY_BING"] = "Bing application key:";
 $MESS["MAIN_TRANSLATE_KEY_BING_HINT"] = "To get a Bing application key, register at <a href=\"http://www.bing.com/toolbox/bingdeveloper/\" target=\"_blank\">Bing Developer</a>.";
 $MESS["MAIN_TRANSLATE_KEY_YANDEX"] = "Service key for Yandex.Translate";
 $MESS["MAIN_TRANSLATE_KEY_YANDEX_HINT1"] = "A key for use of Yandex.Translate can be obtained using <a href=\"https://yandex.ru/dev/translate/\" target=\"_blank\">Get API key form</a>.";
-$MESS["MAIN_UPDATE_IS_GZIP_INSTALLED"] = "Don't use compression";
+$MESS["MAIN_UPDATE_IS_GZIP_INSTALLED1"] = "Use compression:";
 $MESS["MAIN_UPDATE_LOAD_TIMEOUT"] = "Update download interval (sec):";
 $MESS["MAIN_UPDATE_SAFE_MODE"] = "Enable safe mode:";
 $MESS["MAIN_UPDATE_SERVER"] = "Update server name:";

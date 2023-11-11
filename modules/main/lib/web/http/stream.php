@@ -40,7 +40,7 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		if (!$this->isReadable())
 		{
@@ -52,7 +52,7 @@ class Stream implements StreamInterface
 			$this->rewind();
 			return $this->getContents();
 		}
-		catch (\RuntimeException $e)
+		catch (\RuntimeException)
 		{
 			return '';
 		}
@@ -61,7 +61,7 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function close()
+	public function close(): void
 	{
 		if ($this->resource)
 		{
@@ -83,7 +83,7 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getSize()
+	public function getSize(): ?int
 	{
 		if ($this->resource !== null)
 		{
@@ -96,7 +96,7 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function tell()
+	public function tell(): int
 	{
 		if (!$this->resource)
 		{
@@ -115,7 +115,7 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function eof()
+	public function eof(): bool
 	{
 		if ($this->resource)
 		{
@@ -127,7 +127,7 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function isSeekable()
+	public function isSeekable(): bool
 	{
 		if ($this->resource)
 		{
@@ -140,7 +140,7 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function seek($offset, $whence = SEEK_SET)
+	public function seek(int $offset, int $whence = SEEK_SET): void
 	{
 		if (!$this->resource)
 		{
@@ -158,22 +158,20 @@ class Stream implements StreamInterface
 		{
 			throw new \RuntimeException('Error seeking within stream.');
 		}
-
-		return true;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function rewind()
+	public function rewind(): void
 	{
-		return $this->seek(0);
+		$this->seek(0);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function isWritable()
+	public function isWritable(): bool
 	{
 		if ($this->resource)
 		{
@@ -186,7 +184,7 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function write($string)
+	public function write(string $string): int
 	{
 		if (!$this->resource)
 		{
@@ -206,13 +204,13 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function isReadable()
+	public function isReadable(): bool
 	{
 		if ($this->resource)
 		{
 			$mode = $this->getMetadata('mode');
 
-			return (strpos($mode, 'r') !== false || strpos($mode, '+') !== false);
+			return (str_contains($mode, 'r') || str_contains($mode, '+'));
 		}
 
 		return false;
@@ -221,7 +219,7 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function read($length)
+	public function read(int $length): string
 	{
 		if (!$this->resource)
 		{
@@ -246,7 +244,7 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getContents()
+	public function getContents(): string
 	{
 		if (!$this->isReadable())
 		{
@@ -266,7 +264,7 @@ class Stream implements StreamInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getMetadata($key = null)
+	public function getMetadata(?string $key = null)
 	{
 		$meta = stream_get_meta_data($this->resource);
 

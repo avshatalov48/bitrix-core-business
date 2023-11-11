@@ -27,7 +27,7 @@ return [
 		'0.menu_05' => [
 			'CODE' => '0.menu_05',
 			'SORT' => '-100',
-			'CONTENT' => '<header class="landing-block landing-semantic-background-color g-theme-business-bg-blue-dark-v1-opacity-0_9 u-header u-header--sticky u-header--float">
+			'CONTENT' => '<header class="landing-block g-theme-business-bg-blue-dark-v1-opacity-0_9 u-header u-header--sticky u-header--float">
 		<div class="u-header__section g-transition-0_3 g-py-25"
 		 data-header-fix-moment-exclude="g-py-25"
 		 data-header-fix-moment-classes="g-py-20">

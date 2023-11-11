@@ -10,7 +10,7 @@ use Bitrix\Calendar\Core\Queue;
 use Bitrix\Calendar\Core\Queue\Exception\InvalidDestinationException;
 use Bitrix\Calendar\Core\Queue\Exception\InvalidMessageException;
 use Bitrix\Calendar\Internals\EO_Push;
-use Bitrix\Calendar\Internals\Mutex;
+use Bitrix\Calendar\Core\Base\Mutex;
 use Bitrix\Calendar\Internals\PushTable;
 use Bitrix\Calendar\Sync\Builders\BuilderPushFromDM;
 use Bitrix\Calendar\Sync\Dictionary;

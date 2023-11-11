@@ -85,4 +85,28 @@ class MessageAccessTable extends Entity\DataManager
 		);
 	}
 
+
+	/**
+	 * Get access binds as string
+	 *
+	 * @param int $mailboxId Mailbox ID
+	 * @param int $messageId Message ID
+	 *
+	 * @return array|string[]
+	 */
+	public static function getBinds(int $mailboxId, int $messageId): array
+	{
+		$binds = MessageAccessTable::query()
+			->where('MAILBOX_ID', $mailboxId)
+			->where('MESSAGE_ID', $messageId)
+			->setDistinct()
+			->setSelect([
+				'ENTITY_TYPE',
+				'ENTITY_ID',
+			])
+			->fetchAll();
+
+		return array_map(fn(array $bind): string => "{$bind['ENTITY_TYPE']}-{$bind['ENTITY_ID']}", $binds);
+	}
+
 }

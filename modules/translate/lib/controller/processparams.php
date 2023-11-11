@@ -1,7 +1,6 @@
 <?php
 namespace Bitrix\Translate\Controller;
 
-use Bitrix\Main;
 use Bitrix\Translate;
 
 /**
@@ -12,14 +11,14 @@ use Bitrix\Translate;
 trait ProcessParams
 {
 	/** @var string[] */
-	protected $fieldToStoreInProcess = [];
+	protected array $fieldToStoreInProcess = [];
 
 	/**
 	 * Returns progress option name
 	 *
 	 * @return string
 	 */
-	public function getProgressParameterOptionName()
+	public function getProgressParameterOptionName(): string
 	{
 		$settingId = 'translate';
 		if ($this instanceof Translate\Controller\Action)
@@ -32,7 +31,7 @@ trait ProcessParams
 			$settingId = static::SETTING_ID;
 		}
 
-		$classId = \str_replace(array('_', '\\'), '', static::class);
+		$classId = \str_replace(['_', '\\'], '', static::class);
 
 		$id = "{$settingId}/{$classId}";
 
@@ -51,7 +50,7 @@ trait ProcessParams
 	 *
 	 * @return self
 	 */
-	public function keepField($fieldName)
+	public function keepField($fieldName): self
 	{
 		if (\is_array($fieldName))
 		{
@@ -70,7 +69,7 @@ trait ProcessParams
 	 *
 	 * @return self
 	 */
-	public function restoreProgressParameters()
+	public function restoreProgressParameters(): self
 	{
 		if (\count($this->fieldToStoreInProcess) > 0)
 		{
@@ -95,7 +94,7 @@ trait ProcessParams
 	 *
 	 * @return self
 	 */
-	public function saveProgressParameters()
+	public function saveProgressParameters(): self
 	{
 		// store state
 		$progressData = [];
@@ -125,7 +124,7 @@ trait ProcessParams
 	 *
 	 * @return array
 	 */
-	public function getProgressParameters()
+	public function getProgressParameters(): array
 	{
 		$optName = \explode('/', $this->getProgressParameterOptionName());
 		$storage =& $_SESSION;
@@ -146,7 +145,7 @@ trait ProcessParams
 	 *
 	 * @return self
 	 */
-	public function clearProgressParameters()
+	public function clearProgressParameters(): self
 	{
 		$optName = \explode('/', $this->getProgressParameterOptionName());
 		$storage =& $_SESSION;

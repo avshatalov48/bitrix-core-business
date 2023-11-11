@@ -893,7 +893,7 @@ BX.SidePanel.Manager.prototype =
 		{
 			if (this.anchorRules.length === 0)
 			{
-				window.document.addEventListener("click", this.handleAnchorClick, true);
+				this.registerAnchorListener(window.document);
 			}
 
 			if (!(parameters.rules instanceof Object))
@@ -952,6 +952,22 @@ BX.SidePanel.Manager.prototype =
 	disableAnchorBinding: function()
 	{
 		this.anchorBinding = false;
+	},
+
+	/**
+	 * @public
+	 */
+	registerAnchorListener: function(targetDocument)
+	{
+		targetDocument.addEventListener("click", this.handleAnchorClick, true);
+	},
+
+	/**
+	 * @public
+	 */
+	unregisterAnchorListener: function(targetDocument)
+	{
+		targetDocument.removeEventListener("click", this.handleAnchorClick, true);
 	},
 
 	/**
@@ -1099,7 +1115,7 @@ BX.SidePanel.Manager.prototype =
 		var frameWindow = event.getSlider().getFrameWindow();
 		if (frameWindow)
 		{
-			frameWindow.document.removeEventListener("click", this.handleAnchorClick, true);
+			this.unregisterAnchorListener(frameWindow.document);
 		}
 
 		if (slider === this.getLastOpenSlider())
@@ -1173,7 +1189,7 @@ BX.SidePanel.Manager.prototype =
 		var frameWindow = event.getSlider().getFrameWindow();
 		if (frameWindow)
 		{
-			frameWindow.document.addEventListener("click", this.handleAnchorClick, true);
+			this.registerAnchorListener(frameWindow.document);
 		}
 
 		this.setBrowserHistory(event.getSlider());

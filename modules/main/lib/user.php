@@ -166,9 +166,9 @@ class UserTable extends DataManager
 
 			(new ExpressionField(
 				'IS_REAL_USER',
-				'CASE WHEN %s IN ("'
-					. join('", "', static::getExternalUserTypes())
-					. '") THEN \'N\' ELSE \'Y\' END',
+				'CASE WHEN %s IN (\''
+					. join('\', \'', static::getExternalUserTypes())
+					. '\') THEN \'N\' ELSE \'Y\' END',
 				'EXTERNAL_AUTH_ID',
 				['values' => ['N', 'Y']]
 			))->configureValueType(BooleanField::class),

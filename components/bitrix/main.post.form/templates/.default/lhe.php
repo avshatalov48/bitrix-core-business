@@ -7,6 +7,10 @@ if (!CModule::IncludeModule("fileman"))
  */
 
 $possibleButtons = [
+	'Copilot' => [
+		'HTML' => '<i id="bx-b-copilot-'.$arParams['FORM_ID'].'"></i><span class="main-post-form-toolbar-button-copilot">'.GetMessage('MPF_COPILOT')."</span>",
+		'ID' => 'copilot',
+	],
 	'UploadFile' => [ //Custom button
 		'aliases' => ['UploadImage', 'UploadFile'],
 		// id is here just for compatibility and shoud be deleted at an opportunity
@@ -46,6 +50,11 @@ $actualButtons = array_filter($possibleButtons, function ($value, $key) use ($ar
 	$keys = array_merge([$key], (array_key_exists('aliases', $value) ? $value['aliases'] : []));
 	return sizeof(array_intersect($keys, $arParams['BUTTONS'])) > 0;
 }, ARRAY_FILTER_USE_BOTH);
+
+if (!$arParams['COPILOT_AVAILABLE'])
+{
+	unset($actualButtons['Copilot']);
+}
 
 if (isset($arParams['~BUTTONS_HTML']) && is_array($arParams['~BUTTONS_HTML']))
 {

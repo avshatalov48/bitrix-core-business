@@ -8603,6 +8603,30 @@ small,
   color: var(--color-hover);
 }
 
+h1.g-color, .h1.g-color {
+  color: var(--color, var(--theme-color-title)) !important;
+}
+
+h2.g-color, .h2.g-color {
+  color: var(--color, var(--theme-color-title)) !important;
+}
+
+h3.g-color, .h3.g-color {
+  color: var(--color, var(--theme-color-title)) !important;
+}
+
+h4.g-color, .h4.g-color {
+  color: var(--color, var(--theme-color-title)) !important;
+}
+
+h5.g-color, .h5.g-color {
+  color: var(--color, var(--theme-color-title)) !important;
+}
+
+h6.g-color, .h6.g-color {
+  color: var(--color, var(--theme-color-title)) !important;
+}
+
 /*------------------------------------
   Widths
 ------------------------------------*/
@@ -23430,7 +23454,7 @@ CUSTOM BG COLORS for THEMES
   display: block;
   height: 40px;
   width: 40px;
-  border: 2px solid #60E7F5;
+  border: 2px solid var(--primary);
   border-radius: 50%;
   background-image: url(/bitrix/images/landing/marta.jpg);
   background-size: contain;
@@ -29227,6 +29251,18 @@ input[type=checkbox]:checked + .g-brd-red--checked, input[type=radio]:checked + 
   background: rgba(255, 255, 255, 0.2);
 }
 
+@-moz-document url-prefix() {
+  .landing-edit-mode .landing-table-tr:not(:first-child) .landing-table-td {
+    background: rgba(248, 248, 249, 0.5);
+  }
+  .landing-edit-mode .landing-table-style-6 td,
+  .landing-edit-mode .landing-table-style-7 td,
+  .landing-edit-mode .landing-table-style-8 td,
+  .landing-edit-mode .landing-table-style-9 td,
+  .landing-edit-mode .landing-table-style-10 td {
+    background: rgba(0, 0, 0, 0.5) !important;
+  }
+}
 /*------------------------------------
   Video-bg
 ------------------------------------*/

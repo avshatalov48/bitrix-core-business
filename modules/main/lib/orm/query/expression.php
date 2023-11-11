@@ -146,6 +146,8 @@ class Expression
 	 */
 	public function concat()
 	{
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 		$columns = func_get_args();
 		$alias = static::getTmpName('CONCAT');
 
@@ -156,7 +158,7 @@ class Expression
 		}
 
 		$holders = array_fill(0, count($columns), '%s');
-		$expr = 'CONCAT('.join(', ', $holders).')';
+		$expr = call_user_func_array([$helper, 'getConcatFunction'], $holders);
 
 		return new ExpressionField($alias, $expr, $columns);
 	}

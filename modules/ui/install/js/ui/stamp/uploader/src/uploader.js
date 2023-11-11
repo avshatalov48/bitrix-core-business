@@ -497,12 +497,16 @@ export class Uploader extends EventEmitter
 
 								this.upload()
 									.then((uploaderFile) => {
-										Uploader.#delay(() => {
-											this.getPreview().show(uploaderFile.getClientPreview());
-											this.getStatus().showPreparingStatus();
-										}, 1000);
-
-										return this.emitAsync('onSaveAsync', {file: uploaderFile.toJSON()});
+										return Promise.all([
+											new Promise((resolve) => {
+												Uploader.#delay(() => {
+													this.getPreview().show(uploaderFile.getClientPreview());
+													this.getStatus().showPreparingStatus();
+													resolve();
+												}, 1000);
+											}),
+											this.emitAsync('onSaveAsync', {file: uploaderFile.toJSON()})
+										]);
 									})
 									.then(() => {
 										this.getStatus().hide();

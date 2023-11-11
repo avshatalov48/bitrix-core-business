@@ -4,8 +4,8 @@ this.BX.Landing = this.BX.Landing || {};
 	'use strict';
 
 	let _ = t => t,
-	    _t,
-	    _t2;
+	  _t,
+	  _t2;
 	class BaseProvider extends main_core_events.EventEmitter {
 	  /**
 	   * Implements base interface for works with any map providers
@@ -32,7 +32,6 @@ this.BX.Landing = this.BX.Landing || {};
 	     * Must be implemented by subclass
 	     * @type {string}
 	     */
-
 	    this.code = '';
 	    this.onChangeHandler = main_core.Type.isFunction(options.onChange) ? options.onChange : () => {};
 	    this.onMapClickHandler = main_core.Type.isFunction(options.onMapClick) ? options.onMapClick : () => {};
@@ -48,12 +47,11 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.handleApiLoad();
 	    this.onChange = main_core.Runtime.debounce(this.onChange.bind(this), 666);
 	  }
+
 	  /**
 	   * Default options for map
 	   * @type {{}}
 	   */
-
-
 	  getDefaultMapOptions() {
 	    return {
 	      center: this.getDefaultCenter(),
@@ -66,43 +64,35 @@ this.BX.Landing = this.BX.Landing || {};
 	      }]
 	    };
 	  }
+
 	  /**
 	   * Check if map options have required fields
 	   * @param mapOptions
 	   * @return {{center: ([]|{lng: number, lat: number}), zoom: number, markers: [{description: string, title: string, latLng: (*|{lng: number, lat: number})}]}|*}
 	   */
-
-
 	  prepareMapOptions(mapOptions) {
 	    if (!main_core.Type.isPlainObject(mapOptions)) {
 	      return this.getDefaultMapOptions();
 	    }
-
 	    let preparedOptions = mapOptions;
-
 	    if (!this.isPoint(preparedOptions.center)) {
 	      preparedOptions.center = this.getDefaultCenter();
-
 	      if (main_core.Type.isArray(mapOptions.markers) && mapOptions.markers.length > 0) {
 	        const firstMarker = mapOptions.markers[0];
-
 	        if (main_core.Type.isPlainObject(firstMarker) && this.isPoint(firstMarker.latLng)) {
 	          preparedOptions.center = firstMarker.latLng;
 	        }
 	      }
 	    }
-
 	    return preparedOptions;
 	  }
+
 	  /**
 	   * Return a default center point by language
 	   * @return {{lng: number, lat: number}}
 	   */
-
-
 	  getDefaultCenter() {
 	    let point;
-
 	    switch (main_core.Loc.getMessage('LANGUAGE_ID')) {
 	      case 'ru':
 	        point = {
@@ -110,14 +100,12 @@ this.BX.Landing = this.BX.Landing || {};
 	          lng: 20.48854240000003
 	        };
 	        break;
-
 	      case 'ua':
 	        point = {
 	          lat: 50.440333,
 	          lng: 30.526835
 	        };
 	        break;
-
 	      default:
 	        //default - en
 	        point = {
@@ -126,81 +114,73 @@ this.BX.Landing = this.BX.Landing || {};
 	        };
 	        break;
 	    }
-
 	    return point;
 	  }
+
 	  /**
 	   * Check is current variable is a geo point
 	   * @param point
 	   * @return {boolean}
 	   */
-
-
 	  isPoint(point) {
 	    return main_core.Type.isObjectLike(point) && Object.keys(point).length === 2;
 	  }
+
 	  /**
 	   * Extract coords from map events (f.e. click)
 	   * @param event
 	   */
-
-
 	  getPointByEvent(event) {
 	    throw new Error("Must be implemented by subclass");
 	  }
-
 	  getCode() {
 	    return this.code;
 	  }
+
 	  /**
 	   * Check is provider API was loaded
 	   * @return {boolean}
 	   */
-
-
 	  isApiLoaded() {
 	    throw new Error("Must be implemented by subclass");
 	  }
+
 	  /**
 	   * Initializes map
 	   * Must be implemented by subclass
 	   * @abstract
 	   */
-
-
 	  init() {
 	    this.onInitHandler();
 	    this.emit('onInit');
 	  }
+
 	  /**
 	   * Pass new options and reinit map
 	   * @param options
 	   */
-
-
 	  reinit(options) {
 	    // todo: add options type and validation
 	    this.options = options;
 	    this.emit('onInit');
 	  }
+
 	  /**
 	   * Set api load handle function
 	   * @abstract
 	   */
-
-
 	  handleApiLoad() {
 	    throw new Error("Must be implemented by subclass");
 	  }
+
 	  /**
 	   *
 	   */
-
-
 	  onChange() {
 	    this.onChangeHandler(this.preventChangeEvent);
 	    this.preventChangeEvent = false;
 	  }
+
 	  /**
 	   * Adds marker on map
 	   * @abstract
@@ -216,99 +196,86 @@ this.BX.Landing = this.BX.Landing || {};
 	   * @param {boolean} [options.draggable = false]
 	   * @return {void}
 	   */
-
-
 	  addMarker(options) {
 	    throw new Error("Must be implemented by subclass");
 	  }
+
 	  /**
 	   * When marker clicked
 	   * @param item
 	   */
-
-
 	  onMarkerClick(item) {
 	    throw new Error("Must be implemented by subclass");
 	  }
+
 	  /**
 	   * Removes marker from map
 	   * @abstract
 	   * @param options
 	   */
-
-
 	  removeMarker(options) {
 	    throw new Error("Must be implemented by subclass");
 	  }
+
 	  /**
 	   * Removes all markers from map
 	   * @abstract
 	   * @param options
 	   */
-
-
 	  clearMarkers() {
 	    throw new Error("Must be implemented by subclass");
 	  }
+
 	  /**
 	   * Gets map value
 	   * @abstract
 	   */
-
-
 	  getValue() {
 	    throw new Error("Must be implemented by subclass");
 	  }
+
 	  /**
 	   * Set values
 	   * @param value
 	   * @param preventChangeEvent
 	   */
-
-
 	  setValue(value, preventChangeEvent) {
 	    this.preventChangeEvent = preventChangeEvent;
 	    this.clearMarkers();
-
 	    if (main_core.Type.isPlainObject(value)) {
 	      if (main_core.Type.isArray(value.markers)) {
 	        value.markers.forEach(this.addMarker, this);
 	      }
-
 	      if (!BX.Landing.Utils.isEmpty(value.center)) {
 	        this.setCenter(value.center);
 	      }
-
 	      if (value.zoom && main_core.Type.isNumber(value.zoom)) {
 	        this.setZoom(value.zoom);
 	      }
 	    }
 	  }
+
 	  /**
 	   * @abstract
 	   */
-
-
 	  onEditFormApplyClick(event) {
 	    throw new Error("Must be implemented by subclass");
 	  }
+
 	  /**
 	   * @abstract
 	   * @param event
 	   */
-
-
 	  onEditFormRemoveClick(event) {
 	    throw new Error("Must be implemented by subclass");
 	  }
+
 	  /**
 	   * Creates balloon edit forms
 	   * @param options
 	   * @param [event]
 	   * @return {BX.Landing.UI.Form.BalloonForm}
 	   */
-
-
 	  createBalloonEditForm(options, event) {
 	    const form = new BX.Landing.UI.Form.BalloonForm({
 	      title: main_core.Loc.getMessage("LANDING_NODE_MAP_FORM_HEADER")
@@ -353,13 +320,12 @@ this.BX.Landing = this.BX.Landing || {};
 	    form.layout.appendChild(footer);
 	    return form;
 	  }
+
 	  /**
 	   * Creates balloon content
 	   * @param {{title: string, description: string}} options
 	   * @return {HTMLElement}
 	   */
-
-
 	  createBalloonContent(options) {
 	    return main_core.Tag.render(_t2 || (_t2 = _`
 			<div class="landing-map-balloon-content">
@@ -368,7 +334,6 @@ this.BX.Landing = this.BX.Landing || {};
 			</div>
 		`), options.title, options.description);
 	  }
-
 	}
 
 	const AUBERGINE = [{
@@ -1075,21 +1040,19 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.code = 'google';
 	    this.themes = themes;
 	  }
+
 	  /**
 	   * Extract coords from map events (f.e. click)
 	   * @param event
 	   */
-
-
 	  getPointByEvent(event) {
 	    const point = event.latLng;
 	    return this.isPoint(point) ? point : {};
 	  }
+
 	  /**
 	   * @inheritDoc
 	   */
-
-
 	  init() {
 	    this.preventChangeEvent = true;
 	    let opts = this.options;
@@ -1105,7 +1068,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      fullscreenControl: main_core.Type.isBoolean(opts.fullscreenControl) ? opts.fullscreenControl : true,
 	      styles: this.getStylesFromOptions(opts)
 	    });
-
 	    if (this.mapOptions.markers) {
 	      this.mapOptions.markers.forEach(function (markerItem) {
 	        markerItem.editable = BX.Landing.getMode() === "edit";
@@ -1113,51 +1075,47 @@ this.BX.Landing = this.BX.Landing || {};
 	        this.addMarker(markerItem);
 	      }, this);
 	    }
-
 	    this.mapInstance.addListener("bounds_changed", this.onChange);
 	    this.mapInstance.addListener("center_changed", this.onChange);
 	    this.mapInstance.addListener("zoom_changed", this.onChange);
 	    this.mapInstance.addListener("click", this.onMapClickHandler);
 	    super.init();
 	  }
-
 	  reinit(options) {
 	    this.preventChangeEvent = true;
-	    this.mapInstance.setOptions({
-	      styles: this.getStylesFromOptions(options)
-	    });
+	    if (this.mapInstance) {
+	      this.mapInstance.setOptions({
+	        styles: this.getStylesFromOptions(options)
+	      });
+	    }
 	    super.reinit();
 	  }
-
 	  getStylesFromOptions(options) {
 	    return (options.theme && options.theme in this.themes ? this.themes[options.theme] : []).concat(roads[options.roads] || [], landmarks[options.landmarks] || [], labels[options.labels] || []);
 	  }
+
 	  /**
 	   * Check is provider API was loaded
 	   * @return {boolean}
 	   */
-
-
 	  isApiLoaded() {
 	    return typeof google !== "undefined";
 	  }
+
 	  /**
 	   * Set api load handle function
 	   * @abstract
 	   */
-
-
 	  handleApiLoad() {
 	    window.onGoogleMapApiLoaded = () => {
 	      this.onApiLoadedHandler(this.getCode());
 	    };
 	  }
+
 	  /**
 	   * @inheritDoc
 	   * @param options
 	   */
-
-
 	  addMarker(options) {
 	    let item = {};
 	    item.marker = new google.maps.Marker({
@@ -1170,64 +1128,53 @@ this.BX.Landing = this.BX.Landing || {};
 	    item.infoWindow = new google.maps.InfoWindow({
 	      content: options.editable && BX.Landing.getMode() === "edit" ? item.form.layout : item.content
 	    });
-
 	    if (options.showByDefault && BX.Landing.getMode() !== "edit") {
 	      item.infoWindow.open(this.mapInstance, item.marker);
 	      this.activeMarker = item;
 	    }
+	    this.markers.add(item);
 
-	    this.markers.add(item); // in editor - always, in public - only if not empty
-
+	    // in editor - always, in public - only if not empty
 	    if (BX.Landing.getMode() === "edit" || options.title || options.description) {
 	      item.marker.addListener("click", this.onMarkerClick.bind(this, item));
 	    }
-
 	    this.onChange();
 	  }
-
 	  onMarkerClick(item) {
 	    void (this.activeMarker && this.activeMarker.infoWindow.close());
 	    item.infoWindow.open(this.mapInstance, item.marker);
 	    this.activeMarker = item;
 	  }
-
 	  onEditFormRemoveClick(event) {
 	    if (event) {
 	      event.infoWindow.close();
 	      this.removeMarker(event);
 	    }
-
 	    this.markers.remove(event);
 	    this.onChange();
 	  }
-
 	  onEditFormApplyClick(event) {
 	    event.infoWindow.close();
 	    this.onChange();
 	  }
-
 	  removeMarker(event) {
 	    event.marker.setMap(null);
 	    this.markers.remove(event);
 	  }
-
 	  clearMarkers() {
 	    this.markers.forEach(marker => {
 	      marker.marker.setMap(null);
 	    });
 	    this.markers.clear();
 	  }
-
 	  setZoom(zoom) {
 	    this.preventChangeEvent = true;
 	    this.mapInstance.setZoom(zoom);
 	  }
-
 	  setCenter(center) {
 	    this.preventChangeEvent = true;
 	    this.mapInstance.setCenter(center);
 	  }
-
 	  getMarkersValue() {
 	    return this.markers.map(function (item) {
 	      return {
@@ -1238,7 +1185,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      };
 	    });
 	  }
-
 	  getValue() {
 	    return {
 	      center: this.mapInstance.getCenter() ? this.mapInstance.getCenter().toJSON() : {},
@@ -1246,7 +1192,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      markers: this.getMarkersValue()
 	    };
 	  }
-
 	}
 
 	class YandexMap extends BaseProvider {
@@ -1255,24 +1200,20 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.setEventNamespace('BX.Landing.Provider.Map.YandexMap');
 	    this.code = 'yandex';
 	  }
+
 	  /**
 	   * @inheritDoc
 	   */
-
-
 	  init() {
 	    this.preventChangeEvent = true;
 	    const controls = ['zoomControl', 'fullscreenControl', 'typeSelector', 'routeButtonControl'];
-
 	    if (this.options.fullscreenControl === false) {
 	      controls.splice(controls.indexOf('fullscreenControl'), 1);
 	    }
-
 	    if (this.options.mapTypeControl === false) {
 	      controls.splice(controls.indexOf('typeSelector'), 1);
 	      controls.splice(controls.indexOf('routeButtonControl'), 1);
 	    }
-
 	    this.mapInstance = new ymaps.Map(this.mapContainer, {
 	      center: this.convertPointIn(this.mapOptions.center),
 	      zoom: this.mapOptions.zoom,
@@ -1283,12 +1224,10 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.mapInstance.events.add('click', event => {
 	      this.cache.delete('value');
 	      this.onMapClickHandler(event);
-
 	      if (BX.Landing.getMode() === "edit") {
 	        this.markers[this.markers.length - 1].marker.balloon.open();
 	      }
 	    });
-
 	    if (this.mapOptions.markers) {
 	      this.mapOptions.markers.forEach(markerItem => {
 	        markerItem.editable = BX.Landing.getMode() === "edit";
@@ -1296,73 +1235,65 @@ this.BX.Landing = this.BX.Landing || {};
 	        this.addMarker(markerItem);
 	      });
 	    }
-
 	    super.init();
 	  }
-
 	  reinit(options) {
 	    // Yandex has't changes yet. If some settings will be added later - need implement reinit
 	    this.preventChangeEvent = true;
 	    super.reinit();
 	  }
+
 	  /**
 	   * Check is provider API was loaded
 	   * @return {boolean}
 	   */
-
-
 	  isApiLoaded() {
 	    return typeof ymaps !== "undefined" && typeof ymaps.Map !== "undefined";
 	  }
+
 	  /**
 	   * Convert point from Google format to Yandex
 	   * @param point
 	   * @return {[number,number]}
 	   */
-
-
 	  convertPointIn(point) {
 	    return [point.lat, point.lng];
 	  }
+
 	  /**
 	   * Convert point from Yandex for export
 	   * @param point
 	   * @return {{lng: number, lat: number}}
 	   */
-
-
 	  convertPointOut(point) {
 	    return {
 	      lat: point[0],
 	      lng: point[1]
 	    };
 	  }
+
 	  /**
 	   * Extract coords from map events (f.e. click)
 	   * @param event
 	   */
-
-
 	  getPointByEvent(event) {
 	    return this.convertPointOut(event.get('coords'));
 	  }
+
 	  /**
 	   * Set api load handle function
 	   * @abstract
 	   */
-
-
 	  handleApiLoad() {
 	    window.onYandexMapApiLoaded = () => {
 	      this.onApiLoadedHandler(this.getCode());
 	    };
 	  }
+
 	  /**
 	   * @inheritDoc
 	   * @param options
 	   */
-
-
 	  addMarker(options) {
 	    const item = {};
 	    item.form = BX.Landing.getMode() === "edit" ? this.createBalloonEditForm(options, item) : null;
@@ -1383,52 +1314,42 @@ this.BX.Landing = this.BX.Landing || {};
 	      draggable: options.draggable
 	    });
 	    this.mapInstance.geoObjects.add(item.marker);
-
 	    if (options.showByDefault) {
 	      item.marker.balloon.open();
 	    }
-
 	    this.markers.add(item);
 	    this.onChange();
 	  }
-
-	  onMarkerClick(item) {// Yandex will do everything himself
+	  onMarkerClick(item) {
+	    // Yandex will do everything himself
 	  }
-
 	  onEditFormRemoveClick(event) {
 	    if (event) {
 	      event.marker.balloon.close();
 	      this.removeMarker(event);
 	    }
-
 	    this.markers.remove(event);
 	    this.onChange();
 	  }
-
 	  onEditFormApplyClick(event) {
 	    event.marker.balloon.close();
 	    this.onChange();
 	  }
-
 	  removeMarker(event) {
 	    this.mapInstance.geoObjects.remove(event.marker);
 	  }
-
 	  clearMarkers() {
 	    this.markers.forEach(marker => {
 	      this.mapInstance.geoObjects.remove(marker.marker);
 	    });
 	    this.markers.clear();
 	  }
-
 	  setZoom(zoom) {
 	    this.mapInstance.setZoom(zoom);
 	  }
-
 	  setCenter(center) {
 	    this.mapInstance.setCenter(this.convertPointIn(center));
 	  }
-
 	  getMarkersValue() {
 	    return this.markers.map(item => {
 	      return {
@@ -1439,7 +1360,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      };
 	    });
 	  }
-
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      return {
@@ -1449,12 +1369,10 @@ this.BX.Landing = this.BX.Landing || {};
 	      };
 	    });
 	  }
-
 	  onChange() {
 	    this.cache.delete('value');
 	    super.onChange();
 	  }
-
 	}
 
 	class Map {
@@ -1462,41 +1380,37 @@ this.BX.Landing = this.BX.Landing || {};
 	   * If API not loaded already - create schedule
 	   * @type {{}}
 	   */
+
 	  constructor() {}
+
 	  /**
 	   * Create map provider for current node
 	   * @param node
 	   * @param options
 	   * @return {*}
 	   */
-
-
 	  static create(node, options) {
 	    // handler for load api
-	    options.onApiLoaded = Map.onApiLoaded; // get provider code
+	    options.onApiLoaded = Map.onApiLoaded;
 
+	    // get provider code
 	    let providerCode = node.dataset[Map.DATA_ATTRIBUTE];
-
 	    if (!providerCode || Object.keys(Map.PROVIDERS).indexOf(providerCode) === -1) {
 	      providerCode = Map.DEFAULT_PROVIDER;
-	    } // init or set to schedule
+	    }
 
-
+	    // init or set to schedule
 	    const provider = new Map.PROVIDERS[providerCode](options);
-
 	    if (provider.isApiLoaded()) {
 	      provider.init();
 	    } else {
 	      if (!main_core.Type.isArray(Map.scheduled[provider.getCode()])) {
 	        Map.scheduled[provider.getCode()] = [];
 	      }
-
 	      Map.scheduled[provider.getCode()].push(provider);
 	    }
-
 	    return provider;
 	  }
-
 	  static onApiLoaded(providerCode) {
 	    if (main_core.Type.isArray(Map.scheduled[providerCode])) {
 	      Map.scheduled[providerCode].forEach(provider => {
@@ -1504,7 +1418,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      });
 	    }
 	  }
-
 	}
 	Map.PROVIDERS = {
 	  google: GoogleMap,

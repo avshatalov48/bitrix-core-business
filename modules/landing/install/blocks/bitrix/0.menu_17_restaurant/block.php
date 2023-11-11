@@ -1,4 +1,4 @@
-<header class="landing-block landing-semantic-background-color g-bg-white u-header u-header--sticky u-header--relative g-z-index-9999">
+<header class="landing-block g-bg-white u-header u-header--sticky u-header--relative g-z-index-9999">
 	<div class="u-header__section u-header__section--light g-transition-0_3 g-py-16"
 		 data-header-fix-moment-exclude="g-py-16"
 		 data-header-fix-moment-classes="u-shadow-v27 g-py-6">
@@ -16,41 +16,41 @@
 					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-font-weight-700 g-font-size-12 g-pt-20 g-pt-0--lg ml-auto">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#masterslider"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Home</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
-							<a href="#about" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">About</a>
+							<a href="#about" class="landing-block-node-menu-list-item-link nav-link p-0">About</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
-							<a href="#menu" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Menu</a>
+							<a href="#menu" class="landing-block-node-menu-list-item-link nav-link p-0">Menu</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#special"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Special</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Special</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#ourFood"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Our food</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Our food</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#services"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Services</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Services</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#gallery"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Gallery</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Gallery</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#ourTeem"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Our teem</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Our teem</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#bookingForm"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Booking form</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Booking form</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
 							<a href="#contact"
-							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Contact</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
 						</li>
 					</ul>
 				</div>

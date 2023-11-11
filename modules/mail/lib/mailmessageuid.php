@@ -4,6 +4,7 @@ namespace Bitrix\Mail;
 
 use Bitrix\Mail\Helper\MessageEventManager;
 use Bitrix\Mail\Internals\MessageUploadQueueTable;
+use Bitrix\Main\DB\Connection;
 use Bitrix\Main\Entity;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Localization;
@@ -133,11 +134,7 @@ class MailMessageUidTable extends Entity\DataManager
 				$connection->getSqlHelper()->quote($entity->getDbTableName()),
 			);
 
-			$connection->query(sprintf(
-				'INSERT IGNORE INTO %s (ID, MAILBOX_ID, MESSAGE_ID) (SELECT ID, MAILBOX_ID, MESSAGE_ID %s)',
-				$connection->getSqlHelper()->quote(Internals\MessageDeleteQueueTable::getTableName()),
-				$query
-			));
+			self::insertIntoDeleteMessagesQueue($connection, $query);
 
 			$connection->query(sprintf('DELETE %s', $query));
 		}
@@ -198,6 +195,25 @@ class MailMessageUidTable extends Entity\DataManager
 		EventManager::getInstance()->removeEventHandler('mail', 'onMailMessageDeleted', $eventKey);
 
 		return true;
+	}
+
+	/**
+	 * Insert into delete queue table
+	 *
+	 * @param Connection $connection DB Connection
+	 * @param string $query Query from and where
+	 *
+	 * @return void
+	 * @throws \Bitrix\Main\DB\SqlQueryException
+	 */
+	private static function insertIntoDeleteMessagesQueue(Connection $connection, string $query): void
+	{
+		$sqlHelper = $connection->getSqlHelper();
+		$messageDeleteTableName = $sqlHelper->quote(Internals\MessageDeleteQueueTable::getTableName());
+		$insertFields = ' (ID, MAILBOX_ID, MESSAGE_ID) ';
+		$fromSelect = sprintf('(SELECT ID, MAILBOX_ID, MESSAGE_ID %s)', $query);
+		$insertQuery = $sqlHelper->getInsertIgnore($messageDeleteTableName, $insertFields, $fromSelect);
+		$connection->query($insertQuery);
 	}
 
 	public static function getPresetRemoveFilters()

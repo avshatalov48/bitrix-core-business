@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
@@ -21,10 +22,11 @@ this.BX = this.BX || {};
 	});
 	var _classNameSize = /*#__PURE__*/new WeakMap();
 	var _classNameColor = /*#__PURE__*/new WeakMap();
-	var _checked = /*#__PURE__*/new WeakMap();
+	var _disabled = /*#__PURE__*/new WeakMap();
 	var _inputName = /*#__PURE__*/new WeakMap();
 	var _loading = /*#__PURE__*/new WeakMap();
 	var _classNameOff = /*#__PURE__*/new WeakMap();
+	var _classNameLock = /*#__PURE__*/new WeakMap();
 	var _attributeName = /*#__PURE__*/new WeakMap();
 	var _initNode = /*#__PURE__*/new WeakSet();
 	var _fireEvent = /*#__PURE__*/new WeakSet();
@@ -54,8 +56,9 @@ this.BX = this.BX || {};
 	      value: (_value2 = {}, babelHelpers.defineProperty(_value2, SwitcherColor.primary, ''), babelHelpers.defineProperty(_value2, SwitcherColor.green, 'ui-switcher-color-green'), _value2)
 	    });
 	    babelHelpers.defineProperty(this, "node", null);
+	    babelHelpers.defineProperty(this, "checked", false);
 	    babelHelpers.defineProperty(this, "id", '');
-	    _classPrivateFieldInitSpec(this, _checked, {
+	    _classPrivateFieldInitSpec(this, _disabled, {
 	      writable: true,
 	      value: false
 	    });
@@ -70,6 +73,10 @@ this.BX = this.BX || {};
 	    _classPrivateFieldInitSpec(this, _classNameOff, {
 	      writable: true,
 	      value: 'ui-switcher-off'
+	    });
+	    _classPrivateFieldInitSpec(this, _classNameLock, {
+	      writable: true,
+	      value: 'ui-switcher-lock'
 	    });
 	    _classPrivateFieldInitSpec(this, _attributeName, {
 	      writable: true,
@@ -105,7 +112,7 @@ this.BX = this.BX || {};
 	        if (data.id) {
 	          this.id = data.id;
 	        }
-	        babelHelpers.classPrivateFieldSet(this, _checked, Boolean(data.checked));
+	        this.checked = Boolean(data.checked);
 	        babelHelpers.classPrivateFieldSet(this, _inputName, data.inputName);
 	        if (main_core.Type.isString(data.color) && Object.values(SwitcherColor).includes(data.color)) {
 	          options.color = data.color;
@@ -130,9 +137,29 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isString(options.inputName)) {
 	        babelHelpers.classPrivateFieldSet(this, _inputName, options.inputName);
 	      }
-	      babelHelpers.classPrivateFieldSet(this, _checked, main_core.Type.isBoolean(options.checked) ? options.checked : babelHelpers.classPrivateFieldGet(this, _checked));
+	      this.checked = main_core.Type.isBoolean(options.checked) ? options.checked : this.checked;
+	      babelHelpers.classPrivateFieldSet(this, _disabled, main_core.Type.isBoolean(options.disabled) ? options.disabled : babelHelpers.classPrivateFieldGet(this, _disabled));
 	      _classPrivateMethodGet(this, _initNode, _initNode2).call(this);
-	      this.check(babelHelpers.classPrivateFieldGet(this, _checked), false);
+	      this.check(this.checked, false);
+	      this.disable(babelHelpers.classPrivateFieldGet(this, _disabled), false);
+	    }
+	  }, {
+	    key: "disable",
+	    value: function disable(disabled, fireEvents) {
+	      if (this.isLoading()) {
+	        return;
+	      }
+	      fireEvents = fireEvents !== false;
+	      if (babelHelpers.classPrivateFieldGet(this, _disabled)) {
+	        main_core.Dom.addClass(this.node, babelHelpers.classPrivateFieldGet(this, _classNameLock));
+	        fireEvents ? _classPrivateMethodGet(this, _fireEvent, _fireEvent2).call(this, this.events.lock) : null;
+	      } else {
+	        main_core.Dom.removeClass(this.node, babelHelpers.classPrivateFieldGet(this, _classNameLock));
+	        fireEvents ? _classPrivateMethodGet(this, _fireEvent, _fireEvent2).call(this, this.events.unlock) : null;
+	      }
+	      if (fireEvents) {
+	        _classPrivateMethodGet(this, _fireEvent, _fireEvent2).call(this, this.events.toggled);
+	      }
 	    }
 	  }, {
 	    key: "check",
@@ -140,12 +167,12 @@ this.BX = this.BX || {};
 	      if (this.isLoading()) {
 	        return;
 	      }
-	      babelHelpers.classPrivateFieldSet(this, _checked, !!checked);
+	      this.checked = !!checked;
 	      if (this.inputNode) {
-	        this.inputNode.value = babelHelpers.classPrivateFieldGet(this, _checked) ? 'Y' : 'N';
+	        this.inputNode.value = this.checked ? 'Y' : 'N';
 	      }
 	      fireEvents = fireEvents !== false;
-	      if (babelHelpers.classPrivateFieldGet(this, _checked)) {
+	      if (this.checked) {
 	        main_core.Dom.removeClass(this.node, babelHelpers.classPrivateFieldGet(this, _classNameOff));
 	        fireEvents ? _classPrivateMethodGet(this, _fireEvent, _fireEvent2).call(this, this.events.unchecked) : null;
 	      } else {
@@ -157,13 +184,21 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
+	    key: "isDisabled",
+	    value: function isDisabled() {
+	      return babelHelpers.classPrivateFieldGet(this, _disabled);
+	    }
+	  }, {
 	    key: "isChecked",
 	    value: function isChecked() {
-	      return babelHelpers.classPrivateFieldGet(this, _checked);
+	      return this.checked;
 	    }
 	  }, {
 	    key: "toggle",
 	    value: function toggle() {
+	      if (this.isDisabled()) {
+	        return;
+	      }
 	      this.check(!this.isChecked());
 	    }
 	  }, {

@@ -99,6 +99,8 @@ class StartWorkflowActivity
 				},
 			},
 			multiple: false,
+			tagMaxWidth: 500,
+			textBoxWidth: 100,
 		});
 
 		selector.renderTo(this.#templateNode);

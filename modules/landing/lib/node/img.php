@@ -16,7 +16,7 @@ class Img extends \Bitrix\Landing\Node
 	 */
 	public static function getHandlerJS()
 	{
-		return 'BX.Landing.Block.Node.Img';
+		return 'BX.Landing.Node.Img';
 	}
 
 	/**
@@ -386,13 +386,12 @@ class Img extends \Bitrix\Landing\Node
 	}
 
 	/**
-	 * Prepare node if is styleImg type.
+	 * Change node type if is styleImg type.
 	 * @param \Bitrix\Landing\Block $block Block instance.
 	 * @param array $node Selector.
-	 * @param $manifest
 	 * @return array
 	 */
-	public static function prepareManifest(\Bitrix\Landing\Block $block, array $node, $manifest): array
+	public static function changeNodeType(array $node, \Bitrix\Landing\Block $block): array
 	{
 		$matches = [];
 		$pattern = '/' . substr($node['code'], 1) . '[^\"]*/i';

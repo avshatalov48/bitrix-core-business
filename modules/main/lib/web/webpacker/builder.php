@@ -318,7 +318,7 @@ class Builder
 				$url = $url ?: $server->getServerName();
 				if (!$url)
 				{
-					$defaultSites = \CAllSite::getDefList();
+					$defaultSites = \CSite::getDefList();
 					while($defaultSite = $defaultSites->fetch())
 					{
 						$url = $defaultSite['SERVER_NAME'];

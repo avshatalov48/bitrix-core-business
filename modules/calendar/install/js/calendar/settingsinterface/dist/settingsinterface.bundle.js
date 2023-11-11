@@ -6,7 +6,8 @@ this.BX = this.BX || {};
 	  _t,
 	  _t2,
 	  _t3,
-	  _t4;
+	  _t4,
+	  _t5;
 	class SettingsInterface {
 	  constructor(options) {
 	    this.sliderId = "calendar:settings-slider";
@@ -14,6 +15,8 @@ this.BX = this.BX || {};
 	    this.SLIDER_WIDTH = 500;
 	    this.SLIDER_DURATION = 80;
 	    this.DOM = {};
+	    this.HELP_DESK_CODE = 7218351;
+	    this.HELP_DESK_CODE_LOCATION = 14326208;
 	    this.calendarContext = options.calendarContext;
 	    this.showPersonalSettings = options.showPersonalSettings;
 	    this.showGeneralSettings = options.showGeneralSettings;
@@ -49,11 +52,7 @@ this.BX = this.BX || {};
 	  }
 	  hide(event) {
 	    if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId) {
-	      if (this.denyClose) {
-	        event.denyAction();
-	      } else {
-	        BX.removeCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
-	      }
+	      BX.removeCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
 	    }
 	  }
 	  denySliderClose() {
@@ -120,6 +119,11 @@ this.BX = this.BX || {};
 	      this.DOM.showCompletedTasks = this.DOM.content.querySelector('[data-role="show_completed_tasks"]');
 	      this.DOM.timezoneSelect = this.DOM.content.querySelector('[data-role="set_tz_sel"]');
 	      this.DOM.sendFromEmailSelect = this.DOM.content.querySelector('[data-role="send_from_email"]');
+
+	      // this.DOM.enableLunchTime = this.DOM.content.querySelector('[data-role="enable_lunch_time"]');
+	      // this.DOM.lunchTimeSettingContainer = this.DOM.content.querySelector('#ec_lunch_time');
+	      // this.lunchTimeControl = this.initLunchTimeControl(this.DOM.lunchTimeSettingContainer);
+
 	      if (this.BX.Type.isElementNode(this.DOM.sendFromEmailSelect)) {
 	        this.emailSelectorControl = new calendar_controls.EmailSelectorControl({
 	          selectNode: this.DOM.sendFromEmailSelect,
@@ -164,6 +168,11 @@ this.BX = this.BX || {};
 	        this.initMessageControl();
 	      } else if (main_core.Type.isElementNode(this.DOM.accessHelpIcon)) {
 	        this.DOM.accessHelpIcon.remove();
+	        main_core.Dom.replace(this.DOM.accessMessageWrap, main_core.Tag.render(_t || (_t = _`
+					<span onclick="${0}" class="ui-hint" title="${0}">
+						<span class="ui-hint-icon"></span>
+					</span>
+				`), () => this.openHelpDesk(this.HELP_DESK_CODE), main_core.Loc.getMessage('EC_CALENDAR_HOW_DOES_IT_WORK')));
 	      }
 	      if (main_core.Type.isElementNode(this.DOM.accessOuterWrap)) {
 	        this.initAccessController();
@@ -171,10 +180,10 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  initMessageControl() {
-	    const moreMessageButton = main_core.Tag.render(_t || (_t = _`
+	    const moreMessageButton = main_core.Tag.render(_t2 || (_t2 = _`
 			<a class="ui-btn ui-btn-primary">${0}</a>
 		`), main_core.Loc.getMessage('EC_LOCATION_SETTINGS_MORE_INFO'));
-	    main_core.Event.bind(moreMessageButton, 'click', this.openHelpDesk);
+	    main_core.Event.bind(moreMessageButton, 'click', () => this.openHelpDesk(this.HELP_DESK_CODE_LOCATION));
 	    const header = "";
 	    const description = main_core.Loc.getMessage('EC_LOCATION_SETTINGS_MESSAGE_DESCRIPTION');
 	    this.message = new ui_messagecard.MessageCard({
@@ -196,6 +205,68 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
+
+	  // initLunchTimeControl(container)
+	  // {
+	  // 	Event.bind(this.DOM.enableLunchTime, 'change', () => {
+	  // 		this.updateEnabledLunchTime();
+	  // 	});
+	  //
+	  // 	const lunchTimeContainer = Tag.render`<div class="calendar-field-container calendar-field-container-datetime"></div>`;
+	  // 	container.append(lunchTimeContainer);
+	  //
+	  // 	const lunchTimeControl = new DateTimeControl(null, {
+	  // 		showTimezone: false,
+	  // 		outerWrap: lunchTimeContainer,
+	  // 		inlineEditMode: true
+	  // 	});
+	  // 	lunchTimeControl.DOM.fromDate.style.display = 'none';
+	  // 	lunchTimeControl.DOM.toDate.style.display = 'none';
+	  // 	lunchTimeControl.DOM.outerWrap.querySelector('.calendar-event-full-day').style.display = 'none';
+	  // 	lunchTimeControl.setValue({
+	  // 		from: new Date(),
+	  // 		to: new Date(),
+	  // 		fullDay: false,
+	  // 		timezoneFrom: '',
+	  // 		timezoneTo: '',
+	  // 	});
+	  // 	lunchTimeControl.setInlineEditMode('edit');
+	  // 	lunchTimeControl.setViewMode(false);
+	  //
+	  // 	return lunchTimeControl;
+	  // }
+	  //
+	  // setLunchTimeValue()
+	  // {
+	  // 	const settingEnableLunchTime = this.calendarContext.util.getUserOption('enableLunchTime', 'N') === 'Y';
+	  // 	const settingLunchStart = this.calendarContext.util.getUserOption('lunchStart', '13:00');
+	  // 	const settingLunchEnd = this.calendarContext.util.getUserOption('lunchEnd', '14:00');
+	  //
+	  // 	this.DOM.enableLunchTime.checked = settingEnableLunchTime;
+	  // 	this.updateEnabledLunchTime();
+	  //
+	  // 	const date = new Date().toDateString();
+	  // 	const lunchStart = new Date(`${date} ${settingLunchStart}`);
+	  // 	const lunchEnd = new Date(`${date} ${settingLunchEnd}`);
+	  //
+	  // 	this.lunchTimeControl.setValue({
+	  // 		from: lunchStart,
+	  // 		to: lunchEnd,
+	  // 	});
+	  // }
+	  //
+	  // updateEnabledLunchTime()
+	  // {
+	  // 	if (this.DOM.enableLunchTime.checked)
+	  // 	{
+	  // 		Dom.removeClass(this.DOM.lunchTimeSettingContainer, '--disabled');
+	  // 	}
+	  // 	else
+	  // 	{
+	  // 		Dom.addClass(this.DOM.lunchTimeSettingContainer, '--disabled');
+	  // 	}
+	  // }
+
 	  onClickHint() {
 	    if (!this.message) {
 	      return;
@@ -230,7 +301,10 @@ this.BX = this.BX || {};
 	          this.DOM.crmSelect.options.add(new Option(section.name, section.id, selected, selected));
 	        }
 	      }
+
+	      // this.setLunchTimeValue();
 	    }
+
 	    if (this.DOM.showDeclined) {
 	      this.DOM.showDeclined.checked = this.calendarContext.util.getUserOption('showDeclined');
 	    }
@@ -320,6 +394,12 @@ this.BX = this.BX || {};
 	    if (this.emailSelectorControl) {
 	      userSettings.sendFromEmail = this.emailSelectorControl.getValue();
 	    }
+
+	    // const lunchTime = this.lunchTimeControl.getValue();
+	    // userSettings.enableLunchTime = this.DOM.enableLunchTime.checked ? 'Y' : 'N';
+	    // userSettings.lunchStart = Util.formatTime(lunchTime.from);
+	    // userSettings.lunchEnd = Util.formatTime(lunchTime.to);
+
 	    const data = {
 	      type: this.calendarContext.util.config.type,
 	      user_settings: userSettings,
@@ -351,7 +431,7 @@ this.BX = this.BX || {};
 	  }
 	  initAccessController() {
 	    var _this$calendarContext, _this$calendarContext2, _this$calendarContext3, _this$calendarContext4, _this$calendarContext5;
-	    this.DOM.accessWrap = this.DOM.accessOuterWrap.appendChild(main_core.Tag.render(_t2 || (_t2 = _`
+	    this.DOM.accessWrap = this.DOM.accessOuterWrap.appendChild(main_core.Tag.render(_t3 || (_t3 = _`
 				<div class="calendar-list-slider-access-container shown">
 					<div class="calendar-list-slider-access-inner-wrap">
 						${0}
@@ -359,9 +439,9 @@ this.BX = this.BX || {};
 					<div class="calendar-list-slider-new-calendar-options-container">
 						${0}
 					</div>
-				</div>`), this.DOM.accessTable = main_core.Tag.render(_t3 || (_t3 = _`
+				</div>`), this.DOM.accessTable = main_core.Tag.render(_t4 || (_t4 = _`
 							<table class="calendar-section-slider-access-table" />
-						`)), this.DOM.accessButton = main_core.Tag.render(_t4 || (_t4 = _`
+						`)), this.DOM.accessButton = main_core.Tag.render(_t5 || (_t5 = _`
 							<span class="calendar-list-slider-new-calendar-option-add">
 								${0}
 							</span>`), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS_ADD'))));
@@ -466,7 +546,7 @@ this.BX = this.BX || {};
 	        props: {
 	          className: 'calendar-section-slider-access-table-cell'
 	        },
-	        html: '<span class="calendar-section-slider-access-title">' + main_core.Text.encode(title) + ':</span>'
+	        html: `<span class="calendar-section-slider-access-title" title="${main_core.Text.encode(title)}">${main_core.Text.encode(title)}:</span>`
 	      });
 	      const valueCell = main_core.Dom.adjust(rowNode.insertCell(-1), {
 	        props: {
@@ -519,9 +599,11 @@ this.BX = this.BX || {};
 	    }, 300);
 	  }
 	  showAccessSelectorPopup(params) {
-	    if (this.accessPopupMenu && this.accessPopupMenu.popupWindow && this.accessPopupMenu.popupWindow.isShown()) {
+	    var _this$accessPopupMenu, _this$accessPopupMenu2;
+	    if (this.accessPopupMenu && this.accessPopupMenu.popupWindow && ((_this$accessPopupMenu = this.accessPopupMenu.popupWindow.getContentContainer()) == null ? void 0 : _this$accessPopupMenu.offsetWidth) > 0 && this.accessPopupMenu.popupWindow.isShown()) {
 	      return this.accessPopupMenu.close();
 	    }
+	    (_this$accessPopupMenu2 = this.accessPopupMenu) == null ? void 0 : _this$accessPopupMenu2.destroy();
 	    const _this = this;
 	    const menuItems = [];
 	    for (let taskId in this.accessTasks) {
@@ -543,17 +625,14 @@ this.BX = this.BX || {};
 	      offsetTop: -5,
 	      offsetLeft: 0,
 	      angle: true,
-	      cacheable: false,
-	      events: {
-	        onPopupClose: this.allowSliderClose.bind(this)
-	      }
+	      cacheable: false
 	    });
 	    this.accessPopupMenu.show();
-	    this.denySliderClose();
 	  }
-	  openHelpDesk() {
-	    let helpDeskCode = 14326208;
-	    top.BX.Helper.show('redirect=detail&code=' + helpDeskCode);
+	  openHelpDesk(helpDeskCode) {
+	    if (top.BX.Helper) {
+	      top.BX.Helper.show('redirect=detail&code=' + helpDeskCode);
+	    }
 	  }
 	  showMessage() {
 	    if (this.message) {

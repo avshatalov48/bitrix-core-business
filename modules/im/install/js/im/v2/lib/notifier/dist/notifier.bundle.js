@@ -2,16 +2,18 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_notificationManager,ui_vue3_vuex,main_core,main_core_events,im_v2_application_core,im_v2_lib_parser,im_public,im_v2_const,im_v2_provider_service) {
+(function (exports,ui_notificationManager,ui_vue3_vuex,main_core,main_core_events,im_v2_application_core,im_v2_lib_parser,im_v2_lib_desktop,im_public,im_v2_const,im_v2_provider_service) {
 	'use strict';
 
 	const CHAT_MESSAGE_PREFIX = 'im-chat';
+	const LINES_MESSAGE_PREFIX = 'im-lines';
 	const NOTIFICATION_PREFIX = 'im-notify';
 	const ACTION_BUTTON_PREFIX = 'button_';
 	const ButtonNumber = {
 	  first: '1',
 	  second: '2'
 	};
+	const DIALOG_TYPE_USER = 'user';
 	var _instance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("instance");
 	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _notificationService = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("notificationService");
@@ -23,6 +25,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _onNotifierButtonClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onNotifierButtonClick");
 	var _sendButtonAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendButtonAction");
 	var _isChatMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isChatMessage");
+	var _isLinesMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isLinesMessage");
 	var _isNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isNotification");
 	var _isConfirmButtonAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isConfirmButtonAction");
 	var _extractDialogId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("extractDialogId");
@@ -57,6 +60,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    Object.defineProperty(this, _isNotification, {
 	      value: _isNotification2
+	    });
+	    Object.defineProperty(this, _isLinesMessage, {
+	      value: _isLinesMessage2
 	    });
 	    Object.defineProperty(this, _isChatMessage, {
 	      value: _isChatMessage2
@@ -94,19 +100,34 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _notificationService)[_notificationService] = new im_v2_provider_service.NotificationService();
 	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeToNotifierEvents)[_subscribeToNotifierEvents]();
 	  }
-	  showMessage(message, dialog, user) {
+	  showMessage(params) {
+	    const {
+	      message,
+	      dialog,
+	      user,
+	      lines
+	    } = params;
 	    let text = '';
-	    if (user) {
+	    if (user && dialog.type !== DIALOG_TYPE_USER) {
 	      text += `${user.name}: `;
 	    }
 	    text += im_v2_lib_parser.Parser.purifyMessage(message);
+	    let id = `im-chat-${dialog.dialogId}-${message.id}`;
+	    if (lines) {
+	      id = `im-lines-${dialog.dialogId}-${message.id}`;
+	    }
 	    const notificationOptions = {
-	      id: `im-chat-${dialog.dialogId}-${message.id}`,
+	      id,
 	      title: dialog.name,
 	      icon: dialog.avatar || (user == null ? void 0 : user.avatar),
 	      text
 	    };
-	    ui_notificationManager.Notifier.notify(notificationOptions);
+	    const isDesktopFocused = im_v2_lib_desktop.DesktopManager.isChatWindow() && document.hasFocus();
+	    if (isDesktopFocused) {
+	      ui_notificationManager.Notifier.notifyViaBrowserProvider(notificationOptions);
+	    } else {
+	      ui_notificationManager.Notifier.notify(notificationOptions);
+	    }
 	  }
 	  showNotification(notification, user) {
 	    let title;
@@ -118,7 +139,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      title = main_core.Loc.getMessage('IM_LIB_NOTIFIER_NOTIFY_SYSTEM_TITLE');
 	    }
 	    const notificationOptions = babelHelpers.classPrivateFieldLooseBase(this, _prepareNotificationOptions)[_prepareNotificationOptions](title, notification, user);
-	    ui_notificationManager.Notifier.notify(notificationOptions);
+	    const isDesktopFocused = im_v2_lib_desktop.DesktopManager.isChatWindow() && document.hasFocus();
+	    if (isDesktopFocused) {
+	      ui_notificationManager.Notifier.notifyViaBrowserProvider(notificationOptions);
+	    } else {
+	      ui_notificationManager.Notifier.notify(notificationOptions);
+	    }
 	  }
 	}
 	function _prepareNotificationOptions2(title, notification, user) {
@@ -153,6 +179,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _isChatMessage)[_isChatMessage](id)) {
 	    const dialogId = babelHelpers.classPrivateFieldLooseBase(this, _extractDialogId)[_extractDialogId](id);
 	    im_public.Messenger.openChat(dialogId);
+	  } else if (babelHelpers.classPrivateFieldLooseBase(this, _isLinesMessage)[_isLinesMessage](id)) {
+	    const dialogId = babelHelpers.classPrivateFieldLooseBase(this, _extractDialogId)[_extractDialogId](id);
+	    im_public.Messenger.openLines(dialogId);
 	  } else if (babelHelpers.classPrivateFieldLooseBase(this, _isNotification)[_isNotification](id)) {
 	    im_public.Messenger.openNotifications();
 	  }
@@ -196,6 +225,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	function _isChatMessage2(id) {
 	  return id.startsWith(CHAT_MESSAGE_PREFIX);
 	}
+	function _isLinesMessage2(id) {
+	  return id.startsWith(LINES_MESSAGE_PREFIX);
+	}
 	function _isNotification2(id) {
 	  return id.startsWith(NOTIFICATION_PREFIX);
 	}
@@ -226,5 +258,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.NotifierManager = NotifierManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.UI.NotificationManager,BX.Vue3.Vuex,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Provider.Service));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.UI.NotificationManager,BX.Vue3.Vuex,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Provider.Service));
 //# sourceMappingURL=notifier.bundle.js.map

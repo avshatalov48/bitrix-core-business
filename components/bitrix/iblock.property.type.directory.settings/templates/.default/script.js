@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_alerts,main_core_events,main_core,main_popup,ui_vue3) {
 	'use strict';
@@ -183,9 +184,9 @@ this.BX = this.BX || {};
 	              var input = e.target;
 	              if (input) {
 	                input.value = BX.translit(input.value, {
-	                  'change_case': 'L',
-	                  'replace_space': '',
-	                  'delete_repeat_replace': true
+	                  change_case: 'L',
+	                  replace_space: '',
+	                  delete_repeat_replace: true
 	                });
 	              }
 	            },

@@ -53,35 +53,41 @@ abstract class Mailbox
 			return $this->dirsMd5WithCounter;
 		}
 
-		$foldersWithCounter = Mail\Internals\MailCounterTable::getList([
-			'runtime' => array(
-				new ORM\Fields\Relations\Reference(
-					'DIRECTORY',
-					'Bitrix\Mail\Internals\MailboxDirectoryTable',
-					[
-						'=this.ENTITY_ID' => 'ref.ID',
-					],
-					[
-						'join_type' => 'INNER',
-					]
-				),
-			),
+		$countersById = [];
+		$counterResult = Mail\Internals\MailCounterTable::getList([
 			'select' => [
+				'DIRECTORY_ID' => 'ENTITY_ID',
 				'UNSEEN' => 'VALUE',
-				'DIR_MD5' => 'DIRECTORY.DIR_MD5'
 			],
 			'filter' => [
-				'=DIRECTORY.MAILBOX_ID' => $mailboxId,
 				'=ENTITY_TYPE' => 'DIR',
 				'=MAILBOX_ID' => $mailboxId,
 			],
 		]);
+		while ($item = $counterResult->fetch()) {
+			$countersById[(int)$item['DIRECTORY_ID']] = (int)$item['UNSEEN'];
+		}
+
+		if (empty($countersById)) {
+			return [];
+		}
 
 		$directoriesWithCounter = [];
-
-		while ($folderTable = $foldersWithCounter->fetch())
-		{
-			$directoriesWithCounter[$folderTable['DIR_MD5']] = $folderTable;
+		$res = Mail\Internals\MailboxDirectoryTable::query()
+			->whereIn('ID', array_keys($countersById))
+			->setSelect([
+				'ID',
+				'DIR_MD5',
+			])
+			->where('MAILBOX_ID', $mailboxId)
+			->exec();
+		while ($item = $res->fetch()) {
+			$id = $item['ID'];
+			$dirMd5 = $item['DIR_MD5'];
+			$directoriesWithCounter[$dirMd5] = [
+				'UNSEEN' => $countersById[$id] ?? 0,
+				'DIR_MD5' => $dirMd5,
+			];
 		}
 
 		$this->dirsMd5WithCounter = $directoriesWithCounter;
@@ -353,15 +359,27 @@ abstract class Mailbox
 
 		$ids = Mail\Internals\MailEntityOptionsTable::getList(
 			[
+				'runtime' => array(
+					new Main\Entity\ReferenceField(
+						'MESSAGE_UID',
+						'Bitrix\Mail\MailMessageUidTable',
+						array(
+							'=this.ENTITY_ID' => 'ref.MESSAGE_ID',
+						),
+						array(
+							'join_type' => 'INNER',
+						)
+					),
+				),
 				'select' => ['ENTITY_ID'],
 				'filter' =>
-				[
-					'=MAILBOX_ID' => $mailboxId,
-					'=ENTITY_TYPE' => 'MESSAGE',
-					'=PROPERTY_NAME' => 'UNSYNC_BODY',
-					'=VALUE' => 'Y',
-					'<=DATE_INSERT' => $reSyncTime,
-				]
+					[
+						'=MAILBOX_ID' => $mailboxId,
+						'=ENTITY_TYPE' => 'MESSAGE',
+						'=PROPERTY_NAME' => 'UNSYNC_BODY',
+						'=VALUE' => 'Y',
+						'<=DATE_INSERT' => $reSyncTime,
+					]
 				,
 				'limit' => $count,
 			]
@@ -698,15 +716,18 @@ abstract class Mailbox
 			)
 		);
 
+		$sqlHelper = $connection->getSqlHelper();
+		$messageDeleteTable = $sqlHelper->quote(Mail\Internals\MessageDeleteQueueTable::getTableName());
+		$entityTable = $sqlHelper->quote($entity->getDbTableName());
 		do
 		{
-			$connection->query(sprintf(
-				'INSERT IGNORE INTO %s (ID, MAILBOX_ID, MESSAGE_ID)
-				(SELECT ID, MAILBOX_ID, MESSAGE_ID FROM %s WHERE %s ORDER BY ID LIMIT 1000)',
-				$connection->getSqlHelper()->quote(Mail\Internals\MessageDeleteQueueTable::getTableName()),
-				$connection->getSqlHelper()->quote($entity->getDbTableName()),
+			$selectFrom = sprintf(
+				'SELECT ID, MAILBOX_ID, MESSAGE_ID FROM %s WHERE %s ORDER BY ID LIMIT 1000',
+				$entityTable,
 				$where
-			));
+			);
+			$connection->query($sqlHelper
+				->getInsertIgnore($messageDeleteTable, ' (ID, MAILBOX_ID, MESSAGE_ID) ', "($selectFrom)"));
 
 			$connection->query(sprintf(
 				"UPDATE %s SET IS_OLD = 'Y', IS_SEEN = 'Y' WHERE %s ORDER BY ID LIMIT 1000",

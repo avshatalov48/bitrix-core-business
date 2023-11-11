@@ -9,22 +9,16 @@ class JsonRpcTransport
 	protected const VERSION = '2.0';
 	protected const METHOD_PUBLISH = 'publish';
 	protected const METHOD_GET_LAST_SEEN = 'getUsersLastSeen';
-	protected const HEADER_HOST_ID = 'X-HostId';
 
 	/**
 	 * @param \Bitrix\Pull\DTO\Message[] $messages
 	 * @param array $options
 	 * @return Main\Result
-	 * @throws Main\SystemException
 	 * @see DTO\Message
 	 */
 	public static function sendMessages(array $messages, array $options = []): Main\Result
 	{
 		$result = new Main\Result();
-		if(!Config::isJsonRpcUsed())
-		{
-			throw new Main\SystemException("Sending messages in json-rpc format is not supported by the queue server");
-		}
 
 		$batchList = static::createRequestBatches($messages);
 
@@ -42,11 +36,6 @@ class JsonRpcTransport
 
 	public static function getUsersLastSeen(array $userList, array $options = []): Main\Result
 	{
-		if(!Config::isJsonRpcUsed())
-		{
-			throw new Main\SystemException("Sending messages in json-rpc format is not supported by the queue server");
-		}
-
 		$rpcResult = static::executeMethod(
 			self::METHOD_GET_LAST_SEEN,
 			[
@@ -154,11 +143,11 @@ class JsonRpcTransport
 	{
 		$result = new Main\Result();
 		$httpClient = new Main\Web\HttpClient();
-		$httpClient->setHeader(self::HEADER_HOST_ID, (string)Config::getHostId());
 
 		$queueServerUrl = $options['serverUrl'] ?? Config::getJsonRpcUrl();
 		$signature = \CPullChannel::GetSignature($body);
-		$urlWithSignature = \CHTTP::urlAddParams($queueServerUrl, ["signature" => $signature]);
+		$hostId = (string)Config::getHostId();
+		$urlWithSignature = \CHTTP::urlAddParams($queueServerUrl, ["hostId" => $hostId, "signature" => $signature]);
 
 		$sendResult = $httpClient->query(Main\Web\HttpClient::HTTP_POST, $urlWithSignature, $body);
 		if (!$sendResult)

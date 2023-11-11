@@ -156,6 +156,7 @@ class CIMRestService extends IRestService
 				'imbot.update' => array(__CLASS__, 'botUpdate'),
 
 				'imbot.dialog.get' => array(__CLASS__, 'dialogGet'),
+				'imbot.dialog.vote' => array(__CLASS__, 'dialogVote'),
 
 				'imbot.chat.add' => array(__CLASS__, 'chatCreate'),
 				'imbot.chat.get' => array(__CLASS__, 'chatGet'),
@@ -5426,6 +5427,40 @@ class CIMRestService extends IRestService
 		}
 
 		\Bitrix\Im\Bot::startWriting(Array('BOT_ID' => $arParams['BOT_ID']), $arParams['DIALOG_ID']);
+
+		return true;
+	}
+
+	public static function dialogVote($arParams, $offset, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+
+		if (!isset($arParams['MESSAGE_ID']))
+		{
+			throw new Bitrix\Rest\RestException("Message ID can't be empty", "MESSAGE_ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!isset($arParams['DIALOG_ID']) || !\Bitrix\Im\Common::isDialogId($arParams['DIALOG_ID']))
+		{
+			throw new Bitrix\Rest\RestException("Dialog ID can't be empty", "DIALOG_ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!\Bitrix\Im\Dialog::hasAccess($arParams['DIALOG_ID']))
+		{
+			throw new Bitrix\Rest\RestException("You do not have access to the specified dialog", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+		}
+
+		if (!isset($arParams['RATING']))
+		{
+			$arParams['RATING'] = 'like';
+		}
+
+		$arParams['RATING'] = $arParams['RATING'] == 'dislike' ? 'dislike': 'like';
+
+		if (!\CIMMessenger::LinesSessionVote($arParams['DIALOG_ID'], $arParams['MESSAGE_ID'], $arParams['RATING']))
+		{
+			throw new Bitrix\Rest\RestException("Action completed without changes", "WITHOUT_CHANGES", CRestServer::STATUS_WRONG_REQUEST);
+		}
 
 		return true;
 	}

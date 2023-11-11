@@ -22,7 +22,7 @@
 	outline: 1px solid var(--im-sidebar-file-media-item__border-color_item-content);
 	outline-offset: -1px;
 	border-radius: 10px;
-	margin-top: -6px;
+	margin-top: -9px;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -76,7 +76,7 @@
 .bx-im-sidebar-file-media-detail-item__avatar-container {
 	border: 2px solid var(--im-sidebar-file-media-item__border-color_avatar-container);
 	border-radius: 50%;
-	margin-left: 2px;
+	margin-left: 4px;
 	z-index: 1;
 }
 

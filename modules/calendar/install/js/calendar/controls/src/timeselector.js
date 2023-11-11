@@ -1,5 +1,6 @@
 import {Util} from 'calendar.util';
-import {Type, Loc} from 'main.core';
+import {Type, Loc, Dom} from 'main.core';
+import { SelectInput } from 'calendar.controls';
 
 export class TimeSelector {
 	Z_INDEX = 4000;
@@ -19,7 +20,7 @@ export class TimeSelector {
 		}
 
 		this.onChangeCallback = Type.isFunction(params.onChangeCallback) ? params.onChangeCallback : null;
-		this.selectContol = new BX.Calendar.Controls.SelectInput({
+		this.selectContol = new SelectInput({
 			input: this.DOM.input,
 			zIndex: this.Z_INDEX,
 			values: this.valueList,
@@ -28,7 +29,9 @@ export class TimeSelector {
 				{
 					this.onChangeCallback(this.selectContol.getInputValue(), data.dataValue);
 				}
-			}
+			},
+			onPopupShowCallback: () => Dom.addClass(this.DOM.input.parentNode, 'active'),
+			onPopupCloseCallback: () => Dom.removeClass(this.DOM.input.parentNode, 'active'),
 		});
 	}
 

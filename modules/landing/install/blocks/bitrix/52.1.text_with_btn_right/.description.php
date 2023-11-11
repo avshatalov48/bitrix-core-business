@@ -32,7 +32,7 @@ return [
 			'type' => ['button'],
 		],
 		'.landing-block-node-button-container' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT-BTN'),
+			'name' => Loc::getMessage('LANDING_BLOCK_52_1_BTN_AREA'),
 			'type' => ['text-align', 'animation'],
 		],
 		'.landing-block-node-container' => [

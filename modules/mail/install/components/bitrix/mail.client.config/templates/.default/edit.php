@@ -179,7 +179,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 					<label class="mail-connect-form-label" for="mail-email-oauth-field"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_TITLE_OFFICE365') ?></label>
 					<div class="ui-ctl ui-ctl-after-icon ui-ctl-w100">
 						<div class="ui-ctl-after ui-ctl-icon-loader" id="oauth-wait-icon"></div>
-						<input type="text" class="mail-connect-form-input ui-ctl-element ui-ctl-textbox" id="mail-email-oauth-field" placeholder="info@example.com" name="fields[email]" value="<?=htmlspecialcharsbx($mailbox['EMAIL']) ?>">
+						<input type="text" disabled="disabled" class="mail-connect-form-input ui-ctl-element ui-ctl-textbox" id="mail-email-oauth-field" placeholder="info@example.com" name="fields[email]" value="<?=htmlspecialcharsbx($mailbox['EMAIL']) ?>">
 					</div>
 					<div class="mail-connect-form-error"></div>
 				</div>
@@ -196,7 +196,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 					<? if (empty($mailbox['EMAIL'])): ?>
 						<div class="mail-connect-form-item">
 							<label class="mail-connect-form-label" for="mail_connect_mb_email_field"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_MAILBOX_EMAIL') ?></label>
-							<input class="mail-connect-form-input" type="text" placeholder="info@example.com" 
+							<input class="mail-connect-form-input" type="text" placeholder="info@example.com"
 								name="fields[email]" id="mail_connect_mb_email_field">
 							<div class="mail-connect-form-error"></div>
 						</div>
@@ -331,6 +331,12 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 		</div>
 
 		<? if (!empty($arParams['IS_SMTP_AVAILABLE'])): ?>
+			<?php if (!empty($settings['oauth_smtp_enabled'])): ?>
+				<input type="hidden"
+					name="fields[user_principal_name]"
+					id="mail_user_principal_name"
+					value="<?=htmlspecialcharsbx($mailbox['__smtp']['login'] ?? '') ?>">
+			<?php else: ?>
 			<? $hasSmtpFields = empty($settings['smtp']['server']) || !$settings['smtp']['login'] || !$settings['smtp']['password'] || !empty($settings['oauth']); ?>
 			<div class="mail-connect-section-block">
 				<div class="mail-connect-title-block">
@@ -419,6 +425,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 					</div>
 				</div>
 			</div>
+			<?php endif ?>
 		<? endif ?>
 
 		<? if ($arParams['CRM_AVAILABLE']): ?>
@@ -780,6 +787,11 @@ $arJsParams = array(
 						{
 							emailOauthField.value = '';
 							BX.show(emailOauthBlock);
+							var emailField = form.elements['fields[email]'];
+							if (emailField)
+							{
+								emailField.removeAttribute('disabled');
+							}
 						}
 					}.bind(this)
 				);
@@ -850,6 +862,12 @@ $arJsParams = array(
 			if (emailField)
 			{
 				emailField.value = user.email;
+				emailField.removeAttribute('disabled');
+			}
+			var userPrincipalField = form.elements['fields[user_principal_name]'];
+			if (userPrincipalField)
+			{
+				userPrincipalField.value = user.userPrincipalName || '';
 			}
 
 			var nameField = BX('mail_connect_mb_name_field');

@@ -40,11 +40,13 @@ if (\Bitrix\Im\Settings::isBetaActivated())
 CModule::IncludeModule('voximplant');
 CModule::IncludeModule('disk');
 
-$arParams["DESKTOP"] = isset($arParams['DESKTOP']) && $arParams['DESKTOP'] == 'Y'? 'Y': 'N';
+$arParams['DESKTOP'] = isset($arParams['DESKTOP']) && $arParams['DESKTOP'] == 'Y'? 'Y': 'N';
 
 $arResult = Array();
 
 $isFullscreen = $arParams['FULLSCREEN'] ?? null;
+
+$arParams["INIT"] = 'Y';
 
 if ($arParams['CONTEXT'] == 'DESKTOP' || $arParams['DESKTOP'] == 'Y')
 {
@@ -89,6 +91,12 @@ else if ($arParams["CONTEXT"] == "LINES")
 	$arResult["CONTEXT"] = "LINES";
 	$arParams["DESIGN"] = "DESKTOP";
 }
+else if ($arParams["CONTEXT"] == "HISTORY-FULLSCREEN")
+{
+	$arResult["CONTEXT"] = "HISTORY-FULLSCREEN";
+	$arParams["DESIGN"] = "DESKTOP";
+	$arParams["INIT"] = 'N';
+}
 else
 {
 	$arResult["CONTEXT"] = "MESSENGER";
@@ -108,7 +116,7 @@ if (isset($arParams['DESIGN']))
 	$arResult["DESIGN"] = $arParams['DESIGN'];
 }
 
-$arParams["INIT"] = 'Y';
+
 $arParams["DESKTOP_LINK_OPEN"] = 'N';
 
 // Exchange
@@ -189,7 +197,7 @@ $arResult['TURN_SERVER_PASSWORD'] = COption::GetOptionString('im', 'turn_server_
 
 $initJs = 'im_web';
 $promoType = \Bitrix\Im\Promotion::DEVICE_TYPE_BROWSER;
-if ($arResult["CONTEXT"] == 'DESKTOP')
+if ($arResult["CONTEXT"] == 'DESKTOP' || $arParams['WITH_DESKTOP'])
 {
 	$initJs = 'im_desktop';
 	$promoType = \Bitrix\Im\Promotion::DEVICE_TYPE_DESKTOP;

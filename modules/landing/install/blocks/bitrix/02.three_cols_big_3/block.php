@@ -1,4 +1,4 @@
-<section class="landing-block landing-semantic-background-color container-fluid px-0 g-theme-business-bg-blue-dark-v2">
+<section class="landing-block container-fluid px-0 g-theme-business-bg-blue-dark-v2">
 	<div class="row no-gutters">
 
 		<div class="landing-block-node-left col-md-6 col-lg-4 order-2 order-md-1" data-slider-autoplay="1" data-slider-animation="1">
@@ -12,9 +12,9 @@
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img1.jpg" alt="">
 
 					<div class="g-pa-30">
-						<h3 class="landing-block-node-left-title landing-semantic-subtitle-medium js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">
+						<h3 class="landing-block-node-left-title js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">
 							Since 2008</h3>
-						<div class="landing-block-node-left-text landing-semantic-text-medium js-animation fadeIn g-color-gray-light-v2">
+						<div class="landing-block-node-left-text js-animation fadeIn g-color-gray-light-v2">
 							<p>Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque
 								pulvinar at.</p>
 							<p>Aenean odio ante, varius vel tempor sed Ut condimentum ex ac enim ullamcorper volutpat.
@@ -28,9 +28,9 @@
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img2.jpg" alt="">
 
 					<div class="g-pa-30">
-						<h3 class="landing-block-node-left-title landing-semantic-subtitle-medium js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">
+						<h3 class="landing-block-node-left-title js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">
 							Past 2012</h3>
-						<div class="landing-block-node-left-text landing-semantic-text-medium js-animation fadeIn g-color-gray-light-v2">
+						<div class="landing-block-node-left-text js-animation fadeIn g-color-gray-light-v2">
 							<p>Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque
 								pulvinar at.</p>
 							<p>Aenean odio ante, varius vel tempor sed Ut condimentum ex ac enim ullamcorper volutpat.
@@ -44,9 +44,9 @@
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img3.jpg" alt="">
 
 					<div class="g-pa-30">
-						<h3 class="landing-block-node-left-title landing-semantic-subtitle-medium js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">
+						<h3 class="landing-block-node-left-title js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">
 							Present 2023</h3>
-						<div class="landing-block-node-left-text landing-semantic-text-medium js-animation fadeIn g-color-gray-light-v2">
+						<div class="landing-block-node-left-text js-animation fadeIn g-color-gray-light-v2">
 							<p>Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque
 								pulvinar at.</p>
 							<p>Aenean odio ante, varius vel tempor sed Ut condimentum ex ac enim ullamcorper volutpat.
@@ -57,16 +57,16 @@
 			</div>
 		</div>
 
-		<div class="landing-block-node-center landing-semantic-background-color col-md-6 col-lg-4 order-1 order-md-2 d-flex justify-content-center flex-column g-theme-business-bg-blue-dark-v1 g-pa-30">
+		<div class="landing-block-node-center col-md-6 col-lg-4 order-1 order-md-2 d-flex justify-content-center flex-column g-theme-business-bg-blue-dark-v1 g-pa-30">
 			<div class="landing-block-node-header text-center text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-20">
-				<h6 class="landing-block-node-center-subtitle landing-semantic-subtitle-small-primary js-animation fadeIn g-font-weight-700 g-letter-spacing-1 g-color-primary g-mb-20">
+				<h6 class="landing-block-node-center-subtitle js-animation fadeIn g-font-weight-700 g-letter-spacing-1 g-color-primary g-mb-20">
 					About us</h6>
-				<h2 class="landing-block-node-center-title landing-semantic-title-medium js-animation fadeIn h1 u-heading-v2__title g-line-height-1_3 g-font-weight-700 g-color-white g-mb-minus-10">
+				<h2 class="landing-block-node-center-title js-animation fadeIn h1 u-heading-v2__title g-line-height-1_3 g-font-weight-700 g-color-white g-mb-minus-10">
 					Help make
 					<br> money</h2>
 			</div>
 
-			<div class="landing-block-node-center-text landing-semantic-text-medium js-animation fadeIn g-color-gray-light-v2">
+			<div class="landing-block-node-center-text js-animation fadeIn g-color-gray-light-v2">
 				<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla
 					lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci
 					viverra eros, fringilla porttitor lorem eros vel odio. Praesent egestas ac arcu ac convallis. Donec ut

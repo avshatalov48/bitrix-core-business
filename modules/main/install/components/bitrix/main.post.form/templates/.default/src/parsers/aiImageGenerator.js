@@ -17,7 +17,7 @@ export default class AIImageGenerator extends Default
 		Runtime.loadExtension('ai.picker').then(() => {
 			const aiImagePicker = new BX.AI.Picker({
 				moduleId: 'main',
-				contextId: Loc.getMessage('USER_ID'),
+				contextId: 'image_' + Loc.getMessage('USER_ID'),
 				analyticLabel: 'main_post_form_comments_ai_image',
 				saveImages: false,
 				history: true,

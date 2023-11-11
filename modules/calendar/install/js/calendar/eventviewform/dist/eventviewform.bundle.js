@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,calendar_controls,calendar_planner,intranet_controlButton,ui_vue3,calendar_util,calendar_entry,main_core,main_core_events,calendar_sectionmanager) {
+(function (exports,calendar_controls,calendar_planner,ui_vue3,calendar_util,calendar_entry,main_core,main_core_events,calendar_sectionmanager) {
 	'use strict';
 
 	const UserAvatar = {
@@ -555,6 +555,7 @@ this.BX = this.BX || {};
 	    this.LOAD_DELAY = 500;
 	    this.app = null;
 	    this.type = options.type || 'user';
+	    this.attendees = [];
 	    this.ownerId = options.ownerId || 0;
 	    this.userId = options.userId || 0;
 	    this.zIndex = 3100;
@@ -650,6 +651,10 @@ this.BX = this.BX || {};
 	        if (main_core.Type.isFunction(slider.isOpen) && slider.isOpen() || slider.isOpen === true) {
 	          let params = response.data;
 	          params.eventExists = !!params.entry.ID;
+	          this.attendees = [];
+	          for (const status in params.attendees) {
+	            this.attendees.push(...params.attendees[status]);
+	          }
 
 	          //load components' css and js
 	          if (params.filesView) {
@@ -805,16 +810,25 @@ this.BX = this.BX || {};
 	      main_core.Dom.append(this.conferenceButton, this.DOM.videoCall);
 	    } else if ((_BX = BX) != null && (_BX$Intranet = _BX.Intranet) != null && _BX$Intranet.ControlButton && main_core.Type.isElementNode(this.DOM.videoCall) && this.entry.getCurrentStatus() !== false) {
 	      this.DOM.videoCall.style.display = '';
-	      this.intranetControllButton = new intranet_controlButton.ControlButton({
-	        container: this.DOM.videoCall,
-	        entityType: 'calendar_event',
-	        entityId: this.entry.parentId,
-	        entityData: {
-	          dateFrom: calendar_util.Util.formatDate(this.entry.from),
-	          parentId: this.entry.parentId
+	      this.intranetControllButton = new calendar_controls.IntranetButton({
+	        intranetControlButtonParams: {
+	          container: this.DOM.videoCall,
+	          entityType: 'calendar_event',
+	          entityId: this.entry.parentId,
+	          entityData: {
+	            dateFrom: calendar_util.Util.formatDate(this.entry.from),
+	            parentId: this.entry.parentId
+	          },
+	          analyticsLabel: {
+	            formType: 'full'
+	          }
 	        },
-	        analyticsLabel: {
-	          formType: 'full'
+	        callbacks: {
+	          getUsersCount: () => this.attendees.length,
+	          hasChat: () => {
+	            var _this$entry$data, _this$entry$data$MEET;
+	            return ((_this$entry$data = this.entry.data) == null ? void 0 : (_this$entry$data$MEET = _this$entry$data.MEETING) == null ? void 0 : _this$entry$data$MEET.CHAT_ID) > 0;
+	          }
 	        }
 	      });
 	    } else {
@@ -1066,5 +1080,5 @@ this.BX = this.BX || {};
 
 	exports.EventViewForm = EventViewForm;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar.Controls,BX.Calendar,BX.Intranet,BX.Vue3,BX.Calendar,BX.Calendar,BX,BX.Event,BX.Calendar));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar.Controls,BX.Calendar,BX.Vue3,BX.Calendar,BX.Calendar,BX,BX.Event,BX.Calendar));
 //# sourceMappingURL=eventviewform.bundle.js.map

@@ -1,4 +1,5 @@
-const SEND_MESSAGE_COMBINATION = 'Enter';
+import { Settings } from 'im.v2.const';
+import { Utils } from 'im.v2.lib.utils';
 
 // @vue/component
 export const SendButton = {
@@ -21,8 +22,12 @@ export const SendButton = {
 	{
 		buttonHint(): string
 		{
+			const sendByEnter = this.$store.getters['application/settings/get'](Settings.hotkey.sendByEnter);
+			const ctrlKey = Utils.platform.isMac() ? 'Cmd' : 'Ctrl';
+			const sendCombination = sendByEnter ? 'Enter' : `${ctrlKey} + Enter`;
+
 			return this.loc('IM_TEXTAREA_ICON_SEND_TEXT', {
-				'#SEND_MESSAGE_COMBINATION#': SEND_MESSAGE_COMBINATION,
+				'#SEND_MESSAGE_COMBINATION#': sendCombination,
 			});
 		},
 	},

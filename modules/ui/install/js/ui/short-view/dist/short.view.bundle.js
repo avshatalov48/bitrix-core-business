@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core,main_core_events) {
@@ -6,28 +7,21 @@ this.BX.UI = this.BX.UI || {};
 	var _templateObject;
 	var ShortView = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ShortView, _EventEmitter);
-
 	  function ShortView(params) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, ShortView);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ShortView).call(this, params));
-
 	    _this.setEventNamespace('BX.UI.ShortView');
-
 	    _this.setShortView(params.isShortView);
-
 	    _this.node = null;
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(ShortView, [{
 	    key: "renderTo",
 	    value: function renderTo(container) {
 	      if (!main_core.Type.isDomNode(container)) {
 	        throw new Error('UI ShortView: HTMLElement not found');
 	      }
-
 	      main_core.Dom.append(this.render(), container);
 	    }
 	  }, {

@@ -405,7 +405,7 @@ class CalendarFilter
 			$filter['CREATED_BY'] = $userId;
 		}
 
-		if (isset($fields['fields']['SECTION_ID']) && !empty($fields['fields']['SECTION_ID']))
+		if (!empty($fields['fields']['SECTION_ID']))
 		{
 			$filter['SECTION'] = $fields['fields']['SECTION_ID'];
 		}

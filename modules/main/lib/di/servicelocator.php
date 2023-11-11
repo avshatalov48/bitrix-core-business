@@ -5,15 +5,15 @@ namespace Bitrix\Main\DI;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\SystemException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 final class ServiceLocator implements \Psr\Container\ContainerInterface
 {
 	/** @var string[][] */
-	private $services = [];
-	/** @var mixed[] */
-	private $instantiated = [];
-	/** @var self */
-	private static $instance;
+	private array $services = [];
+	private array $instantiated = [];
+	private static ServiceLocator $instance;
 
 	private function __construct()
 	{}
@@ -36,28 +36,28 @@ final class ServiceLocator implements \Psr\Container\ContainerInterface
 	 * @param string $code
 	 * @param mixed $service
 	 */
-	public function addInstance(string $code, $service): void
+	public function addInstance(string $code, mixed $service): void
 	{
 		$this->instantiated[$code] = $service;
 	}
 
 	/**
 	 * Adds service with lazy initialization.
-	 * @param string $code
+	 * @param string $id
 	 * @param array $configuration
-	 * @throws SystemException
 	 * @return void
+	 * @throws SystemException
 	 */
-	public function addInstanceLazy(string $code, $configuration): void
+	public function addInstanceLazy(string $id, $configuration): void
 	{
 		if (!isset($configuration['className']) && !isset($configuration['constructor']))
 		{
-			throw $this->buildBadRegistrationExceptions($code);
+			throw $this->buildBadRegistrationExceptions($id);
 		}
 
 		$furtherClassMetadata = $configuration['className'] ?? $configuration['constructor'];
 
-		$this->services[$code] = [$furtherClassMetadata, $configuration['constructorParams'] ?? []];
+		$this->services[$id] = [$furtherClassMetadata, $configuration['constructorParams'] ?? []];
 	}
 
 	/**
@@ -98,33 +98,34 @@ final class ServiceLocator implements \Psr\Container\ContainerInterface
 
 	/**
 	 * Checks whether the service with code exists.
-	 * @param string $code
+	 * @param string $id
 	 * @return bool
 	 */
-	public function has($code): bool
+	public function has(string $id): bool
 	{
-		return isset($this->services[$code]) || isset($this->instantiated[$code]);
+		return isset($this->services[$id]) || isset($this->instantiated[$id]);
 	}
 
 	/**
 	 * Returns services by code.
-	 * @param string $code
+	 *
+	 * @param string $id
 	 * @return mixed
-	 * @throws ObjectNotFoundException|\Psr\Container\NotFoundExceptionInterface
+	 * @throws ObjectNotFoundException|NotFoundExceptionInterface
 	 */
-	public function get($code)
+	public function get(string $id)
 	{
-		if (isset($this->instantiated[$code]))
+		if (isset($this->instantiated[$id]))
 		{
-			return $this->instantiated[$code];
+			return $this->instantiated[$id];
 		}
 
-		if (!isset($this->services[$code]))
+		if (!isset($this->services[$id]))
 		{
-			throw $this->buildNotFoundException($code);
+			throw $this->buildNotFoundException($id);
 		}
 
-		[$class, $args] = $this->services[$code];
+		[$class, $args] = $this->services[$id];
 
 		if ($class instanceof \Closure)
 		{
@@ -139,25 +140,25 @@ final class ServiceLocator implements \Psr\Container\ContainerInterface
 			$object = new $class(...array_values($args));
 		}
 
-		$this->instantiated[$code] = $object;
+		$this->instantiated[$id] = $object;
 
 		return $object;
 	}
 
-	private function buildNotFoundException(string $code)
+	private function buildNotFoundException(string $id): ObjectNotFoundException|NotFoundExceptionInterface
 	{
-		return new class("Could not find service by code {$code}.") extends ObjectNotFoundException
-			implements \Psr\Container\NotFoundExceptionInterface {}
+		return new class("Could not find service by code {$id}.") extends ObjectNotFoundException
+			implements NotFoundExceptionInterface {}
 		;
 	}
 
-	private function buildBadRegistrationExceptions(string $code)
+	private function buildBadRegistrationExceptions(string $id): SystemException|ContainerExceptionInterface
 	{
 		$message =
-			"Could not register service {{$code}}." .
+			"Could not register service {{$id}}." .
 			"There is no {className} to find class or {constructor} to build instance."
 		;
 
-		return new class($message) extends SystemException implements \Psr\Container\ContainerExceptionInterface {};
+		return new class($message) extends SystemException implements ContainerExceptionInterface {};
 	}
 }

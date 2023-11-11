@@ -33,16 +33,9 @@ class UrlPreviewUserType
 	 */
 	public static function getDBColumnType($userField)
 	{
-		global $DB;
-		switch($DB->type)
-		{
-			case "MYSQL":
-				return "int(11)";
-			case "ORACLE":
-				return "number(18)";
-			case "MSSQL":
-				return "int";
-		}
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\IntegerField('x'));
 	}
 
 	/**

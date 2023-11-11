@@ -142,7 +142,7 @@ abstract class Base
 		return $result;
 	}
 
-	protected function getBundleFiles(): array {
+	public function getBundleFiles(): array {
 		$config = $this->getConfig();
 		$list = [];
 		if (isset($config["bundle"])) {

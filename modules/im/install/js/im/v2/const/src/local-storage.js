@@ -4,4 +4,5 @@ export const LocalStorageKey = Object.freeze({
 	sidebarOpened: 'sidebarOpened',
 	textareaMarketOpened: 'textareaMarketOpened',
 	textareaHeight: 'textareaHeight',
+	lastCallType: 'lastCallType',
 });

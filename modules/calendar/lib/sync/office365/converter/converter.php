@@ -41,9 +41,12 @@ class Converter
 	/**
 	 * @param EventDto $eventData
 	 * @param Section $section
-	 * @return Event
 	 *
+	 * @return Event
 	 * @throws ObjectException
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function convertEvent(EventDto $eventData, Section $section): Event
 	{
@@ -55,7 +58,6 @@ class Converter
 		);
 
 		$event = (new Event())
-//			->setId($this->getId())
 			->setName($this->prepareName($eventData->subject))
 			->setOwner($section->getOwner())
 			->setCreator($section->getOwner())
@@ -71,24 +73,14 @@ class Converter
 			->setSection($section)
 			->setDescription($this->prepareBody($eventData->body, $section->getOwner()->getId()))
 			->setMeetingDescription($this->prepareDefaultMeeting($section->getOwner()->getId()))
-//			->setTransparent($this->getTransparency())
 			->setAccessibility(EventConverter::ACCESSIBILITY_IMPORT_MAP[$eventData->showAs] ?? null)
-			->setDateModified($this->makeDateFromString($eventData->lastModifiedDateTime))
-			->setDateCreate($this->makeDateFromString($eventData->createdDateTime))
 			->setImportance($eventData->importance)
-//			->setIsPrivate($eventData->sensitivity ) // TODO: need converter
-//			->setVersion($this->getVersion())
 			->setCalendarType(self::CALENDAR_TYPE)
-//			->setUid($this->getUid())
 			->setIsActive(!$eventData->isCancelled && !$eventData->isDraft)
 			->setIsDeleted($eventData->isCancelled)
-//			->setRecurrenceId($this->getRecurrenceId())
-//			->setDateCreate($this->getDateCreate())
-//			->setDateModified($this->getDateModified())
-// 			->setOriginalDateFrom()
-//			->setExcludedDateCollection()
 			->setRecurringRule($this->makeRecurringRule($eventData->recurrence))
 		;
+
 		if (!empty($eventData->originalStart))
 		{
 			$originalDto = new Office365\Dto\DateTimeDto([
@@ -123,6 +115,9 @@ class Converter
 	 * @param Office365\Dto\LocationDto $location
 	 *
 	 * @return Location|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function prepareLocation(Office365\Dto\LocationDto $location): ?Location
 	{
@@ -171,6 +166,7 @@ class Converter
 	 * @param string|null $originalTZ
 	 *
 	 * @return \Bitrix\Calendar\Core\Base\DateTimeZone
+	 * @throws Exception
 	 */
 	private function prepareDateTimezone(Office365\Dto\DateTimeDto $dateDto, string $originalTZ = null): \Bitrix\Calendar\Core\Base\DateTimeZone
 	{
@@ -250,10 +246,11 @@ class Converter
 				);
 				if ($recurrenceDto->pattern->daysOfWeek)
 				{
-					$byDay = array_map(function ($value)
+					$byDay = array_map(static function ($value)
 					{
 						return strtoupper(substr($value, 0, 2));
 					}, $recurrenceDto->pattern->daysOfWeek);
+
 					$result->setByDay($byDay);
 				}
 
@@ -301,19 +298,6 @@ class Converter
 	private function getFarFarAwayDate(): Date
 	{
 		return new Date(Util::getDateObject('01.01.2038'));
-	}
-
-	/**
-	 * @param string $time
-	 *
-	 * @return Date
-	 *
-	 * @throws ObjectException
-	 * @throws Exception
-	 */
-	private function makeDateFromString(string $time): Date
-	{
-		return new Date(DateTime::createFromPhp(new \DateTime($time)));
 	}
 
 	/**

@@ -19,9 +19,9 @@ abstract class Manager extends ServiceBase
 	 */
 	protected HttpQuery $httpClient;
 	protected int $userId;
-	
+
 	private static array $httpClients = [];
-	
+
 	/**
 	 * @param Connection $connection
 	 * @param int $userId
@@ -38,7 +38,7 @@ abstract class Manager extends ServiceBase
 			$this->deactivateConnection();
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param bool $force
@@ -57,10 +57,10 @@ abstract class Manager extends ServiceBase
 			{
 				throw new SystemException('Module Socialservices not found');
 			}
-			
+
 			$httpClient = new HttpClient();
 			$oAuthEntity = $this->prepareAuthEntity($userId);
-			
+
 			if ($oAuthEntity->getToken())
 			{
 				$httpClient->setHeader('Authorization', 'Bearer ' . $oAuthEntity->getToken());
@@ -72,12 +72,12 @@ abstract class Manager extends ServiceBase
 			{
 				$success = false;
 			}
-			
+
 			self::$httpClients[$userId] = new HttpQuery($httpClient, $userId);
 		}
-		
+
 		$this->httpClient = self::$httpClients[$userId];
-		
+
 		return $success;
 	}
 	
@@ -120,7 +120,7 @@ abstract class Manager extends ServiceBase
 		
 		return $oAuthEntity;
 	}
-	
+
 	private function deactivateConnection()
 	{
 		if ($this->connection->getId())
@@ -156,9 +156,9 @@ abstract class Manager extends ServiceBase
 			->where('USER_ID', $userId)
 			->where('EXTERNAL_AUTH_ID', 'GoogleOAuth')
 			->exec()->fetch()
-			;
+		;
 	}
-	
+
 	/**
 	 * @return bool
 	 */
@@ -166,11 +166,11 @@ abstract class Manager extends ServiceBase
 	{
 		return $this->httpClient->getStatus() === 200;
 	}
-	
+
 	protected function isRequestDeleteSuccess(): bool
 	{
 		$acceptedCodes = [200, 201, 204, 404];
-		
+
 		return in_array($this->httpClient->getStatus(), $acceptedCodes);
 	}
 	
@@ -196,7 +196,7 @@ abstract class Manager extends ServiceBase
 			$this->deactivateConnection();
 		}
 	}
-	
+
 	/**
 	 * Request to Google API and handle errors
 	 * @param $params

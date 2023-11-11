@@ -2322,7 +2322,6 @@ abstract class CAllMain
 		global $DB, $USER;
 		static $MODULE_ROLES = array();
 
-		$err_mess = (CAllMain::err_mess())."<br>Function: GetUserRoles<br>Line: ";
 		$arRoles = array();
 		$min_role = "D";
 		$max_role = "W";
@@ -2362,7 +2361,7 @@ abstract class CAllMain
 					"		AND MG.SITE_ID ".($site_id ? "= '".$DB->ForSql($site_id)."'" : "IS NULL")." ".
 					"WHERE G.ID in (".$groups.") AND G.ACTIVE = 'Y'";
 
-				$t = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$t = $DB->Query($strSql);
 
 				$default_role = $min_role;
 				if($use_default_role=="Y")
@@ -2536,7 +2535,7 @@ abstract class CAllMain
 	public static function SetGroupRight($module_id, $group_id, $right, $site_id=false)
 	{
 		global $DB;
-		$err_mess = (CAllMain::err_mess())."<br>Function: SetGroupRight<br>Line: ";
+
 		$group_id = intval($group_id);
 
 		if(COption::GetOptionString("main", "event_log_module_access", "N") === "Y")
@@ -2562,7 +2561,7 @@ abstract class CAllMain
 			if ($site_id)
 				$arFields["SITE_ID"] = "'".$DB->ForSql($site_id,2)."'";
 
-			$DB->Insert("b_module_group",$arFields, $err_mess.__LINE__);
+			$DB->Insert("b_module_group", $arFields);
 		}
 
 		ModuleGroupTable::cleanCache();
@@ -2576,7 +2575,7 @@ abstract class CAllMain
 	public static function DelGroupRight($module_id='', $arGroups=array(), $site_id=false)
 	{
 		global $DB;
-		$err_mess = (CAllMain::err_mess())."<br>Function:  DelGroupRight<br>Line: ";
+
 		$strSql = '';
 
 		$sGroups = '';
@@ -2611,7 +2610,7 @@ abstract class CAllMain
 
 		if($strSql <> '')
 		{
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 
 			ModuleGroupTable::cleanCache();
 
@@ -2653,11 +2652,6 @@ abstract class CAllMain
 				"[W] ".GetMessage("OPTION_WRITE"))
 		);
 		return $arr;
-	}
-
-	public static function err_mess()
-	{
-		return "<br>Class: CAllMain<br>File: ".__FILE__;
 	}
 
 	/*
@@ -2995,15 +2989,17 @@ abstract class CAllMain
 		{
 			$this->showPanelWasInvoked = true;
 
-			class_exists('CTopPanel'); //http://bugs.php.net/bug.php?id=47948
 			AddEventHandler('main', 'OnBeforeEndBufferContent', array('CTopPanel', 'InitPanel'));
 			$this->AddBufferContent(array('CTopPanel', 'GetPanelHtml'));
 
 			//Prints global url classes and  variables for HotKeys
-			$this->AddBufferContent(array('CAllMain',"PrintHKGlobalUrlVar"));
+			$this->AddBufferContent(array('CMain',"PrintHKGlobalUrlVar"));
 
-			//Prints global url classes and  variables for Stickers
-			$this->AddBufferContent(array('CSticker',"InitJsAfter"));
+			if (Main\Loader::includeModule('fileman'))
+			{
+				//Prints global url classes and  variables for Stickers
+				$this->AddBufferContent(array('CSticker',"InitJsAfter"));
+			}
 
 			$this->AddBufferContent(array('CAdminInformer',"PrintHtmlPublic"));
 		}
@@ -3549,7 +3545,9 @@ abstract class CAllMain
 	/** @deprecated */
 	public static function __GetConditionFName()
 	{
-		return "`CONDITION`";
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->quote('CONDITION');
 	}
 }
 

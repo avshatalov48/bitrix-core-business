@@ -8,6 +8,7 @@ export const SidebarBlock = Object.freeze({
 	sign: 'sign',
 	meeting: 'meeting',
 	market: 'market',
+	messageSearch: 'messageSearch',
 });
 
 export const SidebarDetailBlock = Object.freeze({
@@ -24,6 +25,7 @@ export const SidebarDetailBlock = Object.freeze({
 	sign: 'sign',
 	meeting: 'meeting',
 	market: 'market',
+	messageSearch: 'messageSearch',
 });
 
 export const SidebarFileTypes = Object.freeze({
@@ -39,5 +41,6 @@ export const SidebarFileTabTypes = Object.freeze({
 	[SidebarFileTypes.media]: SidebarFileTypes.media,
 	[SidebarFileTypes.audio]: SidebarFileTypes.audio,
 	[SidebarFileTypes.document]: SidebarFileTypes.document,
+	[SidebarFileTypes.brief]: SidebarFileTypes.brief,
 	[SidebarFileTypes.other]: SidebarFileTypes.other,
 });

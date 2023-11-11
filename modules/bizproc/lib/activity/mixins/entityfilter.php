@@ -6,6 +6,7 @@ use Bitrix\Bizproc\Automation\Engine\ConditionGroup;
 use Bitrix\Bizproc\Automation\Engine\Condition;
 use Bitrix\Bizproc\Activity\PropertiesDialog;
 use Bitrix\Bizproc\Error;
+use Bitrix\Bizproc\FieldType;
 use Bitrix\Bizproc\Result;
 
 trait EntityFilter
@@ -35,7 +36,18 @@ trait EntityFilter
 				continue;
 			}
 
-			if ($conditionGroup->isInternalized())
+			if ($condition->getOperator() === \Bitrix\Bizproc\Activity\Operator\BetweenOperator::getCode())
+			{
+				$betweenFilterResult = $this->getBetweenFilter($fieldsMap[$fieldId] ?? [], $condition);
+				if (!$betweenFilterResult->isSuccess())
+				{
+					continue;
+				}
+
+				$filter[$i][] = $betweenFilterResult->getData()['filter1'];
+				$filter[$i][] = $betweenFilterResult->getData()['filter2'];
+			}
+			elseif ($conditionGroup->isInternalized())
 			{
 				$value = $condition->getValue();
 			}
@@ -52,9 +64,13 @@ trait EntityFilter
 				}
 			}
 
-			if ($fieldsMap[$fieldId]['Type'] === 'user' && $value)
+			if ($fieldsMap[$fieldId]['Type'] === FieldType::USER && $value)
 			{
 				$value = \CBPHelper::extractUsers($value, $targetDocumentType);
+			}
+			elseif ($fieldsMap[$fieldId]['Type'] === FieldType::BOOL && isset($value))
+			{
+				$value = \CBPHelper::getBool($value);
 			}
 
 			switch ($condition->getOperator())
@@ -104,15 +120,44 @@ trait EntityFilter
 				continue;
 			}
 
+			$filter[$i][] = $this->createRowFilter($operator, $condition->getField(), $value);
+
 			if ($joiner === ConditionGroup::JOINER_OR)
 			{
 				$filter[++$i] = [];
 			}
-
-			$filter[$i][] = [$operator . $condition->getField() => $value];
 		}
 
 		return $filter;
+	}
+
+	private function getBetweenFilter(array $property, Condition $condition): Result
+	{
+		$value = $condition->getValue();
+		$value_greater_then = (is_array($value) && isset($value[0]) ? $value[0] : $value);
+		$value_less_then = (is_array($value) && isset($value[1]) ? $value[1] : '');
+
+		$extractionResult1 = $this->extractValue($property, (string)$value_greater_then);
+		if (!$extractionResult1->isSuccess())
+		{
+			return Result::createOk()->addErrors($extractionResult1->getErrors());
+		}
+
+		$extractionResult2 = $this->extractValue($property, (string)$value_less_then);
+		if (!$extractionResult2->isSuccess())
+		{
+			return Result::createOk()->addErrors($extractionResult2->getErrors());
+		}
+
+		$filter1 = $this->createRowFilter('>=', $condition->getField(), $extractionResult1->getData()['extractedValue']);
+		$filter2 = $this->createRowFilter('<=', $condition->getField(), $extractionResult2->getData()['extractedValue']);
+
+		return Result::createOk(['filter1' => $filter1, 'filter2' => $filter2]);
+	}
+
+	private function createRowFilter(string $operator, string $field, $value): array
+	{
+		return [$operator . $field => $value];
 	}
 
 	protected function extractValue(array $fieldProperties, $value): Result
@@ -165,12 +210,26 @@ trait EntityFilter
 
 		foreach ($currentValues[$prefix . 'field'] ?? [] as $index => $fieldName)
 		{
+			$operator = $currentValues[$prefix . 'operator'][$index];
+			if (
+				$operator === \Bitrix\Bizproc\Activity\Operator\BetweenOperator::getCode()
+				&& isset($currentValues[$prefix . 'value'][$index], $currentValues[$prefix . 'value'][$index + 1])
+			)
+			{
+				$currentValues[$prefix . 'value'][$index] = [
+					$currentValues[$prefix . 'value'][$index],
+					$currentValues[$prefix . 'value'][$index + 1],
+				];
+
+				array_splice($currentValues[$prefix . 'value'], $index + 1, 1);
+			}
+
 			$conditionGroup['items'][] = [
 				// condition
 				[
 					'object' => $currentValues[$prefix . 'object'][$index],
 					'field' => $currentValues[$prefix . 'field'][$index],
-					'operator' => $currentValues[$prefix . 'operator'][$index],
+					'operator' => $operator,
 					'value' => $currentValues[$prefix . 'value'][$index],
 				],
 				// joiner

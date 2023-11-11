@@ -71,7 +71,7 @@ class FileItem implements RestEntity, PopupDataAggregatable
 		return $this;
 	}
 
-	public function getDiskFile(): File
+	public function getDiskFile(): ?File
 	{
 		if (!$this->diskFile instanceof File)
 		{
@@ -119,7 +119,21 @@ class FileItem implements RestEntity, PopupDataAggregatable
 			return null;
 		}
 
-		return new static($this->getDiskFile()->copyTo($folder, $userId, true), $this->getChatId());
+		$diskFile = $this->getDiskFile();
+
+		if ($diskFile === null)
+		{
+			return null;
+		}
+
+		$copy = $diskFile->copyTo($folder, $userId, true);
+
+		if (!$copy instanceof File)
+		{
+			return null;
+		}
+
+		return new static($copy, $this->getChatId());
 	}
 
 	public function getSymLink(): ?self
@@ -220,7 +234,7 @@ class FileItem implements RestEntity, PopupDataAggregatable
 		$previewParameters = [];
 		$diskFile = $this->getDiskFile();
 
-		if (TypeFile::isImage($diskFile->getName()))
+		if (TypeFile::isImage($diskFile))
 		{
 			$previewParameters = $diskFile->getFile();
 		}
@@ -250,7 +264,7 @@ class FileItem implements RestEntity, PopupDataAggregatable
 			$linkType = 'disk.api.file.showPreview';
 			$fileName = 'preview.jpg';
 		}
-		elseif (TypeFile::isImage($diskFile->getName()))
+		elseif (TypeFile::isImage($diskFile))
 		{
 			$linkType = 'disk.api.file.showImage';
 			$fileName = $diskFile->getName();
@@ -275,7 +289,7 @@ class FileItem implements RestEntity, PopupDataAggregatable
 		$urlManager = UrlManager::getInstance();
 		$diskFile = $this->getDiskFile();
 
-		if (TypeFile::isImage($diskFile->getName()))
+		if (TypeFile::isImage($diskFile))
 		{
 			$linkType = 'disk.api.file.showImage';
 		}

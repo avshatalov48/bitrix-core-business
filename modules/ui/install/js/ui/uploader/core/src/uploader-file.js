@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import { Type } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 
@@ -86,7 +87,10 @@ export default class UploaderFile extends EventEmitter
 			this.#serverFileId = source;
 			this.update(options);
 		}
-		else if (Type.isPlainObject(source) && (Type.isNumber(source.serverFileId) || Type.isStringFilled(source.serverFileId)))
+		else if (
+			Type.isPlainObject(source)
+			&& (Type.isNumber(source.serverFileId) || Type.isStringFilled(source.serverFileId))
+		)
 		{
 			this.#origin = FileOrigin.SERVER;
 			this.update(source);
@@ -121,15 +125,23 @@ export default class UploaderFile extends EventEmitter
 		this.#uploadCallbacks.subscribe(callbacks);
 		if (this.isComplete() && this.isUploadable())
 		{
-			return this.#uploadCallbacks.emit('onComplete');
+			this.#uploadCallbacks.emit('onComplete');
+
+			return;
 		}
-		else if (this.isUploadFailed())
+
+		if (this.isUploadFailed())
 		{
-			return this.#uploadCallbacks.emit('onError', { error: this.getError() });
+			this.#uploadCallbacks.emit('onError', { error: this.getError() });
+
+			return;
 		}
-		else if (!this.canUpload())
+
+		if (!this.canUpload())
 		{
-			return this.#uploadCallbacks.emit('onError', { error: new UploaderError('FILE_UPLOAD_NOT_ALLOWED') });
+			this.#uploadCallbacks.emit('onError', { error: new UploaderError('FILE_UPLOAD_NOT_ALLOWED') });
+
+			return;
 		}
 
 		const event: BaseEvent<{ file: UploaderFile }> = new BaseEvent({ data: { file: this } });
@@ -166,8 +178,8 @@ export default class UploaderFile extends EventEmitter
 
 		this.abort();
 
-		//this.#setStatus(FileStatus.REMOVING);
-		//this.#removeController.remove(this);
+		// this.#setStatus(FileStatus.REMOVING);
+		// this.#removeController.remove(this);
 
 		const removeFromServer: boolean = !options || options.removeFromServer !== false;
 		if (removeFromServer && this.#removeController !== null && this.getOrigin() === FileOrigin.CLIENT)
@@ -366,13 +378,13 @@ export default class UploaderFile extends EventEmitter
 		if (this.#removeController && changed)
 		{
 			this.#removeController.subscribeOnce('onError', (event: BaseEvent) => {
-				//const error = this.addError(event.getData().error);
-				//this.emit(FileEvent.REMOVE_ERROR, { error });
+				// const error = this.addError(event.getData().error);
+				// this.emit(FileEvent.REMOVE_ERROR, { error });
 			});
 
 			this.#removeController.subscribeOnce('onRemove', (event: BaseEvent) => {
-				//this.#setStatus(FileStatus.INIT);
-				//this.emit(FileEvent.REMOVE_COMPLETE);
+				// this.#setStatus(FileStatus.INIT);
+				// this.emit(FileEvent.REMOVE_COMPLETE);
 			});
 		}
 
@@ -486,7 +498,7 @@ export default class UploaderFile extends EventEmitter
 
 	getName(): string
 	{
-		return this.#name !== null ? this.#name : (this.getBinary() ? this.getBinary().name : '');
+		return this.#name === null ? (this.getBinary() ? this.getBinary().name : '') : this.#name;
 	}
 
 	setName(name: string | null): void
@@ -503,7 +515,7 @@ export default class UploaderFile extends EventEmitter
 		const name: string = this.getName();
 		const position: number = name.lastIndexOf('.');
 
-		return position >= 0 ? name.substring(position + 1).toLowerCase() : '';
+		return position >= 0 ? name.slice(Math.max(0, position + 1)).toLowerCase() : '';
 	}
 
 	getType(): string
@@ -760,15 +772,12 @@ export default class UploaderFile extends EventEmitter
 
 	addError(error: Error | UploaderError): UploaderError
 	{
-		if (error instanceof Error)
-		{
-			error = UploaderError.createFromError(error);
-		}
+		const uploaderError: UploaderError = error instanceof Error ? UploaderError.createFromError(error) : error;
 
-		this.#errors.push(error);
+		this.#errors.push(uploaderError);
 		this.emit(FileEvent.STATE_CHANGE);
 
-		return error;
+		return uploaderError;
 	}
 
 	getError(): ?UploaderError
@@ -810,7 +819,7 @@ export default class UploaderFile extends EventEmitter
 			else if (!Type.isUndefined(value))
 			{
 				this.#customData[property] = value;
-				this.emit(FileEvent.STATE_CHANGE, { property: 'customData', customProperty: property, value: value });
+				this.emit(FileEvent.STATE_CHANGE, { property: 'customData', customProperty: property, value });
 			}
 		}
 	}
@@ -821,7 +830,8 @@ export default class UploaderFile extends EventEmitter
 		{
 			return this.#customData;
 		}
-		else if (Type.isStringFilled(property))
+
+		if (Type.isStringFilled(property))
 		{
 			return this.#customData[property];
 		}
@@ -872,21 +882,21 @@ class CallbackCollection
 		this.#emitter = new EventEmitter(file, 'BX.UI.Uploader.File.UploadCallbacks');
 	}
 
-	subscribe(callbacks: { onComplete: Function, onError: Function } = {})
+	subscribe(callbacks: { onComplete: Function, onError: Function } = {}): void
 	{
-		callbacks = Type.isPlainObject(callbacks) ? callbacks : {};
-		if (Type.isFunction(callbacks.onComplete))
+		const handlers = Type.isPlainObject(callbacks) ? callbacks : {};
+		if (Type.isFunction(handlers.onComplete))
 		{
-			this.getEmitter().subscribeOnce('onComplete', callbacks.onComplete);
+			this.getEmitter().subscribeOnce('onComplete', handlers.onComplete);
 		}
 
-		if (Type.isFunction(callbacks.onError))
+		if (Type.isFunction(handlers.onError))
 		{
-			this.getEmitter().subscribeOnce('onError', callbacks.onError);
+			this.getEmitter().subscribeOnce('onError', handlers.onError);
 		}
 	}
 
-	emit(eventName: string, event: BaseEvent | {[key: string]: any})
+	emit(eventName: string, event: BaseEvent | {[key: string]: any}): void
 	{
 		if (this.#emitter)
 		{

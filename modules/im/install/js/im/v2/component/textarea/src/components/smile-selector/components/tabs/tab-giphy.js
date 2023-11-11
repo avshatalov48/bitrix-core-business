@@ -15,6 +15,11 @@ type GiphyConfig = {
 	isError: boolean,
 };
 
+const UrlTag = Object.freeze({
+	open: '[url]',
+	close: '[/url]',
+});
+
 // @vue/component
 export const TabGiphy = {
 	name: 'GiphyContent',
@@ -131,7 +136,7 @@ export const TabGiphy = {
 		},
 		onGifClick(item: GifItem)
 		{
-			const text = item.original;
+			const text = `${UrlTag.open}${item.original}${UrlTag.close}`;
 			this.getSendingService().sendMessage({ text, dialogId: this.dialogId });
 			this.$emit('close');
 		},
@@ -152,9 +157,14 @@ export const TabGiphy = {
 		{
 			this.searchQuery = '';
 			this.scrollToTop();
-			if (this.gifList.length > 0)
+			this.onInputUpdate();
+		},
+		onEnterKeyPress()
+		{
+			if (this.gifList.length > 0 && !this.isSearching)
 			{
-				this.onInputUpdate();
+				const firstGif = this.gifList[0];
+				this.onGifClick(firstGif);
 			}
 		},
 		needToLoadNextPage(event): boolean
@@ -215,13 +225,14 @@ export const TabGiphy = {
 			<template v-else>
 				<div 
 					v-if="itemsReceived"
-				 	class="bx-im-search-input__scope bx-im-smile-popup-search-input__container"
+				 	class="bx-im-smile-popup-search-input__container"
 				>
-					<div class="bx-im-search-input__search-icon"></div>
+					<div class="bx-im-smile-popup-giphy-content__search-icon"></div>
 					<input
 						@input="onInputUpdate"
+						@keydown.enter="onEnterKeyPress"
 						v-model="searchQuery"
-						class="bx-im-search-input__element bx-im-smile-popup-search-input__element"
+						class="bx-im-smile-popup-giphy-content__input bx-im-smile-popup-search-input__element"
 						:placeholder="loc('IM_TEXTAREA_GIPHY_INPUT_PLACEHOLDER')"
 					/>
 					<div

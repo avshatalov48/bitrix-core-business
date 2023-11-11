@@ -16,7 +16,43 @@ class Signaling
 		$this->call = $call;
 	}
 
-	public function sendInvite(int $senderId, array $toUserIds, $isLegacyMobile, $video = false, $sendPush = true)
+	public function sendInviteToUser(int $senderId, int $toUserId, $invitedUsers, $isLegacyMobile, bool $video = false, bool $sendPush = true)
+	{
+		$users = $this->call->getUsers();
+
+		$parentCall = $this->call->getParentId() ? Call::loadWithId($this->call->getParentId()) : null;
+		$skipPush = $parentCall ?  $parentCall->getUsers() : [];
+		$skipPush = array_flip($skipPush);
+
+		$associatedEntity = $this->call->getAssociatedEntity();
+		$isBroadcast = ($associatedEntity instanceof Chat) && $associatedEntity->isBroadcast();
+
+		$config = [
+			'call' => $this->call->toArray(($senderId == $toUserId ? $toUserId : 0)),
+			'users' => $users,
+			'invitedUsers' => $invitedUsers,
+			'userData' => Util::getUsers($users),
+			'senderId' => $senderId,
+			'publicIds' => $this->getPublicIds([$toUserId]),
+			'isLegacyMobile' => $isLegacyMobile,
+			'video' => $video,
+			'logToken' => $this->call->getLogToken($toUserId),
+		];
+		$connectionData = $this->call->getConnectionData($toUserId);
+		if ($connectionData !== null)
+		{
+			$config['connectionData'] = $connectionData;
+		}
+
+		if (!isset($skipPush[$toUserId]) && $sendPush && !$isBroadcast)
+		{
+			$push = $this->getInvitePush($senderId, $toUserId, $isLegacyMobile, $video);
+		}
+
+		$this->send('Call::incoming', $toUserId, $config, $push);
+	}
+
+	public function sendInvite(int $senderId, array $toUserIds, $isLegacyMobile, bool $video = false, bool $sendPush = true)
 	{
 		$users = $this->call->getUsers();
 

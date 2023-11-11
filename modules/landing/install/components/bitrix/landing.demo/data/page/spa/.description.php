@@ -170,13 +170,13 @@ return [
 
 					<div class="u-block-hover__additional u-bg-overlay__inner g-pos-abs g-flex-middle g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-15 g-ma-20">
 						<div class="text-uppercase g-flex-middle-item">
-							<h5 class="landing-block-node-subtitle1 landing-semantic-text-image-medium g-font-weight-700 g-font-size-18 g-color-white g-brd-bottom g-brd-2 g-brd-primary g-mb-20">
+							<h5 class="landing-block-node-subtitle1 g-font-weight-700 g-font-size-18 g-color-white g-brd-bottom g-brd-2 g-brd-primary g-mb-20">
 								Face massage</h5>
-							<h4 class="landing-block-node-title1 landing-semantic-text-image-big text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-30">
+							<h4 class="landing-block-node-title1 text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-30">
 								<span style="font-weight: bold;">40% Off</span>
 							</h4>
 							<div class="landing-block-node-button1-container">
-								<a class="landing-block-node-button1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0"
+								<a class="landing-block-node-button1 btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0"
 								   href="#">Contact us</a>
 							</div>
 						</div>
@@ -192,12 +192,12 @@ return [
 
 					<div class="u-block-hover__additional u-bg-overlay__inner g-pos-abs g-flex-middle g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-15 g-ma-20">
 						<div class="text-uppercase g-flex-middle-item">
-							<h5 class="landing-block-node-subtitle2 landing-semantic-text-image-medium g-font-weight-700 g-font-size-18 g-color-white g-mb-5">
+							<h5 class="landing-block-node-subtitle2 g-font-weight-700 g-font-size-18 g-color-white g-mb-5">
 								20% Discount</h5>
-							<h4 class="landing-block-node-title2 landing-semantic-text-image-big text-uppercase g-line-height-1 g-font-weight-700 g-font-size-28 g-mb-10">
+							<h4 class="landing-block-node-title2 text-uppercase g-line-height-1 g-font-weight-700 g-font-size-28 g-mb-10">
 								Products of spa
 							</h4>
-							<div class="landing-block-node-text2 landing-semantic-text-image-medium g-font-weight-700 g-color-white mb-0">
+							<div class="landing-block-node-text2 g-font-weight-700 g-color-white mb-0">
 								When you buy over 100$</div>
 						</div>
 					</div>
@@ -208,10 +208,10 @@ return [
 				<article class="landing-block-node-bg-mini js-animation fadeInUp text-center u-block-hover g-color-white g-bg-primary g-mb-30">
 					<div class="g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-30 g-ma-20">
 						<div class="g-flex-middle-item">
-							<h4 class="landing-block-node-title-mini landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
+							<h4 class="landing-block-node-title-mini text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 								Relaxing
 								massage</h4>
-							<div class="landing-block-node-text-mini landing-semantic-text-image-small g-font-size-12 g-color-white mb-0">
+							<div class="landing-block-node-text-mini g-font-size-12 g-color-white mb-0">
 								<p>Morbi ex urna, porttitor vel consequat non</p>
 							</div>
 						</div>
@@ -224,9 +224,9 @@ return [
 
 					<div class="u-block-hover__additional u-bg-overlay__inner g-pos-abs g-flex-middle g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-15 g-ma-20">
 						<div class="g-flex-middle-item">
-							<h4 class="landing-block-node-title-mini landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-5">
+							<h4 class="landing-block-node-title-mini text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-5">
 								1+1=1</h4>
-							<div class="landing-block-node-text-mini landing-semantic-text-image-small g-font-size-12 g-color-white mb-0">
+							<div class="landing-block-node-text-mini g-font-size-12 g-color-white mb-0">
 								<p>Morbi ex urna, porttitor vel consequat non</p>
 							</div>
 						</div>
@@ -705,10 +705,10 @@ return [
 
 			<div class="col-md-6 order-1 order-md-2">
 				<div class="text-center g-overflow-hidden">
-					<h3 class="landing-block-node-main-title landing-semantic-title-medium text-uppercase g-font-weight-700 g-mb-20">
+					<h3 class="landing-block-node-main-title text-uppercase g-font-weight-700 g-mb-20">
 						Contact Us</h3>
 
-					<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_5 text-left g-mb-40">
+					<div class="landing-block-node-text g-line-height-1_5 text-left g-mb-40">
 						<p>
 							Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor.
 							Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum,
@@ -723,9 +723,9 @@ return [
 								<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 									<i class="landing-block-card-contact-icon icon-anchor"></i>
 								</span>
-								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
+								<span class="landing-block-card-contact-title h3 d-block text-uppercase g-font-size-11 mb-0">
 									Address</span>
-								<span class="landing-block-card-contact-text landing-semantic-text-medium g-font-weight-700 g-font-size-11">
+								<span class="landing-block-card-contact-text g-font-weight-700 g-font-size-11">
 									Sit amet adipiscing
 								</span>
 							</div>
@@ -735,9 +735,9 @@ return [
 								<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 									<i class="landing-block-card-contact-icon fa fa-clock-o"></i>
 								</span>
-								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
+								<span class="landing-block-card-contact-title h3 d-block text-uppercase g-font-size-11 mb-0">
 									Opening time</span>
-								<span class="landing-block-card-contact-text landing-semantic-text-medium g-font-weight-700 g-font-size-11">
+								<span class="landing-block-card-contact-text g-font-weight-700 g-font-size-11">
 									Mon-Sat: 08.00 -18.00
 								</span>
 							</div>
@@ -748,10 +748,10 @@ return [
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-call-in"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
+									<span class="landing-block-card-linkcontact-title h3 d-block text-uppercase g-font-size-11 mb-0">
 										Phone number
 									</span>
-									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
+									<span class="landing-block-card-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
 										#crmPhoneTitle1
 									</span>
 								</a>
@@ -763,10 +763,10 @@ return [
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-line icon-envelope-letter"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
+									<span class="landing-block-card-linkcontact-title h3 d-block text-uppercase g-font-size-11 mb-0">
 										Email
 									</span>
-									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
+									<span class="landing-block-card-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
 										#crmEmailTitle1
 									</span>
 								</a>

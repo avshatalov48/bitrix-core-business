@@ -99,7 +99,12 @@ class Helper
 				;
 				break;
 			case 'WEEKLY':
-				$daysList = implode(', ', array_map(function($day) {return Loc::getMessage('EC_' . $day);}, $rrule['BYDAY']));
+				if (!isset($rrule['BYDAY']) || !is_array($rrule['BYDAY']))
+				{
+					$rrule['BYDAY'] = ['MO'];
+				}
+
+				$daysList = implode(', ', array_map(static function($day) {return Loc::getMessage('EC_' . $day);}, $rrule['BYDAY']));
 				$res = (int)$rrule['INTERVAL'] === 1
 					? Loc::getMessage('EC_RRULE_EVERY_WEEK', ['#DAYS_LIST#' => $daysList])
 					: Loc::getMessage('EC_RRULE_EVERY_WEEK_1', ['#WEEK#' => $rrule['INTERVAL'], '#DAYS_LIST#' => $daysList])

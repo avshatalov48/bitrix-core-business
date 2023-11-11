@@ -1,10 +1,11 @@
 import { hint } from 'ui.vue3.directives.hint';
 
 import { Avatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
-import { ChatOption } from 'im.v2.const';
+import { ChatActionType } from 'im.v2.const';
 import { ImModelDialog } from 'im.v2.model';
 import { Utils } from 'im.v2.lib.utils';
 import { AddToChat } from 'im.v2.component.entity-selector';
+import { PermissionManager } from 'im.v2.lib.permission';
 
 import { Settings } from './settings';
 
@@ -49,7 +50,7 @@ export const PersonalChatPreview = {
 		},
 		canInviteMembers(): boolean
 		{
-			return this.$store.getters['dialogues/getChatOption'](this.dialog.type, ChatOption.extend);
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
 		},
 		userLink(): string
 		{

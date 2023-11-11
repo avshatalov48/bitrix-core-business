@@ -373,3 +373,17 @@ img.bxhtmled-player-surrogate {
 	background-position: center;
 	-moz-force-broken-image-icon: 0;
 }
+
+.bxhtmled-copilot {
+	position: relative;
+}
+
+.bxhtmled-copilot:after {
+	content: attr(placeholder);
+	position: absolute;
+	top: 0;
+	left: 0;
+	color: #A3A3A3;
+	user-select: none;
+	pointer-events: none;
+}

@@ -1,8 +1,13 @@
-export const sharpen = (canvas: HTMLCanvasElement | OffscreenCanvas, width: number, height: number, mixFactor: number): void => {
+export const sharpen = (
+	canvas: HTMLCanvasElement | OffscreenCanvas,
+	width: number,
+	height: number,
+	mixFactor: number,
+): void => {
 	const context: CanvasRenderingContext2D = canvas.getContext('2d');
 	const weights: number[] = [0, -1, 0, -1, 5, -1, 0, -1, 0];
 	const katet: number = Math.round(Math.sqrt(weights.length));
-	const half: number = (katet * 0.5) | 0;
+	const half: number = Math.trunc(katet * 0.5);
 	const destinationData: ImageData = context.createImageData(width, height);
 	const destinationBuffer: Uint8ClampedArray = destinationData.data;
 	const sourceBuffer: Uint8ClampedArray = context.getImageData(0, 0, width, height).data;
@@ -17,8 +22,8 @@ export const sharpen = (canvas: HTMLCanvasElement | OffscreenCanvas, width: numb
 			const dstOff: number = (y * width + x) * 4;
 			let red = 0;
 			let green = 0;
-			let blue = 0
-			let alpha = 0;
+			let blue = 0;
+			// let alpha = 0;
 
 			for (let cy = 0; cy < katet; cy++)
 			{
@@ -33,7 +38,7 @@ export const sharpen = (canvas: HTMLCanvasElement | OffscreenCanvas, width: numb
 						red += sourceBuffer[srcOff] * wt;
 						green += sourceBuffer[srcOff + 1] * wt;
 						blue += sourceBuffer[srcOff + 2] * wt;
-						alpha += sourceBuffer[srcOff + 3] * wt;
+						// alpha += sourceBuffer[srcOff + 3] * wt;
 					}
 				}
 			}

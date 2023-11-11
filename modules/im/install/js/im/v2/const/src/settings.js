@@ -1,15 +1,32 @@
 export const Settings = Object.freeze({
-	application: {
-		darkTheme: 'enableDarkTheme',
-		enableSound: 'enableSound'
+	appearance: {
+		background: 'backgroundImageId',
+		alignment: 'chatAlignment',
 	},
-	dialog: {
+	notification: {
+		enableSound: 'enableSound',
+	},
+	hotkey: {
+		sendByEnter: 'sendByEnter',
+	},
+	message: {
 		bigSmiles: 'enableBigSmile',
-		background: 'backgroundImageId'
 	},
 	recent: {
 		showBirthday: 'viewBirthday',
 		showInvited: 'viewCommonUsers',
-		showLastMessage: 'viewLastMessage'
-	}
+		showLastMessage: 'viewLastMessage',
+	},
+	desktop: {
+		enableRedirect: 'openDesktopFromPanel',
+	},
+});
+
+export const SettingsSection = Object.freeze({
+	appearance: 'appearance',
+	notification: 'notification',
+	hotkey: 'hotkey',
+	message: 'message',
+	recent: 'recent',
+	desktop: 'desktop',
 });

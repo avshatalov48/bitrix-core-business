@@ -176,7 +176,7 @@
 .feed-post-emoji-icon-item {
 	display: inline-block;
 	width: 21px;
-	height: 22px;
+	height: 21px;
 	border: 1px solid #fff;
 	border-radius: 100%;
 	background-position: center;
@@ -187,7 +187,7 @@
 }
 
 .feed-post-emoji-icon-item svg {
-	transform: translateY(2px);
+	transform: translateY(8%);
 }
 
 .feed-post-emoji-top-panel-box.feed-post-emoji-top-panel-container-active .feed-post-emoji-icon-item,
@@ -221,7 +221,7 @@
 
 .feed-com-block .feed-post-emoji-icon-item {
 	margin-left: -6px;
-	height: 19px;
+	height: 18px;
 	width: 18px;
 }
 

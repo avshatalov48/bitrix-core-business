@@ -19,16 +19,16 @@
 */
 
 export const ResizeWorkerOld = function() {
-	self.onmessage = event => {
+	self.onmessage = (event: MessageEvent) => {
 		const { file, options = {}, calcTargetSizeFn } = event.data.message;
 		self.createImageBitmap(file)
-			.then(bitmap => {
-
-				const calcTargetSize = new Function('return ' + calcTargetSizeFn.toString())();
+			.then((bitmap: ImageBitmap) => {
+				// eslint-disable-next-line no-new-func
+				const calcTargetSize = new Function(`return ${calcTargetSizeFn.toString()}`)();
 				const { targetWidth, targetHeight } = calcTargetSize(bitmap, options);
 				const resizeOptions = { resizeWidth: targetWidth, resizeHeight: targetHeight };
 
-				self.createImageBitmap(bitmap, resizeOptions).then(previewBitmap => {
+				self.createImageBitmap(bitmap, resizeOptions).then((previewBitmap: ImageBitmap) => {
 					bitmap.close();
 					self.postMessage({
 						id: event.data.id,
@@ -38,16 +38,22 @@ export const ResizeWorkerOld = function() {
 							targetHeight,
 						},
 					}, [previewBitmap]);
+				}).catch((error) => {
+					// eslint-disable-next-line no-console
+					console.warn('worker error', error);
+					self.postMessage({ id: event.data.id, message: null });
 				});
 
-				/*const canvas = new OffscreenCanvas(targetWidth, targetHeight);
+				/*
+				const canvas = new OffscreenCanvas(targetWidth, targetHeight);
 				const context = canvas.getContext('2d');
 				context.imageSmoothingQuality = 'high';
 				context.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
-				const previewBitmap = canvas.transferToImageBitmap();*/
-
+				const previewBitmap = canvas.transferToImageBitmap();
+				*/
 			})
 			.catch((error) => {
+				// eslint-disable-next-line no-console
 				console.warn('worker error', error);
 				self.postMessage({ id: event.data.id, message: null });
 			})

@@ -476,3 +476,9 @@
 .main-mail-form-field-value-rcpt .ui-tile-selector-selector-wrap {
 	padding: 2px 2px;
 }
+
+.main-post-form-toolbar-button[data-id="signature-select"] i {
+	display: inline-block;
+	background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3Csvg width='20' height='20' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M17.8488 8.24265V8.24265C18.6298 7.4616 18.6298 6.19527 17.8488 5.41422V5.41422C17.0677 4.63317 15.8014 4.63317 15.0204 5.41422L13.763 6.67157M17.8488 8.24265L19.9701 10.364L15.0204 15.3137M17.8488 8.24265L16.5914 9.5M13.763 6.67157L4.58013 15.8544L4.41376 18.8492L7.40856 18.6829L16.5914 9.5M13.763 6.67157L16.5914 9.5' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-position: 3px 1px;
+}

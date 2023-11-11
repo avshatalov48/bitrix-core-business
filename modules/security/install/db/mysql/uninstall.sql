@@ -12,3 +12,4 @@ DROP TABLE if exists b_sec_virus;
 DROP TABLE if exists b_sec_frame_mask;
 DROP TABLE if exists b_security_sitecheck;
 DROP TABLE if exists b_sec_recovery_codes;
+DROP TABLE IF EXISTS b_xscan_results;

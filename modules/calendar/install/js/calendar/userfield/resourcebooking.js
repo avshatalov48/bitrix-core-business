@@ -2986,7 +2986,7 @@
 			);
 			this.popupMenu.popupWindow.setWidth(this.input.offsetWidth - 2);
 
-			var menuContainer = this.popupMenu.layout.menuContainer;
+			var menuContainer = this.popupMenu.getPopupWindow().getContentContainer();
 			BX.addClass(this.popupMenu.layout.menuContainer, 'calendar-resourcebook-select-popup');
 			this.popupMenu.show();
 

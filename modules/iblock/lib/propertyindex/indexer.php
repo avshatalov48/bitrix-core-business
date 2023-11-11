@@ -178,7 +178,7 @@ class Indexer
 			"CHECK_PERMISSIONS" => "N",
 		);
 
-		return \CIBlockElement::getList(array(), $filter, array());
+		return (int)\CIBlockElement::getList(array(), $filter, array());
 	}
 
 	/**

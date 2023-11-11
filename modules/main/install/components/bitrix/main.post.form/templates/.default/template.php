@@ -25,6 +25,7 @@ Main\UI\Extension::load([
 	'ui.fonts.opensans',
 	'ui.entity-selector',
 	'ui.buttons',
+	'ai.copilot',
 ]);
 
 Main\Page\Asset::getInstance()->addJs($templateFolder."/index.js");
@@ -60,13 +61,14 @@ if (isset($GLOBALS["arExtranetGroupID"]) && is_array($GLOBALS["arExtranetGroupID
 ?>
 BX.ready(function()
 {
+	BX.message(<?=CUtil::PhpToJSObject(Main\Localization\Loc::loadLanguageFile(__DIR__."/editor.php"))?>);
 	<?if ($arParams["JS_OBJECT_NAME"] !== ""): ?>window['<?=$arParams["JS_OBJECT_NAME"]?>'] = <? endif; ?>
 	new BX.Main.PostForm(
 		{
 			id: '<?=CUtil::JSEscape($arParams["LHE"]["id"])?>',
 			name: '<?=CUtil::JSEscape($arParams["LHE"]["jsObjName"])?>',
 			formId: '<?=CUtil::JSEscape($arParams["FORM_ID"])?>',
-			eventNode: BX('div<?=CUtil::JSEscape($controlId)?>')
+			eventNode: BX('div<?=CUtil::JSEscape($controlId)?>'),
 		},
 		<?=CUtil::PhpToJSObject([
 			'ctrlEnterHandler' => $arParams["LHE"]['ctrlEnterHandler'] ?? '',

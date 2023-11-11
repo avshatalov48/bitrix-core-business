@@ -14,13 +14,15 @@ class CRatingRulesMain extends CAllRatingRulesMain
 	public static function voteCheck($arConfigs)
 	{
 		global $DB;
-			
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$err_mess = "File: ".__FILE__."<br>Function: voteCheck<br>Line: ";
 		
 		$ratingId = CRatings::GetAuthorityRating();
 		if ($ratingId == 0)
 			return true;
-		
+
 		// 1. UPDATE OLD VOTE (< 90 day)
 		$strSql = "
 			UPDATE
@@ -29,7 +31,7 @@ class CRatingRulesMain extends CAllRatingRulesMain
 				ACTIVE = 'N',
 				USER_ID = 0
 			WHERE 
-				ENTITY_TYPE_ID = 'USER' and CREATED < DATE_SUB(NOW(), INTERVAL ".intval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_LIMIT'])." DAY)
+				ENTITY_TYPE_ID = 'USER' and CREATED < " . $helper->addDaysToDateTime(-intval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_LIMIT'])) . "
 		";
 		$DB->Query($strSql, false, $err_mess.__LINE__);
 		
@@ -76,7 +78,7 @@ class CRatingRulesMain extends CAllRatingRulesMain
 				$sRatingUser
 				LEFT JOIN b_rating_vote RV2 ON RV2.USER_ID = RV.USER_ID AND RV2.ENTITY_TYPE_ID = 'USER' AND RV2.ENTITY_ID = RV.OWNER_ID
 			WHERE 
-				RV.CREATED > DATE_SUB(NOW(), INTERVAL ".intval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_LIMIT'])." DAY)
+				RV.CREATED > " . $helper->addDaysToDateTime(-intval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_LIMIT'])) . "
 			and RV.VALUE > 0 and RV2.VALUE IS NULL and RV.OWNER_ID > 0
 			GROUP BY RV.USER_ID, RV.OWNER_ID
 			HAVING 
@@ -108,7 +110,7 @@ class CRatingRulesMain extends CAllRatingRulesMain
 				LEFT JOIN b_rating_voting RVG ON RVG.ENTITY_TYPE_ID = RV.ENTITY_TYPE_ID AND RVG.ENTITY_ID = RV.ENTITY_ID
 			WHERE 
 				RATING_VOTING_ID = 0
-			and RV.CREATED > DATE_SUB(NOW(), INTERVAL ".intval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_LIMIT'])." DAY)
+			and RV.CREATED > " . $helper->addDaysToDateTime(-intval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_LIMIT'])) . "
 			and RVG.ID IS NULL and RV.OWNER_ID > 0
 			GROUP BY RV.ENTITY_TYPE_ID, RV.ENTITY_ID
 		";
@@ -161,7 +163,7 @@ class CRatingRulesMain extends CAllRatingRulesMain
 		$DB->Query($strSql, false, $err_mess.__LINE__);	
 		
 		// 7 DELETE OLD POST
-		$strSql = "DELETE FROM b_rating_vote WHERE ENTITY_TYPE_ID = 'USER' and CREATED < DATE_SUB(NOW(), INTERVAL ".intval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_LIMIT'])." DAY)";
+		$strSql = "DELETE FROM b_rating_vote WHERE ENTITY_TYPE_ID = 'USER' and CREATED < " . $helper->addDaysToDateTime(-intval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_LIMIT'])) . "";
 		$DB->Query($strSql, false, $err_mess.__LINE__);
 		return true;
 	}

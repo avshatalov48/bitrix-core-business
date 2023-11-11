@@ -26,6 +26,7 @@ export default class Entity
 	searchFields: OrderedArray<SearchField> = null;
 	dynamicLoad: boolean = false;
 	dynamicSearch: boolean = false;
+	substituteEntityId: string = null;
 	searchCacheLimits: RegExp[] = [];
 	filters: Map<string, EntityFilter> = new Map();
 
@@ -50,6 +51,7 @@ export default class Entity
 		this.itemOptions = Type.isPlainObject(options.itemOptions) ? options.itemOptions : {};
 		this.tagOptions = Type.isPlainObject(options.tagOptions) ? options.tagOptions : {};
 		this.badgeOptions = Type.isArray(options.badgeOptions) ? options.badgeOptions : [];
+		this.substituteEntityId = Type.isStringFilled(options.substituteEntityId) ? options.substituteEntityId : null;
 
 		if (Type.isArray(options.filters))
 		{
@@ -400,6 +402,11 @@ export default class Entity
 		return this.filters.get(id) || null;
 	}
 
+	getSubstituteEntityId(): string | null
+	{
+		return this.substituteEntityId;
+	}
+
 	toJSON()
 	{
 		return {
@@ -409,6 +416,7 @@ export default class Entity
 			dynamicLoad: this.hasDynamicLoad(),
 			dynamicSearch: this.hasDynamicSearch(),
 			filters: this.getFilters(),
+			substituteEntityId: this.getSubstituteEntityId(),
 		};
 	}
 }

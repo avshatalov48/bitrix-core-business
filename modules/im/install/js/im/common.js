@@ -33,7 +33,11 @@
 
 	MessengerCommon.prototype.isPopupPage = function()
 	{
-		return typeof(BX.MessengerWindow) != 'undefined' && this.BXIM.context == 'POPUP-FULLSCREEN' && this.BXIM.bitrixIntranet;
+		return (
+			typeof(BX.MessengerWindow) != 'undefined'
+			&& this.BXIM.bitrixIntranet
+			&& this.BXIM.context == 'POPUP-FULLSCREEN'
+		);
 	}
 
 	MessengerCommon.prototype.isDesktop = function()
@@ -895,15 +899,12 @@
 		if (image)
 		{
 			var changed = false;
-			textElement = textElement.replace(/(.)?((https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif|webp)(\?[\S]+)?)/gi, function(whole, letter, url)
+			textElement = textElement.replace(/>((https|http):\/\/(\S+)\.(jpg|jpeg|png|gif|webp)(\?\S+[^<])?)<\/a>/gi, function(whole, urlParsed)
 			{
-				if (url.endsWith('</a>'))
-				{
-					url = url.substr(0, url.length-4);
-				}
-				if(
-					letter && !(['>', ']'].includes(letter))
-					|| !url.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i)
+				const url = BX.Text.decode(urlParsed);
+
+				if (
+					!url.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i)
 					|| url.toLowerCase().indexOf("/docs/pub/") > 0
 					|| url.toLowerCase().indexOf("logout=yes") > 0
 				)
@@ -913,14 +914,14 @@
 				else if (BX.MessengerCommon.isMobile())
 				{
 					changed = true;
-					return (letter? letter: '')+'<span class="bx-messenger-file-image"><span class="bx-messenger-file-image-src"><img src="'+url+'" class="bx-messenger-file-image-text" onclick="BXIM.messenger.openPhotoGallery(this.src);" onerror="BX.MessengerCommon.hideErrorImage(this)"></span></span>';
+					return '><span class="bx-messenger-file-image"><span class="bx-messenger-file-image-src"><img src="'+url+'" class="bx-messenger-file-image-text" onclick="BXIM.messenger.openPhotoGallery(this.src);" onerror="BX.MessengerCommon.hideErrorImage(this)"></span></span></a>';
 				}
 				else
 				{
 					changed = true;
 
 					var chatId = typeof(this.BXIM.messenger.getChatId) != 'undefined'? this.BXIM.messenger.getChatId(): this.BXIM.messenger.currentTab;
-					return (letter? letter: '')+'<span class="bx-messenger-file-image"><span class="bx-messenger-file-image-src"><img src="'+url+'" data-viewer="null" data-viewer-group-by="'+chatId+'" data-title="'+BX.util.jsencode(url)+'" class="bx-messenger-file-image-text" onerror="BX.MessengerCommon.hideErrorImage(this)"></span></span>';
+					return '><span class="bx-messenger-file-image"><span class="bx-messenger-file-image-src"><img src="'+url+'" data-viewer="null" data-viewer-group-by="'+chatId+'" data-title="'+BX.util.jsencode(url)+'" class="bx-messenger-file-image-text" onerror="BX.MessengerCommon.hideErrorImage(this)"></span></span></a>';
 				}
 			});
 			if (changed)
@@ -1627,6 +1628,27 @@
 		// dom.click();
 		// document.body.removeChild(dom);
 		return true;
+	}
+
+	MessengerCommon.prototype.openNewTab = function(path)
+	{
+		const preparedPath = BX.Dom.create({ tag: 'a', attrs: { href: path } }).href;
+
+		if (
+			this.BXIM.desktop.enableInVersion(75)
+			&& this.isDesktop()
+			&& (
+				location.href.includes('/desktop_app/')
+				|| location.href.includes('&IM_TAB=Y')
+			)
+		)
+		{
+			BXDesktopSystem.CreateImTab(preparedPath + '&IM_TAB=Y');
+		}
+		else
+		{
+			this.openLink(preparedPath);
+		}
 	}
 
 	MessengerCommon.prototype.clipboardCopy = function(callback, cut)
@@ -2566,6 +2588,19 @@
 
 	MessengerCommon.prototype.contactListClickItem = function(e)
 	{
+		if (
+			this.BXIM.options.v2layout
+			&& (
+				e.metaKey || e.ctrlKey
+			)
+		)
+		{
+			const dialogId = BX.proxy_context.getAttribute('data-userId');
+			this.openNewTab('/online/?IM_LINES=' + dialogId);
+
+			return BX.PreventDefault(e);
+		}
+
 		this.BXIM.messenger.closeMenuPopup();
 		var itemId = BX.proxy_context.getAttribute('data-userId');
 		if (itemId.toString().substr(0,9) == 'structure')
@@ -3002,7 +3037,7 @@
 				this.BXIM.messenger.chatList = false;
 				this.BXIM.messenger.contactList = false;
 				this.BXIM.messenger.recentList = true;
-				this.BXIM.messenger.linesList = this.isPage() && BX.MessengerWindow.currentTab == 'im-ol';
+				this.BXIM.messenger.linesList = this.isPage() && BX.MessengerWindow.currentTab == 'im-ol' || this.BXIM.options.openLinesRecent;
 			}
 
 			if (this.BXIM.messenger.popupContactListActive)
@@ -3034,8 +3069,12 @@
 			}
 
 			var newRecentList = null;
-			if (this.isPage() && BX.MessengerWindow.currentTab == 'im-ol')
+			if (this.isPage() && BX.MessengerWindow.currentTab == 'im-ol' || this.BXIM.options.openLinesRecent)
 			{
+				if (!this.BXIM.messenger.linesListLoad)
+				{
+					this.BXIM.messenger.linesGetList();
+				}
 				BX.addClass(this.BXIM.messenger.popupContactListElementsWrap, 'bx-messenger-recent-lines-wrap');
 				BX.addClass(this.BXIM.messenger.popupContactListElements, 'bx-messenger-recent-lines-container');
 				BX.removeClass(this.BXIM.messenger.popupContactListElements, 'bx-messenger-recent-container');
@@ -3053,7 +3092,7 @@
 				console.timeEnd('recentList checkSum');
 			}
 
-			if (this.isPage() && BX.MessengerWindow.currentTab == 'im-ol')
+			if (this.isPage() && BX.MessengerWindow.currentTab == 'im-ol' || this.BXIM.options.openLinesRecent)
 			{
 				var checkSumCurrent = this.getRecentListCheckSum(this.BXIM.messenger.popupContactListElementsWrap);
 				var checkSumNew = this.getRecentListCheckSum(newRecentList);
@@ -5849,7 +5888,7 @@
 		}
 
 		var addBlankNode = false;
-		var messageUser = this.BXIM.messenger.users[message.senderId];
+		var messageUser = message.senderId > 0 ? this.BXIM.messenger.users[message.senderId] : undefined;
 
 		if (!system && (typeof(messageUser) == 'undefined' || messageUser.id <= 0))
 		{
@@ -9460,6 +9499,12 @@
 
 			for (var k = 0; k < unreadMessage[i].length; k++)
 			{
+				if (this.BXIM.messenger.message[unreadMessage[i][k]]?.params?.NOTIFY === 'N')
+				{
+					this.BXIM.messenger.flashMessage[i][unreadMessage[i][k]] = false;
+					continue;
+				}
+
 				if (isLines && BX.MessengerCommon.getCounter(i) > 0)
 				{
 					var senderId = this.BXIM.messenger.message[unreadMessage[i][k]].senderId;
@@ -11495,7 +11540,14 @@
 		var isEdge = navigator.userAgent.indexOf('Edge') > -1;
 		if (!isEdge && obNode.scrollIntoView)
 		{
-			obNode.scrollIntoView(true);
+			if (this.BXIM.options.v2layout)
+			{
+				obNode.scrollIntoView({ behavior: "auto", block: "nearest" });
+			}
+			else
+			{
+				obNode.scrollIntoView(true);
+			}
 		}
 		else
 		{

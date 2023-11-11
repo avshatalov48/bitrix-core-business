@@ -68,6 +68,10 @@
 	margin-bottom: 5px;
 }
 
+.bx-im-sidebar-main-detail__user-title-link {
+	overflow: hidden;
+}
+
 .bx-im-sidebar-main-detail__position-text {
 	font: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-normal);

@@ -99,7 +99,6 @@ export class DesignerBlock
 
 		BX.addCustomEvent('Landing.Editor:load', () => {
 			this.preventEvents();
-			// todo: force reinit history instance with D type
 			this.initHistoryEvents();
 			this.initTopPanel();
 			this.initNodes();
@@ -218,7 +217,7 @@ export class DesignerBlock
 			}
 			if (!this.designAllowed)
 			{
-				top.BX.UI.InfoHelper.show('limit_crm_free_superblock1');
+				top.BX.UI.InfoHelper.show('limit_crm_superblock');
 				return;
 			}
 

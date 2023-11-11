@@ -1,11 +1,12 @@
 import { Entry } from 'calendar.entry';
 import { SectionManager } from 'calendar.sectionmanager';
 import { Util } from 'calendar.util';
-import { Event, Loc, Type } from 'main.core';
+import {Dom, Event, Loc, Tag, Type} from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { CompactEventForm } from 'calendar.compacteventform';
 import 'ui.notification';
 import { RoomsManager } from 'calendar.roomsmanager';
+import {MessageBox} from "ui.dialogs.messagebox";
 
 export class EntryManager {
 	static newEntryName = '';
@@ -395,6 +396,36 @@ export class EntryManager {
 				}
 			});
 		}
+	}
+
+	static getLocationRepeatBusyErrorPopup(options = {})
+	{
+		return new MessageBox({
+			title: Loc.getMessage('EC_LOCATION_REPEAT_BUSY_POPUP_TITLE'),
+			message: Tag.render`
+				<div class="calendar-list-slider-messagebox-text-with-title">
+					${options.message}
+				</div>
+			`,
+			minHeight: 100,
+			minWidth: 300,
+			maxWidth: 690,
+			buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL,
+			onYes: options.onYesCallback,
+			onCancel: options.onCancelCallback,
+			yesCaption: Loc.getMessage('EC_LOCATION_REPEAT_BUSY_POPUP_SAVE_WITHOUT_ROOM'),
+			cancelCaption: Loc.getMessage('EC_LOCATION_REPEAT_BUSY_POPUP_RETURN_TO_EDIT'),
+			mediumButtonSize: false,
+			popupOptions: {
+				events: {
+					onPopupClose: options.onPopupCloseCallback,
+				},
+				closeByEsc: true,
+				padding: 0,
+				contentPadding: 0,
+				animation: 'fading-slide',
+			},
+		});
 	}
 
 	static showEmailLimitationDialog(options = {})

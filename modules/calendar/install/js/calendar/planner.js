@@ -575,9 +575,10 @@ CalendarPlanner.prototype =
 				{
 					outerDayCont = this.timelineScaleCont.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-time-day-outer'}}));
 
+					const format = BX.Main.DateTimeFormat.getFormat('DAY_OF_WEEK_MONTH_FORMAT');
 					dayTitle = outerDayCont.appendChild(BX.create("DIV", {
 						props: {className: 'calendar-planner-time-day-title'},
-						html: '<span>' + BX.date.format('d F, l', this.scaleData[i].timestamp / 1000) + '</span>' +
+						html: '<span>' + BX.Main.DateTimeFormat.format(format, this.scaleData[i].timestamp / 1000) + '</span>' +
 							'<div class="calendar-planner-time-day-border"></div>'
 					}));
 
@@ -885,21 +886,8 @@ CalendarPlanner.prototype =
 
 		if (!entry.toReal)
 		{
-			// Full day
-			if ((entry.toTimestamp - entry.fromTimestamp) % this.dayLength === 0
-				&&
-				BX.date.format('H:i', entry.toTimestamp / 1000) === '00:00'
-			)
-			{
-				entry.toReal = new Date(entry.to.getTime() + this.dayLength);
-				entry.toReal.setSeconds(0,0);
-				entry.toTimestampReal = entry.toReal.getTime();
-			}
-			else
-			{
-				entry.toReal = entry.to;
-				entry.toTimestampReal = entry.toTimestamp;
-			}
+			entry.toReal = entry.to;
+			entry.toTimestampReal = entry.toTimestamp;
 		}
 
 		return entry;

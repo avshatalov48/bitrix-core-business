@@ -1,0 +1,60 @@
+.bx-im-message-smile__container {
+	display: flex;
+	justify-content: flex-end;
+	position: relative;
+}
+
+.--opponent .bx-im-message-smile__container {
+	justify-content: flex-start;
+}
+
+.bx-im-message-smile__content-container {
+	display: inline-block;
+	position: relative;
+	padding-right: 40px;
+	margin-bottom: -2px;
+}
+
+.bx-im-message-smile__text {
+	font-size: 66px;
+	line-height: var(--im-font-line-height-3xs);
+}
+
+.bx-im-message-smile__message-status-container {
+	position: absolute;
+	right: 0;
+	bottom: 4px;
+}
+
+.bx-im-message-smile__reactions-container {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.--self .bx-im-message-smile__reactions-container {
+	padding-right: var(--im-message-base__offset_context-menu);
+}
+
+.--opponent .bx-im-message-smile__reactions-container,
+.bx-im-content-chat__container.--left-align .bx-im-message-smile__reactions-container {
+	justify-content: flex-start;
+}
+
+.bx-im-message-smile__reactions {
+	margin-top: 4px;
+	max-width: 240px;
+}
+
+.bx-im-message-smile__content-container .bx-im-reaction-selector__container {
+	right: -22px;
+	bottom: 3px;
+}
+
+.bx-im-message-base__body .bx-im-message-smile__container .bx-smile {
+	vertical-align: baseline;
+}
+
+.bx-im-message-base__text_smile {
+	max-height: 180px;
+	max-width: 180px;
+}

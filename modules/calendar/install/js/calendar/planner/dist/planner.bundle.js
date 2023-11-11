@@ -1519,15 +1519,8 @@ this.BX = this.BX || {};
 	    entry.to.setSeconds(0, 0);
 	    entry.toTimestamp = entry.to.getTime();
 	    if (!main_core.Type.isDate(entry.toReal)) {
-	      // Full day
-	      if ((entry.toTimestamp - entry.fromTimestamp) % calendar_util.Util.getDayLength() === 0 && BX.date.format('H:i', entry.toTimestamp / 1000) === '00:00') {
-	        entry.toReal = new Date(entry.to.getTime() + calendar_util.Util.getDayLength());
-	        entry.toReal.setSeconds(0, 0);
-	        entry.toTimestampReal = entry.toReal.getTime();
-	      } else {
-	        entry.toReal = entry.to;
-	        entry.toTimestampReal = entry.toTimestamp;
-	      }
+	      entry.toReal = entry.to;
+	      entry.toTimestampReal = entry.toTimestamp;
 	    }
 	    return entry;
 	  }
@@ -2264,8 +2257,12 @@ this.BX = this.BX || {};
 	    let scrollLeft;
 	    const prevScaleDateFrom = this.scaleDateFrom;
 	    const prevScaleDateTo = this.scaleDateTo;
-	    if (!scaleDateFrom) scaleDateFrom = this.scaleDateFrom;
-	    if (!scaleDateTo) scaleDateTo = this.scaleDateTo;
+	    if (!scaleDateFrom) {
+	      scaleDateFrom = this.scaleDateFrom;
+	    }
+	    if (!scaleDateTo) {
+	      scaleDateTo = this.scaleDateTo;
+	    }
 	    if (this.expandTimelineDirection === 'past') {
 	      scrollLeft = this.DOM.timelineVerticalConstraint.scrollLeft;
 	      this.scaleDateFrom = new Date(scaleDateFrom.getTime() - calendar_util.Util.getDayLength() * this.EXPAND_OFFSET);
@@ -2353,7 +2350,10 @@ this.BX = this.BX || {};
 	      return;
 	    }
 	    this.entries = entries;
-	    this.accessibility = accessibility;
+	    this.accessibility = [];
+	    this.entries.forEach(entry => {
+	      this.accessibility[entry.id] = accessibility[entry.id];
+	    });
 	    const userId = parseInt(this.userId);
 
 	    // sort entries list by amount of accessibility data
@@ -2437,25 +2437,6 @@ this.BX = this.BX || {};
 	    });
 	    this.adjustHeight();
 	  }
-	  updateAccessibility(accessibility) {
-	    this.accessibility = accessibility;
-	    if (main_core.Type.isPlainObject(accessibility)) {
-	      let key;
-	      for (key in accessibility) {
-	        if (accessibility.hasOwnProperty(key) && main_core.Type.isArray(accessibility[key]) && accessibility[key].length) {
-	          let wrap = this.entriesDataRowMap.get(key);
-	          if (main_core.Type.isDomNode(wrap)) {
-	            accessibility[key].forEach(event => {
-	              event = Planner.prepareAccessibilityItem(event);
-	              if (event) {
-	                this.addAccessibilityItem(event, wrap);
-	              }
-	            });
-	          }
-	        }
-	      }
-	    }
-	  }
 	  updateSelector(from, to, fullDay, options = {}) {
 	    if (this.shown && this.selector) {
 	      this.setFullDayMode(fullDay);
@@ -2476,7 +2457,7 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      }
-	      if (to.getTime() > this.scaleDateTo.getTime() || from.getTime() < this.scaleDateFrom.getTime()) {
+	      if (this.isNeedToExpandTimeline(from, to)) {
 	        this.expandTimelineDirection = false;
 	        this.expandTimeline(from, to);
 	      }
@@ -2503,6 +2484,9 @@ this.BX = this.BX || {};
 	        this.selector.focus(true, 300);
 	      }
 	    }
+	  }
+	  isNeedToExpandTimeline(from, to) {
+	    return to.getTime() > this.scaleDateTo.getTime() || from.getTime() < this.scaleDateFrom.getTime();
 	  }
 	  handleSelectorChanges(event) {
 	    if (event instanceof main_core_events.BaseEvent) {
@@ -2616,6 +2600,8 @@ this.BX = this.BX || {};
 	          }
 	        } else {
 	          if (this.fullDayMode) dateTo = new Date(dateTo.getTime() - calendar_util.Util.getDayLength());
+	          this.currentFromDate = dateFrom;
+	          this.currentToDate = dateTo;
 	          this.selector.update({
 	            from: dateFrom,
 	            to: dateTo,

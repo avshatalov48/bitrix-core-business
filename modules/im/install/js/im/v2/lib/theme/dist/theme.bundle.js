@@ -61,17 +61,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	});
 	const ThemeManager = {
 	  isLightTheme() {
-	    const selectedBackgroundId = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.dialog.background);
+	    const selectedBackgroundId = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.appearance.background);
 	    const selectedColorScheme = ThemeColorScheme[selectedBackgroundId];
 	    return (selectedColorScheme == null ? void 0 : selectedColorScheme.type) === ThemeType.light;
 	  },
 	  isDarkTheme() {
-	    const selectedBackgroundId = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.dialog.background);
+	    const selectedBackgroundId = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.appearance.background);
 	    const selectedColorScheme = ThemeColorScheme[selectedBackgroundId];
 	    return (selectedColorScheme == null ? void 0 : selectedColorScheme.type) === ThemeType.dark;
 	  },
 	  getCurrentBackgroundStyle() {
-	    const selectedBackgroundId = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.dialog.background);
+	    const selectedBackgroundId = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.appearance.background);
 	    return this.getBackgroundStyleById(selectedBackgroundId);
 	  },
 	  getBackgroundStyleById(backgroundId) {

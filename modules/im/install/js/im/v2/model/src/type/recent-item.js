@@ -19,6 +19,7 @@ export type RecentItem = {
 	unread: boolean,
 	pinned: boolean,
 	liked: boolean,
+	dateUpdate: ?Date,
 	invitation: {
 		isActive: boolean,
 		originator: number,

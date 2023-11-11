@@ -1,36 +1,48 @@
-import {EventEmitter, BaseEvent} from 'main.core.events';
+import { EventEmitter, BaseEvent } from 'main.core.events';
 
-import {MessengerNavigation} from 'im.v2.component.navigation';
-import {RecentListContainer} from 'im.v2.component.list.container.recent';
-import {OpenlineListContainer} from 'im.v2.component.list.container.openline';
-import {ChatContent} from 'im.v2.component.content.chat';
-import {CreateChatContent} from 'im.v2.component.content.create-chat';
-import {OpenlineContent} from 'im.v2.component.content.openline';
-import {NotificationContent} from 'im.v2.component.content.notification';
-import {MarketContent} from 'im.v2.component.content.market';
+import { MessengerNavigation } from 'im.v2.component.navigation';
+import { RecentListContainer } from 'im.v2.component.list.container.recent';
+import { OpenlineListContainer } from 'im.v2.component.list.container.openline';
+import { ChatContent } from 'im.v2.component.content.chat';
+import { CreateChatContent } from 'im.v2.component.content.create-chat';
+import { OpenlinesContent } from 'im.v2.component.content.openlines';
+import { NotificationContent } from 'im.v2.component.content.notification';
+import { MarketContent } from 'im.v2.component.content.market';
+import { SettingsContent } from 'im.v2.component.content.settings';
 
-import {Logger} from 'im.v2.lib.logger';
-import {InitManager} from 'im.v2.lib.init';
-import {EventType, Layout} from 'im.v2.const';
-import {CallManager} from 'im.v2.lib.call';
-import {ThemeManager} from 'im.v2.lib.theme';
-import {DesktopManager} from 'im.v2.lib.desktop';
+import { Logger } from 'im.v2.lib.logger';
+import { InitManager } from 'im.v2.lib.init';
+import { EventType, Layout } from 'im.v2.const';
+import { CallManager } from 'im.v2.lib.call';
+import { ThemeManager } from 'im.v2.lib.theme';
+import { DesktopManager } from 'im.v2.lib.desktop';
 
 import 'ui.fonts.opensans';
 import './css/messenger.css';
 import './css/tokens.css';
 import './css/icons.css';
 
-import type {ImModelDialog, ImModelLayout} from 'im.v2.model';
+import type { ImModelDialog, ImModelLayout } from 'im.v2.model';
 
 // @vue/component
 export const Messenger = {
 	name: 'MessengerRoot',
-	components: {MessengerNavigation, RecentListContainer, OpenlineListContainer, ChatContent, CreateChatContent, OpenlineContent, NotificationContent, MarketContent},
+	components: {
+		MessengerNavigation,
+		RecentListContainer,
+		OpenlineListContainer,
+		ChatContent,
+		CreateChatContent,
+		OpenlinesContent,
+		NotificationContent,
+		MarketContent,
+		SettingsContent,
+	},
 	data()
 	{
 		return {
-			contextMessageId: 0
+			contextMessageId: 0,
+			openlinesContentOpened: false,
 		};
 	},
 	computed:
@@ -38,6 +50,10 @@ export const Messenger = {
 		layout(): ImModelLayout
 		{
 			return this.$store.getters['application/getLayout'];
+		},
+		layoutName(): string
+		{
+			return this.layout?.name;
 		},
 		currentLayout(): {name: string, list: string, content: string}
 		{
@@ -59,6 +75,10 @@ export const Messenger = {
 		{
 			return this.layout.name === Layout.notification.name;
 		},
+		isOpenline(): boolean
+		{
+			return this.layout.name === Layout.openlines.name;
+		},
 		containerClasses(): string[]
 		{
 			return {
@@ -70,7 +90,23 @@ export const Messenger = {
 		callContainerClass(): string[]
 		{
 			return [CallManager.viewContainerClass];
-		}
+		},
+	},
+	watch:
+	{
+		layoutName:
+		{
+			handler(newLayoutName)
+			{
+				if (newLayoutName !== Layout.openlines.name)
+				{
+					return;
+				}
+
+				this.openlinesContentOpened = true;
+			},
+			immediate: true,
+		},
 	},
 	created()
 	{
@@ -87,7 +123,7 @@ export const Messenger = {
 	},
 	methods:
 	{
-		onNavigationClick({layoutName, layoutEntityId}: {layoutName: string, layoutEntityId: string | number})
+		onNavigationClick({ layoutName, layoutEntityId }: {layoutName: string, layoutEntityId: string | number})
 		{
 			let entityId = '';
 			const isChatNext = layoutName === Layout.chat.name;
@@ -102,16 +138,16 @@ export const Messenger = {
 				entityId = layoutEntityId;
 			}
 
-			this.$store.dispatch('application/setLayout', {layoutName, entityId});
+			this.$store.dispatch('application/setLayout', { layoutName, entityId });
 		},
-		onEntitySelect({layoutName, entityId})
+		onEntitySelect({ layoutName, entityId })
 		{
 			this.saveLastOpenedChat(entityId);
-			this.$store.dispatch('application/setLayout', {layoutName, entityId});
+			this.$store.dispatch('application/setLayout', { layoutName, entityId });
 		},
 		onGoToMessageContext(event: BaseEvent)
 		{
-			const {dialogId, messageId} = event.getData();
+			const { dialogId, messageId } = event.getData();
 			if (this.currentDialog.dialogId === dialogId)
 			{
 				return;
@@ -120,13 +156,13 @@ export const Messenger = {
 			this.$store.dispatch('application/setLayout', {
 				layoutName: Layout.chat.name,
 				entityId: dialogId,
-				contextId: messageId
+				contextId: messageId,
 			});
 		},
 		saveLastOpenedChat(dialogId: string)
 		{
 			this.previouslySelectedChat = dialogId || '';
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-messenger__scope bx-im-messenger__container" :class="containerClasses">
@@ -141,11 +177,14 @@ export const Messenger = {
 						</KeepAlive>
 					</div>
 					<div class="bx-im-messenger__content_container">
-						<component :is="currentLayout.content" :entityId="entityId" :contextMessageId="contextMessageId" />
+						<div v-if="openlinesContentOpened" class="bx-im-messenger__openlines_container" :class="{'--hidden': !isOpenline}">
+							<OpenlinesContent v-show="isOpenline" :entityId="entityId" :contextMessageId="contextMessageId" />
+						</div>
+						<component v-if="!isOpenline" :is="currentLayout.content" :entityId="entityId" :contextMessageId="contextMessageId" />
 					</div>
 				</div>
 			</div>
 		</div>
 		<div :class="callContainerClass"></div>
-	`
+	`,
 };

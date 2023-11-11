@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,ui_fonts_opensans,ui_vue_directives_lazyload,main_polyfill_intersectionobserver,ui_vue,main_core_events) {
 	'use strict';
 
@@ -9,14 +10,12 @@
 	 * @subpackage ui
 	 * @copyright 2001-2021 Bitrix
 	 */
-
 	var _State = Object.freeze({
 	  play: 'play',
 	  pause: 'pause',
 	  stop: 'stop',
 	  none: 'none'
 	});
-
 	ui_vue.BitrixVue.component('bx-socialvideo', {
 	  props: {
 	    id: {
@@ -65,7 +64,6 @@
 	      this.previewLoaded = true;
 	      this.preload = 'metadata';
 	    }
-
 	    this.$Bitrix.eventEmitter.subscribe('ui:socialvideo:unmute', this.onUnmute);
 	  },
 	  mounted: function mounted() {
@@ -83,15 +81,12 @@
 	  methods: {
 	    loadFile: function loadFile() {
 	      var play = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
 	      if (this.loaded) {
 	        return true;
 	      }
-
 	      if (this.loading) {
 	        return true;
 	      }
-
 	      this.preload = 'auto';
 	      this.loading = true;
 	      this.playAfterLoad = play;
@@ -101,27 +96,23 @@
 	      if (!this.src) {
 	        return false;
 	      }
-
 	      if (this.state === _State.play) {
 	        this.getObserver().unobserve(this.$refs.body);
 	        this.pause();
 	      } else {
 	        this.play();
 	      }
-
 	      event.stopPropagation();
 	    },
 	    clickToMute: function clickToMute() {
 	      if (!this.src) {
 	        return false;
 	      }
-
 	      if (!this.muteFlag) {
 	        this.mute();
 	      } else {
 	        this.unmute();
 	      }
-
 	      event.stopPropagation();
 	    },
 	    click: function click(event) {
@@ -130,7 +121,6 @@
 	        event.stopPropagation();
 	        return false;
 	      }
-
 	      if (this.isMobile) {
 	        if (this.source().webkitEnterFullscreen) {
 	          this.unmute();
@@ -146,7 +136,6 @@
 	      } else {
 	        this.$emit('click', event);
 	      }
-
 	      event.stopPropagation();
 	    },
 	    play: function play(event) {
@@ -154,18 +143,15 @@
 	        this.loadFile(true);
 	        return false;
 	      }
-
 	      if (!this.source()) {
 	        return false;
 	      }
-
 	      this.source().play();
 	    },
 	    pause: function pause() {
 	      if (!this.source()) {
 	        return false;
 	      }
-
 	      this.playAfterLoad = false;
 	      this.source().pause();
 	    },
@@ -173,7 +159,6 @@
 	      if (!this.source()) {
 	        return false;
 	      }
-
 	      this.state = _State.stop;
 	      this.source().pause();
 	    },
@@ -181,7 +166,6 @@
 	      if (!this.source()) {
 	        return false;
 	      }
-
 	      this.muteFlag = true;
 	      this.playBeforeMute = 2;
 	      this.source().muted = true;
@@ -190,10 +174,8 @@
 	      if (!this.source()) {
 	        return false;
 	      }
-
 	      this.muteFlag = false;
 	      this.source().muted = false;
-
 	      if (this.id > 0) {
 	        this.$Bitrix.eventEmitter.emit('ui:socialvideo:unmute', {
 	          initiator: this.id
@@ -206,26 +188,20 @@
 	    formatTime: function formatTime(second) {
 	      second = Math.floor(second);
 	      var hour = Math.floor(second / 60 / 60);
-
 	      if (hour > 0) {
 	        second -= hour * 60 * 60;
 	      }
-
 	      var minute = Math.floor(second / 60);
-
 	      if (minute > 0) {
 	        second -= minute * 60;
 	      }
-
 	      return (hour > 0 ? hour + ':' : '') + (hour > 0 ? minute.toString().padStart(2, "0") + ':' : minute + ':') + second.toString().padStart(2, "0");
 	    },
 	    onUnmute: function onUnmute(event) {
 	      event = event.getData();
-
 	      if (event.initiator === this.id) {
 	        return false;
 	      }
-
 	      this.mute();
 	    },
 	    source: function source() {
@@ -236,16 +212,13 @@
 	        if (!this.source()) {
 	          return false;
 	        }
-
 	        this.timeTotal = this.source().duration;
 	      } else if (eventName === 'loadedmetadata') {
 	        if (!this.source()) {
 	          return false;
 	        }
-
 	        this.timeTotal = this.source().duration;
 	        this.loaded = true;
-
 	        if (this.playAfterLoad) {
 	          this.play();
 	        }
@@ -258,7 +231,6 @@
 	      } else if (eventName === 'canplaythrough') {
 	        this.loading = false;
 	        this.loaded = true;
-
 	        if (this.playAfterLoad) {
 	          this.play();
 	        }
@@ -266,7 +238,6 @@
 	        if (!this.source()) {
 	          return false;
 	        }
-
 	        if (this.source().muted) {
 	          this.mute();
 	        } else {
@@ -276,23 +247,18 @@
 	        if (!this.source()) {
 	          return false;
 	        }
-
 	        this.timeCurrent = this.source().currentTime;
-
 	        if (!this.muteFlag && !this.enterFullscreen && this.timeCurrent === 0) {
 	          if (this.playBeforeMute <= 0) {
 	            this.mute();
 	          }
-
 	          this.playBeforeMute -= 1;
 	        }
-
 	        this.setProgress(Math.round(100 / this.timeTotal * this.timeCurrent));
 	      } else if (eventName === 'pause') {
 	        if (this.state !== _State.stop) {
 	          this.state = _State.pause;
 	        }
-
 	        if (this.enterFullscreen) {
 	          this.enterFullscreen = false;
 	          this.mute();
@@ -300,12 +266,10 @@
 	        }
 	      } else if (eventName === 'play') {
 	        this.state = _State.play;
-
 	        if (this.state === _State.stop) {
 	          this.progress = 0;
 	          this.timeCurrent = 0;
 	        }
-
 	        if (this.enterFullscreen) {
 	          this.enterFullscreen = false;
 	        }
@@ -313,16 +277,13 @@
 	    },
 	    getObserver: function getObserver() {
 	      var _this = this;
-
 	      if (this.observer) {
 	        return this.observer;
 	      }
-
 	      this.observer = new IntersectionObserver(function (entries, observer) {
 	        if (_this.autoPlayDisabled) {
 	          return false;
 	        }
-
 	        entries.forEach(function (entry) {
 	          if (entry.isIntersecting) {
 	            _this.play();
@@ -356,15 +317,12 @@
 	      if (!this.loaded && !this.timeTotal) {
 	        return '--:--';
 	      }
-
 	      var time;
-
 	      if (this.state === _State.play) {
 	        time = this.timeTotal - this.timeCurrent;
 	      } else {
 	        time = this.timeTotal;
 	      }
-
 	      return this.formatTime(time);
 	    },
 	    isMobile: function isMobile() {

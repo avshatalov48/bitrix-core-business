@@ -47,7 +47,7 @@ export const Encoder = {
 			return '{}';
 		}
 
-		let result;
+		let result = '';
 		try
 		{
 			result = encodeURIComponent(JSON.stringify(params));

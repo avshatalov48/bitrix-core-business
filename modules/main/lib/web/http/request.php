@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http;
@@ -36,7 +36,7 @@ class Request extends Message implements RequestInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getRequestTarget()
+	public function getRequestTarget(): string
 	{
 		if ($this->requestTarget !== null)
 		{
@@ -63,7 +63,7 @@ class Request extends Message implements RequestInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withRequestTarget($requestTarget)
+	public function withRequestTarget(string $requestTarget): RequestInterface
 	{
 		$new = clone $this;
 		$new->requestTarget = $requestTarget;
@@ -74,7 +74,7 @@ class Request extends Message implements RequestInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getMethod()
+	public function getMethod(): string
 	{
 		return $this->method;
 	}
@@ -82,7 +82,7 @@ class Request extends Message implements RequestInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withMethod($method)
+	public function withMethod(string $method): RequestInterface
 	{
 		$new = clone $this;
 		$new->method = $method;
@@ -93,7 +93,7 @@ class Request extends Message implements RequestInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getUri()
+	public function getUri(): UriInterface
 	{
 		return $this->uri;
 	}
@@ -101,7 +101,7 @@ class Request extends Message implements RequestInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withUri(UriInterface $uri, $preserveHost = false)
+	public function withUri(UriInterface $uri, bool $preserveHost = false): RequestInterface
 	{
 		$new = clone $this;
 		$new->uri = $uri;

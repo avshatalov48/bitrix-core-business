@@ -6,16 +6,20 @@ use Bitrix\Im\Recent;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Controller\BaseController;
 use Bitrix\Im\V2\Controller\Filter\CheckMessageDisappearingDuration;
+use Bitrix\Im\V2\Controller\Filter\UpdateStatus;
 use Bitrix\Im\V2\Entity\View\ViewCollection;
 use Bitrix\Im\V2\Message\Delete\DisappearService;
 use Bitrix\Im\V2\Message\Forward\ForwardService;
 use Bitrix\Im\V2\Message\MessageError;
+use Bitrix\Im\V2\Message\PushFormat;
 use Bitrix\Im\V2\Message\Reply\ReplyService;
+use Bitrix\Im\V2\Message\Send\PushService;
 use Bitrix\Im\V2\Message\Update\UpdateService;
 use Bitrix\Im\V2\Message\Delete\DeleteService;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Message\MessageService;
 use Bitrix\Im\V2\Message\ReadService;
+use Bitrix\Im\V2\Result;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\CurrentUser;
 
@@ -64,6 +68,26 @@ class Message extends BaseController
 				'+prefilters' => [
 					new CheckMessageDisappearingDuration(),
 				]
+			],
+			'read' => [
+				'+postfilters' => [
+					new UpdateStatus(),
+				],
+			],
+			'list' => [
+				'+postfilters' => [
+					new UpdateStatus(),
+				],
+			],
+			'getContext' => [
+				'+postfilters' => [
+					new UpdateStatus(),
+				],
+			],
+			'tail' => [
+				'+postfilters' => [
+					new UpdateStatus(),
+				],
 			],
 		];
 	}
@@ -146,28 +170,19 @@ class Message extends BaseController
 	 */
 	public function tailAction(Chat $chat, array $filter = [], array $order = [], int $limit = 50): ?array
 	{
-		$messageOrder = [];
-		$messageFilter = [];
+		[$messageFilter, $messageOrder] = $this->prepareParamsForTail($chat, $filter, $order);
 
-		if (isset($order['id']))
-		{
-			$messageOrder['ID'] = strtoupper($order['id']);
-		}
+		return $this->getMessages($messageFilter, $messageOrder, $limit);
+	}
 
-		if (isset($filter['lastId']))
-		{
-			$messageFilter['LAST_ID'] = (int)$filter['lastId'];
-		}
+	/**
+	 * @restMethod im.v2.Chat.Message.search
+	 */
+	public function searchAction(Chat $chat, array $filter = [], array $order = [], int $limit = 50): ?array
+	{
+		[$messageFilter, $messageOrder] = $this->prepareParamsForSearch($chat, $filter, $order);
 
-		$messageFilter['START_ID'] = $chat->getStartId();
-		$messageFilter['CHAT_ID'] = $chat->getChatId();
-
-		$messages = MessageCollection::find($messageFilter, $messageOrder, $this->getLimit($limit), null, \Bitrix\Im\V2\Message::REST_FIELDS);
-		$rest = $this->toRestFormat($messages);
-		//todo: refactor. Change to popup data.
-		$rest['hasNextPage'] = $messages->count() >= $limit;
-
-		return $rest;
+		return $this->getMessages($messageFilter, $messageOrder, $limit);
 	}
 
 	/**
@@ -279,11 +294,11 @@ class Message extends BaseController
 	public function updateAction(
 		\Bitrix\Im\V2\Message $message,
 		string $text,
-		bool $urlPreview = true
+		string $urlPreview = 'Y'
 	): ?bool
 	{
 		$result = (new UpdateService($message))
-			->setUrlPreview($urlPreview)
+			->setUrlPreview($this->convertCharToBool($urlPreview))
 			->update($text);
 
 		if (!$result->isSuccess())
@@ -294,5 +309,103 @@ class Message extends BaseController
 		}
 
 		return true;
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.Message.inform
+	 */
+	public function informAction(
+		\Bitrix\Im\V2\Message $message
+	): ?array
+	{
+		$chat = $message->getChat();
+		if (!($chat instanceof Chat\PrivateChat))
+		{
+			$this->addError(new Chat\ChatError(Chat\ChatError::WRONG_TYPE));
+
+			return null;
+		}
+
+		$message->markAsImportant(true);
+
+		$result = (new PushFormat())->validateDataForInform($message, $chat);
+		if (!$result->isSuccess())
+		{
+			$this->addErrors($result->getErrors());
+
+			return null;
+		}
+
+		$pushService = new \Bitrix\Im\V2\Message\Inform\PushService();
+		$pushService->sendInformPushPrivateChat($chat, $message);
+
+		return ['result' => true];
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.Message.deleteRichUrl
+	 */
+	public function deleteRichUrlAction(\Bitrix\Im\V2\Message $message, CurrentUser $user): ?array
+	{
+		if ((int)$user->getId() !== $message->getAuthorId())
+		{
+			$this->addError(new MessageError(MessageError::WRONG_SENDER));
+
+			return null;
+		}
+
+		(new \Bitrix\Im\V2\Message\Attach\AttachService())->deleteRichUrl($message);
+
+		return ['result' => true];
+	}
+
+	protected function prepareParamsForTail(Chat $chat, array $filter, array $order): array
+	{
+		$messageFilter = [];
+		$messageOrder = [];
+
+		if (isset($order['id']))
+		{
+			$messageOrder['ID'] = strtoupper($order['id']);
+		}
+
+		if (isset($filter['lastId']))
+		{
+			$messageFilter['LAST_ID'] = (int)$filter['lastId'];
+		}
+
+		$messageFilter['START_ID'] = $chat->getStartId();
+		$messageFilter['CHAT_ID'] = $chat->getChatId();
+
+		return [$messageFilter, $messageOrder];
+	}
+
+	protected function prepareParamsForSearch(Chat $chat, array $filter, array $order): array
+	{
+		[$messageFilter, $messageOrder] = $this->prepareParamsForTail($chat, $filter, $order);
+
+		if (isset($filter['searchMessage']) && is_string($filter['searchMessage']))
+		{
+			$messageFilter['SEARCH_MESSAGE'] = trim($filter['searchMessage']);
+		}
+
+		return [$messageFilter, $messageOrder];
+	}
+
+	protected function getMessages(array $filter, array $order, int $limit): array
+	{
+		$messages = MessageCollection::find(
+			$filter,
+			$order,
+			$this->getLimit($limit),
+			null,
+			\Bitrix\Im\V2\Message::REST_FIELDS
+		);
+
+		$rest = $this->toRestFormat($messages);
+		//todo: refactor. Change to popup data.
+		$rest['hasNextPage'] = $messages->count() >= $limit;
+
+		return $rest;
 	}
 }

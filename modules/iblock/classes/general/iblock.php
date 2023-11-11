@@ -2244,7 +2244,8 @@ REQ
 					"IS_REQUIRED" => $IS_REQUIRED,
 					"DEFAULT_VALUE" => $DEFAULT_VALUE,
 				];
-				$DB->Add("b_iblock_fields", $arAdd, array("DEFAULT_VALUE"));
+				$arInsert = $DB->PrepareInsert("b_iblock_fields", $arAdd);
+				$DB->Query("INSERT INTO b_iblock_fields (".$arInsert[0].") VALUES (".$arInsert[1].")");
 			}
 
 			CIBlock::CleanCache($ID);

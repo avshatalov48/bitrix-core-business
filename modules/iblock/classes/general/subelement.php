@@ -50,6 +50,7 @@ class CAdminSubSorting extends CAdminSorting
 
 class CAdminSubList extends CAdminList
 {
+	public const MODE_CONFIG = 'subsettings';
 /*
  *	list_url - string with params or array:
  *		LINK
@@ -138,6 +139,39 @@ class CAdminSubList extends CAdminList
 		$this->SetBaseFieldNames();
 		if (!empty($arHideHeaders) && is_array($arHideHeaders))
 			$this->arHideHeaders = $arHideHeaders;
+	}
+
+	//TODO: remove after parent update wiil be stable
+	protected function initMode(): void
+	{
+		$this->mode = self::MODE_PAGE;
+		$mode = $this->request->get(self::MODE_FIELD_NAME);
+		if (
+			is_string($mode)
+			&& (in_array(
+				$mode,
+				$this->getModeList(),
+				true
+			))
+		)
+		{
+			$this->mode = $mode;
+		}
+	}
+
+	protected function getModeList(): array
+	{
+		return [
+			parent::MODE_LIST,
+			parent::MODE_ACTION,
+			parent::MODE_EXPORT,
+			self::MODE_CONFIG,
+		];
+	}
+
+	public function isConfigMode(): bool
+	{
+		return $this->getCurrentMode() === self::MODE_CONFIG;
 	}
 
 	function GetListUrl($boolFull = false)
@@ -280,9 +314,7 @@ class CAdminSubList extends CAdminList
 		}
 		unset($userColumns);
 
-		$aAllCols = null;
-		if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "subsettings")
-			$aAllCols = $this->aHeaders;
+		$aAllCols = ($this->isConfigMode() ? $this->aHeaders : null);
 
 		if(!$bEmptyCols)
 		{
@@ -299,8 +331,10 @@ class CAdminSubList extends CAdminList
 		}
 		unset($userVisibleColumns, $hiddenColumns);
 
-		if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "subsettings")
+		if ($this->isConfigMode())
+		{
 			$this->ShowSettings($aAllCols, $aCols, $aOptions);
+		}
 	}
 
 	public function AddVisibleHeaderColumn($id)
@@ -315,7 +349,7 @@ class CAdminSubList extends CAdminList
 
 		if (isset($config['settings']))
 		{
-			$this->__AddListUrlParams('mode','subsettings');
+			$this->__AddListUrlParams(parent::MODE_FIELD_NAME,self::MODE_CONFIG);
 			$result[] = [
 				"TEXT" => GetMessage("admin_lib_context_sett"),
 				"TITLE" => GetMessage("admin_lib_context_sett_title"),
@@ -326,7 +360,7 @@ class CAdminSubList extends CAdminList
 		}
 		if (isset($config['excel']))
 		{
-			$this->__AddListUrlParams('mode','excel');
+			$this->__AddListUrlParams(parent::MODE_FIELD_NAME,parent::MODE_EXPORT);
 			$result[] = [
 				"TEXT" => "Excel",
 				"TITLE" => GetMessage("admin_lib_excel"),
@@ -1903,10 +1937,13 @@ class CAdminSubResult extends CAdminResult
 				return '';
 		}
 
-		/** @noinspection PhpUnusedLocalVariableInspection */
 		$sUrlPath = $this->list_url;
-		/** @noinspection PhpUnusedLocalVariableInspection */
-		$strNavQueryString = htmlspecialcharsbx($this->list_url_params);
+		$strNavQueryString = $this->list_url_params;
+		if (strncmp($strNavQueryString, '&', 1) !== 0)
+		{
+			$strNavQueryString = '&' . $strNavQueryString;
+		}
+		$strNavQueryString = htmlspecialcharsbx($strNavQueryString);
 
 		if($template_path!==false && !file_exists($template_path) && file_exists($_SERVER["DOCUMENT_ROOT"].$template_path))
 			$template_path = $_SERVER["DOCUMENT_ROOT"].$template_path;

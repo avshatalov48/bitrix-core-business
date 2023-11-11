@@ -1592,7 +1592,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	class SearchContextMenu extends im_v2_lib_menu.RecentMenu {
 	  getMenuItems() {
-	    return [this.getSendMessageItem(), this.getCallItem(), this.getHistoryItem(), this.getOpenProfileItem()];
+	    return [this.getOpenItem(), this.getCallItem(), this.getOpenProfileItem()];
 	  }
 	}
 

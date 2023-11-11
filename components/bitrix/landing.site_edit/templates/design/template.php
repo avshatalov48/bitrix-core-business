@@ -120,7 +120,6 @@ $uriDomain->addParams(
 	BX.ready(function() {
 		const editComponent = new BX.Landing.EditComponent('<?= $template->getFieldId('ACTION_CLOSE') ?>');
 		const successSave = <?= CUtil::PhpToJSObject($arParams['SUCCESS_SAVE']) ?>;
-		top.window['landingSettingsSaved'] = false;
 		if (successSave)
 		{
 			top.window['landingSettingsSaved'] = true;
@@ -131,8 +130,15 @@ $uriDomain->addParams(
 				top.BX.Landing.UI.Tool.ActionDialog.getInstance().close();
 			}
 		}
+		else
+		{
+			top.window['landingSettingsSaved'] = false;
+		}
 		BX.Landing.Env.createInstance({
-			params: { type: '<?= $arParams['TYPE'] ?>' }
+			site_id: '<?= $row['ID']['CURRENT'] ?>',
+			params: {
+				type: '<?= $arParams['TYPE'] ?>',
+			},
 		});
 	});
 </script>

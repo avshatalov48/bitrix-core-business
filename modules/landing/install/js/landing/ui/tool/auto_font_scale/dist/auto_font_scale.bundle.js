@@ -187,6 +187,26 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	let lastWidth = BX.width(window);
 	class AutoFontScale {
 	  /**
+	   * First init
+	   * @param parentElement - find all elements in this parent
+	   */
+	  static init(parentElement) {
+	    const elements = AutoFontScale.findElements(parentElement);
+	    new AutoFontScale(elements);
+	  }
+
+	  /**
+	   * Find elements by parent
+	   * @param parentElement - find all elements in this parent
+	   * @return {*}
+	   */
+	  static findElements(parentElement) {
+	    const negativeString = AutoFontScale.NEGATIVE_SELECTORS.map(sel => ':not(' + sel + ')').join('');
+	    const summarySelector = AutoFontScale.SELECTORS.map(sel => sel + negativeString).join(', ');
+	    return slice(parentElement.querySelectorAll(summarySelector));
+	  }
+
+	  /**
 	   * Checks than need adjust
 	   * @return {boolean}
 	   */
@@ -266,11 +286,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	   * @param {BX.Landing.Event.Block} event
 	   */
 	  onAddBlock(event) {
-	    const elements = slice(event.block.querySelectorAll("h1, h2, h3, h4, h5, [data-auto-font-scale]"));
+	    const elements = AutoFontScale.findElements(event.block);
 	    this.addElements(elements);
 	  }
 	}
 	AutoFontScale.WIDTH_LIMIT = 768;
+	AutoFontScale.SELECTORS = ['h1', 'h2', 'h3', 'h4', 'h5', '[data-auto-font-scale]'];
+	AutoFontScale.NEGATIVE_SELECTORS = ['[class*=product-]'];
 
 	exports.AutoFontScale = AutoFontScale;
 

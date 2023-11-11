@@ -6,6 +6,7 @@ export const MenuItemIcon = {
 	conference: 'conference',
 	disk: 'disk',
 	upload: 'upload',
+	file: 'file',
 	task: 'task',
 	meeting: 'meeting',
 	summary: 'summary',

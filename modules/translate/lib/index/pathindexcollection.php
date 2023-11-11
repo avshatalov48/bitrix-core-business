@@ -33,13 +33,13 @@ class PathIndexCollection
 	private static $translationRepositoryRoot;
 
 	/** @var array */
-	private $immediateChildren = array();
+	private $immediateChildren = [];
 
 	/** @var array */
-	private $ancestorsPaths = array();
+	private $ancestorsPaths = [];
 
 	/** @var string[] */
-	private $checkLanguages = array();
+	private $checkLanguages = [];
 
 	/**
 	 * Sets up configuration.
@@ -67,16 +67,16 @@ class PathIndexCollection
 	/**
 	 * Counts items to process.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
 	 * @return int
 	 */
-	public function countItemsToProcess(Translate\Filter $filter = null)
+	public function countItemsToProcess(Translate\Filter $filter = null): int
 	{
 		if (isset($filter, $filter->path))
 		{
 			$relPath = '/'. \trim($filter->path, '/');
-			$totalItems = (int)Index\Internals\PathLangTable::getCount(array('=%PATH' => $relPath .'%'));
+			$totalItems = (int)Index\Internals\PathLangTable::getCount(['=%PATH' => $relPath .'%']);
 		}
 		else
 		{
@@ -89,13 +89,13 @@ class PathIndexCollection
 	/**
 	 * Collect path structure.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
-	 * @param Translate\Controller\ITimeLimit $timer Time counter.
-	 * @param Translate\Filter $seek Params to seek position.
+	 * @param Translate\Filter|null $filter Params to filter file list.
+	 * @param Translate\Controller\ITimeLimit|null $timer Time counter.
+	 * @param Translate\Filter|null $seek Params to seek position.
 	 *
 	 * @return int
 	 */
-	public function collect(Translate\Filter $filter = null, Translate\Controller\ITimeLimit $timer = null, Translate\Filter $seek = null)
+	public function collect(Translate\Filter $filter = null, Translate\Controller\ITimeLimit $timer = null, Translate\Filter $seek = null): int
 	{
 		self::configure();
 
@@ -118,19 +118,19 @@ class PathIndexCollection
 			}
 		}
 
-		$pathFilter = array(
+		$pathFilter = [
 			'=%PATH' => $relPath.'%'
-		);
+		];
 		if (isset($seek, $seek->pathLangId))
 		{
 			$pathFilter['>ID'] = $seek->pathLangId;
 		}
 
-		$cachePathLangRes = Index\Internals\PathLangTable::getList(array(
+		$cachePathLangRes = Index\Internals\PathLangTable::getList([
 			'filter' => $pathFilter,
-			'order' => array('ID' => 'ASC'),
+			'order' => ['ID' => 'ASC'],
 			'select' => ['ID', 'PATH'],
-		));
+		]);
 		$processedItemCount = 0;
 		while ($pathLang = $cachePathLangRes->fetch())
 		{
@@ -151,8 +151,6 @@ class PathIndexCollection
 		return $processedItemCount;
 	}
 
-
-
 	/**
 	 * Collect path structure.
 	 *
@@ -160,7 +158,7 @@ class PathIndexCollection
 	 *
 	 * @return int
 	 */
-	private function collectFilePath($relPath)
+	private function collectFilePath($relPath): int
 	{
 		$fullPath = Translate\IO\Path::tidy(self::$documentRoot.'/'.$relPath);
 
@@ -230,7 +228,7 @@ class PathIndexCollection
 							{
 								continue;
 							}
-							if (\mb_substr($name, -4) !== '.php')
+							if (!Translate\IO\Path::isPhpFile($name))
 							{
 								continue;
 							}
@@ -254,14 +252,14 @@ class PathIndexCollection
 							}
 							if ($pathId === null)
 							{
-								$nodeData = array(
+								$nodeData = [
 									'PARENT_ID' => $parentId,
 									'NAME' => $name,
 									'PATH' => $relPath,
 									'IS_LANG' => 'Y',
 									'IS_DIR' => 'N',
 									'DEPTH_LEVEL' => $depthLevel,
-								);
+								];
 
 								if ($langSettings instanceof Translate\Settings)
 								{
@@ -293,7 +291,7 @@ class PathIndexCollection
 				$childrenList = Translate\IO\FileSystemHelper::getFolderList($parentFullPath);
 				if (empty($childrenList))
 				{
-					$childrenList = array();
+					$childrenList = [];
 				}
 
 				if ($parentLangId === null && \basename($parentFullPath) === 'lang')
@@ -389,14 +387,14 @@ class PathIndexCollection
 						}
 						if ($pathId === null)
 						{
-							$nodeData = array(
+							$nodeData = [
 								'PARENT_ID' => $parentId,
 								'NAME' => $name,
 								'PATH' => $relPath,
 								'IS_LANG' => $isLang ? 'Y' : 'N',
 								'IS_DIR' => 'Y',
 								'DEPTH_LEVEL' => $depthLevel,
-							);
+							];
 
 							if ($langSettings instanceof Translate\Settings)
 							{
@@ -413,12 +411,12 @@ class PathIndexCollection
 							$this->immediateChildren[$parentId][$relPath] = $pathId;
 							$this->immediateChildren[$pathId] = [];
 
-							$this->ancestorsPaths[$relPath] = array(
+							$this->ancestorsPaths[$relPath] = [
 								'ID' => $pathId,
 								'DEPTH_LEVEL' => $depthLevel,
 								'IS_LANG' => $isLang,
 								'PATH' => $relPath,
-							);
+							];
 						}
 
 						if (self::$verbose)
@@ -468,7 +466,7 @@ class PathIndexCollection
 			}
 			foreach ($langSettings as $settingPath => $settings)
 			{
-				if (\mb_substr($settingPath, -4) === '.php' && !empty($settings[Translate\Settings::OPTION_LANGUAGES]))
+				if (Translate\IO\Path::isPhpFile($settingPath) && !empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 				{
 					Index\Internals\PathIndexTable::bulkUpdate(
 						['OBLIGATORY_LANGS' => \implode(',', $settings[Translate\Settings::OPTION_LANGUAGES])],
@@ -490,7 +488,7 @@ class PathIndexCollection
 	 *
 	 * @return array|null
 	 */
-	public function constructAncestorsByPath($path)
+	public function constructAncestorsByPath($path): ?array
 	{
 		if (isset($this->ancestorsPaths[$path]))
 		{
@@ -549,24 +547,24 @@ class PathIndexCollection
 				$isLang = ($part === 'lang');
 			}
 
-			$nodeData = array(
+			$nodeData = [
 				'NAME' => $part,
 				'PATH' => $searchPath,
 				'PARENT_ID' => $searchParentId,
 				'DEPTH_LEVEL' => $searchDepthLevel,
 				'IS_LANG' => $isLang ? 'Y' : 'N',
-				'IS_DIR' => (\mb_substr($part, -4) === '.php' ? 'N' : 'Y'),
-			);
+				'IS_DIR' => (Translate\IO\Path::isPhpFile($part) ? 'N' : 'Y'),
+			];
 
 			$pathInx = Index\Internals\PathIndexTable::add($nodeData);
 			$searchParentId = $pathInx->getId();
 
-			$this->ancestorsPaths[$searchPath] = array(
+			$this->ancestorsPaths[$searchPath] = [
 				'ID' => $searchParentId,
 				'DEPTH_LEVEL' => $searchDepthLevel,
 				'IS_LANG' => $isLang,
 				'PATH' => $searchPath,
-			);
+			];
 
 			$searchDepthLevel ++;
 		}
@@ -582,16 +580,16 @@ class PathIndexCollection
 	 *
 	 * @return Index\PathIndex[]
 	 */
-	private function getImmediateChildren($parentId)
+	private function getImmediateChildren($parentId): array
 	{
 		if (!isset($this->immediateChildren[$parentId]))
 		{
-			$this->immediateChildren[$parentId] = array();
+			$this->immediateChildren[$parentId] = [];
 
-			$nodeRes = Index\Internals\PathIndexTable::getList(array(
+			$nodeRes = Index\Internals\PathIndexTable::getList([
 				'filter' => ['=PARENT_ID' => $parentId],
 				'select' => ['ID', 'PATH'],
-			));
+			]);
 			while ($nodeInx = $nodeRes->fetch())
 			{
 				$this->immediateChildren[$parentId][$nodeInx['PATH']] = (int)$nodeInx['ID'];
@@ -610,13 +608,13 @@ class PathIndexCollection
 	 *
 	 * @return Index\PathIndex[]
 	 */
-	private function getAncestors($nodeId, $topNodeId = -1)
+	private function getAncestors($nodeId, $topNodeId = -1): array
 	{
 		$nodeRes = Index\Internals\PathIndexTable::getList([
 			'filter' => ['=ID' => (int)$nodeId],
 		]);
 
-		$result = array();
+		$result = [];
 		if ($nodeInx = $nodeRes->fetchObject())
 		{
 			$result[$nodeInx->getId()] = $nodeInx;
@@ -653,7 +651,7 @@ class PathIndexCollection
 	 *
 	 * @return self
 	 */
-	public function arrangeTree()
+	public function arrangeTree(): self
 	{
 		$pathList = Index\Internals\PathIndexTable::getList([
 			'filter' => [
@@ -674,12 +672,12 @@ class PathIndexCollection
 	/**
 	 * Drop index.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 * @param bool $recursively Drop index recursively.
 	 *
 	 * @return self
 	 */
-	public function purge(Translate\Filter $filter = null, $recursively = true)
+	public function purge(Translate\Filter $filter = null, $recursively = true): self
 	{
 		Index\Internals\PathIndexTable::purge($filter, $recursively);
 
@@ -689,12 +687,12 @@ class PathIndexCollection
 	/**
 	 * Unvalidate index.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 * @param bool $recursively Drop index recursively.
 	 *
 	 * @return self
 	 */
-	public function validate(Translate\Filter $filter = null, $recursively = true)
+	public function validate(Translate\Filter $filter = null, $recursively = true): self
 	{
 		if (($filterOut = Index\Internals\PathIndexTable::processFilter($filter)) !== false)
 		{
@@ -716,12 +714,12 @@ class PathIndexCollection
 	/**
 	 * Unvalidate index.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 * @param bool $recursively Drop index recursively.
 	 *
 	 * @return self
 	 */
-	public function unvalidate(Translate\Filter $filter = null, $recursively = true)
+	public function unvalidate(Translate\Filter $filter = null, $recursively = true): self
 	{
 		if (($filterOut = Index\Internals\PathIndexTable::processFilter($filter)) !== false)
 		{
@@ -743,11 +741,11 @@ class PathIndexCollection
 	/**
 	 * Collect sssignment file to module.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
 	 * @return self
 	 */
-	public function collectModuleAssignment(Translate\Filter $filter = null)
+	public function collectModuleAssignment(Translate\Filter $filter = null): self
 	{
 		$searchPath = isset($filter, $filter->path) ? $filter->path : '';
 
@@ -816,11 +814,11 @@ class PathIndexCollection
 	/**
 	 * Collect file asssignment.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
 	 * @return self
 	 */
-	public function collectAssignment(Translate\Filter $filter = null)
+	public function collectAssignment(Translate\Filter $filter = null): self
 	{
 		// /bitrix/(mobileapp|templates|components|activities|wizards|gadgets|js|..)
 		foreach (Translate\ASSIGNMENT_TYPES as $assignmentId)
@@ -899,5 +897,4 @@ class PathIndexCollection
 
 		return $this;
 	}
-
 }

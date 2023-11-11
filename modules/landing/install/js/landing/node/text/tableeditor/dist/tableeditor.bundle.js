@@ -5,6 +5,9 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 (function (exports,ui_draganddrop_draggable,main_core) {
 	'use strict';
 
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	var TableEditor = /*#__PURE__*/function () {
 	  function TableEditor(node) {
 	    babelHelpers.classCallCheck(this, TableEditor);
@@ -36,24 +39,21 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	    value: function addTitles(tableNode) {
 	      if (!tableNode.hasAttribute('title-added')) {
 	        tableNode.title = '';
-	        tableNode.querySelector('.landing-table-th-select-all').title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_SELECT_TABLE"));
+	        tableNode.querySelector('.landing-table-th-select-all').title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage('LANDING_TABLE_SELECT_TABLE'));
 	        tableNode.querySelectorAll('.landing-table-div-col-dnd').forEach(function (element) {
-	          element.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_DND_COLS"));
+	          element.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage('LANDING_TABLE_DND_COLS'));
 	        });
 	        tableNode.querySelectorAll('.landing-table-col-resize').forEach(function (element) {
-	          element.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_RESIZE_COLS"));
+	          element.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage('LANDING_TABLE_RESIZE_COLS'));
 	        });
 	        tableNode.querySelectorAll('.landing-table-col-add').forEach(function (element) {
-	          element.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_BUTTON_ADD_COL"));
+	          element.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage('LANDING_TABLE_BUTTON_ADD_COL'));
 	        });
 	        tableNode.querySelectorAll('.landing-table-row-dnd').forEach(function (element) {
-	          element.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_DND_ROWS"));
+	          element.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage('LANDING_TABLE_DND_ROWS'));
 	        });
 	        tableNode.querySelectorAll('.landing-table-row-add').forEach(function (element) {
-	          element.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_BUTTON_ADD_ROW"));
-	        });
-	        tableNode.querySelectorAll('.landing-table-td').forEach(function (element) {
-	          element.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_BUTTON_CHANGE_TEXT"));
+	          element.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage('LANDING_TABLE_BUTTON_ADD_ROW'));
 	        });
 	        tableNode.setAttribute('title-added', 'true');
 	      }
@@ -85,14 +85,14 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	    key: "onUnselect",
 	    value: function onUnselect(tableEditor) {
 	      main_core.Event.bind(tableEditor.table, 'click', function () {
-	        var classList = ['landing-table-th-select-all', 'landing-table-row-dnd', 'landing-table-row-add'];
+	        var classList = new Set(['landing-table-th-select-all', 'landing-table-row-dnd', 'landing-table-row-add']);
 	        var isContains = babelHelpers.toConsumableArray(event.target.classList).some(function (className) {
-	          return classList.includes(className);
+	          return classList.has(className);
 	        });
 	        if (!isContains) {
-	          var classListChild = ['landing-table-col-dnd'];
+	          var classListChild = new Set(['landing-table-col-dnd']);
 	          isContains = babelHelpers.toConsumableArray(event.target.parentElement.classList).some(function (className) {
-	            return classListChild.includes(className);
+	            return classListChild.has(className);
 	          });
 	          if (!isContains) {
 	            tableEditor.unselect(tableEditor);
@@ -243,11 +243,11 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	        var offset = 5;
 	        var linesX = document.querySelectorAll('.landing-table-row-add-line');
 	        linesX.forEach(function (lineX) {
-	          lineX.style.width = width + offset + "px";
+	          lineX.style.width = "".concat(width + offset, "px");
 	        });
 	        var linesY = document.querySelectorAll('.landing-table-col-add-line');
 	        linesY.forEach(function (lineY) {
-	          lineY.style.height = height + offset + "px";
+	          lineY.style.height = "".concat(height + offset, "px");
 	        });
 	      }
 	    }
@@ -261,12 +261,12 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	    value: function addRow(tableEditor) {
 	      var neededPosition = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var buttons = tableEditor.getButtonsAddRow(tableEditor.node);
-	      if (neededPosition !== null) {
+	      if (neededPosition === null) {
+	        buttons = Array.prototype.slice.call(buttons, 0);
+	      } else {
 	        var button = buttons[neededPosition];
 	        buttons = [];
 	        buttons[0] = button;
-	      } else {
-	        buttons = Array.prototype.slice.call(buttons, 0);
 	      }
 	      buttons = Array.prototype.slice.call(buttons, 0);
 	      buttons.forEach(function (button) {
@@ -312,11 +312,11 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	          }
 	          var newTr = document.createElement('tr');
 	          newTr.classList.add('landing-table-tr');
-	          trDnd.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_DND_ROWS"));
+	          trDnd.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage('LANDING_TABLE_DND_ROWS'));
 	          trDnd.style.width = '16px';
 	          var divAddRow = document.createElement('div');
 	          divAddRow.classList.add('landing-table-row-add');
-	          divAddRow.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_BUTTON_ADD_COL"));
+	          divAddRow.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage('LANDING_TABLE_BUTTON_ADD_COL'));
 	          var divLineX = document.createElement('div');
 	          divLineX.classList.add('landing-table-row-add-line');
 	          var divRowDnd = document.createElement('div');
@@ -328,7 +328,7 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	            var _count = tr.children.length;
 	            var setTd = [];
 	            button.parentNode.parentNode.childNodes.forEach(function (item) {
-	              if (item.nodeType == 1) {
+	              if (item.nodeType === 1) {
 	                setTd.push(item);
 	              }
 	            });
@@ -349,7 +349,7 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	          button.parentNode.parentNode.parentNode.insertBefore(newTr, button.parentNode.parentNode.nextSibling);
 	          tableEditor.buildLines(tableEditor);
 	          tableEditor.enableEditCells(tableEditor.node);
-	          BX.Landing.Block.Node.Text.currentNode.onChange(true);
+	          BX.Landing.Node.Text.currentNode.onChange(true);
 	          tableEditor.selectRow(tableEditor, neededPosition);
 	          tableEditor.addRow(tableEditor, neededPosition);
 	          tableEditor.unselect(tableEditor);
@@ -367,12 +367,12 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	    value: function addCol(tableEditor) {
 	      var neededPosition = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var buttons = tableEditor.getButtonsAddCol(tableEditor.node);
-	      if (neededPosition !== null) {
+	      if (neededPosition === null) {
+	        buttons = Array.prototype.slice.call(buttons, 0);
+	      } else {
 	        var button = buttons[neededPosition];
 	        buttons = [];
 	        buttons[0] = button;
-	      } else {
-	        buttons = Array.prototype.slice.call(buttons, 0);
 	      }
 	      buttons.forEach(function (button) {
 	        main_core.Event.bind(button, 'click', function () {
@@ -398,7 +398,7 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	            newThFirst.classList.add('landing-table-cell-selected');
 	          }
 	          var row = button.parentNode.parentNode;
-	          var neededPosition = babelHelpers.toConsumableArray(row.children).indexOf(button.parentNode);
+	          var position = babelHelpers.toConsumableArray(row.children).indexOf(button.parentNode);
 	          if (tableEditor.tBody.childNodes.length > 0) {
 	            var count = 0;
 	            tableEditor.tBody.childNodes.forEach(function (element) {
@@ -406,13 +406,13 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	                newThFirstCloned = newThFirst.cloneNode(true);
 	                var divColumnDnd = document.createElement('div');
 	                divColumnDnd.classList.add('landing-table-div-col-dnd');
-	                divColumnDnd.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_DND_COLS"));
+	                divColumnDnd.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage('LANDING_TABLE_DND_COLS'));
 	                var divColumnResize = document.createElement('div');
 	                divColumnResize.classList.add('landing-table-col-resize');
-	                divColumnResize.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_RESIZE_COLS"));
+	                divColumnResize.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage('LANDING_TABLE_RESIZE_COLS'));
 	                var divAddColHere = document.createElement('div');
 	                divAddColHere.classList.add('landing-table-col-add');
-	                divAddColHere.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage("LANDING_TABLE_BUTTON_ADD_COL"));
+	                divAddColHere.title = BX.Landing.Utils.escapeText(BX.Landing.Loc.getMessage('LANDING_TABLE_BUTTON_ADD_COL'));
 	                var divLineY = document.createElement('div');
 	                divLineY.classList.add('landing-table-col-add-line');
 	                divAddColHere.appendChild(divLineY);
@@ -437,7 +437,7 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	                var newNeededPosition = 0;
 	                element.childNodes.forEach(function (node) {
 	                  if (node.nodeType === 1) {
-	                    if (countNodes === neededPosition) {
+	                    if (countNodes === position) {
 	                      newNeededPosition = countChild;
 	                    }
 	                    countNodes++;
@@ -455,9 +455,9 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	          }
 	          tableEditor.buildLines(tableEditor);
 	          tableEditor.enableEditCells(tableEditor.node);
-	          BX.Landing.Block.Node.Text.currentNode.onChange(true);
-	          tableEditor.selectCol(tableEditor, neededPosition);
-	          tableEditor.addCol(tableEditor, neededPosition);
+	          BX.Landing.Node.Text.currentNode.onChange(true);
+	          tableEditor.selectCol(tableEditor, position);
+	          tableEditor.addCol(tableEditor, position);
 	          tableEditor.unselect(tableEditor);
 	          BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 	        });
@@ -519,13 +519,13 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	        cloneRow.childNodes[indexFirstNode].style.borderRadius = getComputedStyle(rows[currentPositionRow].childNodes[indexFirstNode]).borderRadius;
 	      }).subscribe('move', function (event) {
 	        if (!originalSource.classList.contains('landing-table-row-add')) {
-	          tableEditor.tBody.classList.add("landing-table-draggable");
+	          tableEditor.tBody.classList.add('landing-table-draggable');
 	          rows[currentPositionRow].classList.add('landing-table-tr-taken');
 	          draggableRowOffsetY = event.getData().offsetY;
 	          tableEditor.tBody.append(cloneRow);
-	          cloneRow.style.position = "absolute";
-	          cloneRow.style.top = currentPositionRowY - tablePositionTop + draggableRowOffsetY - 0.5 + 'px';
-	          cloneRow.style.left = currentPositionRowX - tablePositionLeft - 0.5 + 'px';
+	          cloneRow.style.position = 'absolute';
+	          cloneRow.style.top = "".concat(currentPositionRowY - tablePositionTop + draggableRowOffsetY - 0.5, "px");
+	          cloneRow.style.left = "".concat(currentPositionRowX - tablePositionLeft - 0.5, "px");
 	          if (draggableRowOffsetY > 0) {
 	            cloneRow.style.transform = 'rotate(-1deg)';
 	          } else {
@@ -539,35 +539,58 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	        var newDraggableRowPositionY = currentPositionRowY + draggableRowOffsetY;
 	        var newDraggableRowPositionBottomY = newDraggableRowPositionY + rows[currentPositionRow].getBoundingClientRect().height;
 	        if (draggableRowOffsetY < 0) {
-	          for (var i = 0; i < setRowPositionsY.length; i++) {
-	            var transitivePositionY = setRowPositionsY[i];
-	            if (i === currentPositionRow) {
-	              transitivePositionY = setRowPositionsY[i] - setRowHeights[i - 1] / 2;
+	          var _iterator = _createForOfIteratorHelper(setRowPositionsY.entries()),
+	            _step;
+	          try {
+	            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	              var _step$value = babelHelpers.slicedToArray(_step.value, 2),
+	                i = _step$value[0],
+	                transitivePositionY = _step$value[1];
+	              if (i === currentPositionRow) {
+	                transitivePositionY -= setRowHeights[i - 1] / 2;
+	              }
+	              if (newDraggableRowPositionY >= transitivePositionY) {
+	                newPositionRow = i;
+	              }
 	            }
-	            if (newDraggableRowPositionY >= transitivePositionY) {
-	              newPositionRow = i;
-	            }
+	          } catch (err) {
+	            _iterator.e(err);
+	          } finally {
+	            _iterator.f();
 	          }
 	        }
 	        if (draggableRowOffsetY === 0) {
 	          newPositionRow = currentPositionRow;
 	        }
 	        if (draggableRowOffsetY > 0) {
-	          for (var _i = 0; _i < setRowPositionsY.length; _i++) {
-	            var _transitivePositionY = setRowPositionsY[_i] + setRowHeights[_i] / 2;
-	            if (_i === currentPositionRow) {
-	              _transitivePositionY = setRowPositionsY[_i];
+	          var _iterator2 = _createForOfIteratorHelper(setRowPositionsY.entries()),
+	            _step2;
+	          try {
+	            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+	              var _step2$value = babelHelpers.slicedToArray(_step2.value, 2),
+	                _i = _step2$value[0],
+	                element = _step2$value[1];
+	              var _transitivePositionY = element + setRowHeights[_i] / 2;
+	              if (_i === currentPositionRow) {
+	                _transitivePositionY = element;
+	              }
+	              if (newDraggableRowPositionBottomY >= _transitivePositionY) {
+	                newPositionRow = _i;
+	              }
 	            }
-	            if (newDraggableRowPositionBottomY >= _transitivePositionY) {
-	              newPositionRow = _i;
-	            }
+	          } catch (err) {
+	            _iterator2.e(err);
+	          } finally {
+	            _iterator2.f();
 	          }
 	        }
-	        //draggable row can only be in the 1 position, 0 position for technical row
+
+	        // draggable row can only be in the 1 position, 0 position for technical row
 	        if (newPositionRow === 0) {
 	          newPositionRow++;
 	        }
-	        //need to move
+
+	        // need to move
 	        if (currentPositionRow !== newPositionRow) {
 	          var referenceNode = null;
 	          var referenceNodeNext = null;
@@ -585,8 +608,8 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	            tableEditor.tBody.insertBefore(rows[currentPositionRow], referenceNodeNext);
 	          }
 	        }
-	        tableEditor.tBody.classList.remove("landing-table-draggable");
-	        BX.Landing.Block.Node.Text.currentNode.onChange(true);
+	        tableEditor.tBody.classList.remove('landing-table-draggable');
+	        BX.Landing.Node.Text.currentNode.onChange(true);
 	      });
 	    }
 	  }, {
@@ -635,23 +658,23 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	          setColCellsStyles.push(cell.getAttribute('style'));
 	          draggableCol.append(cell.cloneNode(true));
 	          draggableCol.lastChild.style.borderRadius = getComputedStyle(cell).borderRadius;
-	          draggableCol.lastChild.style.height = cell.getBoundingClientRect().height + 'px';
-	          draggableCol.lastChild.style.width = cell.getBoundingClientRect().width + 'px';
+	          draggableCol.lastChild.style.height = "".concat(cell.getBoundingClientRect().height, "px");
+	          draggableCol.lastChild.style.width = "".concat(cell.getBoundingClientRect().width, "px");
 	        });
 	        draggableCol.hidden = true;
 	        draggableCol.classList.add('landing-table-col-draggable');
 	        tableEditor.tBody.append(draggableCol);
 	      }).subscribe('move', function (event) {
-	        tableEditor.tBody.classList.add("landing-table-draggable");
+	        tableEditor.tBody.classList.add('landing-table-draggable');
 	        setColCells.forEach(function (cell) {
 	          cell.classList.add('landing-table-col-taken');
 	        });
 	        draggableColOffsetX = event.getData().offsetX;
 	        draggableColOffsetY = event.getData().offsetY;
 	        draggableCol.hidden = false;
-	        draggableCol.style.position = "absolute";
-	        draggableCol.style.left = currentPositionColX - tablePositionLeft + draggableColOffsetX + 'px';
-	        draggableCol.style.top = 0 + 'px';
+	        draggableCol.style.position = 'absolute';
+	        draggableCol.style.left = "".concat(currentPositionColX - tablePositionLeft + draggableColOffsetX, "px");
+	        draggableCol.style.top = "".concat(0, "px");
 	        if (draggableColOffsetX < 0) {
 	          draggableCol.style.transform = 'rotate(-1deg)';
 	        }
@@ -673,31 +696,53 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	            i++;
 	          });
 	          if (draggableColOffsetX < 0) {
-	            for (var _i2 = 0; _i2 < setColPositionsX.length; _i2++) {
-	              var transitivePositionX = setColPositionsX[_i2];
-	              if (_i2 > 0) {
-	                transitivePositionX = setColPositionsX[_i2] - setColWidths[_i2 - 1] / 2;
+	            var _iterator3 = _createForOfIteratorHelper(setColPositionsX.entries()),
+	              _step3;
+	            try {
+	              for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+	                var _step3$value = babelHelpers.slicedToArray(_step3.value, 2),
+	                  _i2 = _step3$value[0],
+	                  transitivePositionX = _step3$value[1];
+	                if (_i2 > 0) {
+	                  transitivePositionX -= setColWidths[_i2 - 1] / 2;
+	                }
+	                if (newDraggableColPositionX > transitivePositionX) {
+	                  newPositionCol = _i2;
+	                }
 	              }
-	              if (newDraggableColPositionX > transitivePositionX) {
-	                newPositionCol = _i2;
-	              }
+	            } catch (err) {
+	              _iterator3.e(err);
+	            } finally {
+	              _iterator3.f();
 	            }
 	          }
 	          if (draggableColOffsetX === 0) {
 	            newPositionCol = currentPositionCol;
 	          }
 	          if (draggableColOffsetX > 0) {
-	            for (var _i3 = 0; _i3 < setColPositionsX.length; _i3++) {
-	              var _transitivePositionX = setColPositionsX[_i3] + setColWidths[_i3] / 2;
-	              if (_i3 === currentPositionCol) {
-	                _transitivePositionX = setColPositionsX[_i3];
+	            var _iterator4 = _createForOfIteratorHelper(setColPositionsX.entries()),
+	              _step4;
+	            try {
+	              for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+	                var _step4$value = babelHelpers.slicedToArray(_step4.value, 2),
+	                  _i3 = _step4$value[0],
+	                  element = _step4$value[1];
+	                var _transitivePositionX = element + setColWidths[_i3] / 2;
+	                if (_i3 === currentPositionCol) {
+	                  _transitivePositionX = element;
+	                }
+	                if (newDraggableColPositionRightX > _transitivePositionX) {
+	                  newPositionCol = _i3;
+	                }
 	              }
-	              if (newDraggableColPositionRightX > _transitivePositionX) {
-	                newPositionCol = _i3;
-	              }
+	            } catch (err) {
+	              _iterator4.e(err);
+	            } finally {
+	              _iterator4.f();
 	            }
 	          }
-	          //draggable col can only be in the 1 position, 0 position for technical
+
+	          // draggable col can only be in the 1 position, 0 position for technical
 	          if (newPositionCol === 0) {
 	            newPositionCol++;
 	          }
@@ -726,8 +771,8 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	              }
 	            });
 	          }
-	          tableEditor.tBody.classList.remove("landing-table-draggable");
-	          BX.Landing.Block.Node.Text.currentNode.onChange(true);
+	          tableEditor.tBody.classList.remove('landing-table-draggable');
+	          BX.Landing.Node.Text.currentNode.onChange(true);
 	        }
 	      });
 	    }
@@ -766,7 +811,7 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	          tbody.parentElement.parentElement.classList.remove('landing-table-scroll-hidden');
 	        }
 	        tableEditor.buildLines(tableEditor);
-	        BX.Landing.Block.Node.Text.currentNode.onChange(true);
+	        BX.Landing.Node.Text.currentNode.onChange(true);
 	      });
 	    }
 	  }, {
@@ -780,7 +825,7 @@ this.BX.Landing.Node.Text = this.BX.Landing.Node.Text || {};
 	  }, {
 	    key: "removeClasses",
 	    value: function removeClasses(element, className) {
-	      var setElements = element.querySelectorAll('.' + className);
+	      var setElements = element.querySelectorAll(".".concat(className));
 	      setElements.forEach(function (element) {
 	        element.classList.remove(className);
 	      });

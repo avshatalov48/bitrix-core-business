@@ -87,7 +87,7 @@ class GridVariationForm extends VariationForm
 				static::formatFieldName('MEASURE_RATIO'),
 			],
 			'TITLE' => Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_SETTINGS_TITLE_MEASURE_RATIO'),
-			'DESCRIPTION' => Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_SETTINGS_DESC_MEASURE_RATIO'),
+			'DESCRIPTION' => Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_SETTINGS_DESC_MEASURE_RATIO_MSGVER_1'),
 		];
 
 		return $result;
@@ -1204,6 +1204,11 @@ HTML;
 
 	protected function getBarcodeDescription(): array
 	{
+		if (!UseStore::isUsed())
+		{
+			return [];
+		}
+
 		$headerName = static::getHeaderName('BARCODE');
 
 		return [

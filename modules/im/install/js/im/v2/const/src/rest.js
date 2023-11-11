@@ -5,9 +5,13 @@ export const RestMethod = Object.freeze({
 	imV2ChatLoadInContext: 'im.v2.Chat.loadInContext',
 	imV2ChatLoadContext: 'im.v2.Chat.loadInContext',
 	imV2ChatAdd: 'im.v2.Chat.add',
+	imV2ChatUpdate: 'im.v2.Chat.update',
 	imV2ChatRead: 'im.v2.Chat.read',
 	imV2ChatReadAll: 'im.v2.Chat.readAll',
 	imV2ChatUnread: 'im.v2.Chat.unread',
+	imV2ChatJoin: 'im.v2.Chat.join',
+	imV2ChatDeleteUser: 'im.v2.Chat.deleteUser',
+	imV2ChatExtendPullWatch: 'im.v2.Chat.extendPullWatch',
 	imV2ChatMessageGetContext: 'im.v2.Chat.Message.getContext',
 	imV2ChatMessageList: 'im.v2.Chat.Message.list',
 	imV2ChatMessageTail: 'im.v2.Chat.Message.tail',
@@ -20,9 +24,11 @@ export const RestMethod = Object.freeze({
 	imV2ChatMessagePin: 'im.v2.Chat.Message.pin',
 	imV2ChatMessageUnpin: 'im.v2.Chat.Message.unpin',
 	imV2ChatMessageTailViewers: 'im.v2.Chat.Message.tailViewers',
+	imV2ChatMessageDeleteRichUrl: 'im.v2.Chat.Message.deleteRichUrl',
 	imV2ChatPinTail: 'im.v2.Chat.Pin.tail',
 	imV2SettingsGeneralUpdate: 'im.v2.Settings.General.update',
 	imV2DesktopLogout: 'im.v2.Desktop.logout',
+	imV2UpdateState: 'im.v2.UpdateState.getStateData',
 	imV2BetaEnable: 'im.v2.Beta.enable',
 	imV2BetaDisable: 'im.v2.Beta.disable',
 
@@ -30,17 +36,9 @@ export const RestMethod = Object.freeze({
 
 	imMessageAdd: 'im.message.add',
 	imMessageUpdate: 'im.message.update',
-	imMessageDelete: 'im.message.delete',
-	imMessageLike: 'im.message.like',
-	imMessageCommand: 'im.message.command',
-	imMessageShare: 'im.message.share',
 
-	imChatAdd: 'im.chat.add',
-	imChatGet: 'im.chat.get',
-	imChatLeave: 'im.chat.leave',
 	imChatMute: 'im.chat.mute',
 	imChatUpdateTitle: 'im.chat.updateTitle',
-	imChatParentJoin: 'im.chat.parent.join',
 	imChatFileCollectionGet: 'im.chat.file.collection.get',
 	imChatFileGet: 'im.chat.file.get',
 	imChatUrlGet: 'im.chat.url.get',
@@ -63,15 +61,9 @@ export const RestMethod = Object.freeze({
 	imChatUserDelete: 'im.chat.user.delete',
 	imChatUserAdd: 'im.chat.user.add',
 
-	imDialogGet: 'im.dialog.get',
-	imDialogMessagesGet: 'im.dialog.messages.get',
-	imDialogRead: 'im.dialog.read',
-	imDialogUnread: 'im.dialog.unread',
 	imDialogWriting: 'im.dialog.writing',
-	imDialogRestrictionsGet: 'im.dialog.restrictions.get',
-	imDialogReadAll: 'im.dialog.read.all',
-	imDialogContextGet: 'im.dialog.context.get',
 	imDialogUsersList: 'im.dialog.users.list',
+	imDialogMessagesSearch: 'im.dialog.messages.search',
 
 	imUserGet: 'im.user.get',
 	imUserListGet: 'im.user.list.get',
@@ -81,21 +73,15 @@ export const RestMethod = Object.freeze({
 
 	imDiskFolderGet: 'im.disk.folder.get',
 	imDiskFolderListGet: 'im.disk.folder.list.get',
-	imDiskFileUpload: 'disk.folder.uploadfile',
 	imDiskFilePreviewUpload: 'disk.api.file.attachPreview',
 	imDiskFileCommit: 'im.disk.file.commit',
 	imDiskFileDelete: 'im.disk.file.delete',
 	imDiskFileSave: 'im.disk.file.save',
 
-	mobileBrowserConstGet: 'mobile.browser.const.get',
-
 	imRecentGet: 'im.recent.get',
 	imRecentList: 'im.recent.list',
 	imRecentPin: 'im.recent.pin',
-	imRecentUnread: 'im.recent.unread',
 	imRecentHide: 'im.recent.hide',
-
-	imCallGetCallLimits: 'im.call.getCallLimits',
 
 	imNotifyGet: 'im.notify.get',
 	imNotifyRead: 'im.notify.read',
@@ -109,34 +95,10 @@ export const RestMethod = Object.freeze({
 	imCallMaskGet: 'im.v2.Call.Mask.get',
 	imSmilesGet: 'smile.get',
 
+	imPromotionRead: 'im.promotion.read',
+
 	imBotGiphyListPopular: 'imbot.Giphy.listPopular',
 	imBotGiphyList: 'imbot.Giphy.list',
-});
 
-export const RestMethodHandler = Object.freeze({
-	imChatGet: 'im.chat.get',
-
-	imMessageAdd: 'im.message.add',
-
-	imDialogRead: 'im.dialog.read',
-	imDialogMessagesGet: 'im.dialog.messages.get',
-	imDialogMessagesGetInit: 'im.dialog.messages.get.init',
-	imDialogMessagesGetUnread: 'im.dialog.messages.get.unread',
-
-	imDiskFolderGet: 'im.disk.folder.get',
-	imDiskFileUpload: 'disk.folder.uploadfile',
-	imDiskFileCommit: 'im.disk.file.commit',
-
-	imUserGet: 'im.user.get',
-	imUserListGet: 'im.user.list.get',
-
-	mobileBrowserConstGet: 'mobile.browser.const.get',
-
-	imRecentGet: 'im.recent.get',
-	imRecentList: 'im.recent.list',
-
-	imCallGetCallLimits: 'im.call.getCallLimits',
-
-	imNotifyGet: 'im.notify.get',
-	imNotifySchemaGet: 'im.notify.schema.get',
+	linesDialogGet: 'imopenlines.dialog.get',
 });

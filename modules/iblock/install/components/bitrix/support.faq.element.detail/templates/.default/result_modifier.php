@@ -15,7 +15,7 @@ if(!function_exists("code_replace_func"))
 }
 global $APPLICATION, $USER;
 
-	$arResult['ITEM']["DETAIL_TEXT"] = preg_replace_callback("/(<|\[)CODE(>|\])(.+?)(<|\[)\/CODE(>|\])/is",code_replace_func,$arResult['ITEM']["DETAIL_TEXT"]);
+	$arResult['ITEM']["DETAIL_TEXT"] = preg_replace_callback("/(<|\[)CODE(>|\])(.+?)(<|\[)\/CODE(>|\])/is", 'code_replace_func', $arResult['ITEM']["DETAIL_TEXT"]);
 
 	if(mb_strtoupper($arResult['ITEM']["PREVIEW_TEXT_TYPE"]) == "TEXT")
 		$arResult['ITEM']["PREVIEW_TEXT"] = nl2br($arResult['ITEM']["PREVIEW_TEXT"]);

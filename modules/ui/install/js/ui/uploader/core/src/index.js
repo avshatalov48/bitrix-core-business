@@ -7,7 +7,7 @@ import AbstractUploadController from './backend/abstract-upload-controller';
 import AbstractRemoveController from './backend/abstract-remove-controller';
 
 import { UploaderStatus } from './enums/uploader-status';
-import { UploaderEvent } from  './enums/uploader-event';
+import { UploaderEvent } from './enums/uploader-event';
 import { FileStatus, FileStatusType } from './enums/file-status';
 import { FileOrigin } from './enums/file-origin';
 import { FileEvent } from './enums/file-event';

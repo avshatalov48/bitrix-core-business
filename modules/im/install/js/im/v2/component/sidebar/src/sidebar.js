@@ -1,6 +1,6 @@
 import { Logger } from 'im.v2.lib.logger';
 import { ImModelDialog } from 'im.v2.model';
-import { SidebarFileTabTypes } from 'im.v2.const';
+import { SidebarDetailBlock, SidebarFileTabTypes } from 'im.v2.const';
 import { SidebarService } from './classes/sidebar-service';
 import { MainDetail } from './components/main/detail';
 import { MainPreview } from './components/main/preview';
@@ -14,6 +14,7 @@ import { OtherDetail } from './components/file/other-detail';
 import { FileUnsortedPreview } from './components/file-unsorted/preview';
 import { FileUnsortedDetail } from './components/file-unsorted/detail';
 import { FilePreview } from './components/file/preview';
+import { MessageSearchDetail } from './components/message-search/detail';
 import { TaskPreview } from './components/task/preview';
 import { TaskDetail } from './components/task/detail';
 import { BriefDetail } from './components/brief/detail';
@@ -27,10 +28,13 @@ import { MarketDetail } from './components/market/detail';
 import { SidebarHeader } from './components/header';
 import { DetailHeader } from './components/detail-header';
 import { DetailTabs } from './components/detail-tabs';
+import { SearchHeader } from './components/message-search/search-header';
 import { AvailabilityManager } from './classes/availability-manager';
 import { SettingsManager } from './classes/settings-manager';
 import './css/sidebar.css';
 import './css/icons.css';
+
+import type { JsonObject } from 'main.core';
 
 // @vue/component
 export const ChatSidebar = {
@@ -61,6 +65,8 @@ export const ChatSidebar = {
 		FileUnsortedPreview,
 		MarketPreview,
 		MarketDetail,
+		MessageSearchDetail,
+		SearchHeader,
 	},
 	props:
 	{
@@ -74,13 +80,14 @@ export const ChatSidebar = {
 		},
 	},
 	emits: ['back'],
-	data(): Object
+	data(): JsonObject
 	{
 		return {
 			isLoading: false,
 			detailBlock: null,
 			detailBlockEntityId: null,
 			detailTransition: 'right-panel-detail-transition',
+			query: '',
 		};
 	},
 	computed:
@@ -89,7 +96,7 @@ export const ChatSidebar = {
 		{
 			return this.availabilityManager.getBlocks();
 		},
-		hasInitialData()
+		hasInitialData(): boolean
 		{
 			return this.$store.getters['sidebar/isInited'](this.chatId);
 		},
@@ -102,7 +109,7 @@ export const ChatSidebar = {
 
 			return `${this.detailBlock}Detail`;
 		},
-		getBlockServiceInstance()
+		getBlockServiceInstance(): Object
 		{
 			return this.sidebarService.getBlockInstance(this.detailBlock);
 		},
@@ -127,15 +134,16 @@ export const ChatSidebar = {
 
 			return [];
 		},
+		needShowDefaultDetailHeader(): boolean
+		{
+			return this.detailBlock !== SidebarDetailBlock.messageSearch;
+		},
 	},
 	watch:
 	{
-		sidebarDetailBlock(newValue: string, oldValue: string)
+		sidebarDetailBlock(newValue: string)
 		{
-			if (!oldValue && newValue)
-			{
-				this.detailBlock = newValue;
-			}
+			this.detailBlock = newValue;
 		},
 		dialogInited(newValue: boolean, oldValue: boolean)
 		{
@@ -165,22 +173,26 @@ export const ChatSidebar = {
 	{
 		initializeSidebar()
 		{
-			if (this.hasInitialData)
-			{
-				return;
-			}
-
-			this.isLoading = true;
 			if (!this.dialogInited)
 			{
+				this.isLoading = true;
+
 				return;
 			}
 
 			this.sidebarService.setChatId(this.chatId);
 			this.sidebarService.setDialogId(this.dialogId);
 
+			if (this.hasInitialData)
+			{
+				return;
+			}
+
+			this.isLoading = true;
 			this.sidebarService.requestInitialData().then(() => {
 				this.isLoading = false;
+			}).catch((error) => {
+				Logger.warn('Sidebar: request initial data error:', error);
 			});
 		},
 		onOpenDetail(data: Object)
@@ -198,10 +210,15 @@ export const ChatSidebar = {
 			this.detailBlock = null;
 			this.detailTransition = 'right-panel-detail-transition';
 			this.$emit('back');
+			this.query = '';
 		},
 		onTabSelect(tab: string)
 		{
 			this.detailBlock = tab;
+		},
+		onChangeQuery(query)
+		{
+			this.query = query;
 		},
 	},
 	template: `
@@ -219,7 +236,14 @@ export const ChatSidebar = {
 		</div>
 		<transition :name="detailTransition">
 			<div v-if="detailComponent && dialogInited" class="bx-im-sidebar__detail_container bx-im-sidebar__scope">
-				<DetailHeader :detailBlock="detailBlock" :dialogId="dialogId" :chatId="chatId" @back="onClickBack"/>
+				<DetailHeader 
+					v-if="needShowDefaultDetailHeader" 
+					:detailBlock="detailBlock" 
+					:dialogId="dialogId" 
+					:chatId="chatId" 
+					@back="onClickBack" 
+				/>
+				<SearchHeader v-else @changeQuery="onChangeQuery" @back="onClickBack" />
 				<DetailTabs v-if="tabs.length > 0" :tabs="tabs" @tabSelect="onTabSelect" />
 				<component
 					:is="detailComponent"
@@ -228,6 +252,7 @@ export const ChatSidebar = {
 					:detailBlock="detailBlock"
 					:detailBlockEntityId="detailBlockEntityId"
 					:service="getBlockServiceInstance"
+					:searchQuery="query"
 					@back="onClickBack"
 				/>
 			</div>

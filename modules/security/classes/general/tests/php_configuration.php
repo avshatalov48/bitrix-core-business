@@ -147,7 +147,7 @@ class CSecurityPhpConfigurationTest
 	 */
 	protected function checkMbstringSubstitute()
 	{
-		if (extension_loaded('mbstring') && $this->isPhpConfVarEquals('mbstring.substitute_character', 'none'))
+		if ($this->isPhpConfVarEquals('mbstring.substitute_character', 'none'))
 			return self::STATUS_FAILED;
 
 		return self::STATUS_PASSED;

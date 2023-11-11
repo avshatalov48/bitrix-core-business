@@ -205,7 +205,7 @@ class BooleanField extends ScalarField
 	 */
 	public function getGetterTypeHint()
 	{
-		return '\\boolean';
+		return $this->getNullableTypeHint('\\boolean');
 	}
 
 	/**
@@ -213,6 +213,6 @@ class BooleanField extends ScalarField
 	 */
 	public function getSetterTypeHint()
 	{
-		return '\\boolean';
+		return $this->getNullableTypeHint('\\boolean');
 	}
 }

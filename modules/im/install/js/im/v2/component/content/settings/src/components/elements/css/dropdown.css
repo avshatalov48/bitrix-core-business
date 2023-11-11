@@ -1,0 +1,22 @@
+.bx-im-settings-dropdown__container {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-settings-dropdown__label {
+	margin-right: 10px;
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	color: var(--im-settings-section_content__font-color_label);
+}
+
+.bx-im-settings-dropdown__width-container {
+	width: 235px;
+}
+
+.bx-im-settings-dropdown__container .bx-im-dropdown__container {
+	--ui-field-size: var(--ui-field-size-xs);
+}
+
+.bx-im-settings-dropdown__container .bx-im-dropdown__container .ui-ctl-element {
+	border-radius: var(--im-border-radius-xs);
+}

@@ -1,10 +1,10 @@
 <?php
+
 if(!defined("CACHED_b_sec_iprule")) define("CACHED_b_sec_iprule", 36000);
 if(!defined("CACHED_b_sec_filter_mask")) define("CACHED_b_sec_filter_mask", 36000);
 if(!defined("CACHED_b_sec_frame_mask")) define("CACHED_b_sec_frame_mask", 36000);
 if(!defined("CACHED_b_sec_redirect_url")) define("CACHED_b_sec_redirect_url", 36000);
 
-global $DB;
 CModule::AddAutoloadClasses(
 	"security",
 	array(
@@ -20,7 +20,7 @@ CModule::AddAutoloadClasses(
 		"CSecuritySessionRedis" => "classes/general/session_redis.php",
 		"CSecuritySessionHandler" => "classes/general/session_handler.php",
 		"CSecuritySession" => "classes/general/session.php",
-		"CSecurityDB" => "classes/".mb_strtolower($DB->type)."/database.php",
+		"CSecurityDB" => "classes/mysql/database.php",
 		"CSecurityUser" => "classes/general/user.php",
 		"CSecurityRedirect" => "classes/general/redirect.php",
 		"CSecurityAntiVirus" => "classes/general/antivirus.php",
@@ -42,6 +42,10 @@ CModule::AddAutoloadClasses(
 		"CSecuritySiteConfigurationTest" => "classes/general/tests/site_configuration.php",
 		"CSecurityTaintCheckingTest" => "classes/general/tests/taint_checking.php",
 		"CSecurityUserTest" => "classes/general/tests/user.php",
-		"CSecurityRequirementsException" => "classes/general/requirements_exception.php"
+		"CSecurityRequirementsException" => "classes/general/requirements_exception.php",
+		"CBitrixXscan" => "classes/general/xscan.php",
+		"CBitrixXscanHtaccess" => "classes/general/xscan_htaccess.php",
+		"Bitrix\\Security\\XScanResults" => "lib/xscanresulttable.php",
+		"Bitrix\\Security\\XScanResult" => "lib/xscanresulttable.php",
 	)
 );

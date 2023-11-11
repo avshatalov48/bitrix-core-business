@@ -244,8 +244,14 @@ class TemplatesTunnel
 
 		foreach ($robots as $robot)
 		{
+			$type = mb_strtolower($robot->getType());
+			$availableRobots = Template::getAvailableRobots($complexDocumentType);
 			$filter = $robot->getDescription()['FILTER'] ?? [];
-			$isRobotAvailable = $runtime->checkActivityFilter($filter, $complexDocumentType);
+
+			$isRobotAvailable = (
+				isset($availableRobots[$type])
+				&& $runtime->checkActivityFilter($filter, $complexDocumentType)
+			);
 			$direction = $isRobotAvailable  ? 'available' : 'unavailable';
 
 			$partitioned[$direction][] = $robot;

@@ -20,7 +20,7 @@
 .new-from-email-dialog-full-width-cell {
 	padding-left: 0;
 	padding-right: 0;
-	width: 80%;
+	width: 70%;
 	box-sizing: border-box;
 }
 
@@ -29,7 +29,7 @@
 	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868E;
 }
-.new-from-email-dialog-text span,
+.new-from-email-dialog-text > span,
 .new-from-email-dialog-text-spacer {
 	display: inline-block;
 	vertical-align: middle;
@@ -97,7 +97,7 @@
 .new-from-email-dialog-content {
 	position: relative;
 	margin: 0 20px;
-	width: 480px;
+	width: 510px;
 	overflow-y: hidden;
 }
 
@@ -111,20 +111,6 @@
 }
 .new-from-email-dialog-block-content {
 	padding: 10px 0;
-}
-
-.new-from-email-dialog-hint-icon {
-	display: inline-block;
-	margin-left: 5px;
-	background: #bfc5ca;
-	color: #ffffff;
-	height: 16px;
-	width: 16px;
-	line-height: 17px;
-	text-align: center;
-	border-radius: 50%;
-	font-size: 12px;
-	cursor: default;
 }
 
 .new-from-email-dialog-smtp-link {
@@ -176,21 +162,37 @@
 }
 
 .menu-popup-right-icon {
-	padding-right: 16px;
+	padding-right: 46px;
+}
+.menu-popup-right-hint-icon {
+	padding-right: 32px;
+}
+.menu-popup-item .main-mail-confirm-menu-hint-container {
+	position: absolute;
+	top: 0;
+	right: 7px;
+	height: 100%;
+	width: 26px;
+	line-height: 36px;
+	display: inline-block;
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	text-align: center;
 }
 .menu-popup-item .main-mail-confirm-menu-delete-icon {
 	position: absolute;
 	top: 0;
-	right: 0;
+	right: 7px;
 	height: 100%;
-	width: 16px;
+	width: 26px;
 }
 
 .main-mail-edit-icon {
 	cursor: pointer;
 	position: absolute;
 	top: 0;
-	right: 16px;
+	right: 26px;
 	height: 100%;
 	width: 32px;
 	outline: none;
@@ -211,7 +213,4 @@
 	background-repeat: no-repeat;
 	background-size: cover;
 	content: "";
-}
-.menu-popup-no-icon .menu-popup-item-text {
-	padding: 0 30px;
 }

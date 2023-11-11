@@ -175,9 +175,12 @@ class Lead extends ConnectorBaseFilter implements Connector\IncrementallyConnect
 	/**
 	 * Get filter fields.
 	 *
+	 * @param bool $checkAccessRights
+	 *
 	 * @return array
+	 * @throws \Bitrix\Main\NotSupportedException
 	 */
-	public static function getUiFilterFields()
+	public static function getUiFilterFields(bool $checkAccessRights = true): array
 	{
 		$list = [
 			[
@@ -346,9 +349,7 @@ class Lead extends ConnectorBaseFilter implements Connector\IncrementallyConnect
 			'items' => \CCrmStatus::GetStatusList('HONORIFIC'),
 		);
 
-		$list = array_merge($list, Helper::getFilterUserFields(\CCrmOwnerType::Lead));
-
-		return $list;
+		return array_merge($list, Helper::getFilterUserFields(\CCrmOwnerType::Lead, $checkAccessRights));
 	}
 
 	/**

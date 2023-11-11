@@ -2,7 +2,7 @@ import {Runtime, Type} from 'main.core';
 
 import {Core} from 'im.v2.application.core';
 import {Logger} from 'im.v2.lib.logger';
-import {NotificationTypesCodes, RestMethod, RestMethodHandler} from 'im.v2.const';
+import {NotificationTypesCodes, RestMethod} from 'im.v2.const';
 import {UserManager} from 'im.v2.lib.user';
 
 type NotificationItemRest = {
@@ -131,7 +131,7 @@ export class NotificationService
 			'CONVERT_TEXT': 'Y'
 		};
 		const batchQueryParams = {
-			[RestMethodHandler.imNotifyGet]: [RestMethod.imNotifyGet, imNotifyGetQueryParams]
+			[RestMethod.imNotifyGet]: [RestMethod.imNotifyGet, imNotifyGetQueryParams]
 		};
 
 		if (!firstPage)
@@ -141,7 +141,7 @@ export class NotificationService
 		}
 		else
 		{
-			batchQueryParams[RestMethodHandler.imNotifySchemaGet] = [RestMethod.imNotifySchemaGet, {}];
+			batchQueryParams[RestMethod.imNotifySchemaGet] = [RestMethod.imNotifySchemaGet, {}];
 		}
 
 		return new Promise(resolve => {
@@ -154,7 +154,7 @@ export class NotificationService
 
 	handleResponse(response: Object): Promise
 	{
-		const imNotifyGetResponse = response[RestMethodHandler.imNotifyGet].data();
+		const imNotifyGetResponse = response[RestMethod.imNotifyGet].data();
 		this.hasMoreItemsToLoad = !this.isLastPage(imNotifyGetResponse.notifications);
 		if (imNotifyGetResponse.notifications.length === 0)
 		{
@@ -169,9 +169,9 @@ export class NotificationService
 		return this.updateModels(imNotifyGetResponse).then(() => {
 			this.isLoading = false;
 
-			if (response[RestMethodHandler.imNotifySchemaGet])
+			if (response[RestMethod.imNotifySchemaGet])
 			{
-				return response[RestMethodHandler.imNotifySchemaGet].data();
+				return response[RestMethod.imNotifySchemaGet].data();
 			}
 
 			return {};

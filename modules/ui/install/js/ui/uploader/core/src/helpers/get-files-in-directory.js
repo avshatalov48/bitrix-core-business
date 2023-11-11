@@ -24,15 +24,15 @@ const getFilesInDirectory = (entry: FileSystemDirectoryEntry): Promise<File[]> =
 						return;
 					}
 
-					entries.forEach((entry: FileSystemFileEntry | FileSystemDirectoryEntry): void => {
-						if (entry.isDirectory)
+					entries.forEach((fileEntry: FileSystemFileEntry | FileSystemDirectoryEntry): void => {
+						if (fileEntry.isDirectory)
 						{
-							readEntries(entry);
+							readEntries(fileEntry);
 						}
 						else
 						{
 							fileCounter++;
-							entry.file((file: File): void => {
+							fileEntry.file((file: File): void => {
 								files.push(file);
 								fileCounter--;
 								resolveIfDone();

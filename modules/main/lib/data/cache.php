@@ -310,7 +310,10 @@ class Cache
 			}
 			elseif ($this->cacheEngine instanceof \ICacheBackend)
 			{
+				/** @noinspection PhpUndefinedFieldInspection */
 				$read = $this->cacheEngine->read;
+
+				/** @noinspection PhpUndefinedFieldInspection */
 				$path = $this->cacheEngine->path;
 			}
 

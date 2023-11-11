@@ -15,6 +15,8 @@ class CatalogProductControllerComponent extends CBitrixComponent
 {
 	private const TEMPLATE_CODE = 'SECTION';
 
+	private const URL_TEMPLATE_GRID = 'product_grid';
+	private const URL_TEMPLATE_GRID_SECTION = 'product_grid_section';
 	private const URL_TEMPLATE_PRODUCT = 'product_details';
 	private const URL_TEMPLATE_COPY_PRODUCT = 'product_copy_details';
 	private const URL_TEMPLATE_VARIATION = 'variation_details';
@@ -53,6 +55,8 @@ class CatalogProductControllerComponent extends CBitrixComponent
 	public static function getTemplateUrls(): array
 	{
 		return [
+			self::URL_TEMPLATE_GRID => '#IBLOCK_ID#/',
+			self::URL_TEMPLATE_GRID_SECTION => '#IBLOCK_ID#/section/#SECTION_ID#/',
 			self::URL_TEMPLATE_PRODUCT => '#IBLOCK_ID#/product/#PRODUCT_ID#/',
 			self::URL_TEMPLATE_COPY_PRODUCT => '#IBLOCK_ID#/product/0/copy/#COPY_PRODUCT_ID#/',
 			self::URL_TEMPLATE_VARIATION => '#IBLOCK_ID#/product/#PRODUCT_ID#/variation/#VARIATION_ID#/',
@@ -63,6 +67,14 @@ class CatalogProductControllerComponent extends CBitrixComponent
 			self::URL_TEMPLATE_SEO_SECTION_SLIDER => '#IBLOCK_ID#/seo/section/#SECTION_ID#/',
 			self::URL_TEMPLATE_SEO_PRODUCT_SLIDER => '#IBLOCK_ID#/seo/product/#PRODUCT_ID#/',
 			self::URL_TEMPLATE_SEO_CATALOG_SLIDER => '#IBLOCK_ID#/seo/',
+		];
+	}
+
+	private function getNotIframeTemplates(): array
+	{
+		return [
+			self::URL_TEMPLATE_GRID,
+			self::URL_TEMPLATE_GRID_SECTION,
 		];
 	}
 
@@ -138,6 +150,14 @@ class CatalogProductControllerComponent extends CBitrixComponent
 		}
 
 		return true;
+	}
+
+	protected function isSkipCheckFeature(string $template): bool
+	{
+		return in_array($template, [
+			'product_grid',
+			'product_grid_section',
+		], true);
 	}
 
 	protected function checkFeature(): bool
@@ -263,7 +283,7 @@ class CatalogProductControllerComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		if (!$this->checkModules() || !$this->checkFeature())
+		if (!$this->checkModules())
 		{
 			return;
 		}
@@ -277,6 +297,11 @@ class CatalogProductControllerComponent extends CBitrixComponent
 		else
 		{
 			[$template, $variables, $variableAliases] = $this->processRegularMode($templateUrls);
+		}
+
+		if (!$this->isSkipCheckFeature($template) && !$this->checkFeature())
+		{
+			return;
 		}
 
 		$this->arResult['PATH_TO']['USER_PROFILE'] = '/company/personal/user/#user_id#/';
@@ -295,6 +320,7 @@ class CatalogProductControllerComponent extends CBitrixComponent
 		if (
 			$this->request->get('IFRAME') === 'Y'
 			|| $this->request->get('mode') === 'dev'
+			|| in_array($template, $this->getNotIframeTemplates())
 		)
 		{
 			$this->includeComponentTemplate($template);

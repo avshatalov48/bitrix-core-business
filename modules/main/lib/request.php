@@ -1,22 +1,20 @@
 <?php
+
 namespace Bitrix\Main;
 
 use Bitrix\Main\Type;
-use Bitrix\Main\Text;
 use Bitrix\Main\IO;
 
 /**
  * Class Request contains current request
  * @package Bitrix\Main
  */
-abstract class Request
-	extends Type\ParameterDictionary
+abstract class Request extends Type\ParameterDictionary
 {
 	/**
 	 * @var Server
 	 */
 	protected $server;
-
 	protected $requestedPage = null;
 	protected $requestedPageDirectory = null;
 
@@ -32,7 +30,9 @@ abstract class Request
 		$filteredValues = $filter->filter($this->values);
 
 		if ($filteredValues != null)
+		{
 			$this->setValuesNoDemand($filteredValues);
+		}
 	}
 
 	/**
@@ -64,7 +64,7 @@ abstract class Request
 
 				if (mb_substr($page, 0, 1) !== "/" && !preg_match("#^[a-z]:[/\\\\]#i", $page))
 				{
-					$page = "/".$page;
+					$page = "/" . $page;
 				}
 			}
 			$this->requestedPage = $page;
@@ -92,7 +92,7 @@ abstract class Request
 		$requestedDir = $this->getRequestedPageDirectory();
 		return (mb_substr($requestedDir, 0, mb_strlen("/bitrix/admin/")) == "/bitrix/admin/"
 			|| mb_substr($requestedDir, 0, mb_strlen("/bitrix/updates/")) == "/bitrix/updates/"
-			|| (defined("ADMIN_SECTION") &&  ADMIN_SECTION == true)
+			|| (defined("ADMIN_SECTION") && ADMIN_SECTION == true)
 			|| (defined("BX_PUBLIC_TOOLS") && BX_PUBLIC_TOOLS === true)
 		);
 	}

@@ -8,7 +8,9 @@ return [
 	'css' => 'dist/img.bundle.css',
 	'js' => 'dist/img.bundle.js',
 	'rel' => [
-		'main.core',
+		'main.polyfill.core',
+		'landing.node',
+		'landing.env',
 	],
-	'skip_core' => false,
+	'skip_core' => true,
 ];

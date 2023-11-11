@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Bizproc = this.BX.Bizproc || {};
-(function (exports,ui_alerts,ui_hint,bizproc_condition,main_core_events,ui_entitySelector,main_date,main_popup,bizproc_globals,bizproc_automation,ui_designTokens,ui_fonts_opensans,main_core,ui_tour) {
+(function (exports,ui_alerts,bizproc_condition,ui_iconSet_main,ui_draganddrop_draggable,main_core_events,ui_entitySelector,main_popup,ui_buttons,main_date,ui_forms,ui_iconSet_actions,ui_hint,bizproc_globals,bizproc_automation,ui_designTokens,ui_fonts_opensans,main_core,ui_tour) {
 	'use strict';
 
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
@@ -1179,14 +1179,19 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  value: void 0
 	};
 
+	var _templateObject$1, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16;
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _createForOfIteratorHelper$2(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$2(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray$2(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$2(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$2(o, minLen); }
+	function _arrayLikeToArray$2(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	function _regeneratorRuntime$1() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime$1 = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == babelHelpers["typeof"](value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
 	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$5(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$5(obj, privateMap, value) { _checkPrivateRedeclaration$5(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$5(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _triggersContainerNode = /*#__PURE__*/new WeakMap();
+	var _userOptions = /*#__PURE__*/new WeakMap();
 	var _viewMode$1 = /*#__PURE__*/new WeakMap();
 	var _triggers = /*#__PURE__*/new WeakMap();
 	var _triggersData = /*#__PURE__*/new WeakMap();
@@ -1205,6 +1210,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  babelHelpers.inherits(TriggerManager, _EventEmitter);
 	  function TriggerManager(triggersContainerNode) {
 	    var _this;
+	    var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, TriggerManager);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TriggerManager).call(this));
 	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _renderFieldSelectorProperty);
@@ -1215,6 +1221,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _prepareRobotSelectProperty);
 	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _renderTriggerProperties);
 	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _triggersContainerNode, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _userOptions, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -1248,6 +1258,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    });
 	    _this.setEventNamespace('BX.Bizproc.Automation');
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _triggersContainerNode, triggersContainerNode);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _userOptions, params.userOptions);
 	    return _this;
 	  }
 	  babelHelpers.createClass(TriggerManager, [{
@@ -1308,7 +1319,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      this.initTriggers();
 	      this.markModified(false);
 
-	      //register DD
+	      // register DD
 	      babelHelpers.classPrivateFieldGet(this, _columnNodes).forEach(function (columnNode) {
 	        return jsDD.registerDest(columnNode, 10);
 	      });
@@ -1481,7 +1492,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "insertTriggerNode",
 	    value: function insertTriggerNode(documentStatus, triggerNode) {
-	      var listNode = babelHelpers.classPrivateFieldGet(this, _triggersContainerNode).querySelector('[data-role="trigger-list"][data-status-id="' + documentStatus + '"]');
+	      var listNode = babelHelpers.classPrivateFieldGet(this, _triggersContainerNode).querySelector("[data-role=\"trigger-list\"][data-status-id=\"".concat(documentStatus, "\"]"));
 	      if (listNode) {
 	        main_core.Dom.append(triggerNode, listNode);
 	      }
@@ -1519,17 +1530,26 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function getTriggerName(code) {
 	      var _getGlobalContext$ava, _getGlobalContext$ava2;
 	      return (_getGlobalContext$ava = (_getGlobalContext$ava2 = bizproc_automation.getGlobalContext().availableTriggers.find(function (trigger) {
-	        return code === trigger['CODE'];
+	        return code === trigger.CODE;
 	      })) === null || _getGlobalContext$ava2 === void 0 ? void 0 : _getGlobalContext$ava2.NAME) !== null && _getGlobalContext$ava !== void 0 ? _getGlobalContext$ava : code;
 	    }
 	  }, {
 	    key: "getAvailableTrigger",
 	    value: function getAvailableTrigger(code) {
 	      var availableTriggers = bizproc_automation.getGlobalContext().availableTriggers;
-	      for (var i = 0; i < availableTriggers.length; ++i) {
-	        if (code === availableTriggers[i]['CODE']) {
-	          return availableTriggers[i];
+	      var _iterator = _createForOfIteratorHelper$2(availableTriggers),
+	        _step;
+	      try {
+	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	          var availableTrigger = _step.value;
+	          if (code === availableTrigger.CODE) {
+	            return availableTrigger;
+	          }
 	        }
+	      } catch (err) {
+	        _iterator.e(err);
+	      } finally {
+	        _iterator.f();
 	      }
 	      return null;
 	    }
@@ -1569,51 +1589,13 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        }
 	      }
 	      var formName = 'bizproc_automation_trigger_dialog';
-	      var form = main_core.Dom.create('form', {
-	        props: {
-	          name: formName
-	        },
-	        style: {
-	          "min-width": '540px'
-	        }
-	      });
-	      main_core.Dom.append(this.renderConditionSettings(trigger), form);
-	      var iconHelp = main_core.Dom.create('div', {
-	        attrs: {
-	          className: 'bizproc-automation-robot-help'
-	        },
-	        events: {
-	          click: function click(event) {
-	            return _this4.emit('TriggerManager:onHelpClick', event);
-	          }
-	        }
-	      });
-	      main_core.Dom.append(iconHelp, form);
 	      var title = this.getTriggerName(trigger.getCode());
-	      main_core.Dom.append(main_core.Dom.create("span", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete"
-	        },
-	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_NAME') + ':'
-	      }), form);
-	      main_core.Dom.append(main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings"
-	        },
-	        children: [main_core.Dom.create("input", {
-	          attrs: {
-	            className: 'bizproc-automation-popup-input',
-	            type: "text",
-	            name: "name",
-	            value: trigger.getName() || title
-	          }
-	        })]
-	      }), form);
+	      var form = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<form name=\"", "\" style=\"min-width: 540px;\">\n\t\t\t\t", "\n\t\t\t\t<span class=\"bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete\">\n\t\t\t\t\t", ":\n\t\t\t\t</span>\n\t\t\t\t<div class=\"bizproc-automation-popup-settings\">\n\t\t\t\t\t<input\n\t\t\t\t\t\tclass=\"bizproc-automation-popup-input\"\n\t\t\t\t\t\ttype=\"text\"\n\t\t\t\t\t\tname=\"name\"\n\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t</form>\n\t\t"])), formName, this.renderConditionSettings(trigger), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_NAME'), main_core.Text.encode(trigger.getName() || title));
 	      var triggerData = this.getAvailableTrigger(trigger.getCode());
-	      if (triggerData && triggerData['SETTINGS']) {
-	        _classPrivateMethodGet$1(this, _renderTriggerProperties, _renderTriggerProperties2).call(this, trigger, triggerData['SETTINGS']['Properties'], form);
+	      if (triggerData && triggerData.SETTINGS) {
+	        _classPrivateMethodGet$1(this, _renderTriggerProperties, _renderTriggerProperties2).call(this, trigger, triggerData.SETTINGS.Properties, form);
 	      }
-	      BX.onCustomEvent('BX.Bizproc.Automation.TriggerManager:onOpenSettingsDialog-' + trigger.getCode(), [trigger, form]);
+	      main_core.onCustomEvent("BX.Bizproc.Automation.TriggerManager:onOpenSettingsDialog-".concat(trigger.getCode()), [trigger, form]);
 	      if (this.canSetExecuteBy()) {
 	        this.renderExecuteByControl(trigger, form);
 	      }
@@ -1624,69 +1606,61 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        trigger: trigger,
 	        form: form
 	      });
-	      var self = this;
-	      var popup = new BX.PopupWindow(Helper.generateUniqueId(), null, {
-	        titleBar: title,
+	      var popup = new main_popup.Popup({
+	        id: Helper.generateUniqueId(),
+	        bindElement: null,
 	        content: form,
-	        closeIcon: true,
-	        offsetLeft: 0,
-	        offsetTop: 0,
 	        closeByEsc: true,
+	        buttons: [new ui_buttons.SaveButton({
+	          onclick: function onclick() {
+	            var formData = main_core.ajax.prepareForm(form);
+	            trigger.setName(formData.data.name);
+	            if (triggerData.SETTINGS) {
+	              _classPrivateMethodGet$1(_this4, _setTriggerProperties, _setTriggerProperties2).call(_this4, trigger, triggerData.SETTINGS.Properties, form);
+	            }
+	            main_core.onCustomEvent("BX.Bizproc.Automation.TriggerManager:onSaveSettings-".concat(trigger.getCode()), [trigger, formData]);
+	            _this4.setConditionSettingsFromForm(formData.data, trigger);
+	            trigger.setAllowBackwards(formData.data.allow_backwards === 'Y');
+	            if (_this4.canSetExecuteBy()) {
+	              trigger.setExecuteBy(formData.data.execute_by);
+	            }
+
+	            // analytics
+	            main_core.ajax.runAction('bizproc.analytics.push', {
+	              analyticsLabel: "automation_trigger".concat(trigger.draft ? '_draft' : '', "_save_").concat(trigger.getCode().toLowerCase())
+	            });
+	            delete trigger.draft;
+	            trigger.reInit();
+	            _this4.markModified();
+	            popup.close();
+	          }
+	        }), new ui_buttons.CancelButton({
+	          onclick: function onclick() {
+	            popup.close();
+	          }
+	        })],
+	        width: 590,
+	        contentPadding: 12,
+	        closeIcon: true,
+	        events: {
+	          onPopupClose: function onPopupClose() {
+	            Designer.getInstance().setTriggerSettingsDialog(null);
+	            _this4.destroySettingsDialogControls();
+	            popup.destroy();
+	            main_core.Dom.removeClass(babelHelpers.classPrivateFieldGet(_this4, _triggersContainerNode), 'automation-base-blocked');
+	            _this4.emit('TriggerManager:onCloseTriggerSettingsDialog');
+	          }
+	        },
+	        titleBar: title,
+	        overlay: false,
 	        draggable: {
 	          restrict: false
-	        },
-	        overlay: false,
-	        events: {
-	          onPopupClose: function onPopupClose(popup) {
-	            Designer.getInstance().setTriggerSettingsDialog(null);
-	            self.destroySettingsDialogControls();
-	            popup.destroy();
-	            main_core.Dom.removeClass(babelHelpers.classPrivateFieldGet(self, _triggersContainerNode), 'automation-base-blocked');
-	            self.emit('TriggerManager:onCloseTriggerSettingsDialog');
-	          }
-	        },
-	        buttons: [new BX.PopupWindowButton({
-	          text: main_core.Loc.getMessage('JS_CORE_WINDOW_SAVE'),
-	          className: "popup-window-button-accept",
-	          events: {
-	            click: function click() {
-	              var formData = BX.ajax.prepareForm(form);
-	              trigger.setName(formData['data']['name']);
-	              if (triggerData['SETTINGS']) {
-	                _classPrivateMethodGet$1(_this4, _setTriggerProperties, _setTriggerProperties2).call(_this4, trigger, triggerData['SETTINGS']['Properties'], form);
-	              }
-	              BX.onCustomEvent('BX.Bizproc.Automation.TriggerManager:onSaveSettings-' + trigger.getCode(), [trigger, formData]);
-	              self.setConditionSettingsFromForm(formData['data'], trigger);
-	              trigger.setAllowBackwards(formData['data']['allow_backwards'] === 'Y');
-	              if (self.canSetExecuteBy()) {
-	                trigger.setExecuteBy(formData['data']['execute_by']);
-	              }
-	              if (trigger.draft) ;
-
-	              //analytics
-	              main_core.ajax.runAction('bizproc.analytics.push', {
-	                analyticsLabel: "automation_trigger".concat(trigger.draft ? '_draft' : '', "_save_").concat(trigger.getCode().toLowerCase())
-	              });
-	              delete trigger.draft;
-	              trigger.reInit();
-	              self.markModified();
-	              popup.close();
-	            }
-	          }
-	        }), new BX.PopupWindowButtonLink({
-	          text: main_core.Loc.getMessage('JS_CORE_WINDOW_CANCEL'),
-	          className: "popup-window-button-link-cancel",
-	          events: {
-	            click: function click() {
-	              this.popupWindow.close();
-	            }
-	          }
-	        })]
+	        }
 	      });
 	      Designer.getInstance().getTriggerSettingsDialog().popup = popup;
 	      popup.show();
 
-	      //analytics
+	      // analytics
 	      main_core.ajax.runAction('bizproc.analytics.push', {
 	        analyticsLabel: "automation_trigger".concat(trigger.draft ? '_draft' : '', "_settings_").concat(trigger.getCode().toLowerCase())
 	      });
@@ -1694,76 +1668,39 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "renderConditionSettings",
 	    value: function renderConditionSettings(trigger) {
+	      var _this5 = this;
 	      var conditionGroup = trigger.getCondition().clone();
 	      this.conditionSelector = new bizproc_automation.ConditionGroupSelector(conditionGroup, {
 	        fields: bizproc_automation.getGlobalContext().document.getFields(),
-	        showValuesSelector: false
-	      });
-	      var selector = this.conditionSelector;
-	      return main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings"
+	        showValuesSelector: false,
+	        caption: {
+	          head: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_ROBOT_CONDITION_TITLE')
 	        },
-	        children: [main_core.Dom.create("div", {
-	          attrs: {
-	            className: "bizproc-automation-popup-settings-block"
-	          },
-	          children: [main_core.Dom.create("span", {
-	            attrs: {
-	              className: "bizproc-automation-popup-settings-title"
-	            },
-	            text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION') + ":"
-	          }), selector.createNode()]
-	        })]
+	        isExpanded: babelHelpers.classPrivateFieldGet(this, _userOptions) && babelHelpers.classPrivateFieldGet(this, _userOptions).get('defaults', 'isConditionGroupExpanded', 'N') === 'Y'
 	      });
+	      if (babelHelpers.classPrivateFieldGet(this, _userOptions)) {
+	        this.conditionSelector.subscribe('onToggleGroupViewClick', function (event) {
+	          var data = event.getData();
+	          babelHelpers.classPrivateFieldGet(_this5, _userOptions).set('defaults', 'isConditionGroupExpanded', data.isExpanded ? 'Y' : 'N');
+	        });
+	      }
+	      return this.conditionSelector.createNode();
 	    }
 	  }, {
 	    key: "renderExecuteByControl",
 	    value: function renderExecuteByControl(trigger, form) {
-	      main_core.Dom.append(main_core.Dom.create("span", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-top bizproc-automation-popup-settings-title-autocomplete"
-	        },
-	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_EXECUTE_BY') + ':'
-	      }), form);
-	      main_core.Dom.append(main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings"
-	        },
-	        children: [BX.Bizproc.FieldType.renderControl([].concat(babelHelpers.toConsumableArray(bizproc_automation.getGlobalContext().document.getRawType()), [bizproc_automation.getGlobalContext().document.getCategoryId()]), {
-	          Type: 'user'
-	        }, 'execute_by', trigger.draft ? Helper.getResponsibleUserExpression(bizproc_automation.getGlobalContext().document.getFields()) : trigger.getExecuteBy())]
-	      }), form);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-top bizproc-automation-popup-settings-title-autocomplete\">\n\t\t\t\t\t", ":\n\t\t\t\t</span>\n\t\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_EXECUTE_BY')), form);
+	      var documentType = [].concat(babelHelpers.toConsumableArray(bizproc_automation.getGlobalContext().document.getRawType()), [bizproc_automation.getGlobalContext().document.getCategoryId()]);
+	      var property = {
+	        Type: 'user'
+	      };
+	      var value = trigger.draft ? Helper.getResponsibleUserExpression(bizproc_automation.getGlobalContext().document.getFields()) : trigger.getExecuteBy();
+	      main_core.Dom.append(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"bizproc-automation-popup-settings\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), BX.Bizproc.FieldType.renderControl(documentType, property, 'execute_by', value)), form);
 	    }
 	  }, {
 	    key: "renderAllowBackwardsControl",
 	    value: function renderAllowBackwardsControl(trigger, form) {
-	      main_core.Dom.append(main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-popup-checkbox"
-	        },
-	        children: [main_core.Dom.create("div", {
-	          attrs: {
-	            className: "bizproc-automation-popup-checkbox-item"
-	          },
-	          children: [main_core.Dom.create("label", {
-	            attrs: {
-	              className: "bizproc-automation-popup-chk-label"
-	            },
-	            children: [main_core.Dom.create("input", {
-	              attrs: {
-	                className: 'bizproc-automation-popup-chk',
-	                type: "checkbox",
-	                name: "allow_backwards",
-	                value: 'Y'
-	              },
-	              props: {
-	                checked: trigger.isBackwardsAllowed()
-	              }
-	            }), document.createTextNode(main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_ALLOW_REVERSE'))]
-	          })]
-	        })]
-	      }), form);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"bizproc-automation-popup-checkbox\">\n\t\t\t\t\t<div class=\"bizproc-automation-popup-checkbox-item\">\n\t\t\t\t\t\t<label class=\"bizproc-automation-popup-chk-label\">\n\t\t\t\t\t\t\t<input\n\t\t\t\t\t\t\t\tclass=\"bizproc-automation-popup-chk\"\n\t\t\t\t\t\t\t\ttype=\"checkbox\"\n\t\t\t\t\t\t\t\tname=\"allow_backwards\"\n\t\t\t\t\t\t\t\tvalue=\"Y\"\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</label>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), trigger.isBackwardsAllowed() ? 'checked' : '', main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_ALLOW_REVERSE')), form);
 	    }
 	  }, {
 	    key: "setConditionSettingsFromForm",
@@ -1776,7 +1713,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function onRestAppInstall(installed, eventResult) {
 	      eventResult.redirect = false;
 	      setTimeout(function () {
-	        BX.ajax({
+	        main_core.ajax({
 	          method: 'POST',
 	          dataType: 'json',
 	          url: bizproc_automation.getGlobalContext().ajaxUrl,
@@ -1785,8 +1722,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	            document_signed: bizproc_automation.getGlobalContext().signedDocument
 	          },
 	          onsuccess: function onsuccess(response) {
-	            if (main_core.Type.isArray(response['DATA'])) {
-	              bizproc_automation.getGlobalContext().set('availableTriggers', response['DATA']);
+	            if (main_core.Type.isArray(response.DATA)) {
+	              bizproc_automation.getGlobalContext().set('availableTriggers', response.DATA);
 	            }
 	          }
 	        });
@@ -1799,16 +1736,25 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        this.settingsDialogControls = [];
 	      }
 	      var controlNodes = node.querySelectorAll('[data-role]');
-	      for (var i = 0; i < controlNodes.length; ++i) {
-	        var control = null;
-	        var role = controlNodes[i].getAttribute('data-role');
-	        if (role === 'user-selector') {
-	          control = BX.Bizproc.UserSelector.decorateNode(controlNodes[i]);
+	      var _iterator2 = _createForOfIteratorHelper$2(controlNodes),
+	        _step2;
+	      try {
+	        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+	          var controlNode = _step2.value;
+	          var control = null;
+	          var role = controlNode.getAttribute('data-role');
+	          if (role === 'user-selector') {
+	            control = BX.Bizproc.UserSelector.decorateNode(controlNode);
+	          }
+	          BX.UI.Hint.init(controlNode);
+	          if (control) {
+	            this.settingsDialogControls.push(control);
+	          }
 	        }
-	        BX.UI.Hint.init(controlNodes[i]);
-	        if (control) {
-	          this.settingsDialogControls.push(control);
-	        }
+	      } catch (err) {
+	        _iterator2.e(err);
+	      } finally {
+	        _iterator2.f();
 	      }
 	    }
 	  }, {
@@ -1846,7 +1792,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      var triggers = this.getListByDocumentStatus(statusId);
 	      triggers.forEach(function (trigger) {
 	        var props = trigger.deleted ? [] : trigger.getReturnProperties();
-	        if (props.length) {
+	        if (props.length > 0) {
 	          props.forEach(function (property) {
 	            if (!exists[property.Id]) {
 	              result.push({
@@ -1855,8 +1801,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	                Name: property.Name,
 	                ObjectName: trigger.getName(),
 	                Type: property.Type,
-	                Expression: '{{~*:' + property.Id + '}}',
-	                SystemExpression: '{=Template:' + property.Id + '}'
+	                Expression: "{{~*:".concat(property.Id, "}}"),
+	                SystemExpression: "{=Template:".concat(property.Id, "}")
 	              });
 	              exists[property.Id] = true;
 	            }
@@ -1869,10 +1815,19 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "getReturnProperty",
 	    value: function getReturnProperty(statusId, propertyId) {
 	      var properties = this.getReturnProperties(statusId);
-	      for (var i = 0; i < properties.length; ++i) {
-	        if (properties[i].Id === propertyId) {
-	          return properties[i];
+	      var _iterator3 = _createForOfIteratorHelper$2(properties),
+	        _step3;
+	      try {
+	        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+	          var property = _step3.value;
+	          if (property.Id === propertyId) {
+	            return property;
+	          }
 	        }
+	      } catch (err) {
+	        _iterator3.e(err);
+	      } finally {
+	        _iterator3.f();
 	      }
 	      return null;
 	    }
@@ -1880,39 +1835,29 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return TriggerManager;
 	}(main_core_events.EventEmitter);
 	function _renderTriggerProperties2(trigger, properties, form) {
-	  var _this5 = this;
+	  var _this6 = this;
 	  properties.forEach(function (property) {
 	    var value = trigger.getApplyRules()[property.Id];
 	    if (property.Type === '@condition-group-selector') {
-	      _classPrivateMethodGet$1(_this5, _renderConditionGroupSelector, _renderConditionGroupSelector2).call(_this5, property, value, form);
+	      _classPrivateMethodGet$1(_this6, _renderConditionGroupSelector, _renderConditionGroupSelector2).call(_this6, property, value, form);
 	      return;
 	    }
 	    if (property.Type === '@webhook-code') {
-	      _classPrivateMethodGet$1(_this5, _renderWebhookCodeProperty, _renderWebhookCodeProperty2).call(_this5, property, value, form);
+	      _classPrivateMethodGet$1(_this6, _renderWebhookCodeProperty, _renderWebhookCodeProperty2).call(_this6, property, value, form);
 	      return;
 	    }
 	    if (property.Type === '@field-selector') {
-	      _classPrivateMethodGet$1(_this5, _renderFieldSelectorProperty, _renderFieldSelectorProperty2).call(_this5, property, value, form);
+	      _classPrivateMethodGet$1(_this6, _renderFieldSelectorProperty, _renderFieldSelectorProperty2).call(_this6, property, value, form);
 	      return;
 	    }
 	    var toRenderProperty = _objectSpread({
 	      AllowSelection: false
 	    }, property);
 	    if (toRenderProperty.Type === '@robot-select') {
-	      _classPrivateMethodGet$1(_this5, _prepareRobotSelectProperty, _prepareRobotSelectProperty2).call(_this5, toRenderProperty);
+	      _classPrivateMethodGet$1(_this6, _prepareRobotSelectProperty, _prepareRobotSelectProperty2).call(_this6, toRenderProperty);
 	    }
-	    main_core.Dom.append(main_core.Dom.create("span", {
-	      attrs: {
-	        className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-top bizproc-automation-popup-settings-title-autocomplete"
-	      },
-	      text: property.Name + ':'
-	    }), form);
-	    main_core.Dom.append(main_core.Dom.create("div", {
-	      attrs: {
-	        className: "bizproc-automation-popup-settings"
-	      },
-	      children: [BX.Bizproc.FieldType.renderControl([].concat(babelHelpers.toConsumableArray(bizproc_automation.getGlobalContext().document.getRawType()), [bizproc_automation.getGlobalContext().document.getCategoryId()]), toRenderProperty, property.Id, value || '')]
-	    }), form);
+	    main_core.Dom.append(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-top bizproc-automation-popup-settings-title-autocomplete\"\n\t\t\t\t\t>", ":</span>\n\t\t\t\t"])), main_core.Text.encode(property.Name)), form);
+	    main_core.Dom.append(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"bizproc-automation-popup-settings\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), BX.Bizproc.FieldType.renderControl([].concat(babelHelpers.toConsumableArray(bizproc_automation.getGlobalContext().document.getRawType()), [bizproc_automation.getGlobalContext().document.getCategoryId()]), toRenderProperty, property.Id, value || '')), form);
 	  });
 	}
 	function _prepareRobotSelectProperty2(property) {
@@ -1941,11 +1886,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  property.Type = 'select';
 	}
 	function _setTriggerProperties2(trigger, properties, form) {
-	  var _this6 = this;
+	  var _this7 = this;
 	  var values = {};
 	  properties.forEach(function (property) {
 	    if (property.Type === '@condition-group-selector') {
-	      values[property.Id] = _classPrivateMethodGet$1(_this6, _setConditionGroupValue, _setConditionGroupValue2).call(_this6, property, form);
+	      values[property.Id] = _classPrivateMethodGet$1(_this7, _setConditionGroupValue, _setConditionGroupValue2).call(_this7, property, form);
 	      return;
 	    }
 	    var formData = BX.ajax.prepareForm(form);
@@ -1957,72 +1902,31 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  var selector = new bizproc_automation.ConditionGroupSelector(new bizproc_automation.ConditionGroup(value), {
 	    fields: property.Settings.Fields,
 	    fieldPrefix: property.Id,
-	    showValuesSelector: false
+	    showValuesSelector: false,
+	    caption: {
+	      head: property.Name
+	    }
 	  });
-	  main_core.Dom.append(main_core.Dom.create("div", {
-	    attrs: {
-	      className: "bizproc-automation-popup-settings"
-	    },
-	    children: [main_core.Dom.create("div", {
-	      attrs: {
-	        className: "bizproc-automation-popup-settings-block"
-	      },
-	      children: [main_core.Dom.create("span", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-title"
-	        },
-	        text: property.Name + ":"
-	      }), selector.createNode()]
-	    })]
-	  }), form);
+	  main_core.Dom.append(selector.createNode(), form);
 	}
 	function _setConditionGroupValue2(property, form) {
 	  var formData = BX.ajax.prepareForm(form);
-	  var conditionGroup = bizproc_automation.ConditionGroup.createFromForm(formData['data'], property.Id);
+	  var conditionGroup = bizproc_automation.ConditionGroup.createFromForm(formData.data, property.Id);
 	  return conditionGroup.serialize();
 	}
 	function _renderWebhookCodeProperty2(property, value, form) {
+	  var _this8 = this;
 	  if (!value) {
 	    value = main_core.Text.getRandom(5);
 	  }
-	  main_core.Dom.append(main_core.Dom.create("span", {
-	    attrs: {
-	      className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete"
-	    },
-	    text: property.Name + ':'
-	  }), form);
-	  main_core.Dom.append(main_core.Dom.create('input', {
-	    props: {
-	      type: 'hidden',
-	      value: value,
-	      name: 'code'
-	    }
-	  }), form);
-	  var hookLinkTextarea = main_core.Dom.create("textarea", {
-	    attrs: {
-	      className: "bizproc-automation-popup-textarea",
-	      placeholder: "...",
-	      readonly: 'readonly',
-	      name: 'webhook_handler'
-	    },
-	    events: {
-	      click: function click() {
-	        this.select();
-	      }
-	    }
+	  main_core.Dom.append(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete\">\n\t\t\t\t\t", ":\n\t\t\t\t</span>\n\t\t\t"])), main_core.Text.encode(property.Name)), form);
+	  main_core.Dom.append(main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" value=\"", "\" name=\"code\"/>"])), main_core.Text.encode(value)), form);
+	  var hookLinkTextarea = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<textarea class=\"bizproc-automation-popup-textarea\" placeholder=\"...\" readonly=\"readonly\" name=\"webhook_handler\">\n\t\t\t</textarea>\n\t\t"])));
+	  main_core.Event.bind(hookLinkTextarea, 'click', function () {
+	    _this8.select();
 	  });
-	  main_core.Dom.append(main_core.Dom.create("div", {
-	    attrs: {
-	      className: "bizproc-automation-popup-settings"
-	    },
-	    children: [hookLinkTextarea]
-	  }), form);
-	  main_core.Dom.append(main_core.Dom.create("span", {
-	    attrs: {
-	      className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete"
-	    },
-	    text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_WEBHOOK_ID')
-	  }), form);
+	  main_core.Dom.append(main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-automation-popup-settings\">", "</div>"])), hookLinkTextarea), form);
+	  main_core.Dom.append(main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_WEBHOOK_ID')), form);
 	  if (property.Settings.Handler) {
 	    var url = window.location.protocol + '//' + window.location.host + property.Settings.Handler;
 	    url = main_core.Uri.addParam(url, {
@@ -2044,7 +1948,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    });
 	    main_core.Event.bind(passwordAlert.getTextContainer().querySelector('[data-role="token-gen"]'), 'click', function () {
 	      var loaderConfig = property.Settings.PasswordLoader;
-	      BX.ajax.runComponentAction(loaderConfig.component, loaderConfig.action, {
+	      main_core.ajax.runComponentAction(loaderConfig.component, loaderConfig.action, {
 	        mode: loaderConfig.mode || undefined,
 	        data: {
 	          documentType: [].concat(babelHelpers.toConsumableArray(bizproc_automation.getGlobalContext().document.getRawType()), [bizproc_automation.getGlobalContext().document.getCategoryId()])
@@ -2063,36 +1967,15 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }
 	}
 	function _renderFieldSelectorProperty2(property, value, form) {
-	  var menuId = '@field-selector' + Math.random();
-	  var fieldName = property.Id + '[]';
+	  var menuId = "@field-selector".concat(Math.random());
+	  var fieldName = "".concat(property.Id, "[]");
 	  var fieldsList = property.Settings.Fields;
 	  var renderFieldCheckbox = function renderFieldCheckbox(field, listNode) {
-	    var exists = listNode.querySelector('[data-field="' + field['Id'] + '"]');
+	    var exists = listNode.querySelector("[data-field=\"".concat(field.Id, "\"]"));
 	    if (exists) {
 	      return;
 	    }
-	    main_core.Dom.append(main_core.Dom.create('div', {
-	      attrs: {
-	        className: 'bizproc-automation-popup-checkbox-item',
-	        'data-field': field['Id']
-	      },
-	      children: [main_core.Dom.create('label', {
-	        attrs: {
-	          className: 'bizproc-automation-popup-chk-label'
-	        },
-	        children: [main_core.Dom.create('input', {
-	          attrs: {
-	            className: 'bizproc-automation-popup-chk',
-	            type: 'checkbox',
-	            name: fieldName,
-	            value: field['Id']
-	          },
-	          props: {
-	            checked: true
-	          }
-	        }), document.createTextNode(field['Name'])]
-	      })]
-	    }), listNode);
+	    main_core.Dom.append(main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"bizproc-automation-popup-checkbox-item\" data-field=\"", "\">\n\t\t\t\t\t\t<label class=\"bizproc-automation-popup-chk-label\">\n\t\t\t\t\t\t\t<input\n\t\t\t\t\t\t\t\tclass=\"bizproc-automation-popup-chk\"\n\t\t\t\t\t\t\t\ttype=\"checkbox\"\n\t\t\t\t\t\t\t\tname=\"", "\"\n\t\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t\t\tchecked\n\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</label>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Text.encode(field.Id), main_core.Text.encode(fieldName), main_core.Text.encode(field.Id), main_core.Text.encode(field.Name)), listNode);
 	  };
 	  var fieldSelectorHandler = function fieldSelectorHandler(targetNode, listNode) {
 	    if (BX.Main.MenuManager.getMenuById(menuId)) {
@@ -2101,7 +1984,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    var menuItems = [];
 	    fieldsList.forEach(function (field) {
 	      menuItems.push({
-	        text: BX.Text.encode(field['Name']),
+	        text: main_core.Text.encode(field.Name),
 	        field: field,
 	        onclick: function onclick(event, item) {
 	          renderFieldCheckbox(item.field, listNode);
@@ -2109,9 +1992,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        }
 	      });
 	    });
-	    BX.Main.MenuManager.show(menuId, targetNode, menuItems, {
+	    main_popup.MenuManager.show(menuId, targetNode, menuItems, {
 	      autoHide: true,
-	      offsetLeft: BX.pos(this)['width'] / 2,
+	      offsetLeft: main_core.Dom.getPosition(this).width / 2,
 	      angle: {
 	        position: 'top',
 	        offset: 0
@@ -2125,35 +2008,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      }
 	    });
 	  };
-	  main_core.Dom.append(main_core.Dom.create('span', {
-	    attrs: {
-	      className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete"
-	    },
-	    text: property.Name + ':'
-	  }), form);
-	  var fieldListNode = main_core.Dom.create('div', {
-	    attrs: {
-	      className: 'bizproc-automation-popup-checkbox'
-	    },
-	    children: []
-	  });
+	  main_core.Dom.append(main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete\">\n\t\t\t\t\t", ":\n\t\t\t\t</span>\n\t\t\t"])), main_core.Text.encode(property.Name)), form);
+	  var fieldListNode = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-automation-popup-checkbox\"></div>"])));
 	  main_core.Dom.append(fieldListNode, form);
-	  main_core.Dom.append(main_core.Dom.create('div', {
-	    attrs: {
-	      className: 'bizproc-automation-popup-settings bizproc-automation-popup-settings-text'
-	    },
-	    children: [main_core.Dom.create('span', {
-	      attrs: {
-	        className: "bizproc-automation-popup-settings-link"
-	      },
-	      text: property.Settings.ChooseFieldLabel,
-	      events: {
-	        click: function click() {
-	          fieldSelectorHandler(this, fieldListNode);
-	        }
-	      }
-	    })]
-	  }), form);
+	  var fieldSelectorNode = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"bizproc-automation-popup-settings-link\">", "</span>\n\t\t"])), main_core.Text.encode(property.Settings.ChooseFieldLabel));
+	  main_core.Event.bind(fieldSelectorNode, 'click', function () {
+	    fieldSelectorHandler(this, fieldListNode);
+	  });
+	  main_core.Dom.append(main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"bizproc-automation-popup-settings bizproc-automation-popup-settings-text\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), fieldSelectorNode), form);
 	  if (main_core.Type.isArray(value)) {
 	    value.forEach(function (field) {
 	      var foundField = fieldsList.find(function (fld) {
@@ -2329,6 +2191,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return Document;
 	}();
 
+	function _createForOfIteratorHelper$3(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$3(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray$3(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$3(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$3(o, minLen); }
+	function _arrayLikeToArray$3(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	function _classPrivateFieldInitSpec$7(obj, privateMap, value) { _checkPrivateRedeclaration$7(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$7(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	var _basis = /*#__PURE__*/new WeakMap();
@@ -2370,26 +2235,26 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      value: void 0
 	    });
 	    if (main_core.Type.isPlainObject(params)) {
-	      if (params['type']) {
-	        this.setType(params['type']);
+	      if (params.type) {
+	        this.setType(params.type);
 	      }
-	      if (params['value']) {
-	        this.setValue(params['value']);
+	      if (params.value) {
+	        this.setValue(params.value);
 	      }
-	      if (params['valueType']) {
-	        this.setValueType(params['valueType']);
+	      if (params.valueType) {
+	        this.setValueType(params.valueType);
 	      }
-	      if (params['basis']) {
-	        this.setBasis(params['basis']);
+	      if (params.basis) {
+	        this.setBasis(params.basis);
 	      }
-	      if (params['workTime']) {
-	        this.setWorkTime(params['workTime']);
+	      if (params.workTime) {
+	        this.setWorkTime(params.workTime);
 	      }
-	      if (params['waitWorkDay']) {
-	        this.setWaitWorkDay(params['waitWorkDay']);
+	      if (params.waitWorkDay) {
+	        this.setWaitWorkDay(params.waitWorkDay);
 	      }
-	      if (params['inTime']) {
-	        this.setInTime(params['inTime']);
+	      if (params.inTime) {
+	        this.setInTime(params.inTime);
 	      }
 	    }
 	  }
@@ -2418,7 +2283,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "setValue",
 	    value: function setValue(value) {
-	      value = parseInt(value);
+	      value = parseInt(value, 10);
 	      babelHelpers.classPrivateFieldSet(this, _value, value >= 0 ? value : 0);
 	      return this;
 	    }
@@ -2442,13 +2307,13 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "setWorkTime",
 	    value: function setWorkTime(flag) {
-	      babelHelpers.classPrivateFieldSet(this, _workTime, !!flag);
+	      babelHelpers.classPrivateFieldSet(this, _workTime, Boolean(flag));
 	      return this;
 	    }
 	  }, {
 	    key: "setWaitWorkDay",
 	    value: function setWaitWorkDay(flag) {
-	      babelHelpers.classPrivateFieldSet(this, _waitWorkDay, !!flag);
+	      babelHelpers.classPrivateFieldSet(this, _waitWorkDay, Boolean(flag));
 	      return this;
 	    }
 	  }, {
@@ -2487,7 +2352,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "toExpression",
 	    value: function toExpression(basisFields, workerExpression) {
-	      var basis = babelHelpers.classPrivateFieldGet(this, _basis) ? babelHelpers.classPrivateFieldGet(this, _basis) : DelayInterval.BASIS_TYPE.CurrentDate;
+	      var _babelHelpers$classPr;
+	      var basis = (_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _basis)) !== null && _babelHelpers$classPr !== void 0 ? _babelHelpers$classPr : DelayInterval.BASIS_TYPE.CurrentDate;
 	      if (!DelayInterval.isSystemBasis(basis) && main_core.Type.isArray(basisFields)) {
 	        for (var i = 0, s = basisFields.length; i < s; ++i) {
 	          if (basis === basisFields[i].SystemExpression) {
@@ -2514,17 +2380,17 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          break;
 	      }
 	      var add = '';
-	      if (babelHelpers.classPrivateFieldGet(this, _type) === DelayInterval.DELAY_TYPE.Before) {
-	        add = '-';
-	      }
 	      if (days > 0) {
-	        add += days + 'd';
+	        add += "".concat(days, "d");
 	      }
 	      if (hours > 0) {
-	        add += hours + 'h';
+	        add += "".concat(hours, "h");
 	      }
 	      if (minutes > 0) {
-	        add += minutes + 'i';
+	        add += "".concat(minutes, "i");
+	      }
+	      if (add !== '' && babelHelpers.classPrivateFieldGet(this, _type) === DelayInterval.DELAY_TYPE.Before) {
+	        add = "-".concat(add);
 	      }
 	      var fn = babelHelpers.classPrivateFieldGet(this, _workTime) ? 'workdateadd' : 'dateadd';
 	      if (fn === 'workdateadd' && add === '') {
@@ -2534,57 +2400,78 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      if (fn === 'workdateadd' && workerExpression) {
 	        worker = workerExpression;
 	      }
-	      var result = fn + '(' + basis + ',"' + add + '"' + (worker ? ',' + worker : '') + ')';
-	      if (babelHelpers.classPrivateFieldGet(this, _type) === DelayInterval.DELAY_TYPE.In && babelHelpers.classPrivateFieldGet(this, _inTime)) {
-	        if (!babelHelpers.classPrivateFieldGet(this, _workTime)) {
-	          result = basis;
-	        }
-	        result = "settime(".concat(result, ", ").concat(babelHelpers.classPrivateFieldGet(this, _inTime)[0] || 0, ", ").concat(babelHelpers.classPrivateFieldGet(this, _inTime)[1] || 0, ")");
+	      var result = basis;
+	      var isFunctionInResult = false;
+	      if (add !== '') {
+	        result = "".concat(fn, "(").concat(basis, ",\"").concat(add, "\"").concat(worker ? ',' + worker : '', ")");
+	        isFunctionInResult = true;
 	      }
-	      return '=' + result;
+	      if (babelHelpers.classPrivateFieldGet(this, _inTime)) {
+	        result = "settime(".concat(result, ", ").concat(babelHelpers.classPrivateFieldGet(this, _inTime)[0] || 0, ", ").concat(babelHelpers.classPrivateFieldGet(this, _inTime)[1] || 0, ")");
+	        isFunctionInResult = true;
+	      }
+	      return isFunctionInResult ? "=".concat(result) : result;
 	    }
 	  }, {
 	    key: "format",
 	    value: function format(emptyText, fields) {
 	      var str = emptyText;
 	      if (babelHelpers.classPrivateFieldGet(this, _type) === DelayInterval.DELAY_TYPE.In) {
-	        str = main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_IN_TIME');
+	        str = main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_IN_TIME_2');
 	        if (main_core.Type.isArray(fields)) {
-	          for (var i = 0; i < fields.length; ++i) {
-	            if (babelHelpers.classPrivateFieldGet(this, _basis) === fields[i].SystemExpression) {
-	              str += ' ' + fields[i].Name;
-	              break;
+	          var _iterator = _createForOfIteratorHelper$3(fields),
+	            _step;
+	          try {
+	            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	              var field = _step.value;
+	              if (babelHelpers.classPrivateFieldGet(this, _basis) === field.SystemExpression) {
+	                str += " ".concat(field.Name);
+	                break;
+	              }
 	            }
+	          } catch (err) {
+	            _iterator.e(err);
+	          } finally {
+	            _iterator.f();
 	          }
 	        }
 	        if (this.inTime) {
-	          str += ' ' + this.inTimeString;
+	          str += " ".concat(this.inTimeString);
 	        }
 	      } else if (babelHelpers.classPrivateFieldGet(this, _value)) {
-	        var prefix = babelHelpers.classPrivateFieldGet(this, _type) === DelayInterval.DELAY_TYPE.After ? main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_THROUGH') : main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_FOR_TIME_1');
-	        str = prefix + ' ' + this.getFormattedPeriodLabel(babelHelpers.classPrivateFieldGet(this, _value), babelHelpers.classPrivateFieldGet(this, _valueType));
+	        var prefix = babelHelpers.classPrivateFieldGet(this, _type) === DelayInterval.DELAY_TYPE.After ? main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_THROUGH_3') : main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_FOR_TIME_3');
+	        str = "".concat(prefix, " ").concat(this.getFormattedPeriodLabel(babelHelpers.classPrivateFieldGet(this, _value), babelHelpers.classPrivateFieldGet(this, _valueType)));
 	        if (main_core.Type.isArray(fields)) {
 	          var fieldSuffix = babelHelpers.classPrivateFieldGet(this, _type) === DelayInterval.DELAY_TYPE.After ? main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AFTER') : main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_BEFORE_1');
-	          for (var _i = 0; _i < fields.length; ++_i) {
-	            if (babelHelpers.classPrivateFieldGet(this, _basis) === fields[_i].SystemExpression) {
-	              str += ' ' + fieldSuffix + ' ' + fields[_i].Name;
-	              break;
+	          var _iterator2 = _createForOfIteratorHelper$3(fields),
+	            _step2;
+	          try {
+	            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+	              var _field = _step2.value;
+	              if (babelHelpers.classPrivateFieldGet(this, _basis) === _field.SystemExpression) {
+	                str += " ".concat(fieldSuffix, " ").concat(_field.Name);
+	                break;
+	              }
 	            }
+	          } catch (err) {
+	            _iterator2.e(err);
+	          } finally {
+	            _iterator2.f();
 	          }
 	        }
 	      }
 	      if (babelHelpers.classPrivateFieldGet(this, _workTime)) {
-	        str += ', ' + main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_IN_WORKTIME');
+	        str += ", ".concat(main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_IN_WORKTIME'));
 	      }
 	      return str;
 	    }
 	  }, {
 	    key: "getFormattedPeriodLabel",
 	    value: function getFormattedPeriodLabel(value, type) {
-	      var label = value + ' ';
+	      var label = "".concat(value, " ");
 	      var labelIndex = 0;
 	      if (value > 20) {
-	        value = value % 10;
+	        value %= 10;
 	      }
 	      if (value === 1) {
 	        labelIndex = 0;
@@ -2637,7 +2524,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      if (!babelHelpers.classPrivateFieldGet(this, _inTime)) {
 	        return '';
 	      }
-	      return ('0' + babelHelpers.classPrivateFieldGet(this, _inTime)[0]).slice(-2) + ':' + ('0' + babelHelpers.classPrivateFieldGet(this, _inTime)[1]).slice(-2);
+	      return "".concat(('0' + babelHelpers.classPrivateFieldGet(this, _inTime)[0]).slice(-2), ":").concat(('0' + babelHelpers.classPrivateFieldGet(this, _inTime)[1]).slice(-2));
 	    }
 	  }], [{
 	    key: "isSystemBasis",
@@ -2664,56 +2551,61 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      if (intervalString.indexOf('settime(') === 0) {
 	        intervalString = intervalString.substring(8, intervalString.length - 1);
 	        var setTimeArgs = intervalString.split(',');
-	        var minute = parseInt(setTimeArgs.pop().trim());
-	        var hour = parseInt(setTimeArgs.pop().trim());
+	        var minute = parseInt(setTimeArgs.pop().trim(), 10);
+	        var hour = parseInt(setTimeArgs.pop().trim(), 10);
 	        params.inTime = [hour || 0, minute || 0];
 	        intervalString = setTimeArgs.join(',');
 	      }
 	      if (intervalString.indexOf('dateadd(') === 0 || intervalString.indexOf('workdateadd(') === 0) {
 	        if (intervalString.indexOf('workdateadd(') === 0) {
 	          intervalString = intervalString.substring(12, intervalString.length - 1);
-	          params['workTime'] = true;
+	          params.workTime = true;
 	        } else {
 	          intervalString = intervalString.substring(8, intervalString.length - 1);
 	        }
 	        var fnArgs = intervalString.split(',');
-	        params['basis'] = fnArgs[0].trim();
+	        params.basis = fnArgs[0].trim();
 	        fnArgs[1] = (fnArgs[1] || '').replace(/['")]+/g, '');
-	        params['type'] = fnArgs[1].indexOf('-') === 0 ? DelayInterval.DELAY_TYPE.Before : DelayInterval.DELAY_TYPE.After;
+	        params.type = fnArgs[1].indexOf('-') === 0 ? DelayInterval.DELAY_TYPE.Before : DelayInterval.DELAY_TYPE.After;
 	        var match;
 	        var re = /s*([\d]+)\s*(i|h|d)\s*/ig;
 	        while (match = re.exec(fnArgs[1])) {
-	          values[match[2]] = parseInt(match[1]);
+	          values[match[2]] = parseInt(match[1], 10);
 	        }
 	      } else {
-	        params['basis'] = intervalString;
+	        params.basis = intervalString;
+	        if (params.basis === DelayInterval.BASIS_TYPE.CurrentDateTime) {
+	          params.type = DelayInterval.DELAY_TYPE.After;
+	        } else {
+	          params.type = DelayInterval.DELAY_TYPE.In;
+	        }
 	      }
-	      if (!DelayInterval.isSystemBasis(params['basis']) && BX.type.isArray(basisFields)) {
+	      if (!DelayInterval.isSystemBasis(params.basis) && BX.type.isArray(basisFields)) {
 	        var found = false;
 	        for (var i = 0, s = basisFields.length; i < s; ++i) {
-	          if (params['basis'] === basisFields[i].SystemExpression || params['basis'] === basisFields[i].Expression) {
-	            params['basis'] = basisFields[i].SystemExpression;
+	          if (params.basis === basisFields[i].SystemExpression || params.basis === basisFields[i].Expression) {
+	            params.basis = basisFields[i].SystemExpression;
 	            found = true;
 	            break;
 	          }
 	        }
 	        if (!found) {
-	          params['basis'] = DelayInterval.BASIS_TYPE.CurrentDateTime;
+	          params.basis = DelayInterval.BASIS_TYPE.CurrentDateTime;
 	        }
 	      }
-	      var minutes = values['i'] + values['h'] * 60 + values['d'] * 60 * 24;
+	      var minutes = values.i + values.h * 60 + values.d * 60 * 24;
 	      if (minutes % 1440 === 0) {
-	        params['value'] = minutes / 1440;
-	        params['valueType'] = 'd';
+	        params.value = minutes / 1440;
+	        params.valueType = 'd';
 	      } else if (minutes % 60 === 0) {
-	        params['value'] = minutes / 60;
-	        params['valueType'] = 'h';
+	        params.value = minutes / 60;
+	        params.valueType = 'h';
 	      } else {
-	        params['value'] = minutes;
-	        params['valueType'] = 'i';
+	        params.value = minutes;
+	        params.valueType = 'i';
 	      }
-	      if (!params['value'] && (params['basis'] !== DelayInterval.BASIS_TYPE.CurrentDateTime || params.inTime) && params['basis']) {
-	        params['type'] = DelayInterval.DELAY_TYPE.In;
+	      if (!params.value && (params.basis !== DelayInterval.BASIS_TYPE.CurrentDateTime || params.inTime) && params.basis) {
+	        params.type = DelayInterval.DELAY_TYPE.In;
 	      }
 	      return new DelayInterval(params);
 	    }
@@ -2748,6 +2640,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        case 'd':
 	          result = value * 60 * 24;
 	          break;
+	        default:
+	          result = 0;
 	      }
 	      return result;
 	    }
@@ -2755,12 +2649,24 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "getPeriodLabels",
 	    value: function getPeriodLabels(period) {
 	      var labels = [];
-	      if (period === 'i') {
-	        labels = [main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN2'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN3')];
-	      } else if (period === 'h') {
-	        labels = [main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR2'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR3')];
-	      } else if (period === 'd') {
-	        labels = [main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY2'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY3')];
+	      switch (period) {
+	        case 'i':
+	          {
+	            labels = [main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN2'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_MIN3')];
+	            break;
+	          }
+	        case 'h':
+	          {
+	            labels = [main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR2'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_HOUR3')];
+	            break;
+	          }
+	        case 'd':
+	          {
+	            labels = [main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY2'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DAY3')];
+	            break;
+	          }
+	        default:
+	          labels = [];
 	      }
 	      return labels;
 	    }
@@ -2981,9 +2887,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	babelHelpers.defineProperty(TrackingStatus, "COMPLETED", 2);
 	babelHelpers.defineProperty(TrackingStatus, "AUTOCOMPLETED", 3);
 
-	function _createForOfIteratorHelper$2(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$2(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-	function _unsupportedIterableToArray$2(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$2(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$2(o, minLen); }
-	function _arrayLikeToArray$2(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	function _createForOfIteratorHelper$4(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$4(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray$4(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$4(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$4(o, minLen); }
+	function _arrayLikeToArray$4(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	function _classPrivateFieldInitSpec$9(obj, privateMap, value) { _checkPrivateRedeclaration$9(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$9(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	var _entryId = /*#__PURE__*/new WeakMap();
@@ -3003,7 +2909,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    });
 	    babelHelpers.defineProperty(this, "workflowStatus", WorkflowStatus.CREATED);
 	    if (main_core.Type.isArray(entries)) {
-	      var _iterator = _createForOfIteratorHelper$2(entries),
+	      var _iterator = _createForOfIteratorHelper$4(entries),
 	        _step;
 	      try {
 	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
@@ -3136,9 +3042,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return TrackingEntryBuilder;
 	}();
 
-	function _createForOfIteratorHelper$3(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$3(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-	function _unsupportedIterableToArray$3(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$3(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$3(o, minLen); }
-	function _arrayLikeToArray$3(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	function _createForOfIteratorHelper$5(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$5(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray$5(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$5(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$5(o, minLen); }
+	function _arrayLikeToArray$5(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	function _classPrivateFieldInitSpec$b(obj, privateMap, value) { _checkPrivateRedeclaration$b(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$b(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	var _ajaxUrl = /*#__PURE__*/new WeakMap();
@@ -3193,7 +3099,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        if (!main_core.Type.isArray(entries)) {
 	          continue;
 	        }
-	        var _iterator = _createForOfIteratorHelper$3(entries),
+	        var _iterator = _createForOfIteratorHelper$5(entries),
 	          _step;
 	        try {
 	          for (_iterator.s(); !(_step = _iterator.n()).done;) {
@@ -3275,10 +3181,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return Tracker;
 	}();
 
-	var _templateObject$1, _templateObject2;
-	function _createForOfIteratorHelper$4(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$4(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-	function _unsupportedIterableToArray$4(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$4(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$4(o, minLen); }
-	function _arrayLikeToArray$4(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	var _templateObject$2, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1;
+	function _createForOfIteratorHelper$6(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$6(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray$6(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$6(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$6(o, minLen); }
+	function _arrayLikeToArray$6(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$c(obj, privateSet); privateSet.add(obj); }
@@ -3295,7 +3201,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var _isDraft = /*#__PURE__*/new WeakMap();
 	var _isFrameMode = /*#__PURE__*/new WeakMap();
 	var _viewMode$2 = /*#__PURE__*/new WeakMap();
+	var _renderCheckbox = /*#__PURE__*/new WeakSet();
+	var _canEditRobot = /*#__PURE__*/new WeakSet();
 	var _renderDeactivatedInfoBlock = /*#__PURE__*/new WeakSet();
+	var _renderInvalidInfoBlock = /*#__PURE__*/new WeakSet();
 	var _onActionsButtonClick = /*#__PURE__*/new WeakSet();
 	var _onDeactivateButtonClick = /*#__PURE__*/new WeakSet();
 	var Robot = /*#__PURE__*/function (_EventEmitter) {
@@ -3306,7 +3215,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Robot).call(this));
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onDeactivateButtonClick);
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onActionsButtonClick);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderInvalidInfoBlock);
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderDeactivatedInfoBlock);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _canEditRobot);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderCheckbox);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "SYSTEM_EXPRESSION_PATTERN", '\\{=\\s*(?<object>[a-z0-9_]+)\\s*\\:\\s*(?<field>[a-z0-9_\\.]+)(\\s*>\\s*(?<mod1>[a-z0-9_\\:]+)(\\s*,\\s*(?<mod2>[a-z0-9_]+))?)?\\s*\\}');
 	    _classPrivateFieldInitSpec$c(babelHelpers.assertThisInitialized(_this), _data$1, {
 	      writable: true,
@@ -3542,6 +3454,12 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      return main_core.Text.toBoolean(babelHelpers.classPrivateFieldGet(this, _data$1).Activated);
 	    }
 	  }, {
+	    key: "isInvalid",
+	    value: function isInvalid() {
+	      var _babelHelpers$classPr;
+	      return ((_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _data$1).viewData) === null || _babelHelpers$classPr === void 0 ? void 0 : _babelHelpers$classPr.isInvalid) === true;
+	    }
+	  }, {
 	    key: "setActivated",
 	    value: function setActivated(activated) {
 	      babelHelpers.classPrivateFieldGet(this, _data$1).Activated = main_core.Text.toBoolean(activated);
@@ -3585,24 +3503,22 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      var _this3 = this;
 	      var wrapperClass = 'bizproc-automation-robot-container-wrapper';
 	      var containerClass = 'bizproc-automation-robot-container';
-	      if (babelHelpers.classPrivateFieldGet(this, _viewMode$2).isEdit() && this.canEdit()) {
+	      if (babelHelpers.classPrivateFieldGet(this, _viewMode$2).isEdit() && this.canEdit() && _classPrivateMethodGet$2(this, _canEditRobot, _canEditRobot2).call(this)) {
 	        wrapperClass += ' bizproc-automation-robot-container-wrapper-draggable';
 	      }
-	      if (babelHelpers.classPrivateFieldGet(this, _data$1).Activated === false) {
+	      if (this.isActivated() === false) {
 	        containerClass += ' --deactivated';
 	        wrapperClass += ' --deactivated';
+	      }
+	      if (this.isInvalid()) {
+	        containerClass += ' --invalid';
+	        wrapperClass += ' --invalid';
 	      }
 	      if (this.draft) {
 	        containerClass += ' --draft';
 	      }
 	      var targetLabel = main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TO');
-	      var targetNode = main_core.Dom.create("a", {
-	        attrs: {
-	          className: "bizproc-automation-robot-settings-name " + (babelHelpers.classPrivateFieldGet(this, _viewMode$2).isView() ? '--mode-view' : ''),
-	          title: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AUTOMATICALLY')
-	        },
-	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AUTOMATICALLY')
-	      });
+	      var targetNode = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a\n\t\t\t\tclass=\"bizproc-automation-robot-settings-name ", "\"\n\t\t\t\ttitle=\"", "\"\n\t\t\t>", "</a>\n\t\t"])), babelHelpers.classPrivateFieldGet(this, _viewMode$2).isView() ? '--mode-view' : '', main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AUTOMATICALLY'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AUTOMATICALLY'));
 	      if (main_core.Type.isPlainObject(babelHelpers.classPrivateFieldGet(this, _data$1).viewData) && babelHelpers.classPrivateFieldGet(this, _data$1).viewData.responsibleLabel) {
 	        var labelText = babelHelpers.classPrivateFieldGet(this, _data$1).viewData.responsibleLabel.replace('{=Document:ASSIGNED_BY_ID}', main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_RESPONSIBLE')).replace('author', main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_RESPONSIBLE')).replace(/\{=Constant\:Constant[0-9]+\}/, main_core.Loc.getMessage('BIZPROC_AUTOMATION_ASK_CONSTANT')).replace(/\{\{~&\:Constant[0-9]+\}\}/, main_core.Loc.getMessage('BIZPROC_AUTOMATION_ASK_CONSTANT')).replace(/\{=Template\:Parameter[0-9]+\}/, main_core.Loc.getMessage('BIZPROC_AUTOMATION_ASK_PARAMETER')).replace(/\{\{~&:\:Parameter[0-9]+\}\}/, main_core.Loc.getMessage('BIZPROC_AUTOMATION_ASK_PARAMETER'));
 	        if (labelText.indexOf('{=Document') >= 0) {
@@ -3643,24 +3559,20 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      }
 	      var delayLabel = this.getDelayInterval().format(main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AT_ONCE'), babelHelpers.classPrivateFieldGet(this, _document$1).getFields());
 	      if (this.isExecuteAfterPrevious()) {
-	        delayLabel = delayLabel !== main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AT_ONCE') ? delayLabel + ', ' : '';
+	        delayLabel = delayLabel === main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AT_ONCE') ? '' : "".concat(delayLabel, ", ");
 	        delayLabel += main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AFTER_PREVIOUS');
 	      }
 	      if (this.getCondition().items.length > 0) {
-	        delayLabel += ', ' + main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_BY_CONDITION');
+	        delayLabel += ", ".concat(main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_BY_CONDITION'));
 	      }
-	      var delayNode = main_core.Dom.create(babelHelpers.classPrivateFieldGet(this, _viewMode$2).isEdit() ? "a" : "span", {
+	      var delayNode = main_core.Dom.create(_classPrivateMethodGet$2(this, _canEditRobot, _canEditRobot2).call(this) ? 'a' : 'span', {
 	        attrs: {
-	          className: babelHelpers.classPrivateFieldGet(this, _viewMode$2).isEdit() ? 'bizproc-automation-robot-link' : 'bizproc-automation-robot-text',
+	          className: _classPrivateMethodGet$2(this, _canEditRobot, _canEditRobot2).call(this) ? 'bizproc-automation-robot-link' : 'bizproc-automation-robot-text',
 	          title: delayLabel
 	        },
 	        text: delayLabel
 	      });
-	      var statusNode = main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-robot-information"
-	        }
-	      });
+	      var statusNode = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-automation-robot-information\"></div>"])));
 	      this.subscribeOnce('Robot:destroyed', function () {
 	        if (HelpHint.isBindedToNode(statusNode)) {
 	          HelpHint.hideHint();
@@ -3690,89 +3602,36 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        HelpHint.bindToNode(statusNode);
 	      }
 	      var titleClassName = 'bizproc-automation-robot-title-text';
-	      if (babelHelpers.classPrivateFieldGet(this, _viewMode$2).isEdit() && this.canEdit()) {
+	      if (_classPrivateMethodGet$2(this, _canEditRobot, _canEditRobot2).call(this) && this.canEdit()) {
 	        titleClassName += ' bizproc-automation-robot-title-text-editable';
 	      }
-	      var div = main_core.Dom.create("div", {
-	        attrs: {
-	          className: containerClass,
-	          'data-role': 'robot-container',
-	          'data-type': 'item-robot',
-	          'data-id': this.getId()
-	        },
-	        children: [main_core.Dom.create("div", {
-	          attrs: {
-	            className: "ui-ctl ui-ctl-inline bizproc-automation-robot-container-checkbox"
-	          },
-	          children: [main_core.Dom.create("input", {
-	            attrs: {
-	              className: ' ui-ctl-checkbox',
-	              type: "checkbox",
-	              name: "name"
-	            }
-	          })]
-	        }), _classPrivateMethodGet$2(this, _renderDeactivatedInfoBlock, _renderDeactivatedInfoBlock2).call(this), main_core.Dom.create('div', {
-	          attrs: {
-	            className: wrapperClass
-	          },
-	          children: [main_core.Dom.create("div", {
-	            attrs: {
-	              className: "bizproc-automation-robot-deadline"
-	            },
-	            children: [delayNode]
-	          }), main_core.Dom.create("div", {
-	            attrs: {
-	              className: "bizproc-automation-robot-title"
-	            },
-	            children: [main_core.Dom.create("div", {
-	              attrs: {
-	                className: titleClassName,
-	                title: this.getTitle()
-	              },
-	              html: this.clipTitle(this.getTitle()),
-	              events: {
-	                click: function click(event) {
-	                  if (babelHelpers.classPrivateFieldGet(_this3, _viewMode$2).isEdit() && _this3.canEdit() && !babelHelpers.classPrivateFieldGet(_this3, _viewMode$2).isManage()) {
-	                    _this3.onTitleEditClick(event);
-	                  }
-	                }
-	              }
-	            })]
-	          }), main_core.Dom.create("div", {
-	            attrs: {
-	              className: "bizproc-automation-robot-settings"
-	            },
-	            children: [main_core.Dom.create("div", {
-	              attrs: {
-	                className: "bizproc-automation-robot-settings-title"
-	              },
-	              text: targetLabel + ':'
-	            }), targetNode]
-	          }), statusNode]
-	        })]
+	      var _ref = main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div\n\t\t\t\tclass=\"", "\"\n\t\t\t\tdata-role=\"robot-container\"\n\t\t\t\tdata-type=\"item-robot\"\n\t\t\t\tdata-id=\"", "\"\n\t\t\t>\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div class=\"bizproc-automation-robot-deadline\">", "</div>\n\t\t\t\t\t<div class=\"bizproc-automation-robot-title\">\n\t\t\t\t\t\t<div ref=\"titleNode\" class=\"", "\" title=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"bizproc-automation-robot-settings\">\n\t\t\t\t\t\t<div class=\"bizproc-automation-robot-settings-title\">", ":</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), containerClass, main_core.Text.encode(this.getId()), _classPrivateMethodGet$2(this, _renderCheckbox, _renderCheckbox2).call(this), _classPrivateMethodGet$2(this, _renderDeactivatedInfoBlock, _renderDeactivatedInfoBlock2).call(this), _classPrivateMethodGet$2(this, _renderInvalidInfoBlock, _renderInvalidInfoBlock2).call(this), wrapperClass, delayNode, titleClassName, main_core.Text.encode(this.getTitle()), this.clipTitle(this.getTitle()), targetLabel, targetNode, statusNode),
+	        div = _ref.root,
+	        titleNode = _ref.titleNode;
+	      main_core.Event.bind(titleNode, 'click', function (event) {
+	        if (_classPrivateMethodGet$2(_this3, _canEditRobot, _canEditRobot2).call(_this3) && _this3.canEdit() && !babelHelpers.classPrivateFieldGet(_this3, _viewMode$2).isManage()) {
+	          _this3.onTitleEditClick(event);
+	        }
 	      });
-	      if (this.canEdit()) {
+	      if (this.canEdit() && _classPrivateMethodGet$2(this, _canEditRobot, _canEditRobot2).call(this)) {
 	        this.registerItem(div);
 	      }
 	      if (babelHelpers.classPrivateFieldGet(this, _viewMode$2).isEdit()) {
-	        var deleteBtn = main_core.Dom.create('SPAN', {
-	          attrs: {
-	            className: 'bizproc-automation-robot-btn-delete'
-	          }
-	        });
+	        var deleteBtn = main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["<span class=\"bizproc-automation-robot-btn-delete\"></span>"])));
 	        main_core.Event.bind(deleteBtn, 'click', this.onDeleteButtonClick.bind(this, deleteBtn));
-	        div.lastChild.appendChild(deleteBtn);
-	        var actionsButton = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"bizproc-automation-robot-btn-copy\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_ACTIONS_BUTTON_TEXT'));
-	        main_core.Event.bind(actionsButton, 'click', _classPrivateMethodGet$2(this, _onActionsButtonClick, _onActionsButtonClick2).bind(this, actionsButton));
-	        main_core.Dom.append(actionsButton, div);
-	        var settingsBtn = main_core.Dom.create('div', {
-	          attrs: {
-	            className: 'bizproc-automation-robot-btn-settings'
-	          },
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_EDIT')
-	        });
-	        main_core.Event.bind(div, 'click', this.onSettingsButtonClick.bind(this, div));
-	        div.appendChild(settingsBtn);
+	        main_core.Dom.append(deleteBtn, div.lastChild);
+	        if (this.isInvalid()) {
+	          var deleteBottomButton = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"bizproc-automation-robot-btn-settings\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_DELETE_BUTTON_TITLE'));
+	          main_core.Event.bind(deleteBottomButton, 'click', this.onDeleteButtonClick.bind(this, deleteBottomButton));
+	          main_core.Dom.append(deleteBottomButton, div);
+	        } else {
+	          var actionsButton = main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"bizproc-automation-robot-btn-copy\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_ACTIONS_BUTTON_TEXT'));
+	          main_core.Event.bind(actionsButton, 'click', _classPrivateMethodGet$2(this, _onActionsButtonClick, _onActionsButtonClick2).bind(this, actionsButton));
+	          main_core.Dom.append(actionsButton, div);
+	          var settingsBtn = main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"bizproc-automation-robot-btn-settings\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_EDIT'));
+	          main_core.Event.bind(div, 'click', this.onSettingsButtonClick.bind(this, div));
+	          main_core.Dom.append(settingsBtn, div);
+	        }
 	      }
 	      return div;
 	    }
@@ -3793,8 +3652,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      if (!this.canEdit()) {
 	        HelpHint.showNoPermissionsHint(button);
 	      } else if (!babelHelpers.classPrivateFieldGet(this, _viewMode$2).isManage()) {
-	        var _babelHelpers$classPr;
-	        babelHelpers.classPrivateFieldGet(this, _template).openRobotSettingsDialog(this, (_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _data$1).DialogContext) !== null && _babelHelpers$classPr !== void 0 ? _babelHelpers$classPr : null);
+	        var _babelHelpers$classPr2;
+	        babelHelpers.classPrivateFieldGet(this, _template).openRobotSettingsDialog(this, (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldGet(this, _data$1).DialogContext) !== null && _babelHelpers$classPr2 !== void 0 ? _babelHelpers$classPr2 : null);
 	      }
 	    }
 	  }, {
@@ -4328,7 +4187,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	              source.add(objectsData[object][key]['Name']);
 	            }
 	          }
-	          var _iterator = _createForOfIteratorHelper$4(usages[object].values()),
+	          var _iterator = _createForOfIteratorHelper$6(usages[object].values()),
 	            _step;
 	          try {
 	            for (_iterator.s(); !(_step = _iterator.n()).done;) {
@@ -4407,11 +4266,26 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }]);
 	  return Robot;
 	}(main_core_events.EventEmitter);
+	function _renderCheckbox2() {
+	  if (this.isInvalid()) {
+	    return '';
+	  }
+	  return main_core.Tag.render(_templateObject8$1 || (_templateObject8$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-ctl ui-ctl-inline bizproc-automation-robot-container-checkbox\">\n\t\t\t\t<input class=\"ui-ctl-checkbox\" type=\"checkbox\" name=\"name\"/>\n\t\t\t</div>\n\t\t"])));
+	}
+	function _canEditRobot2() {
+	  return babelHelpers.classPrivateFieldGet(this, _viewMode$2).isEdit() && !this.isInvalid();
+	}
 	function _renderDeactivatedInfoBlock2() {
 	  if (babelHelpers.classPrivateFieldGet(this, _data$1).Activated === true) {
 	    return '';
 	  }
-	  return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-robot-deactivated\" data-role=\"deactivate-robot\">\n\t\t\t\t", "\n\t\t\t</div>\n\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_DEACTIVATED_ROBOT_BLOCK_TITLE'));
+	  return main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-robot-deactivated\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_DEACTIVATED_ROBOT_BLOCK_TITLE'));
+	}
+	function _renderInvalidInfoBlock2() {
+	  if (!this.isInvalid()) {
+	    return '';
+	  }
+	  return main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-robot-invalid\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_INVALID_REST_ROBOT_BLOCK_TITLE'));
 	}
 	function _onActionsButtonClick2(button, event) {
 	  var _this7 = this;
@@ -4481,6 +4355,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      var storedValue = babelHelpers.classPrivateFieldGet(this, _options)[category][key];
 	      if (storedValue !== value) {
 	        BX.userOptions.save('bizproc.automation', category, key, value, false);
+	        babelHelpers.classPrivateFieldGet(this, _options)[category][key] = value;
 	      }
 	      return this;
 	    }
@@ -4496,22 +4371,102 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "has",
 	    value: function has(category, key) {
-	      return main_core.Type.isPlainObject(babelHelpers.classPrivateFieldGet(this, _options)[category]) && main_core.Type.isPlainObject(babelHelpers.classPrivateFieldGet(this, _options)[category][key]);
+	      return main_core.Type.isPlainObject(babelHelpers.classPrivateFieldGet(this, _options)[category]) && Object.keys(babelHelpers.classPrivateFieldGet(this, _options)[category]).includes(key);
 	    }
 	  }]);
 	  return UserOptions;
 	}();
 
-	var _templateObject$2, _templateObject2$1, _templateObject3, _templateObject4, _templateObject5;
+	var _templateObject$3, _templateObject2$2, _templateObject3$2, _templateObject4$2;
+	var renderAfterPreviousImageBlock = function renderAfterPreviousImageBlock() {
+	  return main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t<svg \n\t\t\tclass=\"bizproc-automation_execution-queue_in-turn\"\n\t\t\twidth=\"97\"\n\t\t\theight=\"121\"\n\t\t\tviewBox=\"0 0 97 121\"\n\t\t\tfill=\"none\"\n\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\txmlns:xlink=\"http://www.w3.org/1999/xlink\"\n\t\t>\n\t\t\t<rect width=\"97\" height=\"121\" fill=\"url(#pattern0)\"/>\n\t\t\t<path\n\t\t\t\tfill-rule=\"evenodd\"\n\t\t\t\tclip-rule=\"evenodd\"\n\t\t\t\td=\"M12.25 27C11.5596 27 11 26.4404 11 25.75V18.25C11 17.5596 11.5596 17 12.25 17H15.6875H16H79.75H81.3125H82.7275C83.2009 17 83.6338 17.2675 83.8455 17.691L86 22L83.8455 26.309C83.6338 26.7325 83.2009 27 82.7275 27H81.3125H79.75H16H15.6875H12.25Z\"\n\t\t\t\tfill=\"#DFE0E3\"\n\t\t\t/>\n\t\t\t<path\n\t\t\t\tfill-rule=\"evenodd\"\n\t\t\t\tclip-rule=\"evenodd\"\n\t\t\t\td=\"M12.25 27C11.5596 27 11 26.4404 11 25.75V18.25C11 17.5596 11.5596 17 12.25 17H15.6875H16H79.75H81.3125H82.7275C83.2009 17 83.6338 17.2675 83.8455 17.691L86 22L83.8455 26.309C83.6338 26.7325 83.2009 27 82.7275 27H81.3125H79.75H16H15.6875H12.25Z\"\n\t\t\t\tfill=\"#55D0E0\"\n\t\t\t/>\n\t\t\t<g filter=\"url(#filter0_d_272_90944)\" class=\"bizproc-automation_execution-queue_transform-element --one\">\n\t\t\t\t<rect\n\t\t\t\t\tx=\"11\"\n\t\t\t\t\ty=\"32\"\n\t\t\t\t\twidth=\"75\"\n\t\t\t\t\theight=\"34\"\n\t\t\t\t\trx=\"4\"\n\t\t\t\t\tfill=\"white\"\n\t\t\t\t\tfill-opacity=\"0.9\"\n\t\t\t\t\tshape-rendering=\"crispEdges\"\n\t\t\t\t/>\n\t\t\t\t<path\n\t\t\t\t\td=\"M11 56H86V62C86 64.2091 84.2091 66 82 66H15C12.7909 66 11 64.2091 11 62V56Z\"\n\t\t\t\t\tfill=\"#C5F8FF\"\n\t\t\t\t/>\n\t\t\t\t<rect x=\"22\" y=\"37\" width=\"21\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"15\" y=\"45\" width=\"54\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"72\" y=\"45\" width=\"8\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"55\" y=\"59\" width=\"28\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<g class=\"bizproc-automation_execution-queue_checked --one\">\n\t\t\t\t\t<circle cx=\"15\" cy=\"38\" r=\"8\" fill=\"#739F00\"/>\n\t\t\t\t\t<path\n\t\t\t\t\t\td=\"M11.7084 37.089L15.4796 40.8602L13.9711 42.3687L10.1999 38.5975L11.7084 37.089Z\"\n\t\t\t\t\t\tfill=\"white\"\n\t\t\t\t\t/>\n\t\t\t\t\t<path\n\t\t\t\t\t\td=\"M20.0051 36.3347L13.9711 42.3687L12.4627 40.8602L18.4966 34.8262L20.0051 36.3347Z\"\n\t\t\t\t\t\tfill=\"white\"\n\t\t\t\t\t/>\n\t\t\t\t</g>\n\t\t\t</g>\n\t\t\t<g filter=\"url(#filter1_d_272_90944)\" class=\"bizproc-automation_execution-queue_transform-element --two\">\n\t\t\t\t<rect\n\t\t\t\t\tx=\"11\"\n\t\t\t\t\ty=\"71\"\n\t\t\t\t\twidth=\"75\"\n\t\t\t\t\theight=\"34\"\n\t\t\t\t\trx=\"4\"\n\t\t\t\t\tfill=\"white\"\n\t\t\t\t\tfill-opacity=\"0.9\"\n\t\t\t\t\tshape-rendering=\"crispEdges\"\n\t\t\t\t/>\n\t\t\t\t<path\n\t\t\t\t\td=\"M11 95H86V101C86 103.209 84.2091 105 82 105H15C12.7909 105 11 103.209 11 101V95Z\"\n\t\t\t\t\tfill=\"#C5F8FF\"\n\t\t\t\t/>\n\t\t\t\t<rect x=\"15\" y=\"84\" width=\"54\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"72\" y=\"84\" width=\"8\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"55\" y=\"98\" width=\"28\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"22\" y=\"76\" width=\"21\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<g class=\"bizproc-automation_execution-queue_checked --two\">\n\t\t\t\t\t<circle cx=\"15\" cy=\"77\" r=\"8\" fill=\"#739F00\"/>\n\t\t\t\t\t<path\n\t\t\t\t\t\td=\"M11.7084 76.089L15.4796 79.8602L13.9711 81.3687L10.1999 77.5975L11.7084 76.089Z\"\n\t\t\t\t\t\tfill=\"white\"\n\t\t\t\t\t/>\n\t\t\t\t\t<path\n\t\t\t\t\t\td=\"M20.0051 75.3347L13.9711 81.3687L12.4627 79.8602L18.4966 73.8262L20.0051 75.3347Z\"\n\t\t\t\t\t\tfill=\"white\"\n\t\t\t\t\t/>\n\t\t\t\t</g>\n\t\t\t</g>\n\t\t</svg>\n\t"])));
+	};
+	var renderParallelImageBlock = function renderParallelImageBlock() {
+	  return main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t<svg\n\t\t\tclass=\"bizproc-automation_execution-queue_simultaneously\"\n\t\t\twidth=\"97\"\n\t\t\theight=\"121\"\n\t\t\tviewBox=\"0 0 97 121\"\n\t\t\tfill=\"none\"\n\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\txmlns:xlink=\"http://www.w3.org/1999/xlink\"\n\t\t>\n\t\t\t<rect width=\"97\" height=\"121\" fill=\"url(#pattern0)\"/>\n\t\t\t<path\n\t\t\t\tfill-rule=\"evenodd\"\n\t\t\t\tclip-rule=\"evenodd\"\n\t\t\t\td=\"M12.25 27C11.5596 27 11 26.4404 11 25.75V18.25C11 17.5596 11.5596 17 12.25 17H15.6875H16H79.75H81.3125H82.7275C83.2009 17 83.6338 17.2675 83.8455 17.691L86 22L83.8455 26.309C83.6338 26.7325 83.2009 27 82.7275 27H81.3125H79.75H16H15.6875H12.25Z\"\n\t\t\t\tfill=\"#DFE0E3\"\n\t\t\t/>\n\t\t\t<path\n\t\t\t\tfill-rule=\"evenodd\"\n\t\t\t\tclip-rule=\"evenodd\"\n\t\t\t\td=\"M12.25 27C11.5596 27 11 26.4404 11 25.75V18.25C11 17.5596 11.5596 17 12.25 17H15.6875H16H79.75H81.3125H82.7275C83.2009 17 83.6338 17.2675 83.8455 17.691L86 22L83.8455 26.309C83.6338 26.7325 83.2009 27 82.7275 27H81.3125H79.75H16H15.6875H12.25Z\"\n\t\t\t\tfill=\"#55D0E0\"\n\t\t\t/>\n\t\t\t<g\n\t\t\t\tfilter=\"url(#filter0_d_272_90944)\"\n\t\t\t\tclass=\"bizproc-automation_execution-queue_transform-element\"\n\t\t\t>\n\t\t\t\t<rect\n\t\t\t\t\tx=\"11\"\n\t\t\t\t\ty=\"32\"\n\t\t\t\t\twidth=\"75\"\n\t\t\t\t\theight=\"34\"\n\t\t\t\t\trx=\"4\"\n\t\t\t\t\tfill=\"white\"\n\t\t\t\t\tfill-opacity=\"0.9\"\n\t\t\t\t\tshape-rendering=\"crispEdges\"\n\t\t\t\t/>\n\t\t\t\t<path\n\t\t\t\t\td=\"M11 56H86V62C86 64.2091 84.2091 66 82 66H15C12.7909 66 11 64.2091 11 62V56Z\"\n\t\t\t\t\tfill=\"#C5F8FF\"\n\t\t\t\t/>\n\t\t\t\t<rect x=\"22\" y=\"37\" width=\"21\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"15\" y=\"45\" width=\"54\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"72\" y=\"45\" width=\"8\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"55\" y=\"59\" width=\"28\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<g class=\"bizproc-automation_execution-queue_checked\">\n\t\t\t\t\t<circle cx=\"15\" cy=\"38\" r=\"8\" fill=\"#739F00\"/>\n\t\t\t\t\t<path\n\t\t\t\t\t\td=\"M11.7084 37.089L15.4796 40.8602L13.9711 42.3687L10.1999 38.5975L11.7084 37.089Z\"\n\t\t\t\t\t\tfill=\"white\"\n\t\t\t\t\t/>\n\t\t\t\t\t<path\n\t\t\t\t\t\td=\"M20.0051 36.3347L13.9711 42.3687L12.4627 40.8602L18.4966 34.8262L20.0051 36.3347Z\"\n\t\t\t\t\t\tfill=\"white\"\n\t\t\t\t\t/>\n\t\t\t\t</g>\n\t\t\t</g>\n\t\t\t<g\n\t\t\t\tfilter=\"url(#filter1_d_272_90944)\"\n\t\t\t\tclass=\"bizproc-automation_execution-queue_transform-element\"\n\t\t\t>\n\t\t\t\t<rect\n\t\t\t\t\tx=\"11\"\n\t\t\t\t\ty=\"71\"\n\t\t\t\t\twidth=\"75\"\n\t\t\t\t\theight=\"34\"\n\t\t\t\t\trx=\"4\"\n\t\t\t\t\tfill=\"white\"\n\t\t\t\t\tfill-opacity=\"0.9\"\n\t\t\t\t\tshape-rendering=\"crispEdges\"\n\t\t\t\t/>\n\t\t\t\t<path\n\t\t\t\t\td=\"M11 95H86V101C86 103.209 84.2091 105 82 105H15C12.7909 105 11 103.209 11 101V95Z\"\n\t\t\t\t\tfill=\"#C5F8FF\"\n\t\t\t\t/>\n\t\t\t\t<rect x=\"15\" y=\"84\" width=\"54\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"72\" y=\"84\" width=\"8\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"55\" y=\"98\" width=\"28\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<rect x=\"22\" y=\"76\" width=\"21\" height=\"4\" rx=\"2\" fill=\"#999999\" fill-opacity=\"0.33\"/>\n\t\t\t\t<g class=\"bizproc-automation_execution-queue_checked\">\n\t\t\t\t\t<circle cx=\"15\" cy=\"77\" r=\"8\" fill=\"#739F00\"/>\n\t\t\t\t\t<path\n\t\t\t\t\t\td=\"M11.7084 76.089L15.4796 79.8602L13.9711 81.3687L10.1999 77.5975L11.7084 76.089Z\"\n\t\t\t\t\t\tfill=\"white\"\n\t\t\t\t\t/>\n\t\t\t\t\t<path\n\t\t\t\t\t\td=\"M20.0051 75.3347L13.9711 81.3687L12.4627 79.8602L18.4966 73.8262L20.0051 75.3347Z\"\n\t\t\t\t\t\tfill=\"white\"\n\t\t\t\t\t/>\n\t\t\t\t</g>\n\t\t\t</g>\n\t\t</svg>\n\t"])));
+	};
+	var renderRow = function renderRow(isActive, uid, content) {
+	  var _ref = main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t<label\n\t\t\tclass=\"bizproc-automation-popup-select__wrapper-flex ", " ui-ctl ui-ctl-radio ui-ctl-w100\"\n\t\t\tfor=\"", "\"\n\t\t\tdata-role=\"execution-queue-row\"\n\t\t>\n\t\t\t<div class=\"bizproc-automation-popup-select__wrapper-info-block\">\n\t\t\t\t<div class=\"bizproc-automation-popup-select__header-input\">\n\t\t\t\t\t<input\n\t\t\t\t\t\tref=\"radio\"\n\t\t\t\t\t\tclass=\"ui-ctl-element\"\n\t\t\t\t\t\tid=\"", "\"\n\t\t\t\t\t\ttype=\"radio\"\n\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\tname=\"execution\"\n\t\t\t\t\t/>\n\t\t\t\t\t<span class=\"bizproc-automation-popup-settings__input-title\">", "</span>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bizproc-automation-popup-settings__description\">", "</div>\n\t\t\t</div>\n\t\t\t<div class=\"bizproc-automation-popup-settings__image-block\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t</label>\n\t"])), isActive ? '--active' : '', uid, uid, main_core.Text.encode(content.value), main_core.Text.encode(content.title), main_core.Text.encode(content.description), content.imageRenderFunction()),
+	    root = _ref.root,
+	    radio = _ref.radio;
+	  main_core.Event.bind(radio, 'change', function () {
+	    document.querySelectorAll('[data-role="execution-queue-row"]').forEach(function (node) {
+	      main_core.Dom.removeClass(node, '--active');
+	    });
+	    main_core.Dom.addClass(root, '--active');
+	  });
+	  if (isActive) {
+	    main_core.Dom.attr(radio, 'checked', 'checked');
+	  }
+	  return root;
+	};
+	var showExecutionQueuePopup = function showExecutionQueuePopup(settings) {
+	  var afterPreviousContent = {
+	    title: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_AFTER_PREVIOUS_TITLE'),
+	    description: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_AFTER_PREVIOUS_DESCRIPTION'),
+	    imageRenderFunction: renderAfterPreviousImageBlock,
+	    value: 'afterPrevious'
+	  };
+	  var parallelContent = {
+	    title: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_PARALLEL_TITLE'),
+	    description: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_PARALLEL_DESCRIPTION'),
+	    imageRenderFunction: renderParallelImageBlock,
+	    value: 'parallel'
+	  };
+	  var content = main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t<form class=\"bizproc-automation-popup-select-block\">\n\t\t\t<div class=\"bizproc-automation-popup-select-item\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t<div class=\"bizproc-automation-popup-select-item\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t</form>\n\t"])), renderRow(settings.currentValue === '1', 'bizproc-automation-cmp1', afterPreviousContent), renderRow(settings.currentValue !== '1', 'bizproc-automation-cmp2', parallelContent));
+	  var popup = new main_popup.Popup({
+	    id: bizproc_automation.Helper.generateUniqueId(),
+	    bindElement: settings.bindElement,
+	    content: content,
+	    closeByEsc: true,
+	    buttons: [new ui_buttons.Button({
+	      color: ui_buttons.Button.Color.PRIMARY,
+	      text: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_CHOOSE_BUTTON_CAPS'),
+	      onclick: function onclick() {
+	        if (main_core.Type.isFunction(settings.onSubmitButtonClick)) {
+	          settings.onSubmitButtonClick(new FormData(content));
+	        }
+	        popup.close();
+	      }
+	    }), new ui_buttons.Button({
+	      color: ui_buttons.Button.Color.LINK,
+	      text: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_CANCEL_BUTTON_CAPS'),
+	      onclick: function onclick() {
+	        popup.close();
+	      }
+	    })],
+	    width: 482,
+	    padding: 20,
+	    closeIcon: false,
+	    autoHide: true,
+	    titleBar: false,
+	    angle: {
+	      offset: (settings.bindElement.clientWidth + 33) / 2
+	    },
+	    overlay: {
+	      backgroundColor: 'transparent'
+	    },
+	    events: {
+	      onClose: function onClose() {
+	        popup.destroy();
+	      }
+	    }
+	  });
+	  popup.show();
+	};
+
+	var _templateObject$4, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$2, _templateObject7$2, _templateObject8$2, _templateObject9$2, _templateObject10$2, _templateObject11$1, _templateObject12$1, _templateObject13$1, _templateObject14$1, _templateObject15$1;
 	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _createForOfIteratorHelper$7(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$7(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray$7(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$7(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$7(o, minLen); }
+	function _arrayLikeToArray$7(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	function _classPrivateMethodInitSpec$3(obj, privateSet) { _checkPrivateRedeclaration$e(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$e(obj, privateMap, value) { _checkPrivateRedeclaration$e(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$e(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$3(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _context = /*#__PURE__*/new WeakMap();
 	var _delayMinLimitM = /*#__PURE__*/new WeakMap();
-	var _userOptions = /*#__PURE__*/new WeakMap();
+	var _userOptions$1 = /*#__PURE__*/new WeakMap();
 	var _tracker$1 = /*#__PURE__*/new WeakMap();
 	var _viewMode$3 = /*#__PURE__*/new WeakMap();
 	var _templateContainerNode = /*#__PURE__*/new WeakMap();
@@ -4525,6 +4480,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var _addConstantsToSelector = /*#__PURE__*/new WeakSet();
 	var _addVariablesToSelector = /*#__PURE__*/new WeakSet();
 	var _getRobotsWithReturnFields = /*#__PURE__*/new WeakSet();
+	var _renderExecutionQueue = /*#__PURE__*/new WeakSet();
 	var Template = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Template, _EventEmitter);
 	  function Template(params) {
@@ -4532,6 +4488,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, Template);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Template).call(this));
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _renderExecutionQueue);
 	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _getRobotsWithReturnFields);
 	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _addVariablesToSelector);
 	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _addConstantsToSelector);
@@ -4545,7 +4502,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$e(babelHelpers.assertThisInitialized(_this), _userOptions, {
+	    _classPrivateFieldInitSpec$e(babelHelpers.assertThisInitialized(_this), _userOptions$1, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -4587,7 +4544,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    _this.variables = params.variables;
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _templateContainerNode, params.templateContainerNode);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _delayMinLimitM, params.delayMinLimitM);
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _userOptions, params.userOptions);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _userOptions$1, params.userOptions);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _tracker$1, babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _context).tracker);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _data$2, {});
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _robots, []);
@@ -4611,18 +4568,18 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        if (!main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _data$2).DOCUMENT_STATUS)) {
 	          babelHelpers.classPrivateFieldGet(this, _data$2).DOCUMENT_STATUS = String(babelHelpers.classPrivateFieldGet(this, _data$2).DOCUMENT_STATUS);
 	        }
-	        this.markExternalModified(babelHelpers.classPrivateFieldGet(this, _data$2)['IS_EXTERNAL_MODIFIED']);
+	        this.markExternalModified(babelHelpers.classPrivateFieldGet(this, _data$2).IS_EXTERNAL_MODIFIED);
 	        this.markModified(false);
 	      }
 	      babelHelpers.classPrivateFieldSet(this, _viewMode$3, ViewMode.fromRaw(viewMode));
 	      if (!babelHelpers.classPrivateFieldGet(this, _viewMode$3).isNone()) {
-	        babelHelpers.classPrivateFieldSet(this, _templateNode, babelHelpers.classPrivateFieldGet(this, _templateContainerNode).querySelector('[data-role="automation-template"][data-status-id="' + babelHelpers.classPrivateFieldGet(this, _data$2).DOCUMENT_STATUS + '"]'));
+	        babelHelpers.classPrivateFieldSet(this, _templateNode, babelHelpers.classPrivateFieldGet(this, _templateContainerNode).querySelector("[data-role=\"automation-template\"][data-status-id=\"".concat(babelHelpers.classPrivateFieldGet(this, _data$2).DOCUMENT_STATUS, "\"]")));
 	        babelHelpers.classPrivateFieldSet(this, _listNode, babelHelpers.classPrivateFieldGet(this, _templateNode).querySelector('[data-role="robot-list"]'));
 	        babelHelpers.classPrivateFieldSet(this, _buttonsNode, babelHelpers.classPrivateFieldGet(this, _templateNode).querySelector('[data-role="buttons"]'));
 	        this.initRobots();
 	        this.initButtons();
 	        if (!this.isExternalModified() && this.canEdit()) {
-	          //register DD
+	          // register DD
 	          jsDD.registerDest(babelHelpers.classPrivateFieldGet(this, _templateNode), 10);
 	        } else {
 	          jsDD.unregisterDest(babelHelpers.classPrivateFieldGet(this, _templateNode));
@@ -4730,8 +4687,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "getTemplateId",
 	    value: function getTemplateId() {
-	      var id = parseInt(babelHelpers.classPrivateFieldGet(this, _data$2).ID);
-	      return !isNaN(id) ? id : 0;
+	      var id = parseInt(babelHelpers.classPrivateFieldGet(this, _data$2).ID, 10);
+	      return Number.isNaN(id) ? 0 : id;
 	    }
 	  }, {
 	    key: "initButtons",
@@ -4758,7 +4715,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          main_core.Dom.addClass(babelHelpers.classPrivateFieldGet(this, _listNode), '--locked-node');
 	        } else {
 	          babelHelpers.classPrivateFieldGet(this, _robots).forEach(function (robot) {
-	            return robot.enableManageMode(isActive);
+	            if (robot.isInvalid()) {
+	              robot.enableManageMode(false);
+	            } else {
+	              robot.enableManageMode(isActive);
+	            }
 	          });
 	        }
 	      }
@@ -4773,22 +4734,28 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          main_core.Dom.removeClass(babelHelpers.classPrivateFieldGet(this, _listNode), '--locked-node');
 	        } else {
 	          babelHelpers.classPrivateFieldGet(this, _robots).forEach(function (robot) {
-	            return robot.disableManageMode();
+	            robot.disableManageMode();
+	            if (!robot.isInvalid()) {
+	              var draggableNode = robot.node.querySelector('.bizproc-automation-robot-container-wrapper');
+	              if (draggableNode) {
+	                main_core.Dom.addClass(draggableNode, 'bizproc-automation-robot-container-wrapper-draggable');
+	              }
+	            }
 	          });
 	        }
-	        babelHelpers.classPrivateFieldGet(this, _templateNode).querySelectorAll('.bizproc-automation-robot-container-wrapper').forEach(function (node) {
-	          main_core.Dom.addClass(node, 'bizproc-automation-robot-container-wrapper-draggable');
-	        });
 	      }
 	    }
 	  }, {
 	    key: "enableDragAndDrop",
 	    value: function enableDragAndDrop() {
 	      babelHelpers.classPrivateFieldGet(this, _robots).forEach(function (robot) {
-	        return robot.registerItem(robot.node);
-	      });
-	      babelHelpers.classPrivateFieldGet(this, _templateNode).querySelectorAll('.bizproc-automation-robot-container-wrapper').forEach(function (node) {
-	        main_core.Dom.addClass(node, 'bizproc-automation-robot-container-wrapper-draggable');
+	        if (!robot.isInvalid()) {
+	          robot.registerItem(robot.node);
+	          var draggableNode = robot.node.querySelector('.bizproc-automation-robot-container-wrapper');
+	          if (draggableNode) {
+	            main_core.Dom.addClass(draggableNode, 'bizproc-automation-robot-container-wrapper-draggable');
+	          }
+	        }
 	      });
 	    }
 	  }, {
@@ -4804,67 +4771,45 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "createExternalEditTemplateButton",
 	    value: function createExternalEditTemplateButton() {
+	      var _this3 = this;
 	      if (main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _context).bizprocEditorUrl)) {
 	        return false;
 	      }
-	      var self = this;
-	      var anchor = main_core.Dom.create('a', {
-	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT'),
-	        props: {
-	          href: '#'
-	        },
-	        events: {
-	          click: function click(event) {
-	            event.preventDefault();
-	            if (!babelHelpers.classPrivateFieldGet(self, _viewMode$3).isManage()) {
-	              self.onExternalEditTemplateButtonClick(this);
-	            }
-	          }
-	        },
-	        attrs: {
-	          className: "bizproc-automation-robot-btn-set",
-	          target: '_top'
+	      var anchor = main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a class=\"bizproc-automation-robot-btn-set\" href=\"#\" target=\"_top\">\n\t\t\t\t", "\n\t\t\t</a>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT'));
+	      main_core.Event.bind(anchor, 'click', function (event) {
+	        event.preventDefault();
+	        if (!babelHelpers.classPrivateFieldGet(_this3, _viewMode$3).isManage()) {
+	          _this3.onExternalEditTemplateButtonClick(anchor);
 	        }
 	      });
-	      if (!babelHelpers.classPrivateFieldGet(this, _context).bizprocEditorUrl.length) {
+	      if (babelHelpers.classPrivateFieldGet(this, _context).bizprocEditorUrl.length === 0) {
 	        main_core.Dom.addClass(anchor, 'bizproc-automation-robot-btn-set-locked');
 	      }
-	      babelHelpers.classPrivateFieldGet(this, _buttonsNode).appendChild(anchor);
+	      main_core.Dom.append(anchor, babelHelpers.classPrivateFieldGet(this, _buttonsNode));
 	    }
 	  }, {
 	    key: "createManageModeButton",
 	    value: function createManageModeButton() {
-	      var _this3 = this;
+	      var _this4 = this;
 	      if (!babelHelpers.classPrivateFieldGet(this, _context).canManage) {
 	        return;
 	      }
-	      var manageButton = main_core.Dom.create('a', {
-	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_MANAGE_ROBOTS_1'),
-	        attrs: {
-	          className: "bizproc-automation-robot-btn-set",
-	          target: '_top'
-	        },
-	        style: {
-	          cursor: 'pointer'
-	        },
-	        events: {
-	          click: function click(event) {
-	            event.preventDefault();
-	            _this3.onManageModeButtonClick(manageButton);
-	          }
-	        }
+	      var manageButton = main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a class=\"bizproc-automation-robot-btn-set\" target=\"_top\" style=\"cursor: pointer\">\n\t\t\t\t", "\n\t\t\t</a>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_MANAGE_ROBOTS_1'));
+	      main_core.Event.bind(manageButton, 'click', function (event) {
+	        event.preventDefault();
+	        _this4.onManageModeButtonClick(manageButton);
 	      });
-	      babelHelpers.classPrivateFieldGet(this, _buttonsNode).appendChild(manageButton);
+	      main_core.Dom.append(manageButton, babelHelpers.classPrivateFieldGet(this, _buttonsNode));
 	    }
 	  }, {
 	    key: "onManageModeButtonClick",
 	    value: function onManageModeButtonClick(manageButtonNode) {
-	      if (!this.canEdit()) {
-	        HelpHint.showNoPermissionsHint(manageButtonNode);
-	      } else {
+	      if (this.canEdit()) {
 	        this.emit('Template:enableManageMode', {
 	          documentStatus: babelHelpers.classPrivateFieldGet(this, _data$2).DOCUMENT_STATUS
 	        });
+	      } else {
+	        HelpHint.showNoPermissionsHint(manageButtonNode);
 	      }
 	    }
 	  }, {
@@ -4873,20 +4818,12 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      if (main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _context).constantsEditorUrl)) {
 	        return false;
 	      }
-	      var url = !babelHelpers.classPrivateFieldGet(this, _viewMode$3).isManage() ? babelHelpers.classPrivateFieldGet(this, _context).constantsEditorUrl.replace('#ID#', this.getTemplateId()) : '#';
-	      if (!url.length) {
+	      var url = babelHelpers.classPrivateFieldGet(this, _viewMode$3).isManage() ? '#' : babelHelpers.classPrivateFieldGet(this, _context).constantsEditorUrl.replace('#ID#', this.getTemplateId());
+	      if (url.length === 0) {
 	        return false;
 	      }
-	      var anchor = main_core.Dom.create('a', {
-	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CONSTANTS_EDIT'),
-	        props: {
-	          href: url
-	        },
-	        attrs: {
-	          className: "bizproc-automation-robot-btn-set"
-	        }
-	      });
-	      babelHelpers.classPrivateFieldGet(this, _buttonsNode).appendChild(anchor);
+	      var anchor = main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a class=\"bizproc-automation-robot-btn-set\" href=\"", "\">\n\t\t\t\t", "\n\t\t\t</a>\n\t\t"])), main_core.Text.encode(url), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CONSTANTS_EDIT'));
+	      main_core.Dom.append(anchor, babelHelpers.classPrivateFieldGet(this, _buttonsNode));
 	    }
 	  }, {
 	    key: "createParametersEditButton",
@@ -4895,72 +4832,36 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        return false;
 	      }
 	      var url = babelHelpers.classPrivateFieldGet(this, _context).parametersEditorUrl.replace('#ID#', this.getTemplateId());
-	      if (!url.length || babelHelpers.classPrivateFieldGet(this, _viewMode$3).isManage()) {
+	      if (url.length === 0 || babelHelpers.classPrivateFieldGet(this, _viewMode$3).isManage()) {
 	        return false;
 	      }
-	      var anchor = main_core.Dom.create('a', {
-	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_PARAMETERS_EDIT'),
-	        props: {
-	          href: url
-	        },
-	        attrs: {
-	          className: "bizproc-automation-robot-btn-set"
-	        }
-	      });
-	      babelHelpers.classPrivateFieldGet(this, _buttonsNode).appendChild(anchor);
+	      var anchor = main_core.Tag.render(_templateObject4$3 || (_templateObject4$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a class=\"bizproc-automation-robot-btn-set\" href=\"", "\">\n\t\t\t\t", "\n\t\t\t</a>\n\t\t"])), main_core.Text.encode(url), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_PARAMETERS_EDIT'));
+	      main_core.Dom.append(anchor, babelHelpers.classPrivateFieldGet(this, _buttonsNode));
 	    }
 	  }, {
 	    key: "createExternalLocker",
 	    value: function createExternalLocker() {
-	      var div = main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-robot-container"
-	        },
-	        children: [main_core.Dom.create('div', {
-	          attrs: {
-	            className: 'bizproc-automation-robot-container-wrapper bizproc-automation-robot-container-wrapper-lock'
-	          },
-	          children: [main_core.Dom.create("div", {
-	            attrs: {
-	              className: "bizproc-automation-robot-deadline"
-	            }
-	          }), main_core.Dom.create("div", {
-	            attrs: {
-	              className: "bizproc-automation-robot-title"
-	            },
-	            text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_TEXT')
-	          })]
-	        })]
-	      });
+	      var _this5 = this;
+	      var div = main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-robot-container\">\n\t\t\t\t<div class=\"bizproc-automation-robot-container-wrapper bizproc-automation-robot-container-wrapper-lock\">\n\t\t\t\t\t<div class=\"bizproc-automation-robot-deadline\"></div>\n\t\t\t\t\t<div class=\"bizproc-automation-robot-title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_TEXT'));
 	      if (babelHelpers.classPrivateFieldGet(this, _viewMode$3).isEdit()) {
-	        var settingsBtn = main_core.Dom.create('div', {
-	          attrs: {
-	            className: 'bizproc-automation-robot-btn-settings'
-	          },
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_EDIT')
-	        });
-	        var self = this;
+	        var settingsBtn = main_core.Tag.render(_templateObject6$2 || (_templateObject6$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"bizproc-automation-robot-btn-settings\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_EDIT'));
 	        main_core.Event.bind(div, 'click', function (event) {
 	          event.stopPropagation();
-	          if (!babelHelpers.classPrivateFieldGet(self, _viewMode$3).isManage()) {
-	            self.onExternalEditTemplateButtonClick(this);
+	          if (!babelHelpers.classPrivateFieldGet(_this5, _viewMode$3).isManage()) {
+	            _this5.onExternalEditTemplateButtonClick(div);
 	          }
 	        });
-	        div.appendChild(settingsBtn);
-	        var deleteBtn = main_core.Dom.create('SPAN', {
-	          attrs: {
-	            className: 'bizproc-automation-robot-btn-delete'
-	          }
-	        });
+	        main_core.Dom.append(settingsBtn, div);
+	        var deleteBtn = main_core.Tag.render(_templateObject7$2 || (_templateObject7$2 = babelHelpers.taggedTemplateLiteral(["<span class=\"bizproc-automation-robot-btn-delete\"></span>"])));
 	        main_core.Event.bind(deleteBtn, 'click', function (event) {
 	          event.stopPropagation();
-	          if (!babelHelpers.classPrivateFieldGet(self, _viewMode$3).isManage()) {
-	            self.onUnsetExternalModifiedClick(this);
+	          if (!babelHelpers.classPrivateFieldGet(_this5, _viewMode$3).isManage()) {
+	            _this5.onUnsetExternalModifiedClick(deleteBtn);
 	          }
 	        });
-	        div.lastChild.appendChild(deleteBtn);
+	        main_core.Dom.append(deleteBtn, div.lastChild);
 	      }
-	      babelHelpers.classPrivateFieldGet(this, _listNode).appendChild(div);
+	      main_core.Dom.append(div, babelHelpers.classPrivateFieldGet(this, _listNode));
 	      babelHelpers.classPrivateFieldSet(this, _templateNode, div);
 	    }
 	  }, {
@@ -4979,7 +4880,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function onExternalModifiedSearch(event) {
 	      if (babelHelpers.classPrivateFieldGet(this, _templateNode)) {
 	        var query = event.getData().queryString;
-	        BX[!query ? 'removeClass' : 'addClass'](babelHelpers.classPrivateFieldGet(this, _templateNode), '--search-mismatch');
+	        main_core.Dom[query ? 'addClass' : 'removeClass'](babelHelpers.classPrivateFieldGet(this, _templateNode), '--search-mismatch');
 	      }
 	    }
 	  }, {
@@ -4989,7 +4890,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        HelpHint.showNoPermissionsHint(button);
 	        return;
 	      }
-	      if (!babelHelpers.classPrivateFieldGet(this, _context).bizprocEditorUrl.length) {
+	      if (babelHelpers.classPrivateFieldGet(this, _context).bizprocEditorUrl.length === 0) {
 	        if (top.BX.UI && top.BX.UI.InfoHelper) {
 	          top.BX.UI.InfoHelper.show('limit_office_bp_designer');
 	        }
@@ -5003,6 +4904,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "onUnsetExternalModifiedClick",
 	    value: function onUnsetExternalModifiedClick(button) {
+	      if (!this.canEdit()) {
+	        HelpHint.showNoPermissionsHint(button);
+	        return;
+	      }
 	      babelHelpers.classPrivateFieldSet(this, _templateNode, null);
 	      this.markExternalModified(false);
 	      this.markModified();
@@ -5023,17 +4928,17 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        tracker: babelHelpers.classPrivateFieldGet(this, _tracker$1)
 	      });
 	      var initData = {
-	        Type: robotData['CLASS'],
+	        Type: robotData.CLASS,
 	        Properties: {
-	          Title: robotData['NAME']
+	          Title: robotData.NAME
 	        },
-	        DialogContext: robotData['DIALOG_CONTEXT']
+	        DialogContext: robotData.DIALOG_CONTEXT
 	      };
 	      if (babelHelpers.classPrivateFieldGet(this, _robots).length > 0) {
 	        var parentRobot = babelHelpers.classPrivateFieldGet(this, _robots)[babelHelpers.classPrivateFieldGet(this, _robots).length - 1];
 	        if (!parentRobot.getDelayInterval().isNow() || parentRobot.isExecuteAfterPrevious()) {
-	          initData['Delay'] = parentRobot.getDelayInterval().serialize();
-	          initData['ExecuteAfterPrevious'] = 1;
+	          initData.Delay = parentRobot.getDelayInterval().serialize();
+	          initData.ExecuteAfterPrevious = 1;
 	        }
 	      }
 	      robot.draft = true;
@@ -5096,13 +5001,13 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      if (beforeNode) {
 	        babelHelpers.classPrivateFieldGet(this, _listNode).insertBefore(robotNode, beforeNode);
 	      } else {
-	        babelHelpers.classPrivateFieldGet(this, _listNode).appendChild(robotNode);
+	        main_core.Dom.append(robotNode, babelHelpers.classPrivateFieldGet(this, _listNode));
 	      }
 	    }
 	  }, {
 	    key: "openRobotSettingsDialog",
 	    value: function openRobotSettingsDialog(robot, context, saveCallback) {
-	      var _this4 = this;
+	      var _this6 = this;
 	      if (!main_core.Type.isPlainObject(context)) {
 	        context = {};
 	      }
@@ -5113,40 +5018,20 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          return;
 	        }
 	      }
+	      var robotBrokenLinks = robot.getBrokenLinks();
 	      var formName = 'bizproc_automation_robot_dialog';
-	      var form = main_core.Dom.create('form', {
-	        props: {
-	          name: formName
-	        }
-	      });
+	      var form = main_core.Tag.render(_templateObject8$2 || (_templateObject8$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<form name=\"", "\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</form>\n\t\t"])), formName, _classPrivateMethodGet$3(this, _renderExecutionQueue, _renderExecutionQueue2).call(this, robot), this.renderDelaySettings(robot), this.renderConditionSettings(robot), robotBrokenLinks.length > 0 ? this.renderBrokenLinkAlert(robotBrokenLinks) : '');
 	      bizproc_automation.Designer.getInstance().setRobotSettingsDialog({
 	        template: this,
 	        context: context,
 	        robot: robot,
 	        form: form
 	      });
-	      form.appendChild(this.renderDelaySettings(robot));
-	      form.appendChild(this.renderConditionSettings(robot));
-	      var robotBrokenLinks = robot.getBrokenLinks();
-	      if (robotBrokenLinks.length > 0) {
-	        main_core.Dom.append(this.renderBrokenLinkAlert(robotBrokenLinks), form);
+	      context.DOCUMENT_CATEGORY_ID = babelHelpers.classPrivateFieldGet(this, _context).document.getCategoryId();
+	      if (main_core.Type.isPlainObject(robot.data.DialogContext) && !main_core.Type.isNil(robot.data.DialogContext.addMenuGroup)) {
+	        context.addMenuGroup = robot.data.DialogContext.addMenuGroup;
 	      }
-	      var iconHelp = main_core.Dom.create('div', {
-	        attrs: {
-	          className: 'bizproc-automation-robot-help'
-	        },
-	        events: {
-	          click: function click(event) {
-	            return _this4.emit('Template:help:show', event);
-	          }
-	        }
-	      });
-	      form.appendChild(iconHelp);
-	      context['DOCUMENT_CATEGORY_ID'] = babelHelpers.classPrivateFieldGet(this, _context).document.getCategoryId();
-	      if (main_core.Type.isPlainObject(robot.data.DialogContext) && robot.data.DialogContext.hasOwnProperty('addMenuGroup')) {
-	        context['addMenuGroup'] = robot.data.DialogContext.addMenuGroup;
-	      }
-	      BX.ajax({
+	      main_core.ajax({
 	        method: 'POST',
 	        dataType: 'html',
 	        url: main_core.Uri.addParam(babelHelpers.classPrivateFieldGet(this, _context).ajaxUrl, {
@@ -5165,22 +5050,22 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	            var dialogRows = main_core.Dom.create('div', {
 	              html: html
 	            });
-	            form.appendChild(dialogRows);
+	            main_core.Dom.append(dialogRows, form);
 	          }
-	          _this4.showRobotSettingsPopup(robot, form, saveCallback);
+	          _this6.showRobotSettingsPopup(robot, form, saveCallback);
 	        }
 	      });
 	    }
 	  }, {
 	    key: "showRobotSettingsPopup",
 	    value: function showRobotSettingsPopup(robot, form, saveCallback) {
-	      var _this5 = this;
+	      var _this7 = this;
 	      var popupMinWidth = 580;
 	      var popupWidth = popupMinWidth;
-	      if (babelHelpers.classPrivateFieldGet(this, _userOptions)) {
+	      if (babelHelpers.classPrivateFieldGet(this, _userOptions$1)) {
 	        // TODO move from if?
 	        this.emit('Template:robot:showSettings');
-	        popupWidth = parseInt(babelHelpers.classPrivateFieldGet(this, _userOptions).get('defaults', 'robot_settings_popup_width', 580));
+	        popupWidth = parseInt(babelHelpers.classPrivateFieldGet(this, _userOptions$1).get('defaults', 'robot_settings_popup_width', 580), 10);
 	      }
 	      this.initRobotSettingsControls(robot, form);
 	      if (robot.data.Type === 'CrmSendEmailActivity' || robot.data.Type === 'MailActivity' || robot.data.Type === 'RpaApproveActivity') {
@@ -5198,70 +5083,63 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          descriptionTitle = robotTitle;
 	        }
 	      }
-	      var titleBarContent = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"popup-window-titlebar-text bizproc-automation-robot-settings-popup-titlebar\">\n\t\t\t\t<span class=\"bizproc-automation-robot-settings-popup-titlebar-text\">", "</span>\n\t\t\t\t<div class=\"ui-hint\">\n\t\t\t\t\t<span class=\"ui-hint-icon\" data-text=\"", "\"></span>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Text.encode(robotTitle), main_core.Text.encode(descriptionTitle));
+	      var titleBarContent = main_core.Tag.render(_templateObject9$2 || (_templateObject9$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"popup-window-titlebar-text bizproc-automation-robot-settings-popup-titlebar\">\n\t\t\t\t<span class=\"bizproc-automation-robot-settings-popup-titlebar-text\">", "</span>\n\t\t\t\t<div class=\"ui-hint\">\n\t\t\t\t\t<span class=\"ui-hint-icon\" data-text=\"", "\"></span>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Text.encode(robotTitle), main_core.Text.encode(descriptionTitle));
 	      HelpHint.bindAll(titleBarContent);
-	      var me = this;
-	      var popup = new BX.PopupWindow(Helper.generateUniqueId(), null, {
+	      var popup = new main_popup.Popup({
+	        id: Helper.generateUniqueId(),
+	        bindElement: null,
+	        content: form,
+	        closeByEsc: true,
+	        buttons: [new ui_buttons.SaveButton({
+	          onclick: function onclick(button) {
+	            var isNewRobot = robot.draft;
+	            var callback = function callback() {
+	              popup.close();
+	              if (isNewRobot) {
+	                _this7.emit('Template:robot:add', {
+	                  robot: robot
+	                });
+	              }
+	              if (saveCallback) {
+	                saveCallback(robot);
+	              }
+	            };
+	            _this7.saveRobotSettings(form, robot, callback, button.getContainer());
+	          }
+	        }), new ui_buttons.CancelButton({
+	          text: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_CANCEL_BUTTON_CAPS'),
+	          onclick: function onclick() {
+	            popup.close();
+	          }
+	        })],
+	        width: popupWidth,
+	        minWidth: popupMinWidth,
+	        minHeight: 100,
+	        contentPadding: 12,
+	        resizable: true,
+	        closeIcon: true,
+	        events: {
+	          onPopupClose: function onPopupClose() {
+	            bizproc_automation.Designer.getInstance().setRobotSettingsDialog(null);
+	            _this7.destroyRobotSettingsControls();
+	            popup.destroy();
+	            _this7.emit('Template:robot:closeSettings');
+	          },
+	          onPopupResize: function onPopupResize() {
+	            _this7.onResizeRobotSettings();
+	          },
+	          onPopupResizeEnd: function onPopupResizeEnd() {
+	            if (babelHelpers.classPrivateFieldGet(_this7, _userOptions$1)) {
+	              babelHelpers.classPrivateFieldGet(_this7, _userOptions$1).set('defaults', 'robot_settings_popup_width', popup.getWidth());
+	            }
+	          }
+	        },
 	        titleBar: {
 	          content: titleBarContent
 	        },
-	        content: form,
-	        closeIcon: true,
-	        width: popupWidth,
-	        resizable: {
-	          minWidth: popupMinWidth,
-	          minHeight: 100
-	        },
-	        offsetLeft: 0,
-	        offsetTop: 0,
-	        closeByEsc: true,
 	        draggable: {
 	          restrict: false
-	        },
-	        events: {
-	          onPopupClose: function onPopupClose(popup) {
-	            bizproc_automation.Designer.getInstance().setRobotSettingsDialog(null);
-	            _this5.destroyRobotSettingsControls();
-	            popup.destroy();
-	            _this5.emit('Template:robot:closeSettings');
-	          },
-	          onPopupResize: function onPopupResize() {
-	            _this5.onResizeRobotSettings();
-	          },
-	          onPopupResizeEnd: function onPopupResizeEnd() {
-	            if (babelHelpers.classPrivateFieldGet(me, _userOptions)) {
-	              babelHelpers.classPrivateFieldGet(me, _userOptions).set('defaults', 'robot_settings_popup_width', this.getWidth());
-	            }
-	          }
-	        },
-	        buttons: [new BX.PopupWindowButton({
-	          text: main_core.Loc.getMessage('JS_CORE_WINDOW_SAVE'),
-	          className: "popup-window-button-accept",
-	          events: {
-	            click: function click() {
-	              var isNewRobot = robot.draft;
-	              me.saveRobotSettings(form, robot, BX.delegate(function () {
-	                this.popupWindow.close();
-	                if (isNewRobot) {
-	                  me.emit('Template:robot:add', {
-	                    robot: robot
-	                  });
-	                }
-	                if (saveCallback) {
-	                  saveCallback(robot);
-	                }
-	              }, this), this.buttonNode);
-	            }
-	          }
-	        }), new BX.PopupWindowButtonLink({
-	          text: main_core.Loc.getMessage('JS_CORE_WINDOW_CANCEL'),
-	          className: "popup-window-button-link-cancel",
-	          events: {
-	            click: function click() {
-	              this.popupWindow.close();
-	            }
-	          }
-	        })]
+	        }
 	      });
 	      bizproc_automation.Designer.getInstance().getRobotSettingsDialog().popup = popup;
 	      popup.show();
@@ -5273,14 +5151,23 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        this.robotSettingsControls = [];
 	      }
 	      var controlNodes = node.querySelectorAll('[data-role]');
-	      for (var i = 0; i < controlNodes.length; ++i) {
-	        this.initRobotSettingsControl(robot, controlNodes[i]);
+	      var _iterator = _createForOfIteratorHelper$7(controlNodes),
+	        _step;
+	      try {
+	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	          var controlNode = _step.value;
+	          this.initRobotSettingsControl(robot, controlNode);
+	        }
+	      } catch (err) {
+	        _iterator.e(err);
+	      } finally {
+	        _iterator.f();
 	      }
 	    }
 	  }, {
 	    key: "initRobotSettingsControl",
 	    value: function initRobotSettingsControl(robot, controlNode) {
-	      var _this6 = this;
+	      var _this8 = this;
 	      if (!main_core.Type.isArray(this.robotSettingsControls)) {
 	        this.robotSettingsControls = [];
 	      }
@@ -5298,31 +5185,31 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      if (role === bizproc_automation.SelectorManager.SELECTOR_ROLE_USER) {
 	        var fieldProperty = JSON.parse(controlNode.getAttribute('data-property'));
 	        controlProps.context.set('additionalUserFields', [].concat(babelHelpers.toConsumableArray(_classPrivateMethodGet$3(this, _getUserSelectorAdditionalFields, _getUserSelectorAdditionalFields2).call(this, fieldProperty)), babelHelpers.toConsumableArray(this.globalConstants.filter(function (constant) {
-	          return constant['Type'] === 'user';
+	          return constant.Type === 'user';
 	        }).map(function (constant) {
 	          return {
-	            id: constant['Expression'],
-	            title: constant['Name']
+	            id: constant.Expression,
+	            title: constant.Name
 	          };
 	        })), babelHelpers.toConsumableArray(this.globalVariables.filter(function (variable) {
-	          return variable['Type'] === 'user';
+	          return variable.Type === 'user';
 	        }).map(function (variable) {
 	          return {
-	            id: variable['Expression'],
-	            title: variable['Name']
+	            id: variable.Expression,
+	            title: variable.Name
 	          };
 	        }))));
 	      } else if (role === bizproc_automation.SelectorManager.SELECTOR_ROLE_FILE) {
 	        this.robots.forEach(function (robot) {
 	          var _controlProps$context;
 	          (_controlProps$context = controlProps.context.fields).push.apply(_controlProps$context, babelHelpers.toConsumableArray(robot.getReturnFieldsDescription().filter(function (field) {
-	            return field['Type'] === 'file';
+	            return field.Type === 'file';
 	          }).map(function (field) {
 	            return {
-	              Id: "{{~".concat(robot.getId(), ":").concat(field['Id'], "}}"),
-	              Name: "".concat(robot.getTitle(), ": ").concat(field['Name']),
+	              Id: "{{~".concat(robot.getId(), ":").concat(field.Id, "}}"),
+	              Name: "".concat(robot.getTitle(), ": ").concat(field.Name),
 	              Type: 'file',
-	              Expression: "{{~".concat(robot.getId(), ":").concat(field['Id'], "}}")
+	              Expression: "{{~".concat(robot.getId(), ":").concat(field.Id, "}}")
 	            };
 	          })));
 	        });
@@ -5333,18 +5220,18 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        control.subscribe('onAskConstant', function (event) {
 	          var _event$getData = event.getData(),
 	            fieldProperty = _event$getData.fieldProperty;
-	          control.onFieldSelect(_this6.addConstant(fieldProperty));
+	          control.onFieldSelect(_this8.addConstant(fieldProperty));
 	        });
 	        control.subscribe('onAskParameter', function (event) {
 	          var _event$getData2 = event.getData(),
 	            fieldProperty = _event$getData2.fieldProperty;
-	          control.onFieldSelect(_this6.addParameter(fieldProperty));
+	          control.onFieldSelect(_this8.addParameter(fieldProperty));
 	        });
 	        control.subscribe('onOpenFieldMenu', function (event) {
-	          return _this6.onOpenMenu(event, robot);
+	          return _this8.onOpenMenu(event, robot);
 	        });
 	        control.subscribe('onOpenMenu', function (event) {
-	          return _this6.onOpenMenu(event, robot);
+	          return _this8.onOpenMenu(event, robot);
 	        });
 	      }
 	      BX.UI.Hint.init(controlNode);
@@ -5394,70 +5281,33 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "renderDelaySettings",
 	    value: function renderDelaySettings(robot) {
 	      var delay = robot.getDelayInterval().clone();
-	      var idSalt = Helper.generateUniqueId();
-	      var delayTypeNode = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "hidden",
-	          name: "delay_type",
-	          value: delay.type
-	        }
-	      });
-	      var delayValueNode = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "hidden",
-	          name: "delay_value",
-	          value: delay.value
-	        }
-	      });
-	      var delayValueTypeNode = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "hidden",
-	          name: "delay_value_type",
-	          value: delay.valueType
-	        }
-	      });
-	      var delayBasisNode = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "hidden",
-	          name: "delay_basis",
-	          value: delay.basis
-	        }
-	      });
-	      var delayWorkTimeNode = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "hidden",
-	          name: "delay_worktime",
-	          value: delay.workTime ? 1 : 0
-	        }
-	      });
-	      var delayWaitWorkDayNode = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "hidden",
-	          name: "delay_wait_workday",
-	          value: delay.waitWorkDay ? 1 : 0
-	        }
-	      });
-	      var delayInTimeNode = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "hidden",
-	          name: "delay_in_time",
-	          value: delay.inTimeString
-	        }
-	      });
-	      var delayIntervalLabelNode = main_core.Dom.create("span", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-link bizproc-automation-delay-interval-basis"
-	        }
-	      });
+	      var _ref = main_core.Tag.render(_templateObject10$2 || (_templateObject10$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-settings\">\n\t\t\t\t<div class=\"bizproc-automation-popup-settings-block\">\n\t\t\t\t\t<span class=\"bizproc-automation-popup-settings-title-wrapper\">\n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\tref=\"delayTypeNode\"\n\t\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\t\tname=\"delay_type\"\n\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\tref=\"delayValueNode\"\n\t\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\t\tname=\"delay_value\"\n\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\tref=\"delayValueTypeNode\"\n\t\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\t\tname=\"delay_value_type\"\n\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\tref=\"delayBasisNode\"\n\t\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\t\tname=\"delay_basis\"\n\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t\t<input \n\t\t\t\t\t\t\tref=\"delayWorkTimeNode\"\n\t\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\t\tname=\"delay_worktime\"\n\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\tref=\"delayWaitWorkDayNode\"\n\t\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\t\tname=\"delay_wait_workday\"\n\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\tref=\"delayInTimeNode\"\n\t\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\t\tname=\"delay_in_time\"\n\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-left\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\tref=\"delayIntervalLabelNode\"\n\t\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings-link bizproc-automation-delay-interval-basis\"\n\t\t\t\t\t\t></span>\n\t\t\t\t\t</span>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Text.encode(delay.type), main_core.Text.encode(delay.value), main_core.Text.encode(delay.valueType), main_core.Text.encode(delay.basis), delay.workTime ? 1 : 0, delay.waitWorkDay ? 1 : 0, main_core.Text.encode(delay.inTimeString), main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_TO_EXECUTE_TITLE')),
+	        root = _ref.root,
+	        delayTypeNode = _ref.delayTypeNode,
+	        delayValueNode = _ref.delayValueNode,
+	        delayValueTypeNode = _ref.delayValueTypeNode,
+	        delayBasisNode = _ref.delayBasisNode,
+	        delayWorkTimeNode = _ref.delayWorkTimeNode,
+	        delayWaitWorkDayNode = _ref.delayWaitWorkDayNode,
+	        delayInTimeNode = _ref.delayInTimeNode,
+	        delayIntervalLabelNode = _ref.delayIntervalLabelNode;
 	      var basisFields = [];
 	      var docFields = babelHelpers.classPrivateFieldGet(this, _context).document.getFields();
 	      var minLimitM = babelHelpers.classPrivateFieldGet(this, _delayMinLimitM);
 	      if (main_core.Type.isArray(docFields)) {
-	        for (var i = 0; i < docFields.length; ++i) {
-	          var field = docFields[i];
-	          if (field['Type'] === 'date' || field['Type'] === 'datetime') {
-	            basisFields.push(field);
+	        var _iterator2 = _createForOfIteratorHelper$7(docFields),
+	          _step2;
+	        try {
+	          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+	            var field = _step2.value;
+	            if (field.Type === 'date' || field.Type === 'datetime') {
+	              basisFields.push(field);
+	            }
 	          }
+	        } catch (err) {
+	          _iterator2.e(err);
+	        } finally {
+	          _iterator2.f();
 	        }
 	      }
 	      var delayIntervalSelector = new bizproc_automation.DelayIntervalSelector({
@@ -5476,104 +5326,50 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        useAfterBasis: true,
 	        showWaitWorkDay: true
 	      });
-	      var executeAfterPreviousBlock = null;
-	      if (robot.hasTemplate()) {
-	        var executeAfterPreviousCheckbox = main_core.Dom.create("input", {
-	          attrs: {
-	            type: "checkbox",
-	            id: "param-group-3-1" + idSalt,
-	            name: "execute_after_previous",
-	            value: '1',
-	            style: 'vertical-align: middle'
-	          }
-	        });
-	        if (robot.isExecuteAfterPrevious()) {
-	          executeAfterPreviousCheckbox.setAttribute('checked', 'checked');
-	        }
-	        executeAfterPreviousBlock = main_core.Dom.create("div", {
-	          attrs: {
-	            className: "bizproc-automation-popup-settings-block"
-	          },
-	          children: [executeAfterPreviousCheckbox, main_core.Dom.create("label", {
-	            attrs: {
-	              "for": "param-group-3-1" + idSalt,
-	              style: 'color: #535C69'
-	            },
-	            text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AFTER_PREVIOUS_WIDE')
-	          })]
-	        });
-	      }
-	      var div = main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings bizproc-automation-popup-settings-flex"
-	        },
-	        children: [main_core.Dom.create("div", {
-	          attrs: {
-	            className: "bizproc-automation-popup-settings-block bizproc-automation-popup-settings-block-flex"
-	          },
-	          children: [main_core.Dom.create("span", {
-	            attrs: {
-	              className: "bizproc-automation-popup-settings-title-wrapper"
-	            },
-	            children: [delayTypeNode, delayValueNode, delayValueTypeNode, delayBasisNode, delayWorkTimeNode, delayWaitWorkDayNode, delayInTimeNode, main_core.Dom.create("span", {
-	              attrs: {
-	                className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-left"
-	              },
-	              text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TO_EXECUTE') + ":"
-	            }), delayIntervalLabelNode]
-	          })]
-	        }), executeAfterPreviousBlock]
-	      });
 	      delayIntervalSelector.init(delay);
-	      return div;
+	      return root;
 	    }
 	  }, {
 	    key: "setDelaySettingsFromForm",
 	    value: function setDelaySettingsFromForm(formFields, robot) {
 	      var delay = new DelayInterval();
-	      delay.setType(formFields['delay_type']);
-	      delay.setValue(formFields['delay_value']);
-	      delay.setValueType(formFields['delay_value_type']);
-	      delay.setBasis(formFields['delay_basis']);
-	      delay.setWorkTime(formFields['delay_worktime'] === '1');
-	      delay.setWaitWorkDay(formFields['delay_wait_workday'] === '1');
-	      delay.setInTime(formFields['delay_in_time'] ? formFields['delay_in_time'].split(':') : null);
+	      delay.setType(formFields.delay_type);
+	      delay.setValue(formFields.delay_value);
+	      delay.setValueType(formFields.delay_value_type);
+	      delay.setBasis(formFields.delay_basis);
+	      delay.setWorkTime(formFields.delay_worktime === '1');
+	      delay.setWaitWorkDay(formFields.delay_wait_workday === '1');
+	      delay.setInTime(formFields.delay_in_time ? formFields.delay_in_time.split(':') : null);
 	      robot.setDelayInterval(delay);
 	      if (robot.hasTemplate()) {
-	        robot.setExecuteAfterPrevious(formFields['execute_after_previous'] && formFields['execute_after_previous'] === '1');
+	        robot.setExecuteAfterPrevious(formFields.execute_after_previous && formFields.execute_after_previous === '1');
 	      }
 	      return this;
 	    }
 	  }, {
 	    key: "renderConditionSettings",
 	    value: function renderConditionSettings(robot) {
-	      var _this7 = this;
+	      var _this9 = this,
+	        _babelHelpers$classPr;
 	      var conditionGroup = robot.getCondition();
 	      this.conditionSelector = new bizproc_automation.ConditionGroupSelector(conditionGroup, {
 	        fields: babelHelpers.classPrivateFieldGet(this, _context).document.getFields(),
 	        onOpenFieldMenu: function onOpenFieldMenu(event) {
-	          return _this7.onOpenMenu(event, robot);
+	          return _this9.onOpenMenu(event, robot);
 	        },
 	        onOpenMenu: function onOpenMenu(event) {
-	          return _this7.onOpenMenu(event, robot);
-	        }
-	      });
-	      return main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings"
+	          return _this9.onOpenMenu(event, robot);
 	        },
-	        children: [main_core.Dom.create("div", {
-	          attrs: {
-	            className: "bizproc-automation-popup-settings-block"
-	          },
-	          children: [main_core.Dom.create("span", {
-	            attrs: {
-	              className: "bizproc-automation-popup-settings-title"
-	            },
-	            text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION') + ":"
-	          }), this.conditionSelector.createNode()]
-	        })]
+	        caption: {
+	          head: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_ROBOT_CONDITION_TITLE')
+	        },
+	        isExpanded: ((_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _userOptions$1)) === null || _babelHelpers$classPr === void 0 ? void 0 : _babelHelpers$classPr.get('defaults', 'isConditionGroupExpanded', 'N')) === 'Y'
 	      });
+	      this.conditionSelector.subscribe('onToggleGroupViewClick', function (event) {
+	        var data = event.getData();
+	        babelHelpers.classPrivateFieldGet(_this9, _userOptions$1).set('defaults', 'isConditionGroupExpanded', data.isExpanded ? 'Y' : 'N');
+	      });
+	      return this.conditionSelector.createNode();
 	    }
 	  }, {
 	    key: "onOpenMenu",
@@ -5596,16 +5392,16 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "renderBrokenLinkAlert",
 	    value: function renderBrokenLinkAlert() {
 	      var brokenLinks = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-	      var moreInfoNode = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-robot-broken-link-full-info\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), brokenLinks.map(function (value) {
+	      var moreInfoNode = main_core.Tag.render(_templateObject11$1 || (_templateObject11$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-robot-broken-link-full-info\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), brokenLinks.map(function (value) {
 	        return main_core.Text.encode(value);
 	      }).join('<br>'));
-	      var showMoreLabel = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"bizproc-automation-robot-broken-link-show-more\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('JS_BIZPROC_AUTOMATION_BROKEN_LINK_MESSAGE_ERROR_MORE_INFO'));
+	      var showMoreLabel = main_core.Tag.render(_templateObject12$1 || (_templateObject12$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"bizproc-automation-robot-broken-link-show-more\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('JS_BIZPROC_AUTOMATION_BROKEN_LINK_MESSAGE_ERROR_MORE_INFO'));
 	      main_core.Event.bindOnce(showMoreLabel, 'click', function () {
-	        main_core.Dom.style(moreInfoNode, 'height', moreInfoNode.scrollHeight + 'px');
+	        main_core.Dom.style(moreInfoNode, 'height', "".concat(moreInfoNode.scrollHeight, "px"));
 	        main_core.Dom.remove(showMoreLabel);
 	      });
-	      var closeBtn = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-alert-close-btn\"></span>"])));
-	      var alert = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-alert ui-alert-warning ui-alert-icon-info\">\n\t\t\t\t<div class=\"ui-alert-message\">\n\t\t\t\t\t<div>\n\t\t\t\t\t\t<span>", "</span>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_BROKEN_LINK_MESSAGE_ERROR'), showMoreLabel, moreInfoNode, closeBtn);
+	      var closeBtn = main_core.Tag.render(_templateObject13$1 || (_templateObject13$1 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-alert-close-btn\"></span>"])));
+	      var alert = main_core.Tag.render(_templateObject14$1 || (_templateObject14$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-alert ui-alert-warning ui-alert-icon-info\">\n\t\t\t\t<div class=\"ui-alert-message\">\n\t\t\t\t\t<div>\n\t\t\t\t\t\t<span>", "</span>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_BROKEN_LINK_MESSAGE_ERROR'), showMoreLabel, moreInfoNode, closeBtn);
 	      main_core.Event.bindOnce(closeBtn, 'click', function () {
 	        main_core.Dom.remove(alert);
 	      });
@@ -5614,15 +5410,15 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "saveRobotSettings",
 	    value: function saveRobotSettings(form, robot, callback, btnNode) {
-	      var _this8 = this;
+	      var _this10 = this;
 	      if (btnNode) {
-	        btnNode.classList.add('popup-window-button-wait');
+	        main_core.Dom.addClass(btnNode, 'ui-btn-wait');
 	      }
 	      this.onBeforeSaveRobotSettings();
 	      var formData = BX.ajax.prepareForm(form);
 	      var ajaxUrl = babelHelpers.classPrivateFieldGet(this, _context).ajaxUrl;
 	      var documentSigned = babelHelpers.classPrivateFieldGet(this, _context).signedDocument;
-	      BX.ajax({
+	      main_core.ajax({
 	        method: 'POST',
 	        dataType: 'json',
 	        url: main_core.Uri.addParam(ajaxUrl, {
@@ -5632,21 +5428,21 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          ajax_action: 'save_robot_settings',
 	          document_signed: documentSigned,
 	          robot_json: Helper.toJsonString(robot.serialize()),
-	          form_data_json: Helper.toJsonString(formData['data']),
-	          form_data: formData['data'] /** @bug 0135641 */
+	          form_data_json: Helper.toJsonString(formData.data),
+	          form_data: formData.data /** @bug 0135641 */
 	        },
 
 	        onsuccess: function onsuccess(response) {
 	          if (btnNode) {
-	            btnNode.classList.remove('popup-window-button-wait');
+	            main_core.Dom.removeClass(btnNode, 'ui-btn-wait');
 	          }
 	          if (response.SUCCESS) {
 	            robot.updateData(response.DATA.robot);
-	            _this8.setDelaySettingsFromForm(formData['data'], robot);
-	            _this8.setConditionSettingsFromForm(formData['data'], robot);
+	            _this10.setDelaySettingsFromForm(formData.data, robot);
+	            _this10.setConditionSettingsFromForm(formData.data, robot);
 	            robot.draft = false;
 	            robot.reInit();
-	            _this8.markModified();
+	            _this10.markModified();
 	            if (callback) {
 	              callback(response.DATA);
 	            }
@@ -5659,11 +5455,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "serialize",
 	    value: function serialize() {
-	      var data = BX.clone(babelHelpers.classPrivateFieldGet(this, _data$2));
-	      data['IS_EXTERNAL_MODIFIED'] = this.isExternalModified() ? 1 : 0;
-	      data['ROBOTS'] = [];
+	      var data = main_core.Runtime.clone(babelHelpers.classPrivateFieldGet(this, _data$2));
+	      data.IS_EXTERNAL_MODIFIED = this.isExternalModified() ? 1 : 0;
+	      data.ROBOTS = [];
 	      for (var i = 0; i < babelHelpers.classPrivateFieldGet(this, _robots).length; ++i) {
-	        data['ROBOTS'].push(babelHelpers.classPrivateFieldGet(this, _robots)[i].serialize());
+	        data.ROBOTS.push(babelHelpers.classPrivateFieldGet(this, _robots)[i].serialize());
 	      }
 	      return data;
 	    }
@@ -5700,14 +5496,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "getConstants",
 	    value: function getConstants() {
-	      var _this9 = this;
+	      var _this11 = this;
 	      var constants = [];
 	      Object.keys(babelHelpers.classPrivateFieldGet(this, _data$2).CONSTANTS).forEach(function (id) {
-	        var constant = main_core.Runtime.clone(babelHelpers.classPrivateFieldGet(_this9, _data$2).CONSTANTS[id]);
+	        var constant = main_core.Runtime.clone(babelHelpers.classPrivateFieldGet(_this11, _data$2).CONSTANTS[id]);
 	        constant.Id = id;
 	        constant.ObjectId = 'Constant';
-	        constant.SystemExpression = '{=Constant:' + id + '}';
-	        constant.Expression = '{{~&:' + id + '}}';
+	        constant.SystemExpression = "{=Constant:".concat(id, "}");
+	        constant.Expression = "{{~&:".concat(id, "}}");
 	        constants.push(constant);
 	      });
 	      return constants;
@@ -5716,10 +5512,19 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "getConstant",
 	    value: function getConstant(id) {
 	      var constants = this.getConstants();
-	      for (var i = 0; i < constants.length; ++i) {
-	        if (constants[i].Id === id) {
-	          return constants[i];
+	      var _iterator3 = _createForOfIteratorHelper$7(constants),
+	        _step3;
+	      try {
+	        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+	          var constant = _step3.value;
+	          if (constant.Id === id) {
+	            return constant;
+	          }
 	        }
+	      } catch (err) {
+	        _iterator3.e(err);
+	      } finally {
+	        _iterator3.f();
 	      }
 	      return null;
 	    }
@@ -5768,7 +5573,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "setConstantValue",
 	    value: function setConstantValue(id, value) {
 	      if (babelHelpers.classPrivateFieldGet(this, _data$2).CONSTANTS[id]) {
-	        babelHelpers.classPrivateFieldGet(this, _data$2).CONSTANTS[id]['Default'] = value;
+	        babelHelpers.classPrivateFieldGet(this, _data$2).CONSTANTS[id].Default = value;
 	        return true;
 	      }
 	      return false;
@@ -5776,14 +5581,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "getParameters",
 	    value: function getParameters() {
-	      var _this10 = this;
+	      var _this12 = this;
 	      var params = [];
 	      Object.keys(babelHelpers.classPrivateFieldGet(this, _data$2).PARAMETERS).forEach(function (id) {
-	        var param = BX.clone(babelHelpers.classPrivateFieldGet(_this10, _data$2).PARAMETERS[id]);
+	        var param = main_core.Runtime.clone(babelHelpers.classPrivateFieldGet(_this12, _data$2).PARAMETERS[id]);
 	        param.Id = id;
 	        param.ObjectId = 'Template';
-	        param.SystemExpression = '{=Template:' + id + '}';
-	        param.Expression = '{{~*:' + id + '}}';
+	        param.SystemExpression = "{=Template:".concat(id, "}");
+	        param.Expression = "{{~*:".concat(id, "}}");
 	        params.push(param);
 	      });
 	      return params;
@@ -5792,10 +5597,19 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "getParameter",
 	    value: function getParameter(id) {
 	      var params = this.getParameters();
-	      for (var i = 0; i < params.length; ++i) {
-	        if (params[i].Id === id) {
-	          return params[i];
+	      var _iterator4 = _createForOfIteratorHelper$7(params),
+	        _step4;
+	      try {
+	        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+	          var param = _step4.value;
+	          if (param.Id === id) {
+	            return param;
+	          }
 	        }
+	      } catch (err) {
+	        _iterator4.e(err);
+	      } finally {
+	        _iterator4.f();
 	      }
 	      return null;
 	    }
@@ -5824,7 +5638,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        throw "Parameter with id \"".concat(id, "\" does not exists");
 	      }
 
-	      //TODO: only Description yet.
+	      // TODO: only Description yet.
 	      babelHelpers.classPrivateFieldGet(this, _data$2).PARAMETERS[id].Description = property.Description;
 	      this.emit('Template:parameter:update', {
 	        parameter: this.getParameter(id)
@@ -5846,7 +5660,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "setParameterValue",
 	    value: function setParameterValue(id, value) {
 	      if (babelHelpers.classPrivateFieldGet(this, _data$2).PARAMETERS[id]) {
-	        babelHelpers.classPrivateFieldGet(this, _data$2).PARAMETERS[id]['Default'] = value;
+	        babelHelpers.classPrivateFieldGet(this, _data$2).PARAMETERS[id].Default = value;
 	        return true;
 	      }
 	      return false;
@@ -5854,14 +5668,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "getVariables",
 	    value: function getVariables() {
-	      var _this11 = this;
+	      var _this13 = this;
 	      var variables = [];
 	      Object.keys(babelHelpers.classPrivateFieldGet(this, _data$2).VARIABLES).forEach(function (id) {
-	        var variable = main_core.Runtime.clone(babelHelpers.classPrivateFieldGet(_this11, _data$2).VARIABLES[id]);
+	        var variable = main_core.Runtime.clone(babelHelpers.classPrivateFieldGet(_this13, _data$2).VARIABLES[id]);
 	        variable.Id = id;
 	        variable.ObjectId = 'Variable';
-	        variable.SystemExpression = '{=Variable:' + id + '}';
-	        variable.Expression = '{=Variable:' + id + '}';
+	        variable.SystemExpression = "{=Variable:".concat(id, "}");
+	        variable.Expression = "{=Variable:".concat(id, "}");
 	        variables.push(variable);
 	      });
 	      return variables;
@@ -5872,7 +5686,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      var index;
 	      for (index = 1; index <= 1000; ++index) {
 	        if (!existsList[prefix + index]) {
-	          break; //found
+	          break; // found
 	        }
 	      }
 
@@ -5922,7 +5736,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "getRobotDescription",
 	    value: function getRobotDescription(type) {
 	      return babelHelpers.classPrivateFieldGet(this, _context).availableRobots.find(function (item) {
-	        return item['CLASS'] === type;
+	        return item.CLASS === type;
 	      });
 	    }
 	  }, {
@@ -5933,7 +5747,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "userOptions",
 	    get: function get() {
-	      return babelHelpers.classPrivateFieldGet(this, _userOptions);
+	      return babelHelpers.classPrivateFieldGet(this, _userOptions$1);
 	    }
 	  }, {
 	    key: "globalConstants",
@@ -5957,16 +5771,16 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return Template;
 	}(main_core_events.EventEmitter);
 	function _getUserSelectorAdditionalFields2(fieldProperty) {
-	  var additionalFields = _classPrivateMethodGet$3(this, _getRobotsWithReturnFields, _getRobotsWithReturnFields2).call(this).map(function (robot) {
+	  var additionalFields = _classPrivateMethodGet$3(this, _getRobotsWithReturnFields, _getRobotsWithReturnFields2).call(this).flatMap(function (robot) {
 	    return robot.getReturnFieldsDescription().filter(function (field) {
-	      return field['Type'] === 'user';
+	      return field.Type === 'user';
 	    }).map(function (field) {
 	      return {
-	        id: "{{~".concat(robot.getId(), ":").concat(field['Id'], "}}"),
-	        title: "".concat(robot.getTitle(), ": ").concat(field['Name'])
+	        id: "{{~".concat(robot.getId(), ":").concat(field.Id, "}}"),
+	        title: "".concat(robot.getTitle(), ": ").concat(field.Name)
 	      };
 	    });
-	  }).flat();
+	  });
 	  if (babelHelpers.classPrivateFieldGet(this, _context).get('showTemplatePropertiesMenuOnSelecting') && fieldProperty) {
 	    var ask = this.addConstant(main_core.Runtime.clone(fieldProperty));
 	    additionalFields.push({
@@ -6035,7 +5849,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  this.globalConstants.forEach(function (constant) {
 	    constants.push({
 	      id: constant.SystemExpression,
-	      title: constant['Name'],
+	      title: constant.Name,
 	      supertitle: constant.SuperTitle,
 	      customData: {
 	        field: constant
@@ -6074,12 +5888,37 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    });
 	  }
 	}
-	function _getRobotsWithReturnFields2() {
-	  var skipRobot = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
+	function _getRobotsWithReturnFields2(skipRobot) {
 	  var skipId = (skipRobot === null || skipRobot === void 0 ? void 0 : skipRobot.getId()) || '';
 	  return this.robots.filter(function (templateRobot) {
 	    return templateRobot.getId() !== skipId && templateRobot.hasReturnFields();
 	  });
+	}
+	function _renderExecutionQueue2(robot) {
+	  var title = robot.isExecuteAfterPrevious() ? main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_AFTER_PREVIOUS_TITLE') : main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_PARALLEL_TITLE');
+	  var value = robot.isExecuteAfterPrevious() ? '1' : '0';
+	  var _ref2 = main_core.Tag.render(_templateObject15$1 || (_templateObject15$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-settings\">\n\t\t\t\t<div class=\"bizproc-automation-popup-settings-block\">\n\t\t\t\t\t<span class=\"bizproc-automation-popup-settings-title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class=\"bizproc-automation-popup-settings-link-wrapper\">\n\t\t\t\t\t\t<a ref=\"executionQueueLink\" class=\"bizproc-automation-popup-settings-link\">", "</a>\n\t\t\t\t\t</span>\n\t\t\t\t\t<input ref=\"input\" type=\"hidden\" value=\"", "\" name=\"execute_after_previous\"/>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_TITLE'), title, value),
+	    root = _ref2.root,
+	    executionQueueLink = _ref2.executionQueueLink,
+	    input = _ref2.input;
+	  main_core.Event.bind(executionQueueLink, 'click', function () {
+	    showExecutionQueuePopup({
+	      bindElement: executionQueueLink,
+	      currentValue: input.value,
+	      onSubmitButtonClick: function onSubmitButtonClick(formData) {
+	        var afterPrevious = formData.get('execution') === 'afterPrevious';
+	        main_core.Dom.adjust(input, {
+	          attrs: {
+	            value: afterPrevious ? '1' : '0'
+	          }
+	        });
+	        main_core.Dom.adjust(executionQueueLink, {
+	          text: afterPrevious ? main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_AFTER_PREVIOUS_TITLE') : main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_PARALLEL_TITLE')
+	        });
+	      }
+	    });
+	  });
+	  return root;
 	}
 
 	function _classPrivateFieldInitSpec$f(obj, privateMap, value) { _checkPrivateRedeclaration$f(obj, privateMap); privateMap.set(obj, value); }
@@ -6113,17 +5952,17 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    babelHelpers.classPrivateFieldSet(this, _value$1, '');
 	    this.parentGroup = null;
 	    if (main_core.Type.isPlainObject(params)) {
-	      if (params['object']) {
-	        this.setObject(params['object']);
+	      if (params.object) {
+	        this.setObject(params.object);
 	      }
-	      if (params['field']) {
-	        this.setField(params['field']);
+	      if (params.field) {
+	        this.setField(params.field);
 	      }
-	      if (params['operator']) {
-	        this.setOperator(params['operator']);
+	      if (params.operator) {
+	        this.setOperator(params.operator);
 	      }
 	      if ('value' in params) {
-	        this.setValue(params['value']);
+	        this.setValue(params.value);
 	      }
 	    }
 	    if (group) {
@@ -6157,10 +5996,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "setOperator",
 	    value: function setOperator(operator) {
-	      if (!operator) {
-	        operator = bizproc_condition.Operator.EQUAL;
-	      }
-	      babelHelpers.classPrivateFieldSet(this, _operator, operator);
+	      babelHelpers.classPrivateFieldSet(this, _operator, operator !== null && operator !== void 0 ? operator : bizproc_condition.Operator.EQUAL);
 	    }
 	  }, {
 	    key: "setValue",
@@ -6230,17 +6066,17 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    babelHelpers.classPrivateFieldSet(this, _type$2, ConditionGroup.CONDITION_TYPE.Field);
 	    babelHelpers.classPrivateFieldSet(this, _items, []);
 	    if (main_core.Type.isPlainObject(params)) {
-	      if (params['type']) {
-	        babelHelpers.classPrivateFieldSet(this, _type$2, params['type']);
+	      if (params.type) {
+	        babelHelpers.classPrivateFieldSet(this, _type$2, params.type);
 	      }
-	      if (main_core.Type.isArray(params['items'])) {
-	        params['items'].forEach(function (item) {
+	      if (main_core.Type.isArray(params.items)) {
+	        params.items.forEach(function (item) {
 	          var condition = new Condition(item[0], _this);
 	          _this.addItem(condition, item[1]);
 	        });
 	      }
-	      if (main_core.Type.isPlainObject(params['activityNames'])) {
-	        babelHelpers.classPrivateFieldSet(this, _activityNames, params['activityNames']);
+	      if (main_core.Type.isPlainObject(params.activityNames)) {
+	        babelHelpers.classPrivateFieldSet(this, _activityNames, params.activityNames);
 	      }
 	    }
 	  }
@@ -6357,7 +6193,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }
 	});
 
-	var _templateObject$3, _templateObject2$2, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6;
+	var _templateObject$5, _templateObject2$4, _templateObject3$4, _templateObject4$4, _templateObject5$3, _templateObject6$3, _templateObject7$3, _templateObject8$3, _templateObject9$3, _templateObject10$3, _templateObject11$2, _templateObject12$2, _templateObject13$2, _templateObject14$2;
 	function _classPrivateMethodInitSpec$4(obj, privateSet) { _checkPrivateRedeclaration$h(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$h(obj, privateMap, value) { _checkPrivateRedeclaration$h(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$h(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
@@ -6373,146 +6209,108 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var _valueNode = /*#__PURE__*/new WeakMap();
 	var _selectedField = /*#__PURE__*/new WeakMap();
 	var _createValueNode = /*#__PURE__*/new WeakSet();
+	var _createRemoveButton = /*#__PURE__*/new WeakSet();
+	var _createJoinerSwitcher = /*#__PURE__*/new WeakSet();
 	var _getValueLabel = /*#__PURE__*/new WeakSet();
 	var _getValueNode = /*#__PURE__*/new WeakSet();
-	var ConditionSelector = /*#__PURE__*/function () {
+	var ConditionSelector = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(ConditionSelector, _EventEmitter);
 	  function ConditionSelector(condition, options) {
+	    var _this;
 	    babelHelpers.classCallCheck(this, ConditionSelector);
-	    _classPrivateMethodInitSpec$4(this, _getValueNode);
-	    _classPrivateMethodInitSpec$4(this, _getValueLabel);
-	    _classPrivateMethodInitSpec$4(this, _createValueNode);
-	    _classPrivateFieldInitSpec$h(this, _condition$2, {
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ConditionSelector).call(this));
+	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _getValueNode);
+	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _getValueLabel);
+	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _createJoinerSwitcher);
+	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _createRemoveButton);
+	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _createValueNode);
+	    _classPrivateFieldInitSpec$h(babelHelpers.assertThisInitialized(_this), _condition$2, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$h(this, _fields$1, {
+	    _classPrivateFieldInitSpec$h(babelHelpers.assertThisInitialized(_this), _fields$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$h(this, _joiner, {
+	    _classPrivateFieldInitSpec$h(babelHelpers.assertThisInitialized(_this), _joiner, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$h(this, _fieldPrefix, {
+	    _classPrivateFieldInitSpec$h(babelHelpers.assertThisInitialized(_this), _fieldPrefix, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$h(this, _rootGroupTitle, {
+	    _classPrivateFieldInitSpec$h(babelHelpers.assertThisInitialized(_this), _rootGroupTitle, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$h(this, _onOpenFieldMenu, {
+	    _classPrivateFieldInitSpec$h(babelHelpers.assertThisInitialized(_this), _onOpenFieldMenu, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$h(this, _onOpenMenu, {
+	    _classPrivateFieldInitSpec$h(babelHelpers.assertThisInitialized(_this), _onOpenMenu, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$h(this, _showValuesSelector, {
+	    _classPrivateFieldInitSpec$h(babelHelpers.assertThisInitialized(_this), _showValuesSelector, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$h(this, _valueNode, {
+	    _classPrivateFieldInitSpec$h(babelHelpers.assertThisInitialized(_this), _valueNode, {
 	      writable: true,
 	      value: null
 	    });
-	    _classPrivateFieldInitSpec$h(this, _selectedField, {
+	    _classPrivateFieldInitSpec$h(babelHelpers.assertThisInitialized(_this), _selectedField, {
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldSet(this, _condition$2, condition);
-	    babelHelpers.classPrivateFieldSet(this, _fields$1, []);
-	    babelHelpers.classPrivateFieldSet(this, _joiner, bizproc_automation.ConditionGroup.JOINER.And);
-	    babelHelpers.classPrivateFieldSet(this, _fieldPrefix, 'condition_');
+	    _this.setEventNamespace('BX.Bizproc.Automation.Condition');
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _condition$2, condition);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _fields$1, []);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _joiner, bizproc_automation.ConditionGroup.JOINER.And);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _fieldPrefix, 'condition_');
 	    if (main_core.Type.isPlainObject(options)) {
 	      var _options$showValuesSe;
 	      if (main_core.Type.isArray(options.fields)) {
-	        babelHelpers.classPrivateFieldSet(this, _fields$1, options.fields.map(function (field) {
+	        babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _fields$1, options.fields.map(function (field) {
 	          field.ObjectId = 'Document';
 	          return field;
 	        }));
 	      }
 	      if (options.joiner && options.joiner === bizproc_automation.ConditionGroup.JOINER.Or) {
-	        babelHelpers.classPrivateFieldSet(this, _joiner, bizproc_automation.ConditionGroup.JOINER.Or);
+	        babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _joiner, bizproc_automation.ConditionGroup.JOINER.Or);
 	      }
 	      if (options.fieldPrefix) {
-	        babelHelpers.classPrivateFieldSet(this, _fieldPrefix, options.fieldPrefix);
+	        babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _fieldPrefix, options.fieldPrefix);
 	      }
-	      babelHelpers.classPrivateFieldSet(this, _rootGroupTitle, options.rootGroupTitle);
-	      babelHelpers.classPrivateFieldSet(this, _onOpenFieldMenu, options.onOpenFieldMenu);
-	      babelHelpers.classPrivateFieldSet(this, _onOpenMenu, options.onOpenMenu);
-	      babelHelpers.classPrivateFieldSet(this, _showValuesSelector, (_options$showValuesSe = options.showValuesSelector) !== null && _options$showValuesSe !== void 0 ? _options$showValuesSe : true);
+	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _rootGroupTitle, options.rootGroupTitle);
+	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _onOpenFieldMenu, options.onOpenFieldMenu);
+	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _onOpenMenu, options.onOpenMenu);
+	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _showValuesSelector, (_options$showValuesSe = options.showValuesSelector) !== null && _options$showValuesSe !== void 0 ? _options$showValuesSe : true);
 	    }
+	    return _this;
 	  }
 	  babelHelpers.createClass(ConditionSelector, [{
 	    key: "createNode",
 	    value: function createNode() {
-	      var conditionObjectNode = this.objectNode = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "hidden",
-	          name: babelHelpers.classPrivateFieldGet(this, _fieldPrefix) + "object[]",
-	          value: babelHelpers.classPrivateFieldGet(this, _condition$2).object
-	        }
-	      });
-	      var conditionFieldNode = this.fieldNode = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "hidden",
-	          name: babelHelpers.classPrivateFieldGet(this, _fieldPrefix) + "field[]",
-	          value: babelHelpers.classPrivateFieldGet(this, _condition$2).field
-	        }
-	      });
-	      var conditionOperatorNode = this.operatorNode = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "hidden",
-	          name: babelHelpers.classPrivateFieldGet(this, _fieldPrefix) + "operator[]",
-	          value: babelHelpers.classPrivateFieldGet(this, _condition$2).operator
-	        }
-	      });
 	      var value = main_core.Type.isArrayFilled(babelHelpers.classPrivateFieldGet(this, _condition$2).value) ? babelHelpers.classPrivateFieldGet(this, _condition$2).value[0] : babelHelpers.classPrivateFieldGet(this, _condition$2).value;
-	      this.valueNode = _classPrivateMethodGet$4(this, _createValueNode, _createValueNode2).call(this, value);
-	      var conditionValueNode = this.valueNode;
-	      var conditionValueNode2;
-	      if (babelHelpers.classPrivateFieldGet(this, _condition$2).operator === bizproc_condition.Operator.BETWEEN) {
-	        var value2 = main_core.Type.isArrayFilled(babelHelpers.classPrivateFieldGet(this, _condition$2).value) && babelHelpers.classPrivateFieldGet(this, _condition$2).value.length > 1 ? babelHelpers.classPrivateFieldGet(this, _condition$2).value[1] : '';
-	        babelHelpers.classPrivateFieldSet(this, _valueNode, _classPrivateMethodGet$4(this, _createValueNode, _createValueNode2).call(this, value2));
-	        conditionValueNode2 = babelHelpers.classPrivateFieldGet(this, _valueNode);
-	      }
-	      var conditionJoinerNode = this.joinerNode = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "hidden",
-	          name: babelHelpers.classPrivateFieldGet(this, _fieldPrefix) + "joiner[]",
-	          value: babelHelpers.classPrivateFieldGet(this, _joiner)
-	        }
-	      });
-	      var labelNode = this.labelNode = main_core.Dom.create("span", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-link-wrapper"
-	        }
-	      });
+	      var conditionValueNode = _classPrivateMethodGet$4(this, _createValueNode, _createValueNode2).call(this, value);
+	      var conditionValueNode2 = babelHelpers.classPrivateFieldGet(this, _condition$2).operator === bizproc_condition.Operator.BETWEEN ? _classPrivateMethodGet$4(this, _createValueNode, _createValueNode2).call(this, main_core.Type.isArrayFilled(babelHelpers.classPrivateFieldGet(this, _condition$2).value) && babelHelpers.classPrivateFieldGet(this, _condition$2).value.length > 1 ? babelHelpers.classPrivateFieldGet(this, _condition$2).value[1] : '') : '';
+	      var _ref = main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-settings__condition-selector ui-draggable--item\">\n\t\t\t\t<div class=\"bizproc-automation-popup-settings__condition-item\">\n\t\t\t\t\t<input\n\t\t\t\t\t\tref=\"conditionObjectNode\"\n\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\tname=\"", "\"\n\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t/>\n\t\t\t\t\t<input\n\t\t\t\t\t\tref=\"conditionFieldNode\"\n\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\tname=\"", "\"\n\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t/>\n\t\t\t\t\t<input\n\t\t\t\t\t\tref=\"conditionOperatorNode\"\n\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\tname=\"", "\"\n\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t/>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"bizproc-automation-popup-settings__condition-item_draggable\">\n\t\t\t\t\t\t<div class=\"ui-icon-set --more-points\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div\n\t\t\t\t\t\tref=\"labelNode\"\n\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings__condition-item_content\"\n\t\t\t\t\t></div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Text.encode("".concat(babelHelpers.classPrivateFieldGet(this, _fieldPrefix), "object[]")), main_core.Text.encode(babelHelpers.classPrivateFieldGet(this, _condition$2).object), main_core.Text.encode("".concat(babelHelpers.classPrivateFieldGet(this, _fieldPrefix), "field[]")), main_core.Text.encode(babelHelpers.classPrivateFieldGet(this, _condition$2).field), main_core.Text.encode("".concat(babelHelpers.classPrivateFieldGet(this, _fieldPrefix), "operator[]")), main_core.Text.encode(babelHelpers.classPrivateFieldGet(this, _condition$2).operator), conditionValueNode, conditionValueNode2, _classPrivateMethodGet$4(this, _createRemoveButton, _createRemoveButton2).call(this), _classPrivateMethodGet$4(this, _createJoinerSwitcher, _createJoinerSwitcher2).call(this)),
+	        root = _ref.root,
+	        conditionObjectNode = _ref.conditionObjectNode,
+	        conditionFieldNode = _ref.conditionFieldNode,
+	        conditionOperatorNode = _ref.conditionOperatorNode,
+	        labelNode = _ref.labelNode;
+	      this.node = root;
+	      this.objectNode = conditionObjectNode;
+	      this.fieldNode = conditionFieldNode;
+	      this.operatorNode = conditionOperatorNode;
+	      this.valueNode = conditionValueNode;
+	      babelHelpers.classPrivateFieldSet(this, _valueNode, conditionValueNode2 === '' ? null : conditionValueNode2);
+	      this.labelNode = labelNode;
 	      this.setLabelText();
 	      this.bindLabelNode();
-	      var removeButtonNode = main_core.Dom.create("span", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-link-remove"
-	        },
-	        events: {
-	          click: this.removeCondition.bind(this)
-	        }
-	      });
-	      var joinerButtonNode = main_core.Dom.create("span", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-link bizproc-automation-condition-joiner"
-	        },
-	        text: bizproc_automation.ConditionGroup.JOINER.message(babelHelpers.classPrivateFieldGet(this, _joiner))
-	      });
-	      main_core.Event.bind(joinerButtonNode, 'click', this.changeJoiner.bind(this, joinerButtonNode));
-	      this.node = main_core.Dom.create("span", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-link-wrapper bizproc-automation-condition-wrapper"
-	        },
-	        children: [conditionObjectNode, conditionFieldNode, conditionOperatorNode, conditionValueNode, conditionValueNode2, conditionJoinerNode, labelNode, removeButtonNode, joinerButtonNode]
-	      });
 	      return this.node;
 	    }
 	  }, {
@@ -6529,16 +6327,16 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        return;
 	      }
 	      main_core.Dom.clean(this.labelNode);
-	      if (babelHelpers.classPrivateFieldGet(this, _condition$2).field !== '') {
+	      if (babelHelpers.classPrivateFieldGet(this, _condition$2).field === '') {
+	        main_core.Dom.append(main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"bizproc-automation-popup-settings__condition-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), main_core.Text.encode(this.getOperatorLabel(bizproc_condition.Operator.EMPTY))), this.labelNode);
+	      } else {
 	        var field = this.getField(babelHelpers.classPrivateFieldGet(this, _condition$2).object, babelHelpers.classPrivateFieldGet(this, _condition$2).field) || '?';
 	        var valueLabel = _classPrivateMethodGet$4(this, _getValueLabel, _getValueLabel2).call(this, field);
-	        main_core.Dom.append(main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<span class=\"bizproc-automation-popup-settings-link\">", "</span>"])), main_core.Text.encode(field.Name)), this.labelNode);
-	        main_core.Dom.append(main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"bizproc-automation-popup-settings-link\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), main_core.Text.encode(this.getOperatorLabel(babelHelpers.classPrivateFieldGet(this, _condition$2).operator))), this.labelNode);
+	        main_core.Dom.append(main_core.Tag.render(_templateObject3$4 || (_templateObject3$4 = babelHelpers.taggedTemplateLiteral(["<span class=\"bizproc-automation-popup-settings__condition-text\">", "</span>"])), main_core.Text.encode(field.Name)), this.labelNode);
+	        main_core.Dom.append(main_core.Tag.render(_templateObject4$4 || (_templateObject4$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"bizproc-automation-popup-settings__condition-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), main_core.Text.encode(this.getOperatorLabel(babelHelpers.classPrivateFieldGet(this, _condition$2).operator))), this.labelNode);
 	        if (valueLabel) {
-	          main_core.Dom.append(main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<span class=\"bizproc-automation-popup-settings-link\">", "</span>"])), main_core.Text.encode(valueLabel)), this.labelNode);
+	          main_core.Dom.append(main_core.Tag.render(_templateObject5$3 || (_templateObject5$3 = babelHelpers.taggedTemplateLiteral(["<span class=\"bizproc-automation-popup-settings__condition-text\">", "</span>"])), main_core.Text.encode(valueLabel)), this.labelNode);
 	        }
-	      } else {
-	        main_core.Dom.append(main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"bizproc-automation-popup-settings-link\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), main_core.Text.encode(this.getOperatorLabel(bizproc_condition.Operator.EMPTY))), this.labelNode);
 	      }
 	    }
 	  }, {
@@ -6556,30 +6354,16 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "showPopup",
 	    value: function showPopup() {
+	      var _this2 = this;
 	      if (this.popup) {
 	        this.popup.show();
 	        return;
 	      }
 	      var fields = this.filterFields();
-	      var objectSelect = main_core.Dom.create('input', {
-	        attrs: {
-	          type: 'hidden',
-	          className: 'bizproc-automation-popup-settings-dropdown'
-	        }
-	      });
-	      var fieldSelect = main_core.Dom.create('input', {
-	        attrs: {
-	          type: 'hidden',
-	          className: 'bizproc-automation-popup-settings-dropdown'
-	        }
-	      });
-	      var fieldSelectLabel = main_core.Dom.create('div', {
-	        attrs: {
-	          className: 'bizproc-automation-popup-settings-dropdown',
-	          readonly: 'readonly'
-	        },
-	        children: [fieldSelect]
-	      });
+	      var objectSelect = main_core.Tag.render(_templateObject6$3 || (_templateObject6$3 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" class=\"bizproc-automation-popup-settings-dropdown\"/>"])));
+	      var _ref2 = main_core.Tag.render(_templateObject7$3 || (_templateObject7$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-settings-dropdown\" readonly=\"readonly\">\n\t\t\t\t<input ref=\"fieldSelect\" type=\"hidden\" class=\"bizproc-automation-popup-settings-dropdown\"/>\n\t\t\t</div>\n\t\t"]))),
+	        fieldSelectLabel = _ref2.root,
+	        fieldSelect = _ref2.fieldSelect;
 	      main_core.Event.bind(fieldSelectLabel, 'click', this.onFieldSelectorClick.bind(this, fieldSelectLabel, fieldSelect, fields, objectSelect));
 	      var selectedField = this.getField(babelHelpers.classPrivateFieldGet(this, _condition$2).object, babelHelpers.classPrivateFieldGet(this, _condition$2).field);
 	      if (!babelHelpers.classPrivateFieldGet(this, _condition$2).field) {
@@ -6590,94 +6374,71 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      objectSelect.value = selectedField.ObjectId;
 	      fieldSelectLabel.textContent = selectedField.Name;
 	      var valueInput = _classPrivateMethodGet$4(this, _getValueNode, _getValueNode2).call(this, selectedField, babelHelpers.classPrivateFieldGet(this, _condition$2).value, babelHelpers.classPrivateFieldGet(this, _condition$2).operator);
-	      var valueWrapper = main_core.Dom.create('div', {
-	        attrs: {
-	          className: 'bizproc-automation-popup-settings'
-	        },
-	        children: [valueInput]
-	      });
+	      var valueWrapper = main_core.Tag.render(_templateObject8$3 || (_templateObject8$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-automation-popup-settings\">", "</div>"])), valueInput);
 	      var operatorSelect = this.createOperatorNode(selectedField, valueWrapper);
-	      var operatorWrapper = main_core.Dom.create('div', {
-	        attrs: {
-	          className: 'bizproc-automation-popup-settings'
-	        },
-	        children: [operatorSelect]
-	      });
 	      if (babelHelpers.classPrivateFieldGet(this, _condition$2).field !== '') {
 	        operatorSelect.value = babelHelpers.classPrivateFieldGet(this, _condition$2).operator;
 	      }
-	      var form = main_core.Dom.create("form", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-block"
-	        },
-	        children: [main_core.Dom.create('div', {
-	          attrs: {
-	            className: 'bizproc-automation-popup-settings'
-	          },
-	          children: [fieldSelectLabel]
-	        }), operatorWrapper, valueWrapper]
-	      });
+	      var _ref3 = main_core.Tag.render(_templateObject9$3 || (_templateObject9$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<form class=\"bizproc-automation-popup-select-block\">\n\t\t\t\t<div class=\"bizproc-automation-popup-settings\">", "</div>\n\t\t\t\t<div ref=\"operatorWrapper\" class=\"bizproc-automation-popup-settings\">", "</div>\n\t\t\t\t", "\n\t\t\t</form>\n\t\t"])), fieldSelectLabel, operatorSelect, valueWrapper),
+	        form = _ref3.root,
+	        operatorWrapper = _ref3.operatorWrapper;
 	      main_core.Event.bind(fieldSelect, 'change', this.onFieldChange.bind(this, fieldSelect, operatorWrapper, valueWrapper, objectSelect));
-	      var self = this;
-	      this.popup = new BX.PopupWindow('bizproc-automation-popup-set', this.labelNode, {
-	        className: 'bizproc-automation-popup-set',
-	        autoHide: false,
+	      this.popup = new main_popup.Popup({
+	        id: 'bizproc-automation-popup-set',
+	        bindElement: this.labelNode,
+	        content: form,
 	        closeByEsc: true,
+	        buttons: [new ui_buttons.Button({
+	          color: ui_buttons.Button.Color.PRIMARY,
+	          text: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_CHOOSE_BUTTON_CAPS'),
+	          onclick: function onclick() {
+	            babelHelpers.classPrivateFieldGet(_this2, _condition$2).setObject(objectSelect.value);
+	            babelHelpers.classPrivateFieldGet(_this2, _condition$2).setField(fieldSelect.value);
+	            babelHelpers.classPrivateFieldGet(_this2, _condition$2).setOperator(operatorWrapper.firstChild.value);
+	            var valueInputs = valueWrapper.querySelectorAll("[name^=\"".concat(babelHelpers.classPrivateFieldGet(_this2, _fieldPrefix), "value\"]"));
+	            if (valueInputs.length > 0) {
+	              var value = valueInputs[valueInputs.length - 1].value;
+	              if (babelHelpers.classPrivateFieldGet(_this2, _condition$2).operator === bizproc_condition.Operator.BETWEEN && valueInputs.length > 1) {
+	                value = [valueInputs[0].value, valueInputs[1].value];
+	              }
+	              babelHelpers.classPrivateFieldGet(_this2, _condition$2).setValue(value);
+	            } else {
+	              babelHelpers.classPrivateFieldGet(_this2, _condition$2).setValue('');
+	            }
+	            _this2.setLabelText();
+	            var field = _this2.getField(babelHelpers.classPrivateFieldGet(_this2, _condition$2).object, babelHelpers.classPrivateFieldGet(_this2, _condition$2).field);
+	            if (field && field.Type === 'UF:address') {
+	              var input = valueWrapper.querySelector("[name=\"".concat(babelHelpers.classPrivateFieldGet(_this2, _fieldPrefix), "value\"]"));
+	              babelHelpers.classPrivateFieldGet(_this2, _condition$2).setValue(input ? input.value : '');
+	            }
+	            _this2.updateValueNode();
+	            _this2.popup.close();
+	          }
+	        }), new ui_buttons.CancelButton({
+	          text: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_CANCEL_BUTTON_CAPS'),
+	          onclick: function onclick() {
+	            _this2.popup.close();
+	          }
+	        })],
+	        className: 'bizproc-automation-popup-set',
 	        closeIcon: false,
+	        autoHide: false,
+	        events: {
+	          onClose: function onClose() {
+	            _this2.popup.destroy();
+	            if (_this2.fieldDialog) {
+	              _this2.fieldDialog.destroy();
+	              delete _this2.fieldDialog;
+	            }
+	            delete _this2.popup;
+	          }
+	        },
 	        titleBar: false,
 	        angle: true,
-	        offsetLeft: 45,
 	        overlay: {
 	          backgroundColor: 'transparent'
 	        },
-	        content: form,
-	        buttons: [new BX.PopupWindowButton({
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHOOSE'),
-	          className: "webform-button webform-button-create",
-	          events: {
-	            click: function click() {
-	              babelHelpers.classPrivateFieldGet(self, _condition$2).setObject(objectSelect.value);
-	              babelHelpers.classPrivateFieldGet(self, _condition$2).setField(fieldSelect.value);
-	              babelHelpers.classPrivateFieldGet(self, _condition$2).setOperator(operatorWrapper.firstChild.value);
-	              var valueInputs = valueWrapper.querySelectorAll('[name^="' + babelHelpers.classPrivateFieldGet(self, _fieldPrefix) + 'value"]');
-	              if (valueInputs.length > 0) {
-	                var value = valueInputs[valueInputs.length - 1].value;
-	                if (babelHelpers.classPrivateFieldGet(self, _condition$2).operator === bizproc_condition.Operator.BETWEEN && valueInputs.length > 1) {
-	                  value = [valueInputs[0].value, valueInputs[1].value];
-	                }
-	                babelHelpers.classPrivateFieldGet(self, _condition$2).setValue(value);
-	              } else {
-	                babelHelpers.classPrivateFieldGet(self, _condition$2).setValue('');
-	              }
-	              self.setLabelText();
-	              var field = self.getField(babelHelpers.classPrivateFieldGet(self, _condition$2).object, babelHelpers.classPrivateFieldGet(self, _condition$2).field);
-	              if (field && field.Type === 'UF:address') {
-	                var input = valueWrapper.querySelector('[name="' + babelHelpers.classPrivateFieldGet(self, _fieldPrefix) + 'value"]');
-	                babelHelpers.classPrivateFieldGet(self, _condition$2).setValue(input ? input.value : '');
-	              }
-	              self.updateValueNode();
-	              this.popupWindow.close();
-	            }
-	          }
-	        }), new BX.PopupWindowButtonLink({
-	          text: main_core.Loc.getMessage('JS_CORE_WINDOW_CANCEL'),
-	          className: "popup-window-button-link-cancel",
-	          events: {
-	            click: function click() {
-	              this.popupWindow.close();
-	            }
-	          }
-	        })],
-	        events: {
-	          onPopupClose: function onPopupClose() {
-	            this.destroy();
-	            if (self.fieldDialog) {
-	              self.fieldDialog.destroy();
-	              delete self.fieldDialog;
-	            }
-	            delete self.popup;
-	          }
-	        }
+	        offsetLeft: 45
 	      });
 	      this.popup.show();
 	    }
@@ -6745,14 +6506,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      var field = this.getField(objectSelect.value, selectNode.value);
 	      var operatorNode = this.createOperatorNode(field, valueWrapper);
 
-	      //clean value if field types are different
+	      // clean value if field types are different
 	      if (field.Type !== ((_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _selectedField)) === null || _babelHelpers$classPr === void 0 ? void 0 : _babelHelpers$classPr.Type)) {
 	        main_core.Dom.clean(valueWrapper);
 	      }
 	      babelHelpers.classPrivateFieldSet(this, _selectedField, field);
 
-	      //keep selected operator if possible
-	      if (this.getOperators(field['Type'], field['Multiple'])[conditionWrapper.firstChild.value]) {
+	      // keep selected operator if possible
+	      if (this.getOperators(field.Type, field.Multiple)[conditionWrapper.firstChild.value]) {
 	        operatorNode.value = conditionWrapper.firstChild.value;
 	      }
 	      conditionWrapper.replaceChild(operatorNode, conditionWrapper.firstChild);
@@ -6761,7 +6522,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "onOperatorChange",
 	    value: function onOperatorChange(selectNode, field, valueWrapper) {
-	      var valueInput = valueWrapper.querySelector('[name^="' + babelHelpers.classPrivateFieldGet(this, _fieldPrefix) + 'value"]');
+	      var valueInput = valueWrapper.querySelector("[name^=\"".concat(babelHelpers.classPrivateFieldGet(this, _fieldPrefix), "value\"]"));
 	      main_core.Dom.clean(valueWrapper);
 	      main_core.Dom.append(_classPrivateMethodGet$4(this, _getValueNode, _getValueNode2).call(this, field, (valueInput === null || valueInput === void 0 ? void 0 : valueInput.value) || babelHelpers.classPrivateFieldGet(this, _condition$2).value, selectNode.value), valueWrapper);
 	    }
@@ -6814,7 +6575,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        Name: id,
 	        Type: 'string',
 	        Expression: id,
-	        SystemExpression: '{=' + object + ':' + id + '}'
+	        SystemExpression: "{=".concat(object, ":").concat(id, "}")
 	      };
 	    }
 	  }, {
@@ -6863,13 +6624,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          list[bizproc_condition.Operator.LESS_THEN] = allLabels[bizproc_condition.Operator.LESS_THEN];
 	          list[bizproc_condition.Operator.LESS_THEN_OR_EQUAL] = allLabels[bizproc_condition.Operator.LESS_THEN_OR_EQUAL];
 	      }
-
-	      // todo: interface
-	      // if (['time', 'date', 'datetime', 'int', 'double'].includes(fieldType) || Type.isUndefined(fieldType))
-	      // {
-	      // 	list[Operator.BETWEEN] = allLabels[Operator.BETWEEN];
-	      // }
-
+	      if (['time', 'date', 'datetime', 'int', 'double'].includes(fieldType) || main_core.Type.isUndefined(fieldType)) {
+	        list[bizproc_condition.Operator.BETWEEN] = allLabels[bizproc_condition.Operator.BETWEEN];
+	      }
 	      return list;
 	    }
 	  }, {
@@ -6882,7 +6639,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function filterFields() {
 	      var filtered = [];
 	      for (var i = 0; i < babelHelpers.classPrivateFieldGet(this, _fields$1).length; ++i) {
-	        var type = babelHelpers.classPrivateFieldGet(this, _fields$1)[i]['Type'];
+	        var type = babelHelpers.classPrivateFieldGet(this, _fields$1)[i].Type;
 	        if (type === 'bool' || type === 'date' || type === 'datetime' || type === 'double' || type === 'file' || type === 'int' || type === 'select' || type === 'string' || type === 'text' || type === 'user' || type === 'UF:money' || type === 'UF:crm' || type === 'UF:resourcebooking' || type === 'UF:url') {
 	          filtered.push(babelHelpers.classPrivateFieldGet(this, _fields$1)[i]);
 	        }
@@ -6892,25 +6649,25 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "createValueNode",
 	    value: function createValueNode(docField, value) {
-	      var _this = this;
+	      var _this3 = this;
 	      var currentDocument = bizproc_automation.Designer.getInstance().component ? bizproc_automation.Designer.getInstance().component.document : bizproc_automation.getGlobalContext().document;
 	      var docType = [].concat(babelHelpers.toConsumableArray(currentDocument.getRawType()), [currentDocument.getCategoryId()]);
 	      var field = main_core.Runtime.clone(docField);
 	      field.Multiple = false;
-	      var valueNodes = BX.Bizproc.FieldType.renderControlPublic(docType, field, babelHelpers.classPrivateFieldGet(this, _fieldPrefix) + 'value', value, false);
+	      var valueNodes = BX.Bizproc.FieldType.renderControlPublic(docType, field, "".concat(babelHelpers.classPrivateFieldGet(this, _fieldPrefix), "value"), value, false);
 	      valueNodes.querySelectorAll('[data-role]').forEach(function (node) {
 	        var _babelHelpers$classPr2;
 	        var selector = bizproc_automation.SelectorManager.createSelectorByRole(node.dataset.role, {
 	          context: new bizproc_automation.SelectorContext({
 	            fields: bizproc_automation.getGlobalContext().document.getFields(),
 	            useSwitcherMenu: false,
-	            rootGroupTitle: (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldGet(_this, _rootGroupTitle)) !== null && _babelHelpers$classPr2 !== void 0 ? _babelHelpers$classPr2 : bizproc_automation.getGlobalContext().document.title
+	            rootGroupTitle: (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldGet(_this3, _rootGroupTitle)) !== null && _babelHelpers$classPr2 !== void 0 ? _babelHelpers$classPr2 : bizproc_automation.getGlobalContext().document.title
 	          })
 	        });
 	        if (selector) {
-	          if (babelHelpers.classPrivateFieldGet(_this, _showValuesSelector) === true) {
-	            if (main_core.Type.isFunction(babelHelpers.classPrivateFieldGet(_this, _onOpenMenu))) {
-	              selector.subscribe('onOpenMenu', babelHelpers.classPrivateFieldGet(_this, _onOpenMenu));
+	          if (babelHelpers.classPrivateFieldGet(_this3, _showValuesSelector) === true) {
+	            if (main_core.Type.isFunction(babelHelpers.classPrivateFieldGet(_this3, _onOpenMenu))) {
+	              selector.subscribe('onOpenMenu', babelHelpers.classPrivateFieldGet(_this3, _onOpenMenu));
 	            }
 	            selector.renderTo(node);
 	          } else {
@@ -6929,17 +6686,12 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          className: 'bizproc-automation-popup-settings-dropdown'
 	        }
 	      });
-	      var operatorList = this.getOperators(field['Type'], field['Multiple']);
+	      var operatorList = this.getOperators(field.Type, field.Multiple);
 	      for (var operatorId in operatorList) {
 	        if (!operatorList.hasOwnProperty(operatorId)) {
 	          continue;
 	        }
-	        select.appendChild(main_core.Dom.create('option', {
-	          props: {
-	            value: operatorId
-	          },
-	          text: operatorList[operatorId]
-	        }));
+	        main_core.Dom.append(main_core.Tag.render(_templateObject10$3 || (_templateObject10$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<option value=\"", "\">", "</option>\n\t\t\t\t"])), main_core.Text.encode(operatorId), main_core.Text.encode(operatorList[operatorId])), select);
 	      }
 	      main_core.Event.bind(select, 'change', this.onOperatorChange.bind(this, select, field, valueWrapper));
 	      return select;
@@ -6947,6 +6699,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "removeCondition",
 	    value: function removeCondition(event) {
+	      this.emit('onRemoveConditionClick', new main_core_events.BaseEvent({
+	        data: {
+	          conditionSelector: this
+	        }
+	      }));
 	      babelHelpers.classPrivateFieldSet(this, _condition$2, null);
 	      main_core.Dom.remove(this.node);
 	      this.labelNode = null;
@@ -6959,14 +6716,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    }
 	  }, {
 	    key: "changeJoiner",
-	    value: function changeJoiner(btn, event) {
-	      babelHelpers.classPrivateFieldSet(this, _joiner, babelHelpers.classPrivateFieldGet(this, _joiner) === bizproc_automation.ConditionGroup.JOINER.Or ? bizproc_automation.ConditionGroup.JOINER.And : bizproc_automation.ConditionGroup.JOINER.Or);
-	      btn.textContent = bizproc_automation.ConditionGroup.JOINER.message(babelHelpers.classPrivateFieldGet(this, _joiner));
-	      if (this.joinerNode) {
-	        this.joinerNode.value = babelHelpers.classPrivateFieldGet(this, _joiner);
-	      }
-	      event.preventDefault();
-	    }
+	    value: function changeJoiner(btn, event) {}
 	  }, {
 	    key: "destroy",
 	    value: function destroy() {
@@ -6976,37 +6726,64 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    }
 	  }]);
 	  return ConditionSelector;
-	}();
+	}(main_core_events.EventEmitter);
 	function _createValueNode2(value) {
-	  return main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input\n\t\t\t\ttype=\"hidden\"\n\t\t\t\tname=\"", "\"\n\t\t\t\tvalue=\"", "\"\n\t\t\t>\n\t\t"])), main_core.Text.encode(babelHelpers.classPrivateFieldGet(this, _fieldPrefix) + 'value[]'), main_core.Text.encode(value));
+	  return main_core.Tag.render(_templateObject11$2 || (_templateObject11$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input\n\t\t\t\ttype=\"hidden\"\n\t\t\t\tname=\"", "\"\n\t\t\t\tvalue=\"", "\"\n\t\t\t>\n\t\t"])), main_core.Text.encode("".concat(babelHelpers.classPrivateFieldGet(this, _fieldPrefix), "value[]")), main_core.Text.encode(value));
+	}
+	function _createRemoveButton2() {
+	  var _ref4 = main_core.Tag.render(_templateObject12$2 || (_templateObject12$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-settings__condition-item_close\">\n\t\t\t\t<div ref=\"removeButtonNode\" class=\"ui-icon-set --cross-20\"></div>\n\t\t\t</div>\n\t\t"]))),
+	    root = _ref4.root,
+	    removeButtonNode = _ref4.removeButtonNode;
+	  main_core.Event.bind(removeButtonNode, 'click', this.removeCondition.bind(this));
+	  return root;
+	}
+	function _createJoinerSwitcher2() {
+	  var _this4 = this;
+	  var _ref5 = main_core.Tag.render(_templateObject13$2 || (_templateObject13$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-settings__condition-switcher\">\n\t\t\t\t<div class=\"bizproc-automation-popup-settings__condition-switcher_wrapper\">\n\t\t\t\t\t<span\n\t\t\t\t\t\tref=\"switcherBtnAnd\"\n\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings__condition-switcher_btn ", "\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t\t<span\n\t\t\t\t\t\tref=\"switcherBtnOr\"\n\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings__condition-switcher_btn ", "\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t</div>\n\t\t\t\t<input\n\t\t\t\t\tref=\"inputNode\"\n\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t/>\n\t\t\t</div>\n\t\t"])), babelHelpers.classPrivateFieldGet(this, _joiner) === 'AND' ? '--active' : '', main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_AND'), babelHelpers.classPrivateFieldGet(this, _joiner) === 'OR' ? '--active' : '', main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_OR'), main_core.Text.encode("".concat(babelHelpers.classPrivateFieldGet(this, _fieldPrefix), "joiner[]")), main_core.Text.encode(babelHelpers.classPrivateFieldGet(this, _joiner))),
+	    root = _ref5.root,
+	    switcherBtnAnd = _ref5.switcherBtnAnd,
+	    switcherBtnOr = _ref5.switcherBtnOr,
+	    inputNode = _ref5.inputNode;
+	  this.joinerNode = inputNode;
+	  main_core.Event.bind(root, 'click', function () {
+	    babelHelpers.classPrivateFieldSet(_this4, _joiner, babelHelpers.classPrivateFieldGet(_this4, _joiner) === bizproc_automation.ConditionGroup.JOINER.Or ? bizproc_automation.ConditionGroup.JOINER.And : bizproc_automation.ConditionGroup.JOINER.Or);
+	    if (_this4.joinerNode) {
+	      _this4.joinerNode.value = babelHelpers.classPrivateFieldGet(_this4, _joiner);
+	    }
+	    main_core.Dom.toggleClass(switcherBtnOr, '--active');
+	    main_core.Dom.toggleClass(switcherBtnAnd, '--active');
+	  });
+	  return root;
 	}
 	function _getValueLabel2(field) {
 	  var operator = babelHelpers.classPrivateFieldGet(this, _condition$2).operator;
 	  var value = babelHelpers.classPrivateFieldGet(this, _condition$2).value;
 	  if (operator === 'between') {
-	    var _Loc$getMessage;
-	    return (_Loc$getMessage = main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_BETWEEN_VALUE', {
+	    return main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION_BETWEEN_VALUE_1', {
 	      '#VALUE_1#': BX.Bizproc.FieldType.formatValuePrintable(field, main_core.Type.isArrayFilled(value) ? value[0] : value),
 	      '#VALUE_2#': BX.Bizproc.FieldType.formatValuePrintable(field, main_core.Type.isArrayFilled(value) ? value[1] : '')
-	    })) !== null && _Loc$getMessage !== void 0 ? _Loc$getMessage : '';
-	  } else if (operator.indexOf('empty') < 0) {
+	    });
+	  }
+	  if (!operator.includes('empty')) {
 	    return BX.Bizproc.FieldType.formatValuePrintable(field, value);
 	  }
 	  return null;
 	}
 	function _getValueNode2(field, value, operator) {
 	  if (operator === bizproc_condition.Operator.BETWEEN) {
-	    var valueNode1 = this.createValueNode(field, main_core.Type.isArrayFilled(value) ? value[0] : value);
-	    var valueNode2 = this.createValueNode(field, main_core.Type.isArrayFilled(value) ? value[1] : '');
-	    return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div>\n\t\t\t\t\t", "\n\t\t\t\t\t<div>", "</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), valueNode1, bizproc_automation.ConditionGroup.JOINER.message('AND'), valueNode2);
-	  } else if (operator.indexOf('empty') < 0) {
+	    return main_core.Tag.render(_templateObject14$2 || (_templateObject14$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div>\n\t\t\t\t\t", "\n\t\t\t\t\t<div style=\"height: 8px;\"></div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.createValueNode(field, main_core.Type.isArrayFilled(value) ? value[0] : value), this.createValueNode(field, main_core.Type.isArrayFilled(value) ? value[1] : ''));
+	  }
+	  if (!operator.includes('empty')) {
 	    return this.createValueNode(field, value);
 	  }
 	  return '';
 	}
 
+	var _templateObject$6;
+	function _classPrivateMethodInitSpec$5(obj, privateSet) { _checkPrivateRedeclaration$i(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$i(obj, privateMap, value) { _checkPrivateRedeclaration$i(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$i(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$5(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _conditionGroup = /*#__PURE__*/new WeakMap();
 	var _fields$2 = /*#__PURE__*/new WeakMap();
 	var _fieldPrefix$1 = /*#__PURE__*/new WeakMap();
@@ -7015,99 +6792,131 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var _onOpenMenu$1 = /*#__PURE__*/new WeakMap();
 	var _showValuesSelector$1 = /*#__PURE__*/new WeakMap();
 	var _rootGroupTitle$1 = /*#__PURE__*/new WeakMap();
-	var ConditionGroupSelector = /*#__PURE__*/function () {
+	var _options$1 = /*#__PURE__*/new WeakMap();
+	var _toggleButtonNode = /*#__PURE__*/new WeakMap();
+	var _draggableNode = /*#__PURE__*/new WeakMap();
+	var _onToggleGroupViewClick = /*#__PURE__*/new WeakSet();
+	var _initDragNDrop = /*#__PURE__*/new WeakSet();
+	var _onRemoveConditionClick = /*#__PURE__*/new WeakSet();
+	var ConditionGroupSelector = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(ConditionGroupSelector, _EventEmitter);
+	  // todo: remove 2024
+
 	  function ConditionGroupSelector(conditionGroup, options) {
+	    var _this;
 	    babelHelpers.classCallCheck(this, ConditionGroupSelector);
-	    _classPrivateFieldInitSpec$i(this, _conditionGroup, {
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ConditionGroupSelector).call(this));
+	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this), _onRemoveConditionClick);
+	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this), _initDragNDrop);
+	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this), _onToggleGroupViewClick);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "modern", true);
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _conditionGroup, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$i(this, _fields$2, {
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _fields$2, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$i(this, _fieldPrefix$1, {
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _fieldPrefix$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$i(this, _itemSelectors, {
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _itemSelectors, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$i(this, _onOpenFieldMenu$1, {
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _onOpenFieldMenu$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$i(this, _onOpenMenu$1, {
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _onOpenMenu$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$i(this, _showValuesSelector$1, {
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _showValuesSelector$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$i(this, _rootGroupTitle$1, {
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _rootGroupTitle$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldSet(this, _conditionGroup, conditionGroup);
-	    babelHelpers.classPrivateFieldSet(this, _fields$2, []);
-	    babelHelpers.classPrivateFieldSet(this, _fieldPrefix$1, 'condition_');
-	    babelHelpers.classPrivateFieldSet(this, _itemSelectors, []);
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _options$1, {
+	      writable: true,
+	      value: {}
+	    });
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _toggleButtonNode, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _draggableNode, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _this.setEventNamespace('BX.Bizproc.Automation.Condition');
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _conditionGroup, conditionGroup);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _fields$2, []);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _fieldPrefix$1, 'condition_');
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _itemSelectors, []);
 	    if (main_core.Type.isPlainObject(options)) {
 	      var _options$showValuesSe;
 	      if (main_core.Type.isArray(options.fields)) {
-	        babelHelpers.classPrivateFieldSet(this, _fields$2, options.fields);
+	        babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _fields$2, options.fields);
 	      }
 	      if (options.fieldPrefix) {
-	        babelHelpers.classPrivateFieldSet(this, _fieldPrefix$1, options.fieldPrefix);
+	        babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _fieldPrefix$1, options.fieldPrefix);
 	      }
-	      babelHelpers.classPrivateFieldSet(this, _rootGroupTitle$1, options.rootGroupTitle);
-	      babelHelpers.classPrivateFieldSet(this, _onOpenFieldMenu$1, options.onOpenFieldMenu);
-	      babelHelpers.classPrivateFieldSet(this, _onOpenMenu$1, options.onOpenMenu);
-	      babelHelpers.classPrivateFieldSet(this, _showValuesSelector$1, (_options$showValuesSe = options.showValuesSelector) !== null && _options$showValuesSe !== void 0 ? _options$showValuesSe : true);
+	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _rootGroupTitle$1, options.rootGroupTitle);
+	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _onOpenFieldMenu$1, options.onOpenFieldMenu);
+	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _onOpenMenu$1, options.onOpenMenu);
+	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _showValuesSelector$1, (_options$showValuesSe = options.showValuesSelector) !== null && _options$showValuesSe !== void 0 ? _options$showValuesSe : true);
+	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _options$1, options);
 	    }
+	    return _this;
 	  }
 	  babelHelpers.createClass(ConditionGroupSelector, [{
 	    key: "createNode",
 	    value: function createNode() {
-	      var _this = this;
-	      var conditionNodes = [];
+	      var _this2 = this,
+	        _babelHelpers$classPr,
+	        _babelHelpers$classPr2,
+	        _babelHelpers$classPr3;
 	      babelHelpers.classPrivateFieldGet(this, _conditionGroup).getItems().forEach(function (item) {
 	        var conditionSelector = new ConditionSelector(item[0], {
-	          fields: babelHelpers.classPrivateFieldGet(_this, _fields$2),
+	          fields: babelHelpers.classPrivateFieldGet(_this2, _fields$2),
 	          joiner: item[1],
-	          fieldPrefix: babelHelpers.classPrivateFieldGet(_this, _fieldPrefix$1),
-	          rootGroupTitle: babelHelpers.classPrivateFieldGet(_this, _rootGroupTitle$1),
-	          onOpenFieldMenu: babelHelpers.classPrivateFieldGet(_this, _onOpenFieldMenu$1),
-	          onOpenMenu: babelHelpers.classPrivateFieldGet(_this, _onOpenMenu$1),
-	          showValuesSelector: babelHelpers.classPrivateFieldGet(_this, _showValuesSelector$1)
+	          fieldPrefix: babelHelpers.classPrivateFieldGet(_this2, _fieldPrefix$1),
+	          rootGroupTitle: babelHelpers.classPrivateFieldGet(_this2, _rootGroupTitle$1),
+	          onOpenFieldMenu: babelHelpers.classPrivateFieldGet(_this2, _onOpenFieldMenu$1),
+	          onOpenMenu: babelHelpers.classPrivateFieldGet(_this2, _onOpenMenu$1),
+	          showValuesSelector: babelHelpers.classPrivateFieldGet(_this2, _showValuesSelector$1)
 	        });
-	        babelHelpers.classPrivateFieldGet(_this, _itemSelectors).push(conditionSelector);
-	        conditionNodes.push(conditionSelector.createNode());
+	        conditionSelector.subscribe('onRemoveConditionClick', _classPrivateMethodGet$5(_this2, _onRemoveConditionClick, _onRemoveConditionClick2).bind(_this2));
+	        babelHelpers.classPrivateFieldGet(_this2, _itemSelectors).push(conditionSelector);
 	      });
-	      var self = this;
-	      conditionNodes.push(main_core.Dom.create("a", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-link"
-	        },
-	        text: '[+]',
-	        events: {
-	          click: function click() {
-	            self.addItem(this);
-	          }
-	        }
-	      }));
-	      return main_core.Dom.create("span", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-link-wrapper"
-	        },
-	        children: conditionNodes
-	      });
+	      var hasConditions = babelHelpers.classPrivateFieldGet(this, _conditionGroup).items.length > 0;
+	      var isCollapsed = babelHelpers.classPrivateFieldGet(this, _options$1).isExpanded !== true && hasConditions;
+	      var collapseButtonTitle = isCollapsed ? main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_EXPAND_CONDITION') : main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_COLLAPSE_CONDITION');
+	      var _ref = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-settings\">\n\t\t\t\t<div\n\t\t\t\t\tref=\"conditionContent\"\n\t\t\t\t\tclass=\"bizproc-automation-popup-settings__condition-content ", "\"\n\t\t\t\t>\n\t\t\t\t\t<div class=\"bizproc-automation-popup-settings__condition-header\">\n\t\t\t\t\t\t<span class=\"bizproc-automation-popup-settings-title\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<div\n\t\t\t\t\t\t\tref=\"btnToggleList\"\n\t\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings__btn-toggle ", "\"\n\t\t\t\t\t\t\tdata-role=\"condition-toggle\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<span ref=\"btnTextNode\" class=\"bizproc-automation-popup-settings-title\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t<div class=\"ui-icon-set --chevron-down\" style=\"--ui-icon-set__icon-size: 16px;\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"bizproc-automation-popup-settings__transition-height-wrapper\">\n\t\t\t\t\t\t<div class=\"bizproc-automation-popup-settings__transition-height-content\">\n\t\t\t\t\t\t\t<div class=\"bizproc-automation-popup-settings__condition-body\">\n\t\t\t\t\t\t\t\t<div ref=\"draggableNode\" class=\"bizproc-automation-popup-settings__condition\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t<span class=\"bizproc-automation-popup-settings-link-wrapper\">\n\t\t\t\t\t\t\t\t\t<a ref=\"addButton\" class=\"bizproc-automation-popup-settings-link\">\n\t\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"bizproc-automation-popup-settings__transition-height-wrapper --revert\">\n\t\t\t\t\t\t<div class=\"bizproc-automation-popup-settings__transition-height-content\">\n\t\t\t\t\t\t\t<div class=\"bizproc-automation-popup-settings__condition-help\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), isCollapsed ? '' : '--active', main_core.Text.encode((_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _options$1).caption) === null || _babelHelpers$classPr === void 0 ? void 0 : _babelHelpers$classPr.head), hasConditions ? '' : '--disabled', collapseButtonTitle, babelHelpers.classPrivateFieldGet(this, _itemSelectors).map(function (selector) {
+	          return selector.createNode();
+	        }), main_core.Text.encode(((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldGet(this, _options$1).caption) === null || _babelHelpers$classPr2 === void 0 ? void 0 : _babelHelpers$classPr2.add) || main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_ADD_CONDITION')), main_core.Text.encode(((_babelHelpers$classPr3 = babelHelpers.classPrivateFieldGet(this, _options$1).caption) === null || _babelHelpers$classPr3 === void 0 ? void 0 : _babelHelpers$classPr3.collapsed) || main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_CONDITION_COLLAPSED_TITLE_1'))),
+	        root = _ref.root,
+	        conditionContent = _ref.conditionContent,
+	        btnToggleList = _ref.btnToggleList,
+	        btnTextNode = _ref.btnTextNode,
+	        addButton = _ref.addButton,
+	        draggableNode = _ref.draggableNode;
+	      babelHelpers.classPrivateFieldSet(this, _toggleButtonNode, btnToggleList);
+	      babelHelpers.classPrivateFieldSet(this, _draggableNode, draggableNode);
+	      main_core.Event.bind(btnToggleList, 'click', _classPrivateMethodGet$5(this, _onToggleGroupViewClick, _onToggleGroupViewClick2).bind(this, conditionContent, btnTextNode));
+	      main_core.Event.bind(addButton, 'click', this.addItem.bind(this));
+	      _classPrivateMethodGet$5(this, _initDragNDrop, _initDragNDrop2).call(this);
+	      return root;
 	    }
 	  }, {
 	    key: "addItem",
-	    value: function addItem(buttonNode) {
+	    value: function addItem() {
 	      var conditionSelector = new ConditionSelector(new bizproc_automation.Condition({}, babelHelpers.classPrivateFieldGet(this, _conditionGroup)), {
 	        fields: babelHelpers.classPrivateFieldGet(this, _fields$2),
 	        fieldPrefix: babelHelpers.classPrivateFieldGet(this, _fieldPrefix$1),
@@ -7116,8 +6925,12 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        onOpenMenu: babelHelpers.classPrivateFieldGet(this, _onOpenMenu$1),
 	        showValuesSelector: babelHelpers.classPrivateFieldGet(this, _showValuesSelector$1)
 	      });
+	      conditionSelector.subscribe('onRemoveConditionClick', _classPrivateMethodGet$5(this, _onRemoveConditionClick, _onRemoveConditionClick2).bind(this));
 	      babelHelpers.classPrivateFieldGet(this, _itemSelectors).push(conditionSelector);
-	      buttonNode.parentNode.insertBefore(conditionSelector.createNode(), buttonNode);
+	      main_core.Dom.append(conditionSelector.createNode(), babelHelpers.classPrivateFieldGet(this, _draggableNode));
+	      if (main_core.Dom.hasClass(babelHelpers.classPrivateFieldGet(this, _toggleButtonNode), '--disabled')) {
+	        main_core.Dom.removeClass(babelHelpers.classPrivateFieldGet(this, _toggleButtonNode), '--disabled');
+	      }
 	    }
 	  }, {
 	    key: "destroy",
@@ -7129,185 +6942,47 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    }
 	  }]);
 	  return ConditionGroupSelector;
-	}();
-
-	var Manager = /*#__PURE__*/function () {
-	  function Manager() {
-	    babelHelpers.classCallCheck(this, Manager);
-	  }
-	  babelHelpers.createClass(Manager, null, [{
-	    key: "getSelectorByTarget",
-	    value: function getSelectorByTarget(targetInput) {
-	      var _Designer$getInstance;
-	      // TODO - save created selectors with Manager
-	      var template = (_Designer$getInstance = bizproc_automation.Designer.getInstance().getRobotSettingsDialog()) === null || _Designer$getInstance === void 0 ? void 0 : _Designer$getInstance.template;
-	      if (template && main_core.Type.isArray(template.robotSettingsControls)) {
-	        return template.robotSettingsControls.find(function (selector) {
-	          return selector.targetInput === targetInput;
-	        });
-	      }
-	      return undefined;
+	}(main_core_events.EventEmitter);
+	function _onToggleGroupViewClick2(content, toggleText) {
+	  main_core.Dom.toggleClass(content, '--active');
+	  var isExpanded = main_core.Dom.hasClass(content, '--active');
+	  main_core.Dom.adjust(toggleText, {
+	    text: isExpanded ? main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_COLLAPSE_CONDITION') : main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_EXPAND_CONDITION')
+	  });
+	  this.emit('onToggleGroupViewClick', new main_core_events.BaseEvent({
+	    data: {
+	      isCollapsed: !isExpanded,
+	      isExpanded: isExpanded
 	    }
-	  }, {
-	    key: "createSelectorByRole",
-	    value: function createSelectorByRole(role, selectorProps) {
-	      if (role === this.SELECTOR_ROLE_USER) {
-	        return new bizproc_automation.UserSelector(selectorProps);
-	      } else if (role === this.SELECTOR_ROLE_FILE) {
-	        return new bizproc_automation.FileSelector(selectorProps);
-	      } else if (role === this.SELECTOR_ROLE_INLINE) {
-	        return new bizproc_automation.InlineSelector(selectorProps);
-	      } else if (role === this.SELECTOR_ROLE_INLINE_HTML) {
-	        return new bizproc_automation.InlineSelectorHtml(selectorProps);
-	      } else if (role === this.SELECTOR_ROLE_TIME) {
-	        return new bizproc_automation.TimeSelector(selectorProps);
-	      } else if (role === this.SELECTOR_ROLE_SAVE_STATE) {
-	        return new bizproc_automation.SaveStateCheckbox(selectorProps);
-	      } else {
-	        return undefined;
-	      }
+	  }));
+	}
+	function _initDragNDrop2() {
+	  new ui_draganddrop_draggable.Draggable({
+	    container: babelHelpers.classPrivateFieldGet(this, _draggableNode),
+	    type: ui_draganddrop_draggable.Draggable.CLONE,
+	    draggable: '.bizproc-automation-popup-settings__condition-selector',
+	    dragElement: '.bizproc-automation-popup-settings__condition-item_draggable'
+	  });
+	}
+	function _onRemoveConditionClick2(event) {
+	  var conditionSelector = event.getData().conditionSelector;
+	  if (conditionSelector) {
+	    var index = babelHelpers.classPrivateFieldGet(this, _itemSelectors).indexOf(conditionSelector);
+	    if (index > -1) {
+	      babelHelpers.classPrivateFieldGet(this, _itemSelectors).splice(index, 1);
 	    }
-	  }]);
-	  return Manager;
-	}();
-	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_USER", 'user-selector');
-	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_FILE", 'file-selector');
-	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_INLINE", 'inline-selector-target');
-	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_INLINE_HTML", 'inline-selector-html');
-	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_TIME", 'time-selector');
-	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_SAVE_STATE", 'save-state-checkbox');
-
-	function _classPrivateMethodInitSpec$5(obj, privateSet) { _checkPrivateRedeclaration$j(obj, privateSet); privateSet.add(obj); }
-	function _classPrivateFieldInitSpec$j(obj, privateMap, value) { _checkPrivateRedeclaration$j(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$j(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$5(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-	var _labelNode = /*#__PURE__*/new WeakMap();
-	var _time = /*#__PURE__*/new WeakMap();
-	var _timeValues = /*#__PURE__*/new WeakMap();
-	var _timeFormat = /*#__PURE__*/new WeakMap();
-	var _selector = /*#__PURE__*/new WeakMap();
-	var _fillTimeFormat = /*#__PURE__*/new WeakSet();
-	var _fillTimeValues = /*#__PURE__*/new WeakSet();
-	var _formatTime = /*#__PURE__*/new WeakSet();
-	var _setLabelText = /*#__PURE__*/new WeakSet();
-	var _bindLabelNode = /*#__PURE__*/new WeakSet();
-	var _onLabelClick = /*#__PURE__*/new WeakSet();
-	var _showTimeSelector = /*#__PURE__*/new WeakSet();
-	var InlineTimeSelector = /*#__PURE__*/function () {
-	  function InlineTimeSelector(options) {
-	    babelHelpers.classCallCheck(this, InlineTimeSelector);
-	    _classPrivateMethodInitSpec$5(this, _showTimeSelector);
-	    _classPrivateMethodInitSpec$5(this, _onLabelClick);
-	    _classPrivateMethodInitSpec$5(this, _bindLabelNode);
-	    _classPrivateMethodInitSpec$5(this, _setLabelText);
-	    _classPrivateMethodInitSpec$5(this, _formatTime);
-	    _classPrivateMethodInitSpec$5(this, _fillTimeValues);
-	    _classPrivateMethodInitSpec$5(this, _fillTimeFormat);
-	    _classPrivateFieldInitSpec$j(this, _labelNode, {
-	      writable: true,
-	      value: null
-	    });
-	    _classPrivateFieldInitSpec$j(this, _time, {
-	      writable: true,
-	      value: ''
-	    });
-	    _classPrivateFieldInitSpec$j(this, _timeValues, {
-	      writable: true,
-	      value: []
-	    });
-	    _classPrivateFieldInitSpec$j(this, _timeFormat, {
-	      writable: true,
-	      value: void 0
-	    });
-	    _classPrivateFieldInitSpec$j(this, _selector, {
-	      writable: true,
-	      value: void 0
-	    });
-	    if (main_core.Type.isPlainObject(options)) {
-	      if (main_core.Type.isElementNode(options.labelNode)) {
-	        babelHelpers.classPrivateFieldSet(this, _labelNode, options.labelNode);
-	      }
-	    }
-	    _classPrivateMethodGet$5(this, _fillTimeFormat, _fillTimeFormat2).call(this);
-	    _classPrivateMethodGet$5(this, _fillTimeValues, _fillTimeValues2).call(this);
 	  }
-	  babelHelpers.createClass(InlineTimeSelector, [{
-	    key: "init",
-	    value: function init(time) {
-	      if (main_core.Type.isStringFilled(time)) {
-	        babelHelpers.classPrivateFieldSet(this, _time, time);
-	      }
-	      _classPrivateMethodGet$5(this, _setLabelText, _setLabelText2).call(this);
-	      _classPrivateMethodGet$5(this, _bindLabelNode, _bindLabelNode2).call(this);
-	    }
-	  }]);
-	  return InlineTimeSelector;
-	}();
-	function _fillTimeFormat2() {
-	  var getFormat = function getFormat(formatId) {
-	    return BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage(formatId)).replace(/:?\s*s/, '');
-	  };
-	  var dateFormat = getFormat('FORMAT_DATE');
-	  var dateTimeFormat = getFormat('FORMAT_DATETIME');
-	  babelHelpers.classPrivateFieldSet(this, _timeFormat, dateTimeFormat.replace(dateFormat, '').trim());
-	}
-	function _fillTimeValues2() {
-	  var self = this;
-	  var onclick = function onclick(event, item) {
-	    event.preventDefault();
-	    babelHelpers.classPrivateFieldGet(self, _labelNode).value = main_core.Text.encode(item.text);
-	    this.close();
-	  };
-	  for (var hour = 0; hour < 24; hour++) {
-	    babelHelpers.classPrivateFieldGet(this, _timeValues).push({
-	      id: hour * 60,
-	      text: _classPrivateMethodGet$5(this, _formatTime, _formatTime2).call(this, hour, 0),
-	      onclick: onclick
-	    });
-	    babelHelpers.classPrivateFieldGet(this, _timeValues).push({
-	      id: hour * 60 + 30,
-	      text: _classPrivateMethodGet$5(this, _formatTime, _formatTime2).call(this, hour, 30),
-	      onclick: onclick
-	    });
+	  if (babelHelpers.classPrivateFieldGet(this, _itemSelectors).length <= 0 && !main_core.Dom.hasClass(babelHelpers.classPrivateFieldGet(this, _toggleButtonNode), '--disabled')) {
+	    main_core.Dom.addClass(babelHelpers.classPrivateFieldGet(this, _toggleButtonNode), '--disabled');
 	  }
-	}
-	function _formatTime2(hour, minute) {
-	  var date = new Date();
-	  date.setHours(hour, minute);
-	  return main_date.DateTimeFormat.format(babelHelpers.classPrivateFieldGet(this, _timeFormat), date.getTime() / 1000);
-	}
-	function _setLabelText2() {
-	  if (main_core.Type.isElementNode(babelHelpers.classPrivateFieldGet(this, _labelNode))) {
-	    babelHelpers.classPrivateFieldGet(this, _labelNode).textContent = babelHelpers.classPrivateFieldGet(this, _time);
-	  }
-	}
-	function _bindLabelNode2() {
-	  if (main_core.Type.isElementNode(babelHelpers.classPrivateFieldGet(this, _labelNode))) {
-	    main_core.Event.bind(babelHelpers.classPrivateFieldGet(this, _labelNode), 'click', _classPrivateMethodGet$5(this, _onLabelClick, _onLabelClick2).bind(this));
-	  }
-	}
-	function _onLabelClick2(event) {
-	  _classPrivateMethodGet$5(this, _showTimeSelector, _showTimeSelector2).call(this);
-	  event.preventDefault();
-	}
-	function _showTimeSelector2() {
-	  if (main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _selector))) {
-	    babelHelpers.classPrivateFieldSet(this, _selector, new main_popup.Menu({
-	      autoHide: true,
-	      bindElement: babelHelpers.classPrivateFieldGet(this, _labelNode),
-	      items: babelHelpers.classPrivateFieldGet(this, _timeValues),
-	      maxHeight: 230
-	    }));
-	  }
-	  babelHelpers.classPrivateFieldGet(this, _selector).show();
 	}
 
-	var _templateObject$4, _templateObject2$3;
+	var _templateObject$7, _templateObject2$5;
 	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$3(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-	function _classPrivateMethodInitSpec$6(obj, privateSet) { _checkPrivateRedeclaration$k(obj, privateSet); privateSet.add(obj); }
-	function _classPrivateFieldInitSpec$k(obj, privateMap, value) { _checkPrivateRedeclaration$k(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$k(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodInitSpec$6(obj, privateSet) { _checkPrivateRedeclaration$j(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$j(obj, privateMap, value) { _checkPrivateRedeclaration$j(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$j(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$6(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _menuGroups = /*#__PURE__*/new WeakMap();
 	var _dialog = /*#__PURE__*/new WeakMap();
@@ -7332,16 +7007,16 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "replaceOnWrite", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "menuButton", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "targetInput", null);
-	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _menuGroups, {
+	    _classPrivateFieldInitSpec$j(babelHelpers.assertThisInitialized(_this), _menuGroups, {
 	      writable: true,
 	      value: {}
 	    });
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "basisFields", []);
-	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _dialog, {
+	    _classPrivateFieldInitSpec$j(babelHelpers.assertThisInitialized(_this), _dialog, {
 	      writable: true,
 	      value: null
 	    });
-	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _switcherDialog, {
+	    _classPrivateFieldInitSpec$j(babelHelpers.assertThisInitialized(_this), _switcherDialog, {
 	      writable: true,
 	      value: null
 	    });
@@ -7372,10 +7047,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function renderWith(targetInput) {
 	      this.targetInput = main_core.Runtime.clone(targetInput);
 	      this.targetInput.setAttribute('autocomplete', 'off');
-	      this.menuButton = main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span \n\t\t\t\tonclick=\"", "\"\n\t\t\t\tclass=\"bizproc-automation-popup-select-dotted\"\n\t\t\t></span>\n\t\t"])), this.openMenu.bind(this));
+	      this.menuButton = main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span \n\t\t\t\tonclick=\"", "\"\n\t\t\t\tclass=\"bizproc-automation-popup-select-dotted\"\n\t\t\t></span>\n\t\t"])), this.openMenu.bind(this));
 	      this.parseTargetProperties();
 	      this.replaceOnWrite |= this.targetInput.getAttribute('data-select-mode') === 'replace';
-	      return main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-select\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.targetInput, this.menuButton);
+	      return main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-select\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.targetInput, this.menuButton);
 	    }
 	  }, {
 	    key: "renderTo",
@@ -7729,12 +7404,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      }.bind(this)
 	    });
 	    delayIntervalSelector.init(bizproc_automation.DelayInterval.fromString(this.targetInput.value, this.basisFields));
-	  } else if (type === 'time') {
-	    this.replaceOnWrite = true;
-	    var timeSelector = new InlineTimeSelector({
-	      labelNode: this.targetInput
-	    });
-	    timeSelector.init(this.targetInput.value);
 	  }
 	}
 	function _shouldShowField2(field) {
@@ -7779,12 +7448,225 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  });
 	}
 
+	var _templateObject$8, _templateObject2$6;
+	function _classPrivateMethodInitSpec$7(obj, privateSet) { _checkPrivateRedeclaration$k(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$k(obj, privateMap, value) { _checkPrivateRedeclaration$k(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$k(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$7(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _labelNode = /*#__PURE__*/new WeakMap();
+	var _inputNode = /*#__PURE__*/new WeakMap();
+	var _showDottedSelector = /*#__PURE__*/new WeakMap();
+	var _timeValues = /*#__PURE__*/new WeakMap();
+	var _timeFormat = /*#__PURE__*/new WeakMap();
+	var _selector = /*#__PURE__*/new WeakMap();
+	var _chevron = /*#__PURE__*/new WeakMap();
+	var _fillTimeFormat = /*#__PURE__*/new WeakSet();
+	var _fillTimeValues = /*#__PURE__*/new WeakSet();
+	var _formatTime = /*#__PURE__*/new WeakSet();
+	var _init = /*#__PURE__*/new WeakSet();
+	var _onLabelClick = /*#__PURE__*/new WeakSet();
+	var _showTimeSelector = /*#__PURE__*/new WeakSet();
+	var InlineTimeSelector = /*#__PURE__*/function (_InlineSelector) {
+	  babelHelpers.inherits(InlineTimeSelector, _InlineSelector);
+	  function InlineTimeSelector(props) {
+	    var _this;
+	    babelHelpers.classCallCheck(this, InlineTimeSelector);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(InlineTimeSelector).call(this, props));
+	    _classPrivateMethodInitSpec$7(babelHelpers.assertThisInitialized(_this), _showTimeSelector);
+	    _classPrivateMethodInitSpec$7(babelHelpers.assertThisInitialized(_this), _onLabelClick);
+	    _classPrivateMethodInitSpec$7(babelHelpers.assertThisInitialized(_this), _init);
+	    _classPrivateMethodInitSpec$7(babelHelpers.assertThisInitialized(_this), _formatTime);
+	    _classPrivateMethodInitSpec$7(babelHelpers.assertThisInitialized(_this), _fillTimeValues);
+	    _classPrivateMethodInitSpec$7(babelHelpers.assertThisInitialized(_this), _fillTimeFormat);
+	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _labelNode, {
+	      writable: true,
+	      value: null
+	    });
+	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _inputNode, {
+	      writable: true,
+	      value: null
+	    });
+	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _showDottedSelector, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _timeValues, {
+	      writable: true,
+	      value: []
+	    });
+	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _timeFormat, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _selector, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _chevron, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateMethodGet$7(babelHelpers.assertThisInitialized(_this), _fillTimeFormat, _fillTimeFormat2).call(babelHelpers.assertThisInitialized(_this));
+	    _classPrivateMethodGet$7(babelHelpers.assertThisInitialized(_this), _fillTimeValues, _fillTimeValues2).call(babelHelpers.assertThisInitialized(_this));
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _showDottedSelector, main_core.Type.isNil(props.showValuesSelector) ? true : main_core.Text.toBoolean(props.showValuesSelector));
+	    return _this;
+	  }
+	  babelHelpers.createClass(InlineTimeSelector, [{
+	    key: "renderWith",
+	    value: function renderWith(targetInput) {
+	      this.targetInput = main_core.Runtime.clone(targetInput);
+	      this.targetInput.setAttribute('autocomplete', 'off');
+	      this.parseTargetProperties();
+	      this.replaceOnWrite = true;
+	      if (babelHelpers.classPrivateFieldGet(this, _showDottedSelector) === false) {
+	        return babelHelpers.classPrivateFieldGet(this, _labelNode);
+	      }
+	      var _ref = main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-select\">\n\t\t\t\t", "\n\t\t\t\t<span\n\t\t\t\t\tref=\"menuButton\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\tclass=\"bizproc-automation-popup-select-dotted\"\n\t\t\t\t></span>\n\t\t\t</div>\n\t\t"])), babelHelpers.classPrivateFieldGet(this, _labelNode), this.openMenu.bind(this)),
+	        root = _ref.root,
+	        menuButton = _ref.menuButton;
+	      this.menuButton = menuButton;
+	      return root;
+	    }
+	  }, {
+	    key: "parseTargetProperties",
+	    value: function parseTargetProperties() {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(InlineTimeSelector.prototype), "parseTargetProperties", this).call(this);
+	      _classPrivateMethodGet$7(this, _init, _init2).call(this);
+	    }
+	  }]);
+	  return InlineTimeSelector;
+	}(InlineSelector);
+	function _fillTimeFormat2() {
+	  var getFormat = function getFormat(formatId) {
+	    return BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage(formatId)).replace(/:?\s*s/, '');
+	  };
+	  var dateFormat = getFormat('FORMAT_DATE');
+	  var dateTimeFormat = getFormat('FORMAT_DATETIME');
+	  babelHelpers.classPrivateFieldSet(this, _timeFormat, dateTimeFormat.replace(dateFormat, '').trim());
+	}
+	function _fillTimeValues2() {
+	  var _this2 = this;
+	  var onclick = function onclick(event, item) {
+	    event.preventDefault();
+	    babelHelpers.classPrivateFieldGet(_this2, _inputNode).value = main_core.Text.encode(item.text);
+	    item.getMenuWindow().close();
+	  };
+	  for (var hour = 0; hour < 24; hour++) {
+	    babelHelpers.classPrivateFieldGet(this, _timeValues).push({
+	      id: hour * 60,
+	      text: _classPrivateMethodGet$7(this, _formatTime, _formatTime2).call(this, hour, 0),
+	      onclick: onclick
+	    }, {
+	      id: hour * 60 + 30,
+	      text: _classPrivateMethodGet$7(this, _formatTime, _formatTime2).call(this, hour, 30),
+	      onclick: onclick
+	    });
+	  }
+	}
+	function _formatTime2(hour, minute) {
+	  var date = new Date();
+	  date.setHours(hour, minute);
+	  return main_date.DateTimeFormat.format(babelHelpers.classPrivateFieldGet(this, _timeFormat), date.getTime() / 1000);
+	}
+	function _init2() {
+	  var targetInput = this.targetInput;
+	  var hasParentNode = main_core.Type.isDomNode(this.targetInput.parentNode);
+	  if (hasParentNode) {
+	    this.targetInput = main_core.Runtime.clone(targetInput);
+	  }
+	  var _ref2 = main_core.Tag.render(_templateObject2$6 || (_templateObject2$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span onclick=\"", "\" style=\"width: 100%; position: relative\">\n\t\t\t\t", "\n\t\t\t\t<span \n\t\t\t\t\tref=\"chevron\"\n\t\t\t\t\tclass=\"ui-icon-set --chevron-down bizproc-automation-inline-time-selector-chevron\"\n\t\t\t\t></span>\n\t\t\t</span>\n\t\t"])), _classPrivateMethodGet$7(this, _onLabelClick, _onLabelClick2).bind(this), this.targetInput),
+	    root = _ref2.root,
+	    chevron = _ref2.chevron;
+	  babelHelpers.classPrivateFieldSet(this, _labelNode, root);
+	  babelHelpers.classPrivateFieldSet(this, _inputNode, this.targetInput);
+	  babelHelpers.classPrivateFieldSet(this, _chevron, chevron);
+	  if (hasParentNode) {
+	    main_core.Dom.replace(targetInput, babelHelpers.classPrivateFieldGet(this, _labelNode));
+	  }
+	}
+	function _onLabelClick2(event) {
+	  _classPrivateMethodGet$7(this, _showTimeSelector, _showTimeSelector2).call(this);
+	  event.preventDefault();
+	}
+	function _showTimeSelector2() {
+	  var _this3 = this;
+	  if (main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _selector))) {
+	    babelHelpers.classPrivateFieldSet(this, _selector, new main_popup.Menu({
+	      autoHide: true,
+	      bindElement: babelHelpers.classPrivateFieldGet(this, _labelNode),
+	      items: babelHelpers.classPrivateFieldGet(this, _timeValues),
+	      maxHeight: 230,
+	      width: babelHelpers.classPrivateFieldGet(this, _labelNode).offsetWidth || babelHelpers.classPrivateFieldGet(this, _labelNode).clientWidth || 100,
+	      events: {
+	        onPopupClose: function onPopupClose() {
+	          if (main_core.Dom.hasClass(babelHelpers.classPrivateFieldGet(_this3, _chevron), '--chevron-up')) {
+	            main_core.Dom.toggleClass(babelHelpers.classPrivateFieldGet(_this3, _chevron), ['--chevron-down', '--chevron-up']);
+	          }
+	        }
+	      }
+	    }));
+	  }
+	  babelHelpers.classPrivateFieldGet(this, _selector).show();
+	  if (main_core.Dom.hasClass(babelHelpers.classPrivateFieldGet(this, _chevron), '--chevron-down')) {
+	    main_core.Dom.toggleClass(babelHelpers.classPrivateFieldGet(this, _chevron), ['--chevron-down', '--chevron-up']);
+	  }
+	}
+
+	var Manager = /*#__PURE__*/function () {
+	  function Manager() {
+	    babelHelpers.classCallCheck(this, Manager);
+	  }
+	  babelHelpers.createClass(Manager, null, [{
+	    key: "getSelectorByTarget",
+	    value: function getSelectorByTarget(targetInput) {
+	      var _Designer$getInstance;
+	      // TODO - save created selectors with Manager
+	      var template = (_Designer$getInstance = bizproc_automation.Designer.getInstance().getRobotSettingsDialog()) === null || _Designer$getInstance === void 0 ? void 0 : _Designer$getInstance.template;
+	      if (template && main_core.Type.isArray(template.robotSettingsControls)) {
+	        return template.robotSettingsControls.find(function (selector) {
+	          return selector.targetInput === targetInput;
+	        });
+	      }
+	      return undefined;
+	    }
+	  }, {
+	    key: "createSelectorByRole",
+	    value: function createSelectorByRole(role, selectorProps) {
+	      if (role === this.SELECTOR_ROLE_USER) {
+	        return new bizproc_automation.UserSelector(selectorProps);
+	      } else if (role === this.SELECTOR_ROLE_FILE) {
+	        return new bizproc_automation.FileSelector(selectorProps);
+	      } else if (role === this.SELECTOR_ROLE_INLINE) {
+	        return new bizproc_automation.InlineSelector(selectorProps);
+	      } else if (role === this.SELECTOR_ROLE_INLINE_HTML) {
+	        return new bizproc_automation.InlineSelectorHtml(selectorProps);
+	      } else if (role === this.SELECTOR_ROLE_INLINE_TIME) {
+	        return new InlineTimeSelector(selectorProps);
+	      } else if (role === this.SELECTOR_ROLE_TIME) {
+	        return new bizproc_automation.TimeSelector(selectorProps);
+	      } else if (role === this.SELECTOR_ROLE_SAVE_STATE) {
+	        return new bizproc_automation.SaveStateCheckbox(selectorProps);
+	      } else {
+	        return undefined;
+	      }
+	    }
+	  }]);
+	  return Manager;
+	}();
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_USER", 'user-selector');
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_FILE", 'file-selector');
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_INLINE", 'inline-selector-target');
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_INLINE_HTML", 'inline-selector-html');
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_TIME", 'time-selector');
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_SAVE_STATE", 'save-state-checkbox');
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_INLINE_TIME", 'inline-selector-time');
+
 	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 	function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$4(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$4(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-	function _classPrivateMethodInitSpec$7(obj, privateSet) { _checkPrivateRedeclaration$l(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateMethodInitSpec$8(obj, privateSet) { _checkPrivateRedeclaration$l(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$l(obj, privateMap, value) { _checkPrivateRedeclaration$l(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$l(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$7(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodGet$8(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _condition$3 = /*#__PURE__*/new WeakMap();
 	var _isMixedConditionGroup = /*#__PURE__*/new WeakSet();
 	var InlineSelectorCondition = /*#__PURE__*/function (_InlineSelector) {
@@ -7793,7 +7675,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, InlineSelectorCondition);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(InlineSelectorCondition).call(this, props));
-	    _classPrivateMethodInitSpec$7(babelHelpers.assertThisInitialized(_this), _isMixedConditionGroup);
+	    _classPrivateMethodInitSpec$8(babelHelpers.assertThisInitialized(_this), _isMixedConditionGroup);
 	    _classPrivateFieldInitSpec$l(babelHelpers.assertThisInitialized(_this), _condition$3, {
 	      writable: true,
 	      value: void 0
@@ -7820,7 +7702,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      this.emit('onOpenMenu', {
 	        selector: this,
 	        // TODO - rename
-	        isMixedCondition: _classPrivateMethodGet$7(this, _isMixedConditionGroup, _isMixedConditionGroup2).call(this)
+	        isMixedCondition: _classPrivateMethodGet$8(this, _isMixedConditionGroup, _isMixedConditionGroup2).call(this)
 	      });
 	    }
 	  }, {
@@ -7846,11 +7728,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return babelHelpers.classPrivateFieldGet(this, _condition$3) && babelHelpers.classPrivateFieldGet(this, _condition$3).parentGroup && babelHelpers.classPrivateFieldGet(this, _condition$3).parentGroup.type === bizproc_automation.ConditionGroup.CONDITION_TYPE.Mixed;
 	}
 
-	var _templateObject$5;
-	function _classPrivateMethodInitSpec$8(obj, privateSet) { _checkPrivateRedeclaration$m(obj, privateSet); privateSet.add(obj); }
+	var _templateObject$9;
+	function _classPrivateMethodInitSpec$9(obj, privateSet) { _checkPrivateRedeclaration$m(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$m(obj, privateMap, value) { _checkPrivateRedeclaration$m(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$m(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$8(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodGet$9(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _editorNode = /*#__PURE__*/new WeakMap();
 	var _eventHandlers = /*#__PURE__*/new WeakMap();
 	var _bindEvents = /*#__PURE__*/new WeakSet();
@@ -7867,10 +7749,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      args[_key] = arguments[_key];
 	    }
 	    _this = babelHelpers.possibleConstructorReturn(this, (_babelHelpers$getProt = babelHelpers.getPrototypeOf(InlineSelectorHtml)).call.apply(_babelHelpers$getProt, [this].concat(args)));
-	    _classPrivateMethodInitSpec$8(babelHelpers.assertThisInitialized(_this), _getEditor);
-	    _classPrivateMethodInitSpec$8(babelHelpers.assertThisInitialized(_this), _bindEditorHooks);
-	    _classPrivateMethodInitSpec$8(babelHelpers.assertThisInitialized(_this), _unbindEvents);
-	    _classPrivateMethodInitSpec$8(babelHelpers.assertThisInitialized(_this), _bindEvents);
+	    _classPrivateMethodInitSpec$9(babelHelpers.assertThisInitialized(_this), _getEditor);
+	    _classPrivateMethodInitSpec$9(babelHelpers.assertThisInitialized(_this), _bindEditorHooks);
+	    _classPrivateMethodInitSpec$9(babelHelpers.assertThisInitialized(_this), _unbindEvents);
+	    _classPrivateMethodInitSpec$9(babelHelpers.assertThisInitialized(_this), _bindEvents);
 	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _editorNode, {
 	      writable: true,
 	      value: void 0
@@ -7878,7 +7760,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _eventHandlers, {
 	      writable: true,
 	      value: {
-	        'OnEditorInitedAfter': _classPrivateMethodGet$8(babelHelpers.assertThisInitialized(_this), _bindEditorHooks, _bindEditorHooks2).bind(babelHelpers.assertThisInitialized(_this))
+	        'OnEditorInitedAfter': _classPrivateMethodGet$9(babelHelpers.assertThisInitialized(_this), _bindEditorHooks, _bindEditorHooks2).bind(babelHelpers.assertThisInitialized(_this))
 	      }
 	    });
 	    return _this;
@@ -7886,24 +7768,24 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  babelHelpers.createClass(InlineSelectorHtml, [{
 	    key: "destroy",
 	    value: function destroy() {
-	      _classPrivateMethodGet$8(this, _unbindEvents, _unbindEvents2).call(this);
+	      _classPrivateMethodGet$9(this, _unbindEvents, _unbindEvents2).call(this);
 	    }
 	  }, {
 	    key: "renderTo",
 	    value: function renderTo(targetInput) {
 	      this.targetInput = targetInput;
 	      babelHelpers.classPrivateFieldSet(this, _editorNode, targetInput.querySelector('.bx-html-editor'));
-	      this.menuButton = main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span\n\t\t\t\tonclick=\"", "\"\n\t\t\t\tclass=\"bizproc-automation-popup-select-dotted\"\n\t\t\t></span>\n\t\t"])), this.openMenu.bind(this));
+	      this.menuButton = main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span\n\t\t\t\tonclick=\"", "\"\n\t\t\t\tclass=\"bizproc-automation-popup-select-dotted\"\n\t\t\t></span>\n\t\t"])), this.openMenu.bind(this));
 	      this.parseTargetProperties();
 	      this.bindTargetEvents();
 	      targetInput.firstElementChild.appendChild(this.menuButton);
-	      _classPrivateMethodGet$8(this, _bindEvents, _bindEvents2).call(this);
+	      _classPrivateMethodGet$9(this, _bindEvents, _bindEvents2).call(this);
 	    }
 	  }, {
 	    key: "onFieldSelect",
 	    value: function onFieldSelect(field) {
 	      var insertText = field.Expression;
-	      var editor = _classPrivateMethodGet$8(this, _getEditor, _getEditor2).call(this);
+	      var editor = _classPrivateMethodGet$9(this, _getEditor, _getEditor2).call(this);
 	      if (editor && editor.InsertHtml) {
 	        if (editor.synchro.IsFocusedOnTextarea()) {
 	          editor.textareaView.Focus();
@@ -7917,7 +7799,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "onBeforeSave",
 	    value: function onBeforeSave() {
-	      var editor = _classPrivateMethodGet$8(this, _getEditor, _getEditor2).call(this);
+	      var editor = _classPrivateMethodGet$9(this, _getEditor, _getEditor2).call(this);
 	      if (editor && editor.SaveContent) {
 	        editor.SaveContent();
 	      }
@@ -7925,7 +7807,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "onPopupResize",
 	    value: function onPopupResize() {
-	      var editor = _classPrivateMethodGet$8(this, _getEditor, _getEditor2).call(this);
+	      var editor = _classPrivateMethodGet$9(this, _getEditor, _getEditor2).call(this);
 	      if (editor && editor.ResizeSceleton) {
 	        editor.ResizeSceleton();
 	      }
@@ -7996,10 +7878,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return null;
 	}
 
-	function _classPrivateMethodInitSpec$9(obj, privateSet) { _checkPrivateRedeclaration$n(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateMethodInitSpec$a(obj, privateSet) { _checkPrivateRedeclaration$n(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$n(obj, privateMap, value) { _checkPrivateRedeclaration$n(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$n(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$9(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodGet$a(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _context$1 = /*#__PURE__*/new WeakMap();
 	var _checkbox = /*#__PURE__*/new WeakMap();
 	var _needSync = /*#__PURE__*/new WeakMap();
@@ -8008,8 +7890,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var SaveStateCheckbox = /*#__PURE__*/function () {
 	  function SaveStateCheckbox(props) {
 	    babelHelpers.classCallCheck(this, SaveStateCheckbox);
-	    _classPrivateMethodInitSpec$9(this, _getValue);
-	    _classPrivateMethodInitSpec$9(this, _getKey);
+	    _classPrivateMethodInitSpec$a(this, _getValue);
+	    _classPrivateMethodInitSpec$a(this, _getKey);
 	    _classPrivateFieldInitSpec$n(this, _context$1, {
 	      writable: true,
 	      value: void 0
@@ -8027,7 +7909,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    babelHelpers.classPrivateFieldSet(this, _needSync, props.needSync);
 	    if (props.needSync) {
 	      var category = 'save_state_checkbox';
-	      var savedState = babelHelpers.classPrivateFieldGet(this, _context$1).get('userOptions').get(category, _classPrivateMethodGet$9(this, _getKey, _getKey2).call(this), 'N');
+	      var savedState = babelHelpers.classPrivateFieldGet(this, _context$1).get('userOptions').get(category, _classPrivateMethodGet$a(this, _getKey, _getKey2).call(this), 'N');
 	      if (savedState === 'Y') {
 	        babelHelpers.classPrivateFieldGet(this, _checkbox).checked = true;
 	      }
@@ -8037,7 +7919,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "destroy",
 	    value: function destroy() {
 	      if (babelHelpers.classPrivateFieldGet(this, _needSync)) {
-	        babelHelpers.classPrivateFieldGet(this, _context$1).get('userOptions').set('save_state_checkboxes', _classPrivateMethodGet$9(this, _getKey, _getKey2).call(this), _classPrivateMethodGet$9(this, _getValue, _getValue2).call(this));
+	        babelHelpers.classPrivateFieldGet(this, _context$1).get('userOptions').set('save_state_checkboxes', _classPrivateMethodGet$a(this, _getKey, _getKey2).call(this), _classPrivateMethodGet$a(this, _getValue, _getValue2).call(this));
 	      }
 	    }
 	  }]);
@@ -8083,16 +7965,16 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return UserSelector;
 	}(InlineSelector);
 
-	var _templateObject$6, _templateObject2$4, _templateObject3$2, _templateObject4$2, _templateObject5$2, _templateObject6$1, _templateObject7, _templateObject8;
-	function _createForOfIteratorHelper$5(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$5(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-	function _unsupportedIterableToArray$5(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$5(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$5(o, minLen); }
-	function _arrayLikeToArray$5(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-	function _classPrivateMethodInitSpec$a(obj, privateSet) { _checkPrivateRedeclaration$o(obj, privateSet); privateSet.add(obj); }
+	var _templateObject$a, _templateObject2$7, _templateObject3$5, _templateObject4$5, _templateObject5$4, _templateObject6$4, _templateObject7$4, _templateObject8$4;
+	function _createForOfIteratorHelper$8(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$8(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray$8(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$8(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$8(o, minLen); }
+	function _arrayLikeToArray$8(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	function _classPrivateMethodInitSpec$b(obj, privateSet) { _checkPrivateRedeclaration$o(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$o(obj, privateMap, value) { _checkPrivateRedeclaration$o(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$o(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess$3(receiver, classConstructor); return method; }
 	function _classCheckPrivateStaticAccess$3(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
-	function _classPrivateMethodGet$a(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodGet$b(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _type$3 = /*#__PURE__*/new WeakMap();
 	var _multiple = /*#__PURE__*/new WeakMap();
 	var _required = /*#__PURE__*/new WeakMap();
@@ -8126,19 +8008,19 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, FileSelector);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FileSelector).call(this, props));
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _createFileItemNode);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _onFileFieldAddClick);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _removeFileItem);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _isFileItemSelected);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _addFileItem);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _onTypeChange);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _getDiskUploader);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _hideFileControllerLayout);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _showFileControllerLayout);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _hideDiskControllerLayout);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _showDiskControllerLayout);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _showTypeControlLayout);
-	    _classPrivateMethodInitSpec$a(babelHelpers.assertThisInitialized(_this), _createBaseNode);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _createFileItemNode);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _onFileFieldAddClick);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _removeFileItem);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _isFileItemSelected);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _addFileItem);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _onTypeChange);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _getDiskUploader);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _hideFileControllerLayout);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _showFileControllerLayout);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _hideDiskControllerLayout);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _showDiskControllerLayout);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _showTypeControlLayout);
+	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _createBaseNode);
 	    _classPrivateFieldInitSpec$o(babelHelpers.assertThisInitialized(_this), _type$3, {
 	      writable: true,
 	      value: FileSelector.TYPE.None
@@ -8212,8 +8094,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function renderTo(targetInput) {
 	      this.targetInput = targetInput;
 	      var selected = this.parseTargetProperties();
-	      this.targetInput.appendChild(_classPrivateMethodGet$a(this, _createBaseNode, _createBaseNode2).call(this));
-	      _classPrivateMethodGet$a(this, _showTypeControlLayout, _showTypeControlLayout2).call(this, selected);
+	      this.targetInput.appendChild(_classPrivateMethodGet$b(this, _createBaseNode, _createBaseNode2).call(this));
+	      _classPrivateMethodGet$b(this, _showTypeControlLayout, _showTypeControlLayout2).call(this, selected);
 	      // this.setFileFields()
 	      // this.createDom
 	    }
@@ -8244,12 +8126,12 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "addItems",
 	    value: function addItems(items) {
 	      if (babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.File) {
-	        var _iterator = _createForOfIteratorHelper$5(items),
+	        var _iterator = _createForOfIteratorHelper$8(items),
 	          _step;
 	        try {
 	          for (_iterator.s(); !(_step = _iterator.n()).done;) {
 	            var fileItem = _step.value;
-	            _classPrivateMethodGet$a(this, _addFileItem, _addFileItem2).call(this, fileItem);
+	            _classPrivateMethodGet$b(this, _addFileItem, _addFileItem2).call(this, fileItem);
 	          }
 	        } catch (err) {
 	          _iterator.e(err);
@@ -8257,13 +8139,13 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          _iterator.f();
 	        }
 	      } else {
-	        _classPrivateMethodGet$a(this, _getDiskUploader, _getDiskUploader2).call(this).setValues(_classStaticPrivateMethodGet(FileSelector, FileSelector, _convertToDiskItems).call(FileSelector, items));
+	        _classPrivateMethodGet$b(this, _getDiskUploader, _getDiskUploader2).call(this).setValues(_classStaticPrivateMethodGet(FileSelector, FileSelector, _convertToDiskItems).call(FileSelector, items));
 	      }
 	    }
 	  }, {
 	    key: "onFieldSelect",
 	    value: function onFieldSelect(field) {
-	      _classPrivateMethodGet$a(this, _addFileItem, _addFileItem2).call(this, {
+	      _classPrivateMethodGet$b(this, _addFileItem, _addFileItem2).call(this, {
 	        id: field.Id,
 	        expression: field.Expression,
 	        name: field.Name,
@@ -8275,7 +8157,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function onBeforeSave() {
 	      var ids = [];
 	      if (babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.Disk) {
-	        ids = _classPrivateMethodGet$a(this, _getDiskUploader, _getDiskUploader2).call(this).getValues();
+	        ids = _classPrivateMethodGet$b(this, _getDiskUploader, _getDiskUploader2).call(this).getValues();
 	      } else if (babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.File) {
 	        ids = Array.from(babelHelpers.classPrivateFieldGet(this, _fileItemsNode).childNodes).map(function (node) {
 	          return node.getAttribute('data-file-expression');
@@ -8283,12 +8165,12 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          return id !== '';
 	        });
 	      }
-	      var _iterator2 = _createForOfIteratorHelper$5(ids),
+	      var _iterator2 = _createForOfIteratorHelper$8(ids),
 	        _step2;
 	      try {
 	        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
 	          var id = _step2.value;
-	          this.targetInput.appendChild(main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t/>\n\t\t\t"])), babelHelpers.classPrivateFieldGet(this, _valueInputName) + (babelHelpers.classPrivateFieldGet(this, _multiple) ? '[]' : ''), id));
+	          this.targetInput.appendChild(main_core.Tag.render(_templateObject$a || (_templateObject$a = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t/>\n\t\t\t"])), babelHelpers.classPrivateFieldGet(this, _valueInputName) + (babelHelpers.classPrivateFieldGet(this, _multiple) ? '[]' : ''), id));
 	        }
 	      } catch (err) {
 	        _iterator2.e(err);
@@ -8304,33 +8186,33 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  var fileRadio = null;
 	  var fileTypeOptions = [];
 	  if (this.context.get('fileFields').length > 0) {
-	    fileRadio = main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t\tid=\"type-1", "\"\n\t\t\t\t\tclass=\"bizproc-automation-popup-select-input\"\n\t\t\t\t\ttype=\"radio\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t", "\n\t\t\t\t/>\n\t\t\t"])), idSalt, babelHelpers.classPrivateFieldGet(this, _typeInputName), FileSelector.TYPE.File, babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.File ? 'checked' : '');
+	    fileRadio = main_core.Tag.render(_templateObject2$7 || (_templateObject2$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t\tid=\"type-1", "\"\n\t\t\t\t\tclass=\"bizproc-automation-popup-select-input\"\n\t\t\t\t\ttype=\"radio\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t", "\n\t\t\t\t/>\n\t\t\t"])), idSalt, babelHelpers.classPrivateFieldGet(this, _typeInputName), FileSelector.TYPE.File, babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.File ? 'checked' : '');
 	  }
-	  var diskFileRadio = main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input\n\t\t\t\tid=\"type-2", "\"\n\t\t\t\tclass=\"bizproc-automation-popup-select-input\"\n\t\t\t\ttype=\"radio\"\n\t\t\t\tname=\"", "\"\n\t\t\t\tvalue=\"", "\"\n\t\t\t\t", "\n\t\t\t/>\n\t\t"])), idSalt, babelHelpers.classPrivateFieldGet(this, _typeInputName), FileSelector.TYPE.Disk, babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.Disk ? 'checked' : '');
-	  fileTypeOptions.push(main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"bizproc-automation-popup-settings-title\">", ":</span>\n\t\t"])), babelHelpers.classPrivateFieldGet(this, _label)));
+	  var diskFileRadio = main_core.Tag.render(_templateObject3$5 || (_templateObject3$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input\n\t\t\t\tid=\"type-2", "\"\n\t\t\t\tclass=\"bizproc-automation-popup-select-input\"\n\t\t\t\ttype=\"radio\"\n\t\t\t\tname=\"", "\"\n\t\t\t\tvalue=\"", "\"\n\t\t\t\t", "\n\t\t\t/>\n\t\t"])), idSalt, babelHelpers.classPrivateFieldGet(this, _typeInputName), FileSelector.TYPE.Disk, babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.Disk ? 'checked' : '');
+	  fileTypeOptions.push(main_core.Tag.render(_templateObject4$5 || (_templateObject4$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"bizproc-automation-popup-settings-title\">", ":</span>\n\t\t"])), babelHelpers.classPrivateFieldGet(this, _label)));
 	  if (fileRadio) {
-	    fileTypeOptions.push(fileRadio, main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label\n\t\t\t\t\tclass=\"bizproc-automation-popup-settings-link\"\n\t\t\t\t\tfor=\"type-1", "\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t>\n\t\t\t\t", "\n\t\t\t\t</label>\n\t\t\t"])), idSalt, _classPrivateMethodGet$a(this, _onTypeChange, _onTypeChange2).bind(this, FileSelector.TYPE.File), babelHelpers.classPrivateFieldGet(this, _labelFile)));
+	    fileTypeOptions.push(fileRadio, main_core.Tag.render(_templateObject5$4 || (_templateObject5$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label\n\t\t\t\t\tclass=\"bizproc-automation-popup-settings-link\"\n\t\t\t\t\tfor=\"type-1", "\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t>\n\t\t\t\t", "\n\t\t\t\t</label>\n\t\t\t"])), idSalt, _classPrivateMethodGet$b(this, _onTypeChange, _onTypeChange2).bind(this, FileSelector.TYPE.File), babelHelpers.classPrivateFieldGet(this, _labelFile)));
 	  }
-	  fileTypeOptions.push(diskFileRadio, main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label\n\t\t\t\tclass=\"bizproc-automation-popup-settings-link\"\n\t\t\t\tfor=\"type-2", "\"\n\t\t\t\tonclick=\"", "\"\n\t\t\t>\n\t\t\t", "\n\t\t\t</label>\n\t\t"])), idSalt, _classPrivateMethodGet$a(this, _onTypeChange, _onTypeChange2).bind(this, FileSelector.TYPE.Disk), babelHelpers.classPrivateFieldGet(this, _labelDisk)));
-	  return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-settings-block\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), fileTypeOptions);
+	  fileTypeOptions.push(diskFileRadio, main_core.Tag.render(_templateObject6$4 || (_templateObject6$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label\n\t\t\t\tclass=\"bizproc-automation-popup-settings-link\"\n\t\t\t\tfor=\"type-2", "\"\n\t\t\t\tonclick=\"", "\"\n\t\t\t>\n\t\t\t", "\n\t\t\t</label>\n\t\t"])), idSalt, _classPrivateMethodGet$b(this, _onTypeChange, _onTypeChange2).bind(this, FileSelector.TYPE.Disk), babelHelpers.classPrivateFieldGet(this, _labelDisk)));
+	  return main_core.Tag.render(_templateObject7$4 || (_templateObject7$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-settings-block\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), fileTypeOptions);
 	}
 	function _showTypeControlLayout2(selected) {
 	  if (babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.Disk) {
-	    _classPrivateMethodGet$a(this, _hideFileControllerLayout, _hideFileControllerLayout2).call(this);
-	    _classPrivateMethodGet$a(this, _showDiskControllerLayout, _showDiskControllerLayout2).call(this, selected);
+	    _classPrivateMethodGet$b(this, _hideFileControllerLayout, _hideFileControllerLayout2).call(this);
+	    _classPrivateMethodGet$b(this, _showDiskControllerLayout, _showDiskControllerLayout2).call(this, selected);
 	  } else if (babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.File) {
-	    _classPrivateMethodGet$a(this, _hideDiskControllerLayout, _hideDiskControllerLayout2).call(this);
-	    _classPrivateMethodGet$a(this, _showFileControllerLayout, _showFileControllerLayout2).call(this, selected);
+	    _classPrivateMethodGet$b(this, _hideDiskControllerLayout, _hideDiskControllerLayout2).call(this);
+	    _classPrivateMethodGet$b(this, _showFileControllerLayout, _showFileControllerLayout2).call(this, selected);
 	  } else {
-	    _classPrivateMethodGet$a(this, _hideFileControllerLayout, _hideFileControllerLayout2).call(this);
-	    _classPrivateMethodGet$a(this, _hideDiskControllerLayout, _hideDiskControllerLayout2).call(this);
+	    _classPrivateMethodGet$b(this, _hideFileControllerLayout, _hideFileControllerLayout2).call(this);
+	    _classPrivateMethodGet$b(this, _hideDiskControllerLayout, _hideDiskControllerLayout2).call(this);
 	  }
 	}
 	function _showDiskControllerLayout2(selected) {
 	  if (!babelHelpers.classPrivateFieldGet(this, _diskControllerNode)) {
 	    babelHelpers.classPrivateFieldSet(this, _diskControllerNode, main_core.Dom.create('div'));
 	    this.targetInput.appendChild(babelHelpers.classPrivateFieldGet(this, _diskControllerNode));
-	    var diskUploader = _classPrivateMethodGet$a(this, _getDiskUploader, _getDiskUploader2).call(this);
+	    var diskUploader = _classPrivateMethodGet$b(this, _getDiskUploader, _getDiskUploader2).call(this);
 	    diskUploader.layout(babelHelpers.classPrivateFieldGet(this, _diskControllerNode));
 	    diskUploader.show(true);
 	    if (selected) {
@@ -8359,7 +8241,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ADD')
 	    });
 	    babelHelpers.classPrivateFieldGet(this, _fileControllerNode).appendChild(addButtonNode);
-	    main_core.Event.bind(addButtonNode, 'click', _classPrivateMethodGet$a(this, _onFileFieldAddClick, _onFileFieldAddClick2).bind(this, addButtonNode));
+	    main_core.Event.bind(addButtonNode, 'click', _classPrivateMethodGet$b(this, _onFileFieldAddClick, _onFileFieldAddClick2).bind(this, addButtonNode));
 	    if (selected) {
 	      this.addItems(selected);
 	    }
@@ -8391,14 +8273,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	function _onTypeChange2(newType) {
 	  if (babelHelpers.classPrivateFieldGet(this, _type$3) !== newType) {
 	    babelHelpers.classPrivateFieldSet(this, _type$3, newType);
-	    _classPrivateMethodGet$a(this, _showTypeControlLayout, _showTypeControlLayout2).call(this);
+	    _classPrivateMethodGet$b(this, _showTypeControlLayout, _showTypeControlLayout2).call(this);
 	  }
 	}
 	function _addFileItem2(item) {
-	  if (_classPrivateMethodGet$a(this, _isFileItemSelected, _isFileItemSelected2).call(this, item)) {
+	  if (_classPrivateMethodGet$b(this, _isFileItemSelected, _isFileItemSelected2).call(this, item)) {
 	    return false;
 	  }
-	  var node = _classPrivateMethodGet$a(this, _createFileItemNode, _createFileItemNode2).call(this, item);
+	  var node = _classPrivateMethodGet$b(this, _createFileItemNode, _createFileItemNode2).call(this, item);
 	  if (!babelHelpers.classPrivateFieldGet(this, _multiple)) {
 	    main_core.Dom.clean(babelHelpers.classPrivateFieldGet(this, _fileItemsNode));
 	  }
@@ -8454,7 +8336,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    return field.Expression === item.expression;
 	  });
 	  var label = (itemField === null || itemField === void 0 ? void 0 : itemField.Name) || '';
-	  return main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span\n\t\t\t\tclass=\"bizproc-automation-popup-autocomplete-item\"\n\t\t\t\tdata-file-id=\"", "\"\n\t\t\t\tdata-file-expression=\"", "\"\n\t\t\t>\n\t\t\t\t<span class=\"bizproc-automation-popup-autocomplete-name\">", "</span>\n\t\t\t\t<span\n\t\t\t\t\tclass=\"bizproc-automation-popup-autocomplete-delete\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t</span>\n\t\t"])), item.id, item.expression, label, _classPrivateMethodGet$a(this, _removeFileItem, _removeFileItem2).bind(this, item));
+	  return main_core.Tag.render(_templateObject8$4 || (_templateObject8$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span\n\t\t\t\tclass=\"bizproc-automation-popup-autocomplete-item\"\n\t\t\t\tdata-file-id=\"", "\"\n\t\t\t\tdata-file-expression=\"", "\"\n\t\t\t>\n\t\t\t\t<span class=\"bizproc-automation-popup-autocomplete-name\">", "</span>\n\t\t\t\t<span\n\t\t\t\t\tclass=\"bizproc-automation-popup-autocomplete-delete\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t</span>\n\t\t"])), item.id, item.expression, label, _classPrivateMethodGet$b(this, _removeFileItem, _removeFileItem2).bind(this, item));
 	}
 	babelHelpers.defineProperty(FileSelector, "TYPE", {
 	  None: '',
@@ -8462,12 +8344,12 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  File: 'file'
 	});
 
-	function _classPrivateMethodInitSpec$b(obj, privateSet) { _checkPrivateRedeclaration$p(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateMethodInitSpec$c(obj, privateSet) { _checkPrivateRedeclaration$p(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$p(obj, privateMap, value) { _checkPrivateRedeclaration$p(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$p(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classStaticPrivateMethodGet$1(receiver, classConstructor, method) { _classCheckPrivateStaticAccess$4(receiver, classConstructor); return method; }
 	function _classCheckPrivateStaticAccess$4(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
-	function _classPrivateMethodGet$b(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodGet$c(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _clockInstance = /*#__PURE__*/new WeakMap();
 	var _onTimeSelect = /*#__PURE__*/new WeakSet();
 	var _getCurrentTime = /*#__PURE__*/new WeakSet();
@@ -8482,9 +8364,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      args[_key] = arguments[_key];
 	    }
 	    _this = babelHelpers.possibleConstructorReturn(this, (_babelHelpers$getProt = babelHelpers.getPrototypeOf(TimeSelector)).call.apply(_babelHelpers$getProt, [this].concat(args)));
-	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _convertTimeToSeconds);
-	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _getCurrentTime);
-	    _classPrivateMethodInitSpec$b(babelHelpers.assertThisInitialized(_this), _onTimeSelect);
+	    _classPrivateMethodInitSpec$c(babelHelpers.assertThisInitialized(_this), _convertTimeToSeconds);
+	    _classPrivateMethodInitSpec$c(babelHelpers.assertThisInitialized(_this), _getCurrentTime);
+	    _classPrivateMethodInitSpec$c(babelHelpers.assertThisInitialized(_this), _onTimeSelect);
 	    _classPrivateFieldInitSpec$p(babelHelpers.assertThisInitialized(_this), _clockInstance, {
 	      writable: true,
 	      value: void 0
@@ -8506,7 +8388,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	      var datetime = new Date();
 	      datetime.setHours(0, 0, 0, 0);
-	      datetime.setTime(datetime.getTime() + _classPrivateMethodGet$b(this, _getCurrentTime, _getCurrentTime2).call(this) * 1000);
+	      datetime.setTime(datetime.getTime() + _classPrivateMethodGet$c(this, _getCurrentTime, _getCurrentTime2).call(this) * 1000);
 	      this.targetInput.value = _classStaticPrivateMethodGet$1(_this$constructor = this.constructor, TimeSelector, _formatTime$1).call(_this$constructor, datetime);
 	      main_core.Event.bind(targetInput, 'click', this.showClock.bind(this));
 	    }
@@ -8515,9 +8397,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function showClock() {
 	      if (!babelHelpers.classPrivateFieldGet(this, _clockInstance)) {
 	        babelHelpers.classPrivateFieldSet(this, _clockInstance, new BX.CClockSelector({
-	          start_time: _classPrivateMethodGet$b(this, _getCurrentTime, _getCurrentTime2).call(this),
+	          start_time: _classPrivateMethodGet$c(this, _getCurrentTime, _getCurrentTime2).call(this),
 	          node: this.targetInput,
-	          callback: _classPrivateMethodGet$b(this, _onTimeSelect, _onTimeSelect2).bind(this)
+	          callback: _classPrivateMethodGet$c(this, _onTimeSelect, _onTimeSelect2).bind(this)
 	        }));
 	      }
 	      babelHelpers.classPrivateFieldGet(this, _clockInstance).Show();
@@ -8531,7 +8413,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  babelHelpers.classPrivateFieldGet(this, _clockInstance).closeWnd();
 	}
 	function _getCurrentTime2() {
-	  return _classPrivateMethodGet$b(this, _convertTimeToSeconds, _convertTimeToSeconds2).call(this, this.targetInput.value);
+	  return _classPrivateMethodGet$c(this, _convertTimeToSeconds, _convertTimeToSeconds2).call(this, this.targetInput.value);
 	}
 	function _convertTimeToSeconds2(time) {
 	  var timeParts = time.split(/[\s:]+/).map(function (part) {
@@ -8559,17 +8441,43 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return BX.date.format(timeFormat, datetime);
 	}
 
-	var _templateObject$7;
-	function _classPrivateMethodInitSpec$c(obj, privateSet) { _checkPrivateRedeclaration$q(obj, privateSet); privateSet.add(obj); }
+	var _templateObject$b, _templateObject2$8, _templateObject3$6, _templateObject4$6, _templateObject5$5, _templateObject6$5, _templateObject7$5, _templateObject8$5, _templateObject9$4, _templateObject10$4, _templateObject11$3, _templateObject12$3, _templateObject13$3;
+	function _classPrivateMethodInitSpec$d(obj, privateSet) { _checkPrivateRedeclaration$q(obj, privateSet); privateSet.add(obj); }
 	function _checkPrivateRedeclaration$q(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$c(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodGet$d(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _createNowControlNode = /*#__PURE__*/new WeakSet();
+	var _onChangeDelayIntervalType = /*#__PURE__*/new WeakSet();
+	var _saveDelayIntervalTypeFromForm = /*#__PURE__*/new WeakSet();
+	var _parseInTimeValue = /*#__PURE__*/new WeakSet();
+	var _createHiddenRow = /*#__PURE__*/new WeakSet();
+	var _createShowHiddenRowChevron = /*#__PURE__*/new WeakSet();
+	var _disableSetTimeRow = /*#__PURE__*/new WeakSet();
+	var _enableSetTimeRow = /*#__PURE__*/new WeakSet();
+	var _createAfterBasis = /*#__PURE__*/new WeakSet();
+	var _createBeforeBasis = /*#__PURE__*/new WeakSet();
+	var _createInBasis = /*#__PURE__*/new WeakSet();
+	var _createTimeSelector = /*#__PURE__*/new WeakSet();
+	var _formatTimeToString = /*#__PURE__*/new WeakSet();
 	var _createWaitWorkDayNode = /*#__PURE__*/new WeakSet();
 	var _isWorkTimeAvailable = /*#__PURE__*/new WeakSet();
 	var DelayIntervalSelector$$1 = /*#__PURE__*/function () {
 	  function DelayIntervalSelector$$1(options) {
 	    babelHelpers.classCallCheck(this, DelayIntervalSelector$$1);
-	    _classPrivateMethodInitSpec$c(this, _isWorkTimeAvailable);
-	    _classPrivateMethodInitSpec$c(this, _createWaitWorkDayNode);
+	    _classPrivateMethodInitSpec$d(this, _isWorkTimeAvailable);
+	    _classPrivateMethodInitSpec$d(this, _createWaitWorkDayNode);
+	    _classPrivateMethodInitSpec$d(this, _formatTimeToString);
+	    _classPrivateMethodInitSpec$d(this, _createTimeSelector);
+	    _classPrivateMethodInitSpec$d(this, _createInBasis);
+	    _classPrivateMethodInitSpec$d(this, _createBeforeBasis);
+	    _classPrivateMethodInitSpec$d(this, _createAfterBasis);
+	    _classPrivateMethodInitSpec$d(this, _enableSetTimeRow);
+	    _classPrivateMethodInitSpec$d(this, _disableSetTimeRow);
+	    _classPrivateMethodInitSpec$d(this, _createShowHiddenRowChevron);
+	    _classPrivateMethodInitSpec$d(this, _createHiddenRow);
+	    _classPrivateMethodInitSpec$d(this, _parseInTimeValue);
+	    _classPrivateMethodInitSpec$d(this, _saveDelayIntervalTypeFromForm);
+	    _classPrivateMethodInitSpec$d(this, _onChangeDelayIntervalType);
+	    _classPrivateMethodInitSpec$d(this, _createNowControlNode);
 	    this.basisFields = [];
 	    this.onchange = null;
 	    if (main_core.Type.isPlainObject(options)) {
@@ -8595,14 +8503,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "setLabelText",
 	    value: function setLabelText() {
 	      if (this.delay && this.labelNode) {
-	        this.labelNode.textContent = this.delay.format(main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AT_ONCE'), this.basisFields);
+	        this.labelNode.textContent = this.delay.format(main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AT_ONCE_2'), this.basisFields);
 	      }
 	    }
 	  }, {
 	    key: "bindLabelNode",
 	    value: function bindLabelNode() {
 	      if (this.labelNode) {
-	        main_core.Event.bind(this.labelNode, 'click', BX.delegate(this.onLabelClick, this));
+	        main_core.Event.bind(this.labelNode, 'click', this.onLabelClick.bind(this));
 	      }
 	    }
 	  }, {
@@ -8614,119 +8522,53 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "showDelayIntervalPopup",
 	    value: function showDelayIntervalPopup() {
+	      var _this = this;
 	      var delay = this.delay;
 	      var uid = Helper.generateUniqueId();
-	      var form = main_core.Dom.create("form", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-block"
-	        }
-	      });
-	      var radioNow = main_core.Dom.create("input", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-input",
-	          id: uid + "now",
-	          type: "radio",
-	          value: 'now',
-	          name: "type"
-	        }
-	      });
-	      if (delay.isNow()) {
-	        radioNow.setAttribute('checked', 'checked');
+	      var _ref = main_core.Tag.render(_templateObject$b || (_templateObject$b = babelHelpers.taggedTemplateLiteral(["\n\t\t\t <form class=\"bizproc-automation-popup-select-block\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t<div class=\"bizproc-automation-popup-settings__subtitle ui-typography-heading-h6\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bizproc-automation-popup-settings__checkbox-label\">\n\t\t\t\t\t<input\n\t\t\t\t\t\tref=\"workTimeCheckBox\"\n\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings__checkbox\"\n\t\t\t\t\t\ttype=\"checkbox\"\n\t\t\t\t\t\tid=\"", "worktime\"\n\t\t\t\t\t\tname=\"worktime\"\n\t\t\t\t\t\tvalue=\"1\"\n\t\t\t\t\t\tstyle=\"vertical-align: middle\"\n\t\t\t\t\t/>\n\t\t\t\t\t<label for=\"", "worktime\" class=\"bizproc-automation-popup-settings-lbl\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</label>\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"bizproc-automation-status-help bizproc-automation-status-help-right\"\n\t\t\t\t\t\tdata-hint=\"", "\"\n\t\t\t\t\t></span>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</form>\n\t\t"])), _classPrivateMethodGet$d(this, _createNowControlNode, _createNowControlNode2).call(this, uid), this.createAfterControlNode(), this.basisFields.length > 0 ? this.createBeforeControlNode() : '', this.basisFields.length > 0 ? this.createInControlNode() : '', main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_DELAY_INTERVAL_ADDITIONAL_SETTINGS'), uid, uid, main_core.Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WORK_TIME_MSGVER_1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WORK_TIME_HELP'), this.showWaitWorkDay ? _classPrivateMethodGet$d(this, _createWaitWorkDayNode, _createWaitWorkDayNode2).call(this) : ''),
+	        form = _ref.root,
+	        workTimeCheckBox = _ref.workTimeCheckBox;
+	      if (delay.workTime) {
+	        main_core.Dom.attr(workTimeCheckBox, 'checked', 'checked');
 	      }
-	      var labelNow = main_core.Dom.create("label", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-wrapper",
-	          "for": uid + "now"
-	        },
-	        children: [main_core.Dom.create('span', {
-	          attrs: {
-	            className: 'bizproc-automation-popup-settings-title'
-	          },
-	          text: main_core.Loc.getMessage(this.useAfterBasis ? 'BIZPROC_AUTOMATION_CMP_BASIS_NOW' : 'BIZPROC_AUTOMATION_CMP_AT_ONCE_2')
-	        })]
-	      });
-	      var labelNowHelpNode = main_core.Dom.create('span', {
-	        attrs: {
-	          className: "bizproc-automation-status-help bizproc-automation-status-help-right",
-	          'data-hint': main_core.Loc.getMessage(this.useAfterBasis ? 'BIZPROC_AUTOMATION_CMP_DELAY_NOW_HELP_2' : 'BIZPROC_AUTOMATION_CMP_DELAY_NOW_HELP')
-	        }
-	      });
-	      labelNow.appendChild(labelNowHelpNode);
-	      form.appendChild(main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-item"
-	        },
-	        children: [radioNow, labelNow]
-	      }));
-	      form.appendChild(this.createAfterControlNode());
-	      if (this.basisFields.length > 0) {
-	        form.appendChild(this.createBeforeControlNode());
-	        form.appendChild(this.createInControlNode());
-	      }
-	      var workTimeRadio = main_core.Dom.create("input", {
-	        attrs: {
-	          type: "checkbox",
-	          id: uid + "worktime",
-	          name: "worktime",
-	          value: '1',
-	          style: 'vertical-align: middle'
-	        },
-	        props: {
-	          checked: delay.workTime
-	        }
-	      });
-	      var workTimeHelpNode = main_core.Dom.create('span', {
-	        attrs: {
-	          className: "bizproc-automation-status-help bizproc-automation-status-help-right",
-	          'data-hint': main_core.Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WORK_TIME_HELP')
-	        }
-	      });
-	      form.appendChild(main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-title"
-	        },
-	        children: [workTimeRadio, main_core.Dom.create("label", {
-	          attrs: {
-	            className: "bizproc-automation-popup-settings-lbl",
-	            "for": uid + "worktime"
-	          },
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WORK_TIME_MSGVER_1')
-	        }), workTimeHelpNode]
-	      }));
-	      if (this.showWaitWorkDay) {
-	        form.appendChild(_classPrivateMethodGet$c(this, _createWaitWorkDayNode, _createWaitWorkDayNode2).call(this));
-	      }
-	      var self = this;
-	      //init modern Help tips
 	      BX.UI.Hint.init(form);
-	      var popup = new BX.PopupWindow(Helper.generateUniqueId(), this.labelNode, {
-	        autoHide: true,
-	        closeByEsc: true,
-	        closeIcon: false,
-	        titleBar: false,
-	        angle: true,
-	        offsetLeft: 20,
+	      var popup = new main_popup.Popup({
+	        id: Helper.generateUniqueId(),
+	        bindElement: this.labelNode,
 	        content: form,
-	        buttons: [new BX.PopupWindowButton({
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHOOSE'),
-	          className: 'webform-button webform-button-create bizproc-automation-button-left',
-	          events: {
-	            click: function click() {
-	              self.saveFormData(new FormData(form));
-	              this.popupWindow.close();
-	            }
+	        closeByEsc: true,
+	        buttons: [new ui_buttons.Button({
+	          color: ui_buttons.Button.Color.PRIMARY,
+	          text: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_CHOOSE_BUTTON_CAPS'),
+	          onclick: function onclick() {
+	            _this.saveFormData(new FormData(form));
+	            popup.close();
+	          }
+	        }), new ui_buttons.Button({
+	          color: ui_buttons.Button.Color.LINK,
+	          text: main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_CANCEL_BUTTON_CAPS'),
+	          onclick: function onclick() {
+	            popup.close();
 	          }
 	        })],
+	        width: 482,
+	        padding: 20,
+	        closeIcon: false,
+	        autoHide: true,
 	        events: {
 	          onPopupClose: function onPopupClose() {
-	            if (self.fieldsMenu) {
-	              self.fieldsMenu.popupWindow.close();
+	            if (_this.fieldsMenu) {
+	              _this.fieldsMenu.popupWindow.close();
 	            }
-	            if (self.valueTypeMenu) {
-	              self.valueTypeMenu.popupWindow.close();
+	            if (_this.valueTypeMenu) {
+	              _this.valueTypeMenu.popupWindow.close();
 	            }
-	            this.destroy();
+	            popup.destroy();
 	          }
+	        },
+	        titleBar: false,
+	        angle: {
+	          offset: 40
 	        },
 	        overlay: {
 	          backgroundColor: 'transparent'
@@ -8737,34 +8579,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "saveFormData",
 	    value: function saveFormData(formData) {
-	      var type = formData.get('type');
-	      if (type === 'now') {
-	        this.delay.setNow();
-	      } else if (type === DelayInterval.DELAY_TYPE.In) {
-	        this.delay.setType(DelayInterval.DELAY_TYPE.In);
-	        this.delay.setValue(0);
-	        this.delay.setValueType('i');
-	        this.delay.setBasis(formData.get('basis_in'));
-	        this.delay.setInTime(formData.get('basis_in_time') ? formData.get('basis_in_time').split(':') : null);
-	      } else {
-	        this.delay.setType(type);
-	        this.delay.setValue(formData.get('value_' + type));
-	        this.delay.setValueType(formData.get('value_type_' + type));
-	        if (type === DelayInterval.DELAY_TYPE.After) {
-	          if (this.useAfterBasis) {
-	            this.delay.setBasis(formData.get('basis_after'));
-	          } else {
-	            this.delay.setBasis(DelayInterval.BASIS_TYPE.CurrentDateTime);
-	          }
-	          if (this.minLimitM > 0 && this.delay.basis === DelayInterval.BASIS_TYPE.CurrentDateTime && this.delay.valueType === 'i' && this.delay.value < this.minLimitM) {
-	            BX.UI.Notification.Center.notify({
-	              content: main_core.Loc.getMessage('BIZPROC_AUTOMATION_DELAY_MIN_LIMIT_LABEL')
-	            });
-	            this.delay.setValue(this.minLimitM);
-	          }
-	        } else {
-	          this.delay.setBasis(formData.get('basis_before'));
-	        }
+	      _classPrivateMethodGet$d(this, _saveDelayIntervalTypeFromForm, _saveDelayIntervalTypeFromForm2).call(this, formData);
+	      if (!this.delay.isNow()) {
+	        var timeName = "basis_in_time_".concat(main_core.Text.encode(this.delay.type));
+	        this.delay.setInTime(_classPrivateMethodGet$d(this, _parseInTimeValue, _parseInTimeValue2).call(this, formData.get(timeName)));
 	      }
 	      this.delay.setWorkTime(formData.get('worktime'));
 	      this.delay.setWaitWorkDay(formData.get('wait_workday'));
@@ -8778,262 +8596,68 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function createAfterControlNode() {
 	      var delay = this.delay;
 	      var uid = Helper.generateUniqueId();
-	      var radioAfter = main_core.Dom.create("input", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-input",
-	          id: uid,
-	          type: "radio",
-	          value: DelayInterval.DELAY_TYPE.After,
-	          name: "type"
-	        }
-	      });
+	      var valueAfter = delay.type === DelayInterval.DELAY_TYPE.After && delay.value ? delay.value : this.minLimitM || 5;
+	      var hiddenRow = _classPrivateMethodGet$d(this, _createHiddenRow, _createHiddenRow2).call(this, DelayInterval.DELAY_TYPE.After, 'value_type_after');
+	      var chevron = _classPrivateMethodGet$d(this, _createShowHiddenRowChevron, _createShowHiddenRowChevron2).call(this, hiddenRow, delay.valueType !== 'd', 'value_type_after');
+	      var _ref2 = main_core.Tag.render(_templateObject2$8 || (_templateObject2$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-select-item\">\n\t\t\t\t<label\n\t\t\t\t\tref=\"labelAfter\" \n\t\t\t\t\tclass=\"bizproc-automation-popup-select__wrapper ui-ctl ui-ctl-radio ui-ctl-w100\"\n\t\t\t\t\tfor=\"", "\"\n\t\t\t\t\tdata-role=\"select-item\"\n\t\t\t\t>\n\t\t\t\t\t<div class=\"bizproc-automation-popup-select__visible-row\">\n\t\t\t\t\t\t<input \n\t\t\t\t\t\t\tref=\"radioAfter\"\n\t\t\t\t\t\t\ttype=\"radio\"\n\t\t\t\t\t\t\tid=\"", "\"\n\t\t\t\t\t\t\tclass=\"bizproc-automation-popup-select__input ui-ctl-element\"\n\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t\tname=\"type\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t\t<span class=\"bizproc-automation-popup-settings__text --first\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\ttype=\"text\"\n\t\t\t\t\t\t\tname=\"value_after\"\n\t\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings__input\"\n\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</label>\n\t\t\t</div>\n\t\t"])), uid, uid, DelayInterval.DELAY_TYPE.After, main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_THROUGH_3'), main_core.Text.encode(valueAfter), this.createValueTypeSelector('value_type_after'), _classPrivateMethodGet$d(this, _createAfterBasis, _createAfterBasis2).call(this), this.useAfterBasis ? chevron : '', this.useAfterBasis ? hiddenRow : ''),
+	        root = _ref2.root,
+	        labelAfter = _ref2.labelAfter,
+	        radioAfter = _ref2.radioAfter;
+	      main_core.Event.bind(radioAfter, 'change', _classPrivateMethodGet$d(this, _onChangeDelayIntervalType, _onChangeDelayIntervalType2).bind(this, labelAfter));
 	      if (delay.type === DelayInterval.DELAY_TYPE.After && delay.value > 0) {
 	        radioAfter.setAttribute('checked', 'checked');
-	      }
-	      var valueNode = main_core.Dom.create('input', {
-	        attrs: {
-	          type: 'text',
-	          name: 'value_after',
-	          className: 'bizproc-automation-popup-settings-input'
-	        },
-	        props: {
-	          value: delay.type === DelayInterval.DELAY_TYPE.After && delay.value ? delay.value : this.minLimitM || 5
+	        main_core.Dom.addClass(labelAfter, '--active');
+	        if (delay.valueType === 'd' && this.delay.inTime) {
+	          main_core.Dom.addClass(hiddenRow, '--visible');
+	          main_core.Dom.addClass(chevron, '--active');
 	        }
-	      });
-	      var labelAfter = main_core.Dom.create("label", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-wrapper",
-	          "for": uid
-	        },
-	        children: [main_core.Dom.create('span', {
-	          attrs: {
-	            className: 'bizproc-automation-popup-settings-title'
-	          },
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_THROUGH_3')
-	        }), valueNode, this.createValueTypeSelector('value_type_after')]
-	      });
-	      if (this.useAfterBasis) {
-	        labelAfter.appendChild(main_core.Dom.create('span', {
-	          attrs: {
-	            className: 'bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-auto-width'
-	          },
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AFTER')
-	        }));
-	        var basisField = this.getBasisField(delay.basis, true);
-	        var basisValue = delay.basis;
-	        if (!basisField) {
-	          basisField = this.getBasisField(DelayInterval.BASIS_TYPE.CurrentDateTime, true);
-	          basisValue = basisField.SystemExpression;
-	        }
-	        var beforeBasisValueNode = main_core.Dom.create('input', {
-	          attrs: {
-	            type: "hidden",
-	            name: "basis_after",
-	            value: basisValue
-	          }
-	        });
-	        var self = this;
-	        var beforeBasisNode = main_core.Dom.create('span', {
-	          attrs: {
-	            className: "bizproc-automation-popup-settings-link bizproc-automation-delay-interval-basis"
-	          },
-	          text: basisField ? basisField.Name : main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHOOSE_DATE_FIELD'),
-	          events: {
-	            click: function click(event) {
-	              self.onBasisClick(event, this, function (field) {
-	                beforeBasisNode.textContent = field.Name;
-	                beforeBasisValueNode.value = field.SystemExpression;
-	              }, DelayInterval.DELAY_TYPE.After);
-	            }
-	          }
-	        });
-	        labelAfter.appendChild(beforeBasisValueNode);
-	        labelAfter.appendChild(beforeBasisNode);
 	      }
-	      if (!this.useAfterBasis) {
-	        var afterHelpNode = main_core.Dom.create('span', {
-	          attrs: {
-	            className: "bizproc-automation-status-help bizproc-automation-status-help-right",
-	            'data-hint': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DELAY_AFTER_HELP')
-	          }
-	        });
-	        labelAfter.appendChild(afterHelpNode);
-	      }
-	      return main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-item"
-	        },
-	        children: [radioAfter, labelAfter]
-	      });
+	      return root;
 	    }
 	  }, {
 	    key: "createBeforeControlNode",
 	    value: function createBeforeControlNode() {
 	      var delay = this.delay;
 	      var uid = Helper.generateUniqueId();
-	      var radioBefore = main_core.Dom.create("input", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-input",
-	          id: uid,
-	          type: "radio",
-	          value: DelayInterval.DELAY_TYPE.Before,
-	          name: "type"
-	        }
-	      });
+	      var valueBefore = delay.type === DelayInterval.DELAY_TYPE.Before && delay.value ? delay.value : this.minLimitM || 5;
+	      var hiddenRow = _classPrivateMethodGet$d(this, _createHiddenRow, _createHiddenRow2).call(this, DelayInterval.DELAY_TYPE.Before, 'value_type_before');
+	      var chevron = _classPrivateMethodGet$d(this, _createShowHiddenRowChevron, _createShowHiddenRowChevron2).call(this, hiddenRow, delay.valueType !== 'd', 'value_type_before');
+	      var _ref3 = main_core.Tag.render(_templateObject3$6 || (_templateObject3$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-select-item\">\n\t\t\t\t<label\n\t\t\t\t\tref=\"labelBefore\"\n\t\t\t\t\tclass=\"bizproc-automation-popup-select__wrapper ui-ctl ui-ctl-radio ui-ctl-w100\"\n\t\t\t\t\tfor=\"", "\"\n\t\t\t\t\tdata-role=\"select-item\"\n\t\t\t\t>\n\t\t\t\t\t<div class=\"bizproc-automation-popup-select__visible-row\"> \n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\tref=\"radioBefore\"\n\t\t\t\t\t\t\ttype=\"radio\"\n\t\t\t\t\t\t\tid=\"", "\"\n\t\t\t\t\t\t\tclass=\"bizproc-automation-popup-select__input ui-ctl-element\"\n\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t\tname=\"type\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t\t<span class=\"bizproc-automation-popup-settings__text --first\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\ttype=\"text\"\n\t\t\t\t\t\t\tname=\"value_before\"\n\t\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings__input\"\n\t\t\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</label>\n\t\t\t</div>\n\t\t"])), uid, uid, DelayInterval.DELAY_TYPE.Before, main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_FOR_TIME_3'), main_core.Text.encode(valueBefore), this.createValueTypeSelector('value_type_before'), _classPrivateMethodGet$d(this, _createBeforeBasis, _createBeforeBasis2).call(this), chevron, hiddenRow),
+	        root = _ref3.root,
+	        labelBefore = _ref3.labelBefore,
+	        radioBefore = _ref3.radioBefore;
+	      main_core.Event.bind(radioBefore, 'change', _classPrivateMethodGet$d(this, _onChangeDelayIntervalType, _onChangeDelayIntervalType2).bind(this, labelBefore));
 	      if (delay.type === DelayInterval.DELAY_TYPE.Before) {
 	        radioBefore.setAttribute('checked', 'checked');
-	      }
-	      var valueNode = main_core.Dom.create('input', {
-	        attrs: {
-	          type: 'text',
-	          name: 'value_before',
-	          className: 'bizproc-automation-popup-settings-input'
-	        },
-	        props: {
-	          value: delay.type === DelayInterval.DELAY_TYPE.Before && delay.value ? delay.value : this.minLimitM || 5
+	        main_core.Dom.addClass(labelBefore, '--active');
+	        if (delay.valueType === 'd' && this.delay.inTime) {
+	          main_core.Dom.addClass(hiddenRow, '--visible');
+	          main_core.Dom.addClass(chevron, '--active');
 	        }
-	      });
-	      var labelBefore = main_core.Dom.create("label", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-wrapper",
-	          "for": uid
-	        },
-	        children: [main_core.Dom.create('span', {
-	          attrs: {
-	            className: 'bizproc-automation-popup-settings-title'
-	          },
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_FOR_TIME_3')
-	        }), valueNode, this.createValueTypeSelector('value_type_before'), main_core.Dom.create('span', {
-	          attrs: {
-	            className: 'bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-auto-width'
-	          },
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_BEFORE_1')
-	        })]
-	      });
-	      var basisField = this.getBasisField(delay.basis);
-	      var basisValue = delay.basis;
-	      if (!basisField) {
-	        basisField = this.basisFields[0];
-	        basisValue = basisField.SystemExpression;
 	      }
-	      var beforeBasisValueNode = main_core.Dom.create('input', {
-	        attrs: {
-	          type: "hidden",
-	          name: "basis_before",
-	          value: basisValue
-	        }
-	      });
-	      var self = this;
-	      var beforeBasisNode = main_core.Dom.create('span', {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-link bizproc-automation-delay-interval-basis"
-	        },
-	        text: basisField ? basisField.Name : main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHOOSE_DATE_FIELD'),
-	        events: {
-	          click: function click(event) {
-	            self.onBasisClick(event, this, function (field) {
-	              beforeBasisNode.textContent = field.Name;
-	              beforeBasisValueNode.value = field.SystemExpression;
-	            }, DelayInterval.DELAY_TYPE.Before);
-	          }
-	        }
-	      });
-	      labelBefore.appendChild(beforeBasisValueNode);
-	      labelBefore.appendChild(beforeBasisNode);
-	      if (!this.useAfterBasis) {
-	        var beforeHelpNode = main_core.Dom.create('span', {
-	          attrs: {
-	            className: "bizproc-automation-status-help bizproc-automation-status-help-right",
-	            'data-hint': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DELAY_BEFORE_HELP')
-	          }
-	        });
-	        labelBefore.appendChild(beforeHelpNode);
-	      }
-	      return main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-item"
-	        },
-	        children: [radioBefore, labelBefore]
-	      });
+	      return root;
 	    }
 	  }, {
 	    key: "createInControlNode",
 	    value: function createInControlNode() {
 	      var delay = this.delay;
 	      var uid = Helper.generateUniqueId();
-	      var radioIn = main_core.Dom.create("input", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-input",
-	          id: uid,
-	          type: "radio",
-	          value: DelayInterval.DELAY_TYPE.In,
-	          name: "type"
-	        }
-	      });
+	      var hiddenRow = _classPrivateMethodGet$d(this, _createHiddenRow, _createHiddenRow2).call(this, DelayInterval.DELAY_TYPE.In, 'value_type_in');
+	      var chevron = _classPrivateMethodGet$d(this, _createShowHiddenRowChevron, _createShowHiddenRowChevron2).call(this, hiddenRow, false, 'value_type_in');
+	      var _ref4 = main_core.Tag.render(_templateObject4$6 || (_templateObject4$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-select-item\">\n\t\t\t\t<label\n\t\t\t\t\tref=\"labelIn\"\n\t\t\t\t\tclass=\"bizproc-automation-popup-select__wrapper --last ui-ctl ui-ctl-radio ui-ctl-w100\"\n\t\t\t\t\tfor=\"", "\"\n\t\t\t\t\tdata-role=\"select-item\"\n\t\t\t\t>\n\t\t\t\t\t<div class=\"bizproc-automation-popup-select__visible-row\">\n\t\t\t\t\t\t<input \n\t\t\t\t\t\t\tref=\"radioIn\"\n\t\t\t\t\t\t\tclass=\"bizproc-automation-popup-select__input ui-ctl-element\" \n\t\t\t\t\t\t\tid=\"", "\" \n\t\t\t\t\t\t\ttype=\"radio\" \n\t\t\t\t\t\t\tvalue=\"", "\" \n\t\t\t\t\t\t\tname=\"type\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</label>\n\t\t\t</div>\n\t\t"])), uid, uid, DelayInterval.DELAY_TYPE.In, _classPrivateMethodGet$d(this, _createInBasis, _createInBasis2).call(this), chevron, hiddenRow),
+	        root = _ref4.root,
+	        labelIn = _ref4.labelIn,
+	        radioIn = _ref4.radioIn;
+	      main_core.Event.bind(radioIn, 'change', _classPrivateMethodGet$d(this, _onChangeDelayIntervalType, _onChangeDelayIntervalType2).bind(this, labelIn));
 	      if (delay.type === DelayInterval.DELAY_TYPE.In) {
 	        radioIn.setAttribute('checked', 'checked');
-	      }
-	      var labelIn = main_core.Dom.create("label", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-wrapper",
-	          "for": uid
-	        },
-	        children: [main_core.Dom.create('span', {
-	          attrs: {
-	            className: 'bizproc-automation-popup-settings-title'
-	          },
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_IN_TIME_2')
-	        })]
-	      });
-	      var basisField = this.getBasisField(delay.basis, true);
-	      var basisValue = delay.basis;
-	      if (!basisField) {
-	        basisField = this.basisFields[0];
-	        basisValue = basisField.SystemExpression;
-	      }
-	      var inBasisValueNode = main_core.Dom.create('input', {
-	        attrs: {
-	          type: "hidden",
-	          name: "basis_in",
-	          value: basisValue
+	        main_core.Dom.addClass(labelIn, '--active');
+	        if (this.delay.inTime) {
+	          main_core.Dom.addClass(hiddenRow, '--visible');
+	          main_core.Dom.addClass(chevron, '--active');
 	        }
-	      });
-	      var self = this;
-	      var inBasisNode = main_core.Dom.create('span', {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-link bizproc-automation-delay-interval-basis"
-	        },
-	        text: basisField ? basisField.Name : main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHOOSE_DATE_FIELD'),
-	        events: {
-	          click: function click(event) {
-	            self.onBasisClick(event, this, function (field) {
-	              inBasisNode.textContent = field.Name;
-	              inBasisValueNode.value = field.SystemExpression;
-	            }, DelayInterval.DELAY_TYPE.In);
-	          }
-	        }
-	      });
-	      labelIn.appendChild(inBasisValueNode);
-	      labelIn.appendChild(inBasisNode);
-	      if (!this.useAfterBasis) {
-	        var helpNode = main_core.Dom.create('span', {
-	          attrs: {
-	            className: "bizproc-automation-status-help bizproc-automation-status-help-right",
-	            'data-hint': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DELAY_IN_HELP')
-	          }
-	        });
-	        labelIn.appendChild(helpNode);
 	      }
-	      var inTime = main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t <span>\n\t\t\t \tTime: <input type=\"time\" value=\"", "\" name=\"basis_in_time\"/>\n\t\t\t</span>\n\t\t"])), delay.inTimeString);
-
-	      // Dom.append(inTime, labelIn); // TODO interface
-
-	      return main_core.Dom.create("div", {
-	        attrs: {
-	          className: "bizproc-automation-popup-select-item"
-	        },
-	        children: [radioIn, labelIn]
-	      });
+	      return root;
 	    }
 	  }, {
 	    key: "createValueTypeSelector",
@@ -9044,34 +8668,29 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        h: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_INTERVAL_H'),
 	        d: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_INTERVAL_D')
 	      };
-	      var label = main_core.Dom.create('label', {
-	        attrs: {
-	          className: 'bizproc-automation-popup-settings-link'
-	        },
-	        text: labelTexts[delay.valueType]
-	      });
-	      var input = main_core.Dom.create('input', {
-	        attrs: {
-	          type: 'hidden',
-	          name: name
-	        },
-	        props: {
-	          value: delay.valueType
-	        }
-	      });
+	      var _ref5 = main_core.Tag.render(_templateObject5$5 || (_templateObject5$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span>\n\t\t\t\t<label ref=\"label\" class=\"bizproc-automation-popup-settings-link\">\n\t\t\t\t\t", "\n\t\t\t\t</label>\n\t\t\t\t<input ref=\"input\" type=\"hidden\" name=\"", "\" value=\"", "\"/>\n\t\t\t</span>\n\t\t"])), main_core.Text.encode(labelTexts[delay.valueType]), main_core.Text.encode(name), main_core.Text.encode(delay.valueType)),
+	        root = _ref5.root,
+	        label = _ref5.label,
+	        input = _ref5.input;
 	      main_core.Event.bind(label, 'click', this.onValueTypeSelectorClick.bind(this, label, input));
-	      return main_core.Dom.create('span', {
-	        children: [label, input]
-	      });
+	      return root;
 	    }
 	  }, {
 	    key: "onValueTypeSelectorClick",
 	    value: function onValueTypeSelectorClick(label, input) {
+	      var _this2 = this;
 	      var uid = Helper.generateUniqueId();
 	      var handler = function handler(event, item) {
-	        this.popupWindow.close();
+	        item.getMenuWindow().close();
+	        // eslint-disable-next-line no-param-reassign
 	        input.value = item.valueId;
+	        // eslint-disable-next-line no-param-reassign
 	        label.textContent = item.text;
+	        if (item.valueId === 'd') {
+	          _classPrivateMethodGet$d(_this2, _enableSetTimeRow, _enableSetTimeRow2).call(_this2, document.querySelector("[data-role=\"chevron_".concat(input.name, "\"]")), document.querySelector("[data-role=\"hidden_row_".concat(input.name, "\"]")));
+	        } else {
+	          _classPrivateMethodGet$d(_this2, _disableSetTimeRow, _disableSetTimeRow2).call(_this2, document.querySelector("[data-role=\"chevron_".concat(input.name, "\"]")), document.querySelector("[data-role=\"hidden_row_".concat(input.name, "\"]")));
+	        }
 	      };
 	      var menuItems = [{
 	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_INTERVAL_M'),
@@ -9107,6 +8726,12 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "onBasisClick",
 	    value: function onBasisClick(event, labelNode, callback, delayType) {
 	      var menuItems = [];
+	      var onMenuItemClick = function onMenuItemClick(e, item) {
+	        if (callback) {
+	          callback(item.field || item.options.field);
+	        }
+	        item.getMenuWindow().close();
+	      };
 	      if (delayType === DelayInterval.DELAY_TYPE.After || delayType === DelayInterval.DELAY_TYPE.In) {
 	        menuItems.push({
 	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_BASIS_NOW'),
@@ -9114,41 +8739,26 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	            Name: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_BASIS_NOW'),
 	            SystemExpression: DelayInterval.BASIS_TYPE.CurrentDateTime
 	          },
-	          onclick: function onclick(event, item) {
-	            if (callback) {
-	              callback(item.field);
-	            }
-	            this.popupWindow.close();
-	          }
+	          onclick: onMenuItemClick
 	        }, {
 	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_BASIS_DATE'),
 	          field: {
 	            Name: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_BASIS_DATE'),
 	            SystemExpression: DelayInterval.BASIS_TYPE.CurrentDate
 	          },
-	          onclick: function onclick(event, item) {
-	            if (callback) {
-	              callback(item.field);
-	            }
-	            this.popupWindow.close();
-	          }
+	          onclick: onMenuItemClick
 	        }, {
 	          delimiter: true
 	        });
 	      }
 	      for (var i = 0; i < this.basisFields.length; ++i) {
-	        if (delayType !== DelayInterval.DELAY_TYPE.After && this.basisFields[i]['Id'].indexOf('DATE_CREATE') > -1) {
+	        if (delayType !== DelayInterval.DELAY_TYPE.After && this.basisFields[i].Id.includes('DATE_CREATE')) {
 	          continue;
 	        }
 	        menuItems.push({
 	          text: main_core.Text.encode(this.basisFields[i].Name),
 	          field: this.basisFields[i],
-	          onclick: function onclick(e, item) {
-	            if (callback) {
-	              callback(item.field || item.options.field);
-	            }
-	            this.popupWindow.close();
-	          }
+	          onclick: onMenuItemClick
 	        });
 	      }
 	      var menuId = labelNode.getAttribute('data-menu-id');
@@ -9158,7 +8768,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      }
 	      main_popup.MenuManager.show(menuId, labelNode, menuItems, {
 	        autoHide: true,
-	        offsetLeft: BX.pos(labelNode)['width'] / 2,
+	        offsetLeft: main_core.Dom.getPosition(labelNode).width / 2,
 	        angle: {
 	          position: 'top',
 	          offset: 0
@@ -9198,7 +8808,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      var fields = [];
 	      for (var i = 0; i < this.basisFields.length; ++i) {
 	        var fld = this.basisFields[i];
-	        if (fld['Id'].indexOf('DATE_MODIFY') < 0 && fld['Id'].indexOf('EVENT_DATE') < 0 && fld['Id'].indexOf('BIRTHDATE') < 0) {
+	        if (!fld.Id.includes('DATE_MODIFY') && !fld.Id.includes('EVENT_DATE') && !fld.Id.includes('BIRTHDATE')) {
 	          fields.push(fld);
 	        }
 	      }
@@ -9207,57 +8817,213 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }]);
 	  return DelayIntervalSelector$$1;
 	}();
+	function _createNowControlNode2(uid) {
+	  var labelText = main_core.Loc.getMessage(this.useAfterBasis ? 'BIZPROC_AUTOMATION_CMP_BASIS_NOW' : 'BIZPROC_AUTOMATION_CMP_AT_ONCE_2');
+	  var hintText = main_core.Loc.getMessage(this.useAfterBasis ? 'BIZPROC_AUTOMATION_CMP_DELAY_NOW_HELP_2' : 'BIZPROC_AUTOMATION_CMP_DELAY_NOW_HELP');
+	  var _ref6 = main_core.Tag.render(_templateObject6$5 || (_templateObject6$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-select-item\">\n\t\t\t\t<label\n\t\t\t\t\tref=\"labelAfter\"\n\t\t\t\t\tclass=\"bizproc-automation-popup-select__wrapper --first ui-ctl ui-ctl-radio ui-ctl-w100\"\n\t\t\t\t\tfor=\"", "now\"\n\t\t\t\t\tdata-role=\"select-item\"\n\t\t\t\t>\n\t\t\t\t\t<input \n\t\t\t\t\t\tref=\"radioNow\"\n\t\t\t\t\t\tclass=\"bizproc-automation-popup-select__input ui-ctl-element\"\n\t\t\t\t\t\tid=\"", "now\"\n\t\t\t\t\t\ttype=\"radio\"\n\t\t\t\t\t\tvalue=\"now\"\n\t\t\t\t\t\tname=\"type\"\n\t\t\t\t\t/>\n\t\t\t\t\t<span class=\"bizproc-automation-popup-settings__text --first\">", "</span>\n\t\t\t\t\t<span\n\t\t\t\t\t\tclass=\"bizproc-automation-status__help\"\n\t\t\t\t\t\tdata-hint=\"", "\"\n\t\t\t\t\t></span>\n\t\t\t\t</label>\n\t\t\t</div>\n\t\t"])), uid, uid, labelText, hintText),
+	    root = _ref6.root,
+	    labelAfter = _ref6.labelAfter,
+	    radioNow = _ref6.radioNow;
+	  main_core.Event.bind(radioNow, 'change', _classPrivateMethodGet$d(this, _onChangeDelayIntervalType, _onChangeDelayIntervalType2).bind(this, labelAfter));
+	  if (this.delay.isNow()) {
+	    radioNow.setAttribute('checked', 'checked');
+	    main_core.Dom.addClass(labelAfter, '--active');
+	  }
+	  return root;
+	}
+	function _onChangeDelayIntervalType2(labelNode) {
+	  document.querySelectorAll('[data-role="select-item"]').forEach(function (node) {
+	    main_core.Dom.removeClass(node, '--active');
+	  });
+	  main_core.Dom.addClass(labelNode, '--active');
+	}
+	function _saveDelayIntervalTypeFromForm2(formData) {
+	  var type = formData.get('type');
+	  if (type === 'now') {
+	    this.delay.setNow();
+	  } else if (type === DelayInterval.DELAY_TYPE.In) {
+	    this.delay.setType(DelayInterval.DELAY_TYPE.In);
+	    this.delay.setValue(0);
+	    this.delay.setValueType('i');
+	    this.delay.setBasis(formData.get('basis_in'));
+	  } else {
+	    this.delay.setType(type);
+	    this.delay.setValue(formData.get("value_".concat(type)));
+	    this.delay.setValueType(formData.get("value_type_".concat(type)));
+	    if (type === DelayInterval.DELAY_TYPE.After) {
+	      if (this.useAfterBasis) {
+	        this.delay.setBasis(formData.get('basis_after'));
+	      } else {
+	        this.delay.setBasis(DelayInterval.BASIS_TYPE.CurrentDateTime);
+	      }
+	      if (this.minLimitM > 0 && this.delay.basis === DelayInterval.BASIS_TYPE.CurrentDateTime && this.delay.valueType === 'i' && this.delay.value < this.minLimitM) {
+	        BX.UI.Notification.Center.notify({
+	          content: main_core.Loc.getMessage('BIZPROC_AUTOMATION_DELAY_MIN_LIMIT_LABEL')
+	        });
+	        this.delay.setValue(this.minLimitM);
+	      }
+	    } else {
+	      this.delay.setBasis(formData.get('basis_before'));
+	    }
+	  }
+	}
+	function _parseInTimeValue2(value) {
+	  if (main_core.Type.isStringFilled(value)) {
+	    var result = value.trim();
+	    if (/^\d{2}:\d{2}\s?[ap]?m?$/.test(result)) {
+	      if (result.includes('am')) {
+	        return [String(main_core.Text.toInteger(result.slice(0, 2)) % 12).padStart(2, '0'), String(main_core.Text.toInteger(result.slice(3)) % 60).padStart(2, '0')];
+	      }
+	      if (result.includes('pm')) {
+	        return [String(main_core.Text.toInteger(result.slice(0, 2)) % 12 + 12).padStart(2, '0'), String(main_core.Text.toInteger(result.slice(3)) % 60).padStart(2, '0')];
+	      }
+	      return [String(main_core.Text.toInteger(result.slice(0, 2)) % 24).padStart(2, '0'), String(main_core.Text.toInteger(result.slice(3)) % 60).padStart(2, '0')];
+	    }
+	  }
+	  return null;
+	}
+	function _createHiddenRow2(delayIntervalType, role) {
+	  return main_core.Tag.render(_templateObject7$5 || (_templateObject7$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-select__hidden-row\" data-role=\"hidden_row_", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), role, _classPrivateMethodGet$d(this, _createTimeSelector, _createTimeSelector2).call(this, delayIntervalType));
+	}
+	function _createShowHiddenRowChevron2(hiddenRow, disabled, type) {
+	  var chevron = main_core.Tag.render(_templateObject8$5 || (_templateObject8$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div \n\t\t\t\tclass=\"ui-icon-set --chevron-down bizproc-automation-popup-select__chevron\"\n\t\t\t\tdata-role=\"chevron_", "\"\n\t\t\t\tstyle=\"display: none; /* TODO: fix this */\"\n\t\t\t></div>\n\t\t"])), type);
+	  if (disabled) {
+	    _classPrivateMethodGet$d(this, _disableSetTimeRow, _disableSetTimeRow2).call(this, chevron, hiddenRow);
+	  }
+	  main_core.Event.bind(chevron, 'click', function () {
+	    if (main_core.Dom.hasClass(chevron, '--disabled')) {
+	      return;
+	    }
+	    main_core.Dom.toggleClass(chevron, '--active');
+	    main_core.Dom.toggleClass(hiddenRow, '--visible');
+	  });
+	  return chevron;
+	}
+	function _disableSetTimeRow2(chevron, hiddenRow) {
+	  main_core.Dom.removeClass(chevron, '--active');
+	  main_core.Dom.addClass(chevron, '--disabled');
+	  main_core.Dom.attr(chevron, {
+	    'data-hint-html': 'Y',
+	    'data-hint-no-icon': 'Y'
+	  });
+	  chevron.dataset.hint = main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_DELAY_INTERVAL_CHEVRON_DISABLED');
+	  main_core.Dom.removeClass(hiddenRow, '--visible');
+	  BX.UI.Hint.initNode(chevron);
+	}
+	function _enableSetTimeRow2(chevron, hiddenRow) {
+	  main_core.Dom.replace(chevron, _classPrivateMethodGet$d(this, _createShowHiddenRowChevron, _createShowHiddenRowChevron2).call(this, hiddenRow, false, main_core.Dom.attr(chevron, 'data-role').replace('chevron_', '')));
+	}
+	function _createAfterBasis2() {
+	  var _this3 = this;
+	  if (!this.useAfterBasis) {
+	    return '';
+	  }
+	  var delay = this.delay;
+	  var basisField = this.getBasisField(delay.basis, true);
+	  var basisValue = delay.basis;
+	  if (!basisField) {
+	    basisField = this.getBasisField(DelayInterval.BASIS_TYPE.CurrentDateTime, true);
+	    basisValue = basisField.SystemExpression;
+	  }
+	  var beforeBasisNodeText = basisField ? main_core.Text.encode(basisField.Name) : main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHOOSE_DATE_FIELD');
+	  var _ref7 = main_core.Tag.render(_templateObject9$4 || (_templateObject9$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-auto-width\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t\t<input ref=\"beforeBasisValueNode\" type=\"hidden\" name=\"basis_after\" value=\"", "\">\n\t\t\t<span class=\"bizproc-automation-popup-settings-link bizproc-automation-delay-interval-basis\">\n\t\t\t\t<span ref=\"beforeBasisNode\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AFTER'), main_core.Text.encode(basisValue), main_core.Text.encode(beforeBasisNodeText)),
+	    root = _ref7.root,
+	    beforeBasisValueNode = _ref7.beforeBasisValueNode,
+	    beforeBasisNode = _ref7.beforeBasisNode;
+	  main_core.Event.bind(beforeBasisNode, 'click', function (event) {
+	    var callback = function callback(field) {
+	      beforeBasisNode.textContent = main_core.Text.encode(field.Name);
+	      beforeBasisValueNode.value = field.SystemExpression;
+	    };
+	    _this3.onBasisClick(event, beforeBasisNode, callback, DelayInterval.DELAY_TYPE.After);
+	  });
+	  return root;
+	}
+	function _createBeforeBasis2() {
+	  var _this4 = this;
+	  var delay = this.delay;
+	  var basisField = this.getBasisField(delay.basis);
+	  var basisValue = delay.basis;
+	  if (!basisField) {
+	    basisField = this.basisFields[0];
+	    basisValue = basisField.SystemExpression;
+	  }
+	  var _ref8 = main_core.Tag.render(_templateObject10$4 || (_templateObject10$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-auto-width\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t\t<input ref=\"beforeBasisValueNode\" type=\"hidden\" name=\"basis_before\" value=\"", "\">\n\t\t\t<span class=\"bizproc-automation-popup-settings-link bizproc-automation-delay-interval-basis\">\n\t\t\t\t<span ref=\"beforeBasisNode\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_BEFORE_1'), basisValue, basisField ? basisField.Name : main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHOOSE_DATE_FIELD')),
+	    root = _ref8.root,
+	    beforeBasisValueNode = _ref8.beforeBasisValueNode,
+	    beforeBasisNode = _ref8.beforeBasisNode;
+	  main_core.Event.bind(beforeBasisNode, 'click', function (event) {
+	    var callback = function callback(field) {
+	      beforeBasisNode.textContent = main_core.Text.encode(field.Name);
+	      beforeBasisValueNode.value = main_core.Text.encode(field.SystemExpression);
+	    };
+	    _this4.onBasisClick(event, beforeBasisNode, callback, DelayInterval.DELAY_TYPE.Before);
+	  });
+	  return root;
+	}
+	function _createInBasis2() {
+	  var _this5 = this;
+	  var delay = this.delay;
+	  var basisField = this.getBasisField(delay.basis, true);
+	  var basisValue = delay.basis;
+	  if (!basisField) {
+	    basisField = this.basisFields[0];
+	    basisValue = basisField.SystemExpression;
+	  }
+	  var _ref9 = main_core.Tag.render(_templateObject11$3 || (_templateObject11$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"bizproc-automation-popup-settings__text --first\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t\t<input ref=\"inBasisValueNode\" type=\"hidden\" name=\"basis_in\" value=\"", "\"/>\n\t\t\t<span class=\"bizproc-automation-popup-settings-link bizproc-automation-delay-interval-basis\">\n\t\t\t\t<span ref=\"inBasisNode\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_IN_TIME_2'), basisValue, basisField ? basisField.Name : main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHOOSE_DATE_FIELD')),
+	    root = _ref9.root,
+	    inBasisValueNode = _ref9.inBasisValueNode,
+	    inBasisNode = _ref9.inBasisNode;
+	  main_core.Event.bind(inBasisNode, 'click', function (event) {
+	    var callback = function callback(field) {
+	      inBasisNode.textContent = main_core.Text.encode(field.Name);
+	      inBasisValueNode.value = main_core.Text.encode(field.SystemExpression);
+	    };
+	    _this5.onBasisClick(event, inBasisNode, callback, DelayInterval.DELAY_TYPE.In);
+	  });
+	  return root;
+	}
+	function _createTimeSelector2(delayType) {
+	  var value = delayType === this.delay.type ? this.delay.inTime : [];
+	  var formattedValue = _classPrivateMethodGet$d(this, _formatTimeToString, _formatTimeToString2).call(this, value !== null && value !== void 0 ? value : []);
+	  var _ref10 = main_core.Tag.render(_templateObject12$3 || (_templateObject12$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-settings__text\">\n\t\t\t\t<span style=\"margin-right: 10px\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t\t<input\n\t\t\t\t\tref=\"input\"\n\t\t\t\t\ttype=\"text\"\n\t\t\t\t\tname=\"basis_in_time_", "\"\n\t\t\t\t\tclass=\"bizproc-automation-delay-interval-set-time bizproc-automation-popup-settings__input\"\n\t\t\t\t\tautocomplete=\"off\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t/>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('BIZPROC_JS_AUTOMATION_DELAY_INTERVAL_SET_TIME_LABEL'), main_core.Text.encode(delayType), main_core.Text.encode(formattedValue)),
+	    root = _ref10.root,
+	    input = _ref10.input;
+	  new InlineTimeSelector({
+	    context: {
+	      fields: []
+	    },
+	    showValuesSelector: false
+	  }).renderTo(input);
+	  return root;
+	}
+	function _formatTimeToString2(time) {
+	  var _time$, _time$2;
+	  var dateFormat = BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage('FORMAT_DATE')).replace(/:?\s*s/, '');
+	  var timeFormat = BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage('FORMAT_DATETIME')).replace("".concat(dateFormat, " "), '').replace(':s', '');
+	  var date = new Date();
+	  date.setHours((_time$ = time[0]) !== null && _time$ !== void 0 ? _time$ : 0, (_time$2 = time[1]) !== null && _time$2 !== void 0 ? _time$2 : 0, 0, 0);
+	  return main_core.Type.isArrayFilled(time) ? main_date.DateTimeFormat.format(timeFormat, date) : '';
+	}
 	function _createWaitWorkDayNode2() {
 	  var delay = this.delay;
 	  var uid = Helper.generateUniqueId();
-	  var isAvailable = _classPrivateMethodGet$c(this, _isWorkTimeAvailable, _isWorkTimeAvailable2).call(this);
-	  var workDayRadio = main_core.Dom.create("input", {
-	    attrs: {
-	      type: "checkbox",
-	      id: uid + "wait_workday",
-	      name: "wait_workday",
-	      value: '1',
-	      style: 'vertical-align: middle'
-	    },
-	    props: {
-	      checked: delay.waitWorkDay && isAvailable
-	    }
-	  });
-	  if (!isAvailable) {
-	    workDayRadio.disabled = true;
+	  var isAvailable = _classPrivateMethodGet$d(this, _isWorkTimeAvailable, _isWorkTimeAvailable2).call(this);
+	  var _ref11 = main_core.Tag.render(_templateObject13$3 || (_templateObject13$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-select-item\">\n\t\t\t\t<div class=\"bizproc-automation-popup-settings__checkbox-label\">\n\t\t\t\t\t<input\n\t\t\t\t\t\tref=\"workDayCheckbox\"\n\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings__checkbox\"\n\t\t\t\t\t\ttype=\"checkbox\"\n\t\t\t\t\t\tid=\"", "\"\n\t\t\t\t\t\tname=\"wait_workday\"\n\t\t\t\t\t\tvalue=\"1\"\n\t\t\t\t\t\tstyle=\"vertical-align: middle\"\n\t\t\t\t\t/>\n\t\t\t\t\t<label\n\t\t\t\t\t\tclass=\"bizproc-automation-popup-settings-lbl ", "\"\n\t\t\t\t\t\tfor=\"", "\"\n\t\t\t\t\t>", "</label>\n\t\t\t\t\t<span\n\t\t\t\t\t\tclass=\"bizproc-automation-status-help bizproc-automation-status-help-right\"\n\t\t\t\t\t\tdata-hint=\"", "\"\n\t\t\t\t\t></span>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), "".concat(uid, "wait_workday"), isAvailable ? '' : 'bizproc-automation-robot-btn-set-locked', "".concat(uid, "wait_workday"), main_core.Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WAIT_WORK_DAY_MSGVER_1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WAIT_WORK_DAY_HELP')),
+	    root = _ref11.root,
+	    workDayCheckbox = _ref11.workDayCheckbox;
+	  if (delay.waitWorkDay && isAvailable) {
+	    main_core.Dom.attr(workDayCheckbox, 'checked', 'checked');
 	  }
-	  var workDayHelpNode = main_core.Dom.create('span', {
-	    attrs: {
-	      className: "bizproc-automation-status-help bizproc-automation-status-help-right",
-	      'data-hint': main_core.Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WAIT_WORK_DAY_HELP')
-	    }
-	  });
-	  var events = {};
 	  if (!isAvailable) {
-	    events.click = function () {
+	    main_core.Event.bind(root, 'click', function () {
 	      if (top.BX.UI && top.BX.UI.InfoHelper) {
 	        top.BX.UI.InfoHelper.show('limit_office_worktime_responsible');
 	      }
-	    };
+	    });
+	    workDayCheckbox.disabled = true;
 	  }
-	  return main_core.Dom.create("div", {
-	    attrs: {
-	      className: "bizproc-automation-popup-select-item"
-	    },
-	    children: [main_core.Dom.create("div", {
-	      attrs: {
-	        className: "bizproc-automation-popup-settings-title"
-	      },
-	      children: [workDayRadio, main_core.Dom.create("label", {
-	        attrs: {
-	          className: "bizproc-automation-popup-settings-lbl ".concat(!isAvailable ? 'bizproc-automation-robot-btn-set-locked' : ''),
-	          "for": uid + "wait_workday"
-	        },
-	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_DELAY_WAIT_WORK_DAY_MSGVER_1')
-	      }), workDayHelpNode]
-	    })],
-	    events: events
-	  });
+	  return root;
 	}
 	function _isWorkTimeAvailable2() {
 	  var _getGlobalContext$get;
@@ -9294,10 +9060,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return SelectorContext;
 	}(BaseContext);
 
-	function _classPrivateMethodInitSpec$d(obj, privateSet) { _checkPrivateRedeclaration$r(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateMethodInitSpec$e(obj, privateSet) { _checkPrivateRedeclaration$r(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$q(obj, privateMap, value) { _checkPrivateRedeclaration$r(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$r(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$d(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodGet$e(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _globalVariables = /*#__PURE__*/new WeakMap();
 	var _globalConstants = /*#__PURE__*/new WeakMap();
 	var _isCorrectMode = /*#__PURE__*/new WeakSet();
@@ -9311,13 +9077,13 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  function AutomationGlobals(parameters) {
 	    var _this = this;
 	    babelHelpers.classCallCheck(this, AutomationGlobals);
-	    _classPrivateMethodInitSpec$d(this, _setGlobals);
-	    _classPrivateMethodInitSpec$d(this, _getGlobals);
-	    _classPrivateMethodInitSpec$d(this, _getObjectId);
-	    _classPrivateMethodInitSpec$d(this, _getSystemExpression);
-	    _classPrivateMethodInitSpec$d(this, _getExpression);
-	    _classPrivateMethodInitSpec$d(this, _getAutomationGlobalsProperty);
-	    _classPrivateMethodInitSpec$d(this, _isCorrectMode);
+	    _classPrivateMethodInitSpec$e(this, _setGlobals);
+	    _classPrivateMethodInitSpec$e(this, _getGlobals);
+	    _classPrivateMethodInitSpec$e(this, _getObjectId);
+	    _classPrivateMethodInitSpec$e(this, _getSystemExpression);
+	    _classPrivateMethodInitSpec$e(this, _getExpression);
+	    _classPrivateMethodInitSpec$e(this, _getAutomationGlobalsProperty);
+	    _classPrivateMethodInitSpec$e(this, _isCorrectMode);
 	    _classPrivateFieldInitSpec$q(this, _globalVariables, {
 	      writable: true,
 	      value: []
@@ -9329,14 +9095,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    if (main_core.Type.isArrayFilled(parameters.variables)) {
 	      var variables = [];
 	      parameters.variables.forEach(function (property) {
-	        variables.push(_classPrivateMethodGet$d(_this, _getAutomationGlobalsProperty, _getAutomationGlobalsProperty2).call(_this, property.Id, property, bizproc_globals.Globals.Manager.Instance.mode.variable));
+	        variables.push(_classPrivateMethodGet$e(_this, _getAutomationGlobalsProperty, _getAutomationGlobalsProperty2).call(_this, property.Id, property, bizproc_globals.Globals.Manager.Instance.mode.variable));
 	      });
 	      babelHelpers.classPrivateFieldSet(this, _globalVariables, variables);
 	    }
 	    if (main_core.Type.isArrayFilled(parameters.constants)) {
 	      var constants = [];
 	      parameters.constants.forEach(function (property) {
-	        constants.push(_classPrivateMethodGet$d(_this, _getAutomationGlobalsProperty, _getAutomationGlobalsProperty2).call(_this, property.Id, property, bizproc_globals.Globals.Manager.Instance.mode.constant));
+	        constants.push(_classPrivateMethodGet$e(_this, _getAutomationGlobalsProperty, _getAutomationGlobalsProperty2).call(_this, property.Id, property, bizproc_globals.Globals.Manager.Instance.mode.constant));
 	      });
 	      babelHelpers.classPrivateFieldSet(this, _globalConstants, constants);
 	    }
@@ -9345,10 +9111,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "updateGlobals",
 	    value: function updateGlobals(mode, updatedGlobals) {
 	      var _this2 = this;
-	      if (!_classPrivateMethodGet$d(this, _isCorrectMode, _isCorrectMode2).call(this, mode) || Object.keys(updatedGlobals).length < 1) {
+	      if (!_classPrivateMethodGet$e(this, _isCorrectMode, _isCorrectMode2).call(this, mode) || Object.keys(updatedGlobals).length < 1) {
 	        return;
 	      }
-	      var globals = _classPrivateMethodGet$d(this, _getGlobals, _getGlobals2).call(this, mode);
+	      var globals = _classPrivateMethodGet$e(this, _getGlobals, _getGlobals2).call(this, mode);
 	      var newGlobals = [];
 	      var _loop = function _loop(id) {
 	        var property = updatedGlobals[id];
@@ -9358,11 +9124,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        if (index > -1) {
 	          if (globals[index].Name !== property.Name) {
 	            globals[index].Name = property.Name;
-	            globals[index].Expression = _classPrivateMethodGet$d(_this2, _getExpression, _getExpression2).call(_this2, property.Name, property.VisibilityName);
+	            globals[index].Expression = _classPrivateMethodGet$e(_this2, _getExpression, _getExpression2).call(_this2, property.Name, property.VisibilityName);
 	          }
 	          return "continue";
 	        }
-	        newGlobals.push(_classPrivateMethodGet$d(_this2, _getAutomationGlobalsProperty, _getAutomationGlobalsProperty2).call(_this2, id, property, mode));
+	        newGlobals.push(_classPrivateMethodGet$e(_this2, _getAutomationGlobalsProperty, _getAutomationGlobalsProperty2).call(_this2, id, property, mode));
 	      };
 	      for (var id in updatedGlobals) {
 	        var _ret = _loop(id);
@@ -9371,15 +9137,15 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      if (main_core.Type.isArrayFilled(newGlobals)) {
 	        globals = globals.concat(newGlobals);
 	      }
-	      _classPrivateMethodGet$d(this, _setGlobals, _setGlobals2).call(this, mode, globals);
+	      _classPrivateMethodGet$e(this, _setGlobals, _setGlobals2).call(this, mode, globals);
 	    }
 	  }, {
 	    key: "deleteGlobals",
 	    value: function deleteGlobals(mode, deletedGlobals) {
-	      if (!_classPrivateMethodGet$d(this, _isCorrectMode, _isCorrectMode2).call(this, mode) || !main_core.Type.isArrayFilled(deletedGlobals)) {
+	      if (!_classPrivateMethodGet$e(this, _isCorrectMode, _isCorrectMode2).call(this, mode) || !main_core.Type.isArrayFilled(deletedGlobals)) {
 	        return;
 	      }
-	      var globals = _classPrivateMethodGet$d(this, _getGlobals, _getGlobals2).call(this, mode);
+	      var globals = _classPrivateMethodGet$e(this, _getGlobals, _getGlobals2).call(this, mode);
 	      deletedGlobals.forEach(function (id) {
 	        var index = globals.findIndex(function (prop) {
 	          return prop.Id === id;
@@ -9388,7 +9154,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          globals.splice(index, 1);
 	        }
 	      });
-	      _classPrivateMethodGet$d(this, _setGlobals, _setGlobals2).call(this, mode, globals);
+	      _classPrivateMethodGet$e(this, _setGlobals, _setGlobals2).call(this, mode, globals);
 	    }
 	  }, {
 	    key: "globalVariables",
@@ -9420,14 +9186,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	}
 	function _getAutomationGlobalsProperty2(id, property, mode) {
 	  return {
-	    ObjectId: _classPrivateMethodGet$d(this, _getObjectId, _getObjectId2).call(this, mode),
+	    ObjectId: _classPrivateMethodGet$e(this, _getObjectId, _getObjectId2).call(this, mode),
 	    SuperTitle: String(property.VisibilityName),
 	    Id: String(id),
 	    Name: String(property.Name),
 	    Type: String(property.Type),
 	    BaseType: String(property.BaseType || property.Type),
-	    Expression: main_core.Type.isStringFilled(property.Expression) ? property.Expression : _classPrivateMethodGet$d(this, _getExpression, _getExpression2).call(this, property.Name, property.VisibilityName),
-	    SystemExpression: main_core.Type.isStringFilled(property.SystemExpression) ? property.SystemExpression : _classPrivateMethodGet$d(this, _getSystemExpression, _getSystemExpression2).call(this, mode, id),
+	    Expression: main_core.Type.isStringFilled(property.Expression) ? property.Expression : _classPrivateMethodGet$e(this, _getExpression, _getExpression2).call(this, property.Name, property.VisibilityName),
+	    SystemExpression: main_core.Type.isStringFilled(property.SystemExpression) ? property.SystemExpression : _classPrivateMethodGet$e(this, _getSystemExpression, _getSystemExpression2).call(this, mode, id),
 	    Options: property.Options,
 	    Multiple: main_core.Type.isBoolean(property.Multiple) ? property.Multiple : property.Multiple === 'Y',
 	    Visibility: String(property.Visibility)
@@ -9437,7 +9203,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return '{{' + String(visibilityName) + ': ' + String(name) + '}}';
 	}
 	function _getSystemExpression2(mode, id) {
-	  return '{=' + _classPrivateMethodGet$d(this, _getObjectId, _getObjectId2).call(this, mode) + ':' + String(id) + '}';
+	  return '{=' + _classPrivateMethodGet$e(this, _getObjectId, _getObjectId2).call(this, mode) + ':' + String(id) + '}';
 	}
 	function _getObjectId2(mode) {
 	  return mode === bizproc_globals.Globals.Manager.Instance.mode.variable ? 'GlobalVar' : 'GlobalConst';
@@ -9459,10 +9225,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }
 	}
 
-	function _classPrivateMethodInitSpec$e(obj, privateSet) { _checkPrivateRedeclaration$s(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateMethodInitSpec$f(obj, privateSet) { _checkPrivateRedeclaration$s(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$r(obj, privateMap, value) { _checkPrivateRedeclaration$s(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$s(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$e(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodGet$f(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _nodes = /*#__PURE__*/new WeakMap();
 	var _lastColorStatusIndex = /*#__PURE__*/new WeakMap();
 	var _defaultStatusColor = /*#__PURE__*/new WeakMap();
@@ -9472,9 +9238,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var Statuses = /*#__PURE__*/function () {
 	  function Statuses(stagesContainerNode) {
 	    babelHelpers.classCallCheck(this, Statuses);
-	    _classPrivateMethodInitSpec$e(this, _isColorStatus);
-	    _classPrivateMethodInitSpec$e(this, _fixTitleColors);
-	    _classPrivateMethodInitSpec$e(this, _fixBackgroundColors);
+	    _classPrivateMethodInitSpec$f(this, _isColorStatus);
+	    _classPrivateMethodInitSpec$f(this, _fixTitleColors);
+	    _classPrivateMethodInitSpec$f(this, _fixBackgroundColors);
 	    _classPrivateFieldInitSpec$r(this, _nodes, {
 	      writable: true,
 	      value: []
@@ -9507,8 +9273,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "fixColors",
 	    value: function fixColors() {
-	      _classPrivateMethodGet$e(this, _fixBackgroundColors, _fixBackgroundColors2).call(this);
-	      _classPrivateMethodGet$e(this, _fixTitleColors, _fixTitleColors2).call(this);
+	      _classPrivateMethodGet$f(this, _fixBackgroundColors, _fixBackgroundColors2).call(this);
+	      _classPrivateMethodGet$f(this, _fixTitleColors, _fixTitleColors2).call(this);
 	    }
 	  }]);
 	  return Statuses;
@@ -9518,7 +9284,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  babelHelpers.classPrivateFieldGet(this, _nodes).forEach(function (statusNode, index) {
 	    var backgroundNode = statusNode.querySelector('.bizproc-automation__status--bg');
 	    if (backgroundNode) {
-	      var color = _classPrivateMethodGet$e(_this, _isColorStatus, _isColorStatus2).call(_this, index) && statusNode.dataset.bgcolor ? statusNode.dataset.bgcolor : babelHelpers.classPrivateFieldGet(_this, _defaultStatusColor);
+	      var color = _classPrivateMethodGet$f(_this, _isColorStatus, _isColorStatus2).call(_this, index) && statusNode.dataset.bgcolor ? statusNode.dataset.bgcolor : babelHelpers.classPrivateFieldGet(_this, _defaultStatusColor);
 	      main_core.Dom.style(backgroundNode, {
 	        backgroundColor: color,
 	        borderColor: color
@@ -9529,7 +9295,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	function _fixTitleColors2() {
 	  var _this2 = this;
 	  babelHelpers.classPrivateFieldGet(this, _nodes).forEach(function (statusNode, index) {
-	    if (!_classPrivateMethodGet$e(_this2, _isColorStatus, _isColorStatus2).call(_this2, index)) {
+	    if (!_classPrivateMethodGet$f(_this2, _isColorStatus, _isColorStatus2).call(_this2, index)) {
 	      return;
 	    }
 	    var backgroundColor = statusNode.dataset.bgcolor;
@@ -9590,15 +9356,15 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return BeginningGuide;
 	}();
 
-	function _createForOfIteratorHelper$6(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$6(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-	function _unsupportedIterableToArray$6(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$6(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$6(o, minLen); }
-	function _arrayLikeToArray$6(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-	function _classPrivateMethodInitSpec$f(obj, privateSet) { _checkPrivateRedeclaration$u(obj, privateSet); privateSet.add(obj); }
+	function _createForOfIteratorHelper$9(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$9(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray$9(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$9(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$9(o, minLen); }
+	function _arrayLikeToArray$9(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	function _classPrivateMethodInitSpec$g(obj, privateSet) { _checkPrivateRedeclaration$u(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$t(obj, privateMap, value) { _checkPrivateRedeclaration$u(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$u(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classStaticPrivateMethodGet$2(receiver, classConstructor, method) { _classCheckPrivateStaticAccess$5(receiver, classConstructor); return method; }
 	function _classCheckPrivateStaticAccess$5(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
-	function _classPrivateMethodGet$f(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodGet$g(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _isShownRobotGuide = /*#__PURE__*/new WeakMap();
 	var _isShownTriggerGuide = /*#__PURE__*/new WeakMap();
 	var _isShownSupportingRobotGuide = /*#__PURE__*/new WeakMap();
@@ -9614,11 +9380,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var AutomationGuide = /*#__PURE__*/function () {
 	  function AutomationGuide(options) {
 	    babelHelpers.classCallCheck(this, AutomationGuide);
-	    _classPrivateMethodInitSpec$f(this, _getSupportingRobotGuide);
-	    _classPrivateMethodInitSpec$f(this, _getTriggerGuide);
-	    _classPrivateMethodInitSpec$f(this, _getRobotGuide);
-	    _classPrivateMethodInitSpec$f(this, _getGuide);
-	    _classPrivateMethodInitSpec$f(this, _resolveShowGuides);
+	    _classPrivateMethodInitSpec$g(this, _getSupportingRobotGuide);
+	    _classPrivateMethodInitSpec$g(this, _getTriggerGuide);
+	    _classPrivateMethodInitSpec$g(this, _getRobotGuide);
+	    _classPrivateMethodInitSpec$g(this, _getGuide);
+	    _classPrivateMethodInitSpec$g(this, _resolveShowGuides);
 	    _classPrivateFieldInitSpec$t(this, _isShownRobotGuide, {
 	      writable: true,
 	      value: true
@@ -9681,8 +9447,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "start",
 	    value: function start() {
-	      _classPrivateMethodGet$f(this, _resolveShowGuides, _resolveShowGuides2).call(this);
-	      var guide = _classPrivateMethodGet$f(this, _getGuide, _getGuide2).call(this);
+	      _classPrivateMethodGet$g(this, _resolveShowGuides, _resolveShowGuides2).call(this);
+	      var guide = _classPrivateMethodGet$g(this, _getGuide, _getGuide2).call(this);
 	      if (guide) {
 	        var bindElement = guide.getCurrentStep().target;
 	        if (main_core.Type.isDomNode(bindElement) && document.body.contains(bindElement)) {
@@ -9725,21 +9491,21 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  var guide = null;
 	  if (babelHelpers.classPrivateFieldGet(this, _showSupportingRobotGuide)) {
 	    if (main_core.Type.isDomNode(babelHelpers.classPrivateFieldGet(this, _guideTargets)['supportingRobot'])) {
-	      guide = _classPrivateMethodGet$f(this, _getSupportingRobotGuide, _getSupportingRobotGuide2).call(this);
+	      guide = _classPrivateMethodGet$g(this, _getSupportingRobotGuide, _getSupportingRobotGuide2).call(this);
 	      guide.getPopup().setAutoHide(true);
 	    }
 	    return guide;
 	  }
 	  if (babelHelpers.classPrivateFieldGet(this, _showTriggerGuide)) {
 	    if (main_core.Type.isDomNode(babelHelpers.classPrivateFieldGet(this, _guideTargets)['trigger'])) {
-	      guide = _classPrivateMethodGet$f(this, _getTriggerGuide, _getTriggerGuide2).call(this);
+	      guide = _classPrivateMethodGet$g(this, _getTriggerGuide, _getTriggerGuide2).call(this);
 	      guide.getPopup().setAutoHide(true);
 	    }
 	    return guide;
 	  }
 	  if (babelHelpers.classPrivateFieldGet(this, _showRobotGuide)) {
 	    if (main_core.Type.isDomNode(babelHelpers.classPrivateFieldGet(this, _guideTargets)['robot'])) {
-	      guide = _classPrivateMethodGet$f(this, _getRobotGuide, _getRobotGuide2).call(this);
+	      guide = _classPrivateMethodGet$g(this, _getRobotGuide, _getRobotGuide2).call(this);
 	      guide.getPopup().setAutoHide(true);
 	    }
 	    return guide;
@@ -9820,7 +9586,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	}
 	function _getText(subtitles) {
 	  var text = "<ul class=\"bizproc-automation-tour-guide-list\">";
-	  var _iterator = _createForOfIteratorHelper$6(subtitles),
+	  var _iterator = _createForOfIteratorHelper$9(subtitles),
 	    _step;
 	  try {
 	    for (_iterator.s(); !(_step = _iterator.n()).done;) {
@@ -9901,5 +9667,5 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	exports.Tracker = Tracker;
 	exports.WorkflowStatus = WorkflowStatus;
 
-}((this.BX.Bizproc.Automation = this.BX.Bizproc.Automation || {}),BX.UI,BX,BX.Bizproc,BX.Event,BX.UI.EntitySelector,BX.Main,BX.Main,BX.Bizproc,BX.Bizproc.Automation,BX,BX,BX,BX.UI.Tour));
+}((this.BX.Bizproc.Automation = this.BX.Bizproc.Automation || {}),BX.UI,BX.Bizproc,BX,BX.UI.DragAndDrop,BX.Event,BX.UI.EntitySelector,BX.Main,BX.UI,BX.Main,BX,BX,BX,BX.Bizproc,BX.Bizproc.Automation,BX,BX,BX,BX.UI.Tour));
 //# sourceMappingURL=automation.bundle.js.map

@@ -38,7 +38,9 @@ class BooleanType extends BaseType
 	 */
 	public static function getDbColumnType(): string
 	{
-		return 'int(18)';
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\IntegerField('x'));
 	}
 
 	/**

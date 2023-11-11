@@ -1,13 +1,18 @@
 <?php
+
 namespace Bitrix\Landing;
 
 use Bitrix\Landing\History\ActionFactory;
 use Bitrix\Landing\History\Action\BaseAction;
 use Bitrix\Landing\Internals\BlockTable;
 use Bitrix\Landing\Internals\HistoryTable;
+use Bitrix\Landing\Internals\HistoryStepTable;
 use Bitrix\Landing\Internals\LandingTable;
 use Bitrix\Main\Type\DateTime;
 
+/**
+ * Work with History
+ */
 class History
 {
 	/**
@@ -19,9 +24,6 @@ class History
 	 * Entity type designer block.
 	 */
 	public const ENTITY_TYPE_DESIGNER_BLOCK = 'D';
-
-	// todo: max count
-	// todo: lifetime
 
 	public const AVAILABLE_TYPES = [
 		self::ENTITY_TYPE_LANDING,
@@ -38,7 +40,7 @@ class History
 	 * If set multiply mode some actions will connected and changed as one step
 	 * @var bool
 	 */
-	protected static bool $isMultiply = false;
+	protected static bool $multiplyMode = false;
 
 	/**
 	 * ID of multiply actions group, by default - ID of first action in group
@@ -46,6 +48,7 @@ class History
 	 */
 	protected static ?int $multiplyId = null;
 
+	// todo: $multiplyId and $multiplyStep - is no static. But need getInstance method and like a singletone style
 	/**
 	 * Because multiply step is one step, need increase step just once and save value
 	 * @var int|null
@@ -54,6 +57,15 @@ class History
 
 	protected int $entityId;
 	protected string $entityType = self::ENTITY_TYPE_LANDING;
+	/**
+	 * ID of stepTable row - save for optimisation. If null - row not exists (new item)
+	 * @var int|null
+	 */
+	protected ?int $stepRowId = null;
+	/**
+	 * List of steps, grouped by multiply
+	 * @var array
+	 */
 	protected array $stack = [];
 	protected int $step = 0;
 	protected array $actions = [];
@@ -78,26 +90,26 @@ class History
 
 	public static function setMultiplyMode(): void
 	{
-		self::$isMultiply = true;
+		self::$multiplyMode = true;
 	}
 
 	public static function unsetMultiplyMode(): void
 	{
-		self::$isMultiply = false;
+		self::$multiplyMode = false;
 	}
 
 	/**
 	 * Check enable or disable global history
 	 * @return bool
 	 */
-	public static function isActive() :bool
+	public static function isActive(): bool
 	{
 		return self::$isActive;
 	}
 
 	/**
 	 * @param int $entityId
-	 * @param string $entityType - one of constants ENTITY_TYPE_
+	 * @param string $entityType - one of constants AVAILABLE_TYPES
 	 */
 	public function __construct(int $entityId, string $entityType)
 	{
@@ -113,9 +125,9 @@ class History
 		$this->loadStack();
 		$this->loadStep();
 
-		if ($this->step > count($this->stack))
+		if ($this->step > $this->getStackCount())
 		{
-			$this->step = count($this->stack);
+			$this->saveStep($this->getStackCount());
 		}
 	}
 
@@ -129,7 +141,8 @@ class History
 			->where('ENTITY_TYPE', '=', $this->entityType)
 			->where('ENTITY_ID', '=', $this->entityId)
 			->setOrder(['ID' => 'ASC'])
-			->exec();
+			->exec()
+		;
 		$step = 1;
 		$multyId = null;
 		while ($row = $res->fetch())
@@ -137,7 +150,7 @@ class History
 			$row['ID'] = (int)$row['ID'];
 			if (!is_array($row['ACTION_PARAMS']))
 			{
-				$this->fixBroken($row['ID']);
+				$this->fixBrokenStep($step, $row['ID']);
 				continue;
 			}
 
@@ -159,7 +172,7 @@ class History
 						[
 							'ACTION' => $row['ACTION'],
 							'ACTION_PARAMS' => $row['ACTION_PARAMS'],
-						]
+						],
 					];
 					$row['ACTION'] = ActionFactory::MULTIPLY_ACTION_NAME;
 					$multyId = $row['MULTIPLY_ID'];
@@ -189,79 +202,217 @@ class History
 	/**
 	 * For some reasons history row can be broken.
 	 * For consistency need remove row and decrease step.
-	 * @param int $id
+	 * @param int $step number of broken step
+	 * @param int $id ID of broken History row
 	 * @return bool
 	 */
-	protected function fixBroken(int $id): bool
+	protected function fixBrokenStep(int $step, int $id): bool
 	{
 		$resDelete = HistoryTable::delete($id);
 		if ($resDelete->isSuccess())
 		{
-			if ($this->entityType === self::ENTITY_TYPE_LANDING)
+			$currentStep = $this->loadStep();
+			if ($step > $currentStep)
 			{
-				$landing = LandingTable::query()
-					->addSelect('HISTORY_STEP')
-					->where('ID', '=', $this->entityId)
-					->exec()
-					->fetch()
-				;
-				$currentStep = $landing['HISTORY_STEP'] ?? 0;
-				$newStep = max(--$currentStep, 0);
-				$resUpdate = LandingTable::update(
-					$this->entityId,
-					['HISTORY_STEP' => $newStep]
-				);
-
-				return $resUpdate->isSuccess();
+				return true;
 			}
 
-			if ($this->entityType === self::ENTITY_TYPE_DESIGNER_BLOCK)
-			{
-				$block = BlockTable::query()
-					->addSelect('HISTORY_STEP_DESIGNER')
-					->where('ID', '=', $this->entityId)
-					->exec()
-					->fetch()
-				;
-				$currentStep = $block['HISTORY_STEP_DESIGNER'] ?? 0;
-				$newStep = max(--$currentStep, 0);
-				$resUpdate = BlockTable::update(
-					$this->entityId,
-					['HISTORY_STEP_DESIGNER' => $newStep]
-				);
-
-				return $resUpdate->isSuccess();
-			}
+			return $this->saveStep(max(--$currentStep, 0));
 		}
 
 		return false;
 	}
 
-	protected function loadStep(): void
+	/**
+	 * Delete chosen step and all before them.
+	 * @param int $step number of step in stack
+	 * @return bool
+	 */
+	protected function clearBefore(int $step): bool
 	{
-		$this->step = 0;
-
-		if ($this->entityType === self::ENTITY_TYPE_LANDING)
+		if (!isset($this->stack[$step]))
 		{
-			$landing = LandingTable::query()
-				->addSelect('HISTORY_STEP')
-				->where('ID', '=', $this->entityId)
-				->exec()
-				->fetch()
-			;
-			$this->step = $landing['HISTORY_STEP'] ?? 0;
+			return false;
 		}
 
-		if ($this->entityType === self::ENTITY_TYPE_DESIGNER_BLOCK)
+		// if first step - can't delete nothing
+		if ($this->step <= 1)
 		{
-			$block = BlockTable::query()
-				->addSelect('HISTORY_STEP_DESIGNER')
-				->where('ID', '=', $this->entityId)
-				->exec()
-				->fetch()
-			;
-			$this->step = $block['HISTORY_STEP_DESIGNER'] ?? 0;
+			return true;
 		}
+
+		// delete only before current step
+		if ($step >= $this->step)
+		{
+			$step = $this->step - 1;
+		}
+
+		for ($i = 1; $i <= $step; $i++)
+		{
+			if (!$this->deleteStep(1))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Delete chosen step and all after them.
+	 * @param int $step number of step in stack
+	 * @return bool
+	 */
+	protected function clearAfter(int $step): bool
+	{
+		if (!isset($this->stack[$step]))
+		{
+			return false;
+		}
+
+		// if last step - can't delete nothing
+		$stackCount = $this->getStackCount();
+		if ($this->step >= $stackCount)
+		{
+			return true;
+		}
+
+		// delete only after current step
+		if ($step <= $this->step)
+		{
+			$step = $this->step + 1;
+		}
+
+		$count = $this->getStackCount();
+		for ($i = $step; $i <= $count; $i++)
+		{
+			if (!$this->deleteStep($step))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Clear all history
+	 * @return bool
+	 */
+	public function clear(): bool
+	{
+		$count = $this->getStackCount();
+		for ($i = 0; $i < $count; $i++)
+		{
+			if (!$this->deleteStep(1))
+			{
+				return false;
+			}
+		}
+
+		$this->stack = [];
+
+		return true;
+	}
+
+	/**
+	 * Remove one step by step number, with run action delete processing and save new step
+	 * @param int $step
+	 * @return bool
+	 */
+	protected function deleteStep(int $step): bool
+	{
+		if (!isset($this->stack[$step]))
+		{
+			return false;
+		}
+
+		$item = $this->stack[$step];
+		$action = $this->getActionForStep($item['STEP'], false);
+		if (!$action || !$action->delete())
+		{
+			return false;
+		}
+
+		if (isset($item['MULTIPLY']) && is_array($item['MULTIPLY']) && !empty($item['MULTIPLY']))
+		{
+			foreach ($item['MULTIPLY'] as $multyId)
+			{
+				$resDelete = HistoryTable::delete($multyId);
+				if (!$resDelete->isSuccess())
+				{
+					return false;
+				}
+			}
+		}
+		else
+		{
+			$resDelete = HistoryTable::delete($item['ID']);
+			if (!$resDelete->isSuccess())
+			{
+				return false;
+			}
+		}
+
+		// update stack and step
+		unset($this->stack[$step]);
+		$this->resetStackSteps();
+		if ($step <= $this->step)
+		{
+			return $this->saveStep($this->step - 1);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Re calculate steps after change stack
+	 * @return void
+	 */
+	protected function resetStackSteps(): void
+	{
+		$newStack = [];
+		$step = 1;
+		foreach ($this->stack as $item)
+		{
+			$item['STEP'] = $step;
+			$newStack[$step] = $item;
+			$step++;
+		}
+
+		// todo: what about multiply step?
+
+		$this->stack = $newStack;
+	}
+
+
+	/**
+	 * Remove history records older X days. And save new step.
+	 * @param int $days
+	 * @return bool
+	 */
+	public function clearOld(int $days): bool
+	{
+		if ($days > 0)
+		{
+			$dateEnd = new DateTime();
+			$dateEnd->add('-' . $days . ' days');
+
+			$deleteBeforeStep = 0;
+			foreach ($this->stack as $stackItem)
+			{
+				$dateCurrent = DateTime::createFromUserTime($stackItem['DATE_CREATE']);
+				if ($dateEnd < $dateCurrent)
+				{
+					break;
+				}
+				$deleteBeforeStep = $stackItem['STEP'];
+			}
+
+			return $this->clearBefore($deleteBeforeStep);
+		}
+
+		return false;
 	}
 
 	public function getStackCount(): int
@@ -270,10 +421,148 @@ class History
 	}
 
 	/**
+	 * Get step from table
+	 * @return int
+	 */
+	protected function loadStep(): int
+	{
+		$this->step = 0;
+
+		$step = HistoryStepTable::query()
+			->addSelect('ID')
+			->addSelect('STEP')
+			->where('ENTITY_ID', '=', $this->entityId)
+			->where('ENTITY_TYPE', '=', $this->entityType)
+			->exec()
+			->fetch()
+		;
+		// todo: del other entities row if exists
+		if ($step)
+		{
+			$this->stepRowId = $step['ID'];
+			$this->step = $step['STEP'];
+		}
+		else
+		{
+			$this->migrateStep();
+		}
+
+		return $this->step;
+	}
+
+	/**
+	 * Add exists or add new step row
+	 * @param int $step
+	 * @return bool
+	 */
+	protected function saveStep(int $step): bool
+	{
+		$this->step = $step;
+
+		if ($this->stepRowId)
+		{
+			$res = HistoryStepTable::update($this->stepRowId, ['STEP' => $step]);
+		}
+		else
+		{
+			$res = HistoryStepTable::add([
+				'ENTITY_ID' => $this->entityId,
+				'ENTITY_TYPE' => $this->entityType,
+				'STEP' => $step,
+			]);
+		}
+
+		if ($res->isSuccess())
+		{
+			$this->stepRowId = $res->getId();
+			$this->step = $step;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Move steps from old tables to new entity
+	 * When will be updated all clients - can delete this method
+	 * @return void
+	 */
+	private function migrateStep(): void
+	{
+		$oldStep = null;
+
+		if ($this->entityType === self::ENTITY_TYPE_LANDING)
+		{
+			if (!array_key_exists('HISTORY_STEP', LandingTable::getMap()))
+			{
+				return;
+			}
+
+			$landing = LandingTable::query()
+				->addSelect('HISTORY_STEP')
+				->where('ID', '=', $this->entityId)
+				->exec()
+				->fetch()
+			;
+			$oldStep = $landing ? $landing['HISTORY_STEP'] : null;
+		}
+
+		if ($this->entityType === self::ENTITY_TYPE_DESIGNER_BLOCK)
+		{
+			if (!array_key_exists('HISTORY_STEP_DESIGNER', BlockTable::getMap()))
+			{
+				return;
+			}
+
+			$block = BlockTable::query()
+				->addSelect('HISTORY_STEP_DESIGNER')
+				->where('ID', '=', $this->entityId)
+				->exec()
+				->fetch()
+			;
+			$oldStep = $block ? $block['HISTORY_STEP_DESIGNER'] : null;
+		}
+
+		$isNewStepExists = HistoryStepTable::query()
+			->addSelect('ID')
+			->addSelect('STEP')
+			->where('ENTITY_ID', '=', $this->entityId)
+			->where('ENTITY_TYPE', '=', $this->entityType)
+			->exec()
+			->fetch()
+		;
+
+		if ($oldStep && !$isNewStepExists)
+		{
+			$this->saveStep((int)$oldStep);
+		}
+	}
+
+	/**
+	 * Return stack of js commands for actions
+	 * @return array
+	 */
+	public function getJsStack(): array
+	{
+		$result = [];
+		foreach ($this->stack as $step => $stackItem)
+		{
+			$actionClass = ActionFactory::getActionClass($stackItem['ACTION']);
+			$result[$step] =
+				(is_callable([$actionClass, 'getJsCommandName']))
+					? call_user_func([$actionClass, 'getJsCommandName'])
+					: [];
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Get current step
 	 * @return int
 	 */
-	public function getCurrentStep(): int
+	public function getStep(): int
 	{
 		return $this->step;
 	}
@@ -316,158 +605,91 @@ class History
 		$stackCount = $this->getStackCount();
 		if ($this->step < $stackCount)
 		{
-			for ($i = $this->step + 1; $i <= $stackCount; $i++)
+			if (!$this->clearAfter($this->step + 1))
 			{
-				$this->deleteStackItem($this->stack[$i]);
+				return false;
 			}
 		}
 
-		// todo: check landing exists, check success
-
-		$newStep =
-			(self::$isMultiply && self::$multiplyStep !== null)
+		$nextStep =
+			(self::$multiplyMode && self::$multiplyStep !== null)
 				? self::$multiplyStep
-				: ++$this->step
+				: $this->step + 1
 		;
-		$resUpdate = false;
-		// todo: refactor
-		if ($this->entityType === self::ENTITY_TYPE_LANDING)
-		{
-			$resUpdate = LandingTable::update($this->entityId, [
-				'HISTORY_STEP' => ($newStep),
-			]);
-		}
-		if ($this->entityType === self::ENTITY_TYPE_DESIGNER_BLOCK)
-		{
-			$resUpdate = BlockTable::update($this->entityId, [
-				'HISTORY_STEP_DESIGNER' => ($newStep),
-			]);
-		}
-		$this->step = $newStep;
-		self::$multiplyStep = $newStep;
 
-		if ($resUpdate && $resUpdate->isSuccess())
-		{
-			if (self::$isMultiply && self::$multiplyId !== null)
-			{
-				$fields['MULTIPLY_ID'] = self::$multiplyId;
-			}
-
-			$resAdd = HistoryTable::add($fields);
-
-			if (self::$isMultiply && self::$multiplyId === null)
-			{
-				self::$multiplyId = $resAdd->getId();
-				HistoryTable::update(self::$multiplyId, [
-					'MULTIPLY_ID' => self::$multiplyId,
-				]);
-			}
-
-			return $resAdd->isSuccess();
-		}
-
-		return false;
-
-		// todo: max limit
-	}
-
-	/**
-	 * Clear row(s) from table, and do action delete processing
-	 * @param array $item
-	 * @return bool
-	 */
-	protected function deleteStackItem(array $item): bool
-	{
-		$action = $this->getActionForStep($item['STEP'], true);
-		if (!$action || !$action->delete())
+		if (!$this->saveStep($nextStep))
 		{
 			return false;
 		}
 
-		if (isset($item['MULTIPLY']) && is_array($item['MULTIPLY']) && !empty($item['MULTIPLY']))
+		self::$multiplyStep = $nextStep;
+		// todo: drop $multiplyStep after last element (when set multiply mode off)
+
+		if (self::$multiplyMode && self::$multiplyId !== null)
 		{
-			foreach ($item['MULTIPLY'] as $multyId)
-			{
-				$resDelete = HistoryTable::delete($multyId);
-			}
-		}
-		else
-		{
-			$resDelete = HistoryTable::delete($item['ID']);
+			$fields['MULTIPLY_ID'] = self::$multiplyId;
 		}
 
-		// todo: del from stack
+		$resAdd = HistoryTable::add($fields);
 
-		if ($resDelete->isSuccess())
+		// save MULTIPLY_ID for first element in group
+		if (self::$multiplyMode && self::$multiplyId === null)
 		{
-			unset($this->stack[$item['STEP']]);
-
-			return true;
+			self::$multiplyId = $resAdd->getId();
+			HistoryTable::update(self::$multiplyId, [
+				'MULTIPLY_ID' => self::$multiplyId,
+			]);
 		}
 
-		return false;
+		return $resAdd->isSuccess();
 	}
 
 	public function undo(): bool
 	{
-		// todo :canundo?
-
-		self::deactivate();
-		$action = $this->getActionForStep($this->step, true);
-		if ($action && $action->execute())
+		if ($this->canUndo())
 		{
-			// todo: what if return false?
-			if ($this->entityType === self::ENTITY_TYPE_LANDING)
+			self::deactivate();
+			$action = $this->getActionForStep($this->step, true);
+			if ($action && $action->execute())
 			{
-				$resUpdate = LandingTable::update($this->entityId, [
-					'HISTORY_STEP' => (--$this->step)
-				]);
-
-				return $resUpdate->isSuccess();
-			}
-
-			if ($this->entityType === self::ENTITY_TYPE_DESIGNER_BLOCK)
-			{
-				$resUpdate = BlockTable::update($this->entityId, [
-					'HISTORY_STEP_DESIGNER' => (--$this->step)
-				]);
-
-				return $resUpdate->isSuccess();
+				return $this->saveStep($this->step - 1);
 			}
 		}
 
 		return false;
 	}
 
+	protected function canUndo(): bool
+	{
+		return
+			$this->step > 0
+			&& $this->getStackCount() > 0
+			&& $this->step <= $this->getStackCount()
+		;
+	}
 
 	public function redo(): bool
 	{
-		// todo :canundo?
-
-		self::deactivate();
-		$action = $this->getActionForStep($this->step, false);
-		if ($action && $action->execute(false))
+		if ($this->canRedo())
 		{
-			if ($this->entityType === self::ENTITY_TYPE_LANDING)
+			self::deactivate();
+			$action = $this->getActionForStep($this->step + 1, false);
+			if ($action && $action->execute(false))
 			{
-				$resUpdate = LandingTable::update($this->entityId, [
-					'HISTORY_STEP' => (++$this->step)
-				]);
-
-				return $resUpdate->isSuccess();
-			}
-
-			if ($this->entityType === self::ENTITY_TYPE_DESIGNER_BLOCK)
-			{
-				$resUpdate = BlockTable::update($this->entityId, [
-					'HISTORY_STEP_DESIGNER' => (++$this->step)
-				]);
-
-				return $resUpdate->isSuccess();
+				return $this->saveStep($this->step + 1);
 			}
 		}
 
 		return false;
+	}
+
+	protected function canRedo(): bool
+	{
+		return
+			$this->step >= 0
+			&& $this->getStackCount() > 0
+			&& $this->step < $this->getStackCount()
+		;
 	}
 
 	/**
@@ -477,9 +699,12 @@ class History
 	 */
 	public function getJsCommand(bool $undo = true): array
 	{
-		$action = $this->getActionForStep($this->step, $undo);
+		$action = $this->getActionForStep(
+			$undo ? $this->step : ($this->step + 1),
+			$undo
+		);
 
-   		return $action ? $action->getJsCommand($undo) : [];
+		return $action ? $action->getJsCommand($undo) : [];
 	}
 
 	/**
@@ -490,14 +715,20 @@ class History
 	 */
 	protected function getActionForStep(int $step, bool $undo): ?BaseAction
 	{
-		$step = $undo ? $step : ++$step;
-		if (isset($this->actions[$step]))
+		if (!isset($this->stack[$step]))
 		{
-			return $this->actions[$step];
+			return null;
 		}
 
-		$current = $this->stack[$step];
-		$params = $current['ACTION_PARAMS'];
+		$stepItem = $this->stack[$step];
+		$stepId = $stepItem['ID'];
+		$direction = ActionFactory::getDirectionName($undo);
+		if (isset($this->actions[$stepId][$direction]))
+		{
+			return $this->actions[$stepId][$direction];
+		}
+
+		$params = $stepItem['ACTION_PARAMS'];
 		if ($this->entityType === self::ENTITY_TYPE_LANDING)
 		{
 			$params['lid'] = $this->entityId;
@@ -507,52 +738,17 @@ class History
 			$params['blockId'] = $this->entityId;
 		}
 
-		$action = ActionFactory::getAction($current['ACTION'], $undo);
+		$action = ActionFactory::getAction($stepItem['ACTION'], $undo);
 		if (!$action)
 		{
 			return null;
 		}
 
 		$action->setParams($params, true);
-		$this->actions[$step] = $action;
+		$this->actions[$stepId][$direction] = $action;
 
 		return $action;
 	}
 
-	public function clear(): bool
-	{
-		// save stack because steps will be deleted in process
-		$stackSave = $this->stack;
-		foreach ($stackSave as $stackItem)
-		{
-			if (!$this->deleteStackItem($stackItem))
-			{
-				return false;
-			}
 
-		}
-
-		unset($stackSave);
-
-		$this->step = 0;
-		if ($this->entityType === self::ENTITY_TYPE_LANDING)
-		{
-			$resUpdate = LandingTable::update($this->entityId, [
-				'HISTORY_STEP' => 0,
-			]);
-
-			return $resUpdate->isSuccess();
-		}
-
-		if ($this->entityType === self::ENTITY_TYPE_DESIGNER_BLOCK)
-		{
-			$resUpdate = BlockTable::update($this->entityId, [
-				'HISTORY_STEP_DESIGNER' => 0,
-			]);
-
-			return $resUpdate->isSuccess();
-		}
-
-		return false;
-	}
 }

@@ -5,11 +5,16 @@ use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\Model\StoreDocumentElement;
 use Bitrix\Catalog\Config\Feature;
+use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\StoreDocumentBarcodeTable;
 use Bitrix\Catalog\StoreDocumentElementTable;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Catalog\Url\InventoryManagementSourceBuilder;
+use Bitrix\Catalog\v2\Integration\JS\ProductForm\BasketBuilder;
 use Bitrix\Catalog\v2\Integration\UI\EntityEditor\StoreDocumentProvider;
+use Bitrix\Catalog\v2\IoC\ServiceContainer;
+use Bitrix\Catalog\v2\Product\BaseProduct;
+use Bitrix\Catalog\v2\Sku\BaseSku;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\PriceMaths;
@@ -372,6 +377,21 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 				$this->getDocumentType()
 			)
 			;
+	}
+
+	private function checkEditPurchasePriceRights(): bool
+	{
+		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW);
+	}
+
+	private function checkEditPriceRights(): bool
+	{
+		return $this->accessController->check(ActionDictionary::ACTION_PRICE_EDIT);
+	}
+
+	private function checkEditExtraPriceRights(): bool
+	{
+		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_PRICE_EXTRA_EDIT);
 	}
 
 	public function saveAction($fields = []): array
@@ -1199,14 +1219,61 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 			$products = [];
 		}
 
+		$hasEditPurchasePriceRights = $this->checkEditPurchasePriceRights();
+		$hasEditPriceRights = $this->checkEditPriceRights();
+		$hasEditExtraPriceRights = $this->checkEditExtraPriceRights();
+
 		foreach ($products as $product)
 		{
 			if (!$product['SKU_ID'])
 			{
 				$result->addError(new Main\Error(Loc::getMessage('CATALOG_STORE_DOCUMENT_NO_PRODUCT')));
+
 				return $result;
 			}
+
+			$existElement = $existElements[$product['ID']] ?? null;
+			$skuEntity = null;
+			if (!$hasEditPurchasePriceRights)
+			{
+				if ($existElement)
+				{
+					unset($product['PURCHASING_PRICE']);
+				}
+				else
+				{
+					$skuEntity = $skuEntity ?? ServiceContainer::getRepositoryFacade()->loadVariation((int)$product['SKU_ID']);
+					$product['PURCHASING_PRICE'] = $skuEntity ? $skuEntity->getField('PURCHASING_PRICE') : 0;
+				}
+			}
+			if (!$hasEditPriceRights)
+			{
+				if ($existElement)
+				{
+					unset($product['BASE_PRICE']);
+				}
+				else
+				{
+					$skuEntity = $skuEntity ?? ServiceContainer::getRepositoryFacade()->loadVariation((int)$product['SKU_ID']);
+					$basePriceEntity = $skuEntity ? $skuEntity->getPriceCollection()->findBasePrice() : null;
+					$fields['BASE_PRICE'] = $basePriceEntity ? $basePriceEntity->getPrice() : null;
+				}
+			}
+			if (!$hasEditExtraPriceRights)
+			{
+				if ($existElement)
+				{
+					unset($product['BASE_PRICE_EXTRA'], $product['BASE_PRICE_EXTRA_RATE']);
+				}
+				else
+				{
+					$product['BASE_PRICE_EXTRA'] = 0;
+					$product['BASE_PRICE_EXTRA_RATE'] = StoreDocumentElementTable::EXTRA_RATE_PERCENTAGE;
+				}
+			}
+
 			$elementFields = [
+				'ID' => is_numeric($product['ID']) ? $product['ID'] : null,
 				'AMOUNT' => $product['AMOUNT'],
 				'ELEMENT_ID' => $product['SKU_ID'],
 				'PURCHASING_PRICE' => $product['PURCHASING_PRICE'],
@@ -1259,7 +1326,6 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 					break;
 			}
 
-			$existElement = $existElements[$product['ID']] ?? null;
 			if (
 				$existElement
 				&& $this->isChangedElement($existElement, $elementFields)
@@ -1372,42 +1438,59 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 			;
 	}
 
-	private function clearElementsForDocument()
+	private function clearElementsForDocument(array $elementsToUpdate)
 	{
+		$elementsToUpdateIds = array_map(static fn($elementToUpdate) => (int)$elementToUpdate['ID'], $elementsToUpdate);
+
 		$elements = \Bitrix\Catalog\StoreDocumentElementTable::getList([
 			'select' => ['ID'],
 			'filter' => ['DOC_ID' => $this->documentId]
 		])->fetchAll();
 		foreach ($elements as $element)
 		{
-			CCatalogStoreDocsElement::delete($element["ID"]);
 			$barcodesDb = StoreDocumentBarcodeTable::getList(['select' => ['ID'], 'filter' => ['DOC_ELEMENT_ID' => $element['ID']]]);
 			while ($barcode = $barcodesDb->fetch())
 			{
 				CCatalogStoreDocsBarcode::delete($barcode['ID']);
+			}
+
+			if (!in_array((int)$element['ID'], $elementsToUpdateIds, true))
+			{
+				CCatalogStoreDocsElement::delete((int)$element['ID']);
 			}
 		}
 	}
 
 	private function updateElements($elementsToUpdate)
 	{
-		$this->clearElementsForDocument();
+		$this->clearElementsForDocument($elementsToUpdate);
+
 		foreach ($elementsToUpdate as $element)
 		{
-			$docElementId = CCatalogStoreDocsElement::add($element);
+			$docElementId = $element['ID'];
+			unset($element['ID']);
+			if ($docElementId)
+			{
+				unset($element['ID']);
+				CCatalogStoreDocsElement::update($docElementId, $element);
+			}
+			else
+			{
+				$docElementId = CCatalogStoreDocsElement::add($element);
+			}
 
 			if (!empty($element['BARCODE']))
 			{
-				$this->updateBarcodesForDocsElement($docElementId, $element['BARCODE']);
+				$this->updateBarcodesForDocsElement($docElementId, $element['DOC_ID'], $element['BARCODE']);
 			}
 		}
 	}
 
-	private function updateBarcodesForDocsElement($docElementId, $barcodes)
+	private function updateBarcodesForDocsElement($docElementId, $docId, $barcodes)
 	{
 		foreach($barcodes as $barcode)
 		{
-			CCatalogStoreDocsBarcode::add(['BARCODE' => $barcode, 'DOC_ELEMENT_ID' => $docElementId]);
+			CCatalogStoreDocsBarcode::add(['BARCODE' => $barcode, 'DOC_ID' => $docId, 'DOC_ELEMENT_ID' => $docElementId]);
 		}
 	}
 

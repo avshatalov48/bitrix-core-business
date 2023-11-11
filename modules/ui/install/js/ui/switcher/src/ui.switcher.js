@@ -20,6 +20,7 @@ export type SwitcherOptions = {
 	handlers: Object;
 	size: string;
 	color: string;
+	disabled: boolean;
 }
 
 export class Switcher {
@@ -33,12 +34,14 @@ export class Switcher {
 	}
 
 	node: HTMLElement | null = null;
+	checked: boolean = false;
 	id: string = '';
-	#checked: boolean = false;
+	#disabled: boolean = false;
 	#inputName: string = '';
 	#loading: boolean;
 	events: Object;
 	#classNameOff: string = 'ui-switcher-off';
+	#classNameLock: string = 'ui-switcher-lock';
 	#attributeName: string = 'data-switcher';
 
 	static #attributeInitName: string = 'data-switcher-init';
@@ -119,7 +122,7 @@ export class Switcher {
 				this.id = data.id;
 			}
 
-			this.#checked = Boolean(data.checked);
+			this.checked = Boolean(data.checked);
 			this.#inputName = data.inputName;
 			if(Type.isString(data.color) && Object.values(SwitcherColor).includes(data.color))
 			{
@@ -157,10 +160,12 @@ export class Switcher {
 		{
 			this.#inputName = options.inputName;
 		}
-		this.#checked = Type.isBoolean(options.checked) ? options.checked : this.#checked;
+		this.checked = Type.isBoolean(options.checked) ? options.checked : this.checked;
+		this.#disabled = Type.isBoolean(options.disabled) ? options.disabled : this.#disabled;
 
 		this.#initNode();
-		this.check(this.#checked, false);
+		this.check(this.checked, false);
+		this.disable(this.#disabled, false);
 	}
 
 	#initNode(): void
@@ -189,6 +194,32 @@ export class Switcher {
 		bind(this.node, 'click', this.toggle.bind(this));
 	}
 
+	disable(disabled: boolean, fireEvents: boolean): void
+	{
+		if (this.isLoading())
+		{
+			return;
+		}
+
+		fireEvents = fireEvents !== false;
+
+		if (this.#disabled)
+		{
+			Dom.addClass(this.node, this.#classNameLock);
+			fireEvents ? this.#fireEvent(this.events.lock) : null;
+		}
+		else
+		{
+			Dom.removeClass(this.node, this.#classNameLock);
+			fireEvents ? this.#fireEvent(this.events.unlock) : null;
+		}
+
+		if (fireEvents)
+		{
+			this.#fireEvent(this.events.toggled)
+		}
+	}
+
 	check(checked: boolean, fireEvents: boolean): void
 	{
 		if (this.isLoading())
@@ -196,15 +227,15 @@ export class Switcher {
 			return;
 		}
 
-		this.#checked = !!checked;
+		this.checked = !!checked;
 		if (this.inputNode)
 		{
-			this.inputNode.value = this.#checked ? 'Y' : 'N';
+			this.inputNode.value = this.checked ? 'Y' : 'N';
 		}
 
 		fireEvents = fireEvents !== false;
 
-		if (this.#checked)
+		if (this.checked)
 		{
 			Dom.removeClass(this.node, this.#classNameOff);
 			fireEvents ? this.#fireEvent(this.events.unchecked) : null;
@@ -221,13 +252,23 @@ export class Switcher {
 		}
 	}
 
+	isDisabled()
+	{
+		return this.#disabled;
+	}
+
 	isChecked(): boolean
 	{
-		return this.#checked;
+		return this.checked;
 	}
 
 	toggle(): void
 	{
+		if (this.isDisabled())
+		{
+			return;
+		}
+
 		this.check(!this.isChecked());
 	}
 

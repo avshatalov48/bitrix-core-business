@@ -297,4 +297,6 @@ $MESS["BXEdPasteDefault"] = "По умолчанию";
 $MESS["BXEdPasteText"] = "Очищенный текст";
 $MESS["BXEdPasteFormattedText"] = "Форматированный текст";
 $MESS["BXEdDefaultPropDialogTextNode"] = "Текст";
+$MESS["BXEdCopilotPlaceholder"] = "Нажмите @, чтобы кого-то упомянуть, или пробел для запуска AI";
+$MESS["BXEdCopilotButtonText"] = "COPILOT";
 ?>

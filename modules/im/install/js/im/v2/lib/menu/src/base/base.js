@@ -47,7 +47,7 @@ export class BaseMenu extends EventEmitter
 		this.menuInstance = this.getMenuInstance();
 		this.menuInstance.show();
 
-		EventEmitter.subscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
+		// EventEmitter.subscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
 	}
 
 	getMenuInstance(): Menu
@@ -91,7 +91,7 @@ export class BaseMenu extends EventEmitter
 
 	close()
 	{
-		EventEmitter.unsubscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
+		// EventEmitter.unsubscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
 		if (!this.menuInstance)
 		{
 			return;

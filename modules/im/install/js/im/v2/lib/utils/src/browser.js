@@ -1,4 +1,4 @@
-import {Type, Dom, Browser} from 'main.core';
+import { Type, Dom, Browser } from 'main.core';
 
 const UA = navigator.userAgent.toLowerCase();
 
@@ -80,6 +80,13 @@ export const BrowserUtil = {
 	openLink(link, target = '_blank')
 	{
 		window.open(link, target, '', true);
-		return true;
-	}
+	},
+	waitForSelectionToUpdate(): Promise
+	{
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				resolve();
+			}, 0);
+		});
+	},
 };

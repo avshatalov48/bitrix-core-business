@@ -1,22 +1,18 @@
-import {Dom, Loc, Text} from 'main.core';
+import { Dom, Loc, Text } from 'main.core';
 
-import {getCore, getUtils, getBigSmileOption} from '../utils/core-proxy';
-import {ParserIcon} from './icon';
+import { getUtils, getBigSmileOption } from '../utils/core-proxy';
+import { ParserIcon } from './icon';
 
 export const ParserImage = {
 
 	decodeLink(text): string
 	{
-		let changed = false;
-		text = text.replace(/(.)?((https|http):\/\/(\S+)\.(jpg|jpeg|png|gif|webp)(\?\S+)?)/gi, function(whole, letter, url): string
-		{
-			url = Text.decode(url);
-
-			if(
-				letter && !(['>', ']'].includes(letter))
-				|| !url.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i)
-				|| url.toLowerCase().indexOf("/docs/pub/") > 0
-				|| url.toLowerCase().indexOf("logout=yes") > 0
+		return text.replaceAll(/>((https|http):\/\/(\S+)\.(jpg|jpeg|png|gif|webp)(\?\S+[^<])?)<\/a>/gi, (whole, urlParsed): string => {
+			const url = Text.decode(urlParsed);
+			if (
+				!/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i.test(url)
+				|| url.toLowerCase().indexOf('/docs/pub/') > 0
+				|| url.toLowerCase().indexOf('logout=yes') > 0
 			)
 			{
 				return whole;
@@ -27,7 +23,7 @@ export const ParserImage = {
 				return whole;
 			}
 
-			return (letter? letter: '') + Dom.create({
+			const result = Dom.create({
 				tag: 'span',
 				attrs: {
 					className: 'bx-im-message-image',
@@ -40,14 +36,16 @@ export const ParserImage = {
 							src: url,
 						},
 						events: {
-							error: () => { ParserImage._hideErrorImage(this) }
-						}
-					})
-				]
+							error() {
+								ParserImage.hideErrorImage(this);
+							},
+						},
+					}),
+				],
 			}).outerHTML;
-		});
 
-		return text;
+			return `>${result}</a>`;
+		});
 	},
 
 	purifyLink(text): string
@@ -72,6 +70,7 @@ export const ParserImage = {
 		return text;
 	},
 
+	// eslint-disable-next-line max-lines-per-function,sonarjs/cognitive-complexity
 	decodeIcon(text): string
 	{
 		let textElementSize = 0;
@@ -79,12 +78,11 @@ export const ParserImage = {
 		const enableBigSmile = getBigSmileOption();
 		if (enableBigSmile)
 		{
-			textElementSize = text.replace(/\[icon=([^\]]*)]/gi, '').trim().length;
+			textElementSize = text.replaceAll(/\[icon=([^\]]*)]/gi, '').trim().length;
 		}
 
-		text = text.replace(/\[icon=([^\]]*)]/gi, (whole) =>
-		{
-			let url = whole.match(/icon=(\S+[^\s.,> )\];'"!?])/i);
+		return text.replaceAll(/\[icon=([^\]]*)]/gi, (whole) => {
+			let url = whole.match(/icon=(\S+[^\s!"'),.;>?\]])/i);
 			if (url && url[1])
 			{
 				url = url[1];
@@ -99,75 +97,84 @@ export const ParserImage = {
 				return whole;
 			}
 
-
-			const attrs = {'src': url, 'border': 0};
+			const attrs = { src: url, border: 0 };
 
 			const size = whole.match(/size=(\d+)/i);
 			if (size && size[1])
 			{
-				attrs['width'] = size[1];
-				attrs['height'] = size[1];
+				attrs.width = size[1];
+				attrs.height = size[1];
 			}
 			else
 			{
 				const width = whole.match(/width=(\d+)/i);
 				if (width && width[1])
 				{
-					attrs['width'] = width[1];
+					attrs.width = width[1];
 				}
 
 				const height = whole.match(/height=(\d+)/i);
 				if (height && height[1])
 				{
-					attrs['height'] = height[1];
+					attrs.height = height[1];
 				}
 
-				if (attrs['width'] && !attrs['height'])
+				if (attrs.width && !attrs.height)
 				{
-					attrs['height'] = attrs['width'];
+					attrs.height = attrs.width;
 				}
-				else if (attrs['height'] && !attrs['width'])
+				else if (attrs.height && !attrs.width)
 				{
-					attrs['width'] = attrs['height'];
+					attrs.width = attrs.height;
 				}
-				else if (attrs['height'] && attrs['width'])
-				{}
+				else if (attrs.height && attrs.width)
+				{
+					/* empty */
+				}
 				else
 				{
-					attrs['width'] = 20;
-					attrs['height'] = 20;
+					attrs.width = 20;
+					attrs.height = 20;
 				}
 			}
 
-			attrs['width'] = attrs['width']>100? 100: attrs['width'];
-			attrs['height'] = attrs['height']>100? 100: attrs['height'];
+			attrs.width = attrs.width > 100 ? 100 : attrs.width;
+			attrs.height = attrs.height > 100 ? 100 : attrs.height;
 
-			if (enableBigSmile && textElementSize === 0 && attrs['width'] === attrs['height'] && attrs['width'] === 20)
+			if (
+				enableBigSmile
+				&& textElementSize === 0
+				&& attrs.width === attrs.height
+				&& attrs.width === 20
+			)
 			{
-				attrs['width'] = 40;
-				attrs['height'] = 40;
+				attrs.width = 40;
+				attrs.height = 40;
 			}
 
 			let title = whole.match(/title=(.*[^\s\]])/i);
 			if (title && title[1])
 			{
 				title = title[1];
-				if (title.indexOf('width=') > -1)
+				if (title.includes('width='))
 				{
-					title = title.substr(0, title.indexOf('width='))
+					title = title.slice(0, Math.max(0, title.indexOf('width=')));
 				}
-				if (title.indexOf('height=') > -1)
+
+				if (title.includes('height='))
 				{
-					title = title.substr(0, title.indexOf('height='))
+					title = title.slice(0, Math.max(0, title.indexOf('height=')));
 				}
-				if (title.indexOf('size=') > -1)
+
+				if (title.includes('size='))
 				{
-					title = title.substr(0, title.indexOf('size='))
+					title = title.slice(0, Math.max(0, title.indexOf('size=')));
 				}
+
 				if (title)
 				{
-					attrs['title'] = Text.decode(title).trim();
-					attrs['alt'] = attrs['title'];
+					attrs.title = Text.decode(title).trim();
+					attrs.alt = attrs.title;
 				}
 			}
 
@@ -175,55 +182,56 @@ export const ParserImage = {
 				tag: 'img',
 				attrs: {
 					className: 'bx-smile bx-icon',
-					...attrs
+					...attrs,
 				},
 			}).outerHTML;
 		});
-
-		return text;
 	},
 
 	purifyIcon(text): string
 	{
-		text = text.replace(/\[icon=([^\]]*)]/gi, (whole) =>
-		{
+		return text.replaceAll(/\[icon=([^\]]*)]/gi, (whole) => {
 			let title = whole.match(/title=(.*[^\s\]])/i);
 			if (title && title[1])
 			{
 				title = title[1];
-				if (title.indexOf('width=') > -1)
+
+				if (title.includes('width='))
 				{
-					title = title.substr(0, title.indexOf('width='))
+					title = title.slice(0, Math.max(0, title.indexOf('width=')));
 				}
-				if (title.indexOf('height=') > -1)
+
+				if (title.includes('height='))
 				{
-					title = title.substr(0, title.indexOf('height='))
+					title = title.slice(0, Math.max(0, title.indexOf('height=')));
 				}
-				if (title.indexOf('size=') > -1)
+
+				if (title.includes('size='))
 				{
-					title = title.substr(0, title.indexOf('size='))
+					title = title.slice(0, Math.max(0, title.indexOf('size=')));
 				}
+
 				if (title)
 				{
-					title = '('+title.trim()+')';
+					title = `(${title.trim()})`;
 				}
 			}
 			else
 			{
-				title = '('+Loc.getMessage('IM_PARSER_IMAGE_ICON')+')';
+				title = `(${Loc.getMessage('IM_PARSER_IMAGE_ICON')})`;
 			}
+
 			return title;
 		});
-
-		return text;
 	},
 
-	_hideErrorImage(element)
+	hideErrorImage(element)
 	{
-		if (element.parentNode)
-		{
-			element.parentNode.innerHTML = '<a href="'+encodeURI(element.src)+'" target="_blank">'+element.src+'</a>';
-		}
-	}
-}
+		const result = element;
 
+		if (result && result.parentNode)
+		{
+			result.parentNode.innerHTML = `<a href="${encodeURI(element.src)}" target="_blank">${element.src}</a>`;
+		}
+	},
+};

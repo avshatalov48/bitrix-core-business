@@ -82,8 +82,10 @@ export class IncomingNotification extends EventEmitter
 
 	show()
 	{
+		console.log('incoming notification : SHOW');
 		if (DesktopApi.isDesktop())
 		{
+			console.log('incoming notification : ISDESKTOP');
 			const params = {
 				video: this.video,
 				hasCamera: this.hasCamera,
@@ -109,6 +111,7 @@ export class IncomingNotification extends EventEmitter
 		}
 		else
 		{
+			console.log('incoming notification : ISNOTDESKTOP');
 			this.content = new IncomingNotificationContent({
 				video: this.video,
 				hasCamera: this.hasCamera,

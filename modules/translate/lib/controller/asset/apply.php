@@ -67,7 +67,7 @@ class Apply
 	 * @param Main\Engine\Controller $controller Parent controller object.
 	 * @param array $config Additional configuration.
 	 */
-	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
 		$this->keepField([
 			'languageId', 'convertEncoding', 'encoding', 'encodingIn', 'encodingOut',
@@ -168,7 +168,7 @@ class Apply
 			if (!$sourceDirectory->isExists())
 			{
 				$this->addError(
-					new Error(Loc::getMessage('TR_ERROR_CREATE_TARGET_FOLDER', array('#PATH#' => $this->sourceFolderPath)))
+					new Error(Loc::getMessage('TR_ERROR_CREATE_TARGET_FOLDER', ['#PATH#' => $this->sourceFolderPath]))
 				);
 			}
 
@@ -191,11 +191,11 @@ class Apply
 
 			$this->saveProgressParameters();
 
-			return array(
+			return [
 				'STATUS' => ($this->totalItems > 0 ? Translate\Controller\STATUS_PROGRESS : Translate\Controller\STATUS_COMPLETED),
 				'PROCESSED_ITEMS' => 0,
 				'TOTAL_ITEMS' => $this->totalItems,
-			);
+			];
 		}
 
 		$this->targetFolderPath = $progressParams['targetFolderPath'];
@@ -213,7 +213,7 @@ class Apply
 	 *
 	 * @return array
 	 */
-	private function runApplying()
+	private function runApplying(): array
 	{
 		$processedItemCount = 0;
 
@@ -252,7 +252,7 @@ class Apply
 					if ($this->convertEncoding)
 					{
 						$content = $source->getContents();
-						$content = \str_replace(array("\r\n", "\r"), array("\n", "\n"), $content);
+						$content = \str_replace(["\r\n", "\r"], ["\n", "\n"], $content);
 
 						$content = Main\Text\Encoding::convertEncoding($content, $this->encodingIn, $this->encodingOut);
 						$target->putContents($content);
@@ -294,10 +294,10 @@ class Apply
 
 		$this->processedItems += $processedItemCount;
 
-		$result = array(
+		$result = [
 			'PROCESSED_ITEMS' => $this->processedItems,
 			'TOTAL_ITEMS' => $this->totalItems,
-		);
+		];
 
 		if ($this->instanceTimer()->hasTimeLimitReached() !== true)
 		{
@@ -326,9 +326,9 @@ class Apply
 	 *
 	 * @param string $tmpFolderFullPath Full path of the temp folder to look through.
 	 *
-	 * @return \Generator|array
+	 * @return \Generator|array|iterable
 	 */
-	private function lookThroughTmpFolder($tmpFolderFullPath)
+	private function lookThroughTmpFolder($tmpFolderFullPath): iterable
 	{
 		$files = [];
 		$folders = [];
@@ -358,7 +358,7 @@ class Apply
 					continue;
 				}
 
-				if ((\mb_substr($name, -4) === '.php') && \is_file($fullPath))
+				if (Translate\IO\Path::isPhpFile($fullPath, true))
 				{
 					$files[$langFolderRelPath.'/'.$name] = $fullPath;
 				}

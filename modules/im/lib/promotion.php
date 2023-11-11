@@ -57,6 +57,18 @@ class Promotion
 			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
 		];
 
+		$result[] = [
+			"ID" => 'im:group-chat-create:20062023:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+		];
+
+		$result[] = [
+			"ID" => 'im:conference-create:24082023:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+		];
+
 		$settings = \Bitrix\Main\Config\Configuration::getValue('im');
 		if (isset($settings['promotion']) && is_array($settings['promotion']))
 		{

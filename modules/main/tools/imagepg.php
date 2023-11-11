@@ -14,16 +14,10 @@ if (!isset($_GET["img"]) || !is_string($_GET["img"]))
 
 $img = $_GET["img"];
 
-if (strncasecmp($img, 'http://', 7) == 0 || strncasecmp($img, 'https://', 8) == 0 || strncmp($img, '//', 2) == 0)
+if (!str_starts_with($img, '/') || str_starts_with($img, '//'))
 {
 	// external url
 	die();
-}
-
-if (mb_substr($img, 0, 1) !== "/")
-{
-	// some browsers run javascript: in img src tag
-	$img = "/".$img;
 }
 
 $alt = "";
@@ -36,18 +30,16 @@ if (isset($_GET["alt"]) && is_string($_GET["alt"]))
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script language="JavaScript">
-<!--
 function KeyPress()
 {
-	if(window.event.keyCode == 27)
+	if (window.event.keyCode == 27)
+	{
 		window.close();
+	}
 }
-//-->
 </script>
 <style type="text/css">
-<!--
-body {margin-left:0; margin-top:0; margin-right:0; margin-bottom:0;}
--->
+body {margin:0;}
 </style>
 <title><?echo $alt?></title></head>
 <body topmargin="0" leftmargin="0" marginwidth="0" marginheight="0" onKeyPress="KeyPress()">

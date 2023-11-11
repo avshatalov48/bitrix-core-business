@@ -2,6 +2,7 @@
 namespace Bitrix\Landing;
 
 use Bitrix\Landing\Internals\FileTable;
+use Bitrix\Landing\Internals\HistoryTable;
 use Bitrix\Main\File\Internal\FileDuplicateTable;
 use Bitrix\Main\Loader;
 use Bitrix\Landing\Subtype;
@@ -10,6 +11,9 @@ use Bitrix\Crm\WebForm;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\HttpClient;
 
+/**
+ * Service class for agent functions
+ */
 class Agent
 {
 	/**
@@ -203,7 +207,7 @@ class Agent
 				? $days
 				: (int) Manager::getOption('deleted_lifetime_days');
 
-		$date = new \Bitrix\Main\Type\DateTime;
+		$date = new DateTime;
 		$date->add('-' . $days . ' days');
 
 		// check folders to delete
@@ -303,6 +307,36 @@ class Agent
 		File::deleteFinal($count);
 
 		return __CLASS__ . '::' . __FUNCTION__ . '(' . $count . ');';
+	}
+
+	/**
+	 * Clear old history records
+	 * @param int|null $days After this time items will be deleted.
+	 * @return string
+	 */
+	public static function clearHistory(?int $days = null): string
+	{
+		Rights::setGlobalOff();
+
+		$newAgentName = __CLASS__ . '::' . __FUNCTION__ . '(' . ($days ?? '') . ');';
+
+		$days = $days ?: (int) Manager::getOption('history_lifetime_days');
+		$date = new DateTime();
+		$date->add('-' . $days . ' days');
+
+		$rows = HistoryTable::query()
+			->setSelect(['ENTITY_ID', 'ENTITY_TYPE'])
+			->setDistinct(true)
+			->where('DATE_CREATE', '<', $date)
+			->fetchAll()
+		;
+		foreach ($rows as $row)
+		{
+			$history = new History($row['ENTITY_ID'], $row['ENTITY_TYPE']);
+			$history->clearOld($days);
+		}
+
+		return $newAgentName;
 	}
 
 	/**

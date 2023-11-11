@@ -45,8 +45,10 @@ class CIMStatus
 		$res = IM\Model\StatusTable::getById($userId);
 		if ($status = $res->fetch())
 		{
-			$status = CIMStatus::prepareLastDate($status);
-
+			$status['IDLE'] ??= false;
+			$status['MOBILE_LAST_DATE'] ??= false;
+			$status['DESKTOP_LAST_DATE'] ??= false;
+			//$status = CIMStatus::prepareLastDate($status);
 			$previousStatus = Array(
 				'USER_ID' => $status['USER_ID'],
 				'STATUS' => (string)$status['STATUS'],
@@ -413,15 +415,15 @@ class CIMStatus
 		return $arOnline;
 	}
 
-	public static function GetStatus($userId)
+	public static function GetStatus($userId = null)
 	{
-		$userStatus = null;
-		$userId = intval($userId);
+		$userId = IM\Common::getUserId($userId);
 		if (!$userId)
 		{
-			return $userStatus;
+			return null;
 		}
 
+		$userStatus = null;
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
 		if($cache->initCache(self::CACHE_TTL, 'list_v2', self::CACHE_PATH.$userId.'/'))
 		{

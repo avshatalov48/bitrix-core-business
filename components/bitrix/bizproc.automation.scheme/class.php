@@ -13,7 +13,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 if (!Loader::includeModule('bizproc'))
 {
-	ShowError(Loc::getMessage('BIZPROC_AUTOMATION_SCHEME_MODULE_NOT_INSTALLED'));
+	ShowError(Loc::getMessage('BIZPROC_AUTOMATION_SCHEME_MODULE_NOT_INSTALLED_MSGVER_1'));
 	return;
 }
 

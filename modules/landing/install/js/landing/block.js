@@ -126,9 +126,11 @@
 
 			type.attrKey = prop;
 
-			if (prop === "background")
+			if (prop === 'background')
 			{
-				type.items = type.items.concat(lp.options.style[namespace]["style"]["background-overlay"].items);
+				const backgroundOverlayItems = lp.options.style[namespace]['style']['background-overlay']
+					.items.filter((obj) => obj.name !== 'g-bg--after');
+				type.items = [...type.items, ...backgroundOverlayItems];
 			}
 
 			return type;
@@ -274,7 +276,7 @@
 	 *
 	 * @property {BX.Landing.UI.Collection.PanelCollection.<BX.Landing.UI.Panel.BasePanel>} panels - Panels collection
 	 * @property {BX.Landing.Collection.CardCollection.<BX.Landing.Block.Card>} cards - Cards collection
-	 * @property {BX.Landing.Collection.NodeCollection.<BX.Landing.Block.Node>} nodes - Nodes collection
+	 * @property {BX.Landing.Collection.NodeCollection.<BX.Landing.Node>} nodes - Nodes collection
 	 * @property {blockManifest} manifest
 	 *
 	 * @constructor
@@ -350,24 +352,39 @@
 		this.adjustContextSensitivityStyles();
 
 		var envOptions = BX.Landing.Env.getInstance().getOptions();
-		var specialType = envOptions.specialType;
-		if (this.isDefaultCrmFormBlock())
+		if (this.isDefaultCrmFormBlock() || this.isCrmFormBlock())
 		{
-			var showOptions = {
-				formId: envOptions.formEditorData.formOptions.id,
-				formOptions: this.getCrmFormOptions(),
-				block: this,
-				showWithOptions: true,
-			};
-			var uri = new BX.Uri(window.top.location.toString());
-			if (BX.Text.toBoolean(uri.getQueryParam('formCreated')))
+			const uri = new BX.Uri(window.top.location.toString());
+			if (BX.Text.toBoolean(uri.getQueryParam('replacedLanding')))
 			{
-				showOptions.state = 'presets';
-			}
+				uri.removeQueryParam('replacedLanding');
+				top.window.history.replaceState({}, document.title, uri.toString());
 
-			void BX.Landing.UI.Panel.FormSettingsPanel
-				.getInstance()
-				.show(showOptions);
+				this.onStyleShow();
+				setTimeout(() => {
+					const y = this.node.offsetTop;
+					BX.Landing.PageObject.getEditorWindow().scrollTo(0, y);
+				}, 300);
+			}
+			else
+			{
+				const showOptions = {
+					formId: envOptions.formEditorData.formOptions.id,
+					formOptions: this.getCrmFormOptions(),
+					block: this,
+					showWithOptions: true,
+				};
+
+				if (BX.Text.toBoolean(uri.getQueryParam('formCreated')))
+				{
+					showOptions.state = 'presets';
+				}
+
+				void BX.Landing.UI.Panel.FormSettingsPanel
+					.getInstance()
+					.show(showOptions)
+				;
+			}
 		}
 
 		BX.Landing.PageObject.getBlocks().push(this);
@@ -2150,7 +2167,7 @@
 				{
 					var currentLabel;
 
-					if (labelNode instanceof BX.Landing.Block.Node.Text)
+					if (labelNode instanceof BX.Landing.Node.Text)
 					{
 						currentLabel = create("span", {
 							props: {className: "landing-card-title-text"},
@@ -2165,7 +2182,7 @@
 						return;
 					}
 
-					if (labelNode instanceof BX.Landing.Block.Node.Link)
+					if (labelNode instanceof BX.Landing.Node.Link)
 					{
 						currentLabel = create("span", {
 							props: {className: "landing-card-title-link"},
@@ -2180,7 +2197,7 @@
 						return;
 					}
 
-					if (labelNode instanceof BX.Landing.Block.Node.Icon)
+					if (labelNode instanceof BX.Landing.Node.Icon)
 					{
 						currentLabel = create("span", {
 							props: {className: "landing-card-title-icon"},
@@ -2195,7 +2212,7 @@
 						return;
 					}
 
-					if (labelNode instanceof BX.Landing.Block.Node.Img)
+					if (labelNode instanceof BX.Landing.Node.Img)
 					{
 						currentLabel = create("span", {
 							props: {className: "landing-card-title-img"},
@@ -3037,19 +3054,35 @@
 							}
 							else
 							{
+								stylePanel.clear();
 								const sortedStyleNodes = this.getSortedStyleNodes(this.styleNodes);
+								stylePanel.prepareFooter(this.isExistMultiSelectionNode(sortedStyleNodes));
 								if (selector === null || typeof selector !== 'string')
 								{
 									this.showStylePanel(this.selector, stylePanel.blockId);
-									sortedStyleNodes.forEach(key => {
-										this.showStylePanel(key, stylePanel.blockId, true);
+									sortedStyleNodes.forEach((key) => {
+										let currentTarget = null;
+										this.styles.forEach((styles) => {
+											if (styles.selector === key)
+											{
+												currentTarget = styles.currentTarget;
+											}
+										});
+										this.showStylePanel(key, stylePanel.blockId, currentTarget, true);
 									});
 								}
 								else
 								{
-									this.showStylePanel(this.selector, stylePanel.blockId, true);
+									this.showStylePanel(this.selector, stylePanel.blockId, null, true);
 									sortedStyleNodes.forEach((key) => {
-										this.showStylePanel(key, stylePanel.blockId, true);
+										let currentTarget = null;
+										this.styles.forEach((styles) => {
+											if (styles.selector === key)
+											{
+												currentTarget = styles.currentTarget;
+											}
+										});
+										this.showStylePanel(key, stylePanel.blockId, currentTarget, true);
 									});
 									setTimeout(() => {
 										stylePanel.forms.forEach((form) => {
@@ -3135,10 +3168,11 @@
 		 * 		[title]
 		 * 	}} settings
 		 * @param {boolean} [isBlock = false]
+		 * @param {HTMLElement} currentTarget
 		 * @param {boolean} collapsed
 		 * @returns {?BX.Landing.UI.Form.StyleForm}
 		 */
-		createStyleForm: function(selector, settings, isBlock, collapsed = false)
+		createStyleForm: function(selector, settings, isBlock, currentTarget, collapsed = false)
 		{
 			var form = this.forms.get(selector);
 
@@ -3157,9 +3191,10 @@
 				form = new StyleForm({
 					id: selector,
 					title: name,
-					selector: selector,
+					selector,
 					iframe: window,
-					collapsed: collapsed
+					collapsed: collapsed,
+					currentTarget: currentTarget,
 				});
 
 				type = this.expandTypeGroups(type).reduce(function(acc, item) {
@@ -3385,6 +3420,23 @@
 		{
 			BX.Landing.PageObject.getInstance().design()
 				.then((stylePanel) => {
+					this.styles.forEach((styles) => {
+						if (styles.selector.split('@')[0] === selector)
+						{
+							stylePanel.forms.forEach((form) => {
+								if (
+									form.selector === selector
+									&& form.currentTarget !== styles.currentTarget
+								)
+								{
+									const options = this.getStyleOptions(selector);
+									const isBlock = this.isBlockSelector(selector);
+									const newForm = this.createStyleForm(selector, options, isBlock, styles.currentTarget, true);
+									this.replaceStyleForm(newForm, stylePanel);
+								}
+							});
+						}
+					});
 					if (this.id === stylePanel.blockId)
 					{
 						stylePanel.forms.forEach((form) => {
@@ -3409,18 +3461,27 @@
 					}
 					else
 					{
+						stylePanel.clear();
 						if (selector === this.selector)
 						{
 							this.showStylePanel(this.selector, stylePanel.blockId);
 						}
 						else
 						{
-							this.showStylePanel(this.selector, stylePanel.blockId, true);
+							this.showStylePanel(this.selector, stylePanel.blockId, null, true);
 						}
 						const sortedStyleNodes = this.getSortedStyleNodes(this.styleNodes);
-						sortedStyleNodes.forEach(key => {
+						stylePanel.prepareFooter(this.isExistMultiSelectionNode(sortedStyleNodes));
+						sortedStyleNodes.forEach((key) => {
+							let currentTarget = null;
+							this.styles.forEach((styles) => {
+								if (styles.selector === key)
+								{
+									currentTarget = styles.currentTarget;
+								}
+							});
 							const collapsed = key !== selector;
-							this.showStylePanel(key, stylePanel.blockId, collapsed);
+							this.showStylePanel(key, stylePanel.blockId, currentTarget, collapsed);
 						});
 						if (this.id !== stylePanel.blockId)
 						{
@@ -3438,6 +3499,21 @@
 						}
 					}
 				});
+		},
+
+		replaceStyleForm: function(newForm, stylePanel)
+		{
+			let oldForm = null;
+			stylePanel.forms.forEach((form) => {
+				if (newForm.selector === form.id)
+				{
+					oldForm = form;
+				}
+			});
+			if (oldForm)
+			{
+				stylePanel.replaceForm(newForm, oldForm);
+			}
 		},
 
 		/**
@@ -3466,6 +3542,15 @@
 				sortedNodes.push(negativeNodes[i]);
 			}
 			return sortedNodes;
+		},
+
+		/**
+		 * Check if exist multi selection node
+		 * @param nodes
+		 * @return {boolean}
+		 */
+		isExistMultiSelectionNode: function(nodes) {
+			return nodes.some(node => this.content.querySelectorAll(node).length > 1);
 		},
 
 
@@ -3541,7 +3626,7 @@
 		/**
 		 * Shows style editor panel
 		 */
-		showStylePanel: function(selector, blockId, collapsed = false)
+		showStylePanel: function(selector, blockId, currentTarget = null, collapsed = false)
 		{
 			var FormSettingsPanel = BX.Reflection.getClass('BX.Landing.UI.Panel.FormSettingsPanel');
 			var formMode = (
@@ -3551,7 +3636,6 @@
 			);
 			var isBlock = this.isBlockSelector(selector);
 			var options = this.getStyleOptions(selector);
-			this.isMultiselection = this.content.querySelectorAll(selector).length > 1;
 
 			BX.Landing.PageObject.getInstance().design()
 				.then(function(stylePanel) {
@@ -3600,8 +3684,6 @@
 					this.stylePanel = stylePanel;
 					var formStyleAdapter = result[1];
 
-					stylePanel.prepareFooter(this.isMultiselection);
-
 					if (formStyleAdapter)
 					{
 						const form = formStyleAdapter.getStyleForm(collapsed);
@@ -3617,7 +3699,7 @@
 					{
 						if (options.type.length)
 						{
-							const form = this.createStyleForm(selector, options, isBlock, collapsed);
+							const form = this.createStyleForm(selector, options, isBlock, currentTarget, collapsed);
 							stylePanel.appendForm(form);
 							if (collapsed === false)
 							{
@@ -4233,7 +4315,7 @@
 
 		/**
 		 * Handles node content change event
-		 * @param {BX.Landing.Block.Node} node
+		 * @param {BX.Landing.Node} node
 		 * @param {?boolean} [preventHistory = false]
 		 */
 		onNodeChange: function(node, preventHistory)

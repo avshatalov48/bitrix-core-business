@@ -6,9 +6,7 @@
  */
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 define("HELP_FILE", "utilities/sql.php");
-require_once ($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/filter_tools.php");
 
 if(!$USER->CanDoOperation('view_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));

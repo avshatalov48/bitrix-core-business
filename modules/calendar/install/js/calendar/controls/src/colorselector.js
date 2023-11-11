@@ -33,48 +33,40 @@ export class ColorSelector extends EventEmitter
 		{
 			for (let i = 0; i < this.defaultColors.length; i++)
 			{
-				this.colors.push(
-					{
-						color: this.defaultColors[i],
-						node: this.DOM.wrap.appendChild(Dom.create('LI',
-							{
-								props: { className: 'calendar-field-colorpicker-color-item' },
-								attrs: { 'data-bx-calendar-color': this.defaultColors[i] },
-								style: { backgroundColor: this.defaultColors[i] },
-								html: '<span class="calendar-field-colorpicker-color"></span>'
-							}))
-					});
+				this.colors.push({
+					color: this.defaultColors[i],
+					node: this.DOM.wrap.appendChild(Tag.render`
+						<li class="calendar-field-colorpicker-color-item" data-bx-calendar-color="${this.defaultColors[i]}" style="background-color: ${this.defaultColors[i]}">
+							<span class="calendar-field-colorpicker-color"></span>
+						</li>
+					`),
+				});
 			}
 
-			this.DOM.customColorNode = this.DOM.wrap.appendChild(Dom.create('LI',
-				{
-					props: { className: 'calendar-field-colorpicker-color-item' },
-					style:
-						{
-							backgroundColor: 'transparent',
-							width: 0
-						},
-					html: '<span class="calendar-field-colorpicker-color"></span>'
-				}
-			));
+			this.DOM.customColorNode = this.DOM.wrap.appendChild(Tag.render`
+				<li class="calendar-field-colorpicker-color-item" style="background-color: transparent; width: 0">
+					<span class="calendar-field-colorpicker-color"></span>
+				</li>`
+			);
 
-			this.DOM.customColorLink = this.DOM.wrap.appendChild(Dom.create('LI', {
-				props: { className: 'calendar-field-colorpicker-color-item-more' },
-				html: '<span class="calendar-field-colorpicker-color-item-more-link">' + Loc.getMessage('EC_COLOR') + '</span>',
-				events: {
-					click: () => {
-						if (!this.colorPickerPopup)
-						{
-							this.colorPickerPopup = new BX.ColorPicker({
-								bindElement: this.DOM.customColorLink,
-								onColorSelected: this.setValue.bind(this),
-								popupOptions: { zIndex: this.zIndex }
-							});
-						}
-						this.colorPickerPopup.open();
-					}
+			this.DOM.customColorLink = this.DOM.wrap.appendChild(Tag.render`
+				<li class="calendar-field-colorpicker-color-item-more">
+					<span class="calendar-field-colorpicker-color-item-more-link">${Loc.getMessage('EC_COLOR')}</span>
+				</li>
+			`);
+
+			Event.bind(this.DOM.customColorLink, 'click', () => {
+				if (!this.colorPickerPopup)
+				{
+					this.colorPickerPopup = new BX.ColorPicker({
+						bindElement: this.DOM.customColorLink,
+						onColorSelected: this.setValue.bind(this),
+						popupOptions: { zIndex: this.zIndex }
+					});
 				}
-			}));
+				this.colorPickerPopup.open();
+			});
+
 			Event.bind(this.DOM.wrap, 'click', this.handleColorClick.bind(this));
 		}
 		else if (this.mode === this.SELECTOR_MODE)
@@ -82,6 +74,7 @@ export class ColorSelector extends EventEmitter
 			this.DOM.colorIcon = this.DOM.wrap.appendChild(Tag.render`
 				<div style="background-color: #000;" class="calendar-field-select-icon"></div>
 			`);
+
 			Event.bind(this.DOM.wrap, 'click', this.openPopup.bind(this));
 		}
 		else if (this.mode === this.VIEW_MODE)
@@ -123,16 +116,17 @@ export class ColorSelector extends EventEmitter
 		{
 			if (this.DOM.activeColorNode)
 			{
-				BX.removeClass(this.DOM.activeColorNode, 'active');
+				Dom.removeClass(this.DOM.activeColorNode, 'active');
 			}
 
 			if (!BX.util.in_array(this.activeColor, this.defaultColors) && this.activeColor)
 			{
+				Dom.attr(this.DOM.customColorNode, 'data-bx-calendar-color', this.activeColor);
 				this.DOM.customColorNode.style.backgroundColor = this.activeColor;
 				this.DOM.customColorNode.style.width = '';
 
 				this.DOM.activeColorNode = this.DOM.customColorNode;
-				BX.addClass(this.DOM.activeColorNode, 'active');
+				Dom.addClass(this.DOM.activeColorNode, 'active');
 			}
 
 			let i;
@@ -141,7 +135,7 @@ export class ColorSelector extends EventEmitter
 				if (this.colors[i].color === this.activeColor)
 				{
 					this.DOM.activeColorNode = this.colors[i].node;
-					BX.addClass(this.DOM.activeColorNode, 'active');
+					Dom.addClass(this.DOM.activeColorNode, 'active');
 					break;
 				}
 			}
@@ -239,13 +233,8 @@ export class ColorSelector extends EventEmitter
 		this.viewMode = viewMode;
 		if (this.viewMode)
 		{
-			Dom.clean(this.DOM.wrap);
-			this.DOM.wrap.className = 'calendar-field-select-icon';
-			this.DOM.wrap.style.backgroundColor = this.activeColor;
-		}
-		else
-		{
-			//Dom.removeClass(this.DOM.wrap, 'calendar-colorpicker-readonly');
+			Dom.addClass(this.DOM.wrap, 'calendar-colorpicker-readonly');
+			Event.unbind(this.DOM.wrap, 'click', this.openPopup.bind(this));
 		}
 	}
 }

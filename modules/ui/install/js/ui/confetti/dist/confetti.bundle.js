@@ -1,35 +1,32 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports) {
   'use strict';
 
   // canvas-confetti v1.2.0 built on 2020-09-03T11:51:26.027Z
-  var module$1 = {}; // source content
+  var module$1 = {};
 
+  // source content
   (function main(global, module, isWorker, workerSize) {
     var canUseWorker = !!(global.Worker && global.Blob && global.Promise && global.OffscreenCanvas && global.HTMLCanvasElement && global.HTMLCanvasElement.prototype.transferControlToOffscreen && global.URL && global.URL.createObjectURL);
+    function noop() {}
 
-    function noop() {} // create a promise if it exists, otherwise, just
+    // create a promise if it exists, otherwise, just
     // call the function directly
-
-
     function promise(func) {
       var ModulePromise = module.exports.Promise;
       var Prom = ModulePromise !== void 0 ? ModulePromise : global.Promise;
-
       if (typeof Prom === 'function') {
         return new Prom(func);
       }
-
       func(noop, noop);
       return null;
     }
-
     var raf = function () {
       var TIME = Math.floor(1000 / 60);
       var frame, cancel;
       var frames = {};
       var lastFrameTime = 0;
-
       if (typeof requestAnimationFrame === 'function' && typeof cancelAnimationFrame === 'function') {
         frame = function frame(cb) {
           var id = Math.random();
@@ -44,7 +41,6 @@ this.BX = this.BX || {};
           });
           return id;
         };
-
         cancel = function cancel(id) {
           if (frames[id]) {
             cancelAnimationFrame(frames[id]);
@@ -54,23 +50,19 @@ this.BX = this.BX || {};
         frame = function frame(cb) {
           return setTimeout(cb, TIME);
         };
-
         cancel = function cancel(timer) {
           return clearTimeout(timer);
         };
       }
-
       return {
         frame: frame,
         cancel: cancel
       };
     }();
-
     var getWorker = function () {
       var worker;
       var prom;
       var resolves = {};
-
       function decorate(worker) {
         function execute(options, callback) {
           worker.postMessage({
@@ -78,34 +70,29 @@ this.BX = this.BX || {};
             callback: callback
           });
         }
-
         worker.init = function initWorker(canvas) {
           var offscreen = canvas.transferControlToOffscreen();
           worker.postMessage({
             canvas: offscreen
           }, [offscreen]);
         };
-
         worker.fire = function fireWorker(options, size, done) {
           if (prom) {
             execute(options, null);
             return prom;
           }
-
           var id = Math.random().toString(36).slice(2);
           prom = promise(function (resolve) {
             function workerDone(msg) {
               if (msg.data.callback !== id) {
                 return;
               }
-
               delete resolves[id];
               worker.removeEventListener('message', workerDone);
               prom = null;
               done();
               resolve();
             }
-
             worker.addEventListener('message', workerDone);
             execute(options, id);
             resolves[id] = workerDone.bind(null, {
@@ -116,27 +103,22 @@ this.BX = this.BX || {};
           });
           return prom;
         };
-
         worker.reset = function resetWorker() {
           worker.postMessage({
             reset: true
           });
-
           for (var id in resolves) {
             resolves[id]();
             delete resolves[id];
           }
         };
       }
-
       return function () {
         if (worker) {
           return worker;
         }
-
         if (!isWorker && canUseWorker) {
           var code = ['var CONFETTI, SIZE = {}, module = {};', '(' + main.toString() + ')(this, module, true, SIZE);', 'onmessage = function(msg) {', '  if (msg.data.options) {', '    CONFETTI(msg.data.options).then(function () {', '      if (msg.data.callback) {', '        postMessage({ callback: msg.data.callback });', '      }', '    });', '  } else if (msg.data.reset) {', '    CONFETTI.reset();', '  } else if (msg.data.resize) {', '    SIZE.width = msg.data.resize.width;', '    SIZE.height = msg.data.resize.height;', '  } else if (msg.data.canvas) {', '    SIZE.width = msg.data.canvas.width;', '    SIZE.height = msg.data.canvas.height;', '    CONFETTI = module.exports.create(msg.data.canvas);', '  }', '}'].join('\n');
-
           try {
             worker = new Worker(URL.createObjectURL(new Blob([code])));
           } catch (e) {
@@ -144,14 +126,11 @@ this.BX = this.BX || {};
             (typeof console === "undefined" ? "undefined" : babelHelpers["typeof"](console)) !== undefined && typeof console.warn === 'function' ? console.warn('рџЋЉ Count not load worker', e) : null;
             return null;
           }
-
           decorate(worker);
         }
-
         return worker;
       };
     }();
-
     var defaults = {
       particleCount: 50,
       angle: 90,
@@ -168,60 +147,48 @@ this.BX = this.BX || {};
       // probably should be true, but back-compat
       disableForReducedMotion: false
     };
-
     function convert(val, transform) {
       return transform ? transform(val) : val;
     }
-
     function isOk(val) {
       return !(val === null || val === undefined);
     }
-
     function prop(options, name, transform) {
       return convert(options && isOk(options[name]) ? options[name] : defaults[name], transform);
     }
-
     function randomInt(min, max) {
       // [min, max)
       return Math.floor(Math.random() * (max - min)) + min;
     }
-
     function toDecimal(str) {
       return parseInt(str, 16);
     }
-
     function hexToRgb(str) {
       var val = String(str).replace(/[^0-9a-f]/gi, '');
-
       if (val.length < 6) {
         val = val[0] + val[0] + val[1] + val[1] + val[2] + val[2];
       }
-
       return {
         r: toDecimal(val.substring(0, 2)),
         g: toDecimal(val.substring(2, 4)),
         b: toDecimal(val.substring(4, 6))
       };
     }
-
     function getOrigin(options) {
       var origin = prop(options, 'origin', Object);
       origin.x = prop(origin, 'x', Number);
       origin.y = prop(origin, 'y', Number);
       return origin;
     }
-
     function setCanvasWindowSize(canvas) {
       canvas.width = document.documentElement.clientWidth;
       canvas.height = document.documentElement.clientHeight;
     }
-
     function setCanvasRectSize(canvas) {
       var rect = canvas.getBoundingClientRect();
       canvas.width = rect.width;
       canvas.height = rect.height;
     }
-
     function getCanvas(zIndex) {
       var canvas = document.createElement('canvas');
       canvas.style.position = 'fixed';
@@ -231,7 +198,6 @@ this.BX = this.BX || {};
       canvas.style.zIndex = zIndex;
       return canvas;
     }
-
     function ellipse(context, x, y, radiusX, radiusY, rotation, startAngle, endAngle, antiClockwise) {
       context.save();
       context.translate(x, y);
@@ -240,7 +206,6 @@ this.BX = this.BX || {};
       context.arc(0, 0, 1, startAngle, endAngle, antiClockwise);
       context.restore();
     }
-
     function randomPhysics(opts) {
       var radAngle = opts.angle * (Math.PI / 180);
       var radSpread = opts.spread * (Math.PI / 180);
@@ -265,7 +230,6 @@ this.BX = this.BX || {};
         ovalScalar: 0.6
       };
     }
-
     function updateFetti(context, fetti) {
       fetti.x += Math.cos(fetti.angle2D) * fetti.velocity;
       fetti.y += Math.sin(fetti.angle2D) * fetti.velocity + fetti.gravity;
@@ -284,7 +248,6 @@ this.BX = this.BX || {};
       var y2 = fetti.wobbleY + fetti.random * fetti.tiltSin;
       context.fillStyle = 'rgba(' + fetti.color.r + ', ' + fetti.color.g + ', ' + fetti.color.b + ', ' + (1 - progress) + ')';
       context.beginPath();
-
       if (fetti.shape === 'circle') {
         context.ellipse ? context.ellipse(fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI) : ellipse(context, fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI);
       } else {
@@ -293,12 +256,10 @@ this.BX = this.BX || {};
         context.lineTo(Math.floor(x2), Math.floor(y2));
         context.lineTo(Math.floor(x1), Math.floor(fetti.wobbleY));
       }
-
       context.closePath();
       context.fill();
       return fetti.tick < fetti.totalTicks;
     }
-
     function animate(canvas, fettis, resizer, size, done) {
       var animatingFettis = fettis.slice();
       var context = canvas.getContext('2d');
@@ -311,31 +272,26 @@ this.BX = this.BX || {};
           done();
           resolve();
         }
-
         function update() {
           if (isWorker && !(size.width === workerSize.width && size.height === workerSize.height)) {
             size.width = canvas.width = workerSize.width;
             size.height = canvas.height = workerSize.height;
           }
-
           if (!size.width && !size.height) {
             resizer(canvas);
             size.width = canvas.width;
             size.height = canvas.height;
           }
-
           context.clearRect(0, 0, size.width, size.height);
           animatingFettis = animatingFettis.filter(function (fetti) {
             return updateFetti(context, fetti);
           });
-
           if (animatingFettis.length) {
             animationFrame = raf.frame(update);
           } else {
             onDone();
           }
         }
-
         animationFrame = raf.frame(update);
         destroy = onDone;
       });
@@ -350,14 +306,12 @@ this.BX = this.BX || {};
           if (animationFrame) {
             raf.cancel(animationFrame);
           }
-
           if (destroy) {
             destroy();
           }
         }
       };
     }
-
     function confettiCannon(canvas, globalOpts) {
       var isLibCanvas = !canvas;
       var allowResize = !!prop(globalOpts || {}, 'resize');
@@ -368,7 +322,6 @@ this.BX = this.BX || {};
       var initialized = canvas && worker ? !!canvas.__confetti_initialized : false;
       var preferLessMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion)').matches;
       var animationObj;
-
       function fireLocal(options, size, done) {
         var particleCount = prop(options, 'particleCount', Math.floor);
         var angle = prop(options, 'angle', Number);
@@ -384,7 +337,6 @@ this.BX = this.BX || {};
         var fettis = [];
         var startX = canvas.width * origin.x;
         var startY = canvas.height * origin.y;
-
         while (temp--) {
           fettis.push(randomPhysics({
             x: startX,
@@ -398,28 +350,24 @@ this.BX = this.BX || {};
             decay: decay,
             gravity: gravity
           }));
-        } // if we have a previous canvas already animating,
+        }
+
+        // if we have a previous canvas already animating,
         // add to it
-
-
         if (animationObj) {
           return animationObj.addFettis(fettis);
         }
-
         animationObj = animate(canvas, fettis, resizer, size, done);
         return animationObj.promise;
       }
-
       function fire(options) {
         var disableForReducedMotion = globalDisableForReducedMotion || prop(options, 'disableForReducedMotion', Boolean);
         var zIndex = prop(options, 'zIndex', Number);
-
         if (disableForReducedMotion && preferLessMotion) {
           return promise(function (resolve) {
             resolve();
           });
         }
-
         if (isLibCanvas && animationObj) {
           // use existing canvas from in-progress animation
           canvas = animationObj.canvas;
@@ -428,27 +376,21 @@ this.BX = this.BX || {};
           canvas = getCanvas(zIndex);
           document.body.appendChild(canvas);
         }
-
         if (allowResize && !initialized) {
           // initialize the size of a user-supplied canvas
           resizer(canvas);
         }
-
         var size = {
           width: canvas.width,
           height: canvas.height
         };
-
         if (worker && !initialized) {
           worker.init(canvas);
         }
-
         initialized = true;
-
         if (worker) {
           canvas.__confetti_initialized = true;
         }
-
         function onResize() {
           if (worker) {
             // TODO this really shouldn't be immediate, because it is expensive
@@ -467,51 +409,41 @@ this.BX = this.BX || {};
               }
             });
             return;
-          } // don't actually query the size here, since this
+          }
+
+          // don't actually query the size here, since this
           // can execute frequently and rapidly
-
-
           size.width = size.height = null;
         }
-
         function done() {
           animationObj = null;
-
           if (allowResize) {
             global.removeEventListener('resize', onResize);
           }
-
           if (isLibCanvas && canvas) {
             document.body.removeChild(canvas);
             canvas = null;
             initialized = false;
           }
         }
-
         if (allowResize) {
           global.addEventListener('resize', onResize, false);
         }
-
         if (worker) {
           return worker.fire(options, size, done);
         }
-
         return fireLocal(options, size, done);
       }
-
       fire.reset = function () {
         if (worker) {
           worker.reset();
         }
-
         if (animationObj) {
           animationObj.reset();
         }
       };
-
       return fire;
     }
-
     module.exports = confettiCannon(null, {
       useWorker: true,
       resize: true
@@ -521,14 +453,13 @@ this.BX = this.BX || {};
     if (typeof window !== 'undefined') {
       return window;
     }
-
     if (typeof self !== 'undefined') {
       return self;
     }
-
     return this;
-  }(), module$1, false); // end source content
+  }(), module$1, false);
 
+  // end source content
 
   var confetti = module$1.exports;
   var create = module$1.exports.create;

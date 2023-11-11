@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_buttons,ui_fonts_opensans,im_v2_lib_progressbar,ui_infoHelper,im_v2_lib_utils,rest_client,im_v2_const,main_core,main_core_events,im_v2_lib_logger,im_lib_uploader) {
+(function (exports,ui_vue3,ui_buttons,ui_fonts_opensans,im_v2_lib_desktopApi,im_v2_lib_progressbar,ui_infoHelper,im_v2_lib_utils,rest_client,im_v2_const,main_core,main_core_events,im_v2_lib_logger,im_lib_uploader) {
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -894,8 +894,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    initPreviouslySelectedMask: function initPreviouslySelectedMask() {
 	      if (this.isDesktop) {
-	        var _window$BX$desktop$ge = window.BX.desktop.getMask(),
-	          maskId = _window$BX$desktop$ge.id;
+	        var _DesktopApi$getCallMa = im_v2_lib_desktopApi.DesktopApi.getCallMask(),
+	          maskId = _DesktopApi$getCallMa.id;
 	        var foundMask = this.masks.find(function (mask) {
 	          return mask.id === maskId;
 	        });
@@ -911,8 +911,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    initPreviouslySelectedBackground: function initPreviouslySelectedBackground() {
 	      if (this.isDesktop) {
-	        var _window$BX$desktop$ge2 = window.BX.desktop.getBackgroundImage(),
-	          backgroundId = _window$BX$desktop$ge2.id;
+	        var _DesktopApi$getBackgr = im_v2_lib_desktopApi.DesktopApi.getBackgroundImage(),
+	          backgroundId = _DesktopApi$getBackgr.id;
 	        var itemsToSearch = [].concat(babelHelpers.toConsumableArray(this.actions), babelHelpers.toConsumableArray(this.backgrounds));
 	        var foundBackground = itemsToSearch.find(function (item) {
 	          return item.id === backgroundId;
@@ -1003,7 +1003,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      this.maskLoadTimeouts = {};
-	      window.BX.desktop.setCallMaskLoadHandlers(this.onMaskLoad.bind(this));
+	      im_v2_lib_desktopApi.DesktopApi.setCallMaskLoadHandlers(this.onMaskLoad.bind(this));
 	    },
 	    // endregion init
 	    // region component events
@@ -1130,20 +1130,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!this.isDesktop) {
 	        return;
 	      }
-	      return window.BX.desktop.setCallBackground(backgroundInstance.id, backgroundInstance.background);
+	      return im_v2_lib_desktopApi.DesktopApi.setCallBackground(backgroundInstance.id, backgroundInstance.background);
 	    },
 	    setCallBlur: function setCallBlur(action) {
 	      im_v2_lib_logger.Logger.warn('CallBackground: set blur', action);
 	      if (!this.isDesktop) {
 	        return;
 	      }
-	      return window.BX.desktop.setCallBackground(action.id, action.background);
+	      return im_v2_lib_desktopApi.DesktopApi.setCallBackground(action.id, action.background);
 	    },
 	    removeCallBackground: function removeCallBackground() {
 	      if (!this.isDesktop) {
 	        return;
 	      }
-	      return window.BX.desktop.setCallBackground(Action.type.none, Action.type.none);
+	      return im_v2_lib_desktopApi.DesktopApi.setCallBackground(Action.type.none, Action.type.none);
 	    },
 	    setCallMask: function setCallMask(mask) {
 	      im_v2_lib_logger.Logger.warn('CallBackground: set mask', mask);
@@ -1152,7 +1152,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	      if (mask.isEmpty()) {
 	        im_v2_lib_logger.Logger.warn('CallBackground: empty mask - removing it');
-	        window.BX.desktop.setCallMask();
+	        im_v2_lib_desktopApi.DesktopApi.setCallMask();
 	        return;
 	      }
 	      this.lastRequestedMaskId = mask.id;
@@ -1160,19 +1160,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.maskLoadTimeouts[mask.id] = setTimeout(function () {
 	        mask.isLoading = true;
 	      }, MASK_LOAD_STATUS_DELAY);
-	      window.BX.desktop.setCallMask(mask.id, mask.mask, mask.background);
+	      im_v2_lib_desktopApi.DesktopApi.setCallMask(mask.id, mask.mask, mask.background);
 	    },
 	    removeCallMask: function removeCallMask() {
 	      if (!this.isDesktop) {
 	        return;
 	      }
-	      window.BX.desktop.setCallMask();
+	      im_v2_lib_desktopApi.DesktopApi.setCallMask();
 	    },
 	    hideLoader: function hideLoader() {
 	      if (!this.isDesktop) {
 	        return;
 	      }
-	      window.BX.desktop.hideLoader();
+	      im_v2_lib_desktopApi.DesktopApi.hideLoader();
 	    },
 	    // endregion desktop interactions
 	    findCustomBackgroundById: function findCustomBackgroundById(id) {
@@ -1199,5 +1199,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.CallBackground = CallBackground;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.UI,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3,BX.UI,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.Lib));
 //# sourceMappingURL=call-background.bundle.js.map

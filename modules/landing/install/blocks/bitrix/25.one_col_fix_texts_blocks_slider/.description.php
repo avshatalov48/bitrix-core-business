@@ -64,7 +64,7 @@ return array(
 				'type' => ['background'],
 			),
 			'.landing-block-node-button-container' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_9_ONE_COL_FIX_TEXTS_BLOCKS_SLIDER_NODES_BLOCKNODEELEMENTBUTTON'),
+				'name' => Loc::getMessage('LANDING_BLOCK_25_BUTTON_AREA'),
 				'type' => 'text-align',
 			),
 			'.landing-block-slider' => [

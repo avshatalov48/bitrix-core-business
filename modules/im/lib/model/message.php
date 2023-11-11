@@ -135,6 +135,8 @@ class MessageTable extends Main\Entity\DataManager
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateNotifyTitle'),
 				'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_TITLE_FIELD'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'NOTIFY_BUTTONS' => array(
 				'data_type' => 'text',

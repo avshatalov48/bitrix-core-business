@@ -62,7 +62,7 @@ class Synchronization
 
 	/**
 	 * @param Event $event
-	 * @param Context|null $context
+	 * @param Context $context
 	 *
 	 * @return Result
 	 * @throws ArgumentException
@@ -70,7 +70,7 @@ class Synchronization
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 */
-	public function createEvent(Event $event, Context $context = null): Result
+	public function createEvent(Event $event, Context $context): Result
 	{
 		if ($event->getExcludedDateCollection() && $event->getExcludedDateCollection()->count())
 		{
@@ -133,6 +133,9 @@ class Synchronization
 		$mainResult = new Result();
 		$data = [];
 		$eventCloner = new Core\Builders\EventCloner($event);
+		$pushManager = new PushManager();
+		$push = null;
+		
 		/** @var FactoryInterface $factory */
 		foreach ($this->factories as $factory)
 		{
@@ -140,11 +143,19 @@ class Synchronization
 			{
 				continue;
 			}
+			
 			try
 			{
+				
 				$clonedEvent = $eventCloner->build();
 				$vendorSync = $this->getVendorSynchronization($factory);
 				$eventContext = $this->prepareEventContext($clonedEvent, clone $context, $factory);
+				
+				if ($eventContext->getSectionConnection()?->getId())
+				{
+					$push = $pushManager->getPush(PushManager::TYPE_SECTION_CONNECTION, $eventContext->getSectionConnection()->getId());
+					$pushManager->setBlockPush($push);
+				}
 
 				$vendorResult = $vendorSync->$method($clonedEvent, $eventContext);
 
@@ -157,6 +168,10 @@ class Synchronization
 			catch (RemoteAccountException $e)
 			{
 				$mainResult->addError(new Error($e->getMessage(), $e->getCode()));
+			}
+			finally
+			{
+				$pushManager->setUnblockPush($push);
 			}
 		}
 
@@ -386,6 +401,9 @@ class Synchronization
 	{
 		$mainResult = new Result();
 		$resultData = [];
+		$pushManager = new PushManager();
+		$push = null;
+		
 		/** @var FactoryInterface $factory */
 		foreach ($this->factories as $factory)
 		{
@@ -393,6 +411,13 @@ class Synchronization
 			{
 				continue;
 			}
+			
+			if ($factory->getConnection()->getId())
+			{
+				$push = $pushManager->getPush(PushManager::TYPE_CONNECTION, $factory->getConnection()->getId());
+				$pushManager->setBlockPush($push);
+			}
+			
 			try
 			{
 				$vendorSync = $this->getVendorSynchronization($factory);
@@ -403,9 +428,14 @@ class Synchronization
 				{
 					$mainResult->addErrors($vendorResult->getErrors());
 				}
-			} catch (RemoteAccountException $e)
+			}
+			catch (RemoteAccountException $e)
 			{
 				$mainResult->addError(new Error($e->getMessage(), $e->getCode()));
+			}
+			finally
+			{
+				$pushManager->setUnblockPush($push);
 			}
 		}
 

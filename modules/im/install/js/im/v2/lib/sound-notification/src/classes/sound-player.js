@@ -37,11 +37,6 @@ export class SoundPlayer
 
 	playSingle(type: $Keys<typeof SoundFile>)
 	{
-		if (this.#isPlayingLoop)
-		{
-			return;
-		}
-
 		if (this.#currentPlayingSound)
 		{
 			this.stop(type);
@@ -85,6 +80,11 @@ export class SoundPlayer
 		}
 
 		if (!this.#currentPlayingSound)
+		{
+			return;
+		}
+
+		if (!this.#currentPlayingSound.src.endsWith(SoundFile[type]))
 		{
 			return;
 		}

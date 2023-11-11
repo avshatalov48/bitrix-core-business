@@ -70,9 +70,11 @@ BX.tooltip.hide = function(userId) {
 };
 
 BX.tooltip.openIM = function(userId) {
-	if (top.BXIM)
+
+	const namespace = BX.Reflection.namespace('BX.Messenger.Public');
+	if (namespace)
 	{
-		top.BXIM.openMessenger(userId);
+		namespace.openChat(userId);
 		BX.tooltip.hide(userId);
 	}
 	else if (BX('MULSonetMessageChatTemplate'))
@@ -85,26 +87,25 @@ BX.tooltip.openIM = function(userId) {
 
 
 BX.tooltip.openCallTo = function(userId) {
-	if (top.BXIM)
+
+	const namespace = BX.Reflection.namespace('BX.Messenger.Public');
+	if (namespace)
 	{
-		top.BXIM.callTo(userId);
-		BX.tooltip.hide(userId);
+		namespace.startVideoCall(userId);
 	}
 	return false;
 };
 
 BX.tooltip.checkCallTo = function(nodeId) {
-	if (
-		!top.BXIM
-		|| !top.BXIM.checkCallSupport()
-	)
-	{
-		BX.remove(nodeId);
-	}
 };
 
 BX.tooltip.openVideoCall = function(userId) {
-	if (BX('MULVideoCallTemplate'))
+	const namespace = BX.Reflection.namespace('BX.Messenger.Public');
+	if (namespace)
+	{
+		namespace.startVideoCall(userId);
+	}
+	else if (BX('MULVideoCallTemplate'))
 	{
 		window.open(BX('MULVideoCallTemplate').replace('#user_id#', userId).replace('#USER_ID#', userId).replace('#ID#', userId), '', 'location=yes,status=no,scrollbars=yes,resizable=yes,width=1000,height=600,top='+Math.floor((screen.height - 600)/2-14)+',left='+Math.floor((screen.width - 1000)/2-5));
 		BX.tooltip.hide(userId);

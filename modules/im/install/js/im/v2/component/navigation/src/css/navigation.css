@@ -184,7 +184,7 @@
 	background-image: url(./images/menu/notification.svg?v3);
 }
 
-.bx-im-navigation__item_icon.--openline {
+.bx-im-navigation__item_icon.--openlines {
 	background-image: url(./images/menu/openline.svg?v3);
 }
 
@@ -205,7 +205,7 @@
 }
 
 .bx-im-navigation__item_icon.--timemanager {
-	background-image: url(./images/menu/timemanager.svg);
+	background-image: url(./images/menu/timemanager.svg?v2);
 }
 
 .bx-im-navigation__item_counter {

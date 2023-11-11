@@ -758,6 +758,8 @@ class CAllRatings
 	public static function AddRatingVote($arParam)
 	{
 		global $DB, $CACHE_MANAGER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		if ($arParam['ENTITY_TYPE_ID'] === 'USER' && isset(\Bitrix\Main\Application::getInstance()->getSession()['RATING_VOTE_COUNT']))
 		{
@@ -838,18 +840,32 @@ class CAllRatings
 				$rsRVR = $DB->Query("SELECT TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'", false, $err_mess.__LINE__);
 				if (!($arRVR = $rsRVR->fetch())) // reactions not initialized
 				{
-					$arFields = array(
-						"ENTITY_TYPE_ID" => "'".$DB->ForSql($arParam["ENTITY_TYPE_ID"])."'",
-						"ENTITY_ID" => (int)$arParam['ENTITY_ID'],
-						"REACTION" => "'".$DB->ForSql(self::REACTION_DEFAULT)."'",
-						"TOTAL_VOTES" => $arRV['TOTAL_POSITIVE_VOTES']
-					);
-					$DB->Insert("b_rating_voting_reaction", $arFields, $err_mess.__LINE__);
+					$merge = $helper->prepareMerge('b_rating_voting_reaction', ['ENTITY_TYPE_ID', 'ENTITY_ID', 'REACTION'], [
+						'ENTITY_TYPE_ID' => $arParam['ENTITY_TYPE_ID'],
+						'ENTITY_ID' => $arParam['ENTITY_ID'],
+						'REACTION' => self::REACTION_DEFAULT,
+						'TOTAL_VOTES' => $arRV['TOTAL_POSITIVE_VOTES'],
+					], [
+						'TOTAL_VOTES' => $arRV['TOTAL_POSITIVE_VOTES'],
+					]);
+					if ($merge[0])
+					{
+						$DB->query($merge[0]);
+					}
 				}
 
-				$DB->Query("INSERT INTO b_rating_voting_reaction (ENTITY_TYPE_ID, ENTITY_ID, REACTION, TOTAL_VOTES) ".
-					"VALUES ('".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."', ".(int)$arParam['ENTITY_ID'].", '".$DB->ForSql($arParam['REACTION'])."', 1)" .
-					"ON DUPLICATE KEY UPDATE TOTAL_VOTES = TOTAL_VOTES + 1", false, $err_mess.__LINE__);
+				$merge = $helper->prepareMerge('b_rating_voting_reaction', ['ENTITY_TYPE_ID', 'ENTITY_ID', 'REACTION'], [
+					'ENTITY_TYPE_ID' => $arParam['ENTITY_TYPE_ID'],
+					'ENTITY_ID' => $arParam['ENTITY_ID'],
+					'REACTION' => $arParam['REACTION'],
+					'TOTAL_VOTES' => 1,
+				], [
+					'TOTAL_VOTES' => new \Bitrix\Main\DB\SqlExpression('b_rating_voting_reaction.TOTAL_VOTES + 1'),
+				]);
+				if ($merge[0])
+				{
+					$DB->query($merge[0]);
+				}
 			}
 		}
 		else
@@ -875,13 +891,18 @@ class CAllRatings
 
 			if ($votePlus)
 			{
-				$arFields = array(
-					"ENTITY_TYPE_ID" => "'".$DB->ForSql($arParam["ENTITY_TYPE_ID"])."'",
-					"ENTITY_ID" => (int)$arParam['ENTITY_ID'],
-					'REACTION' => "'".$DB->ForSql($arParam['REACTION'])."'",
-					'TOTAL_VOTES' => 1
-				);
-				$DB->Insert("b_rating_voting_reaction", $arFields, $err_mess.__LINE__);
+				$merge = $helper->prepareMerge('b_rating_voting_reaction', ['ENTITY_TYPE_ID', 'ENTITY_ID', 'REACTION'], [
+					'ENTITY_TYPE_ID' => $arParam['ENTITY_TYPE_ID'],
+					'ENTITY_ID' => $arParam['ENTITY_ID'],
+					'REACTION' => $arParam['REACTION'],
+					'TOTAL_VOTES' => 1,
+				], [
+					'TOTAL_VOTES' => 1,
+				]);
+				if ($merge[0])
+				{
+					$DB->query($merge[0]);
+				}
 			}
 		}
 
@@ -943,6 +964,8 @@ class CAllRatings
 	public static function ChangeRatingVote($arParam)
 	{
 		global $DB, $CACHE_MANAGER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$arParam['ENTITY_TYPE_ID'] = mb_substr($arParam['ENTITY_TYPE_ID'], 0, 50);
 		$arParam['REACTION'] = ($arParam['REACTION'] <> '' ? $arParam['REACTION'] : self::REACTION_DEFAULT);
@@ -1003,18 +1026,32 @@ class CAllRatings
 			$rsRVR = $DB->Query("SELECT TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'", false, $err_mess.__LINE__);
 			if (!($arRVR = $rsRVR->fetch())) // reactions not initialized
 			{
-				$arFields = array(
-					"ENTITY_TYPE_ID" => "'".$DB->ForSql($arParam["ENTITY_TYPE_ID"])."'",
-					"ENTITY_ID" => (int)$arParam['ENTITY_ID'],
-					"REACTION" => "'".self::REACTION_DEFAULT."'",
-					"TOTAL_VOTES" => $arRV['TOTAL_POSITIVE_VOTES']
-				);
-				$DB->Insert("b_rating_voting_reaction", $arFields, $err_mess.__LINE__);
+				$merge = $helper->prepareMerge('b_rating_voting_reaction', ['ENTITY_TYPE_ID', 'ENTITY_ID', 'REACTION'], [
+					'ENTITY_TYPE_ID' => $arParam['ENTITY_TYPE_ID'],
+					'ENTITY_ID' => $arParam['ENTITY_ID'],
+					'REACTION' => self::REACTION_DEFAULT,
+					'TOTAL_VOTES' => $arRV['TOTAL_POSITIVE_VOTES'],
+				], [
+					'TOTAL_VOTES' => $arRV['TOTAL_POSITIVE_VOTES'],
+				]);
+				if ($merge[0])
+				{
+					$DB->query($merge[0]);
+				}
 			}
 
-			$DB->Query("INSERT INTO b_rating_voting_reaction (ENTITY_TYPE_ID, ENTITY_ID, REACTION, TOTAL_VOTES) ".
-				"VALUES ('".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."', ".(int)$arParam['ENTITY_ID'].", '".$DB->ForSql($arParam['REACTION'])."', 1)" .
-				"ON DUPLICATE KEY UPDATE TOTAL_VOTES = TOTAL_VOTES + 1", false, $err_mess.__LINE__);
+			$merge = $helper->prepareMerge('b_rating_voting_reaction', ['ENTITY_TYPE_ID', 'ENTITY_ID', 'REACTION'], [
+				'ENTITY_TYPE_ID' => $arParam['ENTITY_TYPE_ID'],
+				'ENTITY_ID' => $arParam['ENTITY_ID'],
+				'REACTION' => $arParam['REACTION'],
+				'TOTAL_VOTES' => 1,
+			], [
+				'TOTAL_VOTES' => new \Bitrix\Main\DB\SqlExpression('b_rating_voting_reaction.TOTAL_VOTES + 1'),
+			]);
+			if ($merge[0])
+			{
+				$DB->query($merge[0]);
+			}
 
 			if (!empty($arVote['REACTION_OLD']))
 			{
@@ -1082,6 +1119,8 @@ class CAllRatings
 	public static function CancelRatingVote($arParam)
 	{
 		global $DB, $CACHE_MANAGER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$err_mess = (CRatings::err_mess())."<br>Function: CancelRatingVote<br>Line: ";
 
@@ -1112,14 +1151,18 @@ class CAllRatings
 				$rsRVR = $DB->Query("SELECT TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'", false, $err_mess.__LINE__);
 				if (!($arRVR = $rsRVR->fetch())) // reactions not initialized
 				{
-					$arFields = array(
-						"ENTITY_TYPE_ID" => "'".$DB->ForSql($arParam["ENTITY_TYPE_ID"])."'",
-						"ENTITY_ID" => (int)$arParam['ENTITY_ID'],
-						"REACTION" => "'".$DB->ForSql(self::REACTION_DEFAULT)."'",
-						"TOTAL_VOTES" => $arVote['TOTAL_POSITIVE_VOTES']
-					);
-
-					$DB->Insert("b_rating_voting_reaction", $arFields, $err_mess.__LINE__);
+					$merge = $helper->prepareMerge('b_rating_voting_reaction', ['ENTITY_TYPE_ID', 'ENTITY_ID', 'REACTION'], [
+						'ENTITY_TYPE_ID' => $arParam['ENTITY_TYPE_ID'],
+						'ENTITY_ID' => $arParam['ENTITY_ID'],
+						'REACTION' => self::REACTION_DEFAULT,
+						'TOTAL_VOTES' => $arVote['TOTAL_POSITIVE_VOTES'],
+					], [
+						'TOTAL_VOTES' => $arVote['TOTAL_POSITIVE_VOTES'],
+					]);
+					if ($merge[0])
+					{
+						$DB->query($merge[0]);
+					}
 				}
 			}
 
@@ -1132,9 +1175,18 @@ class CAllRatings
 			$DB->Update("b_rating_voting", $arFields, "WHERE ID=".(int)$arVote['ID'], $err_mess.__LINE__);
 			if ($votePlus)
 			{
-				$DB->Query("INSERT INTO b_rating_voting_reaction (ENTITY_TYPE_ID, ENTITY_ID, REACTION, TOTAL_VOTES)".
-					"VALUES ('".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."', ".(int)$arParam['ENTITY_ID'].", '".$DB->ForSql($arVote['REACTION'])."', 0)".
-					"ON DUPLICATE KEY UPDATE TOTAL_VOTES = TOTAL_VOTES - 1", false, $err_mess.__LINE__);
+				$merge = $helper->prepareMerge('b_rating_voting_reaction', ['ENTITY_TYPE_ID', 'ENTITY_ID', 'REACTION'], [
+					'ENTITY_TYPE_ID' => $arParam['ENTITY_TYPE_ID'],
+					'ENTITY_ID' => $arParam['ENTITY_ID'],
+					'REACTION' => $arVote['REACTION'],
+					'TOTAL_VOTES' => 0,
+				], [
+					'TOTAL_VOTES' => new \Bitrix\Main\DB\SqlExpression('b_rating_voting_reaction.TOTAL_VOTES - 1'),
+				]);
+				if ($merge[0])
+				{
+					$DB->query($merge[0]);
+				}
 			}
 			$DB->Query("DELETE FROM b_rating_vote WHERE ID=".(int)$arVote['VOTE_ID'], false, $err_mess.__LINE__);
 
@@ -2037,7 +2089,9 @@ class CAllRatings
 
 	public static function getEntityRatingData($params = array())
 	{
-		global $USER, $DB;
+		global $USER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$result = array();
 
@@ -2091,25 +2145,10 @@ class CAllRatings
 				: 100
 		);
 
-		$connection = \Bitrix\Main\Application::getConnection();
-		$connection->queryExecute('SET @user_rank = 0');
-		$connection->queryExecute('SET @current_entity_id = 0');
-
 		if (\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))
 		{
-			$res = $connection->query("SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-				@user_rank := IF(
-					@current_entity_id = tmp.ENTITY_ID,
-					@user_rank + 1,
-					1
-				) as USER_RANK,
-				@current_entity_id := tmp.ENTITY_ID,
-				tmp.USER_ID as USER_ID,
-				tmp.ENTITY_ID as ENTITY_ID,
-				tmp.WEIGHT as WEIGHT
-			FROM (
-				SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-					@rownum := @rownum + 1 as ROWNUM,
+			$res = $connection->query("
+				SELECT
 					RS1.ENTITY_ID as USER_ID,
 					RV1.ENTITY_ID as ENTITY_ID,
 					MAX(RS1.VOTES) as WEIGHT
@@ -2119,42 +2158,31 @@ class CAllRatings
 				WHERE
 					RS1.ENTITY_ID = RV1.USER_ID
 					AND RS1.RATING_ID = ".(int)$ratingId."
-					AND RV1.ENTITY_TYPE_ID = '".$DB->ForSQL($entityTypeId)."'
+					AND RV1.ENTITY_TYPE_ID = '".$helper->forSQL($entityTypeId)."'
 					AND RV1.ENTITY_ID IN (".implode(',', $entityIdList).")
 				GROUP BY
 					RV1.ENTITY_ID, RS1.ENTITY_ID
 				ORDER BY
 					RV1.ENTITY_ID,
 					WEIGHT DESC
-			) tmp");
+			");
 		}
 		else
 		{
-			$res = $connection->query("SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-				@user_rank := IF(
-					@current_entity_id = tmp.ENTITY_ID,
-					@user_rank + 1,
-					1
-				) as USER_RANK,
-				@current_log_id := tmp.LOG_ID,
-				tmp.USER_ID as USER_ID,
-				tmp.ENTITY_ID as ENTITY_ID,
-				tmp.WEIGHT as WEIGHT
-			FROM (
-				SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-					@rownum := @rownum + 1 as ROWNUM,
+			$res = $connection->query("
+				SELECT
 					RV1.USER_ID as USER_ID,
 					RV1.ENTITY_ID as ENTITY_ID,
 					RV1.VALUE as WEIGHT
 				FROM
 					b_rating_vote RV1
 				WHERE
-					RV1.ENTITY_TYPE_ID = '".$DB->ForSQL($entityTypeId)."'
+					RV1.ENTITY_TYPE_ID = '".$helper->forSQL($entityTypeId)."'
 					AND RV1.ENTITY_ID IN (".implode(',', $entityIdList).")
 				ORDER BY
 					RV1.ENTITY_ID,
 					WEIGHT DESC
-			) tmp");
+			");
 		}
 
 		$userWeightData = $entityUserData = array();

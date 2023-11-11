@@ -150,3 +150,7 @@
 .bx-im-menu_item__icon.--ai-image {
 	background-image: url('./images/ai-image.svg');
 }
+
+.bx-im-menu_item__icon.--file {
+	background-image: url('./images/file.svg');
+}

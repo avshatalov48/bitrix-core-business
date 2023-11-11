@@ -1,22 +1,27 @@
-import {Loc, Type} from 'main.core';
-import {EventEmitter} from 'main.core.events';
-import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
+import { MessengerSlider } from 'im.v2.lib.slider';
+import { Loc, Type } from 'main.core';
+import { MessageBox, MessageBoxButtons } from 'ui.dialogs.messagebox';
 
-import {Core} from 'im.v2.application.core';
-import {DialogType, EventType, OpenTarget} from 'im.v2.const';
-import {CallManager} from 'im.v2.lib.call';
-import {ChatService, RecentService} from 'im.v2.provider.service';
-import {Utils} from 'im.v2.lib.utils';
-import {Messenger} from 'im.public';
+import { Core } from 'im.v2.application.core';
+import { ChatActionType, PathPlaceholder } from 'im.v2.const';
+import { CallManager } from 'im.v2.lib.call';
+import { ChatService, RecentService } from 'im.v2.provider.service';
+import { Utils } from 'im.v2.lib.utils';
+import { PermissionManager } from 'im.v2.lib.permission';
+import { showLeaveFromChatConfirm } from 'im.v2.lib.confirm';
+import { Messenger } from 'im.public';
 
-import {BaseMenu} from '../base/base';
-import {InviteManager} from './invite-manager';
+import { BaseMenu } from '../base/base';
+import { InviteManager } from './invite-manager';
 
-import type {MenuItem} from 'im.v2.lib.menu';
+import type { MenuItem } from 'im.v2.lib.menu';
+import type { ImModelRecentItem } from 'im.v2.model';
 
 export class RecentMenu extends BaseMenu
 {
+	context: ImModelRecentItem;
 	callManager: CallManager;
+	permissionManager: PermissionManager;
 	chatService: ChatService;
 
 	constructor()
@@ -24,8 +29,9 @@ export class RecentMenu extends BaseMenu
 		super();
 
 		this.id = 'im-recent-context-menu';
-		this.callManager = CallManager.getInstance();
 		this.chatService = new ChatService();
+		this.callManager = CallManager.getInstance();
+		this.permissionManager = PermissionManager.getInstance();
 	}
 
 	getMenuOptions(): Object
@@ -34,7 +40,7 @@ export class RecentMenu extends BaseMenu
 			...super.getMenuOptions(),
 			className: this.getMenuClassName(),
 			angle: true,
-			offsetLeft: 32
+			offsetLeft: 32,
 		};
 	}
 
@@ -51,15 +57,14 @@ export class RecentMenu extends BaseMenu
 		}
 
 		return [
-			this.getSendMessageItem(),
+			this.getOpenItem(),
 			this.getUnreadMessageItem(),
 			this.getPinMessageItem(),
 			this.getMuteItem(),
 			this.getCallItem(),
-			// this.getHistoryItem(),
 			this.getOpenProfileItem(),
 			this.getHideItem(),
-			this.getLeaveItem()
+			this.getLeaveItem(),
 		];
 	}
 
@@ -70,7 +75,31 @@ export class RecentMenu extends BaseMenu
 			onclick: () => {
 				Messenger.openChat(this.context.dialogId);
 				this.menuInstance.close();
-			}
+			},
+		};
+	}
+
+	getOpenItem(): MenuItem
+	{
+		return {
+			text: Loc.getMessage('IM_LIB_MENU_OPEN'),
+			onclick: () => {
+				Messenger.openChat(this.context.dialogId);
+				this.menuInstance.close();
+			},
+		};
+	}
+
+	getOpenInNewTabItem(): MenuItem
+	{
+		return {
+			text: Loc.getMessage('IM_LIB_MENU_OPEN_IN_NEW_TAB'),
+			onclick: () => {
+				MessengerSlider.getInstance().openNewTab(
+					PathPlaceholder.dialog.replace('#DIALOG_ID#', this.context.dialogId),
+				);
+				this.menuInstance.close();
+			},
 		};
 	}
 
@@ -91,7 +120,7 @@ export class RecentMenu extends BaseMenu
 					this.chatService.unreadDialog(this.context.dialogId);
 				}
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -111,13 +140,13 @@ export class RecentMenu extends BaseMenu
 					this.chatService.pinChat(this.context.dialogId);
 				}
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
 	getMuteItem(): ?MenuItem
 	{
-		const canMute = this.store.getters['dialogues/canMute'](this.context.dialogId);
+		const canMute = this.permissionManager.canPerformAction(ChatActionType.mute, this.context.dialogId);
 		if (!canMute)
 		{
 			return null;
@@ -125,8 +154,9 @@ export class RecentMenu extends BaseMenu
 
 		const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
 		const isMuted = dialog.muteList.includes(Core.getUserId());
+
 		return {
-			text: isMuted? Loc.getMessage('IM_LIB_MENU_UNMUTE') : Loc.getMessage('IM_LIB_MENU_MUTE'),
+			text: isMuted ? Loc.getMessage('IM_LIB_MENU_UNMUTE_2') : Loc.getMessage('IM_LIB_MENU_MUTE_2'),
 			onclick: () => {
 				if (isMuted)
 				{
@@ -137,49 +167,25 @@ export class RecentMenu extends BaseMenu
 					this.chatService.muteChat(this.context.dialogId);
 				}
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
 	getCallItem(): ?MenuItem
 	{
 		const chatCanBeCalled = this.callManager.chatCanBeCalled(this.context.dialogId);
-		if (!chatCanBeCalled)
+		const chatIsAllowedToCall = this.permissionManager.canPerformAction(ChatActionType.call, this.context.dialogId);
+		if (!chatCanBeCalled || !chatIsAllowedToCall)
 		{
 			return null;
 		}
 
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_CALL'),
+			text: Loc.getMessage('IM_LIB_MENU_CALL_2'),
 			onclick: () => {
 				this.callManager.startCall(this.context.dialogId);
 				this.menuInstance.close();
-			}
-		};
-	}
-
-	getHistoryItem(): ?MenuItem
-	{
-		const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
-		const isUser = dialog.type === DialogType.user;
-		if (isUser)
-		{
-			return null;
-		}
-
-		return {
-			text: Loc.getMessage('IM_LIB_MENU_OPEN_HISTORY'),
-			onclick: () => {
-				const target = this.context.target === OpenTarget.current? OpenTarget.current: OpenTarget.auto;
-
-				EventEmitter.emit(EventType.dialog.openHistory, {
-					...this.context,
-					chat: this.store.getters['dialogues/get'](this.context.dialogId, true),
-					user: this.store.getters['users/get'](this.context.dialogId, true),
-					target
-				});
-				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -198,7 +204,7 @@ export class RecentMenu extends BaseMenu
 			href: profileUri,
 			onclick: () => {
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -215,13 +221,13 @@ export class RecentMenu extends BaseMenu
 				RecentService.getInstance().hideChat(this.context.dialogId);
 
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
 	getLeaveItem(): ?MenuItem
 	{
-		const canLeaveChat = this.store.getters['dialogues/canLeave'](this.context.dialogId);
+		const canLeaveChat = this.permissionManager.canPerformAction(ChatActionType.leave, this.context.dialogId);
 		if (!canLeaveChat)
 		{
 			return null;
@@ -229,10 +235,14 @@ export class RecentMenu extends BaseMenu
 
 		return {
 			text: Loc.getMessage('IM_LIB_MENU_LEAVE'),
-			onclick: () => {
-				this.chatService.leaveChat(this.context.dialogId);
+			onclick: async () => {
 				this.menuInstance.close();
-			}
+				const userChoice = await showLeaveFromChatConfirm();
+				if (userChoice === true)
+				{
+					this.chatService.leaveChat(this.context.dialogId);
+				}
+			},
 		};
 	}
 
@@ -241,7 +251,7 @@ export class RecentMenu extends BaseMenu
 	{
 		const items = [
 			this.getSendMessageItem(),
-			this.getOpenProfileItem()
+			this.getOpenProfileItem(),
 		];
 
 		let canInvite; // TODO change to APPLICATION variable
@@ -260,8 +270,8 @@ export class RecentMenu extends BaseMenu
 		{
 			items.push(
 				this.getDelimiter(),
-				this.context.invitation.canResend? this.getResendInviteItem(): null,
-				this.getCancelInviteItem()
+				this.context.invitation.canResend ? this.getResendInviteItem() : null,
+				this.getCancelInviteItem(),
 			);
 		}
 
@@ -275,7 +285,7 @@ export class RecentMenu extends BaseMenu
 			onclick: () => {
 				InviteManager.resendInvite(this.context.dialogId);
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -294,16 +304,16 @@ export class RecentMenu extends BaseMenu
 					},
 					onCancel: (messageBox) => {
 						messageBox.close();
-					}
+					},
 				});
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 	// invitation end
 
 	getDelimiter(): Object
 	{
-		return {delimiter: true};
+		return { delimiter: true };
 	}
 }

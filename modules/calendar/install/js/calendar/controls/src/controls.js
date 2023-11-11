@@ -22,6 +22,7 @@ import {EmailSelectorControl} from './emailselectorcontrol';
 import {ConfirmedEmailDialog} from './confirmedemaildialog';
 import {EmailLimitationDialog} from './emaillimitationdialog';
 import {AttendeesList} from "./attendeeslist";
+import {IntranetButton} from "./intranetbutton";
 
 export {
 	Reminder,
@@ -48,4 +49,5 @@ export {
 	ConfirmedEmailDialog,
 	EmailLimitationDialog,
 	AttendeesList,
+	IntranetButton,
 }

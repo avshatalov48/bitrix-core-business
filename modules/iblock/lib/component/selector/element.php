@@ -30,6 +30,7 @@ class Element extends Entity
 	 */
 	public function onIncludeComponentLang()
 	{
+		parent::onIncludeComponentLang();
 		Loc::loadMessages(__FILE__);
 	}
 

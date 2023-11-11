@@ -694,7 +694,6 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain */
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('REST_STATISTIC_PAGE_TITLE'));
 		}
 		$prefix = self::PREFIX;

@@ -30,10 +30,13 @@ Class messageservice extends CModule
 	function InstallDB($install_wizard = true)
 	{
 		global $DB, $APPLICATION;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$errors = null;
-		if (!$DB->Query("SELECT 'x' FROM b_messageservice_message", true))
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/messageservice/install/db/mysql/install.sql");
+
+		if (!$DB->TableExists('b_messageservice_message'))
+		{
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/messageservice/install/db/' . $connection->getType() . '/install.sql');
+		}
 
 		if (!empty($errors))
 		{
@@ -64,11 +67,12 @@ Class messageservice extends CModule
 	function UnInstallDB($arParams = Array())
 	{
 		global $DB, $APPLICATION;
-
+		$connection = \Bitrix\Main\Application::getConnection();
 		$errors = null;
+
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/messageservice/install/db/mysql/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/messageservice/install/db/".$connection->getType()."/uninstall.sql");
 
 			if (!empty($errors))
 			{

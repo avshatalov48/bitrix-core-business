@@ -1,51 +1,70 @@
 <?php
 namespace Bitrix\Main\Engine\Response\Zip;
 
+use Bitrix\Main\HttpResponse;
+use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\Uri;
 
-class Archive extends \Bitrix\Main\HttpResponse
+class Archive extends HttpResponse
 {
+	public const MOD_ZIP_HEADER_NAME = 'X-Archive-Files';
 	/**
 	 * Archive name.
 	 * @var string
 	 */
-	protected $name;
+	protected string $name;
 
 	/**
 	 * Archive Entries.
-	 * @var ArchiveEntry[]
+	 * @var ArchiveEntry[]|EntryInterface[]
 	 */
-	protected $entries = [];
+	protected array $entries = [];
 
 	/**
 	 * Archive constructor.
 	 * @param string $name Archive name.
 	 */
-	public function __construct($name)
+	public function __construct(string $name)
 	{
 		parent::__construct();
-		$this->name = $name;
 
-		$this->addHeader('X-Archive-Files', 'zip');
+		$this->name = $name;
+		$this->addHeader(self::MOD_ZIP_HEADER_NAME, 'zip');
 	}
 
 	/**
 	 * Add one entry. in current archive.
-	 * @param ArchiveEntry $archiveEntry Entry for archive.
+	 * @param ArchiveEntry|EntryInterface $archiveEntry Entry for archive.
 	 */
-	public function addEntry($archiveEntry)
+	public function addEntry($archiveEntry): void
 	{
 		if ($archiveEntry instanceof ArchiveEntry)
 		{
 			$this->entries[] = $archiveEntry;
 		}
+		elseif ($archiveEntry instanceof EntryInterface)
+		{
+			$this->entries[] = $archiveEntry;
+		}
+	}
+
+	private function convertEntryInterfaceToString(EntryInterface $entry): string
+	{
+		$crc32 = ($entry->getCrc32() !== '') ? $entry->getCrc32() : '-';
+		$name = Encoding::convertEncoding(
+			$entry->getPath(),
+			LANG_CHARSET,
+			'UTF-8'
+		);
+
+		return "{$crc32} {$entry->getSize()} {$entry->getServerRelativeUrl()} {$name}";
 	}
 
 	/**
 	 * Returns true if the archive does not have entries.
 	 * @return bool
 	 */
-	public function isEmpty()
+	public function isEmpty(): bool
 	{
 		return empty($this->entries);
 	}
@@ -54,18 +73,25 @@ class Archive extends \Bitrix\Main\HttpResponse
 	 * Return entries as string.
 	 * @return string
 	 */
-	protected function getFileList()
+	protected function getFileList(): string
 	{
 		$list = [];
 		foreach ($this->entries as $entry)
 		{
-			$list[] = (string)$entry;
+			if ($entry instanceof ArchiveEntry)
+			{
+				$list[] = (string)$entry;
+			}
+			elseif ($entry instanceof EntryInterface)
+			{
+				$list[] = $this->convertEntryInterfaceToString($entry);
+			}
 		}
 
 		return implode("\n", $list);
 	}
 
-	protected function setContentDispositionHeader()
+	protected function setContentDispositionHeader(): void
 	{
 		$utfName = Uri::urnEncode($this->name, 'UTF-8');
 		$translitName = \CUtil::translit($this->name, LANGUAGE_ID, [
@@ -79,11 +105,7 @@ class Archive extends \Bitrix\Main\HttpResponse
 		);
 	}
 
-	/**
-	 * Sends content to output stream and sets necessary headers.
-	 * @return void
-	 */
-	public function send()
+	public function send(): void
 	{
 		if (!$this->isEmpty())
 		{

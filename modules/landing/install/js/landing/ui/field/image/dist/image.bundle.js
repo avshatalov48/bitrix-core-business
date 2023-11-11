@@ -17,6 +17,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.type = _this.content.type || "image";
 	    _this.contextType = data.contextType || Image.CONTEXT_TYPE_CONTENT;
 	    _this.allowClear = data.allowClear;
+	    _this.allowAiImage = main_core.Type.isBoolean(data.allowAiImage) ? data.allowAiImage : false;
 	    _this.input.innerText = _this.content.src;
 	    _this.input.hidden = true;
 	    _this.input2x = _this.createInput();
@@ -77,15 +78,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 	    _this.left.appendChild(_this.altField.layout);
 	    _this.left.appendChild(_this.linkInput.layout);
-	    _this.aiButton = Image.createAiButton(_this.compactMode);
-	    _this.aiButton.on("click", _this.onAiClick.bind(babelHelpers.assertThisInitialized(_this)));
-	    _this.aiPicker = null;
 	    _this.uploadButton = Image.createUploadButton(_this.compactMode);
 	    _this.uploadButton.on("click", _this.onUploadClick.bind(babelHelpers.assertThisInitialized(_this)));
 	    _this.editButton = Image.createEditButton();
 	    _this.editButton.on("click", _this.onEditClick.bind(babelHelpers.assertThisInitialized(_this)));
 	    _this.right = Image.createRightLayout();
-	    if (landing_env.Env.getInstance().getOptions()['allow_ai_image'] && (_this.type === "background" || _this.type === "image")) {
+
+	    // ai images
+	    _this.aiButton = null;
+	    _this.aiPicker = null;
+	    if (_this.allowAiImage && (_this.type === "background" || _this.type === "image")) {
+	      _this.aiButton = Image.createAiButton(_this.compactMode);
+	      _this.aiButton.on("click", _this.onAiClick.bind(babelHelpers.assertThisInitialized(_this)));
 	      _this.right.appendChild(_this.aiButton.layout);
 	    }
 	    _this.right.appendChild(_this.uploadButton.layout);
@@ -226,13 +230,22 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function onAiClick() {
 	      this.getAiPicker().image();
 	    }
+	    /**
+	     * Return AI image button, if exists (if allow)
+	     */
+	  }, {
+	    key: "getAiButton",
+	    value: function getAiButton() {
+	      return this.aiButton;
+	    }
 	  }, {
 	    key: "getAiPicker",
 	    value: function getAiPicker() {
 	      var _this2 = this;
 	      if (!this.aiPicker) {
 	        var demoPrompt = this.contextType === Image.CONTEXT_TYPE_CONTENT ? 'large, heart shaped bouquet of red roses on a white background' : 'background, smooth, blue color';
-	        this.aiPicker = new ai_picker.Picker({
+	        var _Picker = top.BX.AI ? top.BX.AI.Picker : BX.AI.Picker;
+	        this.aiPicker = new _Picker({
 	          startMessage: demoPrompt,
 	          moduleId: 'landing',
 	          contextId: this.getAiContext(),
@@ -602,6 +615,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        image: data.src,
 	        dimensions: this.dimensions
 	      }).then(function (file) {
+	        var ext = file.name.split('.').pop();
+	        if (!file.name.includes('.') || ext.length > 4) {
+	          ext = ".".concat(file.name.split('_').pop());
+	          file.name = file.name + ext;
+	        }
 	        return this.upload(file, {
 	          context: "imageEditor"
 	        });

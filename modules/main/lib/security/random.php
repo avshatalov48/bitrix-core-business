@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Security;
 
 class Random
@@ -182,16 +183,14 @@ class Random
 			$length = 1;
 		}
 
-		if (static::isOpensslAvailable())
+		$bytes = openssl_random_pseudo_bytes($length, $strong);
+		if ($bytes && strlen($bytes) >= $length)
 		{
-			$bytes = openssl_random_pseudo_bytes($length, $strong);
-			if ($bytes && strlen($bytes) >= $length)
+			if ($strong)
 			{
-				if ($strong)
-					return substr($bytes, 0, $length);
-				else
-					$backup = $bytes;
+				return substr($bytes, 0, $length);
 			}
+			$backup = $bytes;
 		}
 
 		if (file_exists('/dev/urandom'))
@@ -228,15 +227,10 @@ class Random
 	 */
 	protected static function getPseudoRandomBlock()
 	{
-		global $APPLICATION;
-
-		if (static::isOpensslAvailable())
+		$bytes = openssl_random_pseudo_bytes(static::RANDOM_BLOCK_LENGTH);
+		if ($bytes && strlen($bytes) >= static::RANDOM_BLOCK_LENGTH)
 		{
-			$bytes = openssl_random_pseudo_bytes(static::RANDOM_BLOCK_LENGTH);
-			if ($bytes && strlen($bytes) >= static::RANDOM_BLOCK_LENGTH)
-			{
-				return substr($bytes, 0, static::RANDOM_BLOCK_LENGTH);
-			}
+			return substr($bytes, 0, static::RANDOM_BLOCK_LENGTH);
 		}
 
 		$bytes = '';
@@ -245,28 +239,7 @@ class Random
 			$bytes .= pack('S', mt_rand(0,0xffff));
 		}
 
-		$bytes .= $APPLICATION->getServerUniqID();
-
 		return hash('sha512', $bytes, true);
-	}
-
-	/**
-	 * Checks OpenSSL available
-	 *
-	 * @return bool
-	 */
-	protected static function isOpensslAvailable()
-	{
-		static $result = null;
-		if ($result === null)
-		{
-			$result = (
-				function_exists('openssl_random_pseudo_bytes')
-				&& strtolower(substr(PHP_OS, 0, 3)) !== "win"
-			);
-		}
-
-		return $result;
 	}
 
 	/**
@@ -315,5 +288,4 @@ class Random
 
 		return $result;
 	}
-
 }

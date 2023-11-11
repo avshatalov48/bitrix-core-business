@@ -434,6 +434,14 @@ class Manager
 		}
 	}
 
+	public static function isAutoPublicationEnabled(): bool
+	{
+		return
+			Site\Type::isPublicScope()
+			&& \CUserOptions::getOption('landing', 'auto_publication', 'Y') === 'Y'
+		;
+	}
+
 	/**
 	 * Add some class to some marker.
 	 * @param string $marker Marker.
@@ -684,6 +692,7 @@ class Manager
 			}
 			// save
 			$module = 'landing';
+			$file['name'] = File::transliterateFileName($file['name']);
 			$file['name'] = File::sanitizeFileName($file['name']);
 			$file['MODULE_ID'] = $module;
 			$file = \CFile::saveFile($file, $module);
@@ -983,6 +992,31 @@ class Manager
 		}
 
 		return $available;
+	}
+
+	/**
+	 * Return ID for market collection, by zone
+	 * @param string $type name of collection type
+	 * @return int
+	 */
+	public static function getMarketCollectionId(string $type): int
+	{
+		$zone = self::getZone();
+		switch ($type)
+		{
+			case 'form_minisite':
+				$minisites = [
+					'ru' => 18108954,
+					'by' => 18108962,
+					'kz' => 18108964,
+					'en' => 18108970,
+				];
+
+				return $minisites[$zone] ?? $minisites['en'];
+
+			default:
+				return 0;
+		}
 	}
 
 	/**

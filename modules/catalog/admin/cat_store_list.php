@@ -91,6 +91,13 @@ $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $by = mb_strtoupper($oSort->getField());
 $order = mb_strtoupper($oSort->getOrder());
+$listOrder = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$listOrder['ID'] = 'ASC';
+}
 
 $bExport = $lAdmin->isExportMode();
 
@@ -527,7 +534,7 @@ if ($allowedShippingCenter)
 	$arSelect[] = "SHIPPING_CENTER";
 }
 
-$dbResultList = CCatalogStore::GetList(array($by => $order), $filter, false, false, $arSelect);
+$dbResultList = CCatalogStore::GetList($listOrder, $filter, false, false, $arSelect);
 
 $dbResultList = new CAdminUiResult($dbResultList, $sTableID);
 $dbResultList->NavStart();

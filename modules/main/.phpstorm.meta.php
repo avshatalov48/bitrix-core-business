@@ -15,7 +15,7 @@ namespace PHPSTORM_META
 
 	exitPoint(\Bitrix\Main\Application::end());
 	exitPoint(\Bitrix\Main\Application::terminate());
-	exitPoint(\CAllMain::FinalActions());
+	exitPoint(\CMain::FinalActions());
 	exitPoint(\LocalRedirect());
 
 	registerArgumentsSet(
@@ -153,4 +153,5 @@ namespace PHPSTORM_META
 	expectedArguments(\Bitrix\Main\Config\Option::get(), 0, argumentsSet('bitrix_main_modules_list'));
 	expectedArguments(\Bitrix\Main\Config\Option::set(), 0, argumentsSet('bitrix_main_modules_list'));
 	expectedArguments(\Bitrix\Main\Config\Configuration::getInstance(), 0, argumentsSet('bitrix_main_modules_list'));
+	expectedArguments(\Bitrix\Main\DI\ServiceLocator::registerByModuleSettings(), 0, argumentsSet('bitrix_main_modules_list'));
 }

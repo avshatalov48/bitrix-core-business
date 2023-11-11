@@ -99,9 +99,10 @@ class BlacklistTable extends Entity\DataManager
 	 */
 	public static function insertBatch(array $list)
 	{
-		$sqlHelper = Application::getConnection()->getSqlHelper();
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
 		$tableName = static::getTableName();
-		$dateNow = $sqlHelper->convertToDbDateTime(new DateTime());
+		$dateNow = $helper->convertToDbDateTime(new DateTime());
 
 		foreach (self::divideList($list) as $batchList)
 		{
@@ -114,7 +115,7 @@ class BlacklistTable extends Entity\DataManager
 					continue;
 				}
 
-				$code = $sqlHelper->forSql($code);
+				$code = $helper->forSql($code);
 				$values[] = "$dateNow, \"$code\"";
 			}
 
@@ -124,8 +125,9 @@ class BlacklistTable extends Entity\DataManager
 			}
 
 			$values = '(' . implode('), (', $values) . ')';
-			$sql = "INSERT IGNORE INTO $tableName (DATE_INSERT, CODE) VALUES $values";
-			Application::getConnection()->query($sql);
+
+			$sql = $helper->getInsertIgnore($tableName, '(DATE_INSERT, CODE)', 'VALUES ' . $values);
+			$connection->query($sql);
 
 			static::getEntity()->cleanCache();
 		}

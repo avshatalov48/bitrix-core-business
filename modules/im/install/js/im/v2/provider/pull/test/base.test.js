@@ -352,7 +352,7 @@ function getDefaultFileData(additionalData = {})
 async function setInitialData(store)
 {
 	await store.dispatch('dialogues/set', getDefaultChatData());
-	await store.dispatch('recent/set', getDefaultRecentData());
+	await store.dispatch('recent/store', getDefaultRecentData());
 	await store.dispatch('files/add', getDefaultFileData());
 	await store.dispatch('messages/add', getDefaultMessageData());
 	return Promise.resolve();

@@ -119,9 +119,9 @@ export default class MultiSelector extends Changer
 			const hintTitle =
 				Type.isStringFilled(this.hintTitle)
 					? this.hintTitle
-					: Loc.getMessage('JS_UI_ACCESSRIGHTS_SELECTED_ITEMS_TITLE')
+					: Loc.getMessage('JS_UI_ACCESSRIGHTS_SELECTED_ITEMS_TITLE_MSGVER_1')
 			;
-			hint += '<p>' + hintTitle + ':</p>';
+			hint += '<p>' + hintTitle + '</p>';
 			hint += '<ul>';
 			this.selector.getSelectedItems().forEach((item: Item) => hint += '<li>' + Text.encode(item.getTitle()))
 			hint += '</ul>';

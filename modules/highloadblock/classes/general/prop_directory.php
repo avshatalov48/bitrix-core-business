@@ -443,7 +443,7 @@ HIBSELECT;
 		$selectedValue = false;
 		$cellOption = '';
 		$defaultOption = '';
-		$highLoadIBTableName = (isset($arProperty["USER_TYPE_SETTINGS"]["TABLE_NAME"]) ? $arProperty["USER_TYPE_SETTINGS"]["TABLE_NAME"] : '');
+		$highLoadIBTableName = ($arProperty["USER_TYPE_SETTINGS"]["TABLE_NAME"] ?? '');
 		if($highLoadIBTableName != '')
 		{
 			if (empty(self::$arFullCache[$highLoadIBTableName]))
@@ -852,6 +852,10 @@ HIBSELECT;
 		{
 			if (!empty($value))
 			{
+				if (isset($value['VALUE']) && is_array($value['VALUE']))
+				{
+					$value = $value['VALUE'];
+				}
 				foreach ($value as $row)
 				{
 					$oneValue = '';

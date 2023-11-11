@@ -205,7 +205,7 @@ class CVoteAdminQuestions extends \CBitrixComponent
 		return false;
 	}
 	/**
-	 * @return Application|\Bitrix\Main\HttpApplication|\CAllMain|\CMain
+	 * @return Application|\Bitrix\Main\HttpApplication|CMain
 	 */
 	protected function getApplication()
 	{
@@ -214,7 +214,7 @@ class CVoteAdminQuestions extends \CBitrixComponent
 	}
 
 	/**
-	 * @return array|bool|\CAllUser|\CUser
+	 * @return array|bool|CUser
 	 */
 	protected function getCurrentUser()
 	{

@@ -20,11 +20,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 $APPLICATION->IncludeComponent('bitrix:main.field.config.list', '', [
 	'moduleId' => 'catalog',
 	'entityId' => StoreTable::getUfId(),
-	'title' => Loc::getMessage('CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_TITLE'),
+	'title' => Loc::getMessage('CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_TITLE_MSGVER_1'),
 	'detailUrl' => '/settings/configs/userfield.php',
 ]);
 
-$hint = Loc::getMessage('CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_HINT', [
+$hint = Loc::getMessage('CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_HINT_MSGVER_1', [
 	'#LINK_START#' => '<a href="' . Util::getArticleUrlByCode('17415624') . '">',
 	'#LINK_END#' => '</a>',
 ]);

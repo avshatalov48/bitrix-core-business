@@ -1,0 +1,37 @@
+.bx-im-message-context-menu__scope {
+	--im-message-context-menu__offset: var(--im-message-base__offset_context-menu, 54px);
+	--im-message-context-menu__background-color_button: rgb(255 255 255 / 20%);
+	--im-message-context-menu__background-color_button-hover: rgb(255 255 255 / 30%);
+}
+
+.bx-im-message-context-menu__container {
+	display: flex;
+	width: var(--im-message-base__offset_context-menu);
+	align-self: stretch;
+	flex-shrink: 0;
+	padding: 3px 0;
+}
+
+.bx-im-message-context-menu__button {
+	border: none;
+	position: sticky;
+	top: 45px;
+	border-radius: 50%;
+	background: var(--im-message-context-menu__background-color_button) url("./images/menu.svg") no-repeat center center;
+	text-align: center;
+	user-select: none;
+	width: 22px;
+	height: 22px;
+	cursor: pointer;
+	margin-left: 7px;
+	opacity: 0;
+	transition: opacity .3s, background-color .2s;
+}
+
+.bx-im-message-context-menu__button:hover {
+	background-color: var(--im-message-context-menu__background-color_button-hover);
+}
+
+.bx-im-message-base__container:hover .bx-im-message-context-menu__button {
+	opacity: 1;
+}

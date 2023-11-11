@@ -59,6 +59,21 @@ class CallTable extends Entity\DataManager
 			new Entity\DatetimeField('END_DATE'),
 			new Entity\IntegerField('CHAT_ID'),
 			new Entity\StringField('LOG_URL'),
+			new Entity\StringField(
+				'UUID',
+				[
+					'size' => 36,
+				]
+			),
+			new Entity\StringField(
+				'SECRET_KEY',
+				[
+					'size' => 10,
+				]
+			),
+			new Entity\StringField(
+				'ENDPOINT'
+			),
 		);
 	}
 

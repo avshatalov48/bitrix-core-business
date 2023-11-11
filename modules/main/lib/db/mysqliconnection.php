@@ -15,9 +15,6 @@ class MysqliConnection extends MysqlCommonConnection
 	 * SqlHelper
 	 **********************************************************/
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function createSqlHelper()
 	{
 		return new MysqliSqlHelper($this);
@@ -94,6 +91,11 @@ class MysqliConnection extends MysqlCommonConnection
 		$this->resource = $connection;
 		$this->isConnected = true;
 
+		if (isset($this->configuration['charset']))
+		{
+			$connection->set_charset($this->configuration['charset']);
+		}
+
 		// nosql memcached driver
 		if (isset($this->configuration['memcache']))
 		{
@@ -134,17 +136,11 @@ class MysqliConnection extends MysqlCommonConnection
 		$this->configureReportLevel();
 		$this->connectInternal();
 
-		if ($trackerQuery != null)
-		{
-			$trackerQuery->startQuery($sql, $binds);
-		}
+		$trackerQuery?->startQuery($sql, $binds);
 
-		$result = $this->resource->query($sql, MYSQLI_STORE_RESULT);
+		$result = $this->resource->query($sql);
 
-		if ($trackerQuery != null)
-		{
-			$trackerQuery->finishQuery();
-		}
+		$trackerQuery?->finishQuery();
 
 		$this->lastQueryResult = $result;
 
@@ -203,7 +199,7 @@ class MysqliConnection extends MysqlCommonConnection
 	/**
 	 * @inheritDoc
 	 */
-	protected function getErrorMessage()
+	public function getErrorMessage()
 	{
 		return sprintf("(%s) %s", $this->resource->errno, $this->resource->error);
 	}

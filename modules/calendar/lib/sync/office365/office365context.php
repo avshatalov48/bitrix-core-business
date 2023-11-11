@@ -28,7 +28,7 @@ class Office365Context implements ContextInterface
 {
 	/** @var array */
 	private static array $instances = [];
-	
+
 	/** @var EventManager */
 	private EventManager $eventManager;
 	/** @var Helper */
@@ -43,14 +43,14 @@ class Office365Context implements ContextInterface
 	private ApiService $apiService;
 	/** @var Connection  */
 	private Connection $connection;
-	
+
 	/** @var IncomingSectionManagerInterface */
 	private IncomingSectionManagerInterface $incomingManager;
 	/** @var OutgoingEventManagerInterface  */
 	private OutgoingEventManagerInterface $outgoingEventManager;
 	private Converter $converter;
 	private PushManager $pushManager;
-	
+
 	/**
 	 * @param Connection $connection
 	 *
@@ -67,7 +67,7 @@ class Office365Context implements ContextInterface
 		}
 		return self::$instances[$connection->getId()];
 	}
-	
+
 	/**
 	 * @param Connection $connection
 	 *
@@ -80,7 +80,7 @@ class Office365Context implements ContextInterface
 		$this->owner = $connection->getOwner();
 		$this->helper = ServiceLocator::getInstance()->get('calendar.service.office365.helper');
 	}
-	
+
 	/**
 	 * @return EventManager
 	 */
@@ -90,10 +90,10 @@ class Office365Context implements ContextInterface
 		{
 			$this->eventManager = new EventManager($this);
 		}
-		
+
 		return $this->eventManager;
 	}
-	
+
 	/**
 	 * @return VendorSyncService
 	 *
@@ -108,10 +108,10 @@ class Office365Context implements ContextInterface
 		{
 			$this->syncService = new VendorSyncService($this);
 		}
-		
+
 		return $this->syncService;
 	}
-	
+
 	/**
 	 * @return ApiService
 	 *
@@ -126,10 +126,10 @@ class Office365Context implements ContextInterface
 		{
 			$this->apiService = new ApiService($this);
 		}
-		
+
 		return $this->apiService;
 	}
-	
+
 	/**
 	 * @return ApiClient
 	 *
@@ -144,19 +144,19 @@ class Office365Context implements ContextInterface
 		if(empty($this->apiClient))
 		{
 			$httpClient = $this->prepareHttpClient();
-			
+
 			$this->apiClient = new ApiClient($httpClient, $this);
 		}
-		
+
 		return $this->apiClient;
 	}
-	
-	
+
+
 	protected function getMaxPageSize(): ?int
 	{
 		return 100;
 	}
-	
+
 	/**
 	 * @return Helper
 	 */
@@ -164,7 +164,7 @@ class Office365Context implements ContextInterface
 	{
 		return $this->helper;
 	}
-	
+
 	/**
 	 * @return Connection
 	 */
@@ -172,7 +172,7 @@ class Office365Context implements ContextInterface
 	{
 		return $this->connection;
 	}
-	
+
 	/**
 	 * @return PushManager
 	 */
@@ -184,7 +184,7 @@ class Office365Context implements ContextInterface
 		}
 		return $this->pushManager;
 	}
-	
+
 	/**
 	 * @return Converter
 	 */
@@ -196,7 +196,7 @@ class Office365Context implements ContextInterface
 		}
 		return $this->converter;
 	}
-	
+
 	/**
 	 * @return HttpClient
 	 *
@@ -212,7 +212,7 @@ class Office365Context implements ContextInterface
 			throw new LoaderException('Module socialservices is required.');
 		}
 		$httpClient = new HttpClient();
-		
+
 		$oAuthEntity = $this->prepareAuthEntity($this->owner->getId());
 		if ($oAuthEntity->GetAccessToken())
 		{
@@ -246,7 +246,7 @@ class Office365Context implements ContextInterface
 		}
 		return $httpClient;
 	}
-	
+
 	/**
 	 * @param $userId
 	 *
@@ -275,7 +275,7 @@ class Office365Context implements ContextInterface
 				true
 			);
 		}
-		
+
 		return $oAuthEntity;
 	}
 	
@@ -293,19 +293,19 @@ class Office365Context implements ContextInterface
 			->where('USER_ID', $userId)
 			->where('EXTERNAL_AUTH_ID', 'Office365')
 			->exec()->fetch()
-			;
+		;
 	}
-	
+
 	public function getIncomingManager()
 	{
 		if (empty($this->incomingManager))
 		{
 			$this->incomingManager = new IncomingManager($this);
 		}
-		
+
 		return $this->incomingManager;
 	}
-	
+
 	public function getOutgoingEventManager(): OutgoingEventManagerInterface
 	{
 		if (empty($this->outgoingEventManager))
@@ -314,7 +314,7 @@ class Office365Context implements ContextInterface
 		}
 		return $this->outgoingEventManager;
 	}
-	
+
 	/**
 	 * @return Role
 	 */
@@ -322,7 +322,7 @@ class Office365Context implements ContextInterface
 	{
 		return $this->owner;
 	}
-	
+
 	/**
 	 * @return LoggerInterface
 	 */
@@ -336,7 +336,7 @@ class Office365Context implements ContextInterface
 		{
 			$logger = new NullLogger();
 		}
-		
+
 		return $logger;
 	}
 }

@@ -144,6 +144,5 @@ $APPLICATION->IncludeComponent(
 
 		"TEMPLATE_THEME" => ($arParams["TEMPLATE_THEME"] ?? ''),
 	],
-	$component,
-	['HIDE_ICONS' => 'Y']
+	$component
 );

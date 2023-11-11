@@ -48,12 +48,6 @@ return [
 			'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_1_LINK'),
 			'type' => 'link',
 		],
-		'.landing-block-node-menu-bottom-link' => [
-			'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_1_LINK'),
-			'type' => 'link',
-			'group' => 'menu_link_bottom',
-			'skipContent' => true,
-		],
 		'.landing-block-node-menu-bottom-text' => [
 			'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_1_LINK'),
 			'type' => 'text',
@@ -61,16 +55,18 @@ return [
 			'allowInlineEdit' => false,
 			'textOnly' => true,
 		],
+		'.landing-block-node-menu-bottom-link' => [
+			'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_1_LINK'),
+			'type' => 'link',
+			'group' => 'menu_link_bottom',
+			'skipContent' => true,
+		],
 	],
 	'style' => [
 		'block' => [
 			'type' => ['block-default-wo-paddings', 'header-on-scroll', 'header-position'],
 		],
 		'nodes' => [
-			'.landing-block-node-title-container' => [
-				'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_1_TITLE'),
-				'type' => 'typo-link',
-			],
 			'.landing-block-node-text' => [
 				'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_1_LINK_TEXT_2'),
 				'type' => ['typo'],

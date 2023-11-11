@@ -1,0 +1,18 @@
+.bx-im-latest-search-result__scope {
+	--im-latest-search-result__color_title-text: var(--im-color-palette-gray-60, #959ca4);
+}
+
+.bx-im-latest-search-result__title {
+	height: 32px;
+	padding-left: 11px;
+	padding-top: 6px;
+	overflow: hidden;
+	margin-bottom: 4px;
+	font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-latest-search-result__color_title-text);
+}
+
+.bx-im-latest-search-result__loader {
+	height: 55px;
+}

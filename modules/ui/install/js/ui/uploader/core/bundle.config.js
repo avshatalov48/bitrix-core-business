@@ -3,5 +3,5 @@ module.exports = {
 	output: 'dist/ui.uploader.bundle.js',
 	namespace: 'BX.UI.Uploader',
 	adjustConfigPhp: false,
-	browserslist: true
+	browserslist: true,
 };

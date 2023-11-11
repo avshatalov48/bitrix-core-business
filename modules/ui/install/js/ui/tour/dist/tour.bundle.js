@@ -1,7 +1,18 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_popup,main_core_events,ui_designTokens,main_core) {
+(function (exports,main_core_events,main_popup,ui_designTokens,main_core) {
 	'use strict';
+
+	/**
+	 * @namespace {BX.UI}
+	 */
+	var GuideConditionColor = function GuideConditionColor() {
+	  babelHelpers.classCallCheck(this, GuideConditionColor);
+	};
+	babelHelpers.defineProperty(GuideConditionColor, "WARNING", '--condition-warning');
+	babelHelpers.defineProperty(GuideConditionColor, "ALERT", '--condition-alert');
+	babelHelpers.defineProperty(GuideConditionColor, "PRIMARY", '--condition-primary');
 
 	var Step = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Step, _Event$EventEmitter);
@@ -17,6 +28,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this.text = options.text;
 	    _this.areaPadding = options.areaPadding;
 	    _this.link = options.link || "";
+	    _this.linkTitle = options.linkTitle || null;
 	    _this.rounded = options.rounded || false;
 	    _this.title = options.title || null;
 	    _this.article = options.article || null;
@@ -93,6 +105,11 @@ this.BX.UI = this.BX.UI || {};
 	      return this.link;
 	    }
 	  }, {
+	    key: "getLinkTitle",
+	    value: function getLinkTitle() {
+	      return this.linkTitle;
+	    }
+	  }, {
 	    key: "getTitle",
 	    value: function getTitle() {
 	      return this.title;
@@ -139,16 +156,6 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return Step;
 	}(main_core.Event.EventEmitter);
-
-	/**
-	 * @namespace {BX.UI}
-	 */
-	var GuideConditionColor = function GuideConditionColor() {
-	  babelHelpers.classCallCheck(this, GuideConditionColor);
-	};
-	babelHelpers.defineProperty(GuideConditionColor, "WARNING", '--condition-warning');
-	babelHelpers.defineProperty(GuideConditionColor, "ALERT", '--condition-alert');
-	babelHelpers.defineProperty(GuideConditionColor, "PRIMARY", '--condition-primary');
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17;
 	var Guide = /*#__PURE__*/function (_Event$EventEmitter) {
@@ -519,7 +526,6 @@ this.BX.UI = this.BX.UI || {};
 	      this.layout.overlay = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<svg class=\"ui-tour-overlay\" xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" height=\"100%\" preserveAspectRatio=\"none\">\n\t\t\t\t<mask id=\"hole\">\n\t\t\t\t\t<defs>\n\t\t\t\t\t\t<filter id=\"ui-tour-filter\">\n\t\t\t\t\t\t\t<feGaussianBlur stdDeviation=\"0\"/>\n\t\t\t\t\t\t</filter>\n\t\t\t\t\t</defs>\n\t\t\t\t\t<rect x=\"0\" y=\"0\" width=\"100%\" height=\"100%\" fill=\"white\"></rect>\n\t\t\t\t\t<rect id=\"rect\" class=\"ui-tour-overlay-element ui-tour-overlay-element-rect\" x=\"1035.5\" y=\"338\" width=\"422\" rx=\"2\" ry=\"2\" height=\"58\" filter=\"url(#ui-tour-filter)\"></rect>\n\t\t\t\t\t<circle id=\"circle\" class=\"ui-tour-overlay-element ui-tour-overlay-element-circle\" cx=\"10\" cy=\"10\" r=\"10\" filter=\"url(#ui-tour-filter)\"></circle>\n\t\t\t\t</mask>\n\t\t\t\t<rect x=\"0\" y=\"0\" width=\"100%\" height=\"100%\" fill=\"#000\" mask=\"url(#hole)\"></rect>\n\t\t\t</svg>\n\t\t"])));
 	      main_core.Dom.addClass(document.body, 'ui-tour-body-overflow');
 	      if (this.targetContainer) {
-	        // Dom.append(this.layout.overlay, document.body);
 	        main_core.Dom.append(this.layout.overlay, this.targetContainer);
 	      } else {
 	        main_core.Dom.append(this.layout.overlay, document.body);
@@ -790,7 +796,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getLink",
 	    value: function getLink() {
 	      if (!this.layout.link) {
-	        this.layout.link = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a target=\"_blank\" href=\"\" class=\"ui-tour-popup-link\">\n\t\t\t\t\t", "\n\t\t\t\t</a>\n\t\t\t"])), main_core.Loc.getMessage("JS_UI_TOUR_LINK"));
+	        var _this$steps$this$curr;
+	        var title = (_this$steps$this$curr = this.steps[this.currentStepIndex].getLinkTitle()) !== null && _this$steps$this$curr !== void 0 ? _this$steps$this$curr : main_core.Loc.getMessage('JS_UI_TOUR_LINK');
+	        this.layout.link = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a target=\"_blank\" href=\"\" class=\"ui-tour-popup-link\">\n\t\t\t\t\t", "\n\t\t\t\t</a>\n\t\t\t"])), title);
 	      }
 	      return this.layout.link;
 	    }
@@ -1117,5 +1125,5 @@ this.BX.UI = this.BX.UI || {};
 	exports.Step = Step;
 	exports.Manager = manager;
 
-}((this.BX.UI.Tour = this.BX.UI.Tour || {}),BX.Main,BX.Event,BX,BX));
+}((this.BX.UI.Tour = this.BX.UI.Tour || {}),BX.Event,BX.Main,BX,BX));
 //# sourceMappingURL=tour.bundle.js.map

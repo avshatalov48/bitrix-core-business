@@ -8,8 +8,9 @@
 
 namespace Bitrix\Im\Model;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
+use Bitrix\Im\V2\Entity\Command\Command;
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
@@ -201,5 +202,40 @@ class CommandTable extends Main\Entity\DataManager
 		return array(
 			new Main\Entity\Validator\Length(null, 50),
 		);
+	}
+
+	public static function onAfterAdd(\Bitrix\Main\ORM\Event $event)
+	{
+		return self::clearCommandCache($event);
+	}
+
+	public static function onAfterUpdate(\Bitrix\Main\ORM\Event $event)
+	{
+		return self::clearCommandCache($event);
+	}
+
+	public static function onAfterDelete(\Bitrix\Main\ORM\Event $event)
+	{
+		return self::clearCommandCache($event);
+	}
+
+	protected static function clearCommandCache(\Bitrix\Main\ORM\Event $event): Main\Entity\EventResult
+	{
+		$id = (int)$event->getParameter('primary')['ID'];
+		$botId = self::getBotId($id);
+
+		if (isset($botId))
+		{
+			Command::cleanCache($botId);
+		}
+
+		return new Main\Entity\EventResult();
+	}
+
+	protected static function getBotId(int $id): ?int
+	{
+		$result = CommandTable::getById($id)->fetch();
+
+		return $result['BOT_ID'] ?: null;
 	}
 }

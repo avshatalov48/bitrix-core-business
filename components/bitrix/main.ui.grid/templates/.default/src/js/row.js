@@ -297,11 +297,19 @@ import {Type} from "main.core";
 		},
 		getCustomValue: function(editor)
 		{
-			var map = new Map(), name = editor.getAttribute('data-name');
-			var inputs = [].slice.call(editor.querySelectorAll('input, select, checkbox, textarea'));
-			inputs.forEach(function(element) {
+			let map = new Map(), name = editor.getAttribute('data-name');
+			let inputs = [].slice.call(editor.querySelectorAll('input, select, textarea'));
+			inputs.forEach((element) => {
+				if (element.name === '')
+				{
+					return;
+				}
+				if (element.hasAttribute('data-ignore-field'))
+				{
+					return;
+				}
 
-				var resultObject = {
+				let resultObject = {
 					'NAME': name,
 					'RAW_NAME': element.name,
 					'RAW_VALUE': element.value,
@@ -313,8 +321,8 @@ import {Type} from "main.core";
 					case 'SELECT':
 						if (element.multiple)
 						{
-							var selectValues = [];
-							element.querySelectorAll('option').forEach(function(option) {
+							let selectValues = [];
+							element.querySelectorAll('option').forEach((option) => {
 								if (option.selected)
 								{
 									selectValues.push(option.value);
@@ -335,15 +343,28 @@ import {Type} from "main.core";
 							case 'RADIO':
 								if (element.checked)
 								{
-									resultObject['RAW_VALUE'] = element.value;
-									resultObject['VALUE'] = element.value;
 									map.set(element.name, resultObject);
 								}
 								break;
 							case 'CHECKBOX':
-								resultObject['RAW_VALUE'] = element.checked ? element.value : '';
-								resultObject['VALUE'] = element.checked ? element.value : '';
-								map.set(element.name, resultObject);
+								if (element.checked)
+								{
+									if (this.isMultipleCustomValue(element.name))
+									{
+										if (map.has(element.name))
+										{
+											resultObject = map.get(element.name);
+											resultObject.RAW_VALUE.push(element.value);
+											resultObject.VALUE.push(element.value);
+										}
+										else
+										{
+											resultObject.RAW_VALUE = [element.value];
+											resultObject.VALUE = [element.value];
+										}
+									}
+									map.set(element.name, resultObject);
+								}
 								break;
 							case 'FILE':
 								resultObject['RAW_VALUE'] = element.files[0];
@@ -351,20 +372,41 @@ import {Type} from "main.core";
 								map.set(element.name, resultObject);
 								break;
 							default:
+								if (this.isMultipleCustomValue(element.name))
+								{
+									if (map.has(element.name))
+									{
+										resultObject = map.get(element.name);
+										resultObject.RAW_VALUE.push(element.value);
+										resultObject.VALUE.push(element.value);
+									}
+									else
+									{
+										resultObject.RAW_VALUE = [element.value];
+										resultObject.VALUE = [element.value];
+									}
+								}
 								map.set(element.name, resultObject);
 						}
 						break;
 					default:
 						map.set(element.name, resultObject);
+						break;
 				}
 			});
 
-			var result = [];
-			map.forEach(function(value) {
+			let result = [];
+			map.forEach((value) => {
 				result.push(value);
 			});
 
 			return result;
+		},
+
+		isMultipleCustomValue: function(elementName: string): boolean
+		{
+			return elementName.length > 2
+				&& elementName.lastIndexOf('[]') === elementName.length - 2;
 		},
 
 		getImageValue: function(editor)

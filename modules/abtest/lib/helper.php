@@ -39,7 +39,7 @@ class Helper
 						'<=START_DATE' => new Type\DateTime()
 					),
 					'limit' => 1
-				))->fetch() ?: null;
+				))->fetch() ?: [];
 
 				$cache->startDataCache();
 				$cache->endDataCache($abtest);

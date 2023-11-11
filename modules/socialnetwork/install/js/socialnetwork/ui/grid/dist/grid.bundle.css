@@ -75,6 +75,13 @@
 	border-color: rgba(157,207,0,.36) !important;
 }
 
+.ui-label.sonet-ui-grid-join .ui-label-inner,
+.ui-label.sonet-ui-grid-role .ui-label-inner {
+	font: 12px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans)) !important;
+	font-weight: var(--ui-font-weight-semi-bold, 600) !important;
+	overflow: visible !important;
+}
+
 .ui-label.sonet-ui-grid-role.--role-green .ui-label-inner {
 	color: #5F7C06;
 }

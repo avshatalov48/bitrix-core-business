@@ -505,6 +505,9 @@
 	position: relative;
 	z-index: 2;
 }
+.bx-messenger-cl-search-hide {
+	display: none;
+}
 .bx-messenger-cl-search-wrap {
 	margin: 0 0 0 28px;
 	border: 0;
@@ -1028,6 +1031,9 @@
 .bx-messenger-cl-panel {  height: 36px; overflow: hidden;  border-top: 1px solid #e5e6e9;  margin: 0 14px;
 	position: relative;
 	z-index: 2;
+}
+.bx-messenger-cl-panel-hide {
+	display: none;
 }
 .bx-messenger-box-desktop { width: auto; }
 .bx-messenger-box-desktop .bx-messenger-cl-panel { height: 39px;  }
@@ -3682,6 +3688,37 @@
 .bx-messenger-history-lines .bx-messenger-history-item-menu { display:none; }
 .bx-messenger-history-item:hover .bx-messenger-history-item-menu { opacity: 1; }
 
+
+
+.bx-messenger-history-fullscreen {
+	width: 100%;
+	height: 100%;
+	border: 0;
+	border-radius: 0;
+}
+.bx-messenger-history-fullscreen .bx-messenger-history {
+	width: 100%;
+}
+.bx-messenger-history-fullscreen .bx-messenger-history-type-message {
+	width: calc(100% - 352px)!important;
+}
+.bx-messenger-history-fullscreen .bx-messenger-history-items {
+	height: calc(100vh - 115px)!important;
+	padding: 0 13px;
+	border-radius: 0!important;
+}
+.bx-messenger-history-fullscreen .bx-messenger-history-type-disk {
+	width: 350px;
+}
+.bx-messenger-history-fullscreen.bx-messenger-history-lines .bx-messenger-history-type-message {
+	width: 100%!important;
+}
+.bx-messenger-history-fullscreen.bx-messenger-history-lines .bx-messenger-history-items {
+	height: calc(100vh - 68px)!important;
+	padding: 0 13px;
+	border-radius: 0!important;
+}
+
 .bx-messenger-history-item-2 .bx-messenger-history-item-name {color: #6488a4}
 .bx-messenger-history-item-3 .bx-messenger-history-item-name {color: #7f7f7f}
 .bx-messenger-history-item-3 .bx-messenger-content-item-avatar-img-default { background-position: -160px -1903px;}
@@ -4264,49 +4301,6 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 .bx-messenger-fullscreen-chrome-hack .bx-messenger-call-video-main-block { width: 100%; }
 .bx-messenger-fullscreen-chrome-hack .bx-messenger-textarea-place { width: 100%; }
 
-#bx-messenger-popup-keypad { opacity: 0.97; -webkit-animation: imOpacityFrom05To1 .4s 1; animation: imOpacityTo1 .4s 1; }
-.bx-messenger-calc-wrap {font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));padding: 4px 0 14px 4px;width: 196px;}
-.bx-messenger-calc-wrap-desktop {}
-.bx-messenger-calc-panel {outline:none; border-radius: 2px;background-color: #dededf; font-size: 20px;	height: 28px;	padding: 3px 8px;	text-align: left;	width: 176px;}
-.bx-messenger-calc-panel-input {outline:none; color: #000; background: transparent;	font-size: 18px; border: 0;	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));	height: 26px;	width: 176px;}
-.bx-messenger-calc-panel-active .bx-messenger-calc-panel-delete { opacity: 1; cursor: pointer; }
-.bx-messenger-calc-panel-delete { width: 22px; height: 17px; background: url("./../images/im-sprite-v37.png") no-repeat scroll -171px -817px; display: block; opacity: 0; transition: opacity .5s; position: absolute; right: 23px;margin-top: 6px;}
-.bx-messenger-calc-btns-block {margin: 16px -4px 0;}
-.bx-messenger-calc-btn {cursor: pointer;display: inline-block;height: 31px;margin: 4px;position: relative;vertical-align: top;width: 59px;background-color: #535353;border-radius: 5px;}
-.bx-messenger-calc-btn:hover {background-image: -webkit-linear-gradient(top, #5d6064, #4c4e52);background-image:    -moz-linear-gradient(top, #5d6064, #4c4e52);background-image:     -ms-linear-gradient(top, #5d6064, #4c4e52);background-image:      -o-linear-gradient(top, #5d6064, #4c4e52);background-image: linear-gradient(to bottom, #5d6064, #4c4e52);border-bottom-color: #3d4145;-webkit-box-shadow: 0 1px 0 #34373a;box-shadow: 0 1px 0 #34373a;}
-.bx-messenger-calc-btn:active {background-image: -webkit-linear-gradient(top, #52565a, #5b5d62);background-image:    -moz-linear-gradient(top, #52565a, #5b5d62);background-image:     -ms-linear-gradient(top, #52565a, #5b5d62);background-image:      -o-linear-gradient(top, #52565a, #5b5d62);background-image: linear-gradient(to bottom, #52565a, #5b5d62);-webkit-box-shadow: inset 0 1px 0 #44474b, inset 0 1px 2px rgba(0,0,0,.3);box-shadow: inset 0 1px 0 #44474b, inset 0 1px 2px rgba(0,0,0,.3);	border-color: #41464b #42464b #43464b;}
-.bx-messenger-calc-btn-num {  background: url("./../images/im-sprite-v37.png") no-repeat scroll 100px 100px; height: 31px;left: 0;top: 0;position: absolute;width: 59px;}
-.bx-messenger-calc-btn-1 .bx-messenger-calc-btn-num {background-position: left -1345px;}
-.bx-messenger-calc-btn-2 .bx-messenger-calc-btn-num {background-position: left -1379px;}
-.bx-messenger-calc-btn-3 .bx-messenger-calc-btn-num {background-position: left -1413px;}
-.bx-messenger-calc-btn-4 .bx-messenger-calc-btn-num {background-position: left -1447px;}
-.bx-messenger-calc-btn-5 .bx-messenger-calc-btn-num {background-position: left -1481px;}
-.bx-messenger-calc-btn-6 .bx-messenger-calc-btn-num {background-position: left -1515px;}
-.bx-messenger-calc-btn-7 .bx-messenger-calc-btn-num {background-position: left -1548px;}
-.bx-messenger-calc-btn-8 .bx-messenger-calc-btn-num {background-position: left -1582px;}
-.bx-messenger-calc-btn-9 .bx-messenger-calc-btn-num {background-position: left -1616px;}
-.bx-messenger-calc-btn-0 .bx-messenger-calc-btn-num {background-position: left -1684px;}
-.bx-messenger-calc-btn-10 .bx-messenger-calc-btn-num {background-position: left -1650px;}
-.bx-messenger-calc-btn-11 .bx-messenger-calc-btn-num {background-position: left -1717px;}
-.bx-messenger-calc-corner {background:  url("./../images/im-sprite-v37.png") no-repeat -13px -1763px;height: 9px;margin-left: -8px;top: -14px;left: 50%;position: absolute;width: 17px;}
-.bx-messenger-call-btn-wrap {padding-top: 14px;	text-align: center; white-space: nowrap}
-.bx-messenger-call-btn {background-color: #7ba816;border-radius: 4px;cursor: pointer;display: inline-block;height: 33px;padding: 0 9px;position: relative;vertical-align: top;}
-.bx-messenger-call-btn-separate .bx-messenger-call-btn {	-webkit-border-radius: 4px 0 0 4px;-moz-border-radius: 4px 0 0 4px;border-radius: 4px 0 0 4px;padding-right: 6px;}
-.bx-messenger-call-btn-arrow:hover,
-.bx-messenger-call-btn:hover {background-color: #7ba816;background-image: -webkit-linear-gradient(to bottom, #93b81a, #58790f);background-image:    -moz-linear-gradient(top, #93b81a, #7ba816);background-image:     -ms-linear-gradient(top, #93b81a, #7ba816);background-image:      -o-linear-gradient(top, #93b81a, #7ba816);background-image:         linear-gradient(to bottom, #93b81a, #58790f);}
-.bx-messenger-call-btn-arrow:active,
-.bx-messenger-call-btn:active {background-color: #7ba816;background-image: -webkit-linear-gradient(to bottom, #75a112, #93b81a);background-image:    -moz-linear-gradient(top, #75a112, #93b81a);background-image:     -ms-linear-gradient(top, #75a112, #93b81a);background-image:      -o-linear-gradient(top, #75a112, #93b81a);background-image:         linear-gradient(to bottom, #75a112, #93b81a);}
-.bx-messenger-call-btn-icon{ background: url("./../images/im-sprite-v37.png") no-repeat scroll -56px -1759px;height: 17px;left: 11px;top: 7px;position: absolute;width: 16px;}
-.bx-messenger-call-btn-text {color: #fff;display: inline-block;font-size: 13px;line-height: 31px;}
-.bx-messenger-call-btn-arrow {display: inline-block;background-color: #7ba816;-webkit-border-radius: 0 4px 4px 0;-moz-border-radius: 0 4px 4px 0;border-radius: 0 4px 4px 0;vertical-align: middle;width: 20px;height: 33px;position: relative;cursor: pointer;}
-.bx-messenger-call-btn-arrow:after {content: '';width: 1px;position: absolute;top: 7px;bottom: 7px;left: 0;background: rgba(255,255,255,.3);}
-.bx-messenger-call-btn-arrow:before {content: '';width: 6px;height: 6px;position: absolute;top: 15px;left: 7px;-webkit-transition: .1s;-o-transition: .1s;transition: .1s;border: 3px solid transparent;opacity: .77;border-top-color: #fff;-webkit-box-sizing: border-box;box-sizing: border-box;}
-.bx-messenger-call-btn-arrow:hover:before {opacity: 1;}
-.bx-messenger-call-btn-2 {background-color: #535353;border-radius: 4px;	cursor: pointer;display: inline-block;height: 33px;margin-left: 7px; padding: 0 16px 0 21px;position: relative;vertical-align: top;}
-.bx-messenger-call-btn-2:hover {background-color: #5d6064;background-image: -webkit-linear-gradient(to bottom, #5d6064, #4c4e52);background-image:    -moz-linear-gradient(top, #5d6064, #4c4e52);background-image:     -ms-linear-gradient(top, #5d6064, #4c4e52);background-image:      -o-linear-gradient(top, #5d6064, #4c4e52);background-image:         linear-gradient(to bottom,#5d6064, #4c4e52);	border-radius: 4px;}
-.bx-messenger-call-btn-2:active {background-color: #5d6064;background-image: -webkit-linear-gradient(to bottom, #52565a, #5b5d62);background-image:    -moz-linear-gradient(top,#52565a, #5b5d62);background-image:     -ms-linear-gradient(top, #52565a, #5b5d62);background-image:      -o-linear-gradient(top, #52565a, #5b5d62);background-image:         linear-gradient(to bottom, #52565a, #5b5d62);}
-.bx-messenger-call-btn-2-icon{ background: url("./../images/im-sprite-v37.png") no-repeat scroll -138px -133px;height: 20px;left: 11px;position: absolute;top: 7px;width: 16px;}
-
 .bx-messenger-message-edited .bx-messenger-content-item-date { padding-left: 23px; }
 .bx-messenger-history-item .bx-messenger-message-edited { }
 .bx-messenger-message-deleted .bx-messenger-message { font-style: italic; color: #7d7d7d; }
@@ -4642,7 +4636,8 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 }
 
 .popup-window-dark .bx-messenger-settings-v2-content,
-.bx-theme-dark .bx-messenger-settings-v2-content {
+.bx-theme-dark .bx-messenger-settings-v2-content,
+.bx-messenger-dark .bx-messenger-settings-v2-content {
 	background-image: url('./../images/im-v2-preview-background-dark.png');
 }
 
@@ -4692,7 +4687,8 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 }
 
 .popup-window-dark .bx-messenger-settings-v2-title,
-.bx-theme-dark .bx-messenger-settings-v2-title {
+.bx-theme-dark .bx-messenger-settings-v2-title,
+.bx-messenger-dark .bx-messenger-settings-v2-title {
 	color: #fff;
 }
 
@@ -4711,7 +4707,8 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 
 
 .popup-window-dark .bx-messenger-settings-v2-subtitle,
-.bx-theme-dark .bx-messenger-settings-v2-subtitle {
+.bx-theme-dark .bx-messenger-settings-v2-subtitle,
+.bx-messenger-dark .bx-messenger-settings-v2-subtitle {
 	color: #edeef0;
 }
 
@@ -4728,7 +4725,8 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 }
 
 .popup-window-dark .bx-messenger-settings-v2-link,
-.bx-theme-dark .bx-messenger-settings-v2-link {
+.bx-theme-dark .bx-messenger-settings-v2-link,
+.bx-messenger-dark .bx-messenger-settings-v2-link {
 	border-bottom: 1px dashed #8bb3dd;
 }
 

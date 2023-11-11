@@ -1,30 +1,27 @@
-import {ImModelSidebarMeetingItem, ImModelDialog} from 'im.v2.model';
-import {Button, ButtonColor, ButtonSize} from 'im.v2.component.elements';
-import {SidebarBlock, SidebarDetailBlock} from 'im.v2.const';
-import {EntityCreator} from 'im.v2.lib.entity-creator';
-import {MeetingMenu} from '../../classes/context-menu/meeting/meeting-menu';
-import {DetailEmptyState} from '../detail-empty-state';
-import {MeetingItem} from './meeting-item';
+import { ImModelSidebarMeetingItem, ImModelDialog } from 'im.v2.model';
+import { Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
+import { SidebarBlock, SidebarDetailBlock } from 'im.v2.const';
+import { EntityCreator } from 'im.v2.lib.entity-creator';
+
+import { MeetingMenu } from '../../classes/context-menu/meeting/meeting-menu';
+import { DetailEmptyState } from '../detail-empty-state';
+import { MeetingItem } from './meeting-item';
+
 import '../../css/meeting/preview.css';
 
 // @vue/component
 export const MeetingPreview = {
 	name: 'MeetingPreview',
-	components: {MeetingItem, DetailEmptyState, Button},
+	components: { MeetingItem, DetailEmptyState, MessengerButton },
 	props: {
 		isLoading: {
 			type: Boolean,
-			default: false
+			default: false,
 		},
 		dialogId: {
 			type: String,
-			required: true
-		}
-	},
-	data() {
-		return {
-			showAddButton: false,
-		};
+			required: true,
+		},
 	},
 	computed:
 	{
@@ -74,17 +71,17 @@ export const MeetingPreview = {
 				return;
 			}
 
-			this.$emit('openDetail', {block: SidebarBlock.meeting, detailBlock: SidebarDetailBlock.meeting});
+			this.$emit('openDetail', { block: SidebarBlock.meeting, detailBlock: SidebarDetailBlock.meeting });
 		},
 		onContextMenuClick(event, target)
 		{
 			const item = {
 				...event,
-				dialogId: this.dialogId
+				dialogId: this.dialogId,
 			};
 
 			this.contextMenu.openMenu(item, target);
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-meeting-preview__scope">
@@ -92,8 +89,6 @@ export const MeetingPreview = {
 			<div v-else class="bx-im-sidebar-meeting-preview__container">
 				<div
 					class="bx-im-sidebar-meeting-preview__header_container"
-					@mouseover="showAddButton = true"
-					@mouseleave="showAddButton = false"
 					:class="[firstMeeting ? '--active': '']"
 					@click="onOpenDetail"
 				>
@@ -104,8 +99,7 @@ export const MeetingPreview = {
 						<div v-if="firstMeeting" class="bx-im-sidebar__forward-icon"></div>
 					</div>
 					<transition name="add-button">
-						<Button
-							v-if="showAddButton"
+						<MessengerButton
 							:text="$Bitrix.Loc.getMessage('IM_SIDEBAR_ADD_BUTTON_TEXT')"
 							:size="ButtonSize.S"
 							:color="ButtonColor.PrimaryLight"
@@ -125,5 +119,5 @@ export const MeetingPreview = {
 				/>
 			</div>
 		</div>
-	`
+	`,
 };

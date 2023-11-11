@@ -539,6 +539,7 @@ export class FormStyleAdapter extends EventEmitter
 					return value;
 				},
 				collapsed: collapsed,
+				specialType: 'crm_forms',
 			});
 		});
 	}
@@ -652,7 +653,8 @@ export class FormStyleAdapter extends EventEmitter
 					siteId: currentBlock.siteId,
 				},
 				{code: currentBlock.manifest.code},
-			);
+			)
+			.then(BX.Landing.History.getInstance().push());
 	}
 
 	onDebouncedFormChange()

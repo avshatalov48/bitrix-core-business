@@ -7,15 +7,17 @@ use Bitrix\Im\Call\Integration\EntityType;
 use Bitrix\Im\Call\Registry;
 use Bitrix\Im\Call\Util;
 use Bitrix\Im\Common;
+use Bitrix\Im\V2\Call\CallFactory;
+use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Message;
+use Bitrix\Im\V2\Message\Params;
 use Bitrix\Main\Application;
-use Bitrix\Main\Config\Option;
-use Bitrix\Main\Context;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\UI\InfoHelper;
+use Bitrix\Im\Dialog;
 
 class Call extends Engine\Controller
 {
@@ -32,78 +34,141 @@ class Call extends Engine\Controller
 			return null;
 		}
 
-		if($joinExisting)
-		{
-			$call = \Bitrix\Im\Call\Call::searchActive($type, $provider, $entityType, $entityId, $currentUserId);
-			if($call && !$call->getAssociatedEntity()->checkAccess($currentUserId))
-			{
-				$this->errorCollection[] = new Error("You can not access this call", 'access_denied');
-				Application::getConnection()->unlock($lockName);
-				return null;
-			}
-		}
+		$call = $joinExisting ? CallFactory::searchActive($type, $provider, $entityType, $entityId, $currentUserId) : false;
 
-		if($call)
+		try
 		{
-			$isNew = false;
-			if(!$call->hasUser($currentUserId))
+			if ($call)
 			{
-				$addedUser = $call->addUser($currentUserId);
-
-				if(!$addedUser)
+				if (!$call->getAssociatedEntity()->checkAccess($currentUserId))
 				{
-					$this->errorCollection[] = new Error("User limit reached",  "user_limit_reached");
+					$this->errorCollection[] = new Error("You can not access this call", 'access_denied');
 					Application::getConnection()->unlock($lockName);
 					return null;
 				}
+
+				$isNew = false;
+				if (!$call->hasUser($currentUserId))
+				{
+					$addedUser = $call->addUser($currentUserId);
+
+					if (!$addedUser)
+					{
+						$this->errorCollection[] = new Error("User limit reached", "user_limit_reached");
+						Application::getConnection()->unlock($lockName);
+						return null;
+					}
+				}
+			}
+			else
+			{
+				$isNew = true;
+
+				try {
+					$call = CallFactory::createWithEntity($type, $provider, $entityType, $entityId, $currentUserId);
+				} catch (\Throwable $e) {
+					$this->addError(new Error($e->getMessage(), $e->getCode()));
+					Application::getConnection()->unlock($lockName);
+					return null;
+				}
+
+				if (!$call->getAssociatedEntity()->canStartCall($currentUserId))
+				{
+					$this->errorCollection[] = new Error("You can not create this call", 'access_denied');
+					Application::getConnection()->unlock($lockName);
+					return null;
+				}
+
+				$initiator = $call->getUser($currentUserId);
+				$initiator->update([
+					'STATE' => CallUser::STATE_READY,
+					'LAST_SEEN' => new DateTime(),
+					'FIRST_JOINED' => new DateTime()
+				]);
 			}
 		}
-		else
+		catch(\Exception $e)
 		{
-			$isNew = true;
-			try
-			{
-				$call = \Bitrix\Im\Call\Call::createWithEntity($type, $provider, $entityType, $entityId, $currentUserId);
-			}
-			catch (\Throwable $e)
-			{
-				$this->addError(new Error($e->getMessage(), $e->getCode()));
-				Application::getConnection()->unlock($lockName);
-				return null;
-			}
-			if(!$call->getAssociatedEntity()->canStartCall($currentUserId))
-			{
-				$this->errorCollection[] = new Error("You can not create this call", 'access_denied');
-				Application::getConnection()->unlock($lockName);
-				return null;
-			}
-			$initiator = $call->getUser($currentUserId);
-			$initiator->update([
-				'STATE' => CallUser::STATE_READY,
-				'LAST_SEEN' => new DateTime(),
-				'FIRST_JOINED' => new DateTime()
-			]);
+			$this->errorCollection[] = new Error(
+				"Can't initiate a call. Server error. (" . ($status ?? "") . ")",
+				"call_init_error");
+
+			Application::getConnection()->unlock($lockName);
+			return null;
 		}
 
 		$users = $call->getUsers();
-		$publicChannels = Loader::includeModule('pull') ?
-			\Bitrix\Pull\Channel::getPublicIds([
+		$publicChannels = Loader::includeModule('pull')
+			? \Bitrix\Pull\Channel::getPublicIds([
 				'TYPE' => \CPullChannel::TYPE_PRIVATE,
 				'USERS' => $users,
 				'JSON' => true
 			])
-			:
-			[];
+			: []
+		;
 
 		Application::getConnection()->unlock($lockName);
+
+		if ($provider !== 'Plain')
+		{
+			$this->sendPrecallInviteMessage($entityId, $entityType, $call);
+		}
+
 		return [
 			'call' => $call->toArray(),
+			'connectionData' => $call->getConnectionData($currentUserId),
 			'isNew' => $isNew,
 			'users' => $users,
 			'userData' => Util::getUsers($users),
 			'publicChannels' => $publicChannels,
-			'logToken' => $call->getLogToken($currentUserId)
+			'logToken' => $call->getLogToken($currentUserId),
 		];
+	}
+
+	protected function sendPrecallInviteMessage($entityId, $entityType, $call): bool
+	{
+		$settings = \Bitrix\Main\Config\Configuration::getValue('im');
+		$betaWebUrl  = $settings['call']['beta_web_url'] ?? '';
+
+		if (empty($betaWebUrl))
+		{
+			return false;
+		}
+
+		$currentUserId = $this->getCurrentUser()->getId();
+
+		$chatId = null;
+		if($entityType === EntityType::CHAT && (Common::isChatId($entityId) || (int)$entityId > 0))
+		{
+			$chatId = Dialog::getChatId($entityId, $currentUserId);
+		}
+
+		if (is_null($chatId))
+		{
+			return false;
+		}
+
+		$chat = Chat::getInstance($chatId);
+
+		$link = $betaWebUrl . '/?roomId=' . $call->getUuid();
+		$text = Loc::getMessage("IM_BITRIX_CALL_INVITE_TEMP", [
+			'#LINK#' => '[URL=' . $link . ']' . Loc::getMessage('IM_BITRIX_CALL_INVITE_BUTTON_TEMP') . '[/URL]',
+		]);
+
+		$message = new Message();
+		$message->setMessage($text)->markAsImportant();
+		$message->getParams()
+			->fill([
+				Params::COMPONENT_ID => 'CallInviteMessage',
+				Params::COMPONENT_PARAMS => [
+					'LINK' => $link
+				]
+			])
+			->save()
+		;
+		$chat->sendMessage($message);
+
+		return true;
 	}
 
 	public function createChildCallAction($parentId, $newProvider, $newUsers)
@@ -133,13 +198,14 @@ class Call extends Engine\Controller
 		{
 			if(!$childCall->hasUser($userId))
 			{
-				$childCall->addUser($userId)->updateState(CallUser::STATE_CALLING);;
+				$childCall->addUser($userId)->updateState(CallUser::STATE_CALLING);
 			}
 		}
 
 		$users = $childCall->getUsers();
 		return array(
 			'call' => $childCall->toArray(),
+			'connectionData' => $childCall->getConnectionData($currentUserId),
 			'users' => $users,
 			'userData' => Util::getUsers($users),
 			'logToken' => $childCall->getLogToken($currentUserId)
@@ -149,7 +215,7 @@ class Call extends Engine\Controller
 	public function tryJoinCallAction($type, $provider, $entityType, $entityId)
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
-		$call = \Bitrix\Im\Call\Call::searchActive($type, $provider, $entityType, $entityId, $currentUserId);
+		$call = CallFactory::searchActive($type, $provider, $entityType, $entityId, $currentUserId);
 		if(!$call)
 		{
 			return [
@@ -177,8 +243,34 @@ class Call extends Engine\Controller
 		return [
 			'success' => true,
 			'call' => $call->toArray(),
+			'connectionData' => $call->getConnectionData($currentUserId),
 			'logToken' => $call->getLogToken($currentUserId)
 		];
+	}
+
+	public function interruptAction($callId)
+	{
+		$currentUserId = $this->getCurrentUser()->getId();
+
+		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
+		if(!$this->checkCallAccess($call, $currentUserId))
+		{
+			$this->errorCollection[] = new Error("You do not have access to the parent call", "access_denied");
+			return null;
+		}
+
+		$call->finish();
+
+		return array(
+			'call' => $call->toArray($currentUserId),
+			'connectionData' => $call->getConnectionData($currentUserId),
+			'logToken' => $call->getLogToken($currentUserId)
+		);
 	}
 
 	public function getAction($callId)
@@ -200,16 +292,18 @@ class Call extends Engine\Controller
 		$users = $call->getUsers();
 		return array(
 			'call' => $call->toArray($currentUserId),
+			'connectionData' => $call->getConnectionData($currentUserId),
 			'users' => $users,
 			'userData' => Util::getUsers($users),
 			'logToken' => $call->getLogToken($currentUserId)
 		);
 	}
 
-	public function inviteAction($callId, array $userIds, $video = "N", $legacyMobile = "N", $isRepeated = "N")
+	public function inviteAction($callId, array $userIds, $video = "N", $legacyMobile = "N", $repeated = "N")
 	{
 		$isVideo = ($video === "Y");
 		$isLegacyMobile = ($legacyMobile === "Y");
+		$isRepeated = ($repeated === "Y");
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
@@ -233,6 +327,15 @@ class Call extends Engine\Controller
 			return null;
 		}
 
+		$this->inviteUsers($call, $userIds, $isLegacyMobile, $isVideo, $isRepeated);
+
+		Application::getConnection()->unlock($lockName);
+
+		return true;
+	}
+
+	public function inviteUsers(\Bitrix\Im\Call\Call $call, $userIds, $isLegacyMobile, $isVideo, $isRepeated)
+	{
 		$usersToInvite = [];
 		foreach ($userIds as $userId)
 		{
@@ -259,31 +362,33 @@ class Call extends Engine\Controller
 		if (count($usersToInvite) === 0)
 		{
 			$this->addError(new Error("No users to invite", "empty_users"));
-			Application::getConnection()->unlock($lockName);
 			return null;
 		}
 
+		$sendPush = $isRepeated !== true;
+
 		// send invite to the ones being invited.
-		$call->getSignaling()->sendInvite(
-			$currentUserId,
+		$call->inviteUsers(
+			$this->getCurrentUser()->getId(),
 			$usersToInvite,
 			$isLegacyMobile,
 			$isVideo,
-			$isRepeated !== "Y"
+			$sendPush
 		);
 
 		// send userInvited to everyone else.
 		$allUsers = $call->getUsers();
 		$otherUsers = array_diff($allUsers, $userIds);
-		$call->getSignaling()->sendUsersInvited($currentUserId, $otherUsers, $usersToInvite);
+		$call->getSignaling()->sendUsersInvited(
+			$this->getCurrentUser()->getId(),
+			$otherUsers,
+			$usersToInvite
+		);
 
 		if($call->getState() === \Bitrix\Im\Call\Call::STATE_NEW)
 		{
 			$call->updateState(\Bitrix\Im\Call\Call::STATE_INVITING);
 		}
-		Application::getConnection()->unlock($lockName);
-
-		return true;
 	}
 
 	public function cancelAction($callId)
@@ -323,7 +428,7 @@ class Call extends Engine\Controller
 			return null;
 		}
 
-		if($callUser)
+		if ($callUser)
 		{
 			$callUser->update([
 				'STATE' => CallUser::STATE_READY,
@@ -338,7 +443,7 @@ class Call extends Engine\Controller
 		$call->getSignaling()->sendAnswer($currentUserId, $callInstanceId, $isLegacyMobile);
 	}
 
-	public function declineAction($callId, $callInstanceId, int $code = 603)
+	public function declineAction(int $callId, $callInstanceId, int $code = 603)
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
@@ -679,8 +784,8 @@ class Call extends Engine\Controller
 	public function getCallLimitsAction()
 	{
 		return [
-			'callServerEnabled' => (bool)\Bitrix\Im\Call\Call::isCallServerEnabled(),
-			'maxParticipants' => (int)\Bitrix\Im\Call\Call::getMaxParticipants(),
+			'callServerEnabled' => \Bitrix\Im\Call\Call::isCallServerEnabled(),
+			'maxParticipants' => \Bitrix\Im\Call\Call::getMaxParticipants(),
 		];
 	}
 

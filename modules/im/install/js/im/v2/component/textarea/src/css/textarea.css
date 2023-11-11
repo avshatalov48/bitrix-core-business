@@ -10,9 +10,17 @@
 .bx-im-send-panel__container {
 	display: flex;
 	align-items: flex-end;
-	padding: 0 3px 0 9px;
-	max-width: var(--im-content-chat__max-width_textarea_container);
 	width: 100%;
+}
+
+.bx-im-content-chat__container.--center-align .bx-im-send-panel__container {
+	max-width: var(--im-content-chat__max-width_textarea_container);
+	padding: 0 3px 0 9px;
+}
+
+.bx-im-content-chat__container.--left-align .bx-im-send-panel__container {
+	max-width: 100%;
+	padding: 0 33px 0;
 }
 
 .bx-im-send-panel__container > div {

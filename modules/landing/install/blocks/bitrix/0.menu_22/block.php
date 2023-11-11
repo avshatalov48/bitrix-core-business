@@ -1,23 +1,23 @@
 <section class="landing-block landing-block-menu-store g-pt-30 g-pb-30 u-block-border-none">
 	<div class="container">
-		<nav class="landing-block-node-navbar landing-semantic-nav-bar g-pa-0 g-mb-0 navbar navbar-expand-md g-brd-0 u-navbar-color-main u-navbar-color-primary--hover">
+		<nav class="landing-block-node-navbar g-pa-0 g-mb-0 navbar navbar-expand-md g-brd-0 u-navbar-color-main u-navbar-color-primary--hover">
 
 			<div class="collapse navbar-collapse align-items-center" id="navBar">
 				<ul class="landing-block-node-menu navbar-nav w-100 g-menu-multilevel flex-column list-unstyled js-scroll-nav">
 					<li class="landing-block-node-menu-item nav-item">
-						<a class="landing-block-node-menu-link landing-semantic-menu-v-text nav-link u-link-v5 d-block g-pa-0 g-py-7"
+						<a class="landing-block-node-menu-link nav-link u-link-v5 d-block g-pa-0 g-py-7"
 						   href="#about">
 							About us
 						</a>
 						<ul class="landing-block-node-menu navbar-nav g-menu-sublevel g-ml-20 flex-column list-unstyled js-scroll-nav">
 							<li class="landing-block-node-menu-item nav-item">
-								<a class="landing-block-node-menu-link landing-semantic-menu-v-text nav-link u-link-v5 d-block g-pa-0 g-py-7"
+								<a class="landing-block-node-menu-link nav-link u-link-v5 d-block g-pa-0 g-py-7"
 								   href="#product">
 									Product
 								</a>
 							</li>
 							<li class="landing-block-node-menu-item nav-item">
-								<a class="landing-block-node-menu-link landing-semantic-menu-v-text nav-link u-link-v5 d-block g-pa-0 g-py-7"
+								<a class="landing-block-node-menu-link nav-link u-link-v5 d-block g-pa-0 g-py-7"
 								   href="#development">
 									Development
 								</a>
@@ -25,31 +25,31 @@
 						</ul>
 					</li>
 					<li class="landing-block-node-menu-item nav-item">
-						<a class="landing-block-node-menu-link landing-semantic-menu-v-text nav-link u-link-v5 d-block g-pa-0 g-py-7"
+						<a class="landing-block-node-menu-link nav-link u-link-v5 d-block g-pa-0 g-py-7"
 						   href="#information">
 							Information
 						</a>
 					</li>
 					<li class="landing-block-node-menu-item nav-item">
-						<a class="landing-block-node-menu-link landing-semantic-menu-v-text nav-link u-link-v5 d-block g-pa-0 g-py-7"
+						<a class="landing-block-node-menu-link nav-link u-link-v5 d-block g-pa-0 g-py-7"
 						   href="#services">
 							Services
 						</a>
 					</li>
 					<li class="landing-block-node-menu-item nav-item">
-						<a class="landing-block-node-menu-link landing-semantic-menu-v-text nav-link u-link-v5 d-block g-pa-0 g-py-7"
+						<a class="landing-block-node-menu-link nav-link u-link-v5 d-block g-pa-0 g-py-7"
 						   href="#support">
 							Support
 						</a>
 					</li>
 					<li class="landing-block-node-menu-item nav-item">
-						<a class="landing-block-node-menu-link landing-semantic-menu-v-text nav-link u-link-v5 d-block g-pa-0 g-py-7"
+						<a class="landing-block-node-menu-link nav-link u-link-v5 d-block g-pa-0 g-py-7"
 						   href="#investment">
 							Investment
 						</a>
 					</li>
 					<li class="landing-block-node-menu-item nav-item">
-						<a class="landing-block-node-menu-link landing-semantic-menu-v-text nav-link u-link-v5 d-block g-pa-0 g-py-7"
+						<a class="landing-block-node-menu-link nav-link u-link-v5 d-block g-pa-0 g-py-7"
 						   href="#financing">
 							Financing
 						</a>

@@ -2,27 +2,14 @@
 
 namespace Bitrix\Calendar\Sync\Icloud;
 
+use Bitrix\Calendar\Core\Base\SingletonTrait;
 use Bitrix\Calendar\Core\Section\Section;
 use Bitrix\Main\Localization\Loc;
 
 class SectionBuilder
 {
-	/** @var ?SectionBuilder $instance */
-	private static ?SectionBuilder $instance = null;
+	use SingletonTrait;
 
-	protected function __construct()
-	{
-	}
-
-	public static function getInstance(): SectionBuilder
-	{
-		if (!self::$instance)
-		{
-			self::$instance = new self();
-		}
-
-		return self::$instance;
-	}
 	/**
 	 * @param Section $section
 	 *

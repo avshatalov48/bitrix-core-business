@@ -38,6 +38,8 @@ export const UploadPreviewPopup = {
 			return {
 				width: 400,
 				targetContainer: document.body,
+				fixed: true,
+				draggable: true,
 				offsetTop: 0,
 				padding: 0,
 				closeIcon: true,

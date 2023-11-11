@@ -659,7 +659,8 @@ this.BX = this.BX || {};
 	            delete value.fieldBorder;
 	            return value;
 	          },
-	          collapsed: collapsed
+	          collapsed: collapsed,
+	          specialType: 'crm_forms'
 	        });
 	      });
 	    }
@@ -751,7 +752,7 @@ this.BX = this.BX || {};
 	        siteId: currentBlock.siteId
 	      }, {
 	        code: currentBlock.manifest.code
-	      });
+	      }).then(BX.Landing.History.getInstance().push());
 	    }
 	  }, {
 	    key: "onDebouncedFormChange",

@@ -261,7 +261,7 @@ this.BX = this.BX || {};
 	    }
 	    if (!this.fullColorPicker || (_this$fullColorPicker = this.fullColorPicker.getPopupWindow()) != null && _this$fullColorPicker.isDestroyed()) {
 	      this.fullColorPicker = new BX.ColorPicker({
-	        bindElement: this.colorIcon,
+	        bindElement: this.DOM.colorContWrap,
 	        onColorSelected: BX.delegate(function (color) {
 	          this.setColor(color);
 	        }, this),

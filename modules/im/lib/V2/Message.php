@@ -61,6 +61,7 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 
 	/** Created by Id */
 	protected int $authorId = 0;
+	protected array $userIdsFromMention;
 
 	/** Message to send */
 	protected ?string $message = null;
@@ -159,6 +160,10 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 	protected ?array $pushParams = null;
 	protected ?string $pushAppId = null;
 
+	protected ?bool $isImportant = false;
+
+	protected ?array $importantFor = null;
+
 	/**
 	 * @param int|array|EO_Message|null $source
 	 */
@@ -226,6 +231,28 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		}
 
 		return null;
+	}
+
+	public function isImportant(): ?bool
+	{
+		return $this->isImportant;
+	}
+
+	public function markAsImportant(?bool $isImportant = true): self
+	{
+		$this->isImportant = $isImportant;
+
+		return $this;
+	}
+
+	public function getImportantFor(): array
+	{
+		return $this->importantFor ?? array_values($this->getUserIdsFromMention());
+	}
+
+	public function setImportantFor(array $importantFor): void
+	{
+		$this->importantFor = $importantFor;
 	}
 
 	/**
@@ -1496,12 +1523,33 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 
 	public function getUserIds(): array
 	{
-		if ($this->getAuthorId() === 0)
+		$userIds = $this->getUserIdsFromMention();
+
+		if ($this->getAuthorId() !== 0)
 		{
-			return [];
+			$userIds[$this->getAuthorId()] = $this->getAuthorId();
 		}
 
-		return [$this->getAuthorId()];
+		return $userIds;
+	}
+
+	protected function getUserIdsFromMention(): array
+	{
+		if (isset($this->userIdsFromMention))
+		{
+			return $this->userIdsFromMention;
+		}
+
+		$this->userIdsFromMention = [];
+		if (preg_match_all("/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER]/i", $this->getParsedMessage(), $matches))
+		{
+			foreach ($matches[1] as $userId)
+			{
+				$this->userIdsFromMention[(int)$userId] = (int)$userId;
+			}
+		}
+
+		return $this->userIdsFromMention;
 	}
 
 	/**
@@ -1570,7 +1618,7 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 			'replaces' => $this->getReplaceMap(),
 			'unread' => $this->isUnread(),
 			'viewed' => $this->isViewed(),
-			'viewedByOthers' => $authorId === $this->getContext()->getUserId() && $this->isViewedByOthers(),
+			'viewedByOthers' => $this->isViewedByOthers(),
 			'uuid' => $this->getUuid(),
 			'params' => $this->getParamsForRest(),
 		];

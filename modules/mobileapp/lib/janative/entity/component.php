@@ -5,6 +5,7 @@ namespace Bitrix\MobileApp\Janative\Entity;
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Context;
+use Bitrix\Main\EventManager;
 use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\IO\FileNotFoundException;
@@ -122,7 +123,6 @@ class Component extends Base
 		$lang = $this->getLangDefinitionExpression();
 		$componentFilePath = "{$this->path}/{$this->baseFileName}.js";
 		$extensionContent = "";
-		$hotreloadContent = "";
 		$availableComponents = "";
 		if ($this->isBundleEnabled)
 		{
@@ -140,15 +140,25 @@ class Component extends Base
 			$availableComponents = "this.availableComponents = ".Utils::jsonEncode( $this->getComponentListInfo()).";";
 		}
 
-		if ($this->isHotreloadEnabled()) {
-			$hotreloadHost = JN_HOTRELOAD_HOST;
-			$hotreloadContent  = (new Extension("hotreload"))->getContent();
-			$hotreloadContent .= "(()=>{ let wsclient = startHotReload(this.env.userId, '$hotreloadHost') })();";
+		$eventManager = EventManager::getInstance();
+		$events = $eventManager->findEventHandlers("mobileapp", "onBeforeComponentContentGet");
+
+		$additionalContent = "";
+		if (count($events) > 0)
+		{
+			foreach ($events as $event)
+			{
+				$jsCode = ExecuteModuleEventEx($event, [$this]);
+				if (is_string($jsCode)) {
+					$additionalContent .= $jsCode;
+				}
+
+			}
 		}
 
 		$content = "
 			$env
-			$hotreloadContent
+			$additionalContent
 			$lang
 			$availableComponents
 			$extensionContent

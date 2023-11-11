@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_fonts_opensans,main_core) {
 	'use strict';
@@ -8,7 +9,6 @@ this.BX = this.BX || {};
 	var ProgressRoundColor = function ProgressRoundColor() {
 	  babelHelpers.classCallCheck(this, ProgressRoundColor);
 	};
-
 	babelHelpers.defineProperty(ProgressRoundColor, "DEFAULT", 'ui-progressround-default');
 	babelHelpers.defineProperty(ProgressRoundColor, "DANGER", "ui-progressround-danger");
 	babelHelpers.defineProperty(ProgressRoundColor, "SUCCESS", "ui-progressround-success");
@@ -21,7 +21,6 @@ this.BX = this.BX || {};
 	var ProgressRoundStatus = function ProgressRoundStatus() {
 	  babelHelpers.classCallCheck(this, ProgressRoundStatus);
 	};
-
 	babelHelpers.defineProperty(ProgressRoundStatus, "COUNTER", "COUNTER");
 	babelHelpers.defineProperty(ProgressRoundStatus, "PERCENT", "PERCENT");
 	babelHelpers.defineProperty(ProgressRoundStatus, "INCIRCLE", "INCIRCLE");
@@ -29,22 +28,15 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ProgressRoundStatus, "NONE", "NONE");
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
-
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
 	var _setCustomColors = /*#__PURE__*/new WeakSet();
-
 	var ProgressRound // extends BX.UI.ProgressRound
 	= /*#__PURE__*/function () {
 	  function ProgressRound(options) {
 	    babelHelpers.classCallCheck(this, ProgressRound);
-
 	    _classPrivateMethodInitSpec(this, _setCustomColors);
-
 	    this.options = main_core.Type.isPlainObject(options) ? options : {};
 	    this.value = main_core.Type.isNumber(this.options.value) ? this.options.value : 0;
 	    this.maxValue = main_core.Type.isNumber(this.options.maxValue) ? this.options.maxValue : 100;
@@ -66,16 +58,15 @@ this.BX = this.BX || {};
 	    this.colorTrack = main_core.Type.isString(this.options.colorTrack) ? this.options.colorTrack : null;
 	    this.colorBar = main_core.Type.isString(this.options.colorBar) ? this.options.colorBar : null;
 	    this.color = main_core.Type.isString(this.options.color) ? this.options.color : BX.UI.ProgressRound.Color.PRIMARY;
-	  } //region Parameters
+	  }
 
-
+	  //region Parameters
 	  babelHelpers.createClass(ProgressRound, [{
 	    key: "setValue",
 	    value: function setValue(value) {
 	      if (main_core.Type.isNumber(value)) {
 	        this.value = value > this.maxValue ? this.maxValue : value;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -89,7 +80,6 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isNumber(value)) {
 	        this.maxValue = value;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -113,7 +103,6 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isNumber(value)) {
 	        this.width = value;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -127,7 +116,6 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isNumber(value)) {
 	        this.lineSize = value > this.width / 2 ? this.width / 2 : value;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -142,12 +130,10 @@ this.BX = this.BX || {};
 	        if (this.container === null) {
 	          this.createContainer();
 	        }
-
 	        main_core.Dom.removeClass(this.container, this.color);
 	        this.color = color;
 	        main_core.Dom.addClass(this.container, this.color);
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -156,10 +142,8 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isStringFilled(color)) {
 	        this.colorBar = color;
 	        color = "--ui-current-round-color:" + color + ";";
-
 	        _classPrivateMethodGet(this, _setCustomColors, _setCustomColors2).call(this, color);
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -169,10 +153,8 @@ this.BX = this.BX || {};
 	        this.colorTrack = color;
 	        this.setFill(true);
 	        color = "--ui-current-round-bg-track-color:" + color + ";";
-
 	        _classPrivateMethodGet(this, _setCustomColors, _setCustomColors2).call(this, color);
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -181,17 +163,14 @@ this.BX = this.BX || {};
 	      if (this.container === null) {
 	        this.createContainer();
 	      }
-
 	      if (main_core.Type.isBoolean(fill)) {
 	        this.fill = fill;
-
 	        if (fill === true) {
 	          main_core.Dom.addClass(this.container, "ui-progressround-bg");
 	        } else {
 	          main_core.Dom.removeClass(this.container, "ui-progressround-bg");
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -200,27 +179,22 @@ this.BX = this.BX || {};
 	      if (this.container === null) {
 	        this.createContainer();
 	      }
-
 	      if (main_core.Type.isBoolean(rotation)) {
 	        this.rotation = rotation;
-
 	        if (rotation === true) {
 	          main_core.Dom.addClass(this.container, "ui-progressround-rotation");
 	        } else {
 	          main_core.Dom.removeClass(this.container, "ui-progressround-rotation");
 	        }
 	      }
-
 	      return this;
 	    } //endregion
 	    //region Text
-
 	  }, {
 	    key: "setTextBefore",
 	    value: function setTextBefore(text) {
 	      if (main_core.Type.isStringFilled(text)) {
 	        this.textBefore = text;
-
 	        if (!this.textBeforeContainer) {
 	          this.createTextBefore(text);
 	        } else {
@@ -243,7 +217,6 @@ this.BX = this.BX || {};
 	      if (!this.textBeforeContainer) {
 	        this.createTextBefore(this.textBefore);
 	      }
-
 	      return this.textBeforeContainer;
 	    }
 	  }, {
@@ -251,7 +224,6 @@ this.BX = this.BX || {};
 	    value: function setTextAfter(text) {
 	      if (main_core.Type.isStringFilled(text)) {
 	        this.textAfter = text;
-
 	        if (!this.textAfterContainer) {
 	          this.createTextAfter(text);
 	        } else {
@@ -274,11 +246,9 @@ this.BX = this.BX || {};
 	      if (!this.textAfterContainer) {
 	        this.createTextAfter(this.textAfter);
 	      }
-
 	      return this.textAfterContainer;
 	    } //endregion
 	    // region Status
-
 	  }, {
 	    key: "setStatus",
 	    value: function setStatus() {
@@ -316,7 +286,6 @@ this.BX = this.BX || {};
 	          this.status = main_core.Dom.create("span", {});
 	        }
 	      }
-
 	      return this.status;
 	    }
 	  }, {
@@ -325,13 +294,10 @@ this.BX = this.BX || {};
 	      if (this.maxValue === 0) {
 	        return "0%";
 	      }
-
 	      this.statusPercent = Math.round(this.getValue() / (this.getMaxValue() / 100));
-
 	      if (this.statusPercent > 100) {
 	        this.statusPercent = 100;
 	      }
-
 	      return this.statusPercent + "%";
 	    }
 	  }, {
@@ -342,7 +308,6 @@ this.BX = this.BX || {};
 	      } else {
 	        this.statusCounter = Math.round(this.getValue()) + " / " + Math.round(this.getMaxValue());
 	      }
-
 	      return this.statusCounter;
 	    }
 	  }, {
@@ -358,7 +323,6 @@ this.BX = this.BX || {};
 	      }
 	    } //endregion
 	    // region ProgressRound
-
 	  }, {
 	    key: "createContainer",
 	    value: function createContainer() {
@@ -432,9 +396,7 @@ this.BX = this.BX || {};
 	      if (this.container === null) {
 	        this.createContainer();
 	      }
-
 	      this.setValue(value);
-
 	      if (value >= this.maxValue) {
 	        setTimeout(function () {
 	          main_core.Dom.addClass(this.container, "ui-progressround-finished");
@@ -444,23 +406,18 @@ this.BX = this.BX || {};
 	        main_core.Dom.removeClass(this.container, "ui-progressround-finished");
 	        this.finished = false;
 	      }
-
 	      this.setStatus();
-
 	      if (this.svg === null) {
 	        this.getBar();
 	      }
-
 	      this.animateProgressBar();
 	    } //endregion
-
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (this.container === null) {
 	        this.createContainer();
 	      }
-
 	      this.animateProgressBar();
 	      return this.container;
 	    }
@@ -470,7 +427,6 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isDomNode(node)) {
 	        return node.appendChild(this.getContainer());
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -483,37 +439,32 @@ this.BX = this.BX || {};
 	      this.textBeforeContainer = null;
 	      this.bar = null;
 	      this.svg = null;
-
 	      for (var property in this) {
 	        if (this.hasOwnProperty(property)) {
 	          delete this[property];
 	        }
 	      }
-
 	      Object.setPrototypeOf(this, null);
 	    }
 	  }]);
 	  return ProgressRound;
 	}();
-
 	function _setCustomColors2(value) {
 	  if (this.container === null) {
 	    this.createContainer();
 	  }
-
 	  var currentAttribute = this.container.getAttribute('style'),
-	      customColorsValue = !currentAttribute ? value : currentAttribute + value;
+	    customColorsValue = !currentAttribute ? value : currentAttribute + value;
 	  this.container.setAttribute('style', customColorsValue);
 	}
-
 	babelHelpers.defineProperty(ProgressRound // extends BX.UI.ProgressRound
 	, "Color", ProgressRoundColor);
 	babelHelpers.defineProperty(ProgressRound // extends BX.UI.ProgressRound
 	, "Status", ProgressRoundStatus);
 
 	var UI = main_core.Reflection.namespace('BX.UI');
-	/** @deprecated use BX.UI.ProgressRound or import { ProgressRound } from 'ui.progressround' */
 
+	/** @deprecated use BX.UI.ProgressRound or import { ProgressRound } from 'ui.progressround' */
 	UI.Progressround = ProgressRound;
 
 	exports.ProgressRound = ProgressRound;

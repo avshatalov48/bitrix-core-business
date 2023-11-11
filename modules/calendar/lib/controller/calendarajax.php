@@ -667,7 +667,12 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		{
 			$codes = $request['codes'];
 		}
-		if ($request['add_cur_user_to_list'] === 'Y' || count($codes) == 0)
+
+		if ($entryId > 0 && empty($codes))
+		{
+			$codes[] = 'U' . $hostId;
+		}
+		if ($request['add_cur_user_to_list'] === 'Y' || empty($codes))
 		{
 			$codes[] = 'U' . $userId;
 		}
@@ -888,6 +893,13 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$userId = \CCalendar::GetUserId();
 		$entry = \CCalendarEvent::GetById($entryId);
 
+		if (empty($entry))
+		{
+			$this->addError(new Error('Event not found'));
+
+			return $response;
+		}
+
 		$accessController = new EventAccessController($userId);
 		$eventModel = \CCalendarEvent::getEventModelForPermissionCheck($entryId, $entry, $userId);
 
@@ -905,6 +917,10 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			]);
 
 			\CCalendar::ClearCache('event_list');
+		}
+		else
+		{
+			$this->addError(new Error('Access denied'));
 		}
 
 		return $response;
@@ -958,6 +974,13 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$userId = \CCalendar::GetUserId();
 		$entry = \CCalendarEvent::GetById($entryId);
 
+		if (empty($entry))
+		{
+			$this->addError(new Error('Event not found'));
+
+			return $response;
+		}
+
 		$accessController = new EventAccessController($userId);
 		$eventModel = \CCalendarEvent::getEventModelForPermissionCheck($entryId, $entry, $userId);
 
@@ -965,6 +988,10 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		{
 			\CCalendarEvent::updateColor($entryId, $request->getPost('color'));
 			\CCalendar::ClearCache('event_list');
+		}
+		else
+		{
+			$this->addError(new Error('Access denied'));
 		}
 
 		return $response;

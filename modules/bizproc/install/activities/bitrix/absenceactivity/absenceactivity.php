@@ -64,22 +64,11 @@ class CBPAbsenceActivity extends CBPActivity
 			$arAbsenceTypes[$arTypeValue['XML_ID']] = $arTypeValue['ID'];
 		}
 
-		$name = $this->AbsenceName;
-		// if multiple or list element
-		if (is_array($name))
-		{
-			$name = implode(', ', CBPHelper::makeArrayFlat($name));
-		}
+		$name = CBPHelper::stringify($this->AbsenceName);
+		$absenceDescription = CBPHelper::stringify($this->AbsenceDesrc);
 
-		$absenceDescription = $this->AbsenceDesrc;
-		// if multiple or list element
-		if (is_array($absenceDescription))
-		{
-			$absenceDescription = implode(', ', CBPHelper::makeArrayFlat($absenceDescription));
-		}
-
-		$activeFrom = $this->AbsenceFrom;
-		$activeTo = $this->AbsenceTo;
+		$activeFrom = current(CBPHelper::flatten($this->AbsenceFrom));
+		$activeTo = current(CBPHelper::flatten($this->AbsenceTo));
 		$enableTimeZone = false;
 
 		//if $activeFrom and $activeTo without Time, turn off TimeZone

@@ -76,6 +76,24 @@
 
 		this.InitConfig(this.CheckConfig(config));
 
+		if (window.LHEPostForm)
+		{
+			const editorHandler = window.LHEPostForm.getHandler(this.config.id);
+			if (editorHandler)
+			{
+				BX.addCustomEvent(
+					editorHandler.eventNode,
+					'OnShowLHE',
+					(show, setFocus, FCFormId) => {
+						if (FCFormId)
+						{
+							this.iframeView.setCopilotContextParameters(FCFormId);
+						}
+					},
+				);
+			}
+		}
+
 		if (!config.lazyLoad)
 		{
 			this.Init();
@@ -428,8 +446,34 @@
 			return result;
 		},
 
+		UpdateHeight: function()
+		{
+			const minHeight = parseInt(this.config.autoResizeMinHeight || 50);
+			let maxHeight = parseInt(this.config.autoResizeMaxHeight || 0);
+			if (!maxHeight || maxHeight < 10)
+			{
+				maxHeight = Math.round(BX.GetWindowInnerSize().innerHeight * 0.9);
+			}
+
+			const newHeight = Math.max(Math.min(this.GetHeightByContent(), maxHeight), minHeight);
+			if (this.GetSceletonSize().height < newHeight)
+			{
+				this.config.height = newHeight;
+				this.ResizeSceleton();
+			}
+		},
+
 		ResizeSceleton: function(width, height, params)
 		{
+			if (this.config.autoResizeMaxHeight === 'Infinity' && this.sandbox.loaded && this.GetIframeDoc().body)
+			{
+				this.GetIframeDoc().body.style.minHeight = this.MIN_HEIGHT + 'px';
+				this.dom.cont.style.minHeight = this.MIN_HEIGHT + 'px';
+
+				const toolbarHeight = (this.toolbar.pCont.offsetHeight > 0) * this.toolbar.height;
+				height = this.config.height = toolbarHeight + this.GetIframeDoc().body.scrollHeight;
+			}
+
 			var _this = this;
 			if (this.expanded)
 			{
@@ -565,6 +609,12 @@
 		{
 			if (this.expanded || !this.IsShown() || this.iframeView.IsEmpty())
 				return;
+
+			if (this.config.autoResizeMaxHeight === 'Infinity')
+			{
+				this.ResizeSceleton();
+				return;
+			}
 
 			var
 				maxHeight = parseInt(this.config.autoResizeMaxHeight || 0),
@@ -785,6 +835,18 @@
 			}
 		},
 
+		ShowCopilotAtTheBottom: function()
+		{
+			if (!this.iframeView.isCopilotInitialized())
+			{
+				return false;
+			}
+
+			this.iframeView.copilot.showAtTheBottom();
+
+			return true;
+		},
+
 		BuildToolbar: function()
 		{
 			this.toolbar = new BXHtmlEditor.Toolbar(this, this.GetTopControls());
@@ -908,6 +970,8 @@
 			if (view == 'split' && this.bbCode)
 				view = 'wysiwyg';
 
+			this.toolbar.HideControl('ai-image-generator');
+			this.toolbar.HideControl('ai-text-generator');
 			if (this.currentViewName != view)
 			{
 				if (view == 'wysiwyg')
@@ -916,6 +980,8 @@
 					this.textareaView.Hide();
 					this.dom.splitResizer.style.display = 'none';
 					this.CheckBodyHeight();
+					this.toolbar.ShowControl('ai-image-generator');
+					this.toolbar.ShowControl('ai-text-generator');
 				}
 				else if (view == 'code')
 				{
@@ -1031,6 +1097,8 @@
 				bExpand = !this.expanded;
 			}
 			this.expanded = bExpand;
+
+			this.On('OnFullscreenExpand', [this]);
 
 			const innerSize = BX.GetWindowInnerSize(document);
 			let startWidth, startHeight, startTop, startLeft, endWidth, endHeight, endTop, endLeft;
@@ -2128,6 +2196,7 @@
 
 					if (this.action.IsSupported(action))
 					{
+						this.iframeView.copilot?.hideInvitationLine();
 						this.action.Exec(action, value);
 					}
 				}
@@ -2745,6 +2814,9 @@
 					this.selection.InsertHTML(html, range);
 					this.selection.ScrollIntoView();
 				}
+
+				this.iframeView.copilot?.hideInvitationLine();
+				this.iframeView.copilot?.update();
 			}
 		},
 
@@ -3251,6 +3323,7 @@
 			iframeDocument.open("text/html", "replace");
 			iframeDocument.write(iframeHtml);
 			iframeDocument.close();
+			iframeDocument.documentElement.innerHTML = iframeHtml;
 
 			this.GetWindow = function()
 			{
@@ -3264,6 +3337,16 @@
 			const triggerCallback = () => {
 				if (iframeDocument.body)
 				{
+
+					if (this.editor.config.autoResizeMaxHeight === 'Infinity')
+					{
+						const link = document.createElement('link');
+						link.rel = 'stylesheet';
+						link.href = this.editor.config.cssIframePath + '_' + this.editor.cssCounter++;
+						link.onload = () => this.editor.ResizeSceleton();
+						iframeDocument.head.append(link);
+					}
+
 					this.editor.On('OnIframeInit');
 
 					if (typeof callback === 'function')
@@ -4895,7 +4978,12 @@
 		{
 			var
 				previousHtml = this.history[this.position - 1],
-				currentHtml = this.editor.iframeView.GetValue();
+				currentHtml = this.editor.iframeView.GetValue().replaceAll(decodeURIComponent('%EF%BB%BF'), '');
+
+			if (currentHtml.match(/<div class="bxhtmled-copilot"(.*?)>(.*?)<\/div>/g) !== null)
+			{
+				return;
+			}
 
 			if (currentHtml !== previousHtml)
 			{

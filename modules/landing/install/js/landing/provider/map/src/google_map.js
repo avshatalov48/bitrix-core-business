@@ -66,9 +66,12 @@ export class GoogleMap extends BaseProvider
 	reinit(options: {})
 	{
 		this.preventChangeEvent = true;
-		this.mapInstance.setOptions({
-			styles: this.getStylesFromOptions(options)
-		});
+		if (this.mapInstance)
+		{
+			this.mapInstance.setOptions({
+				styles: this.getStylesFromOptions(options),
+			});
+		}
 		super.reinit();
 	}
 

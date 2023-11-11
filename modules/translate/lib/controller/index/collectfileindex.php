@@ -16,10 +16,10 @@ class CollectFileIndex
 	use Translate\Controller\ProcessParams;
 
 	/** @var string */
-	private $seekPathId;
+	private $seekPathId = '';
 
 	/** @var string[] */
-	private $languages;
+	private $languages = [];
 
 	/**
 	 * \Bitrix\Main\Engine\Action constructor.
@@ -28,7 +28,7 @@ class CollectFileIndex
 	 * @param Main\Engine\Controller $controller Parent controller object.
 	 * @param array $config Additional configuration.
 	 */
-	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
 		$this->keepField(['seekPathId', 'languages']);
 
@@ -64,9 +64,9 @@ class CollectFileIndex
 			{
 				if ($indexPath->getIndexed())
 				{
-					return array(
+					return [
 						'STATUS' => Translate\Controller\STATUS_COMPLETED
-					);
+					];
 				}
 			}
 		}
@@ -122,7 +122,7 @@ class CollectFileIndex
 	 *
 	 * @return array
 	 */
-	private function runIndexing(array $params)
+	private function runIndexing(array $params): array
 	{
 		$path = \rtrim($params['path'], '/');
 
@@ -154,9 +154,9 @@ class CollectFileIndex
 			$this->seekPathId = $seek->nextPathId;
 		}
 
-		return array(
+		return [
 			'PROCESSED_ITEMS' => $this->processedItems,
 			'TOTAL_ITEMS' => $this->totalItems,
-		);
+		];
 	}
 }

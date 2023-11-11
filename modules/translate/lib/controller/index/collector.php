@@ -25,46 +25,46 @@ class Collector extends Translate\Controller\Controller
 		$configureActions = parent::configureActions();
 		$permission = new Translate\Controller\CheckPermission(Translate\Permission::READ);
 
-		$configureActions[self::ACTION_COLLECT_LANG_PATH] = array(
+		$configureActions[self::ACTION_COLLECT_LANG_PATH] = [
 			'class' => Translate\Controller\Index\CollectLangPath::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission
-			),
-		);
+			],
+		];
 
-		$configureActions[self::ACTION_COLLECT_PATH] = array(
+		$configureActions[self::ACTION_COLLECT_PATH] = [
 			'class' => Translate\Controller\Index\CollectPathIndex::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission
-			),
-		);
+			],
+		];
 
-		$configureActions[self::ACTION_COLLECT_FILE] = array(
+		$configureActions[self::ACTION_COLLECT_FILE] = [
 			'class' => Translate\Controller\Index\CollectFileIndex::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission
-			),
-		);
+			],
+		];
 
-		$configureActions[self::ACTION_COLLECT_PHRASE] = array(
+		$configureActions[self::ACTION_COLLECT_PHRASE] = [
 			'class' => Translate\Controller\Index\CollectPhraseIndex::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission
-			),
-		);
+			],
+		];
 
-		$configureActions[self::ACTION_PURGE] = array(
+		$configureActions[self::ACTION_PURGE] = [
 			'class' => Translate\Controller\Index\Purge::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission
-			),
-		);
+			],
+		];
 
-		$configureActions[self::ACTION_CANCEL] = array(
-			'+prefilters' => array(
+		$configureActions[self::ACTION_CANCEL] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
+			],
+		];
 
 		return $configureActions;
 	}
@@ -72,14 +72,14 @@ class Collector extends Translate\Controller\Controller
 	/**
 	 * @return array
 	 */
-	public function cancelAction()
+	public function cancelAction(): array
 	{
 		$settingId = static::SETTING_ID;
 
 		unset($_SESSION[$settingId]);
 
-		return array(
+		return [
 			'STATUS' => Translate\Controller\STATUS_COMPLETED
-		);
+		];
 	}
 }

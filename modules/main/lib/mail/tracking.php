@@ -430,9 +430,17 @@ class Tracking
 			}
 		}
 
-		$skipSecCheck = ($sign && $url && static::validateSign($url, $sign));
+		$isValidate = static::validateSign($url, $sign);
+		$skipSecCheck = ($sign && $url && $isValidate);
 		$url = $url ?: '/';
-		LocalRedirect($url, $skipSecCheck);
+		if ($isValidate)
+		{
+			LocalRedirect($url, $skipSecCheck);
+		}
+		else
+		{
+			ShowError('Failed to verify the security of the url address');
+		}
 	}
 
 	/**

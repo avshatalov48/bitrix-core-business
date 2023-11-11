@@ -48,8 +48,6 @@ class Params extends Registry
 		TYPE = 'TYPE',
 		COMPONENT_ID = 'COMPONENT_ID',
 		COMPONENT_PARAMS = 'COMPONENT_PARAMS',
-		EXTENSION_ID = 'EXTENSION_ID',
-		EXTENSION_PARAMS = 'EXTENSION_PARAMS',
 		STYLE_CLASS = 'CLASS',
 		CALL_ID = 'CALL_ID',
 		CHAT_ID = 'CHAT_ID',
@@ -177,14 +175,6 @@ class Params extends Registry
 			'default' => '',
 		],
 		self::COMPONENT_PARAMS => [
-			'className' => Message\Param\ComponentParams::class,
-			'type' => Param::TYPE_JSON,
-		],
-		self::EXTENSION_ID => [
-			'type' => Param::TYPE_STRING,
-			'default' => '',
-		],
-		self::EXTENSION_PARAMS => [
 			'className' => Message\Param\ComponentParams::class,
 			'type' => Param::TYPE_JSON,
 		],
@@ -947,7 +937,7 @@ class Params extends Registry
 	/**
 	 * @return array
 	 */
-	public function toPullFormat(): array
+	public function toPullFormat(?array $extraParams = null): array
 	{
 		$result = [];
 		foreach ($this as $paramName => $param)
@@ -955,6 +945,19 @@ class Params extends Registry
 			if ($param->hasValue())
 			{
 				$result[$paramName] = $param->toPullFormat();
+			}
+		}
+
+		if (!isset($extraParams))
+		{
+			return $result;
+		}
+
+		foreach ($extraParams as $extraParam)
+		{
+			if (!isset($result[$extraParam]))
+			{
+				$result[$extraParam] = Params::create($extraParam)->toPullFormat();
 			}
 		}
 

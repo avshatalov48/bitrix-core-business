@@ -891,6 +891,13 @@
 	background: rgb(237, 250, 254);
 }
 
+.bizproc-automation-robot-container.--invalid::after {
+	background: var(--ui-color-palette-red-30);
+}
+.bizproc-automation-robot-container.--invalid .bizproc-automation-robot-container-wrapper {
+	background: var(--ui-color-palette-red-25);
+}
+
 .bizproc-automation-robot-container-wrapper:before {
 	content: '';
 	display: none;
@@ -994,12 +1001,16 @@
 .bizproc-automation-robot-container-wrapper.--deactivated .bizproc-automation-robot-deadline,
 .bizproc-automation-robot-container-wrapper.--deactivated .bizproc-automation-robot-title,
 .bizproc-automation-robot-container-wrapper.--deactivated .bizproc-automation-robot-settings,
-.bizproc-automation-robot-container-wrapper.--deactivated .bizproc-automation-robot-information {
+.bizproc-automation-robot-container-wrapper.--deactivated .bizproc-automation-robot-information,
+.bizproc-automation-robot-container-wrapper.--invalid .bizproc-automation-robot-deadline,
+.bizproc-automation-robot-container-wrapper.--invalid .bizproc-automation-robot-title,
+.bizproc-automation-robot-container-wrapper.--invalid .bizproc-automation-robot-settings,
+.bizproc-automation-robot-container-wrapper.--invalid .bizproc-automation-robot-information {
 	opacity: 0.05;
 	pointer-events: none;
 }
 
-.bizproc-automation-robot-deactivated {
+.bizproc-automation-robot-deactivated, .bizproc-automation-robot-invalid {
 	position: absolute;
 	top: 45%;
 	-webkit-transform: translate(0, -50%);
@@ -1015,7 +1026,8 @@
 	z-index: 1;
 }
 
-.bizproc-automation-robot-container-pre .bizproc-automation-robot-deactivated {
+.bizproc-automation-robot-container-pre .bizproc-automation-robot-deactivated,
+.bizproc-automation-robot-container-pre .bizproc-automation-robot-invalid {
 	display: none;
 }
 
@@ -1493,12 +1505,13 @@
 	clear: both;
 	display: block;
 	overflow: hidden;
-	margin: 0 0 17px 0;
+	margin: 0 0 11px 0;
 	position: relative;
 }
 
 .bizproc-automation-popup-settings-block {
 	display: inline-block;
+	max-width: 100%;
 	font-size: 13px;
 	color: #80868e;
 	margin: 0 22px 0 0;
@@ -1510,8 +1523,9 @@
 
 .bizproc-automation-popup-settings-title {
 	display: inline-block;
-	font-size: 13px;
-	color: #80868e;
+	font-size: 14px;
+	color: var(--ui-color-text-subtle);
+	line-height: var(--ui-font-line-height-lg);
 }
 
 .bizproc-automation-popup-settings-title-top {
@@ -1530,12 +1544,15 @@
 }
 
 .bizproc-automation-popup-select-block .bizproc-automation-status-help-right {
-	margin-top: 8px;
+	margin-bottom: -2px;
+	margin-left: 5px;
 }
 
 .bizproc-automation-popup-select-item .bizproc-automation-popup-settings-title-auto-width {
 	min-width: auto;
-	margin: 0 6px;
+	margin: 0 9px;
+	-ms-flex-negative: 0;
+	    flex-shrink: 0;
 }
 
 .bizproc-automation-popup-settings-link-wrapper {
@@ -1549,21 +1566,22 @@
 	display: inline-block;
 	margin: 0 6px;
 	padding: 0 0 2px 0;
-	font-size: 13px;
-	font-weight: var(--ui-font-weight-bold);
-	color: #0b66c3;
-	border-bottom: 1px dashed rgba(11,102,195,.4);
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-normal);
+	color: var(--ui-color-link-primary-base);
+	border-bottom: var(--ui-border-width-thin) var(--ui-text-decoration-style-dashed) rgba(var(--ui-color-link-primary-base-rgb), .4);
 	line-height: normal;
 	text-decoration: none;
 	cursor: pointer;
 	-webkit-transition: .1s;
 	-o-transition: .1s;
 	transition: .1s;
+
 }
 
 .bizproc-automation-popup-settings-link:hover,
 .bizproc-automation-popup-settings-button:hover {
-	border-bottom-color: rgba(11,102,195,1);
+	border-bottom-color: rgba(var(--ui-color-link-primary-base-rgb), 1);
 }
 
 .bizproc-automation-popup-settings-link-light {
@@ -1710,36 +1728,12 @@
 	display: none;
 }
 
-.bizproc-automation-popup-select-wrapper {
-	display: block;
-	height: 46px;
-	line-height: 46px;
-	background: #eef2f4;
-	border-radius: 2px;
-	padding: 0 10px;
-	position: relative;
-}
-
 .bizproc-automation-popup-select-item:last-child {
 	margin: 0;
 }
 
 .bizproc-automation-button-left {
 	float: left;
-}
-
-.bizproc-automation-popup-select-wrapper:before {
-	content: '';
-	display: inline-block;
-	vertical-align: middle;
-	background: #fff;
-	margin: 0 10px 0 0;
-	border: 1px solid #979797;
-	width: 13px;
-	height: 13px;
-	border-radius: 100%;
-	-webkit-box-sizing: border-box;
-	box-sizing: border-box;
 }
 
 .bizproc-automation-popup-settings-input {
@@ -1760,21 +1754,6 @@
 	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 16px;
 	color: #555c6d;
-}
-
-.bizproc-automation-popup-select-input:checked + .bizproc-automation-popup-select-wrapper:before {
-	content: '';
-	display: inline-block;
-	vertical-align: middle;
-	background: #fff;
-	border: 4px solid #979797;
-	width: 13px;
-	height: 13px;
-	border-radius: 100%;
-}
-
-.bizproc-automation-popup-select-input:checked + .bizproc-automation-popup-select-wrapper {
-	background: #d3f3fd;
 }
 
 .bizproc-automation-popup-settings-select {
@@ -1881,7 +1860,7 @@
 }
 
 .bizproc-automation-popup-settings-title-autocomplete {
-	margin: 0 0 15px 0;
+	margin: 0 0 5px 0;
 }
 
 .bizproc-automation-popup-adv {
@@ -2169,22 +2148,6 @@
 	margin: 0;
 }
 
-.bizproc-automation-popup-settings-flex {
-	display: -webkit-box;
-	display: -ms-flexbox;
-	display: flex;
-}
-
-.bizproc-automation-popup-settings-block-flex {
-	display: -webkit-box;
-	display: -ms-flexbox;
-	display: flex;
-	-webkit-box-flex: 1;
-	-ms-flex: 1;
-	flex: 1;
-	overflow: hidden;
-}
-
 .bizproc-automation-popup-settings-link-flex {
 	-webkit-box-flex: 1;
 	-ms-flex: 1;
@@ -2195,6 +2158,7 @@
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
+	max-width: 100%;
 	float: left;
 	overflow: hidden;
 	margin: 0;
@@ -2284,7 +2248,6 @@
 
 .bizproc-automation-popup-settings-lbl {
 	display: inline-block;
-	margin: 15px 0 0 3px;
 	vertical-align: text-bottom;
 }
 
@@ -2386,6 +2349,560 @@
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
 	overflow: hidden;
+}
+
+.bizproc-automation-popup-select__wrapper {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	    flex-wrap: wrap;
+	min-height: 56px;
+	line-height: 56px;
+	margin-bottom: 0;
+	padding: 0 10px 0 17px;
+	background: var(--ui-color-base-02);
+	-webkit-transition: .2s;
+	-o-transition: .2s;
+	transition: .2s;
+}
+
+.bizproc-automation-popup-select__wrapper.--active {
+	background: var( --ui-color-palette-blue-20);
+}
+
+.bizproc-automation-popup-select__wrapper.--first {
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+}
+
+.bizproc-automation-popup-select__wrapper.--last {
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+}
+
+.bizproc-automation-popup-select__visible-row {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	max-width: 100%;
+	width: 100%;
+	min-height: 56px;
+}
+
+.bizproc-automation-popup-select__chevron {
+	-webkit-box-ordinal-group: 10;
+	    -ms-flex-order: 9;
+	        order: 9;
+	margin-left: auto;
+	opacity: 0.6;
+	cursor: pointer;
+	-webkit-transition: .2s;
+	-o-transition: .2s;
+	transition: .2s;
+}
+
+.bizproc-automation-popup-select__chevron:hover {
+	opacity: 1;
+}
+
+.bizproc-automation-popup-select__chevron.--active {
+	-webkit-transform: rotate(180deg);
+	    -ms-transform: rotate(180deg);
+	        transform: rotate(180deg);
+}
+
+.bizproc-automation-popup-select__chevron.--disabled {
+	opacity: 0.2;
+}
+
+.bizproc-automation-popup-select__hidden-row {
+	position: relative;
+	width: calc(100% - 21px);
+	height: 0;
+	margin-right: -10px;
+	margin-left: auto;
+	overflow: hidden;
+	-webkit-transition: .2s;
+	-o-transition: .2s;
+	transition: .2s;
+}
+
+.bizproc-automation-popup-select__hidden-row::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: block;
+	width: 100%;
+	height: 1px;
+	background: var(--ui-color-base-20);
+}
+
+.bizproc-automation-popup-select__hidden-row.--visible {
+	height: 55px;
+}
+
+.ui-ctl-radio .ui-ctl-element.bizproc-automation-popup-select__input {
+	margin-right: 16px;
+}
+
+
+
+.bizproc-automation-popup-settings__input {
+	-ms-flex-negative: 0;
+	    flex-shrink: 0;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	display: inline-block;
+	width: 43px;
+	height: 31px;
+	margin: 0 10px 0 0;
+	padding: 0 5px;
+	border: 1px solid #C9CCD0;
+	border-radius: 4px;
+	overflow: hidden;
+	-o-text-overflow: ellipsis;
+	   text-overflow: ellipsis;
+	text-align: center;
+	font-family: var(--ui-font-family-primary);
+	font-size: var(--ui-font-size-md);
+	color: var(--ui-color-text-secondary);
+	background: var(--ui-color-background-primary);
+}
+
+.bizproc-automation-delay-interval-set-time {
+	width: 100px;
+	margin-right: 4px;
+	text-align: left;
+	padding-left: 10px;
+	padding-right: 0;
+}
+
+.bizproc-automation-popup-settings__text {
+	margin-right: 13px;
+	overflow: hidden;
+	white-space: nowrap;
+	-o-text-overflow: ellipsis;
+	   text-overflow: ellipsis;
+	font-size: var(--ui-font-size-md);
+	color: var(--ui-color-palette-gray-80);
+}
+
+.bizproc-automation-popup-settings__text.--first {
+	min-width: 48px;
+	-ms-flex-negative: 0;
+	    flex-shrink: 0;
+}
+
+.bizproc-automation-popup-settings__subtitle {
+	margin-top: 14px;
+	margin-bottom: 4px;
+}
+
+.bizproc-automation-popup-settings__checkbox-label {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	font-size: var(--ui-font-size-md);
+	color: var(--ui-color-base-80);
+	cursor: pointer;
+}
+
+.bizproc-automation-popup-settings__checkbox {
+	margin: 0 12px 0 0;
+}
+
+.bizproc-automation-popup-select__wrapper-flex {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: stretch;
+	    -ms-flex-align: stretch;
+	        align-items: stretch;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	padding-left: 9px;
+	border-radius: 6px;
+	overflow: hidden;
+	background: var(--ui-color-base-04);
+	cursor: pointer;
+	-webkit-box-pack: justify;
+	    -ms-flex-pack: justify;
+	        justify-content: space-between;
+}
+
+.bizproc-automation-popup-select__wrapper-flex.--active {
+	background: var(--ui-color-background-info);
+}
+
+.bizproc-automation-popup-settings__image-block {
+	width: 97px;
+	-ms-flex-negative: 0;
+	    flex-shrink: 0;
+	background: url("images/bizproc_execution-queue.svg") center no-repeat;
+	background-size: cover;
+	margin-left: 10px;
+}
+
+.bizproc-automation-popup-settings__image {
+	display: block;
+}
+
+.bizproc-automation-popup-select__wrapper-info-block {
+	padding: 12px 0;
+}
+
+.bizproc-automation-popup-settings__input-title {
+	margin-left: 6px;
+	font-weight: var(--ui-font-weight-medium);
+	font-size: var(--ui-font-size-md);
+	color: var(--ui-color-text-primary);
+}
+
+.bizproc-automation-popup-settings__description {
+	padding: 7px 0;
+	font-size: var(--ui-font-size-sm);
+	line-height: 16px;
+	color: var(--ui-color-base-80);
+}
+
+.bizproc-automation-popup-settings-link.--more {
+	margin: 0;
+}
+
+.bizproc-automation_execution-queue_checked {
+	opacity: 0;
+}
+
+.bizproc-automation_execution-queue_transform-element {
+	-webkit-transform-origin: center center;
+	    -ms-transform-origin: center center;
+	        transform-origin: center center;
+}
+
+.bizproc-automation-popup-select__wrapper-flex.--active .bizproc-automation_execution-queue_simultaneously .bizproc-automation_execution-queue_transform-element {
+	-webkit-animation: scale-element .5s linear 1;
+	        animation: scale-element .5s linear 1;
+}
+
+.bizproc-automation-popup-select__wrapper-flex.--active .bizproc-automation_execution-queue_in-turn .bizproc-automation_execution-queue_transform-element.--one {
+	-webkit-animation: scale-element .5s linear 1;
+	        animation: scale-element .5s linear 1;
+}
+
+.bizproc-automation-popup-select__wrapper-flex.--active .bizproc-automation_execution-queue_in-turn .bizproc-automation_execution-queue_transform-element.--two {
+	-webkit-animation: scale-element .5s linear 1;
+	        animation: scale-element .5s linear 1;
+	-webkit-animation-delay: .5s;
+	        animation-delay: .5s;
+}
+
+@-webkit-keyframes scale-element {
+	0% {
+		-webkit-transform: scale(1);
+		        transform: scale(1);
+	}
+	50% {
+		-webkit-transform: scale(1.05);
+		        transform: scale(1.05);
+	}
+	100% {
+		-webkit-transform: scale(1);
+		        transform: scale(1);
+	}
+}
+
+@keyframes scale-element {
+	0% {
+		-webkit-transform: scale(1);
+		        transform: scale(1);
+	}
+	50% {
+		-webkit-transform: scale(1.05);
+		        transform: scale(1.05);
+	}
+	100% {
+		-webkit-transform: scale(1);
+		        transform: scale(1);
+	}
+}
+
+.bizproc-automation-popup-select__wrapper-flex.--active .bizproc-automation_execution-queue_simultaneously .bizproc-automation_execution-queue_checked {
+	-webkit-animation-delay: .3s;
+	        animation-delay: .3s;
+	-webkit-animation-fill-mode: forwards;
+	        animation-fill-mode: forwards;
+	-webkit-animation-name: visible;
+	        animation-name: visible;
+	-webkit-animation-duration: .3s;
+	        animation-duration: .3s;
+}
+
+.bizproc-automation-popup-select__wrapper-flex.--active .bizproc-automation_execution-queue_in-turn .bizproc-automation_execution-queue_checked.--one {
+	-webkit-animation-delay: .5s;
+	        animation-delay: .5s;
+	-webkit-animation-fill-mode: forwards;
+	        animation-fill-mode: forwards;
+	-webkit-animation-name: visible;
+	        animation-name: visible;
+	-webkit-animation-duration: .3s;
+	        animation-duration: .3s;
+}
+
+.bizproc-automation-popup-select__wrapper-flex.--active .bizproc-automation_execution-queue_in-turn .bizproc-automation_execution-queue_checked.--two {
+	-webkit-animation-delay: 1s;
+	        animation-delay: 1s;
+	-webkit-animation-fill-mode: forwards;
+	        animation-fill-mode: forwards;
+	-webkit-animation-name: visible;
+	        animation-name: visible;
+	-webkit-animation-duration: .3s;
+	        animation-duration: .3s;
+}
+
+@-webkit-keyframes visible {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes visible {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+.bizproc-automation-popup-settings__condition-content {
+	min-height: 54px;
+	margin-bottom: 12px;
+}
+
+.bizproc-automation-popup-settings__condition-header {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: justify;
+	    -ms-flex-pack: justify;
+	        justify-content: space-between;
+	margin-bottom: 5px;
+	border-bottom: var(--ui-border-width-thin) solid var(--ui-color-base-20);
+}
+
+.bizproc-automation-popup-settings__btn-toggle {
+	display: -webkit-inline-box;
+	display: -ms-inline-flexbox;
+	display: inline-flex;
+	gap: 5px;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	padding-bottom: 5px;
+	--ui-icon-set__icon-color: var(--ui-color-text-subtle);
+	cursor: pointer;
+	-webkit-transition: .2s;
+	-o-transition: .2s;
+	transition: .2s;
+}
+
+.bizproc-automation-popup-settings__btn-toggle.--disabled {
+	opacity: .4;
+	pointer-events: none;
+}
+
+.bizproc-automation-popup-settings__btn-toggle:hover .bizproc-automation-popup-settings-title {
+	color: var(--ui-color-palette-gray-90);
+}
+
+.bizproc-automation-popup-settings__btn-toggle:hover {
+	--ui-icon-set__icon-color: var(--ui-color-palette-gray-90);
+}
+
+.bizproc-automation-popup-settings__condition {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	    flex-wrap: wrap;
+	gap: 5px;
+	padding: 3px 0;
+}
+
+.bizproc-automation-popup-settings__condition-content.--active .bizproc-automation-popup-settings__btn-toggle .ui-icon-set {
+	-webkit-transform: rotate(180deg);
+	    -ms-transform: rotate(180deg);
+	        transform: rotate(180deg);
+}
+
+.bizproc-automation-popup-settings__condition-help {
+	color: var(--ui-color-base-40);
+	line-height: var(--ui-font-line-height-3xl);
+}
+
+.bizproc-automation-popup-settings__transition-height-wrapper {
+	display: grid;
+	grid-template-rows: 0fr;
+	-webkit-transition: grid-template-rows .2s;
+	-o-transition: grid-template-rows .2s;
+	transition: grid-template-rows .2s;
+	transition: grid-template-rows .2s, -ms-grid-rows .2s;
+}
+
+.bizproc-automation-popup-settings__transition-height-content {
+	overflow: hidden;
+}
+
+.bizproc-automation-popup-settings__transition-height-wrapper.--revert,
+.bizproc-automation-popup-settings__condition-content.--active .bizproc-automation-popup-settings__transition-height-wrapper {
+	grid-template-rows: 1fr;
+}
+
+.bizproc-automation-popup-settings__condition-content.--active .bizproc-automation-popup-settings__transition-height-wrapper.--revert {
+	grid-template-rows: 0fr;
+}
+
+.bizproc-automation-popup-settings__condition-selector {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: baseline;
+	    -ms-flex-align: baseline;
+	        align-items: baseline;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	width: 100%;
+	gap: 5px;
+}
+
+.bizproc-automation-popup-settings__condition-item {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	/*max-width: 100%;*/
+	width: 100%;
+	padding: 8px 0;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	border: var(--ui-border-width-thin) solid var(--ui-color-base-20);
+	border-radius: var(--ui-border-radius-2xs);
+	background: var(--ui-color-background-primary);
+	cursor: pointer;
+}
+
+.bizproc-automation-popup-settings__condition-item_draggable,
+.bizproc-automation-popup-settings__condition-item_close {
+	-ms-flex-negative: 0;
+	    flex-shrink: 0;
+	--ui-icon-set__icon-color: var(--ui-color-base-80);
+}
+
+.bizproc-automation-popup-settings__condition-item_draggable:hover {
+	--ui-icon-set__icon-color: var(--ui-color-base-90);
+}
+
+.bizproc-automation-popup-settings__condition-item_close {
+	--ui-icon-set__icon-color: var(--ui-color-base-35);
+}
+
+.bizproc-automation-popup-settings__condition-text {
+	overflow: hidden;
+	padding: 0 3px;
+	border-radius: var(--ui-border-radius-2xs);
+	white-space: nowrap;
+	-o-text-overflow: ellipsis;
+	   text-overflow: ellipsis;
+	font-size: var(--ui-font-size-md);
+	line-height: var(--ui-font-line-height-md);
+	color: var(--ui-color-link-primary-base);
+	background: var(--ui-color-background-info);
+}
+
+.bizproc-automation-popup-settings__condition-item_close:hover {
+	--ui-icon-set__icon-color: var(--ui-color-base-80);
+}
+
+.bizproc-automation-popup-settings__condition-item_content {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	    flex-wrap: wrap;
+	gap: 4px;
+	-webkit-box-flex: 1;
+	    -ms-flex: 1;
+	        flex: 1;
+	margin: 0 3px;
+	overflow: hidden;
+}
+
+.bizproc-automation-popup-settings__condition-switcher {
+	position: relative;
+	padding: 2px;
+	border: var(--ui-border-width-thin) solid var(--ui-color-base-20);
+	border-radius: var(--ui-border-radius-xs);
+	background: var(--ui-color-background-primary);
+	cursor: pointer;
+}
+
+.bizproc-automation-popup-settings__condition-switcher_wrapper {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	gap: 0 2px;
+}
+
+.bizproc-automation-popup-settings__condition-switcher_btn {
+	font-size: var(--ui-font-size-xs);
+	line-height: var(--ui-font-line-height-lg);
+	padding: 0 6px;
+	text-transform: uppercase;
+	color: var(--ui-color-base-30);
+	background: transparent;
+	border-radius: var(--ui-border-radius-2xs);
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	    -ms-user-select: none;
+	        user-select: none;
+	-webkit-transition: .2s;
+	-o-transition: .2s;
+	transition: .2s;
+}
+
+.bizproc-automation-popup-settings__condition-switcher_btn.--active {
+	color: var(--ui-color-on-primary);
+	background: var(--ui-color-primary);
+}
+
+.bizproc-automation-popup-settings__condition-selector:last-of-type .bizproc-automation-popup-settings__condition-switcher {
+	display: none;
+}
+
+.bizproc-automation-inline-time-selector-chevron {
+	position: absolute;
+	right: 8px;
+	top: 0;
+	bottom: 0;
+	margin: auto 0;
+	--ui-icon-set__icon-size: 18px;
 }
 
 .bizproc-automation-tour-guide-list {

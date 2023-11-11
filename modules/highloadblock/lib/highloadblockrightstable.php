@@ -10,9 +10,9 @@ use Bitrix\Main\Entity;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_HighloadBlockRights_Query query()
- * @method static EO_HighloadBlockRights_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_HighloadBlockRights_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_HighloadBlockRights_Result getById($id)
- * @method static EO_HighloadBlockRights_Result getList(array $parameters = array())
+ * @method static EO_HighloadBlockRights_Result getList(array $parameters = [])
  * @method static EO_HighloadBlockRights_Entity getEntity()
  * @method static \Bitrix\Highloadblock\EO_HighloadBlockRights createObject($setDefaultValues = true)
  * @method static \Bitrix\Highloadblock\EO_HighloadBlockRights_Collection createCollection()
@@ -38,7 +38,8 @@ class HighloadBlockRightsTable extends Entity\DataManager
 	{
 		return array(
 			'ID' => new Entity\IntegerField('ID', array(
-				'primary' => true
+				'primary' => true,
+				'autocomplete' => true,
 			)),
 			'HL_ID' => new Entity\IntegerField('HL_ID', array(
 				'required' => true,

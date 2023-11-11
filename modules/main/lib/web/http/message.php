@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http;
@@ -39,7 +39,7 @@ class Message implements MessageInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getProtocolVersion()
+	public function getProtocolVersion(): string
 	{
 		return $this->protocolVersion;
 	}
@@ -47,7 +47,7 @@ class Message implements MessageInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withProtocolVersion($version)
+	public function withProtocolVersion(string $version): MessageInterface
 	{
 		if ($this->protocolVersion == $version)
 		{
@@ -71,7 +71,7 @@ class Message implements MessageInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getHeaders()
+	public function getHeaders(): array
 	{
 		return $this->headers->getHeaders();
 	}
@@ -79,7 +79,7 @@ class Message implements MessageInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function hasHeader($name)
+	public function hasHeader(string $name): bool
 	{
 		return $this->headers->has($name);
 	}
@@ -87,7 +87,7 @@ class Message implements MessageInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getHeader($name)
+	public function getHeader(string $name): array
 	{
 		return $this->headers->get($name, true) ?? [];
 	}
@@ -95,7 +95,7 @@ class Message implements MessageInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getHeaderLine($name)
+	public function getHeaderLine(string $name): string
 	{
 		return implode(',', $this->getHeader($name));
 	}
@@ -103,7 +103,7 @@ class Message implements MessageInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withHeader($name, $value)
+	public function withHeader(string $name, $value): MessageInterface
 	{
 		$new = clone $this;
 		$new->headers->set($name, $value);
@@ -114,7 +114,7 @@ class Message implements MessageInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withAddedHeader($name, $value)
+	public function withAddedHeader(string $name, $value): MessageInterface
 	{
 		$new = clone $this;
 		$new->headers->add($name, $value);
@@ -125,7 +125,7 @@ class Message implements MessageInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withoutHeader($name)
+	public function withoutHeader(string $name): MessageInterface
 	{
 		$new = clone $this;
 		$new->headers->delete($name);
@@ -136,7 +136,7 @@ class Message implements MessageInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getBody()
+	public function getBody(): StreamInterface
 	{
 		return $this->body;
 	}
@@ -144,7 +144,7 @@ class Message implements MessageInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withBody(StreamInterface $body)
+	public function withBody(StreamInterface $body): MessageInterface
 	{
 		$new = clone $this;
 		$new->body = $body;

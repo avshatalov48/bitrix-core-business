@@ -5,15 +5,10 @@ this.BX = this.BX || {};
 
 	class Operator {
 	  static getAll() {
-	    return [this.NOT_EMPTY, this.EMPTY, this.EQUAL, this.NOT_EQUAL, this.CONTAIN, this.NOT_CONTAIN, this.IN, this.NOT_IN, this.GREATER_THEN, this.GREATER_THEN_OR_EQUAL, this.LESS_THEN, this.LESS_THEN_OR_EQUAL, this.MODIFIED
-	    //this.BETWEEN,
-	    ];
+	    return [this.NOT_EMPTY, this.EMPTY, this.EQUAL, this.NOT_EQUAL, this.CONTAIN, this.NOT_CONTAIN, this.IN, this.NOT_IN, this.GREATER_THEN, this.GREATER_THEN_OR_EQUAL, this.LESS_THEN, this.LESS_THEN_OR_EQUAL, this.MODIFIED, this.BETWEEN];
 	  }
-
 	  static getAllLabels() {
-	    return Object.fromEntries([[this.EMPTY, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_EMPTY')], [this.NOT_EMPTY, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_NOT_EMPTY')], [this.EQUAL, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_EQ')], [this.NOT_EQUAL, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_NE')], [this.CONTAIN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_CONTAIN')], [this.NOT_CONTAIN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_NOT_CONTAIN')], [this.IN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_IN')], [this.NOT_IN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_NOT_IN')], [this.GREATER_THEN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_GT')], [this.GREATER_THEN_OR_EQUAL, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_GTE')], [this.LESS_THEN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_LT')], [this.LESS_THEN_OR_EQUAL, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_LTE')],
-	    //[this.BETWEEN, Loc.getMessage('BIZPROC_JS_CONDITION_BETWEEN')],
-	    [this.MODIFIED, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_MODIFIED')]]);
+	    return Object.fromEntries([[this.EMPTY, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_EMPTY')], [this.NOT_EMPTY, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_NOT_EMPTY')], [this.EQUAL, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_EQ')], [this.NOT_EQUAL, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_NE')], [this.CONTAIN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_CONTAIN')], [this.NOT_CONTAIN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_NOT_CONTAIN')], [this.IN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_IN')], [this.NOT_IN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_NOT_IN')], [this.GREATER_THEN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_GT')], [this.GREATER_THEN_OR_EQUAL, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_GTE')], [this.LESS_THEN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_LT')], [this.LESS_THEN_OR_EQUAL, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_LTE')], [this.BETWEEN, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_BETWEEN')], [this.MODIFIED, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_MODIFIED')]]);
 	  }
 	  static getOperatorLabel(operator) {
 	    var _this$getAllLabels$op;
@@ -23,20 +18,14 @@ this.BX = this.BX || {};
 	    if (!this.getAll().includes(operator)) {
 	      return [];
 	    }
-
-	    // if (operator === this.BETWEEN)
-	    // {
-	    // 	return ['int', 'double', 'date', 'datetime', 'time'];
-	    // }
-
+	    if (operator === this.BETWEEN) {
+	      return ['int', 'double', 'date', 'datetime', 'time'];
+	    }
 	    return [];
 	  }
 	  static getAllSortedForBp() {
-	    return [this.EQUAL, this.NOT_EQUAL, this.GREATER_THEN, this.GREATER_THEN_OR_EQUAL, this.LESS_THEN, this.LESS_THEN_OR_EQUAL, this.IN, this.NOT_IN, this.CONTAIN, this.NOT_CONTAIN, this.NOT_EMPTY, this.EMPTY, this.MODIFIED
-	    //this.BETWEEN,
-	    ];
+	    return [this.EQUAL, this.NOT_EQUAL, this.GREATER_THEN, this.GREATER_THEN_OR_EQUAL, this.LESS_THEN, this.LESS_THEN_OR_EQUAL, this.IN, this.NOT_IN, this.CONTAIN, this.NOT_CONTAIN, this.NOT_EMPTY, this.EMPTY, this.MODIFIED, this.BETWEEN];
 	  }
-
 	  static getOperatorsWithoutRenderValue() {
 	    return [this.EMPTY, this.NOT_EMPTY, this.MODIFIED];
 	  }
@@ -205,7 +194,8 @@ this.BX = this.BX || {};
 	  rerenderValue(fieldProperty) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _lastFieldProperty)[_lastFieldProperty] = fieldProperty;
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _operator)[_operator] === Operator.BETWEEN) {
-	      return babelHelpers.classPrivateFieldLooseBase(this, _rerenderBetweenValue)[_rerenderBetweenValue](fieldProperty);
+	      babelHelpers.classPrivateFieldLooseBase(this, _rerenderBetweenValue)[_rerenderBetweenValue](fieldProperty);
+	      return;
 	    }
 	    const valueElement = babelHelpers.classPrivateFieldLooseBase(this, _getFieldControl)[_getFieldControl](fieldProperty, '');
 	    main_core.Dom.replace(babelHelpers.classPrivateFieldLooseBase(this, _valueElement)[_valueElement], valueElement);
@@ -258,20 +248,19 @@ this.BX = this.BX || {};
 	  });
 	}
 	function _renderBetweenValue2(fieldProperty, value) {
-	  fieldProperty = Object.assign(fieldProperty, {
+	  const property = Object.assign(main_core.Runtime.clone(fieldProperty), {
 	    Multiple: false
 	  });
-	  const valueElement1 = babelHelpers.classPrivateFieldLooseBase(this, _getFieldControl)[_getFieldControl](fieldProperty, value[0] || '', babelHelpers.classPrivateFieldLooseBase(this, _valueName)[_valueName] + '_greater_then');
-	  const valueElement2 = babelHelpers.classPrivateFieldLooseBase(this, _getFieldControl)[_getFieldControl](fieldProperty, value[1] || '', babelHelpers.classPrivateFieldLooseBase(this, _valueName)[_valueName] + '_less_then');
+	  const valueElement1 = babelHelpers.classPrivateFieldLooseBase(this, _getFieldControl)[_getFieldControl](property, value[0] || '', `${babelHelpers.classPrivateFieldLooseBase(this, _valueName)[_valueName]}_greater_then`);
+	  const valueElement2 = babelHelpers.classPrivateFieldLooseBase(this, _getFieldControl)[_getFieldControl](property, value[1] || '', `${babelHelpers.classPrivateFieldLooseBase(this, _valueName)[_valueName]}_less_then`);
 	  return main_core.Tag.render(_t6 || (_t6 = _`
 			<table>
 				<tbody>
 					<tr><td>${0}</td></tr>
 					<tr><td>${0}</td></tr>
-					<tr><td>${0}</td></tr>
 				</tbody>
 			</table>
-		`), valueElement1, main_core.Loc.getMessage('BIZPROC_JS_CONDITION_BETWEEN_JOINER'), valueElement2);
+		`), valueElement1, valueElement2);
 	}
 	function _rerenderBetweenValue2(fieldProperty) {
 	  const valueElement = babelHelpers.classPrivateFieldLooseBase(this, _renderBetweenValue)[_renderBetweenValue](fieldProperty, ['', '']);
@@ -279,10 +268,8 @@ this.BX = this.BX || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _valueElement)[_valueElement] = valueElement;
 	}
 	function _getFieldControl2(fieldProperty, value, valueName) {
-	  if (main_core.Type.isNil(valueName)) {
-	    valueName = babelHelpers.classPrivateFieldLooseBase(this, _valueName)[_valueName];
-	  }
-	  return BX.Bizproc.FieldType.renderControl(babelHelpers.classPrivateFieldLooseBase(this, _documentType)[_documentType], fieldProperty, valueName, value, 'designer');
+	  const name = main_core.Type.isNil(valueName) ? babelHelpers.classPrivateFieldLooseBase(this, _valueName)[_valueName] : valueName;
+	  return BX.Bizproc.FieldType.renderControl(babelHelpers.classPrivateFieldLooseBase(this, _documentType)[_documentType], fieldProperty, name, value, 'designer');
 	}
 
 	exports.Operator = Operator;

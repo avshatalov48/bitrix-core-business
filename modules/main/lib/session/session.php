@@ -12,20 +12,13 @@ class Session implements SessionInterface, \ArrayAccess
 {
 	use ArrayAccessWithReferences;
 
-	/** @var bool */
-	protected $started = false;
-	/** @var \SessionHandlerInterface|null */
-	protected $sessionHandler;
-	/** @var bool */
-	protected $lazyStartEnabled = false;
-	/** @var bool */
-	protected $debug = false;
-	/** @var Debugger */
-	protected $debugger;
-	/** @var bool */
-	protected $ignoringSessionStartErrors = false;
-	/** @var bool */
-	protected $useStrictMode = true;
+	protected bool $started = false;
+	protected ?\SessionHandlerInterface $sessionHandler;
+	protected bool $lazyStartEnabled = false;
+	protected bool $debug = false;
+	protected Debugger $debugger;
+	protected bool $ignoringSessionStartErrors = false;
+	protected bool $useStrictMode = true;
 
 	/**
 	 * Session constructor.
@@ -104,7 +97,7 @@ class Session implements SessionInterface, \ArrayAccess
 		return session_id();
 	}
 
-	public function setId($id)
+	public function setId($id): void
 	{
 		if ($this->isActive())
 		{
@@ -119,7 +112,7 @@ class Session implements SessionInterface, \ArrayAccess
 		return session_name();
 	}
 
-	public function setName($name)
+	public function setName($name): void
 	{
 		if ($this->isActive())
 		{
@@ -254,7 +247,7 @@ class Session implements SessionInterface, \ArrayAccess
 			return true;
 		}
 
-		if (strpos($error->getPrevious()->getMessage(), AbstractSessionHandler::LOCK_ERROR_MESSAGE) === 0)
+		if (str_starts_with($error->getPrevious()->getMessage(), AbstractSessionHandler::LOCK_ERROR_MESSAGE))
 		{
 			return false;
 		}
@@ -298,7 +291,7 @@ class Session implements SessionInterface, \ArrayAccess
 		return true;
 	}
 
-	public function destroy()
+	public function destroy(): void
 	{
 		if ($this->isActive())
 		{
@@ -321,13 +314,13 @@ class Session implements SessionInterface, \ArrayAccess
 		}
 	}
 
-	public function save()
+	public function save(): void
 	{
 		$session = $_SESSION;
 
 		$previousHandler = set_error_handler(
 			function($type, $msg, $file, $line) use (&$previousHandler) {
-				if (E_WARNING === $type && 0 === strpos($msg, 'session_write_close():'))
+				if ($type === E_WARNING && str_starts_with($msg, 'session_write_close():'))
 				{
 					$handler = $this->sessionHandler;
 					$msg = sprintf(
@@ -357,7 +350,7 @@ class Session implements SessionInterface, \ArrayAccess
 		$this->started = false;
 	}
 
-	protected function processLazyStart()
+	protected function processLazyStart(): bool
 	{
 		if (!$this->lazyStartEnabled)
 		{
@@ -371,15 +364,15 @@ class Session implements SessionInterface, \ArrayAccess
 		return $this->start();
 	}
 
-	public function clear()
+	public function clear(): void
 	{
 		$_SESSION = [];
 		$this->nullPointers = [];
 	}
 
-	public function isStarted()
+	public function isStarted(): bool
 	{
-		return (bool)$this->started;
+		return $this->started;
 	}
 
 	/**

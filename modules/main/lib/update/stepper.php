@@ -327,7 +327,9 @@ HTML;
 		}
 		else
 		{
-			global $DB;
+			$connection = \Bitrix\Main\Application::getConnection();
+			$helper = $connection->getSqlHelper();
+
 			$arguments = '';
 			if (!empty($withArguments))
 			{
@@ -336,16 +338,24 @@ HTML;
 						: self::makeArguments($withArguments)
 				;
 			}
-			$name = $DB->ForSql($className.'::execAgent('.$arguments.');', 2000);
-			$className = $DB->ForSql($className);
-			$moduleId = $DB->ForSql($moduleId);
-			if (!($DB->Query("SELECT ID FROM b_agent WHERE MODULE_ID='".$moduleId."' AND NAME = '".$name."' AND USER_ID IS NULL")->Fetch()))
+			$name = $helper->forSql($className.'::execAgent('.$arguments.');', 2000);
+			$className = $helper->forSql($className);
+			$moduleId = $helper->forSql($moduleId);
+			$agent = $connection->query("SELECT ID FROM b_agent WHERE MODULE_ID='".$moduleId."' AND NAME = '".$name."' AND USER_ID IS NULL")->fetch();
+			if (!$agent)
 			{
-				$DB->Query("INSERT INTO b_agent (MODULE_ID, SORT, NAME, ACTIVE, AGENT_INTERVAL, IS_PERIOD, NEXT_EXEC) VALUES ('".$moduleId."', 100, '".$name."', 'Y', 1, 'Y', ".($delay > 0 ? "DATE_ADD(now(), INTERVAL ".$delay." SECOND)" : $DB->GetNowFunction()).")");
-				$DB->Query("INSERT INTO b_option (`MODULE_ID`, `NAME`, `VALUE`)".
-					"VALUES ('main.stepper.{$moduleId}', '".$className."', 'a:0:{}')".
-					"ON DUPLICATE KEY UPDATE `VALUE` = 'a:0:{}'"
-				);
+				$connection->query("INSERT INTO b_agent (MODULE_ID, SORT, NAME, ACTIVE, AGENT_INTERVAL, IS_PERIOD, NEXT_EXEC) VALUES ('".$moduleId."', 100, '".$name."', 'Y', 1, 'Y', ".($delay > 0 ? $helper->addSecondsToDateTime($delay) : $helper->getCurrentDateTimeFunction()).")");
+				$merge = $helper->prepareMerge('b_option', ['MODULE_ID', 'NAME'], [
+					'MODULE_ID' => 'main.stepper.' . $moduleId,
+					'NAME' => $className,
+					'VALUE' => 'a:0:{}',
+				], [
+					'VALUE' => 'a:0:{}',
+				]);
+				if ($merge)
+				{
+					$connection->Query($merge[0]);
+				}
 			}
 		}
 	}

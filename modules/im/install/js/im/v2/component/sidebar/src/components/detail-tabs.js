@@ -1,4 +1,5 @@
 import {Dom} from 'main.core';
+
 import '../css/detail-tabs.css';
 
 const ARROW_CONTROL_SIZE = 50;

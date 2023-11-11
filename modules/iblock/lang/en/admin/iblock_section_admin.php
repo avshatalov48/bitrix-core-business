@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBSEC_A_ACTIVE"] = "Active";
 $MESS["IBSEC_A_ADD"] = "Add";
 $MESS["IBSEC_A_ADDEL_TITLE"] = "Click to add a new element";
@@ -25,6 +25,7 @@ $MESS["IBSEC_A_ELADD_TITLE"] = "Add element to the section";
 $MESS["IBSEC_A_ELEMENT_CNT"] = "Elements";
 $MESS["IBSEC_A_ELLIST"] = "View the list of section elements";
 $MESS["IBSEC_A_ELLIST_TITLE"] = "View the list of section elements including subsections";
+$MESS["IBSEC_A_ERR_BUILDER_ADSENT"] = "Link builder was not found.";
 $MESS["IBSEC_A_IBLOCK_MANAGE_HINT"] = "You can edit the Information Block access permissions and properties on the";
 $MESS["IBSEC_A_IBLOCK_MANAGE_HINT_HREF"] = "Information Block settings page.";
 $MESS["IBSEC_A_ID"] = "Section ID";
@@ -50,6 +51,4 @@ $MESS["IBSEC_A_UP"] = "One level up";
 $MESS["IBSEC_A_UPDERR"] = "Error updating the record:";
 $MESS["IBSEC_A_UP_TITLE"] = "Click to browse higher level";
 $MESS["IBSEC_A_USERINFO"] = "View user information";
-$MESS["IBSEC_A_XML_ID"] = "External code";
-$MESS["IBSEC_A_ERR_BUILDER_ADSENT"] = "Link builder was not found.";
-?>
+$MESS["IBSEC_A_XML_ID_MSGVER_1"] = "External ID";

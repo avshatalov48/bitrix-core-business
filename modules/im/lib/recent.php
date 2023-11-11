@@ -434,6 +434,10 @@ class Recent
 			'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
 			'MESSAGE_UUID_VALUE' => 'MESSAGE_UUID.UUID',
 			'HAS_REMINDER' => 'HAS_REMINDER',
+			'CHAT_MANAGE_USERS' => 'CHAT.MANAGE_USERS',
+			'CHAT_MANAGE_UI' => 'CHAT.MANAGE_UI',
+			'CHAT_MANAGE_SETTINGS' => 'CHAT.MANAGE_SETTINGS',
+			'CHAT_CAN_POST' => 'CHAT.CAN_POST',
 		];
 
 		$shortRuntime = [
@@ -748,7 +752,12 @@ class Recent
 				'DATE_CREATE' => $row['CHAT_DATE_CREATE'],
 				'MESSAGE_TYPE' => $row["CHAT_TYPE"],
 				'USER_COUNTER' => (int)$row['CHAT_USER_COUNT'],
-				'RESTRICTIONS' => $restrictions
+				'RESTRICTIONS' => $restrictions,
+				'ROLE' => self::getRole($row),
+				'MANAGE_USERS' => $row['CHAT_MANAGE_USERS'] ?? null,
+				'MANAGE_UI' => $row['CHAT_MANAGE_UI'] ?? null,
+				'MANAGE_SETTINGS' => $row['CHAT_MANAGE_SETTINGS'] ?? null,
+				'CAN_POST' => $row['CHAT_CAN_POST'] ?? null,
 			];
 			if ($row["CHAT_ENTITY_TYPE"] == 'LINES')
 			{
@@ -911,6 +920,7 @@ class Recent
 		)->fetch();
 		if (!$element)
 		{
+			return false;
 //			if (mb_substr($dialogId, 0, 4) == 'chat')
 //			{
 //				if (!\Bitrix\Im\Dialog::hasAccess($dialogId))
@@ -933,7 +943,7 @@ class Recent
 
 			$relationData = \Bitrix\Im\Model\RelationTable::getList(
 				[
-					'select' => ['ID', 'CHAT.LAST_MESSAGE_ID' => 'LAST_MESSAGE_ID'],
+					'select' => ['ID', 'LAST_MESSAGE_ID' => 'CHAT.LAST_MESSAGE_ID'],
 					'filter' => [
 						'=CHAT_ID' => $chatId,
 						'=USER_ID' => $userId,
@@ -1328,6 +1338,29 @@ class Recent
 		$rows = static::fillFiles($rows);
 
 		return static::fillLastMessageStatuses($rows, $userId);
+	}
+
+	/**
+	 * @see \Bitrix\Im\V2\Chat::getRole()
+	 * @param array $row
+	 * @return string
+	 */
+	protected static function getRole(array $row): string
+	{
+		if (!isset($row['RELATION_USER_ID']))
+		{
+			return \Bitrix\Im\V2\Chat::ROLE_GUEST;
+		}
+		if ((int)$row['CHAT_AUTHOR_ID'] === (int)$row['RELATION_USER_ID'])
+		{
+			return \Bitrix\Im\V2\Chat::ROLE_OWNER;
+		}
+		if ($row['RELATION_IS_MANAGER'] === 'Y')
+		{
+			return \Bitrix\Im\V2\Chat::ROLE_MANAGER;
+		}
+
+		return \Bitrix\Im\V2\Chat::ROLE_MEMBER;
 	}
 
 	protected static function fillCounters(array $rows, int $userId): array

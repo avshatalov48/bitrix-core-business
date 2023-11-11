@@ -52,7 +52,7 @@ this.BX = this.BX || {};
 	        }
 	        return false;
 	      }
-	      var html = "<div id=\"bx-desktop-loader\" class=\"bx-desktop-loader-wrap\">\n\t\t\t\t\t\t<div class=\"bx-desktop-loader\">\n\t\t\t\t\t\t\t<svg class=\"bx-desktop-loader-circular\" viewBox=\"25 25 50 50\">\n\t\t\t\t\t\t\t\t<circle class=\"bx-desktop-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div id=\"placeholder\"></div>";
+	      var html = "<div id=\"bx-desktop-loader\" class=\"bx-desktop-loader-wrap\">\n\t\t\t\t<div class=\"bx-desktop-loader\">\n\t\t\t\t\t<svg class=\"bx-desktop-loader-circular\" viewBox=\"25 25 50 50\">\n\t\t\t\t\t\t<circle class=\"bx-desktop-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div id=\"placeholder\"></div>";
 	      var js = "BX.Runtime.loadExtension(\"im.v2.component.call-background\").then(function(exports) {\n\t\t\t\tBX.Vue3.BitrixVue.createApp({\n\t\t\t\t\tcomponents: {CallBackground: exports.CallBackground},\n\t\t\t\t\ttemplate: '<CallBackground tab=\"".concat(tab, "\"/>',\n\t\t\t\t}).mount(\"#placeholder\");\n\t\t\t});");
 	      im_v2_lib_desktopApi.DesktopApi.createWindow("callBackground", function (controller) {
 	        var title = _this.isMaskAvailable() ? BX.message('BXD_CALL_BG_MASK_TITLE') : BX.message('BXD_CALL_BG_TITLE');
@@ -282,6 +282,7 @@ this.BX = this.BX || {};
 	    if (main_core.Type.isPlainObject(params.events)) {
 	      this.initEventListeners(params.events);
 	    }
+	    this.connectionData = params.connectionData;
 	    this._microphoneLevel = 0;
 	  }
 	  babelHelpers.createClass(AbstractCall, [{
@@ -386,7 +387,7 @@ this.BX = this.BX || {};
 	    value: function log() {
 	      var text = Util$1.getLogMessage.apply(null, arguments);
 	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
-	        im_v2_lib_desktopApi.DesktopApi.log(BX.message('USER_ID') + '.video.log', text.substr(3));
+	        im_v2_lib_desktopApi.DesktopApi.writeToLogFile(BX.message('USER_ID') + '.video.log', text.substr(3));
 	      }
 	      if (CallEngine.debugFlag && console) {
 	        var a = ['Call log [' + Util$1.getTimeForLog() + ']: '];
@@ -432,10 +433,15 @@ this.BX = this.BX || {};
 	}();
 
 	var UserModel = /*#__PURE__*/function () {
+	  // todo: revert after adding new provider to mobile apps
+	  // id: number
+
 	  function UserModel(config) {
 	    babelHelpers.classCallCheck(this, UserModel);
 	    this.data = {
-	      id: BX.prop.getInteger(config, "id", 0),
+	      // todo: revert after adding new provider to mobile apps
+	      // id: BX.prop.getInteger(config, "id", 0),
+	      id: BX.prop.getInteger(config, "id", config.id),
 	      name: BX.prop.getString(config, "name", ""),
 	      avatar: BX.prop.getString(config, "avatar", ""),
 	      gender: BX.prop.getString(config, "gender", ""),
@@ -2095,10 +2101,12 @@ this.BX = this.BX || {};
 	    this._videoTrack = config.videoTrack;
 	    this._stream = this._videoTrack ? new MediaStream([this._videoTrack]) : null;
 	    this._videoRenderer = null;
+	    this._previewRenderer = null;
 	    this._flipVideo = false;
 	    this.hidden = false;
 	    this.videoBlurState = false;
 	    this.isChangingName = false;
+	    this._badNetworkIndicator = false;
 	    this.incomingVideoConstraints = {
 	      width: 0,
 	      height: 0
@@ -2115,6 +2123,15 @@ this.BX = this.BX || {};
 	      onUnPin: main_core.Type.isFunction(config.onUnPin) ? config.onUnPin : BX.DoNothing
 	    };
 	    this.checkAspectInterval = setInterval(this.checkVideoAspect.bind(this), 500);
+	    this.hintManager = BX.UI.Hint.createInstance({
+	      popupParameters: {
+	        targetContainer: document.body,
+	        className: "bx-messenger-videocall-panel-item-hotkey-hint ".concat(this.userModel.id),
+	        bindOptions: {
+	          forceBindPosition: true
+	        }
+	      }
+	    });
 	  }
 	  babelHelpers.createClass(CallUser, [{
 	    key: "render",
@@ -2170,6 +2187,18 @@ this.BX = this.BX || {};
 	              className: "bx-messenger-videocall-user-status-text"
 	            },
 	            text: this.getStateMessage(this.userModel.state)
+	          }), this.elements.badNetworkIndicator = main_core.Dom.create("span", {
+	            props: {
+	              className: "bx-messenger-videocall-user-bad-network-indicator"
+	            },
+	            events: {
+	              mouseover: function mouseover(e) {
+	                _this.hintManager.show(e.currentTarget, BX.message("IM_M_CALL_BAD_NETWORK_HINT"));
+	              },
+	              mouseout: function mouseout(e) {
+	                _this.hintManager.hide();
+	              }
+	            }
 	          }), main_core.Dom.create("div", {
 	            props: {
 	              className: "bx-messenger-videocall-user-bottom"
@@ -2297,6 +2326,26 @@ this.BX = this.BX || {};
 	            playsinline: true,
 	            muted: true
 	          }
+	        }), main_core.Dom.create("div", {
+	          props: {
+	            className: "bx-messenger-videocall-preview"
+	          },
+	          children: [main_core.Dom.create("div", {
+	            props: {
+	              className: "bx-messenger-videocall-preview-container"
+	            },
+	            children: [this.elements.preview = main_core.Dom.create("video", {
+	              props: {
+	                className: "bx-messenger-videocall-preview-video",
+	                volume: 0,
+	                autoplay: true
+	              },
+	              attrs: {
+	                playsinline: true,
+	                muted: true
+	              }
+	            })]
+	          })]
 	        })]
 	      });
 	      this.elements.container.appendChild(this.elements.videoContainer);
@@ -2752,6 +2801,11 @@ this.BX = this.BX || {};
 	        if (this.visible) {
 	          if (this.videoRenderer) {
 	            this.videoRenderer.render(this.elements.video);
+	            if (this._previewRenderer) {
+	              this._previewRenderer.render(this.elements.preview);
+	            } else {
+	              this.elements.preview.srcObject = null;
+	            }
 	          } else if (this.elements.video.srcObject != this.stream) {
 	            this.elements.video.srcObject = this.stream;
 	          }
@@ -2992,6 +3046,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "destroy",
 	    value: function destroy() {
+	      if (this.hintManager) {
+	        this.hintManager.hide();
+	        this.hintManager = null;
+	      }
 	      this.releaseStream();
 	      clearInterval(this.checkAspectInterval);
 	    }
@@ -3062,7 +3120,34 @@ this.BX = this.BX || {};
 	      return this._videoRenderer;
 	    },
 	    set: function set(videoRenderer) {
-	      this._videoRenderer = videoRenderer;
+	      if (this._badNetworkIndicator) {
+	        // Voximplant calls logic with support of streams disabling
+	        if (videoRenderer) {
+	          this._tempVideoRenderer = videoRenderer;
+	          this._videoRenderer = null;
+	        } else {
+	          this._tempVideoRenderer = this._videoRenderer = null;
+	        }
+	      } else {
+	        var _this$_videoRenderer;
+	        // Bitrix calls logic with support of preview
+	        this._tempVideoRenderer = null;
+	        var currentVideoRendererKind = (_this$_videoRenderer = this._videoRenderer) === null || _this$_videoRenderer === void 0 ? void 0 : _this$_videoRenderer.kind;
+	        var newVideoRendererKind = videoRenderer === null || videoRenderer === void 0 ? void 0 : videoRenderer.kind;
+	        if (!currentVideoRendererKind || currentVideoRendererKind === newVideoRendererKind) {
+	          this._videoRenderer = videoRenderer;
+	        } else {
+	          if (videoRenderer && this._videoRenderer) {
+	            this._previewRenderer = this._videoRenderer;
+	            this._videoRenderer = videoRenderer;
+	          } else if (!videoRenderer && this._previewRenderer) {
+	            this._videoRenderer = this._previewRenderer;
+	            this._previewRenderer = videoRenderer;
+	          } else {
+	            this._videoRenderer = videoRenderer;
+	          }
+	        }
+	      }
 	      this.update();
 	      this.updateRendererState();
 	    }
@@ -3077,6 +3162,28 @@ this.BX = this.BX || {};
 	      }
 	      this._videoTrack = videoTrack;
 	      this._stream = this._videoTrack ? new MediaStream([this._videoTrack]) : null;
+	      this.update();
+	    }
+	  }, {
+	    key: "badNetworkIndicator",
+	    set: function set(badNetworkIndicator) {
+	      if (this._badNetworkIndicator === badNetworkIndicator) {
+	        return;
+	      }
+	      this._badNetworkIndicator = badNetworkIndicator;
+	      if (this._badNetworkIndicator) {
+	        this.elements.badNetworkIndicator.classList.add("bx-messenger-videocall-user-bad-network-indicator-visible");
+	        if (this._videoRenderer) {
+	          this._tempVideoRenderer = this._videoRenderer;
+	          this._videoRenderer = null;
+	        }
+	      } else {
+	        this.elements.badNetworkIndicator.classList.remove("bx-messenger-videocall-user-bad-network-indicator-visible");
+	        if (this._tempVideoRenderer) {
+	          this._videoRenderer = this._tempVideoRenderer;
+	          this._tempVideoRenderer = null;
+	        }
+	      }
 	      this.update();
 	    }
 	  }]);
@@ -4115,7 +4222,8 @@ this.BX = this.BX || {};
 	  onUserRename: 'onUserRename',
 	  onUserPinned: 'onUserPinned',
 	  onDeviceSelectorShow: 'onDeviceSelectorShow',
-	  onOpenAdvancedSettings: 'onOpenAdvancedSettings'
+	  onOpenAdvancedSettings: 'onOpenAdvancedSettings',
+	  onHasMainStream: 'onHasMainStream'
 	};
 	var newUserPosition = 999;
 	var localUserPosition = 1000;
@@ -4440,7 +4548,9 @@ this.BX = this.BX || {};
 	      var previousCentralUser = this.centralUser;
 	      this.centralUser = userId == this.userId ? this.localUser : this.users[userId];
 	      if (this.layout == Layouts.Centered || this.layout == Layouts.Mobile) {
-	        previousCentralUser.dismount();
+	        if (this.layout == Layouts.Mobile) {
+	          previousCentralUser.dismount();
+	        }
 	        this.updateUserList();
 	      }
 	      if (this.layout == Layouts.Mobile) {
@@ -4619,6 +4729,15 @@ this.BX = this.BX || {};
 	      });
 	      if (this.pinnedUser === null) {
 	        this.setCentralUser(newPresenterId);
+	        if (this.layout == Layouts.Centered) {
+	          this.eventEmitter.emit(EventName.onHasMainStream, {
+	            userId: this.centralUser.id
+	          });
+	        }
+	      } else {
+	        this.eventEmitter.emit(EventName.onHasMainStream, {
+	          userId: this.centralUser.id
+	        });
 	      }
 	      if (this.layout == Layouts.Grid) {
 	        var presentersPage = this.findUsersPage(this.presenterId);
@@ -4685,6 +4804,9 @@ this.BX = this.BX || {};
 	          });
 	        }
 	        this.unpinUser();
+	        this.eventEmitter.emit(EventName.onHasMainStream, {
+	          userId: null
+	        });
 	      }
 	      if (this.layout == Layouts.Centered && this.isFullScreen) {
 	        this.setUserBlockFolded(true);
@@ -4896,7 +5018,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "addUser",
 	    value: function addUser(userId, state, direction) {
-	      userId = Number(userId);
+	      // todo: revert after adding new provider to mobile apps
+	      // userId = Number(userId);
+	      userId = userId;
 	      if (this.users[userId]) {
 	        return;
 	      }
@@ -4996,6 +5120,8 @@ this.BX = this.BX || {};
 	      }
 	      if (newState == UserState.Connected && user.order == newUserPosition) {
 	        user.order = this.getNextPosition();
+	      } else if (newState == UserState.Idle) {
+	        this.setUserFloorRequestState(userId, false);
 	      }
 	      if (userId == this.localUser.id) {
 	        this.setCameraState(this.localUser.hasVideo());
@@ -5096,6 +5222,9 @@ this.BX = this.BX || {};
 	      this.setCentralUser(userId);
 	      this.eventEmitter.emit(EventName.onUserPinned, {
 	        userId: userId
+	      });
+	      this.eventEmitter.emit(EventName.onHasMainStream, {
+	        userId: this.centralUser.id
 	      });
 	    }
 	  }, {
@@ -5251,6 +5380,11 @@ this.BX = this.BX || {};
 	        this.updateUserList();
 	        this.setUserScreenState(userId, track !== null);
 	      }
+	    }
+	  }, {
+	    key: "setBadNetworkIndicator",
+	    value: function setBadNetworkIndicator(userId, badNetworkIndicator) {
+	      this.users[userId].badNetworkIndicator = badNetworkIndicator;
 	    }
 	  }, {
 	    key: "applyIncomingVideoConstraints",
@@ -5641,6 +5775,8 @@ this.BX = this.BX || {};
 	    value: function showFatalError(params) {
 	      this.showMessage(params);
 	      this.setUiState(UiState.Error);
+	      // in some cases video elements may still be shown on the error screen, let's hide them
+	      this.elements.userList.container.style.display = 'none';
 	    }
 	  }, {
 	    key: "close",
@@ -6169,6 +6305,9 @@ this.BX = this.BX || {};
 	      });
 	      if (this.layout == Layouts.Centered || this.layout == Layouts.Mobile) {
 	        this.centralUser.mount(this.elements.center);
+	        this.eventEmitter.emit(EventName.onHasMainStream, {
+	          userId: this.centralUser.id
+	        });
 	        this.elements.root.classList.add("bx-messenger-videocall-centered");
 	        if (this.layout != Layouts.Mobile) {
 	          this.elements.container.appendChild(this.elements.userBlock);
@@ -6793,6 +6932,9 @@ this.BX = this.BX || {};
 	            this.localUser.dismount();
 	          }
 	          this.centralUser.mount(this.elements.center);
+	          this.eventEmitter.emit(EventName.onHasMainStream, {
+	            userId: this.centralUser.id
+	          });
 	          this.centralUser.visible = true;
 	        }
 	        return;
@@ -7337,6 +7479,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_onUserUnPin",
 	    value: function _onUserUnPin() {
+	      if (this.layout == Layouts.Centered) {
+	        this.setLayout(Layouts.Grid);
+	      }
 	      this.unpinUser();
 	    }
 	  }, {
@@ -7436,6 +7581,11 @@ this.BX = this.BX || {};
 	    key: "_onGridButtonClick",
 	    value: function _onGridButtonClick() {
 	      this.setLayout(this.layout == Layouts.Centered ? Layouts.Grid : Layouts.Centered);
+	      if (this.layout == Layouts.Centered && this.localUser.id !== this.centralUser.id) {
+	        this.eventEmitter.emit(EventName.onHasMainStream, {
+	          userId: this.centralUser.id
+	        });
+	      }
 	    }
 	  }, {
 	    key: "_onAddButtonClick",
@@ -10513,10 +10663,2296 @@ this.BX = this.BX || {};
 	  this.setSignalingConnected(false);
 	}
 
-	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _regeneratorRuntime() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == babelHelpers["typeof"](value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
 	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var MediaStreamsKinds = {
+	  Camera: 1,
+	  Microphone: 2,
+	  Screen: 3
+	};
+	var Track = function Track(id, track) {
+	  babelHelpers.classCallCheck(this, Track);
+	  babelHelpers.defineProperty(this, "id", null);
+	  babelHelpers.defineProperty(this, "source", '');
+	  babelHelpers.defineProperty(this, "track", {});
+	  this.id = id;
+	  this.source = track.source;
+	  this.track = track;
+	};
+	var Message = function Message(message) {
+	  babelHelpers.classCallCheck(this, Message);
+	  this.text = message.message;
+	  this.from = message.senderSid;
+	  this.timestamp = Math.floor(Date.now() / 1000);
+	};
+	var STREAM_QUALITY = {
+	  HIGH: 2,
+	  MEDIUM: 1,
+	  LOW: 0
+	};
+	var CALL_STATE = {
+	  CONNECTED: 'Connected',
+	  PROGRESSING: 'Progressing',
+	  TERMINATED: 'Terminated'
+	};
+	var _privateProperties = /*#__PURE__*/new WeakMap();
+	var _reconnect = /*#__PURE__*/new WeakSet();
+	var _beforeDisconnect = /*#__PURE__*/new WeakSet();
+	var _resetPingTimeout = /*#__PURE__*/new WeakSet();
+	var _clearPingTimeout = /*#__PURE__*/new WeakSet();
+	var _startPingInterval = /*#__PURE__*/new WeakSet();
+	var _clearPingInterval = /*#__PURE__*/new WeakSet();
+	var _sendPing = /*#__PURE__*/new WeakSet();
+	var _changeRoomStreamsQuality = /*#__PURE__*/new WeakSet();
+	var _getUserMedia = /*#__PURE__*/new WeakSet();
+	var _getDisplayMedia = /*#__PURE__*/new WeakSet();
+	var _answerHandler = /*#__PURE__*/new WeakSet();
+	var _offerHandler = /*#__PURE__*/new WeakSet();
+	var _addIceCandidate = /*#__PURE__*/new WeakSet();
+	var _setRemoteParticipant = /*#__PURE__*/new WeakSet();
+	var _speakerChangedHandler = /*#__PURE__*/new WeakSet();
+	var _createPeerConnection$1 = /*#__PURE__*/new WeakSet();
+	var _destroyPeerConnection = /*#__PURE__*/new WeakSet();
+	var _releaseStream = /*#__PURE__*/new WeakSet();
+	var _getSender = /*#__PURE__*/new WeakSet();
+	var _sendSignal = /*#__PURE__*/new WeakSet();
+	var _sendLeave = /*#__PURE__*/new WeakSet();
+	var Call = /*#__PURE__*/function () {
+	  function Call() {
+	    babelHelpers.classCallCheck(this, Call);
+	    _classPrivateMethodInitSpec$1(this, _sendLeave);
+	    _classPrivateMethodInitSpec$1(this, _sendSignal);
+	    _classPrivateMethodInitSpec$1(this, _getSender);
+	    _classPrivateMethodInitSpec$1(this, _releaseStream);
+	    _classPrivateMethodInitSpec$1(this, _destroyPeerConnection);
+	    _classPrivateMethodInitSpec$1(this, _createPeerConnection$1);
+	    _classPrivateMethodInitSpec$1(this, _speakerChangedHandler);
+	    _classPrivateMethodInitSpec$1(this, _setRemoteParticipant);
+	    _classPrivateMethodInitSpec$1(this, _addIceCandidate);
+	    _classPrivateMethodInitSpec$1(this, _offerHandler);
+	    _classPrivateMethodInitSpec$1(this, _answerHandler);
+	    _classPrivateMethodInitSpec$1(this, _getDisplayMedia);
+	    _classPrivateMethodInitSpec$1(this, _getUserMedia);
+	    _classPrivateMethodInitSpec$1(this, _changeRoomStreamsQuality);
+	    _classPrivateMethodInitSpec$1(this, _sendPing);
+	    _classPrivateMethodInitSpec$1(this, _clearPingInterval);
+	    _classPrivateMethodInitSpec$1(this, _startPingInterval);
+	    _classPrivateMethodInitSpec$1(this, _clearPingTimeout);
+	    _classPrivateMethodInitSpec$1(this, _resetPingTimeout);
+	    _classPrivateMethodInitSpec$1(this, _beforeDisconnect);
+	    _classPrivateMethodInitSpec$1(this, _reconnect);
+	    babelHelpers.defineProperty(this, "sender", null);
+	    babelHelpers.defineProperty(this, "recipient", null);
+	    _classPrivateFieldInitSpec(this, _privateProperties, {
+	      writable: true,
+	      value: {
+	        logs: {},
+	        isloggingEnable: true,
+	        loggerCallback: null,
+	        isWaitAnswer: false,
+	        prevPacketsLost: {},
+	        prevPacketsReceived: {},
+	        prevParticipantsWithLargeDataLoss: new Set(),
+	        tracksDataFromSocket: {},
+	        url: null,
+	        token: null,
+	        endpoint: null,
+	        jwt: null,
+	        options: null,
+	        iceServers: null,
+	        socketConnect: null,
+	        peerConnectionFailed: false,
+	        pendingCandidates: {
+	          recipient: [],
+	          sender: []
+	        },
+	        cameraStream: null,
+	        microphoneStream: null,
+	        screenStream: null,
+	        localTracks: {},
+	        rtt: 0,
+	        pingIntervalDuration: 0,
+	        pingTimeoutDuration: 0,
+	        remoteTracks: {},
+	        remoteParticipants: {},
+	        hasMainStream: false,
+	        pingPongTimeout: null,
+	        pingPongInterval: null,
+	        myUserId: '',
+	        defaultVideoResolution: {
+	          width: 1280,
+	          height: 720
+	        },
+	        defaultSimulcastBitrate: {
+	          q: 120000,
+	          h: 300000,
+	          f: 1000000
+	        },
+	        defaultRemoteStreamsQuality: STREAM_QUALITY.MEDIUM,
+	        audioBitrate: 70000,
+	        videoBitrate: 1500000,
+	        screenBitrate: 1500000,
+	        videoSimulcast: true,
+	        screenSimulcast: false,
+	        events: new Map(),
+	        offersStack: 0,
+	        audioDeviceId: '',
+	        videoDeviceId: '',
+	        isReconnecting: false,
+	        initialReconnectionTries: 5,
+	        reconnectionTries: 5,
+	        reconnectionTimeout: 1000,
+	        callStatsInterval: null,
+	        callState: '',
+	        packetLostThreshold: 7,
+	        statsTimeout: 3000
+	      }
+	    });
+	    this.sendLeaveBound = _classPrivateMethodGet$1(this, _sendLeave, _sendLeave2).bind(this);
+	  }
+	  babelHelpers.createClass(Call, [{
+	    key: "connect",
+	    value: function () {
+	      var _connect = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(options) {
+	        var _this = this;
+	        var key, mediaServerInfo;
+	        return _regeneratorRuntime().wrap(function _callee$(_context) {
+	          while (1) switch (_context.prev = _context.next) {
+	            case 0:
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).callState = CALL_STATE.PROGRESSING;
+	              for (key in options) {
+	                babelHelpers.classPrivateFieldGet(this, _privateProperties)["".concat(key)] = options[key];
+	              }
+	              if (babelHelpers.classPrivateFieldGet(this, _privateProperties).endpoint) {
+	                _context.next = 5;
+	                break;
+	              }
+	              this.triggerEvents('Failed', [{
+	                name: 'AUTHORIZE_ERROR',
+	                message: "Missing required param 'endpoint'"
+	              }]);
+	              return _context.abrupt("return");
+	            case 5:
+	              if (babelHelpers.classPrivateFieldGet(this, _privateProperties).jwt) {
+	                _context.next = 8;
+	                break;
+	              }
+	              this.triggerEvents('Failed', [{
+	                name: 'AUTHORIZE_ERROR',
+	                message: "Missing required param 'jwt'"
+	              }]);
+	              return _context.abrupt("return");
+	            case 8:
+	              if (!(!babelHelpers.classPrivateFieldGet(this, _privateProperties).url || !babelHelpers.classPrivateFieldGet(this, _privateProperties).token || !babelHelpers.classPrivateFieldGet(this, _privateProperties).data)) {
+	                _context.next = 27;
+	                break;
+	              }
+	              _context.prev = 9;
+	              _context.next = 12;
+	              return this.getMediaServerInfo();
+	            case 12:
+	              mediaServerInfo = _context.sent;
+	              if (!mediaServerInfo) {
+	                _context.next = 19;
+	                break;
+	              }
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).url = mediaServerInfo.url;
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).token = mediaServerInfo.token;
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).data = mediaServerInfo.data;
+	              _context.next = 20;
+	              break;
+	            case 19:
+	              throw new Error('No media server info provided');
+	            case 20:
+	              _context.next = 27;
+	              break;
+	            case 22:
+	              _context.prev = 22;
+	              _context.t0 = _context["catch"](9);
+	              this.setLog(_context.t0);
+	              this.triggerEvents('Failed', [{
+	                name: 'ERROR_UNEXPECTED_ANSWER',
+	                message: _context.t0.message
+	              }]);
+	              return _context.abrupt("return");
+	            case 27:
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect = new WebSocket("".concat(babelHelpers.classPrivateFieldGet(this, _privateProperties).url, "?access_token=").concat(babelHelpers.classPrivateFieldGet(this, _privateProperties).token, "&auto_subscribe=1&sdk=js&version=1.6.7&protocol=8&roomData=").concat(babelHelpers.classPrivateFieldGet(this, _privateProperties).data));
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect.onmessage = function (e) {
+	                return _this.socketOnMessageHandler(e);
+	              };
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect.onopen = function () {
+	                return _this.socketOnOpenHandler();
+	              };
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect.onerror = function () {
+	                return _this.socketOnErrorHandler();
+	              };
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect.onclose = function (e) {
+	                return _this.socketOnCloseHandler(e);
+	              };
+	            case 32:
+	            case "end":
+	              return _context.stop();
+	          }
+	        }, _callee, this, [[9, 22]]);
+	      }));
+	      function connect(_x) {
+	        return _connect.apply(this, arguments);
+	      }
+	      return connect;
+	    }()
+	  }, {
+	    key: "getMediaServerInfo",
+	    value: function () {
+	      var _getMediaServerInfo = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+	        var url, response, data;
+	        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+	          while (1) switch (_context2.prev = _context2.next) {
+	            case 0:
+	              url = "".concat(babelHelpers.classPrivateFieldGet(this, _privateProperties).endpoint, "/join?token=").concat(babelHelpers.classPrivateFieldGet(this, _privateProperties).jwt);
+	              _context2.prev = 1;
+	              _context2.next = 4;
+	              return fetch(url, {
+	                method: 'GET'
+	              });
+	            case 4:
+	              response = _context2.sent;
+	              _context2.next = 7;
+	              return response.json();
+	            case 7:
+	              data = _context2.sent;
+	              return _context2.abrupt("return", {
+	                url: data.result.mediaServerUrl,
+	                token: data.result.tokenToAccessMediaServer,
+	                data: data.result.roomData
+	              });
+	            case 11:
+	              _context2.prev = 11;
+	              _context2.t0 = _context2["catch"](1);
+	              this.setLog(_context2.t0);
+	              console.error('mediaserver error:', _context2.t0);
+	              return _context2.abrupt("return", null);
+	            case 16:
+	            case "end":
+	              return _context2.stop();
+	          }
+	        }, _callee2, this, [[1, 11]]);
+	      }));
+	      function getMediaServerInfo() {
+	        return _getMediaServerInfo.apply(this, arguments);
+	      }
+	      return getMediaServerInfo;
+	    }()
+	  }, {
+	    key: "sendOffer",
+	    value: function (_sendOffer) {
+	      function sendOffer() {
+	        return _sendOffer.apply(this, arguments);
+	      }
+	      sendOffer.toString = function () {
+	        return _sendOffer.toString();
+	      };
+	      return sendOffer;
+	    }( /*#__PURE__*/babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+	      var offer;
+	      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+	        while (1) switch (_context3.prev = _context3.next) {
+	          case 0:
+	            if (!(babelHelpers.classPrivateFieldGet(this, _privateProperties).offersStack > 0 && !babelHelpers.classPrivateFieldGet(this, _privateProperties).isWaitAnswer)) {
+	              _context3.next = 19;
+	              break;
+	            }
+	            babelHelpers.classPrivateFieldGet(this, _privateProperties).isWaitAnswer = true;
+	            babelHelpers.classPrivateFieldGet(this, _privateProperties).offersStack--;
+	            _context3.prev = 3;
+	            _context3.next = 6;
+	            return this.sender.createOffer();
+	          case 6:
+	            offer = _context3.sent;
+	            _context3.next = 9;
+	            return this.sender.setLocalDescription(offer);
+	          case 9:
+	            _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	              offer: offer
+	            });
+	            _context3.next = 19;
+	            break;
+	          case 12:
+	            _context3.prev = 12;
+	            _context3.t0 = _context3["catch"](3);
+	            this.setLog(_context3.t0);
+	            console.error(_context3.t0);
+	            babelHelpers.classPrivateFieldGet(this, _privateProperties).isWaitAnswer = false;
+	            _context3.next = 19;
+	            return sendOffer();
+	          case 19:
+	          case "end":
+	            return _context3.stop();
+	        }
+	      }, _callee3, this, [[3, 12]]);
+	    })))
+	  }, {
+	    key: "startStream",
+	    value: function () {
+	      var _startStream = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+	        var videoTrack, audioTrack;
+	        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+	          while (1) switch (_context4.prev = _context4.next) {
+	            case 0:
+	              _context4.next = 2;
+	              return this.getLocalVideo();
+	            case 2:
+	              videoTrack = _context4.sent;
+	              if (!videoTrack) {
+	                _context4.next = 8;
+	                break;
+	              }
+	              _context4.next = 6;
+	              return this.publishTrack(MediaStreamsKinds.Camera, videoTrack);
+	            case 6:
+	              _context4.next = 9;
+	              break;
+	            case 8:
+	              this.triggerEvents('PublishFailed', [MediaStreamsKinds.Camera]);
+	            case 9:
+	              _context4.next = 11;
+	              return this.getLocalAudio();
+	            case 11:
+	              audioTrack = _context4.sent;
+	              if (!audioTrack) {
+	                _context4.next = 17;
+	                break;
+	              }
+	              _context4.next = 15;
+	              return this.publishTrack(MediaStreamsKinds.Microphone, audioTrack);
+	            case 15:
+	              _context4.next = 18;
+	              break;
+	            case 17:
+	              this.triggerEvents('PublishFailed', [MediaStreamsKinds.Microphone]);
+	            case 18:
+	            case "end":
+	              return _context4.stop();
+	          }
+	        }, _callee4, this);
+	      }));
+	      function startStream() {
+	        return _startStream.apply(this, arguments);
+	      }
+	      return startStream;
+	    }()
+	  }, {
+	    key: "socketOnMessageHandler",
+	    value: function () {
+	      var _socketOnMessageHandler = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(event) {
+	        var _data,
+	          _data2,
+	          _data3,
+	          _this2 = this,
+	          _data4,
+	          _data5,
+	          _data7,
+	          _data8,
+	          _data11,
+	          _data12,
+	          _data13,
+	          _data14,
+	          _data15,
+	          _data16,
+	          _data17;
+	        var data, partcipantsToDelete, userId, participant, participantId, trackId, track, _participant, _data9, _data10, _Object$values, _participantId, _participant2, _trackId, _track, _Object$values2, _participant3, _track2, eventName, message, _participant4;
+	        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+	          while (1) switch (_context5.prev = _context5.next) {
+	            case 0:
+	              if (!(typeof event.data !== 'string')) {
+	                _context5.next = 2;
+	                break;
+	              }
+	              return _context5.abrupt("return");
+	            case 2:
+	              _context5.prev = 2;
+	              data = JSON.parse(event.data);
+	              _context5.next = 11;
+	              break;
+	            case 6:
+	              _context5.prev = 6;
+	              _context5.t0 = _context5["catch"](2);
+	              this.setLog(_context5.t0);
+	              console.error("Could not parse socket message.", _context5.t0);
+	              return _context5.abrupt("return");
+	            case 11:
+	              if (!((_data = data) !== null && _data !== void 0 && _data.answer)) {
+	                _context5.next = 16;
+	                break;
+	              }
+	              _context5.next = 14;
+	              return _classPrivateMethodGet$1(this, _answerHandler, _answerHandler2).call(this, data);
+	            case 14:
+	              _context5.next = 96;
+	              break;
+	            case 16:
+	              if (!((_data2 = data) !== null && _data2 !== void 0 && _data2.offer)) {
+	                _context5.next = 21;
+	                break;
+	              }
+	              _context5.next = 19;
+	              return _classPrivateMethodGet$1(this, _offerHandler, _offerHandler2).call(this, data);
+	            case 19:
+	              _context5.next = 96;
+	              break;
+	            case 21:
+	              if (!((_data3 = data) !== null && _data3 !== void 0 && _data3.joinResponse)) {
+	                _context5.next = 35;
+	                break;
+	              }
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).iceServers = data.joinResponse.iceServers;
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).myUserId = data.joinResponse.localParticipant.userId;
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).callState = CALL_STATE.CONNECTED;
+	              _classPrivateMethodGet$1(this, _createPeerConnection$1, _createPeerConnection2$1).call(this);
+	              if (babelHelpers.classPrivateFieldGet(this, _privateProperties).isReconnecting) {
+	                this.triggerEvents('Reconnected');
+	                babelHelpers.classPrivateFieldGet(this, _privateProperties).isReconnecting = false;
+	                babelHelpers.classPrivateFieldGet(this, _privateProperties).reconnectionTries = babelHelpers.classPrivateFieldGet(this, _privateProperties).initialReconnectionTries;
+	              } else {
+	                this.triggerEvents('Connected');
+	              }
+	              partcipantsToDelete = _objectSpread({}, babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteParticipants);
+	              Object.values(data.joinResponse.otherParticipants).forEach(function (p) {
+	                if (partcipantsToDelete[p.userId]) {
+	                  delete partcipantsToDelete[p.userId];
+	                }
+	                _classPrivateMethodGet$1(_this2, _setRemoteParticipant, _setRemoteParticipant2).call(_this2, p);
+	              });
+	              for (userId in partcipantsToDelete) {
+	                participant = babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteParticipants[userId];
+	                this.triggerEvents('ParticipantLeaved', [participant]);
+	                delete babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteTracks[userId];
+	                delete babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteParticipants[userId];
+	              }
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).pingIntervalDuration = data.joinResponse.pingInterval * 1000;
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).pingTimeoutDuration = babelHelpers.classPrivateFieldGet(this, _privateProperties).pingIntervalDuration * 2;
+	              _classPrivateMethodGet$1(this, _startPingInterval, _startPingInterval2).call(this);
+	              _context5.next = 96;
+	              break;
+	            case 35:
+	              if (!((_data4 = data) !== null && _data4 !== void 0 && _data4.participantJoined)) {
+	                _context5.next = 39;
+	                break;
+	              }
+	              _classPrivateMethodGet$1(this, _setRemoteParticipant, _setRemoteParticipant2).call(this, data.participantJoined.participant);
+	              _context5.next = 96;
+	              break;
+	            case 39:
+	              if (!((_data5 = data) !== null && _data5 !== void 0 && _data5.participantLeft)) {
+	                _context5.next = 43;
+	                break;
+	              }
+	              setTimeout(function () {
+	                var _data6;
+	                var participantId = (_data6 = data) === null || _data6 === void 0 ? void 0 : _data6.participantLeft.userId;
+	                var participant = babelHelpers.classPrivateFieldGet(_this2, _privateProperties).remoteParticipants[participantId];
+	                _this2.triggerEvents('ParticipantLeaved', [participant]);
+	                delete babelHelpers.classPrivateFieldGet(_this2, _privateProperties).remoteTracks[participantId];
+	                delete babelHelpers.classPrivateFieldGet(_this2, _privateProperties).remoteParticipants[participantId];
+	              }, 0);
+	              _context5.next = 96;
+	              break;
+	            case 43:
+	              if (!((_data7 = data) !== null && _data7 !== void 0 && _data7.trackCreated)) {
+	                _context5.next = 67;
+	                break;
+	              }
+	              participantId = data.trackCreated.userId;
+	              trackId = data.trackCreated.track.sid;
+	              track = data.trackCreated.track;
+	              track.userId = participantId;
+	              if (!(participantId === babelHelpers.classPrivateFieldGet(this, _privateProperties).myUserId)) {
+	                _context5.next = 53;
+	                break;
+	              }
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).localTracks[track.source] = track;
+	              this.triggerEvents('PublishSucceed', [track.source]);
+	              _context5.next = 65;
+	              break;
+	            case 53:
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).tracksDataFromSocket[trackId] = track;
+	              _participant = babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteParticipants[participantId];
+	              if (!_participant) {
+	                _context5.next = 65;
+	                break;
+	              }
+	              _context5.t1 = track.source;
+	              _context5.next = _context5.t1 === MediaStreamsKinds.Camera ? 59 : _context5.t1 === MediaStreamsKinds.Microphone ? 61 : _context5.t1 === MediaStreamsKinds.Screen ? 63 : 65;
+	              break;
+	            case 59:
+	              _participant.videoEnabled = true;
+	              return _context5.abrupt("break", 65);
+	            case 61:
+	              _participant.audioEnabled = true;
+	              return _context5.abrupt("break", 65);
+	            case 63:
+	              _participant.screenSharingEnabled = true;
+	              return _context5.abrupt("break", 65);
+	            case 65:
+	              _context5.next = 96;
+	              break;
+	            case 67:
+	              if (!((_data8 = data) !== null && _data8 !== void 0 && _data8.trackDeleted)) {
+	                _context5.next = 83;
+	                break;
+	              }
+	              _context5.prev = 68;
+	              _participantId = (_data9 = data) === null || _data9 === void 0 ? void 0 : _data9.trackDeleted.publisher;
+	              if (!(_participantId === babelHelpers.classPrivateFieldGet(this, _privateProperties).myUserId)) {
+	                _context5.next = 72;
+	                break;
+	              }
+	              return _context5.abrupt("return");
+	            case 72:
+	              _participant2 = babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteParticipants[_participantId];
+	              _trackId = (_data10 = data) === null || _data10 === void 0 ? void 0 : _data10.trackDeleted.shortId;
+	              _track = (_Object$values = Object.values(_participant2.tracks)) === null || _Object$values === void 0 ? void 0 : _Object$values.find(function (track) {
+	                return (track === null || track === void 0 ? void 0 : track.id) === _trackId;
+	              });
+	              if (_track) {
+	                if (_track.source === MediaStreamsKinds.Microphone) {
+	                  _participant2.audioEnabled = false;
+	                } else if (_track.source === MediaStreamsKinds.Camera) {
+	                  _participant2.videoEnabled = false;
+	                } else if (_track.source === MediaStreamsKinds.Screen) {
+	                  _participant2.screenSharingEnabled = false;
+	                }
+	                _participant2.removeTrack(_track.source);
+	                this.triggerEvents('RemoteMediaRemoved', [_participant2, _track]);
+	              }
+	              _context5.next = 81;
+	              break;
+	            case 78:
+	              _context5.prev = 78;
+	              _context5.t2 = _context5["catch"](68);
+	              console.error(_context5.t2, data.trackDeleted);
+	            case 81:
+	              _context5.next = 96;
+	              break;
+	            case 83:
+	              if (!((_data11 = data) !== null && _data11 !== void 0 && _data11.trackMuted)) {
+	                _context5.next = 95;
+	                break;
+	              }
+	              _participant3 = babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteParticipants[data.trackMuted.track.publisher];
+	              if (_participant3) {
+	                _context5.next = 87;
+	                break;
+	              }
+	              return _context5.abrupt("return");
+	            case 87:
+	              _track2 = (_Object$values2 = Object.values(_participant3.tracks)) === null || _Object$values2 === void 0 ? void 0 : _Object$values2.find(function (track) {
+	                return (track === null || track === void 0 ? void 0 : track.id) === data.trackMuted.track.shortId;
+	              });
+	              if (_track2) {
+	                _context5.next = 90;
+	                break;
+	              }
+	              return _context5.abrupt("return");
+	            case 90:
+	              if (_track2.source === MediaStreamsKinds.Microphone) {
+	                _participant3.isMutedAudio = data.trackMuted.muted;
+	              }
+	              eventName = data.trackMuted.muted ? 'RemoteMediaMuted' : 'RemoteMediaUnmuted';
+	              this.triggerEvents(eventName, [_participant3, _track2]);
+	              _context5.next = 96;
+	              break;
+	            case 95:
+	              if ((_data12 = data) !== null && _data12 !== void 0 && _data12.trickle) {
+	                _classPrivateMethodGet$1(this, _addIceCandidate, _addIceCandidate2).call(this, data.trickle);
+	              } else if ((_data13 = data) !== null && _data13 !== void 0 && _data13.newMessage) {
+	                message = new Message(data.newMessage);
+	                this.triggerEvents('MessageReceived', [message]);
+	              } else if ((_data14 = data) !== null && _data14 !== void 0 && _data14.handRaised) {
+	                _participant4 = babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteParticipants[data.handRaised.participantId];
+	                if (_participant4) {
+	                  _participant4.isHandRaised = data.handRaised.isHandRaised;
+	                  this.triggerEvents('HandRaised', [_participant4]);
+	                }
+	              } else if ((_data15 = data) !== null && _data15 !== void 0 && _data15.speakersChanged) {
+	                _classPrivateMethodGet$1(this, _speakerChangedHandler, _speakerChangedHandler2).call(this, data);
+	              } else if ((_data16 = data) !== null && _data16 !== void 0 && _data16.connectionQuality || (_data17 = data) !== null && _data17 !== void 0 && _data17.subscribedQualityUpdate) {
+	                console.log(data);
+	              } else if (data.pong) {
+	                _classPrivateMethodGet$1(this, _resetPingTimeout, _resetPingTimeout2).call(this);
+	              } else if (data.pongResp) {
+	                babelHelpers.classPrivateFieldGet(this, _privateProperties).rtt = Date.now() - data.pongResp.lastPingTimestamp;
+	                _classPrivateMethodGet$1(this, _resetPingTimeout, _resetPingTimeout2).call(this);
+	              }
+	            case 96:
+	            case "end":
+	              return _context5.stop();
+	          }
+	        }, _callee5, this, [[2, 6], [68, 78]]);
+	      }));
+	      function socketOnMessageHandler(_x2) {
+	        return _socketOnMessageHandler.apply(this, arguments);
+	      }
+	      return socketOnMessageHandler;
+	    }()
+	  }, {
+	    key: "socketOnOpenHandler",
+	    value: function socketOnOpenHandler() {
+	      window.addEventListener('beforeunload', this.sendLeaveBound);
+	    }
+	  }, {
+	    key: "socketOnCloseHandler",
+	    value: function socketOnCloseHandler(e) {
+	      console.log(e);
+	      _classPrivateMethodGet$1(this, _beforeDisconnect, _beforeDisconnect2).call(this);
+	      if (e !== null && e !== void 0 && e.code && (e === null || e === void 0 ? void 0 : e.code) !== 1005 && !this.isReconnecting) {
+	        _classPrivateMethodGet$1(this, _reconnect, _reconnect2).call(this);
+	      }
+	    }
+	  }, {
+	    key: "socketOnErrorHandler",
+	    value: function socketOnErrorHandler() {
+	      if (!this.isConnected()) {
+	        this.triggerEvents('Failed', [{
+	          name: 'WEBSOCKET_ERROR'
+	        }]);
+	      }
+	    }
+	  }, {
+	    key: "onIceCandidate",
+	    value: function () {
+	      var _onIceCandidate = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(target, event) {
+	        var _event$candidate, _event$candidate2, _event$candidate3;
+	        var trickle;
+	        return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+	          while (1) switch (_context6.prev = _context6.next) {
+	            case 0:
+	              if (event.candidate) {
+	                _context6.next = 2;
+	                break;
+	              }
+	              return _context6.abrupt("return");
+	            case 2:
+	              trickle = {
+	                candidateInit: JSON.stringify({
+	                  candidate: event.candidate.candidate,
+	                  sdpMid: (_event$candidate = event.candidate) === null || _event$candidate === void 0 ? void 0 : _event$candidate.sdpMid,
+	                  sdpMLineIndex: (_event$candidate2 = event.candidate) === null || _event$candidate2 === void 0 ? void 0 : _event$candidate2.sdpMLineIndex,
+	                  usernameFragment: (_event$candidate3 = event.candidate) === null || _event$candidate3 === void 0 ? void 0 : _event$candidate3.usernameFragment
+	                })
+	              };
+	              if (target) {
+	                trickle.target = target;
+	              }
+	              _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	                trickle: trickle
+	              });
+	            case 5:
+	            case "end":
+	              return _context6.stop();
+	          }
+	        }, _callee6, this);
+	      }));
+	      function onIceCandidate(_x3, _x4) {
+	        return _onIceCandidate.apply(this, arguments);
+	      }
+	      return onIceCandidate;
+	    }()
+	  }, {
+	    key: "onConnectionStateChange",
+	    value: function onConnectionStateChange(subscriber) {
+	      var state = subscriber ? this.recipient.connectionState : this.sender.connectionState;
+	      if (state === 'failed' && !this.isReconnecting) {
+	        if (babelHelpers.classPrivateFieldGet(this, _privateProperties).peerConnectionFailed) {
+	          return;
+	        }
+	        babelHelpers.classPrivateFieldGet(this, _privateProperties).peerConnectionFailed = true;
+	        _classPrivateMethodGet$1(this, _beforeDisconnect, _beforeDisconnect2).call(this);
+	        _classPrivateMethodGet$1(this, _reconnect, _reconnect2).call(this);
+	      }
+	    }
+	  }, {
+	    key: "on",
+	    value: function on(eventType, handler) {
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).events.set(eventType, handler);
+	      return this;
+	    }
+	  }, {
+	    key: "off",
+	    value: function off(eventType) {
+	      if (babelHelpers.classPrivateFieldGet(this, _privateProperties).events.has(eventType)) {
+	        return babelHelpers.classPrivateFieldGet(this, _privateProperties).events["delete"](eventType);
+	      }
+	      return this;
+	    }
+	  }, {
+	    key: "triggerEvents",
+	    value: function triggerEvents(eventType, args) {
+	      if (babelHelpers.classPrivateFieldGet(this, _privateProperties).events.has(eventType)) {
+	        var event = babelHelpers.classPrivateFieldGet(this, _privateProperties).events.get(eventType);
+	        if (args) {
+	          event.apply(void 0, babelHelpers.toConsumableArray(args));
+	        } else {
+	          event();
+	        }
+	      }
+	    }
+	  }, {
+	    key: "isRecordable",
+	    value: function isRecordable() {
+	      console.log('isRecordable');
+	    }
+	  }, {
+	    key: "setBitrate",
+	    value: function () {
+	      var _setBitrate = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(bitrate, MediaStreamKind) {
+	        var _this3 = this;
+	        var track, isSimulcast, senders;
+	        return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+	          while (1) switch (_context7.prev = _context7.next) {
+	            case 0:
+	              _context7.t0 = MediaStreamKind;
+	              _context7.next = _context7.t0 === MediaStreamsKinds.Camera ? 3 : _context7.t0 === MediaStreamsKinds.Microphone ? 6 : _context7.t0 === MediaStreamsKinds.Screen ? 8 : 10;
+	              break;
+	            case 3:
+	              track = babelHelpers.classPrivateFieldGet(this, _privateProperties).cameraStream.getVideoTracks[0];
+	              isSimulcast = babelHelpers.classPrivateFieldGet(this, _privateProperties).videoSimulcast;
+	              return _context7.abrupt("break", 10);
+	            case 6:
+	              track = babelHelpers.classPrivateFieldGet(this, _privateProperties).microphoneStream.getAudioTracks[0];
+	              return _context7.abrupt("break", 10);
+	            case 8:
+	              track = babelHelpers.classPrivateFieldGet(this, _privateProperties).screenStream.getVideoTracks[0];
+	              return _context7.abrupt("break", 10);
+	            case 10:
+	              senders = this.sender.getSenders();
+	              senders.forEach(function (sender) {
+	                var params = sender.getParameters();
+	                if (!params || !params.encodings || params.encodings.length === 0) {
+	                  console.warn('No encodings in the sender parameters, ignoring bitrate for track:', track);
+	                } else {
+	                  params.encodings.forEach(function (encoding) {
+	                    if (isSimulcast) {
+	                      encoding.maxBitrate = bitrate < babelHelpers.classPrivateFieldGet(_this3, _privateProperties).defaultSimulcastBitrate[encoding.rid] ? bitrate : babelHelpers.classPrivateFieldGet(_this3, _privateProperties).defaultSimulcastBitrate[encoding.rid];
+	                    } else {
+	                      encoding.maxBitrate = bitrate;
+	                    }
+	                  });
+	                  sender.setParameters(params);
+	                }
+	              });
+	              _context7.next = 14;
+	              return Promise.all(senders);
+	            case 14:
+	            case "end":
+	              return _context7.stop();
+	          }
+	        }, _callee7, this);
+	      }));
+	      function setBitrate(_x5, _x6) {
+	        return _setBitrate.apply(this, arguments);
+	      }
+	      return setBitrate;
+	    }()
+	  }, {
+	    key: "publishTrack",
+	    value: function () {
+	      var _publishTrack = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8(MediaStreamKind, MediaStreamTrack) {
+	        var StreamQualityOptions,
+	          keys,
+	          source,
+	          width,
+	          height,
+	          _width,
+	          _height,
+	          _width2,
+	          _height2,
+	          _args8 = arguments;
+	        return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+	          while (1) switch (_context8.prev = _context8.next) {
+	            case 0:
+	              StreamQualityOptions = _args8.length > 2 && _args8[2] !== undefined ? _args8[2] : {};
+	              console.log('publishTrack', MediaStreamKind, MediaStreamTrack);
+	              if (this.sender) {
+	                _context8.next = 4;
+	                break;
+	              }
+	              return _context8.abrupt("return");
+	            case 4:
+	              _context8.prev = 4;
+	              for (keys in StreamQualityOptions) {
+	                babelHelpers.classPrivateFieldGet(this, _privateProperties)["".concat(keys)] = StreamQualityOptions[keys];
+	              }
+	              source = MediaStreamKind;
+	              MediaStreamTrack.source = source;
+	              if (!(source === MediaStreamsKinds.Camera)) {
+	                _context8.next = 24;
+	                break;
+	              }
+	              if (!babelHelpers.classPrivateFieldGet(this, _privateProperties).videoSimulcast) {
+	                _context8.next = 16;
+	                break;
+	              }
+	              width = MediaStreamTrack.getSettings().width;
+	              height = MediaStreamTrack.getSettings().height;
+	              this.sender.addTransceiver(MediaStreamTrack, {
+	                direction: 'sendonly',
+	                streams: [babelHelpers.classPrivateFieldGet(this, _privateProperties).cameraStream],
+	                sendEncodings: MediaStreamTrack.sendEncodings || [{
+	                  rid: 'q',
+	                  active: true,
+	                  maxBitrate: babelHelpers.classPrivateFieldGet(this, _privateProperties).defaultSimulcastBitrate['q'],
+	                  scaleResolutionDownBy: 4
+	                }, {
+	                  rid: 'h',
+	                  active: true,
+	                  maxBitrate: babelHelpers.classPrivateFieldGet(this, _privateProperties).defaultSimulcastBitrate['h'],
+	                  scaleResolutionDownBy: 2
+	                }, {
+	                  rid: 'f',
+	                  active: true,
+	                  maxBitrate: babelHelpers.classPrivateFieldGet(this, _privateProperties).defaultSimulcastBitrate['f']
+	                }]
+	              });
+	              _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	                "addTrack": {
+	                  "cid": MediaStreamTrack.id,
+	                  "type": "VIDEO",
+	                  "width": width,
+	                  "height": height,
+	                  "source": source,
+	                  "layers": [{
+	                    "quality": "LOW",
+	                    "width": width / 4,
+	                    "height": height / 4,
+	                    "bitrate": babelHelpers.classPrivateFieldGet(this, _privateProperties).defaultSimulcastBitrate.q
+	                  }, {
+	                    "quality": "MEDIUM",
+	                    "width": width / 2,
+	                    "height": height / 2,
+	                    "bitrate": babelHelpers.classPrivateFieldGet(this, _privateProperties).defaultSimulcastBitrate.h
+	                  }, {
+	                    "quality": "HIGH",
+	                    "width": width,
+	                    "height": height,
+	                    "bitrate": babelHelpers.classPrivateFieldGet(this, _privateProperties).defaultSimulcastBitrate.f
+	                  }]
+	                }
+	              });
+	              _context8.next = 22;
+	              break;
+	            case 16:
+	              this.sender.addTransceiver(MediaStreamTrack, {
+	                direction: 'sendonly'
+	              });
+	              _context8.next = 19;
+	              return this.setBitrate(babelHelpers.classPrivateFieldGet(this, _privateProperties).videoBitrate, MediaStreamsKinds.Camera);
+	            case 19:
+	              _width = MediaStreamTrack.getSettings().width;
+	              _height = MediaStreamTrack.getSettings().height;
+	              _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	                "addTrack": {
+	                  "cid": MediaStreamTrack.id,
+	                  "type": "VIDEO",
+	                  "width": _width,
+	                  "height": _height,
+	                  "source": source
+	                }
+	              });
+	            case 22:
+	              _context8.next = 25;
+	              break;
+	            case 24:
+	              if (source === MediaStreamsKinds.Microphone) {
+	                this.sender.addTransceiver(MediaStreamTrack, {
+	                  direction: 'sendonly'
+	                });
+	                _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	                  "addTrack": {
+	                    "cid": MediaStreamTrack.id,
+	                    "source": source
+	                  }
+	                });
+	              } else if (source === MediaStreamsKinds.Screen) {
+	                this.sender.addTransceiver(MediaStreamTrack, {
+	                  direction: 'sendonly'
+	                });
+	                _width2 = MediaStreamTrack.getSettings().width;
+	                _height2 = MediaStreamTrack.getSettings().height;
+	                _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	                  "addTrack": {
+	                    "cid": MediaStreamTrack.id,
+	                    "type": "VIDEO",
+	                    "width": _width2,
+	                    "height": _height2,
+	                    "source": source
+	                  }
+	                });
+	              }
+	            case 25:
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).offersStack++;
+	              _context8.next = 28;
+	              return this.sendOffer();
+	            case 28:
+	              _context8.next = 35;
+	              break;
+	            case 30:
+	              _context8.prev = 30;
+	              _context8.t0 = _context8["catch"](4);
+	              this.setLog(_context8.t0);
+	              console.error(_context8.t0);
+	              this.triggerEvents('PublishFailed', [MediaStreamKind]);
+	            case 35:
+	            case "end":
+	              return _context8.stop();
+	          }
+	        }, _callee8, this, [[4, 30]]);
+	      }));
+	      function publishTrack(_x7, _x8) {
+	        return _publishTrack.apply(this, arguments);
+	      }
+	      return publishTrack;
+	    }()
+	  }, {
+	    key: "changeStreamQuality",
+	    value: function () {
+	      var _changeStreamQuality = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(StreamQualityOptions) {
+	        var key, kind, _kind;
+	        return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+	          while (1) switch (_context9.prev = _context9.next) {
+	            case 0:
+	              console.log('changeStreamQuality', StreamQualityOptions);
+	              _context9.t0 = _regeneratorRuntime().keys(StreamQualityOptions);
+	            case 2:
+	              if ((_context9.t1 = _context9.t0()).done) {
+	                _context9.next = 19;
+	                break;
+	              }
+	              key = _context9.t1.value;
+	              if (!(babelHelpers.classPrivateFieldGet(this, _privateProperties)["".concat(key)] !== StreamQualityOptions[key])) {
+	                _context9.next = 17;
+	                break;
+	              }
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties)["".concat(key)] = StreamQualityOptions[key];
+	              if (!(key === 'videoSimulcast' || key === 'screenSimulcast' && babelHelpers.classPrivateFieldGet(this, _privateProperties).screenStream)) {
+	                _context9.next = 13;
+	                break;
+	              }
+	              kind = key === 'videoSimulcast' ? MediaStreamsKinds.Camera : MediaStreamsKinds.Screen;
+	              if (!_classPrivateMethodGet$1(this, _getSender, _getSender2).call(this, kind)) {
+	                _context9.next = 11;
+	                break;
+	              }
+	              _context9.next = 11;
+	              return this.republishTrack(kind);
+	            case 11:
+	              _context9.next = 17;
+	              break;
+	            case 13:
+	              if (!['videoBitrate', 'audioBitrate', 'screenBitrate'].includes(key)) {
+	                _context9.next = 17;
+	                break;
+	              }
+	              _kind = key === 'videoBitrate' ? MediaStreamsKinds.Camera : key === 'screenBitrate' ? MediaStreamsKinds.Screen : MediaStreamsKinds.Microphone;
+	              _context9.next = 17;
+	              return this.setBitrate(StreamQualityOptions[key], _kind);
+	            case 17:
+	              _context9.next = 2;
+	              break;
+	            case 19:
+	            case "end":
+	              return _context9.stop();
+	          }
+	        }, _callee9, this);
+	      }));
+	      function changeStreamQuality(_x9) {
+	        return _changeStreamQuality.apply(this, arguments);
+	      }
+	      return changeStreamQuality;
+	    }()
+	  }, {
+	    key: "republishTrack",
+	    value: function () {
+	      var _republishTrack = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10(MediaStreamKind) {
+	        var track;
+	        return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+	          while (1) switch (_context10.prev = _context10.next) {
+	            case 0:
+	              _context10.next = 2;
+	              return this.unpublishTrack(MediaStreamKind);
+	            case 2:
+	              _context10.next = 4;
+	              return this.getTrack(MediaStreamKind);
+	            case 4:
+	              track = _context10.sent;
+	              if (!track) {
+	                _context10.next = 10;
+	                break;
+	              }
+	              _context10.next = 8;
+	              return this.publishTrack(MediaStreamKind, track);
+	            case 8:
+	              _context10.next = 11;
+	              break;
+	            case 10:
+	              this.triggerEvents('PublishFailed', [MediaStreamKind]);
+	            case 11:
+	            case "end":
+	              return _context10.stop();
+	          }
+	        }, _callee10, this);
+	      }));
+	      function republishTrack(_x10) {
+	        return _republishTrack.apply(this, arguments);
+	      }
+	      return republishTrack;
+	    }()
+	  }, {
+	    key: "unpublishTrack",
+	    value: function () {
+	      var _unpublishTrack = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11(MediaStreamKind) {
+	        var sender;
+	        return _regeneratorRuntime().wrap(function _callee11$(_context11) {
+	          while (1) switch (_context11.prev = _context11.next) {
+	            case 0:
+	              console.log('unpublishTrack', MediaStreamKind);
+	              sender = _classPrivateMethodGet$1(this, _getSender, _getSender2).call(this, MediaStreamKind);
+	              if (!sender) {
+	                _context11.next = 7;
+	                break;
+	              }
+	              this.sender.removeTrack(sender);
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).offersStack++;
+	              _context11.next = 7;
+	              return this.sendOffer();
+	            case 7:
+	            case "end":
+	              return _context11.stop();
+	          }
+	        }, _callee11, this);
+	      }));
+	      function unpublishTrack(_x11) {
+	        return _unpublishTrack.apply(this, arguments);
+	      }
+	      return unpublishTrack;
+	    }()
+	  }, {
+	    key: "hangup",
+	    value: function hangup() {
+	      _classPrivateMethodGet$1(this, _sendLeave, _sendLeave2).call(this);
+	      _classPrivateMethodGet$1(this, _beforeDisconnect, _beforeDisconnect2).call(this);
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).url = null;
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).token = null;
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).endpoint = null;
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).jwt = null;
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).options = null;
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).iceServers = null;
+	      _classPrivateMethodGet$1(this, _releaseStream, _releaseStream2).call(this, MediaStreamsKinds.Camera);
+	      _classPrivateMethodGet$1(this, _releaseStream, _releaseStream2).call(this, MediaStreamsKinds.Microphone);
+	      _classPrivateMethodGet$1(this, _releaseStream, _releaseStream2).call(this, MediaStreamsKinds.Screen);
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).rtt = 0;
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteTracks = {};
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).isReconnecting = false;
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).reconnectionTries = babelHelpers.classPrivateFieldGet(this, _privateProperties).initialReconnectionTries;
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).hasMainStream = false;
+	      if (this.isConnected()) {
+	        babelHelpers.classPrivateFieldGet(this, _privateProperties).callState = CALL_STATE.TERMINATED;
+	        this.triggerEvents('Disconnected');
+	      }
+	    }
+	  }, {
+	    key: "isConnected",
+	    value: function isConnected() {
+	      console.log('isConnected');
+	      return babelHelpers.classPrivateFieldGet(this, _privateProperties).callState === CALL_STATE.CONNECTED;
+	    }
+	  }, {
+	    key: "setMainStream",
+	    value: function setMainStream(user, kind) {
+	      _classPrivateMethodGet$1(this, _changeRoomStreamsQuality, _changeRoomStreamsQuality2).call(this, user, kind);
+	    }
+	  }, {
+	    key: "resetMainStream",
+	    value: function resetMainStream() {
+	      _classPrivateMethodGet$1(this, _changeRoomStreamsQuality, _changeRoomStreamsQuality2).call(this);
+	    }
+	  }, {
+	    key: "pauseTrack",
+	    value: function pauseTrack(mediaStreamKind, keepTrack) {
+	      var _babelHelpers$classPr;
+	      var trackSid = (_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _privateProperties).localTracks[mediaStreamKind]) === null || _babelHelpers$classPr === void 0 ? void 0 : _babelHelpers$classPr.sid;
+	      if (trackSid) {
+	        if (!keepTrack) {
+	          delete babelHelpers.classPrivateFieldGet(this, _privateProperties).localTracks[mediaStreamKind];
+	        }
+	        _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	          mute: {
+	            sid: trackSid,
+	            muted: true
+	          }
+	        });
+	      }
+	    }
+	  }, {
+	    key: "unpauseTrack",
+	    value: function unpauseTrack(mediaStreamKind) {
+	      var _babelHelpers$classPr2;
+	      var trackSid = (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldGet(this, _privateProperties).localTracks[mediaStreamKind]) === null || _babelHelpers$classPr2 === void 0 ? void 0 : _babelHelpers$classPr2.sid;
+	      if (trackSid) {
+	        _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	          mute: {
+	            sid: trackSid,
+	            muted: false
+	          }
+	        });
+	      }
+	    }
+	  }, {
+	    key: "disableAudio",
+	    value: function disableAudio() {
+	      var _babelHelpers$classPr3;
+	      var track = (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldGet(this, _privateProperties).microphoneStream) === null || _babelHelpers$classPr3 === void 0 ? void 0 : _babelHelpers$classPr3.getAudioTracks()[0];
+	      if (track) {
+	        track.enabled = false;
+	        this.pauseTrack(MediaStreamsKinds.Microphone, true);
+	      }
+	    }
+	  }, {
+	    key: "enableAudio",
+	    value: function () {
+	      var _enableAudio = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
+	        var _babelHelpers$classPr4;
+	        var track;
+	        return _regeneratorRuntime().wrap(function _callee12$(_context12) {
+	          while (1) switch (_context12.prev = _context12.next) {
+	            case 0:
+	              track = (_babelHelpers$classPr4 = babelHelpers.classPrivateFieldGet(this, _privateProperties).microphoneStream) === null || _babelHelpers$classPr4 === void 0 ? void 0 : _babelHelpers$classPr4.getAudioTracks()[0];
+	              if (!(track && babelHelpers.classPrivateFieldGet(this, _privateProperties).localTracks[MediaStreamsKinds.Microphone])) {
+	                _context12.next = 6;
+	                break;
+	              }
+	              track.enabled = true;
+	              this.unpauseTrack(MediaStreamsKinds.Microphone);
+	              _context12.next = 16;
+	              break;
+	            case 6:
+	              _context12.next = 8;
+	              return this.getLocalAudio();
+	            case 8:
+	              track = _context12.sent;
+	              if (!track) {
+	                _context12.next = 15;
+	                break;
+	              }
+	              track.enabled = true;
+	              _context12.next = 13;
+	              return this.publishTrack(MediaStreamsKinds.Microphone, track);
+	            case 13:
+	              _context12.next = 16;
+	              break;
+	            case 15:
+	              this.triggerEvents('PublishFailed', [MediaStreamsKinds.Microphone]);
+	            case 16:
+	            case "end":
+	              return _context12.stop();
+	          }
+	        }, _callee12, this);
+	      }));
+	      function enableAudio() {
+	        return _enableAudio.apply(this, arguments);
+	      }
+	      return enableAudio;
+	    }()
+	  }, {
+	    key: "disableVideo",
+	    value: function () {
+	      var _disableVideo = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+	        return _regeneratorRuntime().wrap(function _callee13$(_context13) {
+	          while (1) switch (_context13.prev = _context13.next) {
+	            case 0:
+	              _classPrivateMethodGet$1(this, _releaseStream, _releaseStream2).call(this, MediaStreamsKinds.Camera);
+	              this.pauseTrack(MediaStreamsKinds.Camera);
+	              _context13.next = 4;
+	              return this.unpublishTrack(MediaStreamsKinds.Camera);
+	            case 4:
+	            case "end":
+	              return _context13.stop();
+	          }
+	        }, _callee13, this);
+	      }));
+	      function disableVideo() {
+	        return _disableVideo.apply(this, arguments);
+	      }
+	      return disableVideo;
+	    }()
+	  }, {
+	    key: "enableVideo",
+	    value: function () {
+	      var _enableVideo = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
+	        var track;
+	        return _regeneratorRuntime().wrap(function _callee14$(_context14) {
+	          while (1) switch (_context14.prev = _context14.next) {
+	            case 0:
+	              _context14.next = 2;
+	              return this.getLocalVideo();
+	            case 2:
+	              track = _context14.sent;
+	              if (!track) {
+	                _context14.next = 8;
+	                break;
+	              }
+	              _context14.next = 6;
+	              return this.publishTrack(MediaStreamsKinds.Camera, track);
+	            case 6:
+	              _context14.next = 9;
+	              break;
+	            case 8:
+	              this.triggerEvents('PublishFailed', [MediaStreamsKinds.Camera]);
+	            case 9:
+	            case "end":
+	              return _context14.stop();
+	          }
+	        }, _callee14, this);
+	      }));
+	      function enableVideo() {
+	        return _enableVideo.apply(this, arguments);
+	      }
+	      return enableVideo;
+	    }()
+	  }, {
+	    key: "startScreenShare",
+	    value: function () {
+	      var _startScreenShare = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
+	        var track;
+	        return _regeneratorRuntime().wrap(function _callee15$(_context15) {
+	          while (1) switch (_context15.prev = _context15.next) {
+	            case 0:
+	              _context15.next = 2;
+	              return this.getLocalScreen();
+	            case 2:
+	              track = _context15.sent;
+	              if (!track) {
+	                _context15.next = 8;
+	                break;
+	              }
+	              _context15.next = 6;
+	              return this.publishTrack(MediaStreamsKinds.Screen, track);
+	            case 6:
+	              _context15.next = 9;
+	              break;
+	            case 8:
+	              this.triggerEvents('PublishFailed', [MediaStreamsKinds.Screen]);
+	            case 9:
+	            case "end":
+	              return _context15.stop();
+	          }
+	        }, _callee15, this);
+	      }));
+	      function startScreenShare() {
+	        return _startScreenShare.apply(this, arguments);
+	      }
+	      return startScreenShare;
+	    }()
+	  }, {
+	    key: "stopScreenShare",
+	    value: function () {
+	      var _stopScreenShare = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
+	        return _regeneratorRuntime().wrap(function _callee16$(_context16) {
+	          while (1) switch (_context16.prev = _context16.next) {
+	            case 0:
+	              _classPrivateMethodGet$1(this, _releaseStream, _releaseStream2).call(this, MediaStreamsKinds.Screen);
+	              this.pauseTrack(MediaStreamsKinds.Screen);
+	              _context16.next = 4;
+	              return this.unpublishTrack(MediaStreamsKinds.Screen);
+	            case 4:
+	            case "end":
+	              return _context16.stop();
+	          }
+	        }, _callee16, this);
+	      }));
+	      function stopScreenShare() {
+	        return _stopScreenShare.apply(this, arguments);
+	      }
+	      return stopScreenShare;
+	    }()
+	  }, {
+	    key: "sendMessage",
+	    value: function sendMessage(message) {
+	      _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	        sendMessage: {
+	          message: message
+	        }
+	      });
+	    }
+	  }, {
+	    key: "raiseHand",
+	    value: function raiseHand(raised) {
+	      _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	        raiseHand: {
+	          raised: raised
+	        }
+	      });
+	    }
+	  }, {
+	    key: "getLocalVideo",
+	    value: function () {
+	      var _getLocalVideo = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
+	        var _babelHelpers$classPr5;
+	        return _regeneratorRuntime().wrap(function _callee17$(_context17) {
+	          while (1) switch (_context17.prev = _context17.next) {
+	            case 0:
+	              if (babelHelpers.classPrivateFieldGet(this, _privateProperties).cameraStream) {
+	                _context17.next = 3;
+	                break;
+	              }
+	              _context17.next = 3;
+	              return this.getTrack(MediaStreamsKinds.Camera);
+	            case 3:
+	              return _context17.abrupt("return", (_babelHelpers$classPr5 = babelHelpers.classPrivateFieldGet(this, _privateProperties).cameraStream) === null || _babelHelpers$classPr5 === void 0 ? void 0 : _babelHelpers$classPr5.getVideoTracks()[0]);
+	            case 4:
+	            case "end":
+	              return _context17.stop();
+	          }
+	        }, _callee17, this);
+	      }));
+	      function getLocalVideo() {
+	        return _getLocalVideo.apply(this, arguments);
+	      }
+	      return getLocalVideo;
+	    }()
+	  }, {
+	    key: "getLocalAudio",
+	    value: function () {
+	      var _getLocalAudio = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
+	        var _babelHelpers$classPr6;
+	        return _regeneratorRuntime().wrap(function _callee18$(_context18) {
+	          while (1) switch (_context18.prev = _context18.next) {
+	            case 0:
+	              if (babelHelpers.classPrivateFieldGet(this, _privateProperties).microphoneStream) {
+	                _context18.next = 3;
+	                break;
+	              }
+	              _context18.next = 3;
+	              return this.getTrack(MediaStreamsKinds.Microphone);
+	            case 3:
+	              return _context18.abrupt("return", (_babelHelpers$classPr6 = babelHelpers.classPrivateFieldGet(this, _privateProperties).microphoneStream) === null || _babelHelpers$classPr6 === void 0 ? void 0 : _babelHelpers$classPr6.getAudioTracks()[0]);
+	            case 4:
+	            case "end":
+	              return _context18.stop();
+	          }
+	        }, _callee18, this);
+	      }));
+	      function getLocalAudio() {
+	        return _getLocalAudio.apply(this, arguments);
+	      }
+	      return getLocalAudio;
+	    }()
+	  }, {
+	    key: "getLocalScreen",
+	    value: function () {
+	      var _getLocalScreen = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee19() {
+	        var _babelHelpers$classPr7;
+	        return _regeneratorRuntime().wrap(function _callee19$(_context19) {
+	          while (1) switch (_context19.prev = _context19.next) {
+	            case 0:
+	              if (babelHelpers.classPrivateFieldGet(this, _privateProperties).screenStream) {
+	                _context19.next = 3;
+	                break;
+	              }
+	              _context19.next = 3;
+	              return this.getTrack(MediaStreamsKinds.Screen);
+	            case 3:
+	              return _context19.abrupt("return", (_babelHelpers$classPr7 = babelHelpers.classPrivateFieldGet(this, _privateProperties).screenStream) === null || _babelHelpers$classPr7 === void 0 ? void 0 : _babelHelpers$classPr7.getVideoTracks()[0]);
+	            case 4:
+	            case "end":
+	              return _context19.stop();
+	          }
+	        }, _callee19, this);
+	      }));
+	      function getLocalScreen() {
+	        return _getLocalScreen.apply(this, arguments);
+	      }
+	      return getLocalScreen;
+	    }()
+	  }, {
+	    key: "getTrack",
+	    value: function () {
+	      var _getTrack = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee20(MediaStreamKind) {
+	        var _this4 = this;
+	        var track, _babelHelpers$classPr8, _babelHelpers$classPr9, _babelHelpers$classPr10;
+	        return _regeneratorRuntime().wrap(function _callee20$(_context20) {
+	          while (1) switch (_context20.prev = _context20.next) {
+	            case 0:
+	              if (!(MediaStreamKind === MediaStreamsKinds.Camera && !babelHelpers.classPrivateFieldGet(this, _privateProperties).cameraStream)) {
+	                _context20.next = 6;
+	                break;
+	              }
+	              _context20.next = 3;
+	              return _classPrivateMethodGet$1(this, _getUserMedia, _getUserMedia2).call(this, {
+	                video: true
+	              });
+	            case 3:
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).cameraStream = _context20.sent;
+	              _context20.next = 16;
+	              break;
+	            case 6:
+	              if (!(MediaStreamKind === MediaStreamsKinds.Microphone && !babelHelpers.classPrivateFieldGet(this, _privateProperties).microphoneStream)) {
+	                _context20.next = 12;
+	                break;
+	              }
+	              _context20.next = 9;
+	              return _classPrivateMethodGet$1(this, _getUserMedia, _getUserMedia2).call(this, {
+	                audio: true
+	              });
+	            case 9:
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).microphoneStream = _context20.sent;
+	              _context20.next = 16;
+	              break;
+	            case 12:
+	              if (!(MediaStreamKind === MediaStreamsKinds.Screen && !babelHelpers.classPrivateFieldGet(this, _privateProperties).screenStream)) {
+	                _context20.next = 16;
+	                break;
+	              }
+	              _context20.next = 15;
+	              return _classPrivateMethodGet$1(this, _getDisplayMedia, _getDisplayMedia2).call(this);
+	            case 15:
+	              babelHelpers.classPrivateFieldGet(this, _privateProperties).screenStream = _context20.sent;
+	            case 16:
+	              if (MediaStreamKind === MediaStreamsKinds.Screen) {
+	                track = (_babelHelpers$classPr8 = babelHelpers.classPrivateFieldGet(this, _privateProperties).screenStream) === null || _babelHelpers$classPr8 === void 0 ? void 0 : _babelHelpers$classPr8.getVideoTracks()[0];
+	                if (track && track.readyState !== 'live') {
+	                  babelHelpers.classPrivateFieldGet(this, _privateProperties).screenStream = null;
+	                  track = this.getLocalScreen();
+	                }
+	              } else if (MediaStreamKind === MediaStreamsKinds.Camera) {
+	                track = (_babelHelpers$classPr9 = babelHelpers.classPrivateFieldGet(this, _privateProperties).cameraStream) === null || _babelHelpers$classPr9 === void 0 ? void 0 : _babelHelpers$classPr9.getVideoTracks()[0];
+	                if (track && track.readyState !== 'live') {
+	                  babelHelpers.classPrivateFieldGet(this, _privateProperties).cameraStream = null;
+	                  track = this.getLocalVideo();
+	                }
+	              } else if (MediaStreamKind === MediaStreamsKinds.Microphone) {
+	                track = (_babelHelpers$classPr10 = babelHelpers.classPrivateFieldGet(this, _privateProperties).microphoneStream) === null || _babelHelpers$classPr10 === void 0 ? void 0 : _babelHelpers$classPr10.getAudioTracks()[0];
+	                if (track && track.readyState !== 'live') {
+	                  babelHelpers.classPrivateFieldGet(this, _privateProperties).microphoneStream = null;
+	                  track = this.getLocalAudio();
+	                }
+	              }
+	              if (track && !track.onended) {
+	                track.onended = function () {
+	                  return _this4.triggerEvents('PublishEnded', [MediaStreamKind]);
+	                };
+	              }
+	              return _context20.abrupt("return", track);
+	            case 19:
+	            case "end":
+	              return _context20.stop();
+	          }
+	        }, _callee20, this);
+	      }));
+	      function getTrack(_x12) {
+	        return _getTrack.apply(this, arguments);
+	      }
+	      return getTrack;
+	    }()
+	  }, {
+	    key: "switchActiveAudioDevice",
+	    value: function () {
+	      var _switchActiveAudioDevice = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22(deviceId) {
+	        var _this5 = this;
+	        return _regeneratorRuntime().wrap(function _callee22$(_context22) {
+	          while (1) switch (_context22.prev = _context22.next) {
+	            case 0:
+	              return _context22.abrupt("return", new Promise( /*#__PURE__*/function () {
+	                var _ref2 = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21(resolve, reject) {
+	                  var _babelHelpers$classPr11, prevTrack, prevTrackEnabledState, audioTrack, sender;
+	                  return _regeneratorRuntime().wrap(function _callee21$(_context21) {
+	                    while (1) switch (_context21.prev = _context21.next) {
+	                      case 0:
+	                        babelHelpers.classPrivateFieldGet(_this5, _privateProperties).audioDeviceId = deviceId;
+	                        _context21.prev = 1;
+	                        prevTrack = (_babelHelpers$classPr11 = babelHelpers.classPrivateFieldGet(_this5, _privateProperties).microphoneStream) === null || _babelHelpers$classPr11 === void 0 ? void 0 : _babelHelpers$classPr11.getAudioTracks()[0];
+	                        babelHelpers.classPrivateFieldGet(_this5, _privateProperties).microphoneStream = null;
+	                        prevTrackEnabledState = true;
+	                        if (prevTrack) {
+	                          prevTrackEnabledState = prevTrack.enabled;
+	                          prevTrack.stop();
+	                        }
+	                        _context21.next = 8;
+	                        return _this5.getLocalAudio();
+	                      case 8:
+	                        audioTrack = _context21.sent;
+	                        audioTrack.source = MediaStreamsKinds.Microphone;
+	                        audioTrack.enabled = prevTrackEnabledState;
+	                        sender = _classPrivateMethodGet$1(_this5, _getSender, _getSender2).call(_this5, MediaStreamsKinds.Microphone);
+	                        if (!sender) {
+	                          _context21.next = 16;
+	                          break;
+	                        }
+	                        _context21.next = 15;
+	                        return sender.replaceTrack(audioTrack);
+	                      case 15:
+	                        resolve();
+	                      case 16:
+	                        _context21.next = 21;
+	                        break;
+	                      case 18:
+	                        _context21.prev = 18;
+	                        _context21.t0 = _context21["catch"](1);
+	                        reject(_context21.t0);
+	                      case 21:
+	                      case "end":
+	                        return _context21.stop();
+	                    }
+	                  }, _callee21, null, [[1, 18]]);
+	                }));
+	                return function (_x14, _x15) {
+	                  return _ref2.apply(this, arguments);
+	                };
+	              }()));
+	            case 1:
+	            case "end":
+	              return _context22.stop();
+	          }
+	        }, _callee22);
+	      }));
+	      function switchActiveAudioDevice(_x13) {
+	        return _switchActiveAudioDevice.apply(this, arguments);
+	      }
+	      return switchActiveAudioDevice;
+	    }()
+	  }, {
+	    key: "switchActiveVideoDevice",
+	    value: function () {
+	      var _switchActiveVideoDevice = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24(deviceId) {
+	        var _this6 = this;
+	        return _regeneratorRuntime().wrap(function _callee24$(_context24) {
+	          while (1) switch (_context24.prev = _context24.next) {
+	            case 0:
+	              return _context24.abrupt("return", new Promise( /*#__PURE__*/function () {
+	                var _ref3 = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23(resolve, reject) {
+	                  var _babelHelpers$classPr12, videoTrack, sender;
+	                  return _regeneratorRuntime().wrap(function _callee23$(_context23) {
+	                    while (1) switch (_context23.prev = _context23.next) {
+	                      case 0:
+	                        babelHelpers.classPrivateFieldGet(_this6, _privateProperties).videoDeviceId = deviceId;
+	                        _context23.prev = 1;
+	                        (_babelHelpers$classPr12 = babelHelpers.classPrivateFieldGet(_this6, _privateProperties).cameraStream) === null || _babelHelpers$classPr12 === void 0 ? void 0 : _babelHelpers$classPr12.getVideoTracks()[0].stop();
+	                        babelHelpers.classPrivateFieldGet(_this6, _privateProperties).cameraStream = null;
+	                        _context23.next = 6;
+	                        return _this6.getLocalVideo();
+	                      case 6:
+	                        videoTrack = _context23.sent;
+	                        videoTrack.source = MediaStreamsKinds.Camera;
+	                        sender = _classPrivateMethodGet$1(_this6, _getSender, _getSender2).call(_this6, MediaStreamsKinds.Camera);
+	                        if (!sender) {
+	                          _context23.next = 13;
+	                          break;
+	                        }
+	                        _context23.next = 12;
+	                        return sender.replaceTrack(videoTrack);
+	                      case 12:
+	                        resolve();
+	                      case 13:
+	                        _context23.next = 18;
+	                        break;
+	                      case 15:
+	                        _context23.prev = 15;
+	                        _context23.t0 = _context23["catch"](1);
+	                        reject(_context23.t0);
+	                      case 18:
+	                      case "end":
+	                        return _context23.stop();
+	                    }
+	                  }, _callee23, null, [[1, 15]]);
+	                }));
+	                return function (_x17, _x18) {
+	                  return _ref3.apply(this, arguments);
+	                };
+	              }()));
+	            case 1:
+	            case "end":
+	              return _context24.stop();
+	          }
+	        }, _callee24);
+	      }));
+	      function switchActiveVideoDevice(_x16) {
+	        return _switchActiveVideoDevice.apply(this, arguments);
+	      }
+	      return switchActiveVideoDevice;
+	    }()
+	  }, {
+	    key: "getLocalUserId",
+	    value: function getLocalUserId() {
+	      return babelHelpers.classPrivateFieldGet(this, _privateProperties).myUserId;
+	    }
+	  }, {
+	    key: "getParticipants",
+	    value: function getParticipants() {
+	      return babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteParticipants;
+	    }
+	  }, {
+	    key: "getState",
+	    value: function getState() {
+	      return babelHelpers.classPrivateFieldGet(this, _privateProperties).callState;
+	    }
+	  }, {
+	    key: "setLog",
+	    value: function setLog(log) {
+	      if (babelHelpers.classPrivateFieldGet(this, _privateProperties).isloggingEnable) {
+	        var idx = Object.values(babelHelpers.classPrivateFieldGet(this, _privateProperties).logs).length + 1;
+	        var _log = {};
+	        _log.timestamp = Math.floor(Date.now() / 1000);
+	        _log.event = log;
+	        babelHelpers.classPrivateFieldGet(this, _privateProperties).logs[idx] = _log;
+	        if (babelHelpers.classPrivateFieldGet(this, _privateProperties).loggerCallback) {
+	          babelHelpers.classPrivateFieldGet(this, _privateProperties).loggerCallback();
+	        }
+	      }
+	    }
+	  }, {
+	    key: "setLoggerCallback",
+	    value: function setLoggerCallback(callback) {
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).loggerCallback = callback;
+	    }
+	  }, {
+	    key: "enableSilentLogging",
+	    value: function enableSilentLogging(enable) {
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).isloggingEnable = enable;
+	    }
+	  }]);
+	  return Call;
+	}();
+	function _reconnect2() {
+	  var _this7 = this;
+	  babelHelpers.classPrivateFieldGet(this, _privateProperties).isReconnecting = true;
+	  var reconnect = function reconnect() {
+	    if (babelHelpers.classPrivateFieldGet(_this7, _privateProperties).reconnectionTries) {
+	      --babelHelpers.classPrivateFieldGet(_this7, _privateProperties).reconnectionTries;
+	      setTimeout(_this7.connect.bind(_this7), babelHelpers.classPrivateFieldGet(_this7, _privateProperties).reconnectionTimeout);
+	    } else {
+	      _this7.hangup();
+	    }
+	  };
+	  reconnect();
+	  this.triggerEvents('Reconnecting');
+	}
+	function _beforeDisconnect2() {
+	  window.removeEventListener('beforeunload', this.sendLeaveBound);
+	  _classPrivateMethodGet$1(this, _clearPingInterval, _clearPingInterval2).call(this);
+	  _classPrivateMethodGet$1(this, _clearPingTimeout, _clearPingTimeout2).call(this);
+	  clearInterval(babelHelpers.classPrivateFieldGet(this, _privateProperties).callStatsInterval);
+	  _classPrivateMethodGet$1(this, _destroyPeerConnection, _destroyPeerConnection2).call(this);
+	  babelHelpers.classPrivateFieldGet(this, _privateProperties).localTracks = {};
+	  if (babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect) {
+	    babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect.onmessage = null;
+	    babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect.onopen = null;
+	    babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect.onerror = null;
+	    babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect.onclose = null;
+	    babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect.close();
+	    babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect = null;
+	  }
+	}
+	function _resetPingTimeout2() {
+	  var _this8 = this;
+	  _classPrivateMethodGet$1(this, _clearPingTimeout, _clearPingTimeout2).call(this);
+	  if (!babelHelpers.classPrivateFieldGet(this, _privateProperties).pingTimeoutDuration) {
+	    return;
+	  }
+	  babelHelpers.classPrivateFieldGet(this, _privateProperties).pingTimeout = setTimeout(function () {
+	    _classPrivateMethodGet$1(_this8, _beforeDisconnect, _beforeDisconnect2).call(_this8);
+	    _classPrivateMethodGet$1(_this8, _reconnect, _reconnect2).call(_this8);
+	  }, babelHelpers.classPrivateFieldGet(this, _privateProperties).pingTimeoutDuration);
+	}
+	function _clearPingTimeout2() {
+	  if (babelHelpers.classPrivateFieldGet(this, _privateProperties).pingTimeout) {
+	    clearTimeout(babelHelpers.classPrivateFieldGet(this, _privateProperties).pingTimeout);
+	  }
+	}
+	function _startPingInterval2() {
+	  var _this9 = this;
+	  _classPrivateMethodGet$1(this, _clearPingInterval, _clearPingInterval2).call(this);
+	  _classPrivateMethodGet$1(this, _resetPingTimeout, _resetPingTimeout2).call(this);
+	  if (!babelHelpers.classPrivateFieldGet(this, _privateProperties).pingIntervalDuration) {
+	    return;
+	  }
+	  babelHelpers.classPrivateFieldGet(this, _privateProperties).pingPongInterval = setInterval(function () {
+	    _classPrivateMethodGet$1(_this9, _sendPing, _sendPing2).call(_this9);
+	  }, babelHelpers.classPrivateFieldGet(this, _privateProperties).pingIntervalDuration);
+	}
+	function _clearPingInterval2() {
+	  _classPrivateMethodGet$1(this, _clearPingTimeout, _clearPingTimeout2).call(this);
+	  if (babelHelpers.classPrivateFieldGet(this, _privateProperties).pingPongInterval) {
+	    clearInterval(babelHelpers.classPrivateFieldGet(this, _privateProperties).pingPongInterval);
+	  }
+	}
+	function _sendPing2() {
+	  _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	    ping: Date.now()
+	  });
+	  _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	    pingReq: {
+	      timestamp: Date.now(),
+	      rtt: babelHelpers.classPrivateFieldGet(this, _privateProperties).rtt
+	    }
+	  });
+	}
+	function _changeRoomStreamsQuality2(mainUserId, kind) {
+	  var _this10 = this;
+	  Object.values(this.getParticipants()).forEach(function (p) {
+	    if (mainUserId) {
+	      var exactUser = mainUserId == p.userId;
+	      var quality = exactUser && kind === MediaStreamsKinds.Camera ? STREAM_QUALITY.HIGH : STREAM_QUALITY.LOW;
+	      if (exactUser) {
+	        babelHelpers.classPrivateFieldGet(_this10, _privateProperties).hasMainStream = true;
+	      }
+	      p.setStreamQuality(quality);
+	    } else {
+	      var _quality = STREAM_QUALITY.MEDIUM;
+	      babelHelpers.classPrivateFieldGet(_this10, _privateProperties).hasMainStream = false;
+	      p.setStreamQuality(_quality);
+	    }
+	  });
+	}
+	function _getUserMedia2(_x19) {
+	  return _getUserMedia3.apply(this, arguments);
+	}
+	function _getUserMedia3() {
+	  _getUserMedia3 = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee26(options) {
+	    var constraints, stream;
+	    return _regeneratorRuntime().wrap(function _callee26$(_context26) {
+	      while (1) switch (_context26.prev = _context26.next) {
+	        case 0:
+	          constraints = {
+	            audio: false,
+	            video: false
+	          };
+	          stream = null;
+	          _context26.prev = 2;
+	          if (options.video) {
+	            constraints.video = {
+	              width: babelHelpers.classPrivateFieldGet(this, _privateProperties).defaultVideoResolution.width,
+	              height: babelHelpers.classPrivateFieldGet(this, _privateProperties).defaultVideoResolution.height
+	            };
+	            if (babelHelpers.classPrivateFieldGet(this, _privateProperties).videoDeviceId) {
+	              constraints.video.deviceId = {
+	                exact: babelHelpers.classPrivateFieldGet(this, _privateProperties).videoDeviceId
+	              };
+	            }
+	          } else if (options.audio) {
+	            if (babelHelpers.classPrivateFieldGet(this, _privateProperties).audioDeviceId) {
+	              constraints.audio = {
+	                deviceId: {
+	                  exact: babelHelpers.classPrivateFieldGet(this, _privateProperties).audioDeviceId
+	                }
+	              };
+	            } else {
+	              constraints.audio = true;
+	            }
+	          }
+	          _context26.next = 6;
+	          return navigator.mediaDevices.getUserMedia(constraints);
+	        case 6:
+	          stream = _context26.sent;
+	          _context26.next = 12;
+	          break;
+	        case 9:
+	          _context26.prev = 9;
+	          _context26.t0 = _context26["catch"](2);
+	          console.error(_context26.t0);
+	        case 12:
+	          _context26.prev = 12;
+	          return _context26.abrupt("return", stream);
+	        case 15:
+	        case "end":
+	          return _context26.stop();
+	      }
+	    }, _callee26, this, [[2, 9, 12, 15]]);
+	  }));
+	  return _getUserMedia3.apply(this, arguments);
+	}
+	function _getDisplayMedia2() {
+	  return _getDisplayMedia3.apply(this, arguments);
+	}
+	function _getDisplayMedia3() {
+	  _getDisplayMedia3 = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee27() {
+	    var stream;
+	    return _regeneratorRuntime().wrap(function _callee27$(_context27) {
+	      while (1) switch (_context27.prev = _context27.next) {
+	        case 0:
+	          stream = null;
+	          _context27.prev = 1;
+	          if (!window["BXDesktopSystem"]) {
+	            _context27.next = 8;
+	            break;
+	          }
+	          _context27.next = 5;
+	          return navigator.mediaDevices.getUserMedia({
+	            video: {
+	              mandatory: {
+	                chromeMediaSource: 'screen',
+	                maxWidth: 1920,
+	                maxHeight: 1080,
+	                maxFrameRate: 5
+	              }
+	            }
+	          });
+	        case 5:
+	          stream = _context27.sent;
+	          _context27.next = 11;
+	          break;
+	        case 8:
+	          _context27.next = 10;
+	          return navigator.mediaDevices.getDisplayMedia({
+	            video: {
+	              cursor: 'always'
+	            },
+	            audio: false
+	          });
+	        case 10:
+	          stream = _context27.sent;
+	        case 11:
+	          _context27.prev = 11;
+	          return _context27.abrupt("return", stream);
+	        case 14:
+	        case "end":
+	          return _context27.stop();
+	      }
+	    }, _callee27, null, [[1,, 11, 14]]);
+	  }));
+	  return _getDisplayMedia3.apply(this, arguments);
+	}
+	function _answerHandler2(_x20) {
+	  return _answerHandler3.apply(this, arguments);
+	}
+	function _answerHandler3() {
+	  _answerHandler3 = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee28(data) {
+	    var _this14 = this;
+	    return _regeneratorRuntime().wrap(function _callee28$(_context28) {
+	      while (1) switch (_context28.prev = _context28.next) {
+	        case 0:
+	          _context28.prev = 0;
+	          _context28.next = 3;
+	          return this.sender.setRemoteDescription(data.answer);
+	        case 3:
+	          babelHelpers.classPrivateFieldGet(this, _privateProperties).pendingCandidates.sender.forEach(function (candidate) {
+	            _this14.sender.addIceCandidate(candidate);
+	          });
+	          babelHelpers.classPrivateFieldGet(this, _privateProperties).pendingCandidates.sender = [];
+	        case 5:
+	          _context28.prev = 5;
+	          babelHelpers.classPrivateFieldGet(this, _privateProperties).isWaitAnswer = false;
+	          _context28.next = 9;
+	          return this.sendOffer();
+	        case 9:
+	          return _context28.finish(5);
+	        case 10:
+	        case "end":
+	          return _context28.stop();
+	      }
+	    }, _callee28, this, [[0,, 5, 10]]);
+	  }));
+	  return _answerHandler3.apply(this, arguments);
+	}
+	function _offerHandler2(_x21) {
+	  return _offerHandler3.apply(this, arguments);
+	}
+	function _offerHandler3() {
+	  _offerHandler3 = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee29(data) {
+	    var _this15 = this;
+	    var answer;
+	    return _regeneratorRuntime().wrap(function _callee29$(_context29) {
+	      while (1) switch (_context29.prev = _context29.next) {
+	        case 0:
+	          _context29.next = 2;
+	          return this.recipient.setRemoteDescription(data.offer);
+	        case 2:
+	          babelHelpers.classPrivateFieldGet(this, _privateProperties).pendingCandidates.recipient.forEach(function (candidate) {
+	            _this15.recipient.addIceCandidate(candidate);
+	          });
+	          babelHelpers.classPrivateFieldGet(this, _privateProperties).pendingCandidates.recipient = [];
+	          _context29.next = 6;
+	          return this.recipient.createAnswer();
+	        case 6:
+	          answer = _context29.sent;
+	          _context29.next = 9;
+	          return this.recipient.setLocalDescription(answer);
+	        case 9:
+	          _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	            answer: answer
+	          });
+	        case 10:
+	        case "end":
+	          return _context29.stop();
+	      }
+	    }, _callee29, this);
+	  }));
+	  return _offerHandler3.apply(this, arguments);
+	}
+	function _addIceCandidate2(trickle) {
+	  try {
+	    var candidate = JSON.parse(trickle.candidateInit);
+	    if (trickle.target) {
+	      if (this.recipient.remoteDescription) {
+	        this.recipient.addIceCandidate(candidate);
+	        return;
+	      }
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).pendingCandidates.recipient.push(candidate);
+	    } else {
+	      if (this.sender.remoteDescription) {
+	        this.sender.addIceCandidate(candidate);
+	        return;
+	      }
+	      babelHelpers.classPrivateFieldGet(this, _privateProperties).pendingCandidates.sender.push(candidate);
+	    }
+	  } catch (e) {
+	    this.setLog(e);
+	  }
+	}
+	function _setRemoteParticipant2(participant) {
+	  var _this11 = this;
+	  var userId = participant.userId;
+	  var participantEvent = babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteParticipants[userId] ? 'ParticipantStateUpdated' : 'ParticipantJoined';
+	  var remoteParticipant = new Participant(participant, babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect);
+	  if (participant.participantTracks) {
+	    Object.values(participant.participantTracks).forEach(function (track) {
+	      track.userId = userId;
+	      babelHelpers.classPrivateFieldGet(_this11, _privateProperties).tracksDataFromSocket[track.sid] = track;
+	      if (track.muted && track.source === MediaStreamsKinds.Microphone) {
+	        remoteParticipant.isMutedAudio = true;
+	      }
+	      switch (track.source) {
+	        case MediaStreamsKinds.Camera:
+	          remoteParticipant.videoEnabled = true;
+	          break;
+	        case MediaStreamsKinds.Microphone:
+	          remoteParticipant.audioEnabled = true;
+	          break;
+	        case MediaStreamsKinds.Screen:
+	          remoteParticipant.screenSharingEnabled = true;
+	          break;
+	      }
+	    });
+	  }
+	  babelHelpers.classPrivateFieldGet(this, _privateProperties).remoteParticipants[userId] = remoteParticipant;
+	  this.triggerEvents(participantEvent, [remoteParticipant]);
+	}
+	function _speakerChangedHandler2(data) {
+	  var _this12 = this;
+	  data.speakersChanged.speakers.forEach(function (speaker) {
+	    var participant = Object.values(babelHelpers.classPrivateFieldGet(_this12, _privateProperties).remoteParticipants).find(function (p) {
+	      return p.sid === speaker.sid;
+	    });
+	    if (participant && (participant === null || participant === void 0 ? void 0 : participant.userId) !== babelHelpers.classPrivateFieldGet(_this12, _privateProperties).myUserId) {
+	      participant.isSpeaking = (speaker === null || speaker === void 0 ? void 0 : speaker.active) || false;
+	      if (speaker !== null && speaker !== void 0 && speaker.active) {
+	        _this12.triggerEvents('VoiceStarted', [participant]);
+	      } else {
+	        _this12.triggerEvents('VoiceEnded', [participant]);
+	      }
+	    }
+	  });
+	}
+	function _createPeerConnection2$1() {
+	  var _this13 = this;
+	  _classPrivateMethodGet$1(this, _destroyPeerConnection, _destroyPeerConnection2).call(this);
+	  var config = {};
+	  if (babelHelpers.classPrivateFieldGet(this, _privateProperties).iceServers) {
+	    config.iceServers = babelHelpers.classPrivateFieldGet(this, _privateProperties).iceServers;
+	  }
+	  this.sender = new RTCPeerConnection(config);
+	  this.sender.addEventListener('icecandidate', function (e) {
+	    return _this13.onIceCandidate(null, e);
+	  });
+	  this.sender.addEventListener('connectionstatechange', function (e) {
+	    return _this13.onConnectionStateChange();
+	  });
+	  this.recipient = new RTCPeerConnection(config);
+	  this.recipient.ontrack = function (event) {
+	    var _babelHelpers$classPr13, _babelHelpers$classPr14, _babelHelpers$classPr15, _babelHelpers$classPr16;
+	    var ids = event.streams[0].id.split('|');
+	    var trackId = ids[1];
+	    var userId = (_babelHelpers$classPr13 = babelHelpers.classPrivateFieldGet(_this13, _privateProperties).tracksDataFromSocket[trackId]) === null || _babelHelpers$classPr13 === void 0 ? void 0 : _babelHelpers$classPr13.userId;
+	    event.track.source = (_babelHelpers$classPr14 = babelHelpers.classPrivateFieldGet(_this13, _privateProperties).tracksDataFromSocket[trackId]) === null || _babelHelpers$classPr14 === void 0 ? void 0 : _babelHelpers$classPr14.source;
+	    event.track.layers = ((_babelHelpers$classPr15 = babelHelpers.classPrivateFieldGet(_this13, _privateProperties).tracksDataFromSocket[trackId]) === null || _babelHelpers$classPr15 === void 0 ? void 0 : _babelHelpers$classPr15.layers) || null;
+	    var participant = babelHelpers.classPrivateFieldGet(_this13, _privateProperties).remoteParticipants[userId];
+	    // A track without participant, we should skip it
+	    if (!participant) {
+	      return;
+	    }
+	    if (!((_babelHelpers$classPr16 = babelHelpers.classPrivateFieldGet(_this13, _privateProperties).remoteTracks) !== null && _babelHelpers$classPr16 !== void 0 && _babelHelpers$classPr16[userId])) {
+	      babelHelpers.classPrivateFieldGet(_this13, _privateProperties).remoteTracks[userId] = {};
+	    }
+	    var track = new Track(trackId, event.track);
+	    babelHelpers.classPrivateFieldGet(_this13, _privateProperties).remoteTracks[userId][trackId] = track;
+	    if (track) {
+	      participant.addTrack(event.track.source, track);
+	      _this13.triggerEvents('RemoteMediaAdded', [participant, track]);
+	    }
+	    if (event.track.source === MediaStreamsKinds.Camera) {
+	      var quality = babelHelpers.classPrivateFieldGet(_this13, _privateProperties).hasMainStream ? STREAM_QUALITY.LOW : babelHelpers.classPrivateFieldGet(_this13, _privateProperties).defaultRemoteStreamsQuality;
+	      participant.setStreamQuality(quality);
+	    }
+	  };
+	  this.recipient.addEventListener('icecandidate', function (e) {
+	    return _this13.onIceCandidate('SUBSCRIBER', e);
+	  });
+	  this.recipient.addEventListener('connectionstatechange', function (e) {
+	    return _this13.onConnectionStateChange(true);
+	  });
+	  babelHelpers.classPrivateFieldGet(this, _privateProperties).callStatsInterval = setInterval( /*#__PURE__*/babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
+	    var statsAll;
+	    return _regeneratorRuntime().wrap(function _callee25$(_context25) {
+	      while (1) switch (_context25.prev = _context25.next) {
+	        case 0:
+	          _context25.prev = 0;
+	          statsAll = {};
+	          _context25.next = 4;
+	          return _this13.sender.getStats(null).then(function (stats) {
+	            var statsOutput = [];
+	            stats.forEach(function (report) {
+	              statsOutput.push(report);
+	            });
+	            statsAll.sender = statsOutput;
+	          });
+	        case 4:
+	          _context25.next = 6;
+	          return _this13.recipient.getStats(null).then(function (stats) {
+	            var statsOutput = [];
+	            var participantsWithLargeDataLoss = new Set();
+	            stats.forEach(function (report) {
+	              statsOutput.push(report);
+	              var needCheckPacketLosts = (report === null || report === void 0 ? void 0 : report.trackIdentifier) && (report === null || report === void 0 ? void 0 : report.kind) === 'video' && report.hasOwnProperty('packetsLost') && report.hasOwnProperty('packetsReceived');
+	              if (needCheckPacketLosts) {
+	                var _babelHelpers$classPr17, _babelHelpers$classPr18;
+	                var packetsLost = report.packetsLost,
+	                  trackIdentifier = report.trackIdentifier,
+	                  packetsReceived = report.packetsReceived;
+	                babelHelpers.classPrivateFieldGet(_this13, _privateProperties).prevPacketsLost[trackIdentifier] = ((_babelHelpers$classPr17 = babelHelpers.classPrivateFieldGet(_this13, _privateProperties).prevPacketsLost) === null || _babelHelpers$classPr17 === void 0 ? void 0 : _babelHelpers$classPr17[trackIdentifier]) || 0;
+	                babelHelpers.classPrivateFieldGet(_this13, _privateProperties).prevPacketsReceived[trackIdentifier] = ((_babelHelpers$classPr18 = babelHelpers.classPrivateFieldGet(_this13, _privateProperties).prevPacketsReceived) === null || _babelHelpers$classPr18 === void 0 ? void 0 : _babelHelpers$classPr18[trackIdentifier]) || 0;
+	                var percentPacketLost = (packetsReceived - babelHelpers.classPrivateFieldGet(_this13, _privateProperties).prevPacketsReceived[trackIdentifier]) / 100 * (packetsLost - babelHelpers.classPrivateFieldGet(_this13, _privateProperties).prevPacketsLost[trackIdentifier]);
+	                babelHelpers.classPrivateFieldGet(_this13, _privateProperties).prevPacketsLost[trackIdentifier] = packetsLost;
+	                babelHelpers.classPrivateFieldGet(_this13, _privateProperties).prevPacketsReceived[trackIdentifier] = packetsReceived;
+	                if (percentPacketLost > babelHelpers.classPrivateFieldGet(_this13, _privateProperties).packetLostThreshold) {
+	                  var participant = Object.values(babelHelpers.classPrivateFieldGet(_this13, _privateProperties).remoteParticipants).find(function (p) {
+	                    var _p$tracks, _p$tracks$MediaStream, _p$tracks$MediaStream2;
+	                    return (p === null || p === void 0 ? void 0 : (_p$tracks = p.tracks) === null || _p$tracks === void 0 ? void 0 : (_p$tracks$MediaStream = _p$tracks[MediaStreamsKinds.Camera]) === null || _p$tracks$MediaStream === void 0 ? void 0 : (_p$tracks$MediaStream2 = _p$tracks$MediaStream.track) === null || _p$tracks$MediaStream2 === void 0 ? void 0 : _p$tracks$MediaStream2.id) === (report === null || report === void 0 ? void 0 : report.trackIdentifier);
+	                  });
+	                  if (participant && participant.userId !== babelHelpers.classPrivateFieldGet(_this13, _privateProperties).myUserId) {
+	                    participantsWithLargeDataLoss.add(participant.userId);
+	                    babelHelpers.classPrivateFieldGet(_this13, _privateProperties).prevParticipantsWithLargeDataLoss["delete"](participant.userId);
+	                  }
+	                }
+	              }
+	            });
+	            statsAll.recipient = statsOutput;
+	            if (participantsWithLargeDataLoss.size || babelHelpers.classPrivateFieldGet(_this13, _privateProperties).prevParticipantsWithLargeDataLoss.size) {
+	              _this13.triggerEvents('UpdatePacketLoss', [babelHelpers.toConsumableArray(participantsWithLargeDataLoss)]);
+	            }
+	            babelHelpers.classPrivateFieldGet(_this13, _privateProperties).prevParticipantsWithLargeDataLoss = participantsWithLargeDataLoss;
+	          });
+	        case 6:
+	          _this13.triggerEvents('CallStatsReceived', [statsAll]);
+	          _context25.next = 11;
+	          break;
+	        case 9:
+	          _context25.prev = 9;
+	          _context25.t0 = _context25["catch"](0);
+	        case 11:
+	        case "end":
+	          return _context25.stop();
+	      }
+	    }, _callee25, null, [[0, 9]]);
+	  })), babelHelpers.classPrivateFieldGet(this, _privateProperties).statsTimeout);
+	}
+	function _destroyPeerConnection2() {
+	  if (this.sender) {
+	    this.sender.close();
+	    this.sender = null;
+	  }
+	  if (this.recipient) {
+	    this.recipient.close();
+	    this.recipient = null;
+	  }
+	  babelHelpers.classPrivateFieldGet(this, _privateProperties).peerConnectionFailed = false;
+	}
+	function _releaseStream2(kind) {
+	  var streamType;
+	  switch (kind) {
+	    case MediaStreamsKinds.Camera:
+	      streamType = 'cameraStream';
+	      break;
+	    case MediaStreamsKinds.Microphone:
+	      streamType = 'microphoneStream';
+	      break;
+	    case MediaStreamsKinds.Screen:
+	      streamType = 'screenStream';
+	      break;
+	  }
+	  if (streamType) {
+	    var _babelHelpers$classPr19, _babelHelpers$classPr20, _babelHelpers$classPr21;
+	    (_babelHelpers$classPr19 = babelHelpers.classPrivateFieldGet(this, _privateProperties)[streamType]) === null || _babelHelpers$classPr19 === void 0 ? void 0 : (_babelHelpers$classPr20 = _babelHelpers$classPr19.getTracks) === null || _babelHelpers$classPr20 === void 0 ? void 0 : (_babelHelpers$classPr21 = _babelHelpers$classPr20.call(_babelHelpers$classPr19)) === null || _babelHelpers$classPr21 === void 0 ? void 0 : _babelHelpers$classPr21.forEach(function (track) {
+	      track.onended = null;
+	      track.stop();
+	    });
+	    babelHelpers.classPrivateFieldGet(this, _privateProperties)[streamType] = null;
+	  }
+	}
+	function _getSender2(kind) {
+	  var _this$sender, _this$sender$getSende;
+	  var senders = (_this$sender = this.sender) === null || _this$sender === void 0 ? void 0 : (_this$sender$getSende = _this$sender.getSenders) === null || _this$sender$getSende === void 0 ? void 0 : _this$sender$getSende.call(_this$sender);
+	  var sender = null;
+	  if ((senders === null || senders === void 0 ? void 0 : senders.length) > 0) {
+	    var _iterator = _createForOfIteratorHelper(senders),
+	      _step;
+	    try {
+	      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	        var _s$track;
+	        var s = _step.value;
+	        if (((_s$track = s.track) === null || _s$track === void 0 ? void 0 : _s$track.source) === kind) {
+	          sender = s;
+	          break;
+	        }
+	      }
+	    } catch (err) {
+	      _iterator.e(err);
+	    } finally {
+	      _iterator.f();
+	    }
+	  }
+	  return sender;
+	}
+	function _sendSignal2(signal) {
+	  var _babelHelpers$classPr22;
+	  if (((_babelHelpers$classPr22 = babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect) === null || _babelHelpers$classPr22 === void 0 ? void 0 : _babelHelpers$classPr22.readyState) === 1) {
+	    babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect.send(JSON.stringify(signal));
+	  }
+	}
+	function _sendLeave2() {
+	  var _babelHelpers$classPr23;
+	  if (((_babelHelpers$classPr23 = babelHelpers.classPrivateFieldGet(this, _privateProperties).socketConnect) === null || _babelHelpers$classPr23 === void 0 ? void 0 : _babelHelpers$classPr23.readyState) === 1) {
+	    _classPrivateMethodGet$1(this, _sendSignal, _sendSignal2).call(this, {
+	      leave: {
+	        reason: 'CLIENT_INITIATED'
+	      }
+	    });
+	  }
+	}
+	var _socketConnect = /*#__PURE__*/new WeakMap();
+	var Participant = /*#__PURE__*/function () {
+	  function Participant(participant, socket) {
+	    babelHelpers.classCallCheck(this, Participant);
+	    _classPrivateFieldInitSpec(this, _socketConnect, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.defineProperty(this, "name", '');
+	    babelHelpers.defineProperty(this, "image", '');
+	    babelHelpers.defineProperty(this, "userId", '');
+	    babelHelpers.defineProperty(this, "videoEnabled", false);
+	    babelHelpers.defineProperty(this, "audioEnabled", false);
+	    babelHelpers.defineProperty(this, "screenSharingEnabled", false);
+	    babelHelpers.defineProperty(this, "isSpeaking", false);
+	    babelHelpers.defineProperty(this, "tracks", {});
+	    babelHelpers.defineProperty(this, "sid", '');
+	    babelHelpers.defineProperty(this, "isMutedVideo", false);
+	    babelHelpers.defineProperty(this, "isMutedAudio", false);
+	    babelHelpers.defineProperty(this, "isHandRaised", false);
+	    this.name = (participant === null || participant === void 0 ? void 0 : participant.name) || '';
+	    this.image = (participant === null || participant === void 0 ? void 0 : participant.image) || '';
+	    this.userId = (participant === null || participant === void 0 ? void 0 : participant.userId) || '';
+	    this.sid = (participant === null || participant === void 0 ? void 0 : participant.sid) || '';
+	    this.videoEnabled = (participant === null || participant === void 0 ? void 0 : participant.videoEnabled) || false;
+	    this.audioEnabled = (participant === null || participant === void 0 ? void 0 : participant.audioEnabled) || false;
+	    this.screenSharingEnabled = (participant === null || participant === void 0 ? void 0 : participant.screenSharingEnabled) || false;
+	    this.isSpeaking = (participant === null || participant === void 0 ? void 0 : participant.isSpeaking) || false;
+	    this.isHandRaised = (participant === null || participant === void 0 ? void 0 : participant.isHandRaised) || false;
+	    babelHelpers.classPrivateFieldSet(this, _socketConnect, socket);
+	  }
+	  babelHelpers.createClass(Participant, [{
+	    key: "subscribeTrack",
+	    value: function subscribeTrack(MediaStreamKind) {}
+	  }, {
+	    key: "unsubscribeTrack",
+	    value: function unsubscribeTrack(MediaStreamKind) {}
+	  }, {
+	    key: "attachTrack",
+	    value: function attachTrack(MediaStreamKind) {}
+	  }, {
+	    key: "detachTrack",
+	    value: function detachTrack(MediaStreamKind) {}
+	  }, {
+	    key: "disableAudio",
+	    value: function disableAudio() {
+	      this.tracks[MediaStreamsKinds.Microphone].track.enabled = false;
+	      this.isMutedAudio = true;
+	    }
+	  }, {
+	    key: "enableAudio",
+	    value: function enableAudio() {
+	      this.tracks[MediaStreamsKinds.Microphone].track.enabled = true;
+	      this.isMutedAudio = false;
+	    }
+	  }, {
+	    key: "disableVideo",
+	    value: function disableVideo() {
+	      this.tracks[MediaStreamsKinds.Camera].track.enabled = false;
+	      this.isMutedVideo = true;
+	    }
+	  }, {
+	    key: "enableVideo",
+	    value: function enableVideo() {
+	      this.tracks[MediaStreamsKinds.Camera].track.enabled = true;
+	      this.isMutedVideo = false;
+	    }
+	  }, {
+	    key: "addTrack",
+	    value: function addTrack(MediaStreamKind, Track) {
+	      this.tracks[MediaStreamKind] = Track;
+	    }
+	  }, {
+	    key: "removeTrack",
+	    value: function removeTrack(MediaStreamKind, Track) {
+	      delete this.tracks[MediaStreamKind];
+	    }
+	  }, {
+	    key: "getTrack",
+	    value: function getTrack(MediaStreamKind) {
+	      var _this$tracks;
+	      return (_this$tracks = this.tracks) === null || _this$tracks === void 0 ? void 0 : _this$tracks[MediaStreamKind];
+	    }
+	  }, {
+	    key: "setStreamQuality",
+	    value: function setStreamQuality(quality) {
+	      var _this$tracks2;
+	      if ((_this$tracks2 = this.tracks) !== null && _this$tracks2 !== void 0 && _this$tracks2[MediaStreamsKinds.Camera]) {
+	        var trackId = this.tracks[MediaStreamsKinds.Camera].id;
+	        this.tracks[MediaStreamsKinds.Camera].track.currentVideoQuality = quality;
+	        var signal = {
+	          trackSetting: {
+	            trackSids: [trackId],
+	            quality: quality
+	          }
+	        };
+	        babelHelpers.classPrivateFieldGet(this, _socketConnect).send(JSON.stringify(signal));
+	        console.log('setQuality', signal);
+	      }
+	    }
+	  }]);
+	  return Participant;
+	}();
+
+	var _MediaKinds;
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
+	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
 	/**
 	 * Implements Call interface
@@ -10558,7 +12994,6 @@ this.BX = this.BX || {};
 	  videoPaused: 'Call::videoPaused',
 	  screenState: 'Call::screenState',
 	  recordState: 'Call::recordState',
-	  floorRequest: 'Call::floorRequest',
 	  emotion: 'Call::emotion',
 	  customMessage: 'Call::customMessage',
 	  showUsers: 'Call::showUsers',
@@ -10577,9 +13012,10 @@ this.BX = this.BX || {};
 	  listRoomsResponse: 'Call::listRoomsResponse',
 	  roomUpdated: 'Call::roomUpdated'
 	};
-	var VoximplantCallEvent = {
-	  onCallConference: 'VoximplantCall::onCallConference'
+	var BitrixCallEvent = {
+	  onCallConference: 'BitrixCall::onCallConference'
 	};
+	var MediaKinds = (_MediaKinds = {}, babelHelpers.defineProperty(_MediaKinds, MediaStreamsKinds.Camera, 'video'), babelHelpers.defineProperty(_MediaKinds, MediaStreamsKinds.Microphone, 'audio'), babelHelpers.defineProperty(_MediaKinds, MediaStreamsKinds.Screen, 'sharing'), _MediaKinds);
 	var pingPeriod$1 = 5000;
 	var backendPingPeriod$1 = 25000;
 	var reinvitePeriod$1 = 5500;
@@ -10592,6 +13028,7 @@ this.BX = this.BX || {};
 	var _onCallFailed = /*#__PURE__*/new WeakSet();
 	var _onPeerStateChanged$1 = /*#__PURE__*/new WeakMap();
 	var _onPeerInviteTimeout$1 = /*#__PURE__*/new WeakMap();
+	var _changeRecordState$1 = /*#__PURE__*/new WeakSet();
 	var _onPullEventAnswer$1 = /*#__PURE__*/new WeakMap();
 	var _onPullEventHangup$1 = /*#__PURE__*/new WeakMap();
 	var _onPullEventUsersJoined$1 = /*#__PURE__*/new WeakMap();
@@ -10604,6 +13041,11 @@ this.BX = this.BX || {};
 	var _onPullEventRepeatAnswer$1 = /*#__PURE__*/new WeakMap();
 	var _onLocalMediaRendererAdded = /*#__PURE__*/new WeakMap();
 	var _onBeforeLocalMediaRendererRemoved = /*#__PURE__*/new WeakMap();
+	var _onRemoteMediaAdded = /*#__PURE__*/new WeakMap();
+	var _onRemoteMediaRemoved = /*#__PURE__*/new WeakMap();
+	var _onRemoteMediaMuteToggled = /*#__PURE__*/new WeakMap();
+	var _onParticipantJoined = /*#__PURE__*/new WeakMap();
+	var _onParticipantLeaved = /*#__PURE__*/new WeakMap();
 	var _onMicAccessResult = /*#__PURE__*/new WeakMap();
 	var _onCallReconnecting = /*#__PURE__*/new WeakMap();
 	var _onCallReconnected = /*#__PURE__*/new WeakMap();
@@ -10618,18 +13060,20 @@ this.BX = this.BX || {};
 	var _onJoinRoomOffer = /*#__PURE__*/new WeakMap();
 	var _onRoomUpdated = /*#__PURE__*/new WeakMap();
 	var _onCallMessageReceived = /*#__PURE__*/new WeakMap();
-	var VoximplantCall = /*#__PURE__*/function (_AbstractCall) {
-	  babelHelpers.inherits(VoximplantCall, _AbstractCall);
-	  function VoximplantCall(config) {
+	var _onCallHandRaised = /*#__PURE__*/new WeakMap();
+	var BitrixCall = /*#__PURE__*/function (_AbstractCall) {
+	  babelHelpers.inherits(BitrixCall, _AbstractCall);
+	  function BitrixCall(config) {
 	    var _this;
-	    babelHelpers.classCallCheck(this, VoximplantCall);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(VoximplantCall).call(this, config));
-	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _setEndpointForUser);
-	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _onCallFailed);
-	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _onCallConnected);
-	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _hideLocalVideo);
-	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _showLocalVideo);
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onPeerStateChanged$1, {
+	    babelHelpers.classCallCheck(this, BitrixCall);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BitrixCall).call(this, config));
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _setEndpointForUser);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _changeRecordState$1);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onCallFailed);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onCallConnected);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _hideLocalVideo);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _showLocalVideo);
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onPeerStateChanged$1, {
 	      writable: true,
 	      value: function value(e) {
 	        _this.runCallback(CallEvent.onUserStateChanged, e);
@@ -10643,22 +13087,28 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onPeerInviteTimeout$1, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onPeerInviteTimeout$1, {
 	      writable: true,
 	      value: function value(e) {
 	        if (!_this.ready) {
 	          return;
 	        }
 	        _this.signaling.sendUserInviteTimeout({
-	          userId: _this.users,
+	          // todo: revert after adding new provider to mobile apps
+	          // userId: this.users,
+	          userId: _this.users.filter(function (u) {
+	            return Number.isInteger(u);
+	          }),
 	          failedUserId: e.userId
 	        });
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onPullEventAnswer$1, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onPullEventAnswer$1, {
 	      writable: true,
 	      value: function value(params) {
-	        var senderId = Number(params.senderId);
+	        // todo: revert after adding new provider to mobile apps
+	        // const senderId = Number(params.senderId);
+	        var senderId = params.external ? params.senderId : Number(params.senderId);
 	        if (senderId == _this.userId) {
 	          return _this.__onPullEventAnswerSelf(params);
 	        }
@@ -10674,7 +13124,7 @@ this.BX = this.BX || {};
 	        _this.peers[senderId].setReady(true);
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onPullEventHangup$1, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onPullEventHangup$1, {
 	      writable: true,
 	      value: function value(params) {
 	        var senderId = params.senderId;
@@ -10688,6 +13138,7 @@ this.BX = this.BX || {};
 	        if (!_this.peers[senderId]) {
 	          return;
 	        }
+	        _this.peers[senderId].participant = null;
 	        _this.peers[senderId].setReady(false);
 	        if (params.code == 603) {
 	          _this.peers[senderId].setDeclined(true);
@@ -10700,7 +13151,7 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onPullEventUsersJoined$1, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onPullEventUsersJoined$1, {
 	      writable: true,
 	      value: function value(params) {
 	        _this.log('__onPullEventUsersJoined', params);
@@ -10708,7 +13159,7 @@ this.BX = this.BX || {};
 	        _this.addJoinedUsers(users);
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onPullEventUsersInvited$1, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onPullEventUsersInvited$1, {
 	      writable: true,
 	      value: function value(params) {
 	        _this.log('__onPullEventUsersInvited', params);
@@ -10718,7 +13169,7 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onPullEventUserInviteTimeout$1, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onPullEventUserInviteTimeout$1, {
 	      writable: true,
 	      value: function value(params) {
 	        _this.log('__onPullEventUserInviteTimeout', params);
@@ -10728,7 +13179,7 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onPullEventPing$1, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onPullEventPing$1, {
 	      writable: true,
 	      value: function value(params) {
 	        if (params.callInstanceId == _this.instanceId) {
@@ -10753,7 +13204,7 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onNoPingsReceived, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onNoPingsReceived, {
 	      writable: true,
 	      value: function value() {
 	        if (!_this.ready) {
@@ -10761,7 +13212,7 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onNoSelfPingsReceived, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onNoSelfPingsReceived, {
 	      writable: true,
 	      value: function value() {
 	        _this.runCallback(CallEvent.onLeave, {
@@ -10770,13 +13221,19 @@ this.BX = this.BX || {};
 	        _this.joinedElsewhere = false;
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onPullEventFinish$1, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onPullEventFinish$1, {
 	      writable: true,
 	      value: function value() {
-	        _this.destroy();
+	        // todo: remove condition only after adding new provider to mobile apps
+	        // we can get signal to finish call
+	        // while we still have active user from web
+	        // so let's check them first
+	        if (!_this.isAnyoneParticipating()) {
+	          _this.destroy();
+	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onPullEventRepeatAnswer$1, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onPullEventRepeatAnswer$1, {
 	      writable: true,
 	      value: function value() {
 	        if (_this.ready) {
@@ -10786,48 +13243,273 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onLocalMediaRendererAdded, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onLocalMediaRendererAdded, {
 	      writable: true,
 	      value: function value(e) {
-	        var renderer = e.renderer;
-	        var trackLabel = renderer.stream.getVideoTracks().length > 0 ? renderer.stream.getVideoTracks()[0].label : "";
-	        _this.log("__onLocalMediaRendererAdded", renderer.kind, trackLabel);
-	        if (renderer.kind === "video") {
-	          var tag;
-	          if (trackLabel.match(/^screen|window|tab|web-contents-media-stream/i)) {
-	            tag = "screen";
+	        var trackLabel;
+	        var kind;
+	        switch (e) {
+	          case MediaStreamsKinds.Camera:
+	            _this.BitrixCall.getLocalVideo().then(function (track) {
+	              trackLabel = (track === null || track === void 0 ? void 0 : track.label) || "";
+	              kind = 'video';
+	              _this.screenShared = false;
+	              _this.runCallback(CallEvent.onLocalMediaReceived, {
+	                tag: 'main',
+	                stream: new MediaStream([track])
+	              });
+	            });
+	            break;
+	          case MediaStreamsKinds.Screen:
+	            _this.log("Screen shared");
+	            _this.screenShared = true;
+	            _this.BitrixCall.getLocalScreen().then(function (track) {
+	              trackLabel = (track === null || track === void 0 ? void 0 : track.label) || "";
+	              kind = 'sharing';
+	              _this.screenShared = true;
+	              _this.runCallback(CallEvent.onLocalMediaReceived, {
+	                tag: 'screen',
+	                stream: new MediaStream([track])
+	              });
+	            });
+	            break;
+	          case MediaStreamsKinds.Microphone:
+	            _this.BitrixCall.getLocalAudio().then(function (track) {
+	              babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onMicAccessResult).call(babelHelpers.assertThisInitialized(_this), {
+	                result: true,
+	                stream: new MediaStream([track])
+	              });
+	            });
+	            break;
+	        }
+
+	        // const renderer = e.renderer;
+	        // const trackLabel = renderer.stream.getVideoTracks().length > 0 ? renderer.stream.getVideoTracks()[0].label : "";
+	        _this.log("__onLocalMediaRendererAdded", kind, trackLabel);
+
+	        // if (renderer.kind === "video")
+	        // {
+	        // 	let tag;
+	        // 	if (trackLabel.match(/^screen|window|tab|web-contents-media-stream/i))
+	        // 	{
+	        // 		tag = "screen";
+	        // 	}
+	        // 	else
+	        // 	{
+	        // 		tag = "main";
+	        // 	}
+	        //
+	        // 	this.screenShared = tag === "screen";
+	        //
+	        // 	this.runCallback(CallEvent.onLocalMediaReceived, {
+	        // 		tag: tag,
+	        // 		stream: renderer.stream,
+	        // 	});
+	        // }
+	        // else if (renderer.kind === "sharing")
+	        // {
+	        // 	this.runCallback(CallEvent.onLocalMediaReceived, {
+	        // 		tag: "screen",
+	        // 		stream: renderer.stream,
+	        // 	});
+	        // 	this.screenShared = true;
+	        // }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onBeforeLocalMediaRendererRemoved, {
+	      writable: true,
+	      value: function value(e) {
+	        var kind = MediaKinds[e];
+	        if (!kind) {
+	          _this.log("Wrong kind for mediaRenderer: ".concat(e));
+	          return;
+	        }
+	        if (!_this.BitrixCall) {
+	          return;
+	        }
+	        _this.log("__onBeforeLocalMediaRendererRemoved", kind);
+	        switch (e) {
+	          case MediaStreamsKinds.Camera:
+	            _this.BitrixCall.disableVideo();
+	            break;
+	          case MediaStreamsKinds.Microphone:
+	            _this.BitrixCall.disableAudio();
+	            break;
+	          case MediaStreamsKinds.Screen:
+	            _this.BitrixCall.stopScreenShare();
+	            _this.log("Screen is no longer shared");
+	            _this.screenShared = false;
+	            break;
+	        }
+	        if (e === MediaStreamsKinds.Screen) {
+	          if (_this.videoEnabled) {
+	            _this.BitrixCall.getLocalVideo().then(function (track) {
+	              _this.runCallback(CallEvent.onLocalMediaReceived, {
+	                tag: 'main',
+	                stream: new MediaStream([track])
+	              });
+	            });
 	          } else {
-	            tag = "main";
+	            _this.runCallback(CallEvent.onLocalMediaReceived, {
+	              tag: 'main',
+	              stream: new MediaStream()
+	            });
 	          }
-	          _this.screenShared = tag === "screen";
-	          _this.runCallback(CallEvent.onLocalMediaReceived, {
-	            tag: tag,
-	            stream: renderer.stream
-	          });
-	        } else if (renderer.kind === "sharing") {
-	          _this.runCallback(CallEvent.onLocalMediaReceived, {
-	            tag: "screen",
-	            stream: renderer.stream
-	          });
-	          _this.screenShared = true;
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onBeforeLocalMediaRendererRemoved, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onRemoteMediaAdded, {
 	      writable: true,
-	      value: function value(e) {
-	        var renderer = e.renderer;
-	        _this.log("__onBeforeLocalMediaRendererRemoved", renderer.kind);
-	        if (renderer.kind === "sharing" && !_this.videoEnabled) {
-	          _this.runCallback(CallEvent.onLocalMediaReceived, {
-	            tag: "main",
-	            stream: new MediaStream()
-	          });
-	          _this.screenShared = false;
+	      value: function value(p, t) {
+	        var kind = MediaKinds[t.source];
+	        if (!kind) {
+	          _this.log("Wrong kind for mediaRenderer: ".concat(t.source));
+	          return;
+	        }
+	        var e = {
+	          mediaRenderer: new MediaRenderer({
+	            kind: kind,
+	            track: t.track
+	          })
+	        };
+	        var peer = _this.peers[p.userId];
+	        if (peer) {
+	          peer.addMediaRenderer(e.mediaRenderer);
+	        }
+	        switch (t.source) {
+	          case MediaStreamsKinds.Camera:
+	            _this.runCallback(CallEvent.onUserCameraState, {
+	              userId: p.userId,
+	              cameraState: true
+	            });
+	            break;
+	          case MediaStreamsKinds.Microphone:
+	            _this.runCallback(CallEvent.onUserMicrophoneState, {
+	              userId: p.userId,
+	              microphoneState: !p.isMutedAudio
+	            });
+	            break;
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onMicAccessResult, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onRemoteMediaRemoved, {
+	      writable: true,
+	      value: function value(p, t) {
+	        var kind = MediaKinds[t.source];
+	        if (!kind) {
+	          _this.log("Wrong kind for mediaRenderer: ".concat(t.source));
+	          return;
+	        }
+	        var e = {
+	          mediaRenderer: new MediaRenderer({
+	            kind: kind,
+	            track: t.track
+	          })
+	        };
+	        var peer = _this.peers[p.userId];
+	        if (peer) {
+	          peer.removeMediaRenderer(e.mediaRenderer);
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onRemoteMediaMuteToggled, {
+	      writable: true,
+	      value: function value(p, t) {
+	        if (t.source === MediaStreamsKinds.Microphone) {
+	          _this.runCallback(CallEvent.onUserMicrophoneState, {
+	            userId: p.userId,
+	            microphoneState: !p.isMutedAudio
+	          });
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onParticipantJoined, {
+	      writable: true,
+	      value: function value(p) {
+	        var peer = _this.peers[p.userId];
+	        if (peer) {
+	          if (!p.audioEnabled || p.isMutedAudio) {
+	            _this.runCallback(CallEvent.onUserMicrophoneState, {
+	              userId: p.userId,
+	              microphoneState: false
+	            });
+	          }
+	          if (!p.videoEnabled) {
+	            _this.runCallback(CallEvent.onUserCameraState, {
+	              userId: p.userId,
+	              cameraState: false
+	            });
+	          }
+	          if (p.isHandRaised) {
+	            _this.runCallback(CallEvent.onUserFloorRequest, {
+	              userId: p.userId,
+	              requestActive: p.isHandRaised
+	            });
+	          }
+	          peer.participant = p;
+	          peer.updateCalculatedState();
+
+	          // for now sending of record state handled by Voximplant server
+	          // so let's send a new signal from the user who started the current record
+	          if (_this.recordState.state !== View.RecordState.Stopped && _this.recordState.userId === _this.userId) {
+	            _this.signaling.sendRecordState(_this.userId, _this.recordState);
+	          }
+	        } else {
+	          // todo: remove block completely after adding new provider to mobile apps
+	          // it's external user from web version
+	          // so let's temporary treat them as a usual user
+
+	          // let's add new user to the list
+	          _this.users.push(p.userId);
+
+	          // let's create a new peer for user
+	          var _peer = _this.createPeer(p.userId);
+	          _peer.participant = p;
+	          _this.peers[p.userId] = _peer;
+
+	          // let's add new user to the call view
+	          _this.runCallback('onUserFromWeb', p);
+	          if (!p.audioEnabled || p.isMutedAudio) {
+	            _this.runCallback(CallEvent.onUserMicrophoneState, {
+	              userId: p.userId,
+	              microphoneState: false
+	            });
+	          }
+	          if (!p.videoEnabled) {
+	            _this.runCallback(CallEvent.onUserCameraState, {
+	              userId: p.userId,
+	              cameraState: false
+	            });
+	          }
+
+	          // let's emulate user answer
+	          if (!_peer.ready) {
+	            babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onPullEventAnswer$1).call(babelHelpers.assertThisInitialized(_this), {
+	              senderId: p.userId,
+	              external: true
+	            });
+	          }
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onParticipantLeaved, {
+	      writable: true,
+	      value: function value(p) {
+	        var peer = _this.peers[p.userId];
+	        if (peer) {
+	          // temporary solution for external web users
+	          // todo: remove after adding new provider to mobile apps
+	          if (peer.ready) {
+	            babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onPullEventHangup$1).call(babelHelpers.assertThisInitialized(_this), {
+	              senderId: p.userId
+	            });
+	          }
+	          peer.participant = null;
+	          peer.updateCalculatedState();
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onMicAccessResult, {
 	      writable: true,
 	      value: function value(e) {
 	        if (e.result) {
@@ -10842,12 +13524,16 @@ this.BX = this.BX || {};
 	                  userId: _this.userId,
 	                  local: true
 	                });
+	                if (!_this.muted) {
+	                  _this.signaling.sendVoiceStarted();
+	                }
 	              },
 	              onVoiceStopped: function onVoiceStopped() {
 	                _this.runCallback(CallEvent.onUserVoiceStopped, {
 	                  userId: _this.userId,
 	                  local: true
 	                });
+	                _this.signaling.sendVoiceStopped();
 	              }
 	            });
 	            clearInterval(_this.microphoneLevelInterval);
@@ -10858,31 +13544,46 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onCallReconnecting, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onCallReconnecting, {
 	      writable: true,
 	      value: function value() {
 	        _this.reconnectionEventCount++;
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onCallReconnected, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onCallReconnected, {
 	      writable: true,
 	      value: function value() {
 	        _this.reconnectionEventCount--;
+	        _this.log("Call reconnected");
+	        _this.sendTelemetryEvent("reconnect");
+	        _this.localUserState = UserState.Connected;
+	        if (!_this.muted) {
+	          _this.BitrixCall.enableAudio();
+	        }
+	        if (_this.videoEnabled) {
+	          _this.BitrixCall.enableVideo();
+	        }
+	        _this.signaling.sendCameraState(_this.videoEnabled);
+	        if (_this.videoAllowedFrom == UserMnemonic.none) {
+	          _this.signaling.sendHideAll();
+	        } else if (main_core.Type.isArray(_this.videoAllowedFrom)) {
+	          _this.signaling.sendShowUsers(_this.videoAllowedFrom);
+	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onClientReconnecting, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onClientReconnecting, {
 	      writable: true,
 	      value: function value() {
 	        _this.reconnectionEventCount++;
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onClientReconnected, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onClientReconnected, {
 	      writable: true,
 	      value: function value() {
 	        _this.reconnectionEventCount--;
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onCallDisconnected, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onCallDisconnected, {
 	      writable: true,
 	      value: function value(e) {
 	        _this.log("__onCallDisconnected", e && e.headers ? {
@@ -10894,29 +13595,35 @@ this.BX = this.BX || {};
 	        _this.muted = false;
 	        _this.joinedAsViewer = false;
 	        _this.reinitPeers();
-	        _classPrivateMethodGet$1(babelHelpers.assertThisInitialized(_this), _hideLocalVideo, _hideLocalVideo2).call(babelHelpers.assertThisInitialized(_this));
+	        _classPrivateMethodGet$2(babelHelpers.assertThisInitialized(_this), _hideLocalVideo, _hideLocalVideo2).call(babelHelpers.assertThisInitialized(_this));
 	        _this.removeCallEvents();
-	        _this.voximplantCall = null;
-	        var client = VoxImplant.getInstance();
-	        client.enableSilentLogging(false);
-	        client.setLoggerCallback(null);
+	        _this.BitrixCall = null;
+
+	        // const client = VoxImplant.getInstance();
+	        // client.enableSilentLogging(false);
+	        // client.setLoggerCallback(null);
+
 	        _this.state = CallState.Proceeding;
 	        _this.runCallback(CallEvent.onLeave, {
 	          local: true
 	        });
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onWindowUnload, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onWindowUnload, {
 	      writable: true,
 	      value: function value() {
-	        if (_this.ready && _this.voximplantCall) {
+	        if (_this.ready && _this.BitrixCall) {
 	          _this.signaling.sendHangup({
-	            userId: _this.users
+	            // todo: revert after adding new provider to mobile apps
+	            // userId: this.users
+	            userId: _this.users.filter(function (u) {
+	              return Number.isInteger(u);
+	            })
 	          });
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onFatalError, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onFatalError, {
 	      writable: true,
 	      value: function value(error) {
 	        if (error && error.call) {
@@ -10927,25 +13634,29 @@ this.BX = this.BX || {};
 	        _this.muted = false;
 	        _this.localUserState = UserState.Failed;
 	        _this.reinitPeers();
-	        _classPrivateMethodGet$1(babelHelpers.assertThisInitialized(_this), _hideLocalVideo, _hideLocalVideo2).call(babelHelpers.assertThisInitialized(_this)).then(function () {
-	          if (_this.voximplantCall) {
+	        _classPrivateMethodGet$2(babelHelpers.assertThisInitialized(_this), _hideLocalVideo, _hideLocalVideo2).call(babelHelpers.assertThisInitialized(_this)).then(function () {
+	          if (_this.BitrixCall) {
 	            _this.removeCallEvents();
 	            try {
-	              _this.voximplantCall.hangup({
+	              _this.BitrixCall.hangup({
 	                'X-Reason': 'Fatal error',
 	                'X-Error': typeof error === 'string' ? error : error.code || error.name
 	              });
 	            } catch (e) {
-	              _this.log("Voximplant hangup error: ", e);
-	              console.error("Voximplant hangup error: ", e);
+	              _this.log("Bitrix hangup error: ", e);
+	              console.error("Bitrix hangup error: ", e);
 	            }
-	            _this.voximplantCall = null;
+	            _this.BitrixCall = null;
 	          }
-	          if (typeof VoxImplant !== 'undefined') {
-	            var client = VoxImplant.getInstance();
-	            client.enableSilentLogging(false);
-	            client.setLoggerCallback(null);
-	          }
+
+	          // if (typeof (VoxImplant) !== 'undefined')
+	          // {
+	          // 	const client = VoxImplant.getInstance();
+	          //
+	          // 	client.enableSilentLogging(false);
+	          // 	client.setLoggerCallback(null);
+	          // }
+
 	          if (typeof error === "string") {
 	            _this.runCallback(CallEvent.onCallFailure, {
 	              name: error
@@ -10956,7 +13667,7 @@ this.BX = this.BX || {};
 	        });
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onCallEndpointAdded, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onCallEndpointAdded, {
 	      writable: true,
 	      value: function value(e) {
 	        var endpoint = e.endpoint;
@@ -10964,30 +13675,34 @@ this.BX = this.BX || {};
 	        _this.log("__onCallEndpointAdded (" + userName + ")", e.endpoint);
 	        console.log("__onCallEndpointAdded (" + userName + ")", e.endpoint);
 	        if (main_core.Type.isStringFilled(userName) && userName.startsWith('user')) {
-	          _classPrivateMethodGet$1(babelHelpers.assertThisInitialized(_this), _setEndpointForUser, _setEndpointForUser2).call(babelHelpers.assertThisInitialized(_this), userName, endpoint);
+	          _classPrivateMethodGet$2(babelHelpers.assertThisInitialized(_this), _setEndpointForUser, _setEndpointForUser2).call(babelHelpers.assertThisInitialized(_this), userName, endpoint);
 	        } else {
-	          endpoint.addEventListener(VoxImplant.EndpointEvents.InfoUpdated, function (e) {
-	            var endpoint = e.endpoint;
-	            var userName = endpoint.userName;
-	            _this.log("VoxImplant.EndpointEvents.InfoUpdated (" + userName + ")", e.endpoint);
-	            if (main_core.Type.isStringFilled(userName) && userName.startsWith('user')) {
-	              _classPrivateMethodGet$1(babelHelpers.assertThisInitialized(_this), _setEndpointForUser, _setEndpointForUser2).call(babelHelpers.assertThisInitialized(_this), userName, endpoint);
-	            }
-	          });
+	          // endpoint.addEventListener(VoxImplant.EndpointEvents.InfoUpdated, (e) =>
+	          // {
+	          // 	const endpoint = e.endpoint;
+	          // 	const userName = endpoint.userName;
+	          // 	this.log("VoxImplant.EndpointEvents.InfoUpdated (" + userName + ")", e.endpoint);
+	          //
+	          // 	if (Type.isStringFilled(userName) && userName.startsWith('user'))
+	          // 	{
+	          // 		this.#setEndpointForUser(userName, endpoint)
+	          // 	}
+	          // });
+
 	          _this.log('Unknown endpoint ' + userName);
 	          console.warn('Unknown endpoint ' + userName);
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onCallStatsReceived, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onCallStatsReceived, {
 	      writable: true,
 	      value: function value(e) {
 	        if (_this.logger) {
-	          _this.logger.sendStat(transformVoxStats(e.stats, _this.voximplantCall));
+	          _this.logger.sendStat(transformVoxStats(e.stats, _this.BitrixCall));
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onJoinRoomOffer, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onJoinRoomOffer, {
 	      writable: true,
 	      value: function value(e) {
 	        console.warn("__onJoinRoomOffer", e);
@@ -11004,7 +13719,7 @@ this.BX = this.BX || {};
 	        });
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onRoomUpdated, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onRoomUpdated, {
 	      writable: true,
 	      value: function value(e) {
 	        var speakerChanged = e.roomId === _this._currentRoomId && _this.rooms[e.roomId] && _this.rooms[e.roomId].speaker != e.speaker;
@@ -11037,7 +13752,7 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _onCallMessageReceived, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onCallMessageReceived, {
 	      writable: true,
 	      value: function value(e) {
 	        var message;
@@ -11059,11 +13774,6 @@ this.BX = this.BX || {};
 	          _this.runCallback(CallEvent.onUserVoiceStopped, {
 	            userId: message.senderId
 	          });
-	        } else if (eventName === clientEvents.microphoneState) {
-	          _this.runCallback(CallEvent.onUserMicrophoneState, {
-	            userId: message.senderId,
-	            microphoneState: message.microphoneState === "Y"
-	          });
 	        } else if (eventName === clientEvents.cameraState) {
 	          _this.runCallback(CallEvent.onUserCameraState, {
 	            userId: message.senderId,
@@ -11083,11 +13793,6 @@ this.BX = this.BX || {};
 	          _this.runCallback(CallEvent.onUserRecordState, {
 	            userId: message.senderId,
 	            recordState: message.recordState
-	          });
-	        } else if (eventName === clientEvents.floorRequest) {
-	          _this.runCallback(CallEvent.onUserFloorRequest, {
-	            userId: message.senderId,
-	            requestActive: message.requestActive === "Y"
 	          });
 	        } else if (eventName === clientEvents.emotion) {
 	          _this.runCallback(CallEvent.onUserEmotion, {
@@ -11130,9 +13835,18 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onCallHandRaised, {
+	      writable: true,
+	      value: function value(p) {
+	        _this.runCallback(CallEvent.onUserFloorRequest, {
+	          userId: p.userId,
+	          requestActive: p.isHandRaised
+	        });
+	      }
+	    });
 	    _this.videoQuality = Quality.VeryHigh; // initial video quality. will drop on new peers connecting
 
-	    _this.voximplantCall = null;
+	    _this.BitrixCall = null;
 	    _this.signaling = new Signaling$1({
 	      call: babelHelpers.assertThisInitialized(_this)
 	    });
@@ -11145,6 +13859,14 @@ this.BX = this.BX || {};
 	    _this._screenShared = false;
 	    _this.videoAllowedFrom = UserMnemonic.all;
 	    _this.direction = EndpointDirection.SendRecv;
+	    _this.recordState = {
+	      state: View.RecordState.Stopped,
+	      userId: 0,
+	      date: {
+	        start: null,
+	        pause: []
+	      }
+	    };
 	    _this.microphoneLevelInterval = null;
 	    _this.rooms = {};
 	    window.addEventListener("unload", babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onWindowUnload));
@@ -11170,13 +13892,16 @@ this.BX = this.BX || {};
 	    };
 	    return _this;
 	  }
-	  babelHelpers.createClass(VoximplantCall, [{
+	  babelHelpers.createClass(BitrixCall, [{
 	    key: "initPeers",
 	    value: function initPeers() {
 	      var _this2 = this;
 	      this.users.forEach(function (userId) {
 	        userId = Number(userId);
-	        _this2.peers[userId] = _this2.createPeer(userId);
+	        // todo: remove condition only after adding new provider to mobile apps
+	        if (userId) {
+	          _this2.peers[userId] = _this2.createPeer(userId);
+	        }
 	      });
 	    }
 	  }, {
@@ -11186,6 +13911,10 @@ this.BX = this.BX || {};
 	        if (this.peers.hasOwnProperty(userId) && this.peers[userId]) {
 	          this.peers[userId].destroy();
 	          this.peers[userId] = null;
+	          // todo: delete after adding new provider to mobile apps
+	          if (!Number(userId)) {
+	            delete this.peers[userId];
+	          }
 	        }
 	      }
 	      this.initPeers();
@@ -11194,7 +13923,11 @@ this.BX = this.BX || {};
 	    key: "pingUsers",
 	    value: function pingUsers() {
 	      if (this.ready) {
-	        var users = this.users.concat(this.userId);
+	        // todo: revert after adding new provider to mobile apps
+	        // const users = this.users.concat(this.userId);
+	        var users = this.users.filter(function (u) {
+	          return Number.isInteger(u);
+	        }).concat(this.userId);
 	        this.signaling.sendPingToUsers({
 	          userId: users
 	        }, true);
@@ -11274,6 +14007,2392 @@ this.BX = this.BX || {};
 	    key: "getClient",
 	    value: function getClient() {
 	      var _this4 = this;
+	      return new Promise(function (resolve) {
+	        resolve(_this4);
+	      });
+	      return new Promise(function (resolve, reject) {
+	        BX.Voximplant.getClient({
+	          restClient: CallEngine.getRestClient()
+	        }).then(function (client) {
+	          client.enableSilentLogging();
+	          client.setLoggerCallback(function (e) {
+	            return _this4.log(e.label + ": " + e.message);
+	          });
+	          _this4.log("User agent: " + navigator.userAgent);
+	          _this4.log("Voximplant SDK version: " + VoxImplant.version);
+	          _this4.bindClientEvents();
+	          resolve(client);
+	        })["catch"](reject);
+	      });
+	    }
+	  }, {
+	    key: "bindClientEvents",
+	    value: function bindClientEvents() {
+	      return;
+	      var streamManager = VoxImplant.Hardware.StreamManager.get();
+	      if (!this.clientEventsBound) {
+	        VoxImplant.getInstance().on(VoxImplant.Events.MicAccessResult, babelHelpers.classPrivateFieldGet(this, _onMicAccessResult));
+	        if (VoxImplant.Events.Reconnecting) {
+	          VoxImplant.getInstance().on(VoxImplant.Events.Reconnecting, babelHelpers.classPrivateFieldGet(this, _onClientReconnecting));
+	          VoxImplant.getInstance().on(VoxImplant.Events.Reconnected, babelHelpers.classPrivateFieldGet(this, _onClientReconnected));
+	        }
+
+	        // streamManager.on(VoxImplant.Hardware.HardwareEvents.DevicesUpdated, this.#onLocalDevicesUpdated);
+	        streamManager.on(VoxImplant.Hardware.HardwareEvents.MediaRendererAdded, babelHelpers.classPrivateFieldGet(this, _onLocalMediaRendererAdded));
+	        streamManager.on(VoxImplant.Hardware.HardwareEvents.MediaRendererUpdated, babelHelpers.classPrivateFieldGet(this, _onLocalMediaRendererAdded));
+	        streamManager.on(VoxImplant.Hardware.HardwareEvents.BeforeMediaRendererRemoved, babelHelpers.classPrivateFieldGet(this, _onBeforeLocalMediaRendererRemoved));
+	        this.clientEventsBound = true;
+	      }
+	    }
+	  }, {
+	    key: "removeClientEvents",
+	    value: function removeClientEvents() {
+	      return;
+	      if (!('VoxImplant' in window)) {
+	        return;
+	      }
+	      VoxImplant.getInstance().off(VoxImplant.Events.MicAccessResult, babelHelpers.classPrivateFieldGet(this, _onMicAccessResult));
+	      if (VoxImplant.Events.Reconnecting) {
+	        VoxImplant.getInstance().off(VoxImplant.Events.Reconnecting, babelHelpers.classPrivateFieldGet(this, _onClientReconnecting));
+	        VoxImplant.getInstance().off(VoxImplant.Events.Reconnected, babelHelpers.classPrivateFieldGet(this, _onClientReconnected));
+	      }
+	      var streamManager = VoxImplant.Hardware.StreamManager.get();
+	      // streamManager.off(VoxImplant.Hardware.HardwareEvents.DevicesUpdated, this.#onLocalDevicesUpdated);
+	      streamManager.off(VoxImplant.Hardware.HardwareEvents.MediaRendererAdded, babelHelpers.classPrivateFieldGet(this, _onLocalMediaRendererAdded));
+	      streamManager.off(VoxImplant.Hardware.HardwareEvents.BeforeMediaRendererRemoved, babelHelpers.classPrivateFieldGet(this, _onBeforeLocalMediaRendererRemoved));
+	      this.clientEventsBound = false;
+	    }
+	  }, {
+	    key: "setMuted",
+	    value: function setMuted(muted) {
+	      if (this.muted == muted) {
+	        return;
+	      }
+	      this.muted = muted;
+	      if (this.BitrixCall) {
+	        if (this.muted) {
+	          this.BitrixCall.disableAudio();
+	        } else {
+	          this.BitrixCall.enableAudio();
+	        }
+	      }
+	    }
+	  }, {
+	    key: "isMuted",
+	    value: function isMuted() {
+	      return this.muted;
+	    }
+	  }, {
+	    key: "setVideoEnabled",
+	    value: function setVideoEnabled(videoEnabled) {
+	      videoEnabled = videoEnabled === true;
+	      if (this.videoEnabled == videoEnabled) {
+	        return;
+	      }
+	      this.videoEnabled = videoEnabled;
+	      if (this.BitrixCall) {
+	        if (videoEnabled) {
+	          _classPrivateMethodGet$2(this, _showLocalVideo, _showLocalVideo2).call(this);
+	          this.BitrixCall.enableVideo();
+	        } else {
+	          if (this.localVideoShown) {
+	            // VoxImplant.Hardware.StreamManager.get().hideLocalVideo().then(() =>
+	            // {
+	            this.localVideoShown = false;
+	            this.BitrixCall.disableVideo();
+	            this.runCallback(CallEvent.onLocalMediaReceived, {
+	              tag: "main",
+	              stream: new MediaStream()
+	            });
+	            // });
+	          }
+	        }
+
+	        this.signaling.sendCameraState(this.videoEnabled);
+	      }
+	    }
+	  }, {
+	    key: "setCameraId",
+	    value: function setCameraId(cameraId) {
+	      var _this5 = this;
+	      if (this.cameraId == cameraId) {
+	        return;
+	      }
+	      this.cameraId = cameraId;
+	      if (this.BitrixCall) {
+	        this.BitrixCall.switchActiveVideoDevice(this.cameraId).then(function () {
+	          _this5.BitrixCall.getLocalVideo().then(function (track) {
+	            _this5.runCallback(CallEvent.onLocalMediaReceived, {
+	              tag: 'main',
+	              stream: new MediaStream([track])
+	            });
+	          });
+	        })["catch"](function (e) {
+	          _this5.setLog(e);
+	          console.error(e);
+	        });
+	      }
+	    }
+	  }, {
+	    key: "setMicrophoneId",
+	    value: function setMicrophoneId(microphoneId) {
+	      var _this6 = this;
+	      if (this.microphoneId == microphoneId) {
+	        return;
+	      }
+	      this.microphoneId = microphoneId;
+	      if (this.BitrixCall) {
+	        this.runCallback(CallEvent.onUserVoiceStopped, {
+	          userId: this.userId,
+	          local: true
+	        });
+	        this.signaling.sendVoiceStopped();
+	        this.BitrixCall.switchActiveAudioDevice(this.microphoneId).then(function () {
+	          _this6.BitrixCall.getLocalAudio().then(function (track) {
+	            babelHelpers.classPrivateFieldGet(_this6, _onMicAccessResult).call(_this6, {
+	              result: true,
+	              stream: new MediaStream([track])
+	            });
+	          });
+	        })["catch"](function (e) {
+	          _this6.setLog(e);
+	          console.error(e);
+	        });
+	      }
+	    }
+	  }, {
+	    key: "getCurrentMicrophoneId",
+	    value: function getCurrentMicrophoneId() {
+	      // if (this.BitrixCall.peerConnection.impl.getTransceivers)
+	      // {
+	      // 	const transceivers = this.BitrixCall.peerConnection.impl.getTransceivers();
+	      // 	if (transceivers.length > 0)
+	      // 	{
+	      // 		const audioTrack = transceivers[0].sender.track;
+	      // 		const audioTrackSettings = audioTrack.getSettings();
+	      // 		return audioTrackSettings.deviceId;
+	      // 	}
+	      // }
+	      return this.microphoneId;
+	    }
+	  }, {
+	    key: "constructCameraParams",
+	    value: function constructCameraParams() {
+	      var result = {};
+	      return result;
+	      if (this.cameraId) {
+	        result.cameraId = this.cameraId;
+	      }
+	      result.videoQuality = this.videoHd ? VoxImplant.Hardware.VideoQuality.VIDEO_SIZE_HD : VoxImplant.Hardware.VideoQuality.VIDEO_SIZE_nHD;
+	      result.facingMode = true;
+	      return result;
+	    }
+	  }, {
+	    key: "useHdVideo",
+	    value: function useHdVideo(flag) {
+	      this.videoHd = flag === true;
+	    }
+	  }, {
+	    key: "setMainStream",
+	    value: function setMainStream(userId) {
+	      if (userId) {
+	        var _this$peers$userId;
+	        var participant = (_this$peers$userId = this.peers[userId]) === null || _this$peers$userId === void 0 ? void 0 : _this$peers$userId.participant;
+	        var kind = participant !== null && participant !== void 0 && participant.screenSharingEnabled ? MediaStreamsKinds.Screen : MediaStreamsKinds.Camera;
+	        this.BitrixCall.setMainStream(userId, kind);
+	      } else {
+	        this.BitrixCall.resetMainStream();
+	      }
+	    }
+	  }, {
+	    key: "requestFloor",
+	    value: function requestFloor(requestActive) {
+	      this.BitrixCall.raiseHand(requestActive);
+	    }
+	  }, {
+	    key: "sendRecordState",
+	    value: function sendRecordState(recordState) {
+	      recordState.senderId = this.userId;
+	      if (!_classPrivateMethodGet$2(this, _changeRecordState$1, _changeRecordState2$1).call(this, recordState)) {
+	        return;
+	      }
+	      this.runCallback(CallEvent.onUserRecordState, {
+	        userId: this.userId,
+	        recordState: this.recordState
+	      });
+	      this.signaling.sendRecordState(this.userId, this.recordState);
+	    }
+	  }, {
+	    key: "sendEmotion",
+	    value: function sendEmotion(toUserId, emotion) {
+	      this.signaling.sendEmotion(toUserId, emotion);
+	    }
+	  }, {
+	    key: "sendCustomMessage",
+	    value: function sendCustomMessage(message, repeatOnConnect) {
+	      this.signaling.sendCustomMessage(message, repeatOnConnect);
+	    }
+	  }, {
+	    key: "allowVideoFrom",
+	    /**
+	     * Updates list of users,
+	     */
+	    value: function allowVideoFrom(userList) {
+	      if (this.videoAllowedFrom == userList) {
+	        return;
+	      }
+	      this.videoAllowedFrom = userList;
+	      if (userList === UserMnemonic.all) {
+	        this.signaling.sendShowAll();
+	        userList = Object.keys(this.peers);
+	      } else if (userList === UserMnemonic.none) {
+	        this.signaling.sendHideAll();
+	        userList = [];
+	      } else if (main_core.Type.isArray(userList)) {
+	        this.signaling.sendShowUsers(userList);
+	      } else {
+	        throw new Error("userList is in wrong format");
+	      }
+	      var users = {};
+	      userList.forEach(function (userId) {
+	        return users[userId] = true;
+	      });
+	      for (var userId in this.peers) {
+	        if (!this.peers.hasOwnProperty(userId)) {
+	          continue;
+	        }
+	        if (users[userId]) {
+	          this.peers[userId].allowIncomingVideo(true);
+	        } else {
+	          this.peers[userId].allowIncomingVideo(false);
+	        }
+	      }
+	    }
+	  }, {
+	    key: "startScreenSharing",
+	    value: function startScreenSharing() {
+	      if (!this.BitrixCall) {
+	        return;
+	      }
+	      var showLocalView = !this.videoEnabled;
+	      var replaceTrack = this.videoEnabled || this.screenShared;
+	      this.BitrixCall.startScreenShare();
+	    }
+	  }, {
+	    key: "stopScreenSharing",
+	    value: function stopScreenSharing() {
+	      babelHelpers.classPrivateFieldGet(this, _onBeforeLocalMediaRendererRemoved).call(this, MediaStreamsKinds.Screen);
+	    }
+	  }, {
+	    key: "isScreenSharingStarted",
+	    value: function isScreenSharingStarted() {
+	      return this.screenShared;
+	    }
+	  }, {
+	    key: "inviteUsers",
+	    /**
+	     * Invites users to participate in the call.
+	     */
+	    value: function inviteUsers() {
+	      var _this7 = this;
+	      var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      this.ready = true;
+	      var users = main_core.Type.isArray(config.users) ? config.users : this.users;
+	      this.attachToConference().then(function () {
+	        _this7.signaling.sendPingToUsers({
+	          userId: users
+	        });
+	        if (users.length > 0) {
+	          return _this7.signaling.inviteUsers({
+	            userIds: users,
+	            video: _this7.videoEnabled ? 'Y' : 'N'
+	          });
+	        }
+	      }).then(function () {
+	        _this7.state = CallState.Connected;
+	        _this7.runCallback(CallEvent.onJoin, {
+	          local: true
+	        });
+	        for (var i = 0; i < users.length; i++) {
+	          var userId = parseInt(users[i]);
+	          if (!_this7.users.includes(userId)) {
+	            _this7.users.push(userId);
+	          }
+	          if (!_this7.peers[userId]) {
+	            _this7.peers[userId] = _this7.createPeer(userId);
+	            if (_this7.type === CallType.Instant) {
+	              _this7.runCallback(CallEvent.onUserInvited, {
+	                userId: userId
+	              });
+	            }
+	          }
+	          if (_this7.type === CallType.Instant) {
+	            _this7.peers[userId].onInvited();
+	            _this7.scheduleRepeatInvite();
+	          }
+	        }
+	      })["catch"](function (e) {
+	        babelHelpers.classPrivateFieldGet(_this7, _onFatalError).call(_this7, e);
+	      });
+	    }
+	  }, {
+	    key: "scheduleRepeatInvite",
+	    value: function scheduleRepeatInvite() {
+	      var _this8 = this;
+	      clearTimeout(this.reinviteTimeout);
+	      this.reinviteTimeout = setTimeout(function () {
+	        return _this8.repeatInviteUsers();
+	      }, reinvitePeriod$1);
+	    }
+	  }, {
+	    key: "repeatInviteUsers",
+	    value: function repeatInviteUsers() {
+	      var _this9 = this;
+	      clearTimeout(this.reinviteTimeout);
+	      if (!this.ready) {
+	        return;
+	      }
+	      var usersToRepeatInvite = [];
+	      for (var userId in this.peers) {
+	        if (this.peers.hasOwnProperty(userId) && this.peers[userId].calculatedState === UserState.Calling) {
+	          usersToRepeatInvite.push(userId);
+	        }
+	      }
+	      if (usersToRepeatInvite.length === 0) {
+	        return;
+	      }
+	      var inviteParams = {
+	        userIds: usersToRepeatInvite,
+	        video: this.videoEnabled ? 'Y' : 'N',
+	        isRepeated: 'Y'
+	      };
+	      this.signaling.inviteUsers(inviteParams).then(function () {
+	        return _this9.scheduleRepeatInvite();
+	      });
+	    }
+	  }, {
+	    key: "answer",
+	    /**
+	     * @param {Object} config
+	     * @param {bool?} [config.useVideo]
+	     * @param {bool?} [config.joinAsViewer]
+	     */
+	    value: function answer() {
+	      var _this10 = this;
+	      var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      this.ready = true;
+	      var joinAsViewer = config.joinAsViewer === true;
+	      this.videoEnabled = config.useVideo === true;
+	      if (!joinAsViewer) {
+	        this.signaling.sendAnswer();
+	      }
+	      this.attachToConference({
+	        joinAsViewer: joinAsViewer
+	      }).then(function () {
+	        _this10.log("Attached to conference");
+	        _this10.state = CallState.Connected;
+	        _this10.runCallback(CallEvent.onJoin, {
+	          local: true
+	        });
+	      })["catch"](function (err) {
+	        babelHelpers.classPrivateFieldGet(_this10, _onFatalError).call(_this10, err);
+	      });
+	    }
+	  }, {
+	    key: "decline",
+	    value: function decline(code) {
+	      this.ready = false;
+	      var data = {
+	        callId: this.id,
+	        callInstanceId: this.instanceId
+	      };
+	      if (code) {
+	        data.code = code;
+	      }
+	      CallEngine.getRestClient().callMethod(ajaxActions$1.decline, data);
+	    }
+	  }, {
+	    key: "hangup",
+	    value: function hangup(code, reason) {
+	      if (!this.ready) {
+	        var error = new Error("Hangup in wrong state");
+	        this.log(error);
+	        return;
+	      }
+	      var tempError = new Error();
+	      tempError.name = "Call stack:";
+	      this.log("Hangup received \n" + tempError.stack);
+	      if (this.localVAD) {
+	        this.localVAD.destroy();
+	        this.localVAD = null;
+	      }
+	      clearInterval(this.microphoneLevelInterval);
+	      var data = {};
+	      this.ready = false;
+	      if (typeof code != 'undefined') {
+	        data.code = code;
+	      }
+	      if (typeof reason != 'undefined') {
+	        data.reason = reason;
+	      }
+	      this.state = CallState.Proceeding;
+	      this.runCallback(CallEvent.onLeave, {
+	        local: true
+	      });
+
+	      //clone users and append current user id to send event to all participants of the call
+	      // todo: revert after adding new provider to mobile apps
+	      // data.userId = this.users.slice(0).concat(this.userId);
+	      data.userId = this.users.filter(function (u) {
+	        return Number.isInteger(u);
+	      }).concat(this.userId);
+	      this.signaling.sendHangup(data);
+	      this.muted = false;
+
+	      // for future reconnections
+	      this.reinitPeers();
+	      if (this.BitrixCall) {
+	        this.BitrixCall._replaceVideoSharing = false;
+	        try {
+	          this.BitrixCall.hangup();
+	        } catch (e) {
+	          this.log("Voximplant hangup error: ", e);
+	          console.error("Voximplant hangup error: ", e);
+	        }
+	      } else {
+	        this.log("Tried to hangup, but this.BitrixCall points nowhere");
+	        console.error("Tried to hangup, but this.BitrixCall points nowhere");
+	      }
+	      this.screenShared = false;
+	      _classPrivateMethodGet$2(this, _hideLocalVideo, _hideLocalVideo2).call(this);
+	    }
+	  }, {
+	    key: "attachToConference",
+	    value: function attachToConference() {
+	      var _this11 = this;
+	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      var joinAsViewer = options.joinAsViewer === true;
+	      if (this.BitrixCall && this.BitrixCall.getState() === CALL_STATE.CONNECTED) {
+	        if (this.joinedAsViewer === joinAsViewer) {
+	          return Promise.resolve();
+	        } else {
+	          return Promise.reject("Already joined call in another mode");
+	        }
+	      }
+	      return new Promise(function (resolve, reject) {
+	        _this11.direction = joinAsViewer ? EndpointDirection.RecvOnly : EndpointDirection.SendRecv;
+	        _this11.sendTelemetryEvent("call");
+	        _this11.getClient().then(function (voximplantClient) {
+	          _this11.localUserState = UserState.Connecting;
+
+	          // workaround to set default video settings before starting call. ugly, but I do not see another way
+	          // VoxImplant.Hardware.CameraManager.get().setDefaultVideoSettings(this.constructCameraParams());
+	          // if (this.microphoneId)
+	          // {
+	          // 	VoxImplant.Hardware.AudioDeviceManager.get().setDefaultAudioSettings({
+	          // 		inputId: this.microphoneId
+	          // 	});
+	          // }
+
+	          // if (this.videoEnabled)
+	          // {
+	          // 	this.#showLocalVideo();
+	          // }
+
+	          _this11.BitrixCall = new Call(_this11.userId);
+	          if (_this11.videoEnabled) {
+	            _classPrivateMethodGet$2(_this11, _showLocalVideo, _showLocalVideo2).call(_this11);
+	          }
+	          try {
+	          } catch (e) {
+	            console.error(e);
+	            return reject(e);
+	          }
+	          _this11.joinedAsViewer = joinAsViewer;
+	          if (!_this11.BitrixCall) {
+	            _this11.log("Error: could not create Bitrix call");
+	            return reject({
+	              code: "VOX_NO_CALL"
+	            });
+	          }
+	          _this11.runCallback(BitrixCallEvent.onCallConference, {
+	            call: _this11
+	          });
+	          _this11.bindCallEvents();
+	          _this11.BitrixCall.on('Connected', function () {
+	            console.log('handleConnected');
+	            _classPrivateMethodGet$2(_this11, _onCallConnected, _onCallConnected2).call(_this11);
+	            resolve();
+	          });
+	          _this11.BitrixCall.on('Failed', function (e) {
+	            _classPrivateMethodGet$2(_this11, _onCallFailed, _onCallFailed2).call(_this11, e);
+	            reject(e);
+	          });
+	          _this11.BitrixCall.connect({
+	            endpoint: _this11.connectionData.endpoint,
+	            jwt: _this11.connectionData.jwt,
+	            videoBitrate: 1000000,
+	            videoSimulcast: true,
+	            audioDeviceId: _this11.microphoneId,
+	            videoDeviceId: _this11.cameraId
+	          });
+	        })["catch"](babelHelpers.classPrivateFieldGet(_this11, _onFatalError).bind(_this11));
+	      });
+	    }
+	  }, {
+	    key: "bindCallEvents",
+	    value: function bindCallEvents() {
+	      this.BitrixCall.on('PublishSucceed', babelHelpers.classPrivateFieldGet(this, _onLocalMediaRendererAdded));
+	      this.BitrixCall.on('PublishFailed', function () {
+	        return console.log('handlePublishFailed');
+	      });
+	      this.BitrixCall.on('PublishEnded', babelHelpers.classPrivateFieldGet(this, _onBeforeLocalMediaRendererRemoved));
+	      this.BitrixCall.on('RemoteMediaAdded', babelHelpers.classPrivateFieldGet(this, _onRemoteMediaAdded));
+	      this.BitrixCall.on('RemoteMediaRemoved', babelHelpers.classPrivateFieldGet(this, _onRemoteMediaRemoved));
+	      this.BitrixCall.on('RemoteMediaMuted', babelHelpers.classPrivateFieldGet(this, _onRemoteMediaMuteToggled));
+	      this.BitrixCall.on('RemoteMediaUnmuted', babelHelpers.classPrivateFieldGet(this, _onRemoteMediaMuteToggled));
+	      this.BitrixCall.on('ParticipantJoined', babelHelpers.classPrivateFieldGet(this, _onParticipantJoined));
+	      this.BitrixCall.on('ParticipantStateUpdated', function () {
+	        return console.log('handleParticipantStateUpdated');
+	      });
+	      this.BitrixCall.on('ParticipantLeaved', babelHelpers.classPrivateFieldGet(this, _onParticipantLeaved));
+	      this.BitrixCall.on('MessageReceived', babelHelpers.classPrivateFieldGet(this, _onCallMessageReceived));
+	      this.BitrixCall.on('HandRaised', babelHelpers.classPrivateFieldGet(this, _onCallHandRaised));
+	      // this.BitrixCall.on('VoiceStarted', this.#onEndpointVoiceStart);
+	      // this.BitrixCall.on('VoiceEnded', this.#onEndpointVoiceEnd);
+	      this.BitrixCall.on('Reconnecting', babelHelpers.classPrivateFieldGet(this, _onCallReconnecting));
+	      this.BitrixCall.on('Reconnected', babelHelpers.classPrivateFieldGet(this, _onCallReconnected));
+	      this.BitrixCall.on('Disconnected', babelHelpers.classPrivateFieldGet(this, _onCallDisconnected));
+	      this.BitrixCall.on('CallStatsReceived', function () {
+	        return console.log('handleCallStatsReceived');
+	      });
+	      this.BitrixCall.on('UpdatePacketLoss', function () {
+	        return console.log('handleUpdatePacketLoss');
+	      });
+	      // this.BitrixCall.on(VoxImplant.CallEvents.Disconnected, this.#onCallDisconnected);
+	      // this.BitrixCall.on(VoxImplant.CallEvents.MessageReceived, this.#onCallMessageReceived);
+	      // if (Util.shouldCollectStats())
+	      // {
+	      // 	this.BitrixCall.on(VoxImplant.CallEvents.CallStatsReceived, this.#onCallStatsReceived);
+	      // }
+	      //
+	      // this.BitrixCall.on(VoxImplant.CallEvents.EndpointAdded, this.#onCallEndpointAdded);
+	      // if (VoxImplant.CallEvents.Reconnecting)
+	      // {
+	      // 	this.BitrixCall.on(VoxImplant.CallEvents.Reconnecting, this.#onCallReconnecting);
+	      // 	this.BitrixCall.on(VoxImplant.CallEvents.Reconnected, this.#onCallReconnected);
+	      // }
+	    }
+	  }, {
+	    key: "removeCallEvents",
+	    value: function removeCallEvents() {
+	      if (this.BitrixCall) {
+	        this.BitrixCall.on('Failed', BX.DoNothing);
+	        this.BitrixCall.on('PublishSucceed', BX.DoNothing);
+	        this.BitrixCall.on('PublishFailed', BX.DoNothing);
+	        this.BitrixCall.on('PublishEnded', BX.DoNothing);
+	        this.BitrixCall.on('RemoteMediaAdded', BX.DoNothing);
+	        this.BitrixCall.on('RemoteMediaRemoved', BX.DoNothing);
+	        this.BitrixCall.on('ParticipantJoined', BX.DoNothing);
+	        this.BitrixCall.on('ParticipantStateUpdated', BX.DoNothing);
+	        // this.BitrixCall.on('ParticipantLeaved', this.#onEndpointRemoved);
+	        this.BitrixCall.on('MessageReceived', BX.DoNothing);
+	        this.BitrixCall.on('HandRaised', BX.DoNothing);
+	        // this.BitrixCall.on('VoiceStarted', this.#onEndpointVoiceStart);
+	        // this.BitrixCall.on('VoiceEnded', this.#onEndpointVoiceEnd);
+	        this.BitrixCall.on('Reconnecting', BX.DoNothing);
+	        this.BitrixCall.on('Reconnected', BX.DoNothing);
+	        this.BitrixCall.on('Disconnected', BX.DoNothing);
+	        this.BitrixCall.on('CallStatsReceived', BX.DoNothing);
+	        this.BitrixCall.on('UpdatePacketLoss', BX.DoNothing);
+	        // this.BitrixCall.removeEventListener(VoxImplant.CallEvents.Disconnected, this.#onCallDisconnected);
+	        // this.BitrixCall.removeEventListener(VoxImplant.CallEvents.MessageReceived, this.#onCallMessageReceived);
+	        // if (Util.shouldCollectStats())
+	        // {
+	        // 	this.BitrixCall.removeEventListener(VoxImplant.CallEvents.CallStatsReceived, this.#onCallStatsReceived);
+	        // }
+	        // this.BitrixCall.removeEventListener(VoxImplant.CallEvents.EndpointAdded, this.#onCallEndpointAdded);
+	        // if (VoxImplant.CallEvents.Reconnecting)
+	        // {
+	        // 	this.BitrixCall.removeEventListener(VoxImplant.CallEvents.Reconnecting, this.#onCallReconnecting);
+	        // 	this.BitrixCall.removeEventListener(VoxImplant.CallEvents.Reconnected, this.#onCallReconnected);
+	        // }
+	      }
+	    }
+	  }, {
+	    key: "addJoinedUsers",
+	    /**
+	     * Adds new users to call
+	     * @param {Number[]} users
+	     */
+	    value: function addJoinedUsers(users) {
+	      for (var i = 0; i < users.length; i++) {
+	        var userId = Number(users[i]);
+	        if (userId == this.userId || this.peers[userId]) {
+	          continue;
+	        }
+	        this.peers[userId] = this.createPeer(userId);
+	        if (!this.users.includes(userId)) {
+	          this.users.push(userId);
+	        }
+	        this.runCallback(CallEvent.onUserInvited, {
+	          userId: userId
+	        });
+	      }
+	    }
+	  }, {
+	    key: "addInvitedUsers",
+	    /**
+	     * Adds users, invited by you or someone else
+	     * @param {Number[]} users
+	     */
+	    value: function addInvitedUsers(users) {
+	      for (var i = 0; i < users.length; i++) {
+	        var userId = Number(users[i]);
+	        if (userId == this.userId) {
+	          continue;
+	        }
+	        if (this.peers[userId]) {
+	          if (this.peers[userId].calculatedState === UserState.Failed || this.peers[userId].calculatedState === UserState.Idle) {
+	            if (this.type === CallType.Instant) {
+	              this.peers[userId].onInvited();
+	            }
+	          }
+	        } else {
+	          this.peers[userId] = this.createPeer(userId);
+	          if (this.type === CallType.Instant) {
+	            this.peers[userId].onInvited();
+	          }
+	        }
+	        if (!this.users.includes(userId)) {
+	          this.users.push(userId);
+	        }
+	        this.runCallback(CallEvent.onUserInvited, {
+	          userId: userId
+	        });
+	      }
+	    }
+	  }, {
+	    key: "isAnyoneParticipating",
+	    value: function isAnyoneParticipating() {
+	      for (var userId in this.peers) {
+	        if (this.peers[userId].isParticipating()) {
+	          return true;
+	        }
+	      }
+	      return false;
+	    }
+	  }, {
+	    key: "getParticipatingUsers",
+	    value: function getParticipatingUsers() {
+	      var result = [];
+	      for (var userId in this.peers) {
+	        if (this.peers[userId].isParticipating()) {
+	          result.push(userId);
+	        }
+	      }
+	      return result;
+	    }
+	  }, {
+	    key: "updateRoom",
+	    value: function updateRoom(roomData) {
+	      if (!this.rooms[roomData.id]) {
+	        this.rooms[roomData.id] = {
+	          id: roomData.id,
+	          users: roomData.users,
+	          speaker: roomData.speaker
+	        };
+	      } else {
+	        this.rooms[roomData.id].users = roomData.users;
+	        this.rooms[roomData.id].speaker = roomData.speaker;
+	      }
+	    }
+	  }, {
+	    key: "currentRoom",
+	    value: function currentRoom() {
+	      return this._currentRoomId ? this.rooms[this._currentRoomId] : null;
+	    }
+	  }, {
+	    key: "isRoomSpeaker",
+	    value: function isRoomSpeaker() {
+	      return this.currentRoom() ? this.currentRoom().speaker == this.userId : false;
+	    }
+	  }, {
+	    key: "joinRoom",
+	    value: function joinRoom(roomId) {
+	      this.signaling.sendJoinRoom(roomId);
+	    }
+	  }, {
+	    key: "requestRoomSpeaker",
+	    value: function requestRoomSpeaker() {
+	      this.signaling.sendRequestRoomSpeaker(this._currentRoomId);
+	    }
+	  }, {
+	    key: "leaveCurrentRoom",
+	    value: function leaveCurrentRoom() {
+	      this.signaling.sendLeaveRoom(this._currentRoomId);
+	    }
+	  }, {
+	    key: "listRooms",
+	    value: function listRooms() {
+	      var _this12 = this;
+	      return new Promise(function (resolve) {
+	        _this12.signaling.sendListRooms();
+	        _this12.__resolveListRooms = resolve;
+	      });
+	    }
+	  }, {
+	    key: "__onPullEvent",
+	    value: function __onPullEvent(command, params, extra) {
+	      if (this.pullEventHandlers[command]) {
+	        if (command != 'Call::ping') {
+	          this.log("Signaling: " + command + "; Parameters: " + JSON.stringify(params));
+	        }
+	        this.pullEventHandlers[command].call(this, params);
+	      }
+	    }
+	  }, {
+	    key: "__onPullEventAnswerSelf",
+	    value: function __onPullEventAnswerSelf(params) {
+	      if (params.callInstanceId === this.instanceId) {
+	        return;
+	      }
+
+	      // call was answered elsewhere
+	      this.joinedElsewhere = true;
+	      this.runCallback(CallEvent.onJoin, {
+	        local: false
+	      });
+	    }
+	  }, {
+	    key: "sendTelemetryEvent",
+	    value: function sendTelemetryEvent(eventName) {
+	      Util$1.sendTelemetryEvent({
+	        call_id: this.id,
+	        user_id: this.userId,
+	        kind: "Bitrix",
+	        event: eventName
+	      });
+	    }
+	  }, {
+	    key: "destroy",
+	    value: function destroy() {
+	      this.ready = false;
+	      this.joinedAsViewer = false;
+	      _classPrivateMethodGet$2(this, _hideLocalVideo, _hideLocalVideo2).call(this);
+	      if (this.localVAD) {
+	        this.localVAD.destroy();
+	        this.localVAD = null;
+	      }
+	      clearInterval(this.microphoneLevelInterval);
+	      if (this.BitrixCall) {
+	        this.removeCallEvents();
+	        // if (this.BitrixCall.state() != "ENDED")
+	        // {
+	        this.BitrixCall.hangup();
+	        // }
+	        this.BitrixCall = null;
+	      }
+	      for (var userId in this.peers) {
+	        if (this.peers.hasOwnProperty(userId) && this.peers[userId]) {
+	          this.peers[userId].destroy();
+	        }
+	      }
+	      this.removeClientEvents();
+	      clearTimeout(this.lastPingReceivedTimeout);
+	      clearTimeout(this.lastSelfPingReceivedTimeout);
+	      clearInterval(this.pingUsersInterval);
+	      clearInterval(this.pingBackendInterval);
+	      window.removeEventListener("unload", babelHelpers.classPrivateFieldGet(this, _onWindowUnload));
+	      return babelHelpers.get(babelHelpers.getPrototypeOf(BitrixCall.prototype), "destroy", this).call(this);
+	    }
+	  }, {
+	    key: "provider",
+	    get: function get() {
+	      return Provider.Bitrix;
+	    }
+	  }, {
+	    key: "screenShared",
+	    get: function get() {
+	      return this._screenShared;
+	    },
+	    set: function set(screenShared) {
+	      if (screenShared != this._screenShared) {
+	        this._screenShared = screenShared;
+	        this.signaling.sendScreenState(this._screenShared);
+	      }
+	    }
+	  }, {
+	    key: "localUserState",
+	    get: function get() {
+	      return this._localUserState;
+	    },
+	    set: function set(state) {
+	      if (state == this._localUserState) {
+	        return;
+	      }
+	      this.runCallback(CallEvent.onUserStateChanged, {
+	        userId: this.userId,
+	        state: state,
+	        previousState: this._localUserState,
+	        direction: this.direction
+	      });
+	      this._localUserState = state;
+	    }
+	  }, {
+	    key: "reconnectionEventCount",
+	    get: function get() {
+	      return this._reconnectionEventCount;
+	    },
+	    set: function set(newValue) {
+	      if (this._reconnectionEventCount === 0 && newValue > 0) {
+	        this.runCallback(CallEvent.onReconnecting);
+	      }
+	      if (newValue === 0) {
+	        this.runCallback(CallEvent.onReconnected);
+	      }
+	      this._reconnectionEventCount = newValue;
+	    }
+	  }]);
+	  return BitrixCall;
+	}(AbstractCall);
+	function _showLocalVideo2() {
+	  var _this15 = this;
+	  return new Promise(function (resolve) {
+	    // VoxImplant.Hardware.StreamManager.get().showLocalVideo(false).then(
+	    // 	() =>
+	    // 	{
+	    _this15.localVideoShown = true;
+	    resolve();
+	    // 	},
+	    // 	() =>
+	    // 	{
+	    // 		this.localVideoShown = true;
+	    // 		resolve();
+	    // 	}
+	    // )
+	  });
+	}
+	function _hideLocalVideo2() {
+	  var _this16 = this;
+	  return new Promise(function (resolve) {
+	    // if (!('VoxImplant' in window))
+	    // {
+	    // 	resolve();
+	    // 	return;
+	    // }
+
+	    // VoxImplant.Hardware.StreamManager.get().hideLocalVideo().then(
+	    // 	() =>
+	    // 	{
+	    _this16.localVideoShown = false;
+	    resolve();
+	    // 	},
+	    // 	() =>
+	    // 	{
+	    // 		this.localVideoShown = false;
+	    // 		resolve();
+	    // 	}
+	    // );
+	  });
+	}
+	function _onCallConnected2() {
+	  this.log("Call connected");
+	  this.sendTelemetryEvent("connect");
+	  this.localUserState = UserState.Connected;
+	  this.BitrixCall.on('Failed', babelHelpers.classPrivateFieldGet(this, _onCallDisconnected));
+	  if (this.muted) {
+	    this.BitrixCall.disableAudio();
+	  } else {
+	    this.BitrixCall.enableAudio();
+	  }
+	  if (this.videoEnabled) {
+	    this.BitrixCall.enableVideo();
+	  }
+	  this.signaling.sendCameraState(this.videoEnabled);
+	  if (this.videoAllowedFrom == UserMnemonic.none) {
+	    this.signaling.sendHideAll();
+	  } else if (main_core.Type.isArray(this.videoAllowedFrom)) {
+	    this.signaling.sendShowUsers(this.videoAllowedFrom);
+	  }
+	}
+	function _onCallFailed2(e) {
+	  this.log("Could not attach to conference", e);
+	  this.sendTelemetryEvent("connect_failure");
+	  this.localUserState = UserState.Failed;
+
+	  // const client = VoxImplant.getInstance();
+	  this.BitrixCall.enableSilentLogging(false);
+	  this.BitrixCall.setLoggerCallback(null);
+	}
+	function _changeRecordState2$1(params) {
+	  if (params.action !== View.RecordState.Started && this.recordState.userId != params.senderId) {
+	    return false;
+	  }
+	  if (params.action === View.RecordState.Started) {
+	    if (this.recordState.state !== View.RecordState.Stopped) {
+	      return false;
+	    }
+	    this.recordState.state = View.RecordState.Started;
+	    this.recordState.userId = params.senderId;
+	    this.recordState.date.start = params.date;
+	    this.recordState.date.pause = [];
+	  } else if (params.action === View.RecordState.Paused) {
+	    if (this.recordState.state !== View.RecordState.Started) {
+	      return false;
+	    }
+	    this.recordState.state = View.RecordState.Paused;
+	    this.recordState.date.pause.push({
+	      start: params.date,
+	      finish: null
+	    });
+	  } else if (params.action === View.RecordState.Resumed) {
+	    if (this.recordState.state !== View.RecordState.Paused) {
+	      return false;
+	    }
+	    this.recordState.state = View.RecordState.Started;
+	    var pauseElement = this.recordState.date.pause.find(function (element) {
+	      return element.finish === null;
+	    });
+	    if (pauseElement) {
+	      pauseElement.finish = params.date;
+	    }
+	  } else if (params.action === View.RecordState.Stopped) {
+	    this.recordState.state = View.RecordState.Stopped;
+	    this.recordState.userId = 0;
+	    this.recordState.date.start = null;
+	    this.recordState.date.pause = [];
+	  }
+	  return true;
+	}
+	function _setEndpointForUser2(userName, endpoint) {
+	  // user connected to conference (userName is in format `user${id}`
+	  var userId = parseInt(userName.substring(4));
+	  if (this.peers[userId]) {
+	    this.peers[userId].setEndpoint(endpoint);
+	  }
+	  this.wasConnected = true;
+	}
+	babelHelpers.defineProperty(BitrixCall, "Event", BitrixCallEvent);
+	var _sendPullEvent$1 = /*#__PURE__*/new WeakSet();
+	var _sendMessage = /*#__PURE__*/new WeakSet();
+	var _runRestAction$1 = /*#__PURE__*/new WeakSet();
+	var Signaling$1 = /*#__PURE__*/function () {
+	  function Signaling(params) {
+	    babelHelpers.classCallCheck(this, Signaling);
+	    _classPrivateMethodInitSpec$2(this, _runRestAction$1);
+	    _classPrivateMethodInitSpec$2(this, _sendMessage);
+	    _classPrivateMethodInitSpec$2(this, _sendPullEvent$1);
+	    this.call = params.call;
+	  }
+	  babelHelpers.createClass(Signaling, [{
+	    key: "inviteUsers",
+	    value: function inviteUsers(data) {
+	      return _classPrivateMethodGet$2(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.invite, data);
+	    }
+	  }, {
+	    key: "sendAnswer",
+	    value: function sendAnswer(data, repeated) {
+	      if (repeated && CallEngine.getPullClient().isPublishingEnabled()) {
+	        _classPrivateMethodGet$2(this, _sendPullEvent$1, _sendPullEvent2$1).call(this, pullEvents$1.answer, data);
+	      } else {
+	        return _classPrivateMethodGet$2(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.answer, data);
+	      }
+	    }
+	  }, {
+	    key: "sendCancel",
+	    value: function sendCancel(data) {
+	      return _classPrivateMethodGet$2(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.cancel, data);
+	    }
+	  }, {
+	    key: "sendHangup",
+	    value: function sendHangup(data) {
+	      if (CallEngine.getPullClient().isPublishingEnabled()) {
+	        _classPrivateMethodGet$2(this, _sendPullEvent$1, _sendPullEvent2$1).call(this, pullEvents$1.hangup, data);
+	        data.retransmit = false;
+	        _classPrivateMethodGet$2(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.hangup, data);
+	      } else {
+	        data.retransmit = true;
+	        _classPrivateMethodGet$2(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.hangup, data);
+	      }
+	    }
+	  }, {
+	    key: "sendVoiceStarted",
+	    value: function sendVoiceStarted(data) {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.voiceStarted, data);
+	    }
+	  }, {
+	    key: "sendVoiceStopped",
+	    value: function sendVoiceStopped(data) {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.voiceStopped, data);
+	    }
+	  }, {
+	    key: "sendCameraState",
+	    value: function sendCameraState(cameraState) {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.cameraState, {
+	        cameraState: cameraState ? "Y" : "N"
+	      });
+	    }
+	  }, {
+	    key: "sendScreenState",
+	    value: function sendScreenState(screenState) {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.screenState, {
+	        screenState: screenState ? "Y" : "N"
+	      });
+	    }
+	  }, {
+	    key: "sendRecordState",
+	    value: function sendRecordState(userId, recordState) {
+	      _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.recordState, {
+	        senderId: userId,
+	        recordState: recordState
+	      });
+	    }
+	  }, {
+	    key: "sendEmotion",
+	    value: function sendEmotion(toUserId, emotion) {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.emotion, {
+	        toUserId: toUserId,
+	        emotion: emotion
+	      });
+	    }
+	  }, {
+	    key: "sendCustomMessage",
+	    value: function sendCustomMessage(message, repeatOnConnect) {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.customMessage, {
+	        message: message,
+	        repeatOnConnect: !!repeatOnConnect
+	      });
+	    }
+	  }, {
+	    key: "sendShowUsers",
+	    value: function sendShowUsers(users) {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.showUsers, {
+	        users: users
+	      });
+	    }
+	  }, {
+	    key: "sendShowAll",
+	    value: function sendShowAll() {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.showAll, {});
+	    }
+	  }, {
+	    key: "sendHideAll",
+	    value: function sendHideAll() {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.hideAll, {});
+	    }
+	  }, {
+	    key: "sendPingToUsers",
+	    value: function sendPingToUsers(data) {
+	      if (CallEngine.getPullClient().isPublishingEnabled()) {
+	        _classPrivateMethodGet$2(this, _sendPullEvent$1, _sendPullEvent2$1).call(this, pullEvents$1.ping, data, 0);
+	      }
+	    }
+	  }, {
+	    key: "sendPingToBackend",
+	    value: function sendPingToBackend() {
+	      _classPrivateMethodGet$2(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.ping, {
+	        retransmit: false
+	      });
+	    }
+	  }, {
+	    key: "sendUserInviteTimeout",
+	    value: function sendUserInviteTimeout(data) {
+	      if (CallEngine.getPullClient().isPublishingEnabled()) {
+	        _classPrivateMethodGet$2(this, _sendPullEvent$1, _sendPullEvent2$1).call(this, pullEvents$1.userInviteTimeout, data, 0);
+	      }
+	    }
+	  }, {
+	    key: "sendJoinRoom",
+	    value: function sendJoinRoom(roomId) {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.joinRoom, {
+	        roomId: roomId
+	      });
+	    }
+	  }, {
+	    key: "sendLeaveRoom",
+	    value: function sendLeaveRoom(roomId) {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.leaveRoom, {
+	        roomId: roomId
+	      });
+	    }
+	  }, {
+	    key: "sendListRooms",
+	    value: function sendListRooms() {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.listRooms);
+	    }
+	  }, {
+	    key: "sendRequestRoomSpeaker",
+	    value: function sendRequestRoomSpeaker(roomId) {
+	      return _classPrivateMethodGet$2(this, _sendMessage, _sendMessage2).call(this, clientEvents.requestRoomSpeaker, {
+	        roomId: roomId
+	      });
+	    }
+	  }]);
+	  return Signaling;
+	}();
+	function _sendPullEvent2$1(eventName, data, expiry) {
+	  expiry = expiry || 5;
+	  if (!data.userId) {
+	    throw new Error('userId is not found in data');
+	  }
+	  if (!main_core.Type.isArray(data.userId)) {
+	    data.userId = [data.userId];
+	  }
+	  if (data.userId.length === 0) {
+	    // nobody to send, exit
+	    return;
+	  }
+	  data.callInstanceId = this.call.instanceId;
+	  data.senderId = this.call.userId;
+	  data.callId = this.call.id;
+	  data.requestId = Util$1.getUuidv4();
+	  this.call.log('Sending p2p signaling event ' + eventName + '; ' + JSON.stringify(data));
+	  CallEngine.getPullClient().sendMessage(data.userId, 'im', eventName, data, expiry);
+	}
+	function _sendMessage2(eventName, data) {
+	  if (!this.call.BitrixCall) {
+	    return;
+	  }
+	  if (!main_core.Type.isPlainObject(data)) {
+	    data = {};
+	  }
+	  data.eventName = eventName;
+	  data.requestId = Util$1.getUuidv4();
+	  data.senderId = this.call.userId;
+	  this.call.BitrixCall.sendMessage(JSON.stringify(data));
+	}
+	function _runRestAction2$1(signalName, data) {
+	  if (!main_core.Type.isPlainObject(data)) {
+	    data = {};
+	  }
+	  data.callId = this.call.id;
+	  data.callInstanceId = this.call.instanceId;
+	  data.requestId = Util$1.getUuidv4();
+	  return CallEngine.getRestClient().callMethod(signalName, data);
+	}
+	var _onEndpointRemoteMediaAdded = /*#__PURE__*/new WeakMap();
+	var _onEndpointRemoteMediaRemoved = /*#__PURE__*/new WeakMap();
+	var _onEndpointVoiceStart = /*#__PURE__*/new WeakMap();
+	var _onEndpointVoiceEnd = /*#__PURE__*/new WeakMap();
+	var _onEndpointRemoved = /*#__PURE__*/new WeakMap();
+	var Peer$1 = /*#__PURE__*/function () {
+	  function Peer(params) {
+	    var _this13 = this;
+	    babelHelpers.classCallCheck(this, Peer);
+	    _classPrivateFieldInitSpec$1(this, _onEndpointRemoteMediaAdded, {
+	      writable: true,
+	      value: function value(p, t) {
+	        var e = {
+	          mediaRenderer: new MediaRenderer({
+	            track: t
+	          })
+	        };
+	        _this13.log("VoxImplant.EndpointEvents.RemoteMediaAdded", e.mediaRenderer);
+
+	        // voximplant audio auto-play bug workaround:
+	        if (e.mediaRenderer.element) {
+	          e.mediaRenderer.element.volume = 0;
+	          e.mediaRenderer.element.srcObject = null;
+	        }
+	        _this13.addMediaRenderer(e.mediaRenderer);
+	      }
+	    });
+	    _classPrivateFieldInitSpec$1(this, _onEndpointRemoteMediaRemoved, {
+	      writable: true,
+	      value: function value(p, t) {
+	        var e = {
+	          mediaRenderer: new MediaRenderer()
+	        };
+	        console.log("VoxImplant.EndpointEvents.RemoteMediaRemoved, ", e.mediaRenderer);
+	        //this.log("VoxImplant.EndpointEvents.RemoteMediaRemoved, ", e);
+	        _this13.removeMediaRenderer(e.mediaRenderer);
+	      }
+	    });
+	    _classPrivateFieldInitSpec$1(this, _onEndpointVoiceStart, {
+	      writable: true,
+	      value: function value() {
+	        _this13.callbacks.onVoiceStarted();
+	      }
+	    });
+	    _classPrivateFieldInitSpec$1(this, _onEndpointVoiceEnd, {
+	      writable: true,
+	      value: function value() {
+	        _this13.callbacks.onVoiceEnded();
+	      }
+	    });
+	    _classPrivateFieldInitSpec$1(this, _onEndpointRemoved, {
+	      writable: true,
+	      value: function value(e) {
+	        _this13.log("VoxImplant.EndpointEvents.Removed", e);
+	        if (_this13.endpoint) {
+	          _this13.removeEndpointEventHandlers();
+	          _this13.endpoint = null;
+	        }
+	        if (_this13.stream) {
+	          _this13.stream = null;
+	        }
+	        if (_this13.ready) {
+	          _this13.waitForConnectionRestore();
+	        }
+	        _this13.updateCalculatedState();
+	      }
+	    });
+	    this.userId = params.userId;
+	    this.call = params.call;
+	    this.ready = !!params.ready;
+	    this.calling = false;
+	    this.declined = false;
+	    this.busy = false;
+	    this.inviteTimeout = false;
+	    this.endpoint = null;
+	    this.direction = params.direction || EndpointDirection.SendRecv;
+	    this.stream = null;
+	    this.mediaRenderers = [];
+	    this.isIncomingVideoAllowed = params.isIncomingVideoAllowed !== false;
+	    this.callingTimeout = 0;
+	    this.connectionRestoreTimeout = 0;
+	    this.callbacks = {
+	      onStateChanged: main_core.Type.isFunction(params.onStateChanged) ? params.onStateChanged : BX.DoNothing,
+	      onInviteTimeout: main_core.Type.isFunction(params.onInviteTimeout) ? params.onInviteTimeout : BX.DoNothing,
+	      onMediaReceived: main_core.Type.isFunction(params.onMediaReceived) ? params.onMediaReceived : BX.DoNothing,
+	      onMediaRemoved: main_core.Type.isFunction(params.onMediaRemoved) ? params.onMediaRemoved : BX.DoNothing,
+	      onVoiceStarted: main_core.Type.isFunction(params.onVoiceStarted) ? params.onVoiceStarted : BX.DoNothing,
+	      onVoiceEnded: main_core.Type.isFunction(params.onVoiceEnded) ? params.onVoiceEnded : BX.DoNothing
+	    };
+	    this.calculatedState = this.calculateState();
+	  }
+	  babelHelpers.createClass(Peer, [{
+	    key: "setReady",
+	    value: function setReady(ready) {
+	      ready = !!ready;
+	      if (this.ready == ready) {
+	        return;
+	      }
+	      this.ready = ready;
+	      this.readyStack = new Error().stack;
+	      if (this.calling) {
+	        clearTimeout(this.callingTimeout);
+	        this.calling = false;
+	        this.inviteTimeout = false;
+	      }
+	      if (this.ready) {
+	        this.declined = false;
+	        this.busy = false;
+	      } else {
+	        clearTimeout(this.connectionRestoreTimeout);
+	      }
+	      this.updateCalculatedState();
+	    }
+	  }, {
+	    key: "setDirection",
+	    value: function setDirection(direction) {
+	      if (this.direction == direction) {
+	        return;
+	      }
+	      this.direction = direction;
+	    }
+	  }, {
+	    key: "setDeclined",
+	    value: function setDeclined(declined) {
+	      this.declined = declined;
+	      if (this.calling) {
+	        clearTimeout(this.callingTimeout);
+	        this.calling = false;
+	      }
+	      if (this.declined) {
+	        this.ready = false;
+	        this.busy = false;
+	      }
+	      clearTimeout(this.connectionRestoreTimeout);
+	      this.updateCalculatedState();
+	    }
+	  }, {
+	    key: "setBusy",
+	    value: function setBusy(busy) {
+	      this.busy = busy;
+	      if (this.calling) {
+	        clearTimeout(this.callingTimeout);
+	        this.calling = false;
+	      }
+	      if (this.busy) {
+	        this.ready = false;
+	        this.declined = false;
+	      }
+	      clearTimeout(this.connectionRestoreTimeout);
+	      this.updateCalculatedState();
+	    }
+	  }, {
+	    key: "setEndpoint",
+	    value: function setEndpoint(endpoint) {
+	      this.log("Adding endpoint with " + endpoint.mediaRenderers.length + " media renderers");
+	      this.setReady(true);
+	      this.inviteTimeout = false;
+	      this.declined = false;
+	      clearTimeout(this.connectionRestoreTimeout);
+	      if (this.endpoint) {
+	        this.removeEndpointEventHandlers();
+	        this.endpoint = null;
+	      }
+	      this.endpoint = endpoint;
+	      for (var i = 0; i < this.endpoint.mediaRenderers.length; i++) {
+	        this.addMediaRenderer(this.endpoint.mediaRenderers[i]);
+	        if (this.endpoint.mediaRenderers[i].element) ;
+	      }
+	      this.bindEndpointEventHandlers();
+	    }
+	  }, {
+	    key: "allowIncomingVideo",
+	    value: function allowIncomingVideo(isIncomingVideoAllowed) {
+	      if (this.isIncomingVideoAllowed == isIncomingVideoAllowed) {
+	        return;
+	      }
+	      this.isIncomingVideoAllowed = !!isIncomingVideoAllowed;
+	    }
+	  }, {
+	    key: "addMediaRenderer",
+	    value: function addMediaRenderer(mediaRenderer) {
+	      this.log('Adding media renderer for user' + this.userId, mediaRenderer);
+	      this.mediaRenderers.push(mediaRenderer);
+	      this.callbacks.onMediaReceived({
+	        userId: this.userId,
+	        kind: mediaRenderer.kind,
+	        mediaRenderer: mediaRenderer
+	      });
+	      this.updateCalculatedState();
+	    }
+	  }, {
+	    key: "removeMediaRenderer",
+	    value: function removeMediaRenderer(mediaRenderer) {
+	      this.log('Removing media renderer for user' + this.userId, mediaRenderer);
+	      var i;
+	      this.mediaRenderers.forEach(function (el, index) {
+	        if (el.kind === mediaRenderer.kind) {
+	          i = index;
+	        }
+	      });
+	      if (i >= 0) {
+	        this.mediaRenderers.splice(i, 1);
+	      }
+	      this.callbacks.onMediaRemoved({
+	        userId: this.userId,
+	        kind: mediaRenderer.kind,
+	        mediaRenderer: mediaRenderer
+	      });
+	      this.updateCalculatedState();
+	    }
+	  }, {
+	    key: "bindEndpointEventHandlers",
+	    value: function bindEndpointEventHandlers() {
+	      return;
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.RemoteMediaAdded, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaAdded));
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.RemoteMediaRemoved, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaRemoved));
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.VoiceStart, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceStart));
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.VoiceEnd, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceEnd));
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.Removed, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoved));
+	    }
+	  }, {
+	    key: "removeEndpointEventHandlers",
+	    value: function removeEndpointEventHandlers() {
+	      return;
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.RemoteMediaAdded, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaAdded));
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.RemoteMediaRemoved, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaRemoved));
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.VoiceStart, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceStart));
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.VoiceEnd, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceEnd));
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.Removed, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoved));
+	    }
+	  }, {
+	    key: "calculateState",
+	    value: function calculateState() {
+	      if (this.endpoint || this.participant) {
+	        return UserState.Connected;
+	      }
+	      if (this.calling) {
+	        return UserState.Calling;
+	      }
+	      if (this.inviteTimeout) {
+	        return UserState.Unavailable;
+	      }
+	      if (this.declined) {
+	        return UserState.Declined;
+	      }
+	      if (this.busy) {
+	        return UserState.Busy;
+	      }
+	      if (this.ready) {
+	        return UserState.Ready;
+	      }
+	      return UserState.Idle;
+	    }
+	  }, {
+	    key: "updateCalculatedState",
+	    value: function updateCalculatedState() {
+	      var calculatedState = this.calculateState();
+	      if (this.calculatedState != calculatedState) {
+	        this.callbacks.onStateChanged({
+	          userId: this.userId,
+	          state: calculatedState,
+	          previousState: this.calculatedState,
+	          direction: this.direction
+	        });
+	        this.calculatedState = calculatedState;
+	      }
+	    }
+	  }, {
+	    key: "isParticipating",
+	    value: function isParticipating() {
+	      return (this.calling || this.ready || this.endpoint) && !this.declined;
+	    }
+	  }, {
+	    key: "waitForConnectionRestore",
+	    value: function waitForConnectionRestore() {
+	      clearTimeout(this.connectionRestoreTimeout);
+	      this.connectionRestoreTimeout = setTimeout(this.onConnectionRestoreTimeout.bind(this), connectionRestoreTime);
+	    }
+	  }, {
+	    key: "onInvited",
+	    value: function onInvited() {
+	      var _this14 = this;
+	      this.ready = false;
+	      this.inviteTimeout = false;
+	      this.declined = false;
+	      this.calling = true;
+	      clearTimeout(this.connectionRestoreTimeout);
+	      if (this.callingTimeout) {
+	        clearTimeout(this.callingTimeout);
+	      }
+	      this.callingTimeout = setTimeout(function () {
+	        return _this14.onInviteTimeout(true);
+	      }, 30000);
+	      this.updateCalculatedState();
+	    }
+	  }, {
+	    key: "onInviteTimeout",
+	    value: function onInviteTimeout(internal) {
+	      clearTimeout(this.callingTimeout);
+	      if (!this.calling) {
+	        return;
+	      }
+	      this.calling = false;
+	      this.inviteTimeout = true;
+	      if (internal) {
+	        this.callbacks.onInviteTimeout({
+	          userId: this.userId
+	        });
+	      }
+	      this.updateCalculatedState();
+	    }
+	  }, {
+	    key: "onConnectionRestoreTimeout",
+	    value: function onConnectionRestoreTimeout() {
+	      if (this.endpoint || !this.ready) {
+	        return;
+	      }
+	      this.log("Done waiting for connection restoration");
+	      this.setReady(false);
+	    }
+	  }, {
+	    key: "log",
+	    value: function log() {
+	      this.call.log.apply(this.call, arguments);
+	    }
+	  }, {
+	    key: "destroy",
+	    value: function destroy() {
+	      if (this.stream) {
+	        Util$1.stopMediaStream(this.stream);
+	        this.stream = null;
+	      }
+	      if (this.endpoint) {
+	        this.removeEndpointEventHandlers();
+	        this.endpoint = null;
+	      }
+	      this.callbacks.onStateChanged = BX.DoNothing;
+	      this.callbacks.onInviteTimeout = BX.DoNothing;
+	      this.callbacks.onMediaReceived = BX.DoNothing;
+	      this.callbacks.onMediaRemoved = BX.DoNothing;
+	      clearTimeout(this.callingTimeout);
+	      clearTimeout(this.connectionRestoreTimeout);
+	      this.callingTimeout = null;
+	      this.connectionRestoreTimeout = null;
+	    }
+	  }]);
+	  return Peer;
+	}();
+	var transformVoxStats = function transformVoxStats(s, BitrixCall) {
+	  var result = {
+	    connection: s.connection,
+	    outboundAudio: [],
+	    outboundVideo: [],
+	    inboundAudio: [],
+	    inboundVideo: []
+	  };
+	  var endpoints = {};
+	  if (BitrixCall.getEndpoints) {
+	    BitrixCall.getEndpoints().forEach(function (endpoint) {
+	      return endpoints[endpoint.id] = endpoint;
+	    });
+	  }
+	  if (!result.connection.timestamp) {
+	    result.connection.timestamp = Date.now();
+	  }
+	  for (var trackId in s.outbound) {
+	    if (!s.outbound.hasOwnProperty(trackId)) {
+	      continue;
+	    }
+	    var statGroup = s.outbound[trackId];
+	    for (var i = 0; i < statGroup.length; i++) {
+	      var stat = statGroup[i];
+	      stat.trackId = trackId;
+	      if ('audioLevel' in stat) {
+	        result.outboundAudio.push(stat);
+	      } else {
+	        result.outboundVideo.push(stat);
+	      }
+	    }
+	  }
+	  var _loop = function _loop() {
+	    if (!s.inbound.hasOwnProperty(_trackId)) {
+	      return "continue";
+	    }
+	    var stat = s.inbound[_trackId];
+	    if (!('endpoint' in stat)) {
+	      return "continue";
+	    }
+	    stat.trackId = _trackId;
+	    if ('audioLevel' in stat) {
+	      result.inboundAudio.push(stat);
+	    } else {
+	      if (endpoints[stat.endpoint]) {
+	        var videoRenderer = endpoints[stat.endpoint].mediaRenderers.find(function (r) {
+	          return r.id == stat.trackId;
+	        });
+	        if (videoRenderer && videoRenderer.element) {
+	          stat.actualHeight = videoRenderer.element.videoHeight;
+	          stat.actualWidth = videoRenderer.element.videoWidth;
+	        }
+	      }
+	      result.inboundVideo.push(stat);
+	    }
+	  };
+	  for (var _trackId in s.inbound) {
+	    var _ret = _loop();
+	    if (_ret === "continue") continue;
+	  }
+	  return result;
+	};
+	var MediaRenderer = /*#__PURE__*/function () {
+	  function MediaRenderer(params) {
+	    babelHelpers.classCallCheck(this, MediaRenderer);
+	    babelHelpers.defineProperty(this, "element", null);
+	    params = params || {};
+	    this.kind = params.kind || 'video';
+	    if (params.track) {
+	      this.stream = new MediaStream([params.track]);
+	    } else {
+	      this.stream = new MediaStream();
+	    }
+	  }
+	  babelHelpers.createClass(MediaRenderer, [{
+	    key: "render",
+	    value: function render(el) {
+	      if (!el.srcObject || !el.srcObject.active || el.srcObject.id !== this.stream.id) {
+	        el.srcObject = this.stream;
+	      }
+	    }
+	  }, {
+	    key: "requestVideoSize",
+	    value: function requestVideoSize() {}
+	  }]);
+	  return MediaRenderer;
+	}();
+
+	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$3(obj, privateMap); privateMap.set(obj, value); }
+	function _classPrivateMethodInitSpec$3(obj, privateSet) { _checkPrivateRedeclaration$3(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$3(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	/**
+	 * Implements Call interface
+	 * Public methods:
+	 * - inviteUsers
+	 * - cancel
+	 * - answer
+	 * - decline
+	 * - hangup
+	 *
+	 * Events:
+	 * - onCallStateChanged //not sure about this.
+	 * - onUserStateChanged
+	 * - onStreamReceived
+	 * - onStreamRemoved
+	 * - onDestroy
+	 */
+
+	var ajaxActions$2 = {
+	  invite: 'im.call.invite',
+	  cancel: 'im.call.cancel',
+	  answer: 'im.call.answer',
+	  decline: 'im.call.decline',
+	  hangup: 'im.call.hangup',
+	  ping: 'im.call.ping'
+	};
+	var pullEvents$2 = {
+	  ping: 'Call::ping',
+	  answer: 'Call::answer',
+	  hangup: 'Call::hangup',
+	  userInviteTimeout: 'Call::userInviteTimeout',
+	  repeatAnswer: 'Call::repeatAnswer'
+	};
+	var clientEvents$1 = {
+	  voiceStarted: 'Call::voiceStarted',
+	  voiceStopped: 'Call::voiceStopped',
+	  microphoneState: 'Call::microphoneState',
+	  cameraState: 'Call::cameraState',
+	  videoPaused: 'Call::videoPaused',
+	  screenState: 'Call::screenState',
+	  recordState: 'Call::recordState',
+	  floorRequest: 'Call::floorRequest',
+	  emotion: 'Call::emotion',
+	  customMessage: 'Call::customMessage',
+	  showUsers: 'Call::showUsers',
+	  showAll: 'Call::showAll',
+	  hideAll: 'Call::hideAll',
+	  joinRoom: 'Call::joinRoom',
+	  leaveRoom: 'Call::leaveRoom',
+	  listRooms: 'Call::listRooms',
+	  requestRoomSpeaker: 'Call::requestRoomSpeaker'
+	};
+	var scenarioEvents$1 = {
+	  viewerJoined: 'Call::viewerJoined',
+	  viewerLeft: 'Call::viewerLeft',
+	  joinRoomOffer: 'Call::joinRoomOffer',
+	  transferRoomHost: 'Call::transferRoomHost',
+	  listRoomsResponse: 'Call::listRoomsResponse',
+	  roomUpdated: 'Call::roomUpdated'
+	};
+	var VoximplantCallEvent = {
+	  onCallConference: 'VoximplantCall::onCallConference'
+	};
+	var pingPeriod$2 = 5000;
+	var backendPingPeriod$2 = 25000;
+	var reinvitePeriod$2 = 5500;
+	var connectionRestoreTime$1 = 15000;
+
+	// const MAX_USERS_WITHOUT_SIMULCAST = 6;
+	var _showLocalVideo$1 = /*#__PURE__*/new WeakSet();
+	var _hideLocalVideo$1 = /*#__PURE__*/new WeakSet();
+	var _onCallConnected$1 = /*#__PURE__*/new WeakSet();
+	var _onCallFailed$1 = /*#__PURE__*/new WeakSet();
+	var _onPeerStateChanged$2 = /*#__PURE__*/new WeakMap();
+	var _onPeerInviteTimeout$2 = /*#__PURE__*/new WeakMap();
+	var _onPullEventAnswer$2 = /*#__PURE__*/new WeakMap();
+	var _onPullEventHangup$2 = /*#__PURE__*/new WeakMap();
+	var _onPullEventUsersJoined$2 = /*#__PURE__*/new WeakMap();
+	var _onPullEventUsersInvited$2 = /*#__PURE__*/new WeakMap();
+	var _onPullEventUserInviteTimeout$2 = /*#__PURE__*/new WeakMap();
+	var _onPullEventPing$2 = /*#__PURE__*/new WeakMap();
+	var _onNoPingsReceived$1 = /*#__PURE__*/new WeakMap();
+	var _onNoSelfPingsReceived$1 = /*#__PURE__*/new WeakMap();
+	var _onPullEventFinish$2 = /*#__PURE__*/new WeakMap();
+	var _onPullEventRepeatAnswer$2 = /*#__PURE__*/new WeakMap();
+	var _onLocalMediaRendererAdded$1 = /*#__PURE__*/new WeakMap();
+	var _onBeforeLocalMediaRendererRemoved$1 = /*#__PURE__*/new WeakMap();
+	var _onMicAccessResult$1 = /*#__PURE__*/new WeakMap();
+	var _onCallReconnecting$1 = /*#__PURE__*/new WeakMap();
+	var _onCallReconnected$1 = /*#__PURE__*/new WeakMap();
+	var _onClientReconnecting$1 = /*#__PURE__*/new WeakMap();
+	var _onClientReconnected$1 = /*#__PURE__*/new WeakMap();
+	var _onCallDisconnected$1 = /*#__PURE__*/new WeakMap();
+	var _onWindowUnload$1 = /*#__PURE__*/new WeakMap();
+	var _onFatalError$1 = /*#__PURE__*/new WeakMap();
+	var _setEndpointForUser$1 = /*#__PURE__*/new WeakSet();
+	var _onCallEndpointAdded$1 = /*#__PURE__*/new WeakMap();
+	var _onCallStatsReceived$1 = /*#__PURE__*/new WeakMap();
+	var _onJoinRoomOffer$1 = /*#__PURE__*/new WeakMap();
+	var _onRoomUpdated$1 = /*#__PURE__*/new WeakMap();
+	var _onCallMessageReceived$1 = /*#__PURE__*/new WeakMap();
+	var VoximplantCall = /*#__PURE__*/function (_AbstractCall) {
+	  babelHelpers.inherits(VoximplantCall, _AbstractCall);
+	  function VoximplantCall(config) {
+	    var _this;
+	    babelHelpers.classCallCheck(this, VoximplantCall);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(VoximplantCall).call(this, config));
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _setEndpointForUser$1);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _onCallFailed$1);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _onCallConnected$1);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _hideLocalVideo$1);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _showLocalVideo$1);
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onPeerStateChanged$2, {
+	      writable: true,
+	      value: function value(e) {
+	        _this.runCallback(CallEvent.onUserStateChanged, e);
+	        if (!_this.ready) {
+	          return;
+	        }
+	        if (e.state == UserState.Failed || e.state == UserState.Unavailable || e.state == UserState.Declined || e.state == UserState.Idle) {
+	          if (_this.type == CallType.Instant && !_this.isAnyoneParticipating()) {
+	            _this.hangup();
+	          }
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onPeerInviteTimeout$2, {
+	      writable: true,
+	      value: function value(e) {
+	        if (!_this.ready) {
+	          return;
+	        }
+	        _this.signaling.sendUserInviteTimeout({
+	          userId: _this.users,
+	          failedUserId: e.userId
+	        });
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onPullEventAnswer$2, {
+	      writable: true,
+	      value: function value(params) {
+	        var senderId = Number(params.senderId);
+	        if (senderId == _this.userId) {
+	          return _this.__onPullEventAnswerSelf(params);
+	        }
+	        if (!_this.peers[senderId]) {
+	          _this.peers[senderId] = _this.createPeer(senderId);
+	          _this.runCallback(CallEvent.onUserInvited, {
+	            userId: senderId
+	          });
+	        }
+	        if (!_this.users.includes(senderId)) {
+	          _this.users.push(senderId);
+	        }
+	        _this.peers[senderId].setReady(true);
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onPullEventHangup$2, {
+	      writable: true,
+	      value: function value(params) {
+	        var senderId = params.senderId;
+	        if (_this.userId == senderId && _this.instanceId != params.callInstanceId) {
+	          // Call declined by the same user elsewhere
+	          _this.runCallback(CallEvent.onLeave, {
+	            local: false
+	          });
+	          return;
+	        }
+	        if (!_this.peers[senderId]) {
+	          return;
+	        }
+	        _this.peers[senderId].setReady(false);
+	        if (params.code == 603) {
+	          _this.peers[senderId].setDeclined(true);
+	        } else if (params.code == 486) {
+	          _this.peers[senderId].setBusy(true);
+	          console.error("user " + senderId + " is busy");
+	        }
+	        if (_this.ready && _this.type == CallType.Instant && !_this.isAnyoneParticipating()) {
+	          _this.hangup();
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onPullEventUsersJoined$2, {
+	      writable: true,
+	      value: function value(params) {
+	        _this.log('__onPullEventUsersJoined', params);
+	        var users = params.users;
+	        _this.addJoinedUsers(users);
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onPullEventUsersInvited$2, {
+	      writable: true,
+	      value: function value(params) {
+	        _this.log('__onPullEventUsersInvited', params);
+	        var users = params.users;
+	        if (_this.type === CallType.Instant) {
+	          _this.addInvitedUsers(users);
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onPullEventUserInviteTimeout$2, {
+	      writable: true,
+	      value: function value(params) {
+	        _this.log('__onPullEventUserInviteTimeout', params);
+	        var failedUserId = params.failedUserId;
+	        if (_this.peers[failedUserId]) {
+	          _this.peers[failedUserId].onInviteTimeout(false);
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onPullEventPing$2, {
+	      writable: true,
+	      value: function value(params) {
+	        if (params.callInstanceId == _this.instanceId) {
+	          // ignore self ping
+	          return;
+	        }
+	        var senderId = Number(params.senderId);
+	        if (senderId == _this.userId) {
+	          if (!_this.joinedElsewhere) {
+	            _this.runCallback(CallEvent.onJoin, {
+	              local: false
+	            });
+	            _this.joinedElsewhere = true;
+	          }
+	          clearTimeout(_this.lastSelfPingReceivedTimeout);
+	          _this.lastSelfPingReceivedTimeout = setTimeout(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onNoSelfPingsReceived$1), pingPeriod$2 * 2.1);
+	        }
+	        clearTimeout(_this.lastPingReceivedTimeout);
+	        _this.lastPingReceivedTimeout = setTimeout(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onNoPingsReceived$1), pingPeriod$2 * 2.1);
+	        if (_this.peers[senderId]) {
+	          _this.peers[senderId].setReady(true);
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onNoPingsReceived$1, {
+	      writable: true,
+	      value: function value() {
+	        if (!_this.ready) {
+	          _this.destroy();
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onNoSelfPingsReceived$1, {
+	      writable: true,
+	      value: function value() {
+	        _this.runCallback(CallEvent.onLeave, {
+	          local: false
+	        });
+	        _this.joinedElsewhere = false;
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onPullEventFinish$2, {
+	      writable: true,
+	      value: function value() {
+	        _this.destroy();
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onPullEventRepeatAnswer$2, {
+	      writable: true,
+	      value: function value() {
+	        if (_this.ready) {
+	          _this.signaling.sendAnswer({
+	            userId: _this.userId
+	          }, true);
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onLocalMediaRendererAdded$1, {
+	      writable: true,
+	      value: function value(e) {
+	        var renderer = e.renderer;
+	        var trackLabel = renderer.stream.getVideoTracks().length > 0 ? renderer.stream.getVideoTracks()[0].label : "";
+	        _this.log("__onLocalMediaRendererAdded", renderer.kind, trackLabel);
+	        if (renderer.kind === "video") {
+	          var tag;
+	          if (trackLabel.match(/^screen|window|tab|web-contents-media-stream/i)) {
+	            tag = "screen";
+	          } else {
+	            tag = "main";
+	          }
+	          _this.screenShared = tag === "screen";
+	          _this.runCallback(CallEvent.onLocalMediaReceived, {
+	            tag: tag,
+	            stream: renderer.stream
+	          });
+	        } else if (renderer.kind === "sharing") {
+	          _this.runCallback(CallEvent.onLocalMediaReceived, {
+	            tag: "screen",
+	            stream: renderer.stream
+	          });
+	          _this.screenShared = true;
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onBeforeLocalMediaRendererRemoved$1, {
+	      writable: true,
+	      value: function value(e) {
+	        var renderer = e.renderer;
+	        _this.log("__onBeforeLocalMediaRendererRemoved", renderer.kind);
+	        if (renderer.kind === "sharing" && !_this.videoEnabled) {
+	          _this.runCallback(CallEvent.onLocalMediaReceived, {
+	            tag: "main",
+	            stream: new MediaStream()
+	          });
+	          _this.screenShared = false;
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onMicAccessResult$1, {
+	      writable: true,
+	      value: function value(e) {
+	        if (e.result) {
+	          if (e.stream.getAudioTracks().length > 0) {
+	            if (_this.localVAD) {
+	              _this.localVAD.destroy();
+	            }
+	            _this.localVAD = new SimpleVAD({
+	              mediaStream: e.stream,
+	              onVoiceStarted: function onVoiceStarted() {
+	                _this.runCallback(CallEvent.onUserVoiceStarted, {
+	                  userId: _this.userId,
+	                  local: true
+	                });
+	              },
+	              onVoiceStopped: function onVoiceStopped() {
+	                _this.runCallback(CallEvent.onUserVoiceStopped, {
+	                  userId: _this.userId,
+	                  local: true
+	                });
+	              }
+	            });
+	            clearInterval(_this.microphoneLevelInterval);
+	            _this.microphoneLevelInterval = setInterval(function () {
+	              return _this.microphoneLevel = _this.localVAD.currentVolume;
+	            }, 200);
+	          }
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onCallReconnecting$1, {
+	      writable: true,
+	      value: function value() {
+	        _this.reconnectionEventCount++;
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onCallReconnected$1, {
+	      writable: true,
+	      value: function value() {
+	        _this.reconnectionEventCount--;
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onClientReconnecting$1, {
+	      writable: true,
+	      value: function value() {
+	        _this.reconnectionEventCount++;
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onClientReconnected$1, {
+	      writable: true,
+	      value: function value() {
+	        _this.reconnectionEventCount--;
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onCallDisconnected$1, {
+	      writable: true,
+	      value: function value(e) {
+	        _this.log("__onCallDisconnected", e && e.headers ? {
+	          headers: e.headers
+	        } : null);
+	        _this.sendTelemetryEvent("disconnect");
+	        _this.localUserState = UserState.Idle;
+	        _this.ready = false;
+	        _this.muted = false;
+	        _this.joinedAsViewer = false;
+	        _this.reinitPeers();
+	        _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this), _hideLocalVideo$1, _hideLocalVideo2$1).call(babelHelpers.assertThisInitialized(_this));
+	        _this.removeCallEvents();
+	        _this.voximplantCall = null;
+	        var client = VoxImplant.getInstance();
+	        client.enableSilentLogging(false);
+	        client.setLoggerCallback(null);
+	        _this.state = CallState.Proceeding;
+	        _this.runCallback(CallEvent.onLeave, {
+	          local: true
+	        });
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onWindowUnload$1, {
+	      writable: true,
+	      value: function value() {
+	        if (_this.ready && _this.voximplantCall) {
+	          _this.signaling.sendHangup({
+	            userId: _this.users
+	          });
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onFatalError$1, {
+	      writable: true,
+	      value: function value(error) {
+	        if (error && error.call) {
+	          delete error.call;
+	        }
+	        _this.log("onFatalError", error);
+	        _this.ready = false;
+	        _this.muted = false;
+	        _this.localUserState = UserState.Failed;
+	        _this.reinitPeers();
+	        _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this), _hideLocalVideo$1, _hideLocalVideo2$1).call(babelHelpers.assertThisInitialized(_this)).then(function () {
+	          if (_this.voximplantCall) {
+	            _this.removeCallEvents();
+	            try {
+	              _this.voximplantCall.hangup({
+	                'X-Reason': 'Fatal error',
+	                'X-Error': typeof error === 'string' ? error : error.code || error.name
+	              });
+	            } catch (e) {
+	              _this.log("Voximplant hangup error: ", e);
+	              console.error("Voximplant hangup error: ", e);
+	            }
+	            _this.voximplantCall = null;
+	          }
+	          if (typeof VoxImplant !== 'undefined') {
+	            var client = VoxImplant.getInstance();
+	            client.enableSilentLogging(false);
+	            client.setLoggerCallback(null);
+	          }
+	          if (typeof error === "string") {
+	            _this.runCallback(CallEvent.onCallFailure, {
+	              name: error
+	            });
+	          } else if (error.name) {
+	            _this.runCallback(CallEvent.onCallFailure, error);
+	          }
+	        });
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onCallEndpointAdded$1, {
+	      writable: true,
+	      value: function value(e) {
+	        var endpoint = e.endpoint;
+	        var userName = endpoint.userName;
+	        _this.log("__onCallEndpointAdded (" + userName + ")", e.endpoint);
+	        console.log("__onCallEndpointAdded (" + userName + ")", e.endpoint);
+	        if (main_core.Type.isStringFilled(userName) && userName.startsWith('user')) {
+	          _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this), _setEndpointForUser$1, _setEndpointForUser2$1).call(babelHelpers.assertThisInitialized(_this), userName, endpoint);
+	        } else {
+	          endpoint.addEventListener(VoxImplant.EndpointEvents.InfoUpdated, function (e) {
+	            var endpoint = e.endpoint;
+	            var userName = endpoint.userName;
+	            _this.log("VoxImplant.EndpointEvents.InfoUpdated (" + userName + ")", e.endpoint);
+	            if (main_core.Type.isStringFilled(userName) && userName.startsWith('user')) {
+	              _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this), _setEndpointForUser$1, _setEndpointForUser2$1).call(babelHelpers.assertThisInitialized(_this), userName, endpoint);
+	            }
+	          });
+	          _this.log('Unknown endpoint ' + userName);
+	          console.warn('Unknown endpoint ' + userName);
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onCallStatsReceived$1, {
+	      writable: true,
+	      value: function value(e) {
+	        if (_this.logger) {
+	          _this.logger.sendStat(transformVoxStats$1(e.stats, _this.voximplantCall));
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onJoinRoomOffer$1, {
+	      writable: true,
+	      value: function value(e) {
+	        console.warn("__onJoinRoomOffer", e);
+	        _this.updateRoom({
+	          id: e.roomId,
+	          users: e.users,
+	          speaker: e.speaker
+	        });
+	        _this.runCallback(CallEvent.onJoinRoomOffer, {
+	          roomId: e.roomId,
+	          users: e.users,
+	          initiator: e.initiator,
+	          speaker: e.speaker
+	        });
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onRoomUpdated$1, {
+	      writable: true,
+	      value: function value(e) {
+	        var speakerChanged = e.roomId === _this._currentRoomId && _this.rooms[e.roomId] && _this.rooms[e.roomId].speaker != e.speaker;
+	        var previousSpeaker = speakerChanged && _this.rooms[e.roomId].speaker;
+	        console.log("__onRoomUpdated; speakerChanged: ", speakerChanged);
+	        _this.updateRoom({
+	          id: e.roomId,
+	          users: e.users,
+	          speaker: e.speaker
+	        });
+	        if (e.roomId === _this._currentRoomId && e.users.indexOf(_this.userId) === -1) {
+	          _this._currentRoomId = null;
+	          _this.runCallback(CallEvent.onLeaveRoom, {
+	            roomId: e.roomId
+	          });
+	        } else if (e.roomId !== _this._currentRoomId && e.users.indexOf(_this.userId) !== -1) {
+	          _this._currentRoomId = e.roomId;
+	          _this.runCallback(CallEvent.onJoinRoom, {
+	            roomId: e.roomId,
+	            speaker: _this.currentRoom().speaker,
+	            users: _this.currentRoom().users
+	          });
+	        } else if (speakerChanged) {
+	          _this.runCallback(CallEvent.onTransferRoomSpeaker, {
+	            roomId: e.roomId,
+	            speaker: e.speaker,
+	            previousSpeaker: previousSpeaker,
+	            initiator: e.initiator
+	          });
+	        }
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _onCallMessageReceived$1, {
+	      writable: true,
+	      value: function value(e) {
+	        var message;
+	        var peer;
+	        try {
+	          message = JSON.parse(e.text);
+	        } catch (err) {
+	          _this.log("Could not parse scenario message.", err);
+	          return;
+	        }
+	        var eventName = message.eventName;
+	        if (eventName === clientEvents$1.voiceStarted) {
+	          // todo: remove after switching to SDK VAD events
+	          _this.runCallback(CallEvent.onUserVoiceStarted, {
+	            userId: message.senderId
+	          });
+	        } else if (eventName === clientEvents$1.voiceStopped) {
+	          // todo: remove after switching to SDK VAD events
+	          _this.runCallback(CallEvent.onUserVoiceStopped, {
+	            userId: message.senderId
+	          });
+	        } else if (eventName === clientEvents$1.microphoneState) {
+	          _this.runCallback(CallEvent.onUserMicrophoneState, {
+	            userId: message.senderId,
+	            microphoneState: message.microphoneState === "Y"
+	          });
+	        } else if (eventName === clientEvents$1.cameraState) {
+	          _this.runCallback(CallEvent.onUserCameraState, {
+	            userId: message.senderId,
+	            cameraState: message.cameraState === "Y"
+	          });
+	        } else if (eventName === clientEvents$1.videoPaused) {
+	          _this.runCallback(CallEvent.onUserVideoPaused, {
+	            userId: message.senderId,
+	            videoPaused: message.videoPaused === "Y"
+	          });
+	        } else if (eventName === clientEvents$1.screenState) {
+	          _this.runCallback(CallEvent.onUserScreenState, {
+	            userId: message.senderId,
+	            screenState: message.screenState === "Y"
+	          });
+	        } else if (eventName === clientEvents$1.recordState) {
+	          _this.runCallback(CallEvent.onUserRecordState, {
+	            userId: message.senderId,
+	            recordState: message.recordState
+	          });
+	        } else if (eventName === clientEvents$1.floorRequest) {
+	          _this.runCallback(CallEvent.onUserFloorRequest, {
+	            userId: message.senderId,
+	            requestActive: message.requestActive === "Y"
+	          });
+	        } else if (eventName === clientEvents$1.emotion) {
+	          _this.runCallback(CallEvent.onUserEmotion, {
+	            userId: message.senderId,
+	            toUserId: message.toUserId,
+	            emotion: message.emotion
+	          });
+	        } else if (eventName === clientEvents$1.customMessage) {
+	          _this.runCallback(CallEvent.onCustomMessage, {
+	            message: message.message
+	          });
+	        } else if (eventName === "scenarioLogUrl") {
+	          console.warn("scenario log url: " + message.logUrl);
+	        } else if (eventName === scenarioEvents$1.joinRoomOffer) {
+	          console.log(message);
+	          babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onJoinRoomOffer$1).call(babelHelpers.assertThisInitialized(_this), message);
+	        } else if (eventName === scenarioEvents$1.roomUpdated) {
+	          // console.log(message)
+	          babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onRoomUpdated$1).call(babelHelpers.assertThisInitialized(_this), message);
+	        } else if (eventName === scenarioEvents$1.listRoomsResponse) {
+	          if (_this.__resolveListRooms) {
+	            _this.__resolveListRooms(message.rooms);
+	            delete _this.__resolveListRooms;
+	          }
+	        } else if (eventName === scenarioEvents$1.viewerJoined) {
+	          console.log("viewer " + message.senderId + " joined");
+	          peer = _this.peers[message.senderId];
+	          if (peer) {
+	            peer.setDirection(EndpointDirection.RecvOnly);
+	            peer.setReady(true);
+	          }
+	        } else if (eventName === scenarioEvents$1.viewerLeft) {
+	          console.log("viewer " + message.senderId + " left");
+	          peer = _this.peers[message.senderId];
+	          if (peer) {
+	            peer.setReady(false);
+	          }
+	        } else {
+	          _this.log("Unknown scenario event " + eventName);
+	        }
+	      }
+	    });
+	    _this.videoQuality = Quality.VeryHigh; // initial video quality. will drop on new peers connecting
+
+	    _this.voximplantCall = null;
+	    _this.signaling = new Signaling$2({
+	      call: babelHelpers.assertThisInitialized(_this)
+	    });
+	    _this.peers = {};
+	    _this.joinedElsewhere = false;
+	    _this.joinedAsViewer = false;
+	    _this.localVideoShown = false;
+	    _this._localUserState = UserState.Idle;
+	    _this.clientEventsBound = false;
+	    _this._screenShared = false;
+	    _this.videoAllowedFrom = UserMnemonic.all;
+	    _this.direction = EndpointDirection.SendRecv;
+	    _this.microphoneLevelInterval = null;
+	    _this.rooms = {};
+	    window.addEventListener("unload", babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onWindowUnload$1));
+	    _this.initPeers();
+	    _this.pingUsersInterval = setInterval(_this.pingUsers.bind(babelHelpers.assertThisInitialized(_this)), pingPeriod$2);
+	    _this.pingBackendInterval = setInterval(_this.pingBackend.bind(babelHelpers.assertThisInitialized(_this)), backendPingPeriod$2);
+	    _this.lastPingReceivedTimeout = null;
+	    _this.lastSelfPingReceivedTimeout = null;
+	    _this.reinviteTimeout = null;
+
+	    // There are two kinds of reconnection events: from call (for media connection) and from client (for signaling).
+	    // So we have to use counter to convert these two events to one
+	    _this._reconnectionEventCount = 0;
+	    _this.pullEventHandlers = {
+	      'Call::answer': babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onPullEventAnswer$2),
+	      'Call::hangup': babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onPullEventHangup$2),
+	      'Call::usersJoined': babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onPullEventUsersJoined$2),
+	      'Call::usersInvited': babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onPullEventUsersInvited$2),
+	      'Call::userInviteTimeout': babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onPullEventUserInviteTimeout$2),
+	      'Call::ping': babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onPullEventPing$2),
+	      'Call::finish': babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onPullEventFinish$2),
+	      'Call::repeatAnswer': babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _onPullEventRepeatAnswer$2)
+	    };
+	    return _this;
+	  }
+	  babelHelpers.createClass(VoximplantCall, [{
+	    key: "initPeers",
+	    value: function initPeers() {
+	      var _this2 = this;
+	      this.users.forEach(function (userId) {
+	        userId = Number(userId);
+	        _this2.peers[userId] = _this2.createPeer(userId);
+	      });
+	    }
+	  }, {
+	    key: "reinitPeers",
+	    value: function reinitPeers() {
+	      for (var userId in this.peers) {
+	        if (this.peers.hasOwnProperty(userId) && this.peers[userId]) {
+	          this.peers[userId].destroy();
+	          this.peers[userId] = null;
+	        }
+	      }
+	      this.initPeers();
+	    }
+	  }, {
+	    key: "pingUsers",
+	    value: function pingUsers() {
+	      if (this.ready) {
+	        var users = this.users.concat(this.userId);
+	        this.signaling.sendPingToUsers({
+	          userId: users
+	        }, true);
+	      }
+	    }
+	  }, {
+	    key: "pingBackend",
+	    value: function pingBackend() {
+	      if (this.ready) {
+	        this.signaling.sendPingToBackend();
+	      }
+	    }
+	  }, {
+	    key: "createPeer",
+	    value: function createPeer(userId) {
+	      var _this3 = this;
+	      var incomingVideoAllowed;
+	      if (this.videoAllowedFrom === UserMnemonic.all) {
+	        incomingVideoAllowed = true;
+	      } else if (this.videoAllowedFrom === UserMnemonic.none) {
+	        incomingVideoAllowed = false;
+	      } else if (main_core.Type.isArray(this.videoAllowedFrom)) {
+	        incomingVideoAllowed = this.videoAllowedFrom.some(function (allowedUserId) {
+	          return allowedUserId == userId;
+	        });
+	      } else {
+	        incomingVideoAllowed = true;
+	      }
+	      return new Peer$2({
+	        call: this,
+	        userId: userId,
+	        ready: userId == this.initiatorId,
+	        isIncomingVideoAllowed: incomingVideoAllowed,
+	        onMediaReceived: function onMediaReceived(e) {
+	          _this3.runCallback(CallEvent.onRemoteMediaReceived, e);
+	          if (e.kind === 'video') {
+	            _this3.runCallback(CallEvent.onUserVideoPaused, {
+	              userId: userId,
+	              videoPaused: false
+	            });
+	          }
+	        },
+	        onMediaRemoved: function onMediaRemoved(e) {
+	          _this3.runCallback(CallEvent.onRemoteMediaStopped, e);
+	        },
+	        onMediaRenderEnabled: function onMediaRenderEnabled(e) {
+	          var endpoint = e.endpoint;
+	          var userName = endpoint.userName;
+	          // user connected to conference (userName is in format `user${id}`
+	          var userId = parseInt(userName.substring(4));
+	          if (_this3.peers[userId]) {
+	            _this3.runCallback(CallEvent.onBadNetworkIndicator, {
+	              userId: userId,
+	              badNetworkIndicator: false
+	            });
+	          }
+	        },
+	        onMediaRenderDisabled: function onMediaRenderDisabled(e) {
+	          var endpoint = e.endpoint;
+	          var userName = endpoint.userName;
+	          if (main_core.Type.isStringFilled(userName) && userName.startsWith('user')) {
+	            var _userId = parseInt(userName.substring(4));
+	            if (_this3.peers[_userId] && e.reason === 'disabledByServer') {
+	              _this3.runCallback(CallEvent.onBadNetworkIndicator, {
+	                userId: _userId,
+	                badNetworkIndicator: true
+	              });
+	            }
+	          }
+	        },
+	        onVoiceStarted: function onVoiceStarted() {
+	          // todo: uncomment to switch to SDK VAD events
+	          /*this.runCallback(Event.onUserVoiceStarted, {
+	          	userId: userId
+	          });*/
+	        },
+	        onVoiceEnded: function onVoiceEnded() {
+	          // todo: uncomment to switch to SDK VAD events
+	          /*this.runCallback(Event.onUserVoiceStopped, {
+	          	userId: userId
+	          });*/
+	        },
+	        onStateChanged: babelHelpers.classPrivateFieldGet(this, _onPeerStateChanged$2),
+	        onInviteTimeout: babelHelpers.classPrivateFieldGet(this, _onPeerInviteTimeout$2)
+	      });
+	    }
+	  }, {
+	    key: "getUsers",
+	    value: function getUsers() {
+	      var result = {};
+	      for (var userId in this.peers) {
+	        result[userId] = this.peers[userId].calculatedState;
+	      }
+	      return result;
+	    }
+	  }, {
+	    key: "getUserCount",
+	    value: function getUserCount() {
+	      return Object.keys(this.peers).length;
+	    }
+	  }, {
+	    key: "getClient",
+	    value: function getClient() {
+	      var _this4 = this;
 	      return new Promise(function (resolve, reject) {
 	        BX.Voximplant.getClient({
 	          restClient: CallEngine.getRestClient()
@@ -11294,16 +16413,16 @@ this.BX = this.BX || {};
 	    value: function bindClientEvents() {
 	      var streamManager = VoxImplant.Hardware.StreamManager.get();
 	      if (!this.clientEventsBound) {
-	        VoxImplant.getInstance().on(VoxImplant.Events.MicAccessResult, babelHelpers.classPrivateFieldGet(this, _onMicAccessResult));
+	        VoxImplant.getInstance().on(VoxImplant.Events.MicAccessResult, babelHelpers.classPrivateFieldGet(this, _onMicAccessResult$1));
 	        if (VoxImplant.Events.Reconnecting) {
-	          VoxImplant.getInstance().on(VoxImplant.Events.Reconnecting, babelHelpers.classPrivateFieldGet(this, _onClientReconnecting));
-	          VoxImplant.getInstance().on(VoxImplant.Events.Reconnected, babelHelpers.classPrivateFieldGet(this, _onClientReconnected));
+	          VoxImplant.getInstance().on(VoxImplant.Events.Reconnecting, babelHelpers.classPrivateFieldGet(this, _onClientReconnecting$1));
+	          VoxImplant.getInstance().on(VoxImplant.Events.Reconnected, babelHelpers.classPrivateFieldGet(this, _onClientReconnected$1));
 	        }
 
 	        // streamManager.on(VoxImplant.Hardware.HardwareEvents.DevicesUpdated, this.#onLocalDevicesUpdated);
-	        streamManager.on(VoxImplant.Hardware.HardwareEvents.MediaRendererAdded, babelHelpers.classPrivateFieldGet(this, _onLocalMediaRendererAdded));
-	        streamManager.on(VoxImplant.Hardware.HardwareEvents.MediaRendererUpdated, babelHelpers.classPrivateFieldGet(this, _onLocalMediaRendererAdded));
-	        streamManager.on(VoxImplant.Hardware.HardwareEvents.BeforeMediaRendererRemoved, babelHelpers.classPrivateFieldGet(this, _onBeforeLocalMediaRendererRemoved));
+	        streamManager.on(VoxImplant.Hardware.HardwareEvents.MediaRendererAdded, babelHelpers.classPrivateFieldGet(this, _onLocalMediaRendererAdded$1));
+	        streamManager.on(VoxImplant.Hardware.HardwareEvents.MediaRendererUpdated, babelHelpers.classPrivateFieldGet(this, _onLocalMediaRendererAdded$1));
+	        streamManager.on(VoxImplant.Hardware.HardwareEvents.BeforeMediaRendererRemoved, babelHelpers.classPrivateFieldGet(this, _onBeforeLocalMediaRendererRemoved$1));
 	        this.clientEventsBound = true;
 	      }
 	    }
@@ -11313,15 +16432,15 @@ this.BX = this.BX || {};
 	      if (!('VoxImplant' in window)) {
 	        return;
 	      }
-	      VoxImplant.getInstance().off(VoxImplant.Events.MicAccessResult, babelHelpers.classPrivateFieldGet(this, _onMicAccessResult));
+	      VoxImplant.getInstance().off(VoxImplant.Events.MicAccessResult, babelHelpers.classPrivateFieldGet(this, _onMicAccessResult$1));
 	      if (VoxImplant.Events.Reconnecting) {
-	        VoxImplant.getInstance().off(VoxImplant.Events.Reconnecting, babelHelpers.classPrivateFieldGet(this, _onClientReconnecting));
-	        VoxImplant.getInstance().off(VoxImplant.Events.Reconnected, babelHelpers.classPrivateFieldGet(this, _onClientReconnected));
+	        VoxImplant.getInstance().off(VoxImplant.Events.Reconnecting, babelHelpers.classPrivateFieldGet(this, _onClientReconnecting$1));
+	        VoxImplant.getInstance().off(VoxImplant.Events.Reconnected, babelHelpers.classPrivateFieldGet(this, _onClientReconnected$1));
 	      }
 	      var streamManager = VoxImplant.Hardware.StreamManager.get();
 	      // streamManager.off(VoxImplant.Hardware.HardwareEvents.DevicesUpdated, this.#onLocalDevicesUpdated);
-	      streamManager.off(VoxImplant.Hardware.HardwareEvents.MediaRendererAdded, babelHelpers.classPrivateFieldGet(this, _onLocalMediaRendererAdded));
-	      streamManager.off(VoxImplant.Hardware.HardwareEvents.BeforeMediaRendererRemoved, babelHelpers.classPrivateFieldGet(this, _onBeforeLocalMediaRendererRemoved));
+	      streamManager.off(VoxImplant.Hardware.HardwareEvents.MediaRendererAdded, babelHelpers.classPrivateFieldGet(this, _onLocalMediaRendererAdded$1));
+	      streamManager.off(VoxImplant.Hardware.HardwareEvents.BeforeMediaRendererRemoved, babelHelpers.classPrivateFieldGet(this, _onBeforeLocalMediaRendererRemoved$1));
 	      this.clientEventsBound = false;
 	    }
 	  }, {
@@ -11356,7 +16475,7 @@ this.BX = this.BX || {};
 	      this.videoEnabled = videoEnabled;
 	      if (this.voximplantCall) {
 	        if (videoEnabled) {
-	          _classPrivateMethodGet$1(this, _showLocalVideo, _showLocalVideo2).call(this);
+	          _classPrivateMethodGet$3(this, _showLocalVideo$1, _showLocalVideo2$1).call(this);
 	        } else {
 	          if (this.localVideoShown) {
 	            VoxImplant.Hardware.StreamManager.get().hideLocalVideo().then(function () {
@@ -11565,7 +16684,7 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      })["catch"](function (e) {
-	        babelHelpers.classPrivateFieldGet(_this10, _onFatalError).call(_this10, e);
+	        babelHelpers.classPrivateFieldGet(_this10, _onFatalError$1).call(_this10, e);
 	      });
 	    }
 	  }, {
@@ -11575,7 +16694,7 @@ this.BX = this.BX || {};
 	      clearTimeout(this.reinviteTimeout);
 	      this.reinviteTimeout = setTimeout(function () {
 	        return _this11.repeatInviteUsers();
-	      }, reinvitePeriod$1);
+	      }, reinvitePeriod$2);
 	    }
 	  }, {
 	    key: "repeatInviteUsers",
@@ -11628,7 +16747,7 @@ this.BX = this.BX || {};
 	          local: true
 	        });
 	      })["catch"](function (err) {
-	        babelHelpers.classPrivateFieldGet(_this13, _onFatalError).call(_this13, err);
+	        babelHelpers.classPrivateFieldGet(_this13, _onFatalError$1).call(_this13, err);
 	      });
 	    }
 	  }, {
@@ -11642,7 +16761,7 @@ this.BX = this.BX || {};
 	      if (code) {
 	        data.code = code;
 	      }
-	      CallEngine.getRestClient().callMethod(ajaxActions$1.decline, data);
+	      CallEngine.getRestClient().callMethod(ajaxActions$2.decline, data);
 	    }
 	  }, {
 	    key: "hangup",
@@ -11693,7 +16812,7 @@ this.BX = this.BX || {};
 	        console.error("Tried to hangup, but this.voximplantCall points nowhere");
 	      }
 	      this.screenShared = false;
-	      _classPrivateMethodGet$1(this, _hideLocalVideo, _hideLocalVideo2).call(this);
+	      _classPrivateMethodGet$3(this, _hideLocalVideo$1, _hideLocalVideo2$1).call(this);
 	    }
 	  }, {
 	    key: "attachToConference",
@@ -11722,7 +16841,7 @@ this.BX = this.BX || {};
 	            });
 	          }
 	          if (_this14.videoEnabled) {
-	            _classPrivateMethodGet$1(_this14, _showLocalVideo, _showLocalVideo2).call(_this14);
+	            _classPrivateMethodGet$3(_this14, _showLocalVideo$1, _showLocalVideo2$1).call(_this14);
 	          }
 	          try {
 	            if (joinAsViewer) {
@@ -11759,47 +16878,47 @@ this.BX = this.BX || {};
 	          });
 	          _this14.bindCallEvents();
 	          _this14.voximplantCall.on(VoxImplant.CallEvents.Connected, function () {
-	            _classPrivateMethodGet$1(_this14, _onCallConnected, _onCallConnected2).call(_this14);
+	            _classPrivateMethodGet$3(_this14, _onCallConnected$1, _onCallConnected2$1).call(_this14);
 	            resolve();
 	          }, {
 	            once: true
 	          });
 	          _this14.voximplantCall.on(VoxImplant.CallEvents.Failed, function (e) {
-	            _classPrivateMethodGet$1(_this14, _onCallFailed, _onCallFailed2).call(_this14, e);
+	            _classPrivateMethodGet$3(_this14, _onCallFailed$1, _onCallFailed2$1).call(_this14, e);
 	            reject(e);
 	          }, {
 	            once: true
 	          });
-	        })["catch"](babelHelpers.classPrivateFieldGet(_this14, _onFatalError).bind(_this14));
+	        })["catch"](babelHelpers.classPrivateFieldGet(_this14, _onFatalError$1).bind(_this14));
 	      });
 	    }
 	  }, {
 	    key: "bindCallEvents",
 	    value: function bindCallEvents() {
-	      this.voximplantCall.on(VoxImplant.CallEvents.Disconnected, babelHelpers.classPrivateFieldGet(this, _onCallDisconnected));
-	      this.voximplantCall.on(VoxImplant.CallEvents.MessageReceived, babelHelpers.classPrivateFieldGet(this, _onCallMessageReceived));
+	      this.voximplantCall.on(VoxImplant.CallEvents.Disconnected, babelHelpers.classPrivateFieldGet(this, _onCallDisconnected$1));
+	      this.voximplantCall.on(VoxImplant.CallEvents.MessageReceived, babelHelpers.classPrivateFieldGet(this, _onCallMessageReceived$1));
 	      if (Util$1.shouldCollectStats()) {
-	        this.voximplantCall.on(VoxImplant.CallEvents.CallStatsReceived, babelHelpers.classPrivateFieldGet(this, _onCallStatsReceived));
+	        this.voximplantCall.on(VoxImplant.CallEvents.CallStatsReceived, babelHelpers.classPrivateFieldGet(this, _onCallStatsReceived$1));
 	      }
-	      this.voximplantCall.on(VoxImplant.CallEvents.EndpointAdded, babelHelpers.classPrivateFieldGet(this, _onCallEndpointAdded));
+	      this.voximplantCall.on(VoxImplant.CallEvents.EndpointAdded, babelHelpers.classPrivateFieldGet(this, _onCallEndpointAdded$1));
 	      if (VoxImplant.CallEvents.Reconnecting) {
-	        this.voximplantCall.on(VoxImplant.CallEvents.Reconnecting, babelHelpers.classPrivateFieldGet(this, _onCallReconnecting));
-	        this.voximplantCall.on(VoxImplant.CallEvents.Reconnected, babelHelpers.classPrivateFieldGet(this, _onCallReconnected));
+	        this.voximplantCall.on(VoxImplant.CallEvents.Reconnecting, babelHelpers.classPrivateFieldGet(this, _onCallReconnecting$1));
+	        this.voximplantCall.on(VoxImplant.CallEvents.Reconnected, babelHelpers.classPrivateFieldGet(this, _onCallReconnected$1));
 	      }
 	    }
 	  }, {
 	    key: "removeCallEvents",
 	    value: function removeCallEvents() {
 	      if (this.voximplantCall) {
-	        this.voximplantCall.removeEventListener(VoxImplant.CallEvents.Disconnected, babelHelpers.classPrivateFieldGet(this, _onCallDisconnected));
-	        this.voximplantCall.removeEventListener(VoxImplant.CallEvents.MessageReceived, babelHelpers.classPrivateFieldGet(this, _onCallMessageReceived));
+	        this.voximplantCall.removeEventListener(VoxImplant.CallEvents.Disconnected, babelHelpers.classPrivateFieldGet(this, _onCallDisconnected$1));
+	        this.voximplantCall.removeEventListener(VoxImplant.CallEvents.MessageReceived, babelHelpers.classPrivateFieldGet(this, _onCallMessageReceived$1));
 	        if (Util$1.shouldCollectStats()) {
-	          this.voximplantCall.removeEventListener(VoxImplant.CallEvents.CallStatsReceived, babelHelpers.classPrivateFieldGet(this, _onCallStatsReceived));
+	          this.voximplantCall.removeEventListener(VoxImplant.CallEvents.CallStatsReceived, babelHelpers.classPrivateFieldGet(this, _onCallStatsReceived$1));
 	        }
-	        this.voximplantCall.removeEventListener(VoxImplant.CallEvents.EndpointAdded, babelHelpers.classPrivateFieldGet(this, _onCallEndpointAdded));
+	        this.voximplantCall.removeEventListener(VoxImplant.CallEvents.EndpointAdded, babelHelpers.classPrivateFieldGet(this, _onCallEndpointAdded$1));
 	        if (VoxImplant.CallEvents.Reconnecting) {
-	          this.voximplantCall.removeEventListener(VoxImplant.CallEvents.Reconnecting, babelHelpers.classPrivateFieldGet(this, _onCallReconnecting));
-	          this.voximplantCall.removeEventListener(VoxImplant.CallEvents.Reconnected, babelHelpers.classPrivateFieldGet(this, _onCallReconnected));
+	          this.voximplantCall.removeEventListener(VoxImplant.CallEvents.Reconnecting, babelHelpers.classPrivateFieldGet(this, _onCallReconnecting$1));
+	          this.voximplantCall.removeEventListener(VoxImplant.CallEvents.Reconnected, babelHelpers.classPrivateFieldGet(this, _onCallReconnected$1));
 	        }
 	      }
 	    }
@@ -11963,7 +17082,7 @@ this.BX = this.BX || {};
 	    value: function destroy() {
 	      this.ready = false;
 	      this.joinedAsViewer = false;
-	      _classPrivateMethodGet$1(this, _hideLocalVideo, _hideLocalVideo2).call(this);
+	      _classPrivateMethodGet$3(this, _hideLocalVideo$1, _hideLocalVideo2$1).call(this);
 	      if (this.localVAD) {
 	        this.localVAD.destroy();
 	        this.localVAD = null;
@@ -11986,7 +17105,7 @@ this.BX = this.BX || {};
 	      clearTimeout(this.lastSelfPingReceivedTimeout);
 	      clearInterval(this.pingUsersInterval);
 	      clearInterval(this.pingBackendInterval);
-	      window.removeEventListener("unload", babelHelpers.classPrivateFieldGet(this, _onWindowUnload));
+	      window.removeEventListener("unload", babelHelpers.classPrivateFieldGet(this, _onWindowUnload$1));
 	      return babelHelpers.get(babelHelpers.getPrototypeOf(VoximplantCall.prototype), "destroy", this).call(this);
 	    }
 	  }, {
@@ -12039,7 +17158,7 @@ this.BX = this.BX || {};
 	  }]);
 	  return VoximplantCall;
 	}(AbstractCall);
-	function _showLocalVideo2() {
+	function _showLocalVideo2$1() {
 	  var _this18 = this;
 	  return new Promise(function (resolve) {
 	    VoxImplant.Hardware.StreamManager.get().showLocalVideo(false).then(function () {
@@ -12051,7 +17170,7 @@ this.BX = this.BX || {};
 	    });
 	  });
 	}
-	function _hideLocalVideo2() {
+	function _hideLocalVideo2$1() {
 	  var _this19 = this;
 	  return new Promise(function (resolve) {
 	    if (!('VoxImplant' in window)) {
@@ -12067,11 +17186,11 @@ this.BX = this.BX || {};
 	    });
 	  });
 	}
-	function _onCallConnected2() {
+	function _onCallConnected2$1() {
 	  this.log("Call connected");
 	  this.sendTelemetryEvent("connect");
 	  this.localUserState = UserState.Connected;
-	  this.voximplantCall.on(VoxImplant.CallEvents.Failed, babelHelpers.classPrivateFieldGet(this, _onCallDisconnected));
+	  this.voximplantCall.on(VoxImplant.CallEvents.Failed, babelHelpers.classPrivateFieldGet(this, _onCallDisconnected$1));
 	  if (this.muted) {
 	    this.voximplantCall.muteMicrophone();
 	  }
@@ -12083,7 +17202,7 @@ this.BX = this.BX || {};
 	    this.signaling.sendShowUsers(this.videoAllowedFrom);
 	  }
 	}
-	function _onCallFailed2(e) {
+	function _onCallFailed2$1(e) {
 	  this.log("Could not attach to conference", e);
 	  this.sendTelemetryEvent("connect_failure");
 	  this.localUserState = UserState.Failed;
@@ -12091,7 +17210,7 @@ this.BX = this.BX || {};
 	  client.enableSilentLogging(false);
 	  client.setLoggerCallback(null);
 	}
-	function _setEndpointForUser2(userName, endpoint) {
+	function _setEndpointForUser2$1(userName, endpoint) {
 	  // user connected to conference (userName is in format `user${id}`
 	  var userId = parseInt(userName.substring(4));
 	  if (this.peers[userId]) {
@@ -12100,95 +17219,95 @@ this.BX = this.BX || {};
 	  this.wasConnected = true;
 	}
 	babelHelpers.defineProperty(VoximplantCall, "Event", VoximplantCallEvent);
-	var _sendPullEvent$1 = /*#__PURE__*/new WeakSet();
-	var _sendMessage = /*#__PURE__*/new WeakSet();
-	var _runRestAction$1 = /*#__PURE__*/new WeakSet();
-	var Signaling$1 = /*#__PURE__*/function () {
+	var _sendPullEvent$2 = /*#__PURE__*/new WeakSet();
+	var _sendMessage$1 = /*#__PURE__*/new WeakSet();
+	var _runRestAction$2 = /*#__PURE__*/new WeakSet();
+	var Signaling$2 = /*#__PURE__*/function () {
 	  function Signaling(params) {
 	    babelHelpers.classCallCheck(this, Signaling);
-	    _classPrivateMethodInitSpec$1(this, _runRestAction$1);
-	    _classPrivateMethodInitSpec$1(this, _sendMessage);
-	    _classPrivateMethodInitSpec$1(this, _sendPullEvent$1);
+	    _classPrivateMethodInitSpec$3(this, _runRestAction$2);
+	    _classPrivateMethodInitSpec$3(this, _sendMessage$1);
+	    _classPrivateMethodInitSpec$3(this, _sendPullEvent$2);
 	    this.call = params.call;
 	  }
 	  babelHelpers.createClass(Signaling, [{
 	    key: "inviteUsers",
 	    value: function inviteUsers(data) {
-	      return _classPrivateMethodGet$1(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.invite, data);
+	      return _classPrivateMethodGet$3(this, _runRestAction$2, _runRestAction2$2).call(this, ajaxActions$2.invite, data);
 	    }
 	  }, {
 	    key: "sendAnswer",
 	    value: function sendAnswer(data, repeated) {
 	      if (repeated && CallEngine.getPullClient().isPublishingEnabled()) {
-	        _classPrivateMethodGet$1(this, _sendPullEvent$1, _sendPullEvent2$1).call(this, pullEvents$1.answer, data);
+	        _classPrivateMethodGet$3(this, _sendPullEvent$2, _sendPullEvent2$2).call(this, pullEvents$2.answer, data);
 	      } else {
-	        return _classPrivateMethodGet$1(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.answer, data);
+	        return _classPrivateMethodGet$3(this, _runRestAction$2, _runRestAction2$2).call(this, ajaxActions$2.answer, data);
 	      }
 	    }
 	  }, {
 	    key: "sendCancel",
 	    value: function sendCancel(data) {
-	      return _classPrivateMethodGet$1(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.cancel, data);
+	      return _classPrivateMethodGet$3(this, _runRestAction$2, _runRestAction2$2).call(this, ajaxActions$2.cancel, data);
 	    }
 	  }, {
 	    key: "sendHangup",
 	    value: function sendHangup(data) {
 	      if (CallEngine.getPullClient().isPublishingEnabled()) {
-	        _classPrivateMethodGet$1(this, _sendPullEvent$1, _sendPullEvent2$1).call(this, pullEvents$1.hangup, data);
+	        _classPrivateMethodGet$3(this, _sendPullEvent$2, _sendPullEvent2$2).call(this, pullEvents$2.hangup, data);
 	        data.retransmit = false;
-	        _classPrivateMethodGet$1(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.hangup, data);
+	        _classPrivateMethodGet$3(this, _runRestAction$2, _runRestAction2$2).call(this, ajaxActions$2.hangup, data);
 	      } else {
 	        data.retransmit = true;
-	        _classPrivateMethodGet$1(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.hangup, data);
+	        _classPrivateMethodGet$3(this, _runRestAction$2, _runRestAction2$2).call(this, ajaxActions$2.hangup, data);
 	      }
 	    }
 	  }, {
 	    key: "sendVoiceStarted",
 	    value: function sendVoiceStarted(data) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.voiceStarted, data);
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.voiceStarted, data);
 	    }
 	  }, {
 	    key: "sendVoiceStopped",
 	    value: function sendVoiceStopped(data) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.voiceStopped, data);
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.voiceStopped, data);
 	    }
 	  }, {
 	    key: "sendMicrophoneState",
 	    value: function sendMicrophoneState(microphoneState) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.microphoneState, {
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.microphoneState, {
 	        microphoneState: microphoneState ? "Y" : "N"
 	      });
 	    }
 	  }, {
 	    key: "sendCameraState",
 	    value: function sendCameraState(cameraState) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.cameraState, {
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.cameraState, {
 	        cameraState: cameraState ? "Y" : "N"
 	      });
 	    }
 	  }, {
 	    key: "sendScreenState",
 	    value: function sendScreenState(screenState) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.screenState, {
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.screenState, {
 	        screenState: screenState ? "Y" : "N"
 	      });
 	    }
 	  }, {
 	    key: "sendRecordState",
 	    value: function sendRecordState(recordState) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.recordState, recordState);
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.recordState, recordState);
 	    }
 	  }, {
 	    key: "sendFloorRequest",
 	    value: function sendFloorRequest(requestActive) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.floorRequest, {
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.floorRequest, {
 	        requestActive: requestActive ? "Y" : "N"
 	      });
 	    }
 	  }, {
 	    key: "sendEmotion",
 	    value: function sendEmotion(toUserId, emotion) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.emotion, {
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.emotion, {
 	        toUserId: toUserId,
 	        emotion: emotion
 	      });
@@ -12196,7 +17315,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "sendCustomMessage",
 	    value: function sendCustomMessage(message, repeatOnConnect) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.customMessage, {
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.customMessage, {
 	        message: message,
 	        repeatOnConnect: !!repeatOnConnect
 	      });
@@ -12204,31 +17323,31 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "sendShowUsers",
 	    value: function sendShowUsers(users) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.showUsers, {
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.showUsers, {
 	        users: users
 	      });
 	    }
 	  }, {
 	    key: "sendShowAll",
 	    value: function sendShowAll() {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.showAll, {});
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.showAll, {});
 	    }
 	  }, {
 	    key: "sendHideAll",
 	    value: function sendHideAll() {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.hideAll, {});
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.hideAll, {});
 	    }
 	  }, {
 	    key: "sendPingToUsers",
 	    value: function sendPingToUsers(data) {
 	      if (CallEngine.getPullClient().isPublishingEnabled()) {
-	        _classPrivateMethodGet$1(this, _sendPullEvent$1, _sendPullEvent2$1).call(this, pullEvents$1.ping, data, 0);
+	        _classPrivateMethodGet$3(this, _sendPullEvent$2, _sendPullEvent2$2).call(this, pullEvents$2.ping, data, 0);
 	      }
 	    }
 	  }, {
 	    key: "sendPingToBackend",
 	    value: function sendPingToBackend() {
-	      _classPrivateMethodGet$1(this, _runRestAction$1, _runRestAction2$1).call(this, ajaxActions$1.ping, {
+	      _classPrivateMethodGet$3(this, _runRestAction$2, _runRestAction2$2).call(this, ajaxActions$2.ping, {
 	        retransmit: false
 	      });
 	    }
@@ -12236,39 +17355,39 @@ this.BX = this.BX || {};
 	    key: "sendUserInviteTimeout",
 	    value: function sendUserInviteTimeout(data) {
 	      if (CallEngine.getPullClient().isPublishingEnabled()) {
-	        _classPrivateMethodGet$1(this, _sendPullEvent$1, _sendPullEvent2$1).call(this, pullEvents$1.userInviteTimeout, data, 0);
+	        _classPrivateMethodGet$3(this, _sendPullEvent$2, _sendPullEvent2$2).call(this, pullEvents$2.userInviteTimeout, data, 0);
 	      }
 	    }
 	  }, {
 	    key: "sendJoinRoom",
 	    value: function sendJoinRoom(roomId) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.joinRoom, {
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.joinRoom, {
 	        roomId: roomId
 	      });
 	    }
 	  }, {
 	    key: "sendLeaveRoom",
 	    value: function sendLeaveRoom(roomId) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.leaveRoom, {
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.leaveRoom, {
 	        roomId: roomId
 	      });
 	    }
 	  }, {
 	    key: "sendListRooms",
 	    value: function sendListRooms() {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.listRooms);
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.listRooms);
 	    }
 	  }, {
 	    key: "sendRequestRoomSpeaker",
 	    value: function sendRequestRoomSpeaker(roomId) {
-	      return _classPrivateMethodGet$1(this, _sendMessage, _sendMessage2).call(this, clientEvents.requestRoomSpeaker, {
+	      return _classPrivateMethodGet$3(this, _sendMessage$1, _sendMessage2$1).call(this, clientEvents$1.requestRoomSpeaker, {
 	        roomId: roomId
 	      });
 	    }
 	  }]);
 	  return Signaling;
 	}();
-	function _sendPullEvent2$1(eventName, data, expiry) {
+	function _sendPullEvent2$2(eventName, data, expiry) {
 	  expiry = expiry || 5;
 	  if (!data.userId) {
 	    throw new Error('userId is not found in data');
@@ -12287,7 +17406,7 @@ this.BX = this.BX || {};
 	  this.call.log('Sending p2p signaling event ' + eventName + '; ' + JSON.stringify(data));
 	  CallEngine.getPullClient().sendMessage(data.userId, 'im', eventName, data, expiry);
 	}
-	function _sendMessage2(eventName, data) {
+	function _sendMessage2$1(eventName, data) {
 	  if (!this.call.voximplantCall) {
 	    return;
 	  }
@@ -12298,7 +17417,7 @@ this.BX = this.BX || {};
 	  data.requestId = Util$1.getUuidv4();
 	  this.call.voximplantCall.sendMessage(JSON.stringify(data));
 	}
-	function _runRestAction2$1(signalName, data) {
+	function _runRestAction2$2(signalName, data) {
 	  if (!main_core.Type.isPlainObject(data)) {
 	    data = {};
 	  }
@@ -12307,16 +17426,18 @@ this.BX = this.BX || {};
 	  data.requestId = Util$1.getUuidv4();
 	  return CallEngine.getRestClient().callMethod(signalName, data);
 	}
-	var _onEndpointRemoteMediaAdded = /*#__PURE__*/new WeakMap();
-	var _onEndpointRemoteMediaRemoved = /*#__PURE__*/new WeakMap();
-	var _onEndpointVoiceStart = /*#__PURE__*/new WeakMap();
-	var _onEndpointVoiceEnd = /*#__PURE__*/new WeakMap();
-	var _onEndpointRemoved = /*#__PURE__*/new WeakMap();
-	var Peer$1 = /*#__PURE__*/function () {
+	var _onEndpointRemoteMediaAdded$1 = /*#__PURE__*/new WeakMap();
+	var _onEndpointRemoteMediaRemoved$1 = /*#__PURE__*/new WeakMap();
+	var _onEndpointVoiceStart$1 = /*#__PURE__*/new WeakMap();
+	var _onEndpointVoiceEnd$1 = /*#__PURE__*/new WeakMap();
+	var _onEndpointRemoved$1 = /*#__PURE__*/new WeakMap();
+	var _onEndpointMediaRenderEnabled = /*#__PURE__*/new WeakMap();
+	var _onEndpointMediaRenderDisabled = /*#__PURE__*/new WeakMap();
+	var Peer$2 = /*#__PURE__*/function () {
 	  function Peer(params) {
 	    var _this16 = this;
 	    babelHelpers.classCallCheck(this, Peer);
-	    _classPrivateFieldInitSpec(this, _onEndpointRemoteMediaAdded, {
+	    _classPrivateFieldInitSpec$2(this, _onEndpointRemoteMediaAdded$1, {
 	      writable: true,
 	      value: function value(e) {
 	        _this16.log("VoxImplant.EndpointEvents.RemoteMediaAdded", e.mediaRenderer);
@@ -12329,7 +17450,7 @@ this.BX = this.BX || {};
 	        _this16.addMediaRenderer(e.mediaRenderer);
 	      }
 	    });
-	    _classPrivateFieldInitSpec(this, _onEndpointRemoteMediaRemoved, {
+	    _classPrivateFieldInitSpec$2(this, _onEndpointRemoteMediaRemoved$1, {
 	      writable: true,
 	      value: function value(e) {
 	        console.log("VoxImplant.EndpointEvents.RemoteMediaRemoved, ", e.mediaRenderer);
@@ -12337,19 +17458,19 @@ this.BX = this.BX || {};
 	        _this16.removeMediaRenderer(e.mediaRenderer);
 	      }
 	    });
-	    _classPrivateFieldInitSpec(this, _onEndpointVoiceStart, {
+	    _classPrivateFieldInitSpec$2(this, _onEndpointVoiceStart$1, {
 	      writable: true,
 	      value: function value() {
 	        _this16.callbacks.onVoiceStarted();
 	      }
 	    });
-	    _classPrivateFieldInitSpec(this, _onEndpointVoiceEnd, {
+	    _classPrivateFieldInitSpec$2(this, _onEndpointVoiceEnd$1, {
 	      writable: true,
 	      value: function value() {
 	        _this16.callbacks.onVoiceEnded();
 	      }
 	    });
-	    _classPrivateFieldInitSpec(this, _onEndpointRemoved, {
+	    _classPrivateFieldInitSpec$2(this, _onEndpointRemoved$1, {
 	      writable: true,
 	      value: function value(e) {
 	        _this16.log("VoxImplant.EndpointEvents.Removed", e);
@@ -12364,6 +17485,18 @@ this.BX = this.BX || {};
 	          _this16.waitForConnectionRestore();
 	        }
 	        _this16.updateCalculatedState();
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(this, _onEndpointMediaRenderEnabled, {
+	      writable: true,
+	      value: function value(e) {
+	        _this16.callbacks.onMediaRenderEnabled(e);
+	      }
+	    });
+	    _classPrivateFieldInitSpec$2(this, _onEndpointMediaRenderDisabled, {
+	      writable: true,
+	      value: function value(e) {
+	        _this16.callbacks.onMediaRenderDisabled(e);
 	      }
 	    });
 	    this.userId = params.userId;
@@ -12386,7 +17519,9 @@ this.BX = this.BX || {};
 	      onMediaReceived: main_core.Type.isFunction(params.onMediaReceived) ? params.onMediaReceived : BX.DoNothing,
 	      onMediaRemoved: main_core.Type.isFunction(params.onMediaRemoved) ? params.onMediaRemoved : BX.DoNothing,
 	      onVoiceStarted: main_core.Type.isFunction(params.onVoiceStarted) ? params.onVoiceStarted : BX.DoNothing,
-	      onVoiceEnded: main_core.Type.isFunction(params.onVoiceEnded) ? params.onVoiceEnded : BX.DoNothing
+	      onVoiceEnded: main_core.Type.isFunction(params.onVoiceEnded) ? params.onVoiceEnded : BX.DoNothing,
+	      onMediaRenderEnabled: main_core.Type.isFunction(params.onMediaRenderEnabled) ? params.onMediaRenderEnabled : BX.DoNothing,
+	      onMediaRenderDisabled: main_core.Type.isFunction(params.onMediaRenderDisabled) ? params.onMediaRenderDisabled : BX.DoNothing
 	    };
 	    this.calculatedState = this.calculateState();
 	  }
@@ -12507,20 +17642,24 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "bindEndpointEventHandlers",
 	    value: function bindEndpointEventHandlers() {
-	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.RemoteMediaAdded, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaAdded));
-	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.RemoteMediaRemoved, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaRemoved));
-	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.VoiceStart, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceStart));
-	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.VoiceEnd, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceEnd));
-	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.Removed, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoved));
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.RemoteMediaAdded, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaAdded$1));
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.RemoteMediaRemoved, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaRemoved$1));
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.VoiceStart, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceStart$1));
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.VoiceEnd, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceEnd$1));
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.Removed, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoved$1));
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.MediaRenderEnabled, babelHelpers.classPrivateFieldGet(this, _onEndpointMediaRenderEnabled));
+	      this.endpoint.addEventListener(VoxImplant.EndpointEvents.MediaRenderDisabled, babelHelpers.classPrivateFieldGet(this, _onEndpointMediaRenderDisabled));
 	    }
 	  }, {
 	    key: "removeEndpointEventHandlers",
 	    value: function removeEndpointEventHandlers() {
-	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.RemoteMediaAdded, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaAdded));
-	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.RemoteMediaRemoved, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaRemoved));
-	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.VoiceStart, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceStart));
-	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.VoiceEnd, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceEnd));
-	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.Removed, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoved));
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.RemoteMediaAdded, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaAdded$1));
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.RemoteMediaRemoved, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoteMediaRemoved$1));
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.VoiceStart, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceStart$1));
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.VoiceEnd, babelHelpers.classPrivateFieldGet(this, _onEndpointVoiceEnd$1));
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.Removed, babelHelpers.classPrivateFieldGet(this, _onEndpointRemoved$1));
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.MediaRenderEnabled, babelHelpers.classPrivateFieldGet(this, _onEndpointMediaRenderEnabled));
+	      this.endpoint.removeEventListener(VoxImplant.EndpointEvents.MediaRenderDisabled, babelHelpers.classPrivateFieldGet(this, _onEndpointMediaRenderDisabled));
 	    }
 	  }, {
 	    key: "calculateState",
@@ -12568,7 +17707,7 @@ this.BX = this.BX || {};
 	    key: "waitForConnectionRestore",
 	    value: function waitForConnectionRestore() {
 	      clearTimeout(this.connectionRestoreTimeout);
-	      this.connectionRestoreTimeout = setTimeout(this.onConnectionRestoreTimeout.bind(this), connectionRestoreTime);
+	      this.connectionRestoreTimeout = setTimeout(this.onConnectionRestoreTimeout.bind(this), connectionRestoreTime$1);
 	    }
 	  }, {
 	    key: "onInvited",
@@ -12640,7 +17779,7 @@ this.BX = this.BX || {};
 	  }]);
 	  return Peer;
 	}();
-	var transformVoxStats = function transformVoxStats(s, voximplantCall) {
+	var transformVoxStats$1 = function transformVoxStats(s, voximplantCall) {
 	  var result = {
 	    connection: s.connection,
 	    outboundAudio: [],
@@ -12739,6 +17878,11 @@ this.BX = this.BX || {};
 	      return false;
 	    }
 	  }, {
+	    key: "addInvitedUsers",
+	    value: function addInvitedUsers() {
+	      console.error("unexpected call to CallStub.addInvitedUsers");
+	    }
+	  }, {
 	    key: "destroy",
 	    value: function destroy() {
 	      clearTimeout(this.deleteTimeout);
@@ -12748,9 +17892,9 @@ this.BX = this.BX || {};
 	  return CallStub;
 	}();
 
-	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
-	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodInitSpec$4(obj, privateSet) { _checkPrivateRedeclaration$4(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration$4(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$4(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var CallState = {
 	  Idle: 'Idle',
 	  Proceeding: 'Proceeding',
@@ -12779,7 +17923,8 @@ this.BX = this.BX || {};
 	};
 	var Provider = {
 	  Plain: 'Plain',
-	  Voximplant: 'Voximplant'
+	  Voximplant: 'Voximplant',
+	  Bitrix: 'Bitrix'
 	};
 	var Direction = {
 	  Incoming: 'Incoming',
@@ -12818,6 +17963,7 @@ this.BX = this.BX || {};
 	  onCallFailure: 'onCallFailure',
 	  onRemoteMediaReceived: 'onRemoteMediaReceived',
 	  onRemoteMediaStopped: 'onRemoteMediaStopped',
+	  onBadNetworkIndicator: 'onBadNetworkIndicator',
 	  onNetworkProblem: 'onNetworkProblem',
 	  onReconnecting: 'onReconnecting',
 	  onReconnected: 'onReconnected',
@@ -12832,7 +17978,7 @@ this.BX = this.BX || {};
 	  onTransferRoomSpeaker: 'onTransferRoomSpeaker',
 	  onDestroy: 'onDestroy'
 	};
-	var ajaxActions$2 = {
+	var ajaxActions$3 = {
 	  createCall: 'im.call.create',
 	  createChildCall: 'im.call.createChildCall',
 	  getPublicChannels: 'pull.channel.public.list',
@@ -12849,16 +17995,16 @@ this.BX = this.BX || {};
 	var Engine = /*#__PURE__*/function () {
 	  function Engine() {
 	    babelHelpers.classCallCheck(this, Engine);
-	    _classPrivateMethodInitSpec$2(this, _getCallFactory);
-	    _classPrivateMethodInitSpec$2(this, _isCallAppInitialized);
-	    _classPrivateMethodInitSpec$2(this, _onCallDestroy);
-	    _classPrivateMethodInitSpec$2(this, _onUnknownCallPing);
-	    _classPrivateMethodInitSpec$2(this, _onPullIncomingCall);
-	    _classPrivateMethodInitSpec$2(this, _onPullClientEvent);
-	    _classPrivateMethodInitSpec$2(this, _onPullEvent);
-	    _classPrivateMethodInitSpec$2(this, _instantiateCall);
+	    _classPrivateMethodInitSpec$4(this, _getCallFactory);
+	    _classPrivateMethodInitSpec$4(this, _isCallAppInitialized);
+	    _classPrivateMethodInitSpec$4(this, _onCallDestroy);
+	    _classPrivateMethodInitSpec$4(this, _onUnknownCallPing);
+	    _classPrivateMethodInitSpec$4(this, _onPullIncomingCall);
+	    _classPrivateMethodInitSpec$4(this, _onPullClientEvent);
+	    _classPrivateMethodInitSpec$4(this, _onPullEvent);
+	    _classPrivateMethodInitSpec$4(this, _instantiateCall);
 	    babelHelpers.defineProperty(this, "handlers", {
-	      'Call::incoming': _classPrivateMethodGet$2(this, _onPullIncomingCall, _onPullIncomingCall2).bind(this)
+	      'Call::incoming': _classPrivateMethodGet$4(this, _onPullIncomingCall, _onPullIncomingCall2).bind(this)
 	    });
 	    this.debugFlag = false;
 	    this.calls = {};
@@ -12872,8 +18018,8 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(Engine, [{
 	    key: "init",
 	    value: function init() {
-	      BX.addCustomEvent("onPullEvent-im", _classPrivateMethodGet$2(this, _onPullEvent, _onPullEvent2).bind(this));
-	      BX.addCustomEvent("onPullClientEvent-im", _classPrivateMethodGet$2(this, _onPullClientEvent, _onPullClientEvent2).bind(this));
+	      BX.addCustomEvent("onPullEvent-im", _classPrivateMethodGet$4(this, _onPullEvent, _onPullEvent2).bind(this));
+	      BX.addCustomEvent("onPullClientEvent-im", _classPrivateMethodGet$4(this, _onPullClientEvent, _onPullClientEvent2).bind(this));
 	    }
 	  }, {
 	    key: "getSiteId",
@@ -12949,7 +18095,7 @@ this.BX = this.BX || {};
 	          joinExisting: !!config.joinExisting,
 	          userIds: main_core.Type.isArray(config.userIds) ? config.userIds : []
 	        };
-	        _this.getRestClient().callMethod(ajaxActions$2.createCall, callParameters).then(function (response) {
+	        _this.getRestClient().callMethod(ajaxActions$3.createCall, callParameters).then(function (response) {
 	          if (response.error()) {
 	            var error = response.error().getError();
 	            return reject({
@@ -12976,7 +18122,7 @@ this.BX = this.BX || {};
 	              });
 	            }
 	          }
-	          var callFactory = _classPrivateMethodGet$2(_this, _getCallFactory, _getCallFactory2).call(_this, callFields['PROVIDER']);
+	          var callFactory = _classPrivateMethodGet$4(_this, _getCallFactory, _getCallFactory2).call(_this, callFields['PROVIDER']);
 	          var call = callFactory.createCall({
 	            id: parseInt(callFields['ID']),
 	            instanceId: Util$1.getUuidv4(),
@@ -12988,11 +18134,15 @@ this.BX = this.BX || {};
 	            type: callFields.TYPE,
 	            startDate: callFields.START_DATE,
 	            events: {
-	              onDestroy: _classPrivateMethodGet$2(_this, _onCallDestroy, _onCallDestroy2).bind(_this)
+	              onDestroy: _classPrivateMethodGet$4(_this, _onCallDestroy, _onCallDestroy2).bind(_this)
 	            },
 	            debug: config.debug === true,
-	            logToken: createCallResponse.logToken
+	            logToken: createCallResponse.logToken,
+	            connectionData: createCallResponse.connectionData
+	            // jwt: callFields['JWT'],
+	            // endpoint: callFields['ENDPOINT'],
 	          });
+
 	          _this.calls[callFields['ID']] = call;
 	          if (createCallResponse.isNew) {
 	            _this.log(call.id, "Creating new call");
@@ -13031,10 +18181,10 @@ this.BX = this.BX || {};
 	          newProvider: newProvider,
 	          newUsers: newUsers
 	        };
-	        _this2.getRestClient().callMethod(ajaxActions$2.createChildCall, callParameters, function (response) {
+	        _this2.getRestClient().callMethod(ajaxActions$3.createChildCall, callParameters, function (response) {
 	          var createCallResponse = response.data();
 	          var callFields = createCallResponse.call;
-	          var callFactory = _classPrivateMethodGet$2(_this2, _getCallFactory, _getCallFactory2).call(_this2, callFields['PROVIDER']);
+	          var callFactory = _classPrivateMethodGet$4(_this2, _getCallFactory, _getCallFactory2).call(_this2, callFields['PROVIDER']);
 	          var call = callFactory.createCall({
 	            id: parseInt(callFields['ID']),
 	            instanceId: Util$1.getUuidv4(),
@@ -13047,10 +18197,14 @@ this.BX = this.BX || {};
 	            type: callFields.TYPE,
 	            startDate: callFields.START_DATE,
 	            events: {
-	              onDestroy: _classPrivateMethodGet$2(_this2, _onCallDestroy, _onCallDestroy2).bind(_this2)
+	              onDestroy: _classPrivateMethodGet$4(_this2, _onCallDestroy, _onCallDestroy2).bind(_this2)
 	            },
-	            logToken: createCallResponse.logToken
+	            logToken: createCallResponse.logToken,
+	            connectionData: createCallResponse.connectionData
+	            // jwt: callFields['JWT'],
+	            // endpoint: callFields['ENDPOINT']
 	          });
+
 	          _this2.calls[callFields['ID']] = call;
 	          BX.onCustomEvent(window, "CallEvents::callCreated", [{
 	            call: call
@@ -13073,12 +18227,12 @@ this.BX = this.BX || {};
 	        });
 	      }
 	      return new Promise(function (resolve, reject) {
-	        _this3.getRestClient().callMethod(ajaxActions$2.getCall, {
+	        _this3.getRestClient().callMethod(ajaxActions$3.getCall, {
 	          callId: id
 	        }).then(function (answer) {
 	          var data = answer.data();
 	          resolve({
-	            call: _classPrivateMethodGet$2(_this3, _instantiateCall, _instantiateCall2).call(_this3, data.call, data.users, data.logToken),
+	            call: _classPrivateMethodGet$4(_this3, _instantiateCall, _instantiateCall2).call(_this3, data.call, data.users, data.logToken, data.connectionData),
 	            isNew: false
 	          });
 	        })["catch"](function (error) {
@@ -13115,7 +18269,7 @@ this.BX = this.BX || {};
 	    value: function log() {
 	      var text = Util$1.getLogMessage.call(Util$1, arguments);
 	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
-	        im_v2_lib_desktopApi.DesktopApi.log(BX.message('USER_ID') + '.video.log', text);
+	        im_v2_lib_desktopApi.DesktopApi.writeToLogFile(BX.message('USER_ID') + '.video.log', text);
 	      }
 	      if (this.debugFlag) {
 	        if (console) {
@@ -13142,12 +18296,12 @@ this.BX = this.BX || {};
 	  }]);
 	  return Engine;
 	}();
-	function _instantiateCall2(callFields, users, logToken) {
+	function _instantiateCall2(callFields, users, logToken, connectionData) {
 	  if (this.calls[callFields['ID']]) {
 	    console.error("Call " + callFields['ID'] + " already exists");
 	    return this.calls[callFields['ID']];
 	  }
-	  var callFactory = _classPrivateMethodGet$2(this, _getCallFactory, _getCallFactory2).call(this, callFields['PROVIDER']);
+	  var callFactory = _classPrivateMethodGet$4(this, _getCallFactory, _getCallFactory2).call(this, callFields['PROVIDER']);
 	  var call = callFactory.createCall({
 	    id: parseInt(callFields['ID']),
 	    instanceId: Util$1.getUuidv4(),
@@ -13159,8 +18313,12 @@ this.BX = this.BX || {};
 	    type: callFields.TYPE,
 	    startDate: callFields['START_DATE'],
 	    logToken: logToken,
+	    connectionData: connectionData,
+	    // jwt: callFields['JWT'],
+	    // endpoint: callFields['ENDPOINT'],
+
 	    events: {
-	      onDestroy: _classPrivateMethodGet$2(this, _onCallDestroy, _onCallDestroy2).bind(this)
+	      onDestroy: _classPrivateMethodGet$4(this, _onCallDestroy, _onCallDestroy2).bind(this)
 	    }
 	  });
 	  this.calls[callFields['ID']] = call;
@@ -13186,7 +18344,7 @@ this.BX = this.BX || {};
 	    if (this.calls[callId]) {
 	      this.calls[callId].__onPullEvent(command, params, extra);
 	    } else if (command === 'Call::ping') {
-	      _classPrivateMethodGet$2(this, _onUnknownCallPing, _onUnknownCallPing2).call(this, params, extra).then(function (result) {
+	      _classPrivateMethodGet$4(this, _onUnknownCallPing, _onUnknownCallPing2).call(this, params, extra).then(function (result) {
 	        if (result && _this4.calls[callId]) {
 	          _this4.calls[callId].__onPullEvent(command, params, extra);
 	        }
@@ -13201,7 +18359,7 @@ this.BX = this.BX || {};
 	    if (this.calls[callId]) {
 	      this.calls[callId].__onPullEvent(command, params, extra);
 	    } else if (command === 'Call::ping') {
-	      _classPrivateMethodGet$2(this, _onUnknownCallPing, _onUnknownCallPing2).call(this, params, extra).then(function (result) {
+	      _classPrivateMethodGet$4(this, _onUnknownCallPing, _onUnknownCallPing2).call(this, params, extra).then(function (result) {
 	        if (result && _this5.calls[callId]) {
 	          _this5.calls[callId].__onPullEvent(command, params, extra);
 	        }
@@ -13210,6 +18368,7 @@ this.BX = this.BX || {};
 	  }
 	}
 	function _onPullIncomingCall2(params, extra) {
+	  console.log('#onPullIncomingCall');
 	  if (extra.server_time_ago > 30) {
 	    console.error("Call was started too long time ago");
 	    return;
@@ -13226,7 +18385,7 @@ this.BX = this.BX || {};
 	  if (this.calls[callId]) {
 	    call = this.calls[callId];
 	  } else {
-	    var callFactory = _classPrivateMethodGet$2(this, _getCallFactory, _getCallFactory2).call(this, callFields.PROVIDER);
+	    var callFactory = _classPrivateMethodGet$4(this, _getCallFactory, _getCallFactory2).call(this, callFields.PROVIDER);
 	    call = callFactory.createCall({
 	      id: callId,
 	      instanceId: Util$1.getUuidv4(),
@@ -13239,17 +18398,21 @@ this.BX = this.BX || {};
 	      type: callFields.TYPE,
 	      startDate: callFields.START_DATE,
 	      logToken: params.logToken,
+	      connectionData: params.connectionData,
 	      events: {
-	        onDestroy: _classPrivateMethodGet$2(this, _onCallDestroy, _onCallDestroy2).bind(this)
+	        onDestroy: _classPrivateMethodGet$4(this, _onCallDestroy, _onCallDestroy2).bind(this)
 	      }
+	      // jwt: callFields['JWT'],
+	      // endpoint: callFields['ENDPOINT']
 	    });
+
 	    this.calls[callId] = call;
 	    BX.onCustomEvent(window, "CallEvents::callCreated", [{
 	      call: call
 	    }]);
 	  }
-	  call.addInvitedUsers(params.invitedUsers);
 	  if (call) {
+	    call.addInvitedUsers(params.invitedUsers);
 	    BX.onCustomEvent(window, "CallEvents::incomingCall", [{
 	      call: call,
 	      video: params.video === true,
@@ -13265,7 +18428,7 @@ this.BX = this.BX || {};
 	    this.log(callId, "Error: Ping was sent too long time ago");
 	    return Promise.resolve(false);
 	  }
-	  if (!_classPrivateMethodGet$2(this, _isCallAppInitialized, _isCallAppInitialized2).call(this)) {
+	  if (!_classPrivateMethodGet$4(this, _isCallAppInitialized, _isCallAppInitialized2).call(this)) {
 	    return Promise.resolve(false);
 	  }
 	  if (this.unknownCalls[callId]) {
@@ -13312,8 +18475,13 @@ this.BX = this.BX || {};
 	  return true;
 	}
 	function _getCallFactory2(providerType) {
+	  if (providerType == Provider.Bitrix) {
+	    return BitrixCallFactory;
+	  }
 	  if (providerType == Provider.Plain) {
 	    return PlainCallFactory;
+	  } else if (providerType == Provider.Bitrix) {
+	    return BitrixCallFactory;
 	  } else if (providerType == Provider.Voximplant) {
 	    return VoximplantCallFactory;
 	  }
@@ -13330,6 +18498,18 @@ this.BX = this.BX || {};
 	    }
 	  }]);
 	  return PlainCallFactory;
+	}();
+	var BitrixCallFactory = /*#__PURE__*/function () {
+	  function BitrixCallFactory() {
+	    babelHelpers.classCallCheck(this, BitrixCallFactory);
+	  }
+	  babelHelpers.createClass(BitrixCallFactory, null, [{
+	    key: "createCall",
+	    value: function createCall(config) {
+	      return new BitrixCall(config);
+	    }
+	  }]);
+	  return BitrixCallFactory;
 	}();
 	var VoximplantCallFactory = /*#__PURE__*/function () {
 	  function VoximplantCallFactory() {
@@ -13579,6 +18759,12 @@ this.BX = this.BX || {};
 	var isCallServerAllowed = function isCallServerAllowed() {
 	  return BX.message('call_server_enabled') === 'Y';
 	};
+	var isVoximplantCallServerAllowed = function isVoximplantCallServerAllowed() {
+	  return BX.message('voximplant_call_server_enabled') === 'Y';
+	};
+	var isBitrixCallServerAllowed = function isBitrixCallServerAllowed() {
+	  return BX.message('bitrix_call_server_enabled') === 'Y';
+	};
 	var isFeedbackAllowed = function isFeedbackAllowed() {
 	  return BX.message('call_allow_feedback') === 'Y';
 	};
@@ -13698,6 +18884,8 @@ this.BX = this.BX || {};
 	  getFilledArea: getFilledArea,
 	  isWebRTCSupported: isWebRTCSupported,
 	  isCallServerAllowed: isCallServerAllowed,
+	  isVoximplantCallServerAllowed: isVoximplantCallServerAllowed,
+	  isBitrixCallServerAllowed: isBitrixCallServerAllowed,
 	  isFeedbackAllowed: isFeedbackAllowed,
 	  shouldCollectStats: shouldCollectStats,
 	  shouldShowDocumentButton: shouldShowDocumentButton,
@@ -13714,9 +18902,9 @@ this.BX = this.BX || {};
 	  stopMediaStream: stopMediaStream
 	};
 
-	function _classPrivateMethodInitSpec$3(obj, privateSet) { _checkPrivateRedeclaration$3(obj, privateSet); privateSet.add(obj); }
-	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$3(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodInitSpec$5(obj, privateSet) { _checkPrivateRedeclaration$5(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration$5(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$5(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var Events$1 = {
 	  onClose: 'onClose',
 	  onDestroy: 'onDestroy',
@@ -13736,9 +18924,9 @@ this.BX = this.BX || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, IncomingNotification);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(IncomingNotification).call(this));
-	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _onContentReady);
-	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _onButtonClick);
-	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _subscribeEvents);
+	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this), _onContentReady);
+	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this), _onButtonClick);
+	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this), _subscribeEvents);
 	    _this.setEventNamespace('BX.Call.IncomingNotification');
 	    _this.popup = null;
 	    _this.window = null;
@@ -13754,10 +18942,10 @@ this.BX = this.BX || {};
 	    _this.zIndex = _config.zIndex;
 	    _this.contentReady = false;
 	    _this.postponedEvents = [];
-	    _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this), _subscribeEvents, _subscribeEvents2).call(babelHelpers.assertThisInitialized(_this), _config);
+	    _classPrivateMethodGet$5(babelHelpers.assertThisInitialized(_this), _subscribeEvents, _subscribeEvents2).call(babelHelpers.assertThisInitialized(_this), _config);
 	    if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
-	      _this.onButtonClickHandler = _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this), _onButtonClick, _onButtonClick2).bind(babelHelpers.assertThisInitialized(_this));
-	      _this.onContentReadyHandler = _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this), _onContentReady, _onContentReady2).bind(babelHelpers.assertThisInitialized(_this));
+	      _this.onButtonClickHandler = _classPrivateMethodGet$5(babelHelpers.assertThisInitialized(_this), _onButtonClick, _onButtonClick2).bind(babelHelpers.assertThisInitialized(_this));
+	      _this.onContentReadyHandler = _classPrivateMethodGet$5(babelHelpers.assertThisInitialized(_this), _onContentReady, _onContentReady2).bind(babelHelpers.assertThisInitialized(_this));
 	      im_v2_lib_desktopApi.DesktopApi.subscribe(InternalEvents.onButtonClick, _this.onButtonClickHandler);
 	      im_v2_lib_desktopApi.DesktopApi.subscribe(InternalEvents.contentReady, _this.onContentReadyHandler);
 	    }
@@ -13767,7 +18955,9 @@ this.BX = this.BX || {};
 	    key: "show",
 	    value: function show() {
 	      var _this2 = this;
+	      console.log('incoming notification : SHOW');
 	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	        console.log('incoming notification : ISDESKTOP');
 	        var params = {
 	          video: this.video,
 	          hasCamera: this.hasCamera,
@@ -13784,6 +18974,7 @@ this.BX = this.BX || {};
 	          this.window = im_v2_lib_desktopApi.DesktopApi.createTopmostWindow(htmlContent);
 	        }
 	      } else {
+	        console.log('incoming notification : ISNOTDESKTOP');
 	        this.content = new IncomingNotificationContent({
 	          video: this.video,
 	          hasCamera: this.hasCamera,
@@ -13928,11 +19119,11 @@ this.BX = this.BX || {};
 	    var _this4;
 	    babelHelpers.classCallCheck(this, IncomingNotificationContent);
 	    _this4 = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(IncomingNotificationContent).call(this));
-	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this4), _onDeclineButtonClick);
-	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this4), _onAnswerWithVideoButtonClick);
-	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this4), _onAnswerButtonClick);
-	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this4), _onHasCamera);
-	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this4), _subscribeEvents3);
+	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this4), _onDeclineButtonClick);
+	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this4), _onAnswerWithVideoButtonClick);
+	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this4), _onAnswerButtonClick);
+	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this4), _onHasCamera);
+	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this4), _subscribeEvents3);
 	    _this4.setEventNamespace('BX.Call.IncomingNotificationContent');
 	    _this4.video = !!_config2.video;
 	    _this4.hasCamera = !!_config2.hasCamera;
@@ -13947,9 +19138,9 @@ this.BX = this.BX || {};
 	        answerVideo: null
 	      }
 	    };
-	    _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this4), _subscribeEvents3, _subscribeEvents4).call(babelHelpers.assertThisInitialized(_this4), _config2);
+	    _classPrivateMethodGet$5(babelHelpers.assertThisInitialized(_this4), _subscribeEvents3, _subscribeEvents4).call(babelHelpers.assertThisInitialized(_this4), _config2);
 	    if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
-	      _this4.onHasCameraHandler = _classPrivateMethodGet$3(babelHelpers.assertThisInitialized(_this4), _onHasCamera, _onHasCamera2).bind(babelHelpers.assertThisInitialized(_this4));
+	      _this4.onHasCameraHandler = _classPrivateMethodGet$5(babelHelpers.assertThisInitialized(_this4), _onHasCamera, _onHasCamera2).bind(babelHelpers.assertThisInitialized(_this4));
 	      im_v2_lib_desktopApi.DesktopApi.subscribe(InternalEvents.setHasCamera, _this4.onHasCameraHandler);
 	      im_v2_lib_desktopApi.DesktopApi.emitToMainWindow(InternalEvents.contentReady, []);
 	    }
@@ -14089,7 +19280,7 @@ this.BX = this.BX || {};
 	                    text: BX.message("IM_M_CALL_BTN_ANSWER_VIDEO")
 	                  })],
 	                  events: {
-	                    click: _classPrivateMethodGet$3(this, _onAnswerWithVideoButtonClick, _onAnswerWithVideoButtonClick2).bind(this)
+	                    click: _classPrivateMethodGet$5(this, _onAnswerWithVideoButtonClick, _onAnswerWithVideoButtonClick2).bind(this)
 	                  }
 	                }), main_core.Dom.create("div", {
 	                  props: {
@@ -14106,7 +19297,7 @@ this.BX = this.BX || {};
 	                    text: BX.message("IM_M_CALL_BTN_ANSWER")
 	                  })],
 	                  events: {
-	                    click: _classPrivateMethodGet$3(this, _onAnswerButtonClick, _onAnswerButtonClick2).bind(this)
+	                    click: _classPrivateMethodGet$5(this, _onAnswerButtonClick, _onAnswerButtonClick2).bind(this)
 	                  }
 	                }), main_core.Dom.create("div", {
 	                  props: {
@@ -14123,7 +19314,7 @@ this.BX = this.BX || {};
 	                    text: BX.message("IM_M_CALL_BTN_DECLINE")
 	                  })],
 	                  events: {
-	                    click: _classPrivateMethodGet$3(this, _onDeclineButtonClick, _onDeclineButtonClick2).bind(this)
+	                    click: _classPrivateMethodGet$5(this, _onDeclineButtonClick, _onDeclineButtonClick2).bind(this)
 	                  }
 	                })]
 	              })]
@@ -15851,9 +21042,9 @@ this.BX = this.BX || {};
 	  return User;
 	}();
 
-	function _classPrivateMethodInitSpec$4(obj, privateSet) { _checkPrivateRedeclaration$4(obj, privateSet); privateSet.add(obj); }
-	function _checkPrivateRedeclaration$4(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$4(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodInitSpec$6(obj, privateSet) { _checkPrivateRedeclaration$6(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration$6(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$6(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var Events$6 = {
 	  onViewStateChanged: 'onViewStateChanged',
 	  onOpenVideoConference: 'onOpenVideoConference',
@@ -15894,8 +21085,8 @@ this.BX = this.BX || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, CallController);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(CallController).call(this));
-	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _getCallDetail);
-	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _subscribeEvents$1);
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _getCallDetail);
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _subscribeEvents$1);
 	    _this.setEventNamespace('BX.Call.Controller');
 	    var needInit = BX.prop.getBoolean(_config, "init", true);
 	    _this.language = _config.language || 'en';
@@ -15936,6 +21127,7 @@ this.BX = this.BX || {};
 	    _this._onCallLocalCameraFlipInDesktopHandler = _this._onCallLocalCameraFlipInDesktop.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onCallRemoteMediaReceivedHandler = _this._onCallRemoteMediaReceived.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onCallRemoteMediaStoppedHandler = _this._onCallRemoteMediaStopped.bind(babelHelpers.assertThisInitialized(_this));
+	    _this._onCallBadNetworkIndicatorHandler = _this._onCallBadNetworkIndicator.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onCallUserVoiceStartedHandler = _this._onCallUserVoiceStarted.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onCallUserVoiceStoppedHandler = _this._onCallUserVoiceStopped.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onCallUserScreenStateHandler = _this._onCallUserScreenState.bind(babelHelpers.assertThisInitialized(_this));
@@ -15953,6 +21145,8 @@ this.BX = this.BX || {};
 	    _this._onTransferRoomSpeakerHandler = _this._onTransferRoomSpeaker.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onCallLeaveHandler = _this._onCallLeave.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onCallJoinHandler = _this._onCallJoin.bind(babelHelpers.assertThisInitialized(_this));
+	    // todo: remove after adding new provider to mobile apps
+	    _this._onCallUserFromWebHandler = _this._onCallUserFromWeb.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onBeforeUnloadHandler = _this._onBeforeUnload.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onImTabChangeHandler = _this._onImTabChange.bind(babelHelpers.assertThisInitialized(_this));
 	    _this._onUpdateChatCounterHandler = _this._onUpdateChatCounter.bind(babelHelpers.assertThisInitialized(_this));
@@ -15984,7 +21178,7 @@ this.BX = this.BX || {};
 	    _this.resizeObserver = new BX.ResizeObserver(_this._onResize.bind(babelHelpers.assertThisInitialized(_this)));
 	    if (needInit) {
 	      _this.init();
-	      _classPrivateMethodGet$4(babelHelpers.assertThisInitialized(_this), _subscribeEvents$1, _subscribeEvents2$1).call(babelHelpers.assertThisInitialized(_this), _config);
+	      _classPrivateMethodGet$6(babelHelpers.assertThisInitialized(_this), _subscribeEvents$1, _subscribeEvents2$1).call(babelHelpers.assertThisInitialized(_this), _config);
 	    }
 	    return _this;
 	  }
@@ -16095,7 +21289,7 @@ this.BX = this.BX || {};
 	    value: function onIncomingCall(e) {
 	      var _this4 = this;
 	      console.warn("incoming.call", e);
-	      /** @var {PlainCall|VoximplantCall} newCall */
+	      /** @var {BitrixCall|PlainCall|VoximplantCall} newCall */
 	      var newCall = e.call;
 	      var isCurrentCallActive = this.currentCall && (this.callView || this.callNotification);
 	      this.callWithLegacyMobile = e.isLegacyMobile === true;
@@ -16183,6 +21377,7 @@ this.BX = this.BX || {};
 	      this.currentCall.addEventListener(CallEvent.onLocalMediaStopped, this._onCallLocalMediaStoppedHandler);
 	      this.currentCall.addEventListener(CallEvent.onRemoteMediaReceived, this._onCallRemoteMediaReceivedHandler);
 	      this.currentCall.addEventListener(CallEvent.onRemoteMediaStopped, this._onCallRemoteMediaStoppedHandler);
+	      this.currentCall.addEventListener(CallEvent.onBadNetworkIndicator, this._onCallBadNetworkIndicatorHandler);
 	      this.currentCall.addEventListener(CallEvent.onUserVoiceStarted, this._onCallUserVoiceStartedHandler);
 	      this.currentCall.addEventListener(CallEvent.onUserVoiceStopped, this._onCallUserVoiceStoppedHandler);
 	      this.currentCall.addEventListener(CallEvent.onCallFailure, this._onCallFailureHandler);
@@ -16197,6 +21392,8 @@ this.BX = this.BX || {};
 	      this.currentCall.addEventListener(CallEvent.onTransferRoomSpeaker, this._onTransferRoomSpeakerHandler);
 	      this.currentCall.addEventListener(CallEvent.onJoin, this._onCallJoinHandler);
 	      this.currentCall.addEventListener(CallEvent.onLeave, this._onCallLeaveHandler);
+	      // todo: remove after adding new provider to mobile apps
+	      this.currentCall.addEventListener('onUserFromWeb', this._onCallUserFromWebHandler);
 	    }
 	  }, {
 	    key: "removeCallEvents",
@@ -16214,6 +21411,7 @@ this.BX = this.BX || {};
 	      this.currentCall.removeEventListener(CallEvent.onLocalMediaStopped, this._onCallLocalMediaStoppedHandler);
 	      this.currentCall.removeEventListener(CallEvent.onRemoteMediaReceived, this._onCallRemoteMediaReceivedHandler);
 	      this.currentCall.removeEventListener(CallEvent.onRemoteMediaStopped, this._onCallRemoteMediaStoppedHandler);
+	      this.currentCall.removeEventListener(CallEvent.onBadNetworkIndicator, this._onCallBadNetworkIndicatorHandler);
 	      this.currentCall.removeEventListener(CallEvent.onUserVoiceStarted, this._onCallUserVoiceStartedHandler);
 	      this.currentCall.removeEventListener(CallEvent.onUserVoiceStopped, this._onCallUserVoiceStoppedHandler);
 	      this.currentCall.removeEventListener(CallEvent.onCallFailure, this._onCallFailureHandler);
@@ -16241,6 +21439,7 @@ this.BX = this.BX || {};
 	      this.callView.setCallback(View.Event.onChangeFaceImprove, this._onCallViewChangeFaceImprove.bind(this));
 	      this.callView.setCallback(View.Event.onOpenAdvancedSettings, this._onCallViewOpenAdvancedSettings.bind(this));
 	      this.callView.setCallback(View.Event.onReplaceSpeaker, this._onCallViewReplaceSpeaker.bind(this));
+	      this.callView.setCallback(View.Event.onHasMainStream, this._onCallViewHasMainStream.bind(this));
 	    }
 	  }, {
 	    key: "updateCallViewUsers",
@@ -16563,8 +21762,8 @@ this.BX = this.BX || {};
 	        this.feedbackPopup.close();
 	      }
 	      var provider = Provider.Plain;
-	      if (Util$1.isCallServerAllowed() && dialogId.toString().startsWith("chat")) {
-	        provider = Provider.Voximplant;
+	      if (dialogId.toString().startsWith("chat")) {
+	        provider = Util$1.isBitrixCallServerAllowed() ? Provider.Bitrix : Util$1.isVoximplantCallServerAllowed() ? Provider.Voximplant : provider;
 	      }
 	      var debug1 = +new Date();
 	      this.messengerFacade.openMessenger(dialogId).then(function () {
@@ -16607,6 +21806,7 @@ this.BX = this.BX || {};
 	      }).then(function (e) {
 	        var debug2 = +new Date();
 	        _this7.currentCall = e.call;
+	        _this7.currentCallIsNew = e.isNew;
 	        _this7.log("Call creation time: " + (debug2 - debug1) / 1000 + " seconds");
 	        _this7.currentCall.useHdVideo(Hardware.preferHdQuality);
 	        if (Hardware.defaultMicrophone) {
@@ -16628,7 +21828,7 @@ this.BX = this.BX || {};
 	        _this7.updateCallViewUsers(_this7.currentCall.id, _this7.getCallUsers(true));
 	        _this7.showDocumentPromo();
 	        _this7.showMaskPromo();
-	        if (e.isNew) {
+	        if (_this7.currentCallIsNew) {
 	          _this7.log("Inviting users");
 	          _this7.currentCall.inviteUsers();
 	          _this7.messengerFacade.repeatSound('dialtone', 5000, true);
@@ -16741,7 +21941,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "hasActiveCall",
 	    value: function hasActiveCall() {
-	      return this.currentCall && this.currentCall.isAnyoneParticipating() || this.callView;
+	      return !!(this.currentCall && this.currentCall.isAnyoneParticipating() || this.callView);
 	    }
 	  }, {
 	    key: "hasVisibleCall",
@@ -17413,7 +22613,7 @@ this.BX = this.BX || {};
 	    value: function _onAnswerButtonClick(withVideo) {
 	      var _this18 = this;
 	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
-	        im_v2_lib_desktopApi.DesktopApi.showWindow();
+	        im_v2_lib_desktopApi.DesktopApi.activateWindow();
 	      }
 	      if (!this.isUserAgentSupported()) {
 	        this.log("Error: unsupported user agent");
@@ -17531,7 +22731,7 @@ this.BX = this.BX || {};
 	        this.documentsMenu.close();
 	      }
 	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
-	        im_v2_lib_desktopApi.DesktopApi.closeWindowByName('callBackground');
+	        im_v2_lib_desktopApi.DesktopApi.closeWindow(im_v2_lib_desktopApi.DesktopApi.findWindow('callBackground'));
 	      }
 	      this.closePromo();
 	      this._closeReconnectionBaloon();
@@ -17894,6 +23094,13 @@ this.BX = this.BX || {};
 	      Hardware.defaultSpeaker = e.deviceId;
 	    }
 	  }, {
+	    key: "_onCallViewHasMainStream",
+	    value: function _onCallViewHasMainStream(e) {
+	      if (this.currentCall && this.currentCall instanceof BitrixCall) {
+	        this.currentCall.setMainStream(e.userId);
+	      }
+	    }
+	  }, {
 	    key: "_onCallViewChangeHdVideo",
 	    value: function _onCallViewChangeHdVideo(e) {
 	      Hardware.preferHdQuality = e.allowHdVideo;
@@ -17941,7 +23148,7 @@ this.BX = this.BX || {};
 	      if (this.currentCall) {
 	        this.removeVideoStrategy();
 	        this.removeCallEvents();
-	        callDetails = _classPrivateMethodGet$4(this, _getCallDetail, _getCallDetail2).call(this, this.currentCall);
+	        callDetails = _classPrivateMethodGet$6(this, _getCallDetail, _getCallDetail2).call(this, this.currentCall);
 	        this.currentCall = null;
 	      }
 	      this.callWithLegacyMobile = false;
@@ -17975,7 +23182,7 @@ this.BX = this.BX || {};
 	        this.mutePopup.close();
 	      }
 	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
-	        im_v2_lib_desktopApi.DesktopApi.closeWindowByName('callBackground');
+	        im_v2_lib_desktopApi.DesktopApi.closeWindow(im_v2_lib_desktopApi.DesktopApi.findWindow('callBackground'));
 	      }
 	      this.closePromo();
 	      this.allowMutePopup = true;
@@ -18154,6 +23361,13 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
+	    key: "_onCallBadNetworkIndicator",
+	    value: function _onCallBadNetworkIndicator(e) {
+	      if (this.callView) {
+	        this.callView.setBadNetworkIndicator(e.userId, e.badNetworkIndicator);
+	      }
+	    }
+	  }, {
 	    key: "_onCallUserVoiceStarted",
 	    value: function _onCallUserVoiceStarted(e) {
 	      if (e.local) {
@@ -18275,7 +23489,6 @@ this.BX = this.BX || {};
 	    key: "_onCallFailure",
 	    value: function _onCallFailure(e) {
 	      var errorCode = e.code || e.name || e.error;
-	      console.error("Call failure: ", e);
 	      var errorMessage;
 	      if (e.name == "VoxConnectionError" || e.name == "AuthResult") {
 	        Util$1.reportConnectionResult(e.call.id, false);
@@ -18316,8 +23529,14 @@ this.BX = this.BX || {};
 	      if (this.currentCall) {
 	        this.removeVideoStrategy();
 	        this.removeCallEvents();
+	        if (this.currentCallIsNew) {
+	          CallEngine.getRestClient().callMethod('im.call.interrupt', {
+	            callId: this.currentCall.id
+	          });
+	        }
 	        this.currentCall.destroy();
 	        this.currentCall = null;
+	        this.currentCallIsNew = false;
 	      }
 	    }
 	  }, {
@@ -18467,7 +23686,7 @@ this.BX = this.BX || {};
 	      if (this.currentCall && this.currentCall.associatedEntity) {
 	        this.removeVideoStrategy();
 	        this.removeCallEvents();
-	        callDetails = _classPrivateMethodGet$4(this, _getCallDetail, _getCallDetail2).call(this, this.currentCall);
+	        callDetails = _classPrivateMethodGet$6(this, _getCallDetail, _getCallDetail2).call(this, this.currentCall);
 	        this.currentCall = null;
 	      }
 	      if (this.callView) {
@@ -18493,7 +23712,7 @@ this.BX = this.BX || {};
 	      }
 	      this.allowMutePopup = true;
 	      if (im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
-	        im_v2_lib_desktopApi.DesktopApi.closeWindowByName('callBackground');
+	        im_v2_lib_desktopApi.DesktopApi.closeWindow(im_v2_lib_desktopApi.DesktopApi.findWindow('callBackground'));
 	      }
 	      this.closePromo();
 	      this._closeReconnectionBaloon();
@@ -18502,6 +23721,16 @@ this.BX = this.BX || {};
 	      this.emit(Events$6.onCallLeft, {
 	        callDetails: callDetails
 	      });
+	    } // todo: remove after adding new provider to mobile apps
+	  }, {
+	    key: "_onCallUserFromWeb",
+	    value: function _onCallUserFromWeb(event) {
+	      if (this.callView) {
+	        this.callView.addUser(event.userId, UserState.Connected);
+	        this.callView.updateUserData(babelHelpers.defineProperty({}, event.userId, {
+	          name: event.name
+	        }));
+	      }
 	    }
 	  }, {
 	    key: "_onInvitePopupDestroy",
@@ -18678,7 +23907,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_onFloatingVideoMainAreaClick",
 	    value: function _onFloatingVideoMainAreaClick() {
-	      im_v2_lib_desktopApi.DesktopApi.showWindow();
+	      im_v2_lib_desktopApi.DesktopApi.activateWindow();
 	      im_v2_lib_desktopApi.DesktopApi.changeTab("im");
 	      if (!this.currentCall) {
 	        return;
@@ -18709,7 +23938,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_onFloatingScreenShareBackToCallClick",
 	    value: function _onFloatingScreenShareBackToCallClick() {
-	      im_v2_lib_desktopApi.DesktopApi.showWindow();
+	      im_v2_lib_desktopApi.DesktopApi.activateWindow();
 	      im_v2_lib_desktopApi.DesktopApi.changeTab("im");
 	      if (this.floatingScreenShareWindow) {
 	        this.floatingScreenShareWindow.hide();
@@ -18718,7 +23947,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_onFloatingScreenShareStopClick",
 	    value: function _onFloatingScreenShareStopClick() {
-	      im_v2_lib_desktopApi.DesktopApi.showWindow();
+	      im_v2_lib_desktopApi.DesktopApi.activateWindow();
 	      im_v2_lib_desktopApi.DesktopApi.changeTab("im");
 	      this.currentCall.stopScreenSharing();
 	      if (this.floatingScreenShareWindow) {
@@ -19010,8 +24239,10 @@ this.BX = this.BX || {};
 	            _this30._onCallViewToggleMuteButtonClick({
 	              muted: false
 	            });
-	            _this30.mutePopup.destroy();
-	            _this30.mutePopup = null;
+	            if (_this30.mutePopup) {
+	              _this30.mutePopup.destroy();
+	              _this30.mutePopup = null;
+	            }
 	          }
 	        }
 	      });

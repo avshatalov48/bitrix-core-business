@@ -48,6 +48,12 @@ class PushManager extends AbstractManager implements PushManagerInterface
 		{
 			if ($data = $this->context->getVendorSyncService()->resubscribe($pushChannel->getResourceId()))
 			{
+				if (empty($data['expirationDateTime']))
+				{
+					$time = time() + 70 * 60 * 60;
+					$data['expirationDateTime'] = date('c', $time);
+				}
+
 				$pushChannel->setExpireDate(new Date($this->convertToDateTime($data['expirationDateTime'])));
 				$result->setData([
 					'CHANNEL_ID'  => $pushChannel->getChannelId(),
@@ -78,6 +84,7 @@ class PushManager extends AbstractManager implements PushManagerInterface
 	private function convertToDateTime(string $time): DateTime
 	{
 		$phpDateTime = new \DateTime($time);
+
 		return DateTime::createFromPhp($phpDateTime);
 	}
 
@@ -114,7 +121,7 @@ class PushManager extends AbstractManager implements PushManagerInterface
 		}
 		catch (AuthException $e)
 		{
-			return $result;
+			$result->addError(new Error('No authentication data', $e->getCode()));
 		}
 
 		return $result;

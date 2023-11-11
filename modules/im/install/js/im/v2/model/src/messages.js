@@ -4,13 +4,15 @@ import { BuilderModel } from 'ui.vue3.vuex';
 import { Core } from 'im.v2.application.core';
 import { Utils } from 'im.v2.lib.utils';
 import { Logger } from 'im.v2.lib.logger';
-import { MessageComponent, MessageExtension, MessageType } from 'im.v2.const';
+import { MessageComponent, MessageType } from 'im.v2.const';
 
 import { PinModel } from './messages/pin';
 import { ReactionsModel } from './messages/reactions';
 
+import type { GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
 import type { ImModelMessage, ImModelFile } from 'im.v2.model';
 import type { RawMessage, RawMessageParams, PreparedMessageParams } from './type/message';
+import type { AttachConfig } from 'im.v2.const';
 
 type MessagesState = {
 	collection: {
@@ -23,7 +25,7 @@ type MessagesState = {
 
 export class MessagesModel extends BuilderModel
 {
-	getName()
+	getName(): string
 	{
 		return 'messages';
 	}
@@ -36,7 +38,7 @@ export class MessagesModel extends BuilderModel
 		};
 	}
 
-	getState()
+	getState(): MessagesState
 	{
 		return {
 			collection: {},
@@ -44,12 +46,13 @@ export class MessagesModel extends BuilderModel
 		};
 	}
 
-	getElementState()
+	getElementState(): ImModelMessage
 	{
 		return {
 			id: 0,
 			chatId: 0,
 			authorId: 0,
+			replyId: 0,
 			date: new Date(),
 			text: '',
 			replaces: [],
@@ -63,15 +66,14 @@ export class MessagesModel extends BuilderModel
 			retry: false,
 			componentId: MessageComponent.base,
 			componentParams: {},
-			extensionId: MessageExtension.text,
-			extensionParams: {},
 			isEdited: false,
 			isDeleted: false,
 			removeLinks: false,
 		};
 	}
 
-	getGetters()
+	// eslint-disable-next-line max-lines-per-function
+	getGetters(): GetterTree
 	{
 		return {
 			/** @function messages/get */
@@ -230,7 +232,8 @@ export class MessagesModel extends BuilderModel
 		};
 	}
 
-	getActions()
+	// eslint-disable-next-line max-lines-per-function
+	getActions(): ActionTree
 	{
 		return {
 			/** @function messages/setChatCollection */
@@ -376,10 +379,29 @@ export class MessagesModel extends BuilderModel
 				const { chatId } = payload;
 				store.commit('clearCollection', { chatId });
 			},
+			/** @function messages/deleteAttach */
+			deleteAttach: (store, payload: {messageId: number, attachId: string }) => {
+				const { messageId, attachId } = payload;
+				const message: ImModelMessage = store.state.collection[messageId];
+				if (!message || !Type.isArray(message.attach))
+				{
+					return;
+				}
+
+				const attach = message.attach.filter((attachItem: AttachConfig) => {
+					return attachId !== attachItem.ID;
+				});
+
+				store.commit('update', {
+					id: messageId,
+					fields: { ...message, ...this.validate({ attach }) },
+				});
+			},
 		};
 	}
 
-	getMutations()
+	/* eslint-disable no-param-reassign */
+	getMutations(): MutationTree
 	{
 		return {
 			setChatCollection: (state: MessagesState, payload: {messages: ImModelMessage[]}) => {
@@ -387,7 +409,6 @@ export class MessagesModel extends BuilderModel
 				payload.messages.forEach((message) => {
 					if (!state.chatCollection[message.chatId])
 					{
-						// eslint-disable-next-line no-param-reassign
 						state.chatCollection[message.chatId] = new Set();
 					}
 					state.chatCollection[message.chatId].add(message.id);
@@ -396,7 +417,6 @@ export class MessagesModel extends BuilderModel
 			store: (state: MessagesState, payload: {messages: ImModelMessage[]}) => {
 				Logger.warn('Messages model: store mutation', payload);
 				payload.messages.forEach((message) => {
-					// eslint-disable-next-line no-param-reassign
 					state.collection[message.id] = message;
 				});
 			},
@@ -405,9 +425,7 @@ export class MessagesModel extends BuilderModel
 				const { id, fields } = payload;
 				const currentMessage = { ...state.collection[id] };
 
-				// eslint-disable-next-line no-param-reassign
 				delete state.collection[id];
-				// eslint-disable-next-line no-param-reassign
 				state.collection[fields.id] = { ...currentMessage, ...fields, sending: false };
 
 				if (state.chatCollection[currentMessage.chatId].has(id))
@@ -419,7 +437,6 @@ export class MessagesModel extends BuilderModel
 			update: (state: MessagesState, payload: {id: number | string, fields: Object}) => {
 				Logger.warn('Messages model: update mutation', payload);
 				const { id, fields } = payload;
-				// eslint-disable-next-line no-param-reassign
 				state.collection[id] = { ...state.collection[id], ...fields };
 			},
 			delete: (state: MessagesState, payload: {id: number | string}) => {
@@ -427,12 +444,10 @@ export class MessagesModel extends BuilderModel
 				const { id } = payload;
 				const { chatId } = state.collection[id];
 				state.chatCollection[chatId].delete(id);
-				// eslint-disable-next-line no-param-reassign
 				delete state.collection[id];
 			},
 			clearCollection: (state: MessagesState, payload: {chatId: number}) => {
 				Logger.warn('Messages model: clear collection mutation', payload.chatId);
-				// eslint-disable-next-line no-param-reassign
 				state.chatCollection[payload.chatId] = new Set();
 			},
 			readMessages: (state: MessagesState, payload: {messageIdsToRead: number[], messageIdsToView: number[]}) => {
@@ -472,7 +487,7 @@ export class MessagesModel extends BuilderModel
 
 					message.viewedByOthers = true;
 				});
-			}
+			},
 		};
 	}
 
@@ -596,6 +611,11 @@ export class MessagesModel extends BuilderModel
 			result.removeLinks = fields.removeLinks;
 		}
 
+		if (Type.isNumber(fields.replyId))
+		{
+			result.replyId = fields.replyId;
+		}
+
 		if (Type.isPlainObject(fields.params))
 		{
 			const preparedParams = this.prepareParams(fields.params);
@@ -616,25 +636,14 @@ export class MessagesModel extends BuilderModel
 				{
 					result.componentId = value;
 				}
+				else
+				{
+					result.componentId = MessageComponent.unsupported;
+				}
 			}
 			else if (key === 'COMPONENT_PARAMS' && Type.isPlainObject(value))
 			{
 				result.componentParams = value;
-			}
-			else if (key === 'EXTENSION_ID' && Type.isStringFilled(value))
-			{
-				if (Object.values(MessageExtension).includes(value))
-				{
-					result.extensionId = value;
-				}
-				else
-				{
-					result.extensionId = MessageExtension.unsupported;
-				}
-			}
-			else if (key === 'EXTENSION_PARAMS' && Type.isPlainObject(value))
-			{
-				result.extensionParams = value;
 			}
 			else if (key === 'FILE_ID' && Type.isArray(value))
 			{
@@ -643,6 +652,10 @@ export class MessagesModel extends BuilderModel
 			else if (key === 'IS_EDITED' && Type.isStringFilled(value))
 			{
 				result.isEdited = value === 'Y';
+			}
+			else if (key === 'REPLY_ID' && (Type.isStringFilled(value) || Type.isNumber(value)))
+			{
+				result.replyId = Number(value);
 			}
 			else if (key === 'IS_DELETED' && Type.isStringFilled(value))
 			{

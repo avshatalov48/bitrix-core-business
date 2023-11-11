@@ -52,72 +52,35 @@ class EventManager
 		$rsMails = null;
 
 		$connection = Main\Application::getConnection();
-		if($connection instanceof Main\DB\MysqlCommonConnection)
-		{
-			$strSql= "SELECT 'x' FROM b_event WHERE SUCCESS_EXEC='N' LIMIT 1";
-			$resultEventDb = $connection->query($strSql);
-			if($resultEventDb->fetch())
-			{
-				if(!$connection->lock('event'))
-					return "";
-			}
-			else
-			{
-				if(CACHED_b_event!==false)
-					$manage_cache->set("events", true);
+		$helper = $connection->getSqlHelper();
 
+		$strSql= "SELECT 'x' FROM b_event WHERE SUCCESS_EXEC='N' LIMIT 1";
+		$resultEventDb = $connection->query($strSql);
+		if($resultEventDb->fetch())
+		{
+			if(!$connection->lock('event'))
 				return "";
-			}
-
-			$strSql = "
-				SELECT ID, C_FIELDS, EVENT_NAME, MESSAGE_ID, LID,
-					DATE_FORMAT(DATE_INSERT, '%d.%m.%Y %H:%i:%s') as DATE_INSERT,
-					DUPLICATE, LANGUAGE_ID
-				FROM b_event
-				WHERE SUCCESS_EXEC='N'
-				ORDER BY ID
-				LIMIT ".$bulk;
-
-			$rsMails = $connection->query($strSql);
 		}
-		elseif($connection instanceof Main\DB\MssqlConnection)
+		else
 		{
-			$connection->startTransaction();
-			$connection->query("SET LOCK_TIMEOUT 0");
+			if(CACHED_b_event!==false)
+				$manage_cache->set("events", true);
 
-			\CTimeZone::Disable();
-			$strSql = "
-				SELECT TOP ".$bulk."
-					ID,	C_FIELDS, EVENT_NAME, MESSAGE_ID, LID,
-					".$connection->getSqlHelper()->getDateToCharFunction("DATE_INSERT")." as DATE_INSERT,
-					DUPLICATE, LANGUAGE_ID
-				FROM b_event
-				WITH (TABLOCKX)
-				WHERE SUCCESS_EXEC = 'N'
-				ORDER BY ID
-			";
-			$rsMails = $connection->query($strSql);
-			\CTimeZone::Enable();
-		}
-		elseif($connection instanceof Main\DB\OracleConnection)
-		{
-			$connection->startTransaction();
-
-
-			$strSql = /** @lang Oracle */ "
-				SELECT /*+RULE*/ E.ID, E.C_FIELDS, E.EVENT_NAME, E.MESSAGE_ID, E.LID,
-					TO_CHAR(E.DATE_INSERT, 'DD.MM.YYYY HH24:MI:SS') as DATE_INSERT,
-					E.DUPLICATE, E.LANGUAGE_ID
-				FROM b_event E
-				WHERE E.SUCCESS_EXEC='N'
-				ORDER BY E.ID
-				FOR UPDATE NOWAIT
-			";
-
-			$rsMails = $connection->query($strSql);
+			return "";
 		}
 
-		if($rsMails)
+		$strSql = "
+			SELECT ID, C_FIELDS, EVENT_NAME, MESSAGE_ID, LID,
+				" . $helper->formatDate('DD.MM.YYYY HH24:MI:SS', 'DATE_INSERT') . " as DATE_INSERT,
+				DUPLICATE, LANGUAGE_ID
+			FROM b_event
+			WHERE SUCCESS_EXEC='N'
+			ORDER BY ID
+			LIMIT ".$bulk;
+
+		$rsMails = $connection->query($strSql);
+
+		if ($rsMails)
 		{
 			$arCallableModificator = array();
 			$cnt = 0;
@@ -170,19 +133,7 @@ class EventManager
 			}
 		}
 
-		if($connection instanceof Main\DB\MysqlCommonConnection)
-		{
-			$connection->unlock('event');
-		}
-		elseif($connection instanceof Main\DB\MssqlConnection)
-		{
-			$connection->query("SET LOCK_TIMEOUT -1");
-			$connection->commitTransaction();
-		}
-		elseif($connection instanceof Main\DB\OracleConnection)
-		{
-			$connection->commitTransaction();
-		}
+		$connection->unlock('event');
 
 		if($cnt === 0 && CACHED_b_event !== false)
 			$manage_cache->set("events", true);

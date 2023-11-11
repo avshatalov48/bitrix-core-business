@@ -1,7 +1,9 @@
-import {BaseEvent} from 'main.core.events';
-
+import 'ui.vue3';
 import 'ui.buttons';
 import 'ui.fonts.opensans';
+
+import {BaseEvent} from 'main.core.events';
+import { DesktopApi } from 'im.v2.lib.desktop-api';
 
 import {Utils} from 'im.v2.lib.utils';
 import {Logger} from 'im.v2.lib.logger';
@@ -149,7 +151,7 @@ export const CallBackground = {
 		{
 			if (this.isDesktop)
 			{
-				const {id: maskId} = window.BX.desktop.getMask();
+				const {id: maskId} = DesktopApi.getCallMask();
 				let foundMask = this.masks.find(mask => mask.id === maskId);
 				if (!foundMask)
 				{
@@ -169,7 +171,7 @@ export const CallBackground = {
 		{
 			if (this.isDesktop)
 			{
-				const {id: backgroundId} = window.BX.desktop.getBackgroundImage();
+				const {id: backgroundId} = DesktopApi.getBackgroundImage();
 				const itemsToSearch = [...this.actions, ...this.backgrounds];
 				let foundBackground = itemsToSearch.find(item => item.id === backgroundId);
 				if (!foundBackground)
@@ -272,7 +274,7 @@ export const CallBackground = {
 				return;
 			}
 			this.maskLoadTimeouts = {};
-			window.BX.desktop.setCallMaskLoadHandlers(this.onMaskLoad.bind(this));
+			DesktopApi.setCallMaskLoadHandlers(this.onMaskLoad.bind(this));
 		},
 		// endregion init
 		// region component events
@@ -443,7 +445,7 @@ export const CallBackground = {
 				return;
 			}
 
-			return window.BX.desktop.setCallBackground(backgroundInstance.id, backgroundInstance.background);
+			return DesktopApi.setCallBackground(backgroundInstance.id, backgroundInstance.background);
 		},
 		setCallBlur(action: Action): Promise
 		{
@@ -453,7 +455,7 @@ export const CallBackground = {
 				return;
 			}
 
-			return window.BX.desktop.setCallBackground(action.id, action.background);
+			return DesktopApi.setCallBackground(action.id, action.background);
 		},
 		removeCallBackground(): Promise
 		{
@@ -462,7 +464,7 @@ export const CallBackground = {
 				return;
 			}
 
-			return window.BX.desktop.setCallBackground(Action.type.none, Action.type.none);
+			return DesktopApi.setCallBackground(Action.type.none, Action.type.none);
 		},
 		setCallMask(mask: Mask)
 		{
@@ -475,7 +477,7 @@ export const CallBackground = {
 			if (mask.isEmpty())
 			{
 				Logger.warn('CallBackground: empty mask - removing it');
-				window.BX.desktop.setCallMask();
+				DesktopApi.setCallMask();
 				return;
 			}
 
@@ -485,7 +487,7 @@ export const CallBackground = {
 			this.maskLoadTimeouts[mask.id] = setTimeout(() => {
 				mask.isLoading = true;
 			}, MASK_LOAD_STATUS_DELAY);
-			window.BX.desktop.setCallMask(mask.id, mask.mask, mask.background);
+			DesktopApi.setCallMask(mask.id, mask.mask, mask.background);
 		},
 		removeCallMask()
 		{
@@ -494,7 +496,7 @@ export const CallBackground = {
 				return;
 			}
 
-			window.BX.desktop.setCallMask();
+			DesktopApi.setCallMask();
 		},
 		hideLoader()
 		{
@@ -503,7 +505,7 @@ export const CallBackground = {
 				return;
 			}
 
-			window.BX.desktop.hideLoader();
+			DesktopApi.hideLoader();
 		},
 		// endregion desktop interactions
 		findCustomBackgroundById(id: string): ?Background

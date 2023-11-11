@@ -11,7 +11,6 @@ import type {
 	ResizeImageOptions,
 } from '../types/resize-image-options';
 
-
 export type UploaderOptions = {
 	controller?: string,
 	controllerOptions?: { [key: string]: string | number },
@@ -63,7 +62,7 @@ export type UploaderOptions = {
 
 	ignoredFileNames?: string[],
 	serverOptions: ServerOptions,
-	filters?: Array<{ type: FilterType, filter: Filter | Function | string, options: { [key: string]: any } }>,
+	filters?: Array<{ type: FilterType, filter: Filter | Class<Filter> | string, options: { [key: string]: any } }>,
 	files?: UploaderFileOptions[],
 	events?: { [eventName: string]: (event: BaseEvent) => void },
 };

@@ -54,7 +54,7 @@ class Pack
 	 * @param Main\Engine\Controller $controller Parent controller object.
 	 * @param array $config Additional configuration.
 	 */
-	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
 		$this->keepField([
 			'packFile', 'languageId', 'tmpFolderPath', 'archiveFilePath',
@@ -106,7 +106,7 @@ class Pack
 			if (!$tempDir->isExists() || !$tempDir->isDirectory())
 			{
 				$this->addError(new Error(
-					Loc::getMessage('TR_ERROR_CREATE_TEMP_FOLDER', array('#PATH#' => $tempDir->getPhysicalPath()))
+					Loc::getMessage('TR_ERROR_CREATE_TEMP_FOLDER', ['#PATH#' => $tempDir->getPhysicalPath()])
 				));
 			}
 			else
@@ -127,7 +127,7 @@ class Pack
 			if (!$tempDir->isExists() || !$tempDir->isDirectory())
 			{
 				$this->addError(
-					new Error(Loc::getMessage('TR_ERROR_SOURCE_FOLDER', array('#PATH#' => $this->tmpFolderPath)))
+					new Error(Loc::getMessage('TR_ERROR_SOURCE_FOLDER', ['#PATH#' => $this->tmpFolderPath]))
 				);
 			}
 		}
@@ -147,16 +147,16 @@ class Pack
 		{
 			$this->saveProgressParameters();
 
-			return array(
+			return [
 				'STATUS' => ($this->totalItems > 0 ? Translate\Controller\STATUS_PROGRESS : Translate\Controller\STATUS_COMPLETED),
 				'PROCESSED_ITEMS' => $this->processedItems,
 				'TOTAL_ITEMS' => $this->totalItems,
-			);
+			];
 		}
 
-		$this->archiveFile->setOptions(array(
+		$this->archiveFile->setOptions([
 			'COMPRESS' => $this->packFile,
-		));
+		]);
 
 		return $this->performStep('runPacking');
 	}
@@ -164,13 +164,13 @@ class Pack
 	/**
 	 * @return array
 	 */
-	private function runPacking()
+	private function runPacking(): array
 	{
 		$langDir = new Translate\IO\Directory($this->tmpFolderPath);
 
 		$this->totalItems = $this->totalFileCount;
 
-		$result = array();
+		$result = [];
 
 		switch ($this->archiveFile->pack($langDir, $this->seekPath))
 		{
@@ -189,13 +189,13 @@ class Pack
 				$result['FILE_NAME'] = $this->downloadParams['fileName'];
 				$result['DOWNLOAD_LINK'] = $this->generateDownloadLink();
 
-				$messagePlaceholders = array(
+				$messagePlaceholders = [
 					'#TOTAL_FILES#' => $this->processedItems,
 					'#FILE_SIZE_FORMAT#' => \CFile::formatSize($this->downloadParams['fileSize']),
 					'#LANG#' => \mb_strtoupper($this->languageId),
 					'#FILE_PATH#' => $this->archiveFileName,
 					'#LINK#' => $result['DOWNLOAD_LINK'],
-				);
+				];
 
 				$result['SUMMARY'] =
 					Loc::getMessage('TR_LANGUAGE_COLLECTED_ARCHIVE', $messagePlaceholders)."\n".
@@ -232,10 +232,9 @@ class Pack
 	/**
 	 * Generate link to download local exported temporally file.
 	 *
-	 *
 	 * @return string
 	 */
-	private function generateDownloadLink()
+	private function generateDownloadLink(): string
 	{
 		return $this->controller->getActionUri(Grabber::ACTION_DOWNLOAD, ['langId' => $this->languageId])->getUri();
 	}
@@ -245,7 +244,7 @@ class Pack
 	 *
 	 * @return string
 	 */
-	private function generateExportFileName()
+	private function generateExportFileName(): string
 	{
 		if ($this->packFile && Translate\IO\Archiver::libAvailable())
 		{
@@ -264,14 +263,14 @@ class Pack
 	 *
 	 * @return array
 	 */
-	private function getDownloadingParameters()
+	private function getDownloadingParameters(): array
 	{
-		return array(
+		return [
 			'fileName' => $this->archiveFileName,
 			'filePath' => $this->archiveFilePath,
 			'fileType' => $this->packFile ? 'application/tar+gzip' : 'application/tar',
 			'fileSize' => $this->archiveFile->getSize(),
-		);
+		];
 	}
 
 	/**

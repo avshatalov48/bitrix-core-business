@@ -79,6 +79,7 @@ class MainMailConfirmAjax
 				'protocol' => $smtp['protocol'],
 				'login' => $smtp['login'],
 				'limit' => $smtp['limit'],
+				'isOauth' => $smtp['isOauth'] ?? false,
 			];
 		}
 
@@ -106,6 +107,12 @@ class MainMailConfirmAjax
 		$smtp   = $_REQUEST['smtp'];
 		$code = mb_strtolower(trim($_REQUEST['code']));
 		$public = $isAdmin && $_REQUEST['public'] == 'Y';
+		$limit = $_REQUEST['smtp']['limit'] ?? null;
+		if ($limit !== null)
+		{
+			$limit = (int)$limit;
+			$limit = $limit < 0 ? 0 : $limit;
+		}
 
 		if (!check_email($email, true))
 		{
@@ -128,12 +135,10 @@ class MainMailConfirmAjax
 				'login'    => $smtp['login'],
 				'password' => $smtp['password'],
 			);
-			$limit = $_REQUEST['smtp']['limit']??null;
 
 			if ($limit !== null)
 			{
-				$limit = (int)$limit;
-				$smtp['limit'] = $limit < 0 ? 0 : $limit;
+				$smtp['limit'] = $limit;
 			}
 
 			if (!preg_match('/^([a-z0-9-]+\.)+[a-z0-9-]{2,20}$/i', $smtp['server']))
@@ -214,6 +219,14 @@ class MainMailConfirmAjax
 				if ($item['EMAIL'] == $email)
 				{
 					$alreadyConfirmed = true;
+					if (!empty($item['OPTIONS']['smtp']['isOauth']) && $update) {
+						$smtp = $item['OPTIONS']['smtp'];
+						if ($limit) {
+							$smtp['limit'] = $limit;
+						} else {
+							unset($smtp['limit']);
+						}
+					}
 				}
 			}
 			else
@@ -294,6 +307,7 @@ class MainMailConfirmAjax
 			}
 
 			Main\Mail\Internal\SenderTable::update($senderId, $fields);
+
 			return ['senderId' => $senderId, 'confirmed' => $fields['IS_CONFIRMED']];
 		}
 		elseif (empty($code))

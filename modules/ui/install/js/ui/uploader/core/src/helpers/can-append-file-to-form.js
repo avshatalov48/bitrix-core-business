@@ -15,7 +15,7 @@ const canAppendFileToForm = (): boolean => {
 
 			result = input.files.length === 1;
 		}
-		catch (err)
+		catch
 		{
 			result = false;
 		}

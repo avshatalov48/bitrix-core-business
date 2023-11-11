@@ -8,7 +8,54 @@ use \Bitrix\Mail;
 class Config
 {
 
-	protected $from, $host, $port, $protocol, $login, $password;
+	/**
+	 * Sender name
+	 *
+	 * @var string|null
+	 */
+	protected $from;
+
+	/**
+	 * Server host
+	 *
+	 * @var string|null
+	 */
+	protected $host;
+
+	/**
+	 * Server port
+	 *
+	 * @var int|null
+	 */
+	protected $port;
+
+	/**
+	 * Server protocol
+	 *
+	 * @var string|null
+	 */
+	protected $protocol;
+
+	/**
+	 * Auth login
+	 *
+	 * @var string|null
+	 */
+	protected $login;
+
+	/**
+	 * Auth password, can be oauth meta build value
+	 *
+	 * @var string|null
+	 */
+	protected $password;
+
+	/**
+	 * Is password value oauth meta build
+	 *
+	 * @var bool
+	 */
+	protected bool $isOauth = false;
 
 	public function __construct(array $params = null)
 	{
@@ -59,6 +106,19 @@ class Config
 		return $this;
 	}
 
+	/**
+	 * Set is OAuth flag
+	 *
+	 * @param mixed $isOauth Value
+	 *
+	 * @return $this
+	 */
+	public function setIsOauth($isOauth): self
+	{
+		$this->isOauth = (bool)$isOauth;
+		return $this;
+	}
+
 	public function getFrom()
 	{
 		return $this->from;
@@ -87,6 +147,16 @@ class Config
 	public function getPassword()
 	{
 		return $this->password;
+	}
+
+	/**
+	 * Is password value OAuth meta build
+	 *
+	 * @return bool
+	 */
+	public function getIsOauth(): bool
+	{
+		return $this->isOauth;
 	}
 
 	public static function canCheck()
@@ -124,6 +194,10 @@ class Config
 			$this->login,
 			$this->password
 		);
+		if (method_exists($client, 'setIsOauth'))
+		{
+			$client->setIsOauth($this->getIsOauth());
+		}
 
 		if (!$client->authenticate($error))
 		{

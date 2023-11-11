@@ -165,6 +165,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    if (main_core.Type.isBoolean(data.closeByEsc)) {
 	      _this.closeByEsc = data.closeByEsc;
 	    }
+	    _this.disableScroll = main_core.Type.isBoolean(data.disableScroll) ? data.disableScroll : false;
 	    _this.forms = new BX.Landing.UI.Collection.FormCollection();
 	    _this.buttons = new BX.Landing.UI.Collection.ButtonCollection();
 	    _this.sidebarButtons = new BX.Landing.UI.Collection.ButtonCollection();
@@ -309,7 +310,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        if (this.shouldAdjustActionsPanels()) {
 	          main_core.Dom.addClass(document.body, 'landing-ui-hide-action-panels');
 	        }
-	        main_core.Dom.addClass(document.body, "landing-ui-action-panels-disable-scrollbar");
+	        if (this.disableScroll) {
+	          main_core.Dom.addClass(document.body, "landing-ui-action-panels-disable-scrollbar");
+	        }
 	        void BX.Landing.Utils.Show(this.overlay);
 	        return BX.Landing.Utils.Show(this.layout).then(function () {
 	          _this4.state = 'shown';
@@ -325,7 +328,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        if (this.shouldAdjustActionsPanels()) {
 	          main_core.Dom.removeClass(document.body, 'landing-ui-hide-action-panels');
 	        }
-	        main_core.Dom.removeClass(document.body, "landing-ui-action-panels-disable-scrollbar");
+	        if (this.disableScroll) {
+	          main_core.Dom.removeClass(document.body, "landing-ui-action-panels-disable-scrollbar");
+	        }
 	        void BX.Landing.Utils.Hide(this.overlay);
 	        return BX.Landing.Utils.Hide(this.layout).then(function () {
 	          _this5.state = 'hidden';
@@ -338,6 +343,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function appendForm(form) {
 	      this.forms.add(form);
 	      main_core.Dom.append(form.getNode(), this.content);
+	    }
+	  }, {
+	    key: "replaceForm",
+	    value: function replaceForm(newForm, oldForm) {
+	      this.forms.add(newForm);
+	      main_core.Dom.insertAfter(newForm.getNode(), oldForm.getNode());
+	      this.forms.remove(oldForm);
+	      main_core.Dom.remove(oldForm.getNode());
 	    }
 	  }, {
 	    key: "appendCard",

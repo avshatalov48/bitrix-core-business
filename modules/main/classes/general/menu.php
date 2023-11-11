@@ -144,7 +144,7 @@ class CMenu
 			return true;
 
 		/**
-		 * @global CAllMain $APPLICATION
+		 * @global CMain $APPLICATION
 		 * @global CCacheManager $CACHE_MANAGER
 		 * @noinspection PhpUnusedLocalVariableInspection
 		 */
@@ -449,7 +449,7 @@ class CMenu
 	function GetMenuHtmlEx()
 	{
 		/**
-		 * @global CAllMain $APPLICATION
+		 * @global CMain $APPLICATION
 		 * @noinspection PhpUnusedLocalVariableInspection
 		 */
 		global $USER, $DB, $APPLICATION; // must be!
@@ -512,7 +512,7 @@ class CMenu
 	function GetMenuHtml()
 	{
 		/**
-		 * @global CAllMain $APPLICATION
+		 * @global CMain $APPLICATION
 		 * @noinspection PhpUnusedLocalVariableInspection
 		 */
 		global $USER, $DB, $APPLICATION; // must be!

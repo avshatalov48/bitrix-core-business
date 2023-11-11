@@ -1,3 +1,4 @@
-.bx-im-sidebar-task-detail__scope .bx-im-sidebar-task-item__container {
-	margin-bottom: 8px;
+.bx-im-sidebar-task-detail__date-group_container {
+	display: flex;
+	flex-direction: column;
 }

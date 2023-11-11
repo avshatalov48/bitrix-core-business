@@ -21,6 +21,7 @@ use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 use Bitrix\UI\Buttons\Button;
 use Bitrix\UI\Buttons\Color;
+use Bitrix\UI\Buttons\Icon;
 use Bitrix\UI\Buttons\JsHandler;
 use Bitrix\UI\Buttons\SettingsButton;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
@@ -52,6 +53,7 @@ $feedbackButton = new Button([
 		'BX.Catalog.ProductCard.Instance'
 	),
 ]);
+$feedbackButton->addDataAttribute('toolbar-collapsed-icon', Icon::ADD);
 Toolbar::addButton($feedbackButton);
 
 Toolbar::deleteFavoriteStar();

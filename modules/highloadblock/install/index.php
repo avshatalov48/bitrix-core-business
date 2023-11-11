@@ -56,36 +56,40 @@ class highloadblock extends CModule
 	function InstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
+
 		$this->errors = false;
 		// Database tables creation
-		if (!$DB->Query("SELECT 'x' FROM b_hlblock_entity WHERE 1=0", true))
+		if (!$DB->TableExists('b_hlblock_entity'))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/db/mysql/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/highloadblock/install/db/' . $connection->getType() . '/install.sql');
 		}
+
 		if ($this->errors !== false)
 		{
 			$APPLICATION->ThrowException(implode("<br>", $this->errors));
 			return false;
 		}
-		else
-		{
-			$this->InstallTasks();
-			RegisterModule("highloadblock");
-			CModule::IncludeModule("highloadblock");
 
-			RegisterModuleDependences("main", "OnBeforeUserTypeAdd", "highloadblock", '\Bitrix\Highloadblock\HighloadBlockTable', "OnBeforeUserTypeAdd");
-			RegisterModuleDependences("main", "OnAfterUserTypeAdd", "highloadblock", '\Bitrix\Highloadblock\HighloadBlockTable', "onAfterUserTypeAdd");
-			RegisterModuleDependences("main", "OnBeforeUserTypeDelete", "highloadblock", '\Bitrix\Highloadblock\HighloadBlockTable', "OnBeforeUserTypeDelete");
-			RegisterModuleDependences('main', 'OnUserTypeBuildList', 'highloadblock', 'CUserTypeHlblock', 'GetUserTypeDescription');
-			RegisterModuleDependences('iblock', 'OnIBlockPropertyBuildList', 'highloadblock', 'CIBlockPropertyDirectory', 'GetUserTypeDescription');
-		}
+		$this->InstallTasks();
+		RegisterModule("highloadblock");
+		CModule::IncludeModule("highloadblock");
+
+		RegisterModuleDependences("main", "OnBeforeUserTypeAdd", "highloadblock", '\Bitrix\Highloadblock\HighloadBlockTable', "OnBeforeUserTypeAdd");
+		RegisterModuleDependences("main", "OnAfterUserTypeAdd", "highloadblock", '\Bitrix\Highloadblock\HighloadBlockTable', "onAfterUserTypeAdd");
+		RegisterModuleDependences("main", "OnBeforeUserTypeDelete", "highloadblock", '\Bitrix\Highloadblock\HighloadBlockTable', "OnBeforeUserTypeDelete");
+		RegisterModuleDependences('main', 'OnUserTypeBuildList', 'highloadblock', 'CUserTypeHlblock', 'GetUserTypeDescription');
+		RegisterModuleDependences('iblock', 'OnIBlockPropertyBuildList', 'highloadblock', 'CIBlockPropertyDirectory', 'GetUserTypeDescription');
+
 		return true;
 	}
 
 	function UnInstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
+
 		if (!array_key_exists("save_tables", $arParams) || $arParams["save_tables"] != "Y")
 		{
 			// remove user data
@@ -100,7 +104,7 @@ class highloadblock extends CModule
 			$this->UnInstallTasks();
 
 			// remove hl system data
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/db/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/highloadblock/install/db/' . $connection->getType() . '/uninstall.sql');
 		}
 
 		UnRegisterModule("highloadblock");

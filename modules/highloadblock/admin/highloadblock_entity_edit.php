@@ -170,9 +170,12 @@ if (($save != '' || $apply != '') && $requestMethod == 'POST' && check_bitrix_se
 	if ($result->isSuccess())
 	{
 		// localization
-		foreach ($localization as $loc)
+		foreach ($localization as $lid => $loc)
 		{
-			HL\HighloadBlockLangTable::delete($loc['ID']);
+			HL\HighloadBlockLangTable::delete([
+				'ID' => $loc['ID'],
+				'LID' => $lid,
+			]);
 		}
 		if (is_array($request->get('LANGS')))
 		{

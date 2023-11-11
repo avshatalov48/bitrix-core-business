@@ -1,0 +1,120 @@
+.bx-pull-vue3-status {
+	height: 0;
+}
+.bx-pull-vue3-status-wrap {
+	position: relative;
+	font: var(--ui-font-size-sm)/var(--ui-font-line-height-sm) var(--ui-font-family-system);
+	color: #fff;
+	text-align: center;
+	-webkit-transition: height .4s, background .4s;
+	-o-transition: height .4s, background .4s;
+	transition: height .4s, background .4s;
+	overflow: hidden;
+	opacity: 0;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: row;
+	        flex-direction: row;
+	-ms-flex-wrap: nowrap;
+	    flex-wrap: nowrap;
+	z-index: 100;
+}
+.--show .bx-pull-vue3-status-wrap {
+	opacity: 1;
+	-webkit-animation: pullVue3StatusShow .4s 1;
+	animation: pullVue3StatusShow .4s 1;
+}
+.--hide .bx-pull-vue3-status-wrap {
+	-webkit-animation: pullVue3StatusHide .4s 1;
+	animation: pullVue3StatusHide .4s 1;
+}
+.--offline .bx-pull-vue3-status-wrap {
+	background-color: rgba(191,0,0,.70);
+}
+.--connect .bx-pull-vue3-status-wrap {
+	background-color: rgba(225,127,0,.80);
+	-webkit-animation: imConnectionAnimation 2s infinite;
+	animation: imConnectionAnimation 3s infinite;
+}
+.--online .bx-pull-vue3-status-wrap {
+	background-color: rgba(42,152,215,.80);
+	padding-right: 0;
+}
+.bx-pull-vue3-status-text {
+	-webkit-box-flex: 1;
+	    -ms-flex-positive: 1;
+	        flex-grow: 1;
+	-ms-flex-negative: 1;
+	    flex-shrink: 1;
+    padding: 10px;
+}
+.bx-pull-vue3-status-text + .bx-pull-vue3-status-button {
+	margin-left: -10px;
+}
+.bx-pull-vue3-status-button {
+	padding: 10px 0;
+	cursor: pointer;
+	white-space: nowrap;
+	-webkit-box-flex: 0;
+	    -ms-flex-positive: 0;
+	        flex-grow: 0;
+	-ms-flex-negative: 0;
+	    flex-shrink: 0;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+}
+.bx-pull-vue3-status-button:hover {
+	background: none repeat scroll 0 0 rgba(255, 255, 255, 0.2);
+}
+.bx-pull-vue3-status-button-title {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+.bx-pull-vue3-status-button-key {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+.bx-pull-vue3-status-button-title+.bx-pull-vue3-status-button-key{
+	padding-left: 0;
+}
+
+.bx-pull-vue3-status-button-key {
+	font-size: 11px;
+	text-decoration: underline;
+}
+.bx-pull-vue3-status-button-key:hover {
+	text-decoration: none;
+}
+
+.bx-pull-vue3-status-online .bx-pull-vue3-status-button {
+	display: none;
+}
+
+@-webkit-keyframes pullVue3StatusShow {
+	0% { opacity: 0; max-height: 0; }
+	25% { opacity: 1;  }
+	100% { opacity: 1; max-height: 50px; }
+}
+@keyframes pullVue3StatusShow {
+	0% { opacity: 0; max-height: 0; }
+	25% { opacity: 1;  }
+	100% { opacity: 1; max-height: 50px; }
+}
+
+@-webkit-keyframes pullVue3StatusHide {
+	0% { opacity: 1; max-height: 50px; }
+	75% { opacity: 1; }
+	100% { opacity: 0; max-height: 0; }
+}
+@keyframes pullVue3StatusHide {
+	0% { opacity: 1; max-height: 50px; }
+	75% { opacity: 1; }
+	100% { opacity: 0; max-height: 0; }
+}

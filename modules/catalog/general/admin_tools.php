@@ -1789,54 +1789,21 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 	/**
 	 * Returns true, if enable inventory managment and current user not have full store access.
 	 *
+	 * @deprecated
 	 * @return bool
 	 */
 	public static function needSummaryStoreAmountByPermissions(): bool
 	{
-		if (!Loader::includeModule('crm'))
-		{
-			return false;
-		}
-
-		if (!Catalog\Config\State::isUsedInventoryManagement())
-		{
-			return false;
-		}
-
-		$allowedStores = Access\AccessController::getCurrent()->getPermissionValue(
-			Access\ActionDictionary::ACTION_STORE_VIEW
-		);
-		if (
-			is_array($allowedStores)
-			&& in_array(Access\Permission\PermissionDictionary::VALUE_VARIATION_ALL, $allowedStores, true)
-		)
-		{
-			return false;
-		}
-
-		return true;
+		return Catalog\Grid\Column\ProductProvider::needSummaryStoreAmountByPermissions();
 	}
 
+	/**
+	 * @deprecated
+	 * @return bool
+	 */
 	public static function allowedShowQuantityFields(): bool
 	{
-		if (!Loader::includeModule('crm'))
-		{
-			return true;
-		}
-
-		if (!Catalog\Config\State::isUsedInventoryManagement())
-		{
-			return true;
-		}
-		$allowedStores = Access\AccessController::getCurrent()->getPermissionValue(
-			Access\ActionDictionary::ACTION_STORE_VIEW
-		);
-		if (!empty($allowedStores))
-		{
-			return true;
-		}
-
-		return false;
+		return Catalog\Grid\Column\ProductProvider::allowedShowQuantityColumns();
 	}
 
 	public static function getSummaryStoreAmountByPermissions(array $productIds): array

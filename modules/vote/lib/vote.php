@@ -739,6 +739,7 @@ class Vote extends BaseObject implements \ArrayAccess
 		}
 		else
 		{
+			unset($data['ID']);
 			$result = VoteTable::add($data);
 			if ($result->isSuccess())
 				$voteId = $result->getId();

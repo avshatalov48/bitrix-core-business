@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http;
@@ -28,7 +28,7 @@ class Response extends Message implements ResponseInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getStatusCode()
+	public function getStatusCode(): int
 	{
 		return $this->statusCode;
 	}
@@ -36,10 +36,10 @@ class Response extends Message implements ResponseInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withStatus($code, $reasonPhrase = '')
+	public function withStatus(int $code, string $reasonPhrase = ''): ResponseInterface
 	{
 		$new = clone $this;
-		$new->statusCode = (int)$code;
+		$new->statusCode = $code;
 		$new->reasonPhrase = $reasonPhrase;
 
 		return $new;
@@ -48,7 +48,7 @@ class Response extends Message implements ResponseInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function getReasonPhrase()
+	public function getReasonPhrase(): string
 	{
 		return $this->reasonPhrase;
 	}

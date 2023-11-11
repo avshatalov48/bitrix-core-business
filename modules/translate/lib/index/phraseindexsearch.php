@@ -3,17 +3,23 @@
 namespace Bitrix\Translate\Index;
 
 use Bitrix\Main;
+use Bitrix\Main\Application;
+use Bitrix\Main\Data\Cache;
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Translate;
 use Bitrix\Translate\Index;
 
 class PhraseIndexSearch
 {
-	const SEARCH_METHOD_EQUAL = 'equal';
-	const SEARCH_METHOD_CASE_SENSITIVE = 'case_sensitive';
-	const SEARCH_METHOD_EXACT_WORD = 'exact_word';
-	const SEARCH_METHOD_START_WITH = 'start_with';
-	const SEARCH_METHOD_END_WITH = 'end_with';
+	public const SEARCH_METHOD_EXACT = 'exact';
+	public const SEARCH_METHOD_EQUAL = 'equal';
+	public const SEARCH_METHOD_CASE_SENSITIVE = 'case_sensitive';
+	public const SEARCH_METHOD_ENTRY_WORD = 'entry_word';
+	public const SEARCH_METHOD_START_WITH = 'start_with';
+	public const SEARCH_METHOD_END_WITH = 'end_with';
 
 	/**
 	 * Performs search query and returns result.
@@ -23,10 +29,9 @@ class PhraseIndexSearch
 	 */
 	public static function query(array $params = []): Main\ORM\Query\Query
 	{
-		[$select, $runtime, $filter] = self::processParams($params);
+		[, $runtime, ] = self::processParams($params);
 
-		/** @var \Bitrix\Main\ORM\Entity $entity */
-		$entity = Index\Internals\PathPhraseIndexReferenceTable::getEntity();
+		$entity = self::getPathCodeEntity();
 		foreach ($runtime as $field)
 		{
 			$entity->addField($field);
@@ -44,10 +49,9 @@ class PhraseIndexSearch
 	 */
 	public static function getCount(array $filterIn): int
 	{
-		[$select, $runtime, $filter] = self::processParams(['filter' => $filterIn]);
+		[, $runtime, $filter] = self::processParams(['filter' => $filterIn]);
 
-		/** @var \Bitrix\Main\ORM\Entity $entity */
-		$entity = Index\Internals\PathPhraseIndexReferenceTable::getEntity();
+		$entity = self::getPathCodeEntity();
 		foreach ($runtime as $field)
 		{
 			$entity->addField($field);
@@ -75,7 +79,7 @@ class PhraseIndexSearch
 	{
 		[$select, $runtime, $filter] = self::processParams($params);
 
-		$executeParams = array(
+		$executeParams = [
 			'select' => \array_merge(
 				[
 					'PATH_ID' => 'PATH_ID',
@@ -87,7 +91,7 @@ class PhraseIndexSearch
 			),
 			'runtime' => $runtime,
 			'filter' => $filter,
-		);
+		];
 
 		if (isset($params['order']))
 		{
@@ -106,9 +110,57 @@ class PhraseIndexSearch
 			$executeParams['count_total'] = true;
 		}
 
-		return Index\Internals\PathPhraseIndexReferenceTable::getList($executeParams);
+		$entityClass = self::getPathCodeEntityClass();
+
+		return $entityClass::getList($executeParams);
 	}
 
+
+
+	/**
+	 * @return DataManager|string
+	 * @throws ArgumentException
+	 */
+	public static function getPathCodeEntityClass(): string
+	{
+		static $class;
+		if ($class === null)
+		{
+			$entity = self::getPathCodeEntity();
+			$class = $entity->getDataClass();
+		}
+
+		return $class;
+	}
+
+	/**
+	 * @return Main\ORM\Entity
+	 * @throws ArgumentException
+	 */
+	public static function getPathCodeEntity(): Main\ORM\Entity
+	{
+		static $entity;
+		if ($entity === null)
+		{
+			$subQuery = (new Main\ORM\Query\Query(Index\Internals\PhraseIndexTable::getEntity()))
+				->setSelect(['PATH_ID', 'CODE'])
+				->setGroup(['PATH_ID', 'CODE']);
+
+			$entity = Main\ORM\Entity::compileEntity(
+				'PathPhraseIndexReference',
+				[
+					'PATH_ID' => ['data_type' => 'string'],
+					'CODE' => ['data_type' => 'string'],
+				],
+				[
+					'table_name' => '('.$subQuery->getQuery().')',
+					'namespace' => __NAMESPACE__. '\\Internals',
+				]
+			);
+		}
+
+		return $entity;
+	}
 
 	/**
 	 * Processes select and filter params to convert them into orm type.
@@ -138,35 +190,36 @@ class PhraseIndexSearch
 		$enabledLanguages = Translate\Config::getEnabledLanguages();
 		$languageUpperKeys = \array_combine($enabledLanguages, \array_map('mb_strtoupper', $enabledLanguages));
 
-		$selectedLanguages = array();
+		/*
 		foreach ($languageUpperKeys as $langId => $langUpper)
 		{
 			$alias = "{$langUpper}_LANG";
-			if (isset($params['select']) && \in_array($alias, $params['select']))
+
+			if (
+				!empty($params['select']) && in_array($alias, $params['select'])
+				|| isset($params['order'], $params['order'][$alias])
+			)
 			{
-				$selectedLanguages[] = $langId;
-			}
-			elseif (isset($params['order'], $params['order'][$alias]))
-			{
-				$selectedLanguages[] = $langId;
-			}
-			elseif (isset($filterIn['LANGUAGE_ID']) && $filterIn['LANGUAGE_ID'] == $langId)
-			{
-				$selectedLanguages[] = $langId;
+				$tblAlias = "Phrase{$alias}";
+				$runtime[] = new Main\ORM\Fields\Relations\Reference(
+					$tblAlias,
+					Index\Internals\PhraseFts::getFtsEntityClass($langId),
+					Main\ORM\Query\Join::on('ref.PATH_ID', '=', 'this.PATH_ID')
+						->whereColumn('ref.CODE', '=', 'this.CODE')
+						->where('ref.LANG_ID', '=', $langId),
+					['join_type' => 'LEFT']
+				);
 			}
 		}
-		if (empty($selectedLanguages))
-		{
-			$selectedLanguages = [Loc::getCurrentLang()];
-		}
+		*/
 
 		if (!isset($filterIn['PHRASE_ENTRY']))
 		{
-			$filterIn['PHRASE_ENTRY'] = array();
+			$filterIn['PHRASE_ENTRY'] = [];
 		}
 		if (!isset($filterIn['CODE_ENTRY']))
 		{
-			$filterIn['CODE_ENTRY'] = array();
+			$filterIn['CODE_ENTRY'] = [];
 		}
 
 		// top folder
@@ -178,26 +231,6 @@ class PhraseIndexSearch
 				$filterOut['=PATH.DESCENDANTS.PARENT_ID'] = $topIndexPath->getId();//ancestor
 			}
 			unset($filterIn['PATH']);
-		}
-
-		// pathId + code
-		if (!\class_exists('Bitrix\\Translate\\Index\\Internals\\PathPhraseIndexReferenceTable'))
-		{
-			$subQuery = (new Main\ORM\Query\Query(Index\Internals\PhraseIndexTable::getEntity()))
-				->setSelect(['PATH_ID', 'CODE'])
-				->setGroup(['PATH_ID', 'CODE']);
-
-			Main\ORM\Entity::compileEntity(
-				'PathPhraseIndexReference',
-				array(
-					'PATH_ID' => array('data_type' => 'string'),
-					'CODE' => array('data_type' => 'string'),
-				),
-				array(
-					'table_name' => '('.$subQuery->getQuery().')',
-					'namespace' => 'Bitrix\\Translate\\Index\\Internals',
-				)
-			);
 		}
 
 		// search by code
@@ -302,7 +335,7 @@ class PhraseIndexSearch
 			'PATH',
 			Index\Internals\PathIndexTable::class,
 			Main\ORM\Query\Join::on('ref.ID', '=', 'this.PATH_ID'),
-			array('join_type' => 'INNER')
+			['join_type' => 'INNER']
 		);
 
 		$filterOut['=PATH.IS_DIR'] = 'N';
@@ -315,7 +348,7 @@ class PhraseIndexSearch
 		{
 			if (\mb_strpos($val, '%') === false)
 			{
-				if (\mb_substr($val, -4) === '.php')
+				if (Translate\IO\Path::isPhpFile($val))
 				{
 					$val = '/'. \trim($val, '/');
 				}
@@ -353,20 +386,20 @@ class PhraseIndexSearch
 					\array_walk($pathNameIncludes, $replaceLangId);
 					\array_walk($pathPathIncludes, $replaceLangId);
 					\array_walk($pathPathIncludes, $trimSlash);
-					$filterOut[] = array(
+					$filterOut[] = [
 						'LOGIC' => 'OR',
 						'%=PATH.NAME' => $pathNameIncludes,
 						'%=PATH.PATH' => $pathPathIncludes,
-					);
+					];
 				}
 				elseif (\count($pathNameIncludes) > 0)
 				{
 					\array_walk($pathNameIncludes, $replaceLangId);
-					$filterOut[] = array(
+					$filterOut[] = [
 						'LOGIC' => 'OR',
 						'%=PATH.NAME' => $pathNameIncludes,
 						'%=PATH.PATH' => $pathNameIncludes,
-					);
+					];
 				}
 				elseif (\count($pathPathIncludes) > 0)
 				{
@@ -404,20 +437,20 @@ class PhraseIndexSearch
 					\array_walk($pathNameExcludes, $replaceLangId);
 					\array_walk($pathPathExcludes, $replaceLangId);
 					\array_walk($pathPathExcludes, $trimSlash);
-					$filterOut[] = array(
+					$filterOut[] = [
 						'LOGIC' => 'AND',
 						'!=%PATH.NAME' => $pathNameExcludes,
 						'!=%PATH.PATH' => $pathPathExcludes,
-					);
+					];
 				}
 				elseif (\count($pathNameExcludes) > 0)
 				{
 					\array_walk($pathNameExcludes, $replaceLangId);
-					$filterOut[] = array(
+					$filterOut[] = [
 						'LOGIC' => 'AND',
 						'!=%PATH.NAME' => $pathNameExcludes,
 						'!=%PATH.PATH' => $pathNameExcludes,
-					);
+					];
 				}
 				elseif (\count($pathPathExcludes) > 0)
 				{
@@ -431,69 +464,65 @@ class PhraseIndexSearch
 		unset($filterIn['INCLUDE_PATHS'], $filterIn['EXCLUDE_PATHS']);
 
 		// search by phrase
-		if (!empty($filterIn['PHRASE_TEXT']) && empty($filterIn['LANGUAGE_ID']))
+		if (!empty($filterIn['PHRASE_TEXT']))
 		{
-			$filterIn['LANGUAGE_ID'] = Loc::getCurrentLang();
-		}
+			$langId = !empty($filterIn['LANGUAGE_ID']) ? $filterIn['LANGUAGE_ID'] : Loc::getCurrentLang();
 
-
-		$phraseSearch = array(
-			'LOGIC' => 'AND'
-		);
-		foreach ($languageUpperKeys as $langId => $langUpper)
-		{
-			$searchPhraseByLang = ($langId == $filterIn['LANGUAGE_ID']);
-			if (!\in_array($langId, $selectedLanguages) && !$searchPhraseByLang)
-			{
-				continue;
-			}
-
+			$langUpper = $languageUpperKeys[$langId];
+			$tbl = "{$langUpper}_LNG";
 			$alias = "{$langUpper}_LANG";
-			$tblAlias = "Phrase{$alias}";
+			$tblAlias = "{$tbl}.PHRASE_{$langUpper}";
 			$fieldAlias = "{$tblAlias}.PHRASE";
 
 			$runtime[] = new Main\ORM\Fields\Relations\Reference(
-				$tblAlias,
+				$tbl,
 				Index\Internals\PhraseIndexTable::class,
 				Main\ORM\Query\Join::on('ref.PATH_ID', '=', 'this.PATH_ID')
 					->whereColumn('ref.CODE', '=', 'this.CODE')
 					->where('ref.LANG_ID', '=', $langId),
-				['join_type' => $searchPhraseByLang ? 'INNER' : 'LEFT']
+				['join_type' => 'INNER']
 			);
 
 			$select[$alias] = "{$tblAlias}.PHRASE";
 			$select["{$langUpper}_FILE_ID"] = "{$tblAlias}.FILE_ID";
 
-			if ($searchPhraseByLang && !empty($filterIn['PHRASE_TEXT']))
+			$exact = \in_array(self::SEARCH_METHOD_EXACT, $filterIn['PHRASE_ENTRY']);
+			$entry = \in_array(self::SEARCH_METHOD_ENTRY_WORD, $filterIn['PHRASE_ENTRY']);
+			$case = \in_array(self::SEARCH_METHOD_CASE_SENSITIVE, $filterIn['PHRASE_ENTRY']);
+			$start = \in_array(self::SEARCH_METHOD_START_WITH, $filterIn['PHRASE_ENTRY']);
+			$end = \in_array(self::SEARCH_METHOD_END_WITH, $filterIn['PHRASE_ENTRY']);
+			$equal = \in_array(self::SEARCH_METHOD_EQUAL, $filterIn['PHRASE_ENTRY']);
+
+			if ($exact)
+			{
+				$phraseSearch = ["={$fieldAlias}" => $filterIn['PHRASE_TEXT']];
+			}
+			else
 			{
 				$sqlHelper = Main\Application::getConnection()->getSqlHelper();
 				$str = $sqlHelper->forSql($filterIn['PHRASE_TEXT']);
 
-				$exact = \in_array(self::SEARCH_METHOD_EXACT_WORD, $filterIn['PHRASE_ENTRY']);
-				$case = \in_array(self::SEARCH_METHOD_CASE_SENSITIVE, $filterIn['PHRASE_ENTRY']);
-				$start = \in_array(self::SEARCH_METHOD_START_WITH, $filterIn['PHRASE_ENTRY']);
-				$end = \in_array(self::SEARCH_METHOD_END_WITH, $filterIn['PHRASE_ENTRY']);
-				$equal = \in_array(self::SEARCH_METHOD_EQUAL, $filterIn['PHRASE_ENTRY']);
+				$phraseSearch = [
+					'LOGIC' => 'AND'
+				];
 
 				// use fulltext index to help like operator
-				$textStr = \preg_replace("/^\W+/i".\BX_UTF_PCRE_MODIFIER, '', $filterIn['PHRASE_TEXT']);
-				$textStr = \preg_replace("/\W+$/i".\BX_UTF_PCRE_MODIFIER, '', $textStr);
-				$textStr = \preg_replace("/\b\w{1,4}\b/i".\BX_UTF_PCRE_MODIFIER, '', $textStr);
-				$textStr = \preg_replace("/\W+/i".\BX_UTF_PCRE_MODIFIER, ' ', $textStr);
-				if (\mb_strlen($textStr) > 4)
+				$minLengthFulltextWorld = self::getFullTextMinLength();
+				$fulltextIndexSearchStr = self::prepareTextForFulltextSearch($filterIn['PHRASE_TEXT']);
+				if (\mb_strlen($fulltextIndexSearchStr) > $minLengthFulltextWorld)
 				{
-					if ($exact)
+					if ($entry)
 					{
 						// identical full text match
 						// MATCH(PHRASE) AGAINST ('+smth' IN BOOLEAN MODE)
-						$phraseSearch["*={$fieldAlias}"] = $textStr;
+						$phraseSearch["*={$fieldAlias}"] = $fulltextIndexSearchStr;
 					}
 					else
 					{
 						// use fulltext index to help like operator
 						// partial full text match
 						// MATCH(PHRASE) AGAINST ('+smth*' IN BOOLEAN MODE)
-						$phraseSearch["*{$fieldAlias}"] = $textStr;
+						$phraseSearch["*{$fieldAlias}"] = $fulltextIndexSearchStr;
 					}
 				}
 
@@ -509,24 +538,24 @@ class PhraseIndexSearch
 				{
 					$likeStr = "%%{$str}";
 				}
-				elseif ($exact)
+				elseif ($entry)
 				{
 					$likeStr = "%%{$str}%%";
 				}
 				else
 				{
-					$likeStr = "%%". \preg_replace("/\W+/i".\BX_UTF_PCRE_MODIFIER, "%%", $str). "%%";
+					$likeStr = "%%" . \preg_replace("/\W+/i" . \BX_UTF_PCRE_MODIFIER, "%%", $str) . "%%";
 				}
 
 				if (self::allowICURegularExpression())
 				{
-					$regStr = \preg_replace("/\s+/i".\BX_UTF_PCRE_MODIFIER, '[[:blank:]]+', $str);
+					$regStr = \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, '[[:blank:]]+', $str);
 				}
 				else
 				{
 					if ($case)
 					{
-						$regStr = \preg_replace("/\s+/i".\BX_UTF_PCRE_MODIFIER, '[[:blank:]]+', $str);
+						$regStr = \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, '[[:blank:]]+', $str);
 					}
 					else
 					{
@@ -537,31 +566,31 @@ class PhraseIndexSearch
 							$c0 = Translate\Text\StringHelper::getSubstring($str, $p, 1);
 							if (\in_array($c0, $regChars))
 							{
-								$regStr .= "\\\\".$c0;
+								$regStr .= "\\\\" . $c0;
 								continue;
 							}
 							$c1 = Translate\Text\StringHelper::changeCaseToLower($c0);
 							$c2 = Translate\Text\StringHelper::changeCaseToUpper($c0);
 							if ($c0 != $c1)
 							{
-								$regStr .= '('.$c0.'|'.$c1.'){1}';
+								$regStr .= '(' . $c0 . '|' . $c1 . '){1}';
 							}
 							elseif ($c0 != $c2)
 							{
-								$regStr .= '('.$c0.'|'.$c2.'){1}';
+								$regStr .= '(' . $c0 . '|' . $c2 . '){1}';
 							}
 							else
 							{
 								$regStr .= $c0;
 							}
 						}
-						$regStr = \preg_replace("/\s+/i".\BX_UTF_PCRE_MODIFIER, '[[:blank:]]+', $regStr);
+						$regStr = \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, '[[:blank:]]+', $regStr);
 					}
 				}
 
 				$regExpStart = '';
 				$regExpEnd = '';
-				if (\preg_match("/^[[:alnum:]]+/i".\BX_UTF_PCRE_MODIFIER, $str))
+				if (\preg_match("/^[[:alnum:]]+/i" . \BX_UTF_PCRE_MODIFIER, $str))
 				{
 					if (self::allowICURegularExpression())
 					{
@@ -572,7 +601,7 @@ class PhraseIndexSearch
 						$regExpStart = '[[:<:]]';
 					}
 				}
-				if (\preg_match("/[[:alnum:]]+$/i".\BX_UTF_PCRE_MODIFIER, $str))
+				if (\preg_match("/[[:alnum:]]+$/i" . \BX_UTF_PCRE_MODIFIER, $str))
 				{
 					if (self::allowICURegularExpression())
 					{
@@ -597,7 +626,7 @@ class PhraseIndexSearch
 				{
 					$regStr = "{$regExpStart}({$regStr}){$regExpEnd}[[:blank:]]*";
 				}
-				elseif ($exact)
+				elseif ($entry)
 				{
 					$regStr = "[[:blank:]]*{$regExpStart}({$regStr}){$regExpEnd}[[:blank:]]*";
 				}
@@ -635,41 +664,11 @@ class PhraseIndexSearch
 				}
 				$phraseSearch["=PHRASE_REGEXP"] = 1;
 			}
-		}
-		unset($langId, $langUpper, $alias, $tblAlias, $fieldAlias,
-			$filterIn['PHRASE_ENTRY'], $filterIn['PHRASE_TEXT'], $filterIn['LANGUAGE_ID']);
 
-		// is any file exists in main rep
-		/*
-		if (Main\Localization\Translation::useTranslationRepository())
-		{
-			$statement = '';
-			$fields = array();
-			foreach ($languageUpperKeys as $langId => $langUpper)
-			{
-				if (Main\Localization\Translation::isDefaultTranslationLang($langId))
-				{
-					$alias = "{$langUpper}_LANG";
-					$fields[] = "Phrase{$alias}.FILE_ID";
-					$statement .= ' WHEN %s IS NOT NULL THEN 1 ';
-				}
-			}
-			unset($langId, $langUpper, $alias, $tblAlias, $fieldAlias);
-
-			$runtime[] =
-				new Main\ORM\Fields\ExpressionField(
-					'IS_EXIST',
-					"CASE {$statement} ELSE 0 END",
-					$fields
-				);
-			$select[] = 'IS_EXIST';
-		}
-		*/
-
-		if (\count($phraseSearch) > 1)
-		{
 			$filterOut[] = $phraseSearch;
 		}
+		unset($filterIn['PHRASE_ENTRY'], $filterIn['PHRASE_TEXT'], $filterIn['LANGUAGE_ID']);
+
 
 		if (!empty($filterIn['FILE_NAME']))
 		{
@@ -705,10 +704,161 @@ class PhraseIndexSearch
 		static $allowICURE;
 		if ($allowICURE === null)
 		{
-			$majorVersion = \mb_substr(\Bitrix\Main\Application::getConnection()->getVersion()[0], 0, 1);
+			$majorVersion = \mb_substr(Application::getConnection()->getVersion()[0], 0, 1);
 			$allowICURE = (int)$majorVersion >= 8;
 		}
 
 		return $allowICURE;
+	}
+
+	/**
+	 * Prepares searching text to use with fulltext index to help like operator.
+	 *
+	 * @param string $text
+	 * @return string
+	 */
+	public static function prepareTextForFulltextSearch(string $text): string
+	{
+		$minLengthFulltextWorld = self::getFullTextMinLength();
+
+		$text = \preg_replace("/\b\w{1,{$minLengthFulltextWorld}}\b/i".\BX_UTF_PCRE_MODIFIER, '', $text);
+
+		$stopWorlds = self::getFullTextStopWords();
+		foreach ($stopWorlds as $stopWorld)
+		{
+			$text = \preg_replace("/\b{$stopWorld}\b/i".\BX_UTF_PCRE_MODIFIER, '', $text);
+		}
+
+		$text = \preg_replace("/^\W+/i".\BX_UTF_PCRE_MODIFIER, '', $text);
+		$text = \preg_replace("/\W+$/i".\BX_UTF_PCRE_MODIFIER, '', $text);
+		$text = \preg_replace("/\W+/i".\BX_UTF_PCRE_MODIFIER, ' ', $text);
+
+		return $text;
+	}
+
+	/**
+	 * Detects Innodb engine type.
+	 * @return bool
+	 */
+	protected static function isInnodbEngine(): bool
+	{
+		static $available;
+		if ($available === null)
+		{
+			$available = false;
+			$cache = Cache::createInstance();
+			if ($cache->initCache(3600, 'translate::isInnodbEngine'))
+			{
+				$available = (bool)$cache->getVars();
+			}
+			elseif ($cache->startDataCache())
+			{
+				try
+				{
+					$check = Application::getConnection()->query(
+						"SHOW TABLE STATUS WHERE Name = 'b_translate_phrase' AND Engine = 'InnoDB'"
+					);
+					if ($check->fetch())
+					{
+						$available = true;
+					}
+				}
+				catch (SqlQueryException $exception)
+				{}
+				$cache->endDataCache((int)$available);
+			}
+		}
+
+		return $available;
+	}
+
+
+	/**
+	 * Extracts Innodb fulltext search stop worlds.
+	 * @see https://dev.mysql.com/doc/refman/8.0/en/fulltext-stopwords.html#fulltext-stopwords-stopwords-for-innodb-search-indexes
+	 * @return string[]
+	 */
+	protected static function getFullTextStopWords(): array
+	{
+		static $worldList;
+		if ($worldList === null)
+		{
+			$minLengthFulltextWorld = self::getFullTextMinLength();
+			$worldList = [];
+			$cache = Cache::createInstance();
+			if ($cache->initCache(3600, 'translate::FullTextStopWords'))
+			{
+				$worldList = $cache->getVars();
+			}
+			elseif ($cache->startDataCache())
+			{
+				try
+				{
+					if (self::isInnodbEngine())
+					{
+						$res = Application::getConnection()->query(
+							"SELECT * FROM INFORMATION_SCHEMA.INNODB_FT_DEFAULT_STOPWORD"
+						);
+						while ($row = $res->fetch())
+						{
+							if (mb_strlen($row['value']) > $minLengthFulltextWorld)
+							{
+								$worldList[] = $row['value'];
+							}
+						}
+					}
+				}
+				catch (SqlQueryException $exception)
+				{}
+				$cache->endDataCache($worldList);
+			}
+		}
+
+		return $worldList;
+	}
+
+	/**
+	 * The minimum and maximum lengths of words to be indexed are defined by the innodb_ft_min_token_size
+	 * and innodb_ft_max_token_size for InnoDB search indexes, and ft_min_word_len and ft_max_word_len for MyISAM ones.
+	 * https://dev.mysql.com/doc/refman/8.0/en/fulltext-fine-tuning.html#fulltext-word-length
+	 *
+	 * @return int
+	 */
+	public static function getFullTextMinLength(): int
+	{
+		static $fullTextMinLength;
+		if ($fullTextMinLength === null)
+		{
+			$fullTextMinLength = 4;
+			$cache = Cache::createInstance();
+			if ($cache->initCache(3600, 'translate::FullTextMinLength'))
+			{
+				$fullTextMinLength = $cache->getVars();
+			}
+			elseif ($cache->startDataCache())
+			{
+				if (self::isInnodbEngine())
+				{
+					$var = 'innodb_ft_min_token_size';
+				}
+				else
+				{
+					$var = 'ft_min_word_len';
+				}
+				try
+				{
+					$res = Application::getConnection()->query("SHOW VARIABLES LIKE '{$var}'");
+					if ($row = $res->fetch())
+					{
+						$fullTextMinLength = (int)$row['Value'];
+					}
+				}
+				catch (SqlQueryException $exception)
+				{}
+				$cache->endDataCache($fullTextMinLength);
+			}
+		}
+
+		return $fullTextMinLength;
 	}
 }

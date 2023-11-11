@@ -7,6 +7,22 @@ use Bitrix\Main\Localization;
 
 Localization\Loc::loadMessages(__FILE__);
 
+/**
+ * Class ABTestTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ABTest_Query query()
+ * @method static EO_ABTest_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ABTest_Result getById($id)
+ * @method static EO_ABTest_Result getList(array $parameters = array())
+ * @method static EO_ABTest_Entity getEntity()
+ * @method static \Bitrix\ABTest\EO_ABTest createObject($setDefaultValues = true)
+ * @method static \Bitrix\ABTest\EO_ABTest_Collection createCollection()
+ * @method static \Bitrix\ABTest\EO_ABTest wakeUpObject($row)
+ * @method static \Bitrix\ABTest\EO_ABTest_Collection wakeUpCollection($rows)
+ */
 class ABTestTable extends Entity\DataManager
 {
 

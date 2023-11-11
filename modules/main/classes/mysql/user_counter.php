@@ -90,7 +90,9 @@ class CUserCounter extends CAllUserCounter
 
 	public static function Increment($user_id, $code, $site_id = SITE_ID, $sendPull = true, $increment = 1)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$user_id = (int)$user_id;
 		if ($user_id < 0 || $code == '')
@@ -100,11 +102,18 @@ class CUserCounter extends CAllUserCounter
 
 		$increment = (int)$increment;
 
-		$strSQL = "
-			INSERT INTO b_user_counter (USER_ID, CNT, SITE_ID, CODE)
-			VALUES (".$user_id.", ".$increment.", '".$DB->ForSQL($site_id)."', '".$DB->ForSQL($code)."')
-			ON DUPLICATE KEY UPDATE CNT = CNT + ".$increment;
-		$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$merge = $helper->prepareMerge('b_user_counter', ['USER_ID', 'SITE_ID', 'CODE'], [
+			'USER_ID' => $user_id,
+			'SITE_ID' => $site_id,
+			'CODE' => $code,
+			'CNT' => $increment,
+		], [
+			'CNT' => new \Bitrix\Main\DB\SqlExpression('b_user_counter.CNT + ' . $increment),
+		]);
+		if ($merge[0])
+		{
+			$connection->query($merge[0]);
+		}
 
 		if (isset(self::$counters[$user_id]) && is_array(self::$counters[$user_id]))
 		{
@@ -160,7 +169,9 @@ class CUserCounter extends CAllUserCounter
 	 */
 	public static function Decrement($user_id, $code, $site_id = SITE_ID, $sendPull = true, $decrement = 1)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$user_id = (int)$user_id;
 		if ($user_id < 0 || $code == '')
@@ -170,11 +181,18 @@ class CUserCounter extends CAllUserCounter
 
 		$decrement = (int)$decrement;
 
-		$strSQL = "
-			INSERT INTO b_user_counter (USER_ID, CNT, SITE_ID, CODE)
-			VALUES (".$user_id.", -".$decrement.", '".$DB->ForSQL($site_id)."', '".$DB->ForSQL($code)."')
-			ON DUPLICATE KEY UPDATE CNT = CNT - ".$decrement;
-		$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$merge = $helper->prepareMerge('b_user_counter', ['USER_ID', 'SITE_ID', 'CODE'], [
+			'USER_ID' => $user_id,
+			'SITE_ID' => $site_id,
+			'CODE' => $code,
+			'CNT' => -$decrement,
+		], [
+			'CNT' => new \Bitrix\Main\DB\SqlExpression('b_user_counter.CNT - ' . $decrement),
+		]);
+		if ($merge[0])
+		{
+			$connection->query($merge[0]);
+		}
 
 		if (self::$counters && self::$counters[$user_id])
 		{
@@ -222,7 +240,9 @@ class CUserCounter extends CAllUserCounter
 
 	public static function IncrementWithSelect($sub_select, $sendPull = true, $arParams = array())
 	{
-		global $DB, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		if ($sub_select <> '')
 		{
@@ -236,46 +256,64 @@ class CUserCounter extends CAllUserCounter
 				&& isset($arParams["TAG_SET"])
 			)
 			{
-				$strSQL = "
-					INSERT INTO b_user_counter (USER_ID, CNT, SITE_ID, CODE, SENT, TAG".(isset($arParams["SET_TIMESTAMP"]) ? ", TIMESTAMP_X" : "").") (".$sub_select.")
-					ON DUPLICATE KEY UPDATE CNT = CNT + VALUES(CNT), SENT = VALUES(SENT), TAG = '".$DB->ForSQL($arParams["TAG_SET"])."'
-				";
+				$insertFields = ['USER_ID', 'CNT', 'SITE_ID', 'CODE', 'SENT', 'TAG'];
+				if (is_array($arParams) && isset($arParams["SET_TIMESTAMP"]))
+				{
+					$insertFields[] = 'TIMESTAMP_X';
+				}
+				$strSQL = $helper->prepareMergeSelect(
+					'b_user_counter',
+					['USER_ID', 'SITE_ID', 'CODE'],
+					$insertFields,
+					'(' . $sub_select . ')',
+					[
+						'CNT' => new \Bitrix\Main\DB\SqlExpression('b_user_counter.CNT + ?v', 'CNT'),
+						'SENT' => new \Bitrix\Main\DB\SqlExpression('?v', 'SENT'),
+						'TAG' => $arParams["TAG_SET"],
+					]
+				);
 			}
 			elseif (
 				is_array($arParams)
 				&& isset($arParams["TAG_CHECK"])
 			)
 			{
-				$strSQL = "
-					INSERT INTO b_user_counter (USER_ID, CNT, SITE_ID, CODE, SENT".(isset($arParams["SET_TIMESTAMP"]) ? ", TIMESTAMP_X" : "").") (".$sub_select.")
-					ON DUPLICATE KEY UPDATE CNT = CASE
-						WHEN
-							TAG = '".$DB->ForSQL($arParams["TAG_CHECK"])."'
-						THEN
-							CNT
-
-						ELSE
-							CNT + VALUES(CNT)
-						END,
-						SENT = CASE
-						WHEN
-							TAG = '".$DB->ForSQL($arParams["TAG_CHECK"])."'
-						THEN
-							SENT
-						ELSE
-							SENT = VALUES(SENT)
-						END
-				";
+				$insertFields = ['USER_ID', 'CNT', 'SITE_ID', 'CODE', 'SENT'];
+				if (is_array($arParams) && isset($arParams["SET_TIMESTAMP"]))
+				{
+					$insertFields[] = 'TIMESTAMP_X';
+				}
+				$strSQL = $helper->prepareMergeSelect(
+					'b_user_counter',
+					['USER_ID', 'SITE_ID', 'CODE'],
+					$insertFields,
+					'(' . $sub_select . ')',
+					[
+						'CNT' => new \Bitrix\Main\DB\SqlExpression("CASE WHEN b_user_counter.TAG = '" . $helper->forSQL($arParams["TAG_CHECK"]) . "' THEN b_user_counter.CNT ELSE b_user_counter.CNT + ?v END", 'CNT'),
+						'SENT' => new \Bitrix\Main\DB\SqlExpression("CASE WHEN b_user_counter.TAG = '" . $helper->forSQL($arParams["TAG_CHECK"]) . "' THEN b_user_counter.SENT ELSE ?v END", 'SENT'),
+					]
+				);
 			}
 			else
 			{
-				$strSQL = "
-					INSERT INTO b_user_counter (USER_ID, CNT, SITE_ID, CODE, SENT".(is_array($arParams) && isset($arParams["SET_TIMESTAMP"]) ? ", TIMESTAMP_X" : "").") (".$sub_select.")
-					ON DUPLICATE KEY UPDATE CNT = CNT + VALUES(CNT), SENT = VALUES(SENT)
-				";
+				$insertFields = ['USER_ID', 'CNT', 'SITE_ID', 'CODE', 'SENT'];
+				if (is_array($arParams) && isset($arParams["SET_TIMESTAMP"]))
+				{
+					$insertFields[] = 'TIMESTAMP_X';
+				}
+				$strSQL = $helper->prepareMergeSelect(
+					'b_user_counter',
+					['USER_ID', 'SITE_ID', 'CODE'],
+					$insertFields,
+					'(' . $sub_select . ')',
+					[
+						'CNT' => new \Bitrix\Main\DB\SqlExpression("b_user_counter.CNT + ?v", 'CNT'),
+						'SENT' => new \Bitrix\Main\DB\SqlExpression("?v", 'SENT'),
+					]
+				);
 			}
 
-			$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$connection->query($strSQL);
 
 			if (
 				!is_array($arParams)
@@ -308,7 +346,6 @@ class CUserCounter extends CAllUserCounter
 					&& is_array($arParams["USERS_TO_PUSH"])
 				)
 				{
-					$connection = \Bitrix\Main\Application::getConnection();
 					if($connection->lock('pull'))
 					{
 						$helper = $connection->getSqlHelper();
@@ -320,15 +357,15 @@ class CUserCounter extends CAllUserCounter
 							WHERE uc.SENT = '0' AND uc.USER_ID IN (" . implode(", ", $arParams["USERS_TO_PUSH"]) . ")
 						";
 
-						$res = $DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+						$res = $connection->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
 						$pullMessage = Array();
-						while($row = $res->Fetch())
+						while($row = $res->fetch())
 						{
 							self::addValueToPullMessage($row, $arSites, $pullMessage);
 						}
 
-						$DB->Query("UPDATE b_user_counter SET SENT = '1' WHERE SENT = '0' AND CODE NOT LIKE '". self::LIVEFEED_CODE . "L%'");
+						$connection->Query("UPDATE b_user_counter SET SENT = '1' WHERE SENT = '0' AND CODE NOT LIKE '". self::LIVEFEED_CODE . "L%'");
 
 						$connection->unlock('pull');
 
@@ -356,7 +393,9 @@ class CUserCounter extends CAllUserCounter
 
 	public static function Clear($user_id, $code, $site_id = SITE_ID, $sendPull = true, $bMultiple = false, $cleanCache = true)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$user_id = (int)$user_id;
 		if (
@@ -374,61 +413,68 @@ class CUserCounter extends CAllUserCounter
 
 		if ($bMultiple)
 		{
-			$connection = \Bitrix\Main\Application::getConnection();
 			if($connection->lock('counter_delete'))
 			{
 				$siteToDelete = "";
-				$strUpsertSQL = "
-					INSERT INTO b_user_counter (USER_ID, SITE_ID, CODE, CNT, LAST_DATE) VALUES ";
-
 				foreach ($site_id as $i => $site_id_tmp)
 				{
 					if ($i > 0)
 					{
-						$strUpsertSQL .= ",";
 						$siteToDelete .= ",";
 					}
-
-					$siteToDelete .= "'".$DB->ForSQL($site_id_tmp)."'";
-					$strUpsertSQL .= " (" . $user_id . ", '" . $DB->ForSQL($site_id_tmp) . "', '" . $DB->ForSQL($code) . "', 0, " . CDatabase::CurrentTimeFunction() . ") ";
+					$siteToDelete .= "'".$helper->forSQL($site_id_tmp)."'";
 				}
-				$strUpsertSQL .= " ON DUPLICATE KEY UPDATE CNT = 0, LAST_DATE = " . CDatabase::CurrentTimeFunction();
 
 				$strDeleteSQL = "
 					DELETE FROM b_user_counter
 					WHERE
 						USER_ID = ".$user_id."
-						".(
-					count($site_id) == 1
-						? " AND SITE_ID = '".$site_id[0]."' "
-						: " AND SITE_ID IN (".$siteToDelete.") "
-					)."
-						AND CODE LIKE '".$DB->ForSQL($code)."L%'
+						AND SITE_ID IN (".$siteToDelete.")
+						AND CODE LIKE '".$helper->forSQL($code)."L%'
 					";
 
-				$DB->Query($strDeleteSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-				$DB->Query($strUpsertSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				$connection->query($strDeleteSQL);
+
+				foreach ($site_id as $i => $site_id_tmp)
+				{
+					$merge = $helper->prepareMerge('b_user_counter', ['USER_ID', 'SITE_ID', 'CODE'], [
+						'USER_ID' => $user_id,
+						'SITE_ID' => $site_id_tmp,
+						'CODE' => $code,
+						'CNT' => 0,
+						'LAST_DATE' => new \Bitrix\Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
+					], [
+						'CNT' => 0,
+						'LAST_DATE' => new \Bitrix\Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
+					]);
+					if ($merge[0])
+					{
+						$connection->query($merge[0]);
+					}
+				}
 
 				$connection->unlock('counter_delete');
 			}
 		}
 		else
 		{
-			$strSQL = "
-				INSERT INTO b_user_counter (USER_ID, SITE_ID, CODE, CNT, LAST_DATE) VALUES ";
-
 			foreach ($site_id as $i => $site_id_tmp)
 			{
-				if ($i > 0)
+				$merge = $helper->prepareMerge('b_user_counter', ['USER_ID', 'SITE_ID', 'CODE'], [
+					'USER_ID' => $user_id,
+					'SITE_ID' => $site_id_tmp,
+					'CODE' => $code,
+					'CNT' => 0,
+					'LAST_DATE' => new \Bitrix\Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
+				], [
+					'CNT' => 0,
+					'LAST_DATE' => new \Bitrix\Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
+				]);
+				if ($merge)
 				{
-					$strSQL .= ",";
+					$connection->Query($merge[0]);
 				}
-				$strSQL .= " (" . $user_id . ", '" . $DB->ForSQL($site_id_tmp) . "', '" . $DB->ForSQL($code) . "', 0, " . CDatabase::CurrentTimeFunction() . ") ";
 			}
-
-			$strSQL .= " ON DUPLICATE KEY UPDATE CNT = 0, LAST_DATE = " . CDatabase::CurrentTimeFunction();
-
-			$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 		}
 
 		if (self::$counters && self::$counters[$user_id])
@@ -566,7 +612,7 @@ class CUserCounter extends CAllUserCounter
 
 	protected static function dbIF($condition, $yes, $no)
 	{
-		return "if(".$condition.", ".$yes.", ".$no.")";
+		return "CASE WHEN ".$condition." THEN ".$yes." ELSE ".$no."END ";
 	}
 
 	// legacy function

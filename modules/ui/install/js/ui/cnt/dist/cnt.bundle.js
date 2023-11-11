@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_fonts_opensans,main_core) {
 	'use strict';
@@ -8,7 +9,6 @@ this.BX = this.BX || {};
 	var CounterColor = function CounterColor() {
 	  babelHelpers.classCallCheck(this, CounterColor);
 	};
-
 	babelHelpers.defineProperty(CounterColor, "DANGER", "ui-counter-danger");
 	babelHelpers.defineProperty(CounterColor, "WARNING", "ui-counter-warning");
 	babelHelpers.defineProperty(CounterColor, "SUCCESS", "ui-counter-success");
@@ -25,27 +25,19 @@ this.BX = this.BX || {};
 	var CounterSize = function CounterSize() {
 	  babelHelpers.classCallCheck(this, CounterSize);
 	};
-
 	babelHelpers.defineProperty(CounterSize, "SMALL", "ui-counter-sm");
 	babelHelpers.defineProperty(CounterSize, "LARGE", "ui-counter-lg");
 	babelHelpers.defineProperty(CounterSize, "MEDIUM", "ui-counter-md");
 
 	var _templateObject, _templateObject2;
-
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
 	var _getBorderClassname = /*#__PURE__*/new WeakSet();
-
 	var Counter = /*#__PURE__*/function () {
 	  function Counter(options) {
 	    babelHelpers.classCallCheck(this, Counter);
-
 	    _classPrivateMethodInitSpec(this, _getBorderClassname);
-
 	    this.options = main_core.Type.isPlainObject(options) ? options : {};
 	    this.container = null;
 	    this.counterContainer = null;
@@ -55,16 +47,15 @@ this.BX = this.BX || {};
 	    this.size = main_core.Type.isString(this.options.size) ? this.options.size : BX.UI.Counter.Size.MEDIUM;
 	    this.color = main_core.Type.isString(this.options.color) ? this.options.color : BX.UI.Counter.Color.PRIMARY;
 	    this.border = main_core.Type.isBoolean(this.options.border) ? this.options.border : false;
-	  } //region Parameters
+	  }
 
-
+	  //region Parameters
 	  babelHelpers.createClass(Counter, [{
 	    key: "setValue",
 	    value: function setValue(value) {
 	      if (main_core.Type.isNumber(value)) {
 	        this.value = value < 0 ? 0 : value;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -82,7 +73,6 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isNumber(value)) {
 	        this.value = value < 0 ? 0 : value;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -102,12 +92,10 @@ this.BX = this.BX || {};
 	        if (this.container === null) {
 	          this.createContainer();
 	        }
-
 	        main_core.Dom.removeClass(this.container, this.color);
 	        this.color = color;
 	        main_core.Dom.addClass(this.container, this.color);
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -118,7 +106,6 @@ this.BX = this.BX || {};
 	        this.size = size;
 	        BX.addClass(this.container, this.size);
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -127,7 +114,6 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isBoolean(animate)) {
 	        this.animate = animate;
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -137,17 +123,13 @@ this.BX = this.BX || {};
 	        console.warn('Parameter "border" is not boolean');
 	        return this;
 	      }
-
 	      this.border = border;
-
 	      var borderedCounterClassname = _classPrivateMethodGet(this, _getBorderClassname, _getBorderClassname2).call(this, border);
-
 	      if (border) {
 	        main_core.Dom.addClass(this.container, borderedCounterClassname);
 	      } else {
 	        main_core.Dom.removeClass(this.container, borderedCounterClassname);
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -158,7 +140,6 @@ this.BX = this.BX || {};
 	      if (this.container === null) {
 	        this.createContainer();
 	      }
-
 	      if (this.animate == true) {
 	        this.updateAnimated(value);
 	      } else if (this.animate == false) {
@@ -174,13 +155,11 @@ this.BX = this.BX || {};
 	      if (this.container === null) {
 	        this.createContainer();
 	      }
-
 	      if (value > this.value && this.value < this.maxValue) {
 	        main_core.Dom.addClass(this.counterContainer, "ui-counter-plus");
 	      } else if (value < this.value && this.value < this.maxValue) {
 	        main_core.Dom.addClass(this.counterContainer, "ui-counter-minus");
 	      }
-
 	      setTimeout(function () {
 	        this.setValue(value);
 	        main_core.Dom.adjust(this.counterContainer, {
@@ -198,7 +177,6 @@ this.BX = this.BX || {};
 	      if (this.container === null) {
 	        this.createContainer();
 	      }
-
 	      main_core.Dom.addClass(this.container, "ui-counter-show");
 	      main_core.Dom.removeClass(this.container, "ui-counter-hide");
 	    }
@@ -208,7 +186,6 @@ this.BX = this.BX || {};
 	      if (this.container === null) {
 	        this.createContainer();
 	      }
-
 	      main_core.Dom.addClass(this.container, "ui-counter-hide");
 	      main_core.Dom.removeClass(this.container, "ui-counter-show");
 	    }
@@ -218,7 +195,6 @@ this.BX = this.BX || {};
 	      if (this.counterContainer === null) {
 	        this.counterContainer = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-counter-inner\">", "</div>\n\t\t\t"])), this.getValue());
 	      }
-
 	      return this.counterContainer;
 	    }
 	  }, {
@@ -230,17 +206,14 @@ this.BX = this.BX || {};
 	        this.setColor(this.color);
 	        this.setBorder(this.border);
 	      }
-
 	      return this.container;
 	    } //endregion
-
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (this.container === null) {
 	        this.createContainer();
 	      }
-
 	      return this.container;
 	    }
 	  }, {
@@ -249,7 +222,6 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isDomNode(node)) {
 	        return node.appendChild(this.getContainer());
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -262,19 +234,16 @@ this.BX = this.BX || {};
 	      this.textBeforeContainer = null;
 	      this.bar = null;
 	      this.svg = null;
-
 	      for (var property in this) {
 	        if (this.hasOwnProperty(property)) {
 	          delete this[property];
 	        }
 	      }
-
 	      Object.setPrototypeOf(this, null);
 	    }
 	  }]);
 	  return Counter;
 	}();
-
 	function _getBorderClassname2(border) {
 	  if (border) {
 	    return 'ui-counter-border';
@@ -282,7 +251,6 @@ this.BX = this.BX || {};
 	    return '';
 	  }
 	}
-
 	babelHelpers.defineProperty(Counter, "Color", CounterColor);
 	babelHelpers.defineProperty(Counter, "Size", CounterSize);
 

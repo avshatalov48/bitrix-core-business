@@ -1,14 +1,15 @@
-import {Store} from 'ui.vue3.vuex';
-import {RestClient} from 'rest.client';
+import { Store } from 'ui.vue3.vuex';
+import { RestClient } from 'rest.client';
 
-import {Core} from 'im.v2.application.core';
-import {callBatch, runAction} from 'im.v2.lib.rest';
-import {UserManager} from 'im.v2.lib.user';
-import {Logger} from 'im.v2.lib.logger';
-import {RestMethod} from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
+import { callBatch, runAction } from 'im.v2.lib.rest';
+import { UserManager } from 'im.v2.lib.user';
+import { Logger } from 'im.v2.lib.logger';
+import { RestMethod } from 'im.v2.const';
 
-import type {ImModelDialog} from 'im.v2.model';
-import type {ImRestMessageResult, ImRestMessage} from '../../types/message';
+import type { ImModelDialog, ImModelMessage } from 'im.v2.model';
+import type { PaginationRestResult } from '../../types/message';
+import type { RawMessage } from '../../types/rest';
 
 export class LoadService
 {
@@ -19,8 +20,8 @@ export class LoadService
 	#chatId: number;
 	#userManager: UserManager;
 
-	#preparedHistoryMessages: ImRestMessage[] = [];
-	#preparedUnreadMessages: ImRestMessage[] = [];
+	#preparedHistoryMessages: RawMessage[] = [];
+	#preparedUnreadMessages: RawMessage[] = [];
 	#isLoading: boolean = false;
 
 	constructor(chatId: number)
@@ -43,6 +44,7 @@ export class LoadService
 		if (!lastUnreadMessageId)
 		{
 			Logger.warn('MessageService: no lastUnreadMessageId, cant load unread');
+
 			return Promise.resolve(false);
 		}
 
@@ -51,23 +53,25 @@ export class LoadService
 		const query = {
 			chatId: this.#chatId,
 			filter: {
-				lastId: lastUnreadMessageId
+				lastId: lastUnreadMessageId,
 			},
 			order: {
-				id: 'ASC'
+				id: 'ASC',
 			},
-			limit: LoadService.MESSAGE_REQUEST_LIMIT
+			limit: LoadService.MESSAGE_REQUEST_LIMIT,
 		};
 
-		return runAction(RestMethod.imV2ChatMessageTail, {data: query}).then(result => {
+		return runAction(RestMethod.imV2ChatMessageTail, { data: query }).then((result) => {
 			Logger.warn('MessageService: loadUnread result', result);
 			this.#preparedUnreadMessages = result.messages;
 
 			return this.#updateModels(result);
 		}).then(() => {
 			this.#isLoading = false;
+
 			return true;
-		}).catch(error => {
+		}).catch((error) => {
+			// eslint-disable-next-line no-console
 			console.error('MessageService: loadUnread error:', error);
 			this.#isLoading = false;
 		});
@@ -84,6 +88,7 @@ export class LoadService
 		if (!lastHistoryMessageId)
 		{
 			Logger.warn('MessageService: no lastHistoryMessageId, cant load unread');
+
 			return Promise.resolve();
 		}
 
@@ -92,25 +97,27 @@ export class LoadService
 		const query = {
 			chatId: this.#chatId,
 			filter: {
-				lastId: lastHistoryMessageId
+				lastId: lastHistoryMessageId,
 			},
 			order: {
-				id: 'DESC'
+				id: 'DESC',
 			},
-			limit: LoadService.MESSAGE_REQUEST_LIMIT
+			limit: LoadService.MESSAGE_REQUEST_LIMIT,
 		};
 
-		return runAction(RestMethod.imV2ChatMessageTail, {data: query}).then(result => {
+		return runAction(RestMethod.imV2ChatMessageTail, { data: query }).then((result) => {
 			Logger.warn('MessageService: loadHistory result', result);
 			this.#preparedHistoryMessages = result.messages;
 			const hasPrevPage = result.hasNextPage;
-			const rawData = {...result, hasPrevPage, hasNextPage: null};
+			const rawData = { ...result, hasPrevPage, hasNextPage: null };
 
 			return this.#updateModels(rawData);
 		}).then(() => {
 			this.#isLoading = false;
+
 			return true;
-		}).catch(error => {
+		}).catch((error) => {
+			// eslint-disable-next-line no-console
 			console.error('MessageService: loadHistory error:', error);
 			this.#isLoading = false;
 		});
@@ -129,7 +136,7 @@ export class LoadService
 		}
 
 		return this.#store.dispatch('messages/setChatCollection', {
-			messages: this.#preparedHistoryMessages
+			messages: this.#preparedHistoryMessages,
 		}).then(() => {
 			this.#preparedHistoryMessages = [];
 
@@ -150,9 +157,10 @@ export class LoadService
 		}
 
 		return this.#store.dispatch('messages/setChatCollection', {
-			messages: this.#preparedUnreadMessages
+			messages: this.#preparedUnreadMessages,
 		}).then(() => {
 			this.#preparedUnreadMessages = [];
+
 			return true;
 		});
 	}
@@ -162,17 +170,19 @@ export class LoadService
 		const query = {
 			[RestMethod.imV2ChatMessageGetContext]: {
 				id: messageId,
-				range: LoadService.MESSAGE_REQUEST_LIMIT
+				range: LoadService.MESSAGE_REQUEST_LIMIT,
 			},
 			[RestMethod.imV2ChatMessageRead]: {
 				chatId: this.#chatId,
-				ids: [messageId]
-			}
+				ids: [messageId],
+			},
 		};
 		Logger.warn('MessageService: loadContext for: ', messageId);
 		this.#isLoading = true;
-		return callBatch(query).then(data => {
+
+		return callBatch(query).then((data) => {
 			Logger.warn('MessageService: loadContext result', data);
+
 			return this.#handleLoadedMessages(data[RestMethod.imV2ChatMessageGetContext]);
 		}).finally(() => {
 			this.#isLoading = false;
@@ -183,6 +193,11 @@ export class LoadService
 	{
 		Logger.warn('MessageService: loadChatOnExit for: ', this.#chatId);
 		let targetMessageId = 0;
+		if (this.#getDialog().chatId <= 0)
+		{
+			return Promise.resolve();
+		}
+
 		if (this.#getDialog().markedId)
 		{
 			targetMessageId = this.#getDialog().markedId;
@@ -210,19 +225,49 @@ export class LoadService
 	{
 		Logger.warn('MessageService: loadInitialMessages for: ', this.#chatId);
 		this.#isLoading = true;
+
 		return this.#restClient.callMethod(RestMethod.imV2ChatMessageList, {
 			chatId: this.#chatId,
-			limit: LoadService.MESSAGE_REQUEST_LIMIT
+			limit: LoadService.MESSAGE_REQUEST_LIMIT,
 		}).then((result) => {
 			Logger.warn('MessageService: loadInitialMessages result', result.data());
+
+			const restResult = result.data();
+			restResult.messages = this.#prepareInitialMessages(restResult.messages);
+
 			return this.#handleLoadedMessages(result.data());
 		}).then(() => {
 			this.#isLoading = false;
+
 			return true;
-		}).catch(error => {
+		}).catch((error) => {
+			// eslint-disable-next-line no-console
 			console.error('MessageService: loadInitialMessages error:', error);
 			this.#isLoading = false;
 		});
+	}
+
+	#prepareInitialMessages(rawMessages: RawMessage[]): RawMessage[]
+	{
+		if (rawMessages.length === 0)
+		{
+			return rawMessages;
+		}
+
+		const lastMessageId = this.#getDialog().lastMessageId;
+		const newMaxId = Math.max(...rawMessages.map((message) => message.id));
+		if (newMaxId >= lastMessageId)
+		{
+			return rawMessages;
+		}
+
+		const messagesCollection: ImModelMessage[] = this.#store.getters['messages/get'](this.#chatId);
+		const additionalMessages = messagesCollection.filter((message) => {
+			return message.id > newMaxId;
+		});
+		Logger.warn('MessageService: loadInitialMessages: local id is higher than server one', additionalMessages);
+
+		return [...rawMessages, ...additionalMessages];
 	}
 
 	isLoading(): boolean
@@ -232,36 +277,45 @@ export class LoadService
 
 	#handleLoadedMessages(restResult): Promise
 	{
-		const {messages} = restResult;
+		const { messages } = restResult;
 		const messagesPromise = this.#store.dispatch('messages/setChatCollection', {
 			messages,
-			clearCollection: true
+			clearCollection: true,
 		});
 		const updateModelsPromise = this.#updateModels(restResult);
 
 		return Promise.all([messagesPromise, updateModelsPromise]);
 	}
 
-	#updateModels(rawData: ImRestMessageResult): Promise
+	#updateModels(rawData: PaginationRestResult): Promise
 	{
-		const {files, users, usersShort, reactions, hasPrevPage, hasNextPage} = rawData;
+		const {
+			files,
+			users,
+			usersShort,
+			reactions,
+			hasPrevPage,
+			hasNextPage,
+			additionalMessages,
+		} = rawData;
 
 		const dialogPromise = this.#store.dispatch('dialogues/update', {
 			dialogId: this.#getDialog().dialogId,
 			fields: {
 				hasPrevPage,
-				hasNextPage
-			}
+				hasNextPage,
+			},
 		});
 		const usersPromise = Promise.all([
 			this.#userManager.setUsersToModel(users),
-			this.#userManager.addUsersToModel(usersShort)
+			this.#userManager.addUsersToModel(usersShort),
 		]);
 		const filesPromise = this.#store.dispatch('files/set', files);
 		const reactionsPromise = this.#store.dispatch('messages/reactions/set', reactions);
+		const additionalMessagesPromise = this.#store.dispatch('messages/store', additionalMessages);
 
 		return Promise.all([
-			dialogPromise, filesPromise, usersPromise, reactionsPromise
+			dialogPromise, filesPromise, usersPromise, reactionsPromise, additionalMessagesPromise,
 		]);
 	}
 
@@ -269,7 +323,7 @@ export class LoadService
 	{
 		const fields = {
 			inited: flag,
-			loading: !flag
+			loading: !flag,
 		};
 		if (flag === true && !wasInitedBefore)
 		{
@@ -278,7 +332,7 @@ export class LoadService
 
 		this.#store.dispatch('dialogues/update', {
 			dialogId: this.#getDialog().dialogId,
-			fields
+			fields,
 		});
 	}
 

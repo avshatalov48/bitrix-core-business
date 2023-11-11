@@ -13,7 +13,7 @@ class Map extends \Bitrix\Landing\Node
 	 */
 	public static function getHandlerJS()
 	{
-		return 'BX.Landing.Block.Node.Map';
+		return 'BX.Landing.Node.Map';
 	}
 
 	/**

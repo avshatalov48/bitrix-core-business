@@ -8,5 +8,9 @@ export const PopupType = Object.freeze({
 	dialogMessageMenu: 'bx-im-message-context-menu',
 	dialogAvatarMenu: 'bx-im-avatar-context-menu',
 	dialogReactionUsers: 'bx-im-message-reaction-users',
-	dialogReadUsers: 'bx-im-dialog-read-users'
+	dialogReadUsers: 'bx-im-dialog-read-users',
+	createChatManageUsersMenu: 'im-content-create-chat-manage-users',
+	createChatManageUiMenu: 'im-content-create-chat-manage-ui',
+	createChatCanPostMenu: 'im-content-create-chat-can-post',
+	messageBaseFileMenu: 'im-message-base-file-context-menu',
 });

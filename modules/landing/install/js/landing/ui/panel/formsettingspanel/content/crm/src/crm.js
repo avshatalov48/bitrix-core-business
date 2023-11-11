@@ -144,7 +144,7 @@ export default class CrmContent extends ContentWrapper
 	{
 		return this.cache.remember('type4header', () => {
 			return new HeaderCard({
-				title: Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_4').replace('&nbsp;', ' '),
+				title: Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_4_MSGVER_1').replace('&nbsp;', ' '),
 				level: 2,
 			});
 		});
@@ -264,7 +264,7 @@ export default class CrmContent extends ContentWrapper
 				},
 				{
 					id: '4',
-					title: Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_4'),
+					title: Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_4_MSGVER_1'),
 					icon: 'landing-ui-crm-entity-type4',
 				},
 				{

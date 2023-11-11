@@ -94,11 +94,11 @@ export class CreatePage extends Content
 		this.range = this.contextDocument.getSelection().getRangeAt(0);
 		this.node = (() => {
 			if (
-				BX.Landing.Block.Node.Text.currentNode
-				&& BX.Landing.Block.Node.Text.currentNode.isEditable()
+				BX.Landing.Node.Text.currentNode
+				&& BX.Landing.Node.Text.currentNode.isEditable()
 			)
 			{
-				return BX.Landing.Block.Node.Text.currentNode;
+				return BX.Landing.Node.Text.currentNode;
 			}
 
 			return TextField.currentField;

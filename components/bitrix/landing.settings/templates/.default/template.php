@@ -137,6 +137,7 @@ if(Loader::includeModule('ui'))
 					'menuId' => 'landing-settings-sidemenu',
 					'containerId' => 'landing-settings-content',
 					'saveButtonId' => 'landing-settings-save-btn',
+					'type' => $arParams['TYPE'],
 				]) ?>,
 			);
 		});

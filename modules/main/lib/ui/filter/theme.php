@@ -14,7 +14,7 @@ class Theme
 	const ROUNDED = "ROUNDED";
 	const LIGHT = "LIGHT";
 	const MUTED = "MUTED";
-
+	const SPACES = "SPACES";
 
 	/**
 	 * Gets themes list

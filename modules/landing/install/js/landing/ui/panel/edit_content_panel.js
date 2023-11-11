@@ -18,6 +18,7 @@
 	{
 		BX.Landing.UI.Panel.Content.apply(this, arguments);
 		this.layout.classList.add("landing-ui-panel-content-edit");
+		this.disableScroll = true;
 
 		this.appendFooterButton(
 			new BX.Landing.UI.Button.BaseButton("save_block_content", {

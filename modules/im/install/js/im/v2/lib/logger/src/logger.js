@@ -193,8 +193,8 @@ class Logger
 			'desktop': ["%cDESKTOP", "color: white; font-style: italic; background-color: #29619b; padding: 0 6px"],
 			'log': ["%cLOG", "color: #2a323b; font-style: italic; background-color: #ccc; padding: 0 6px"],
 			'info': ["%cINFO", "color: #fff; font-style: italic; background-color: #6b7f96; padding: 0 6px"],
-			'warn': ["%cWARNING", "color: white; font-style: italic; padding: 0 6px; border: 1px solid #f0a74f"],
-			'error': ["%cERROR", "color: white; font-style: italic; padding: 0 6px; border: 1px solid #8a3232"],
+			'warn': ["%cWARNING", "color: white; font-style: italic; padding: 0 6px; background-color: #f0a74f; border: 1px solid #f0a74f"],
+			'error': ["%cERROR", "color: white; font-style: italic; padding: 0 6px; background-color: #8a3232; border: 1px solid #8a3232"],
 		};
 
 		if (type === 'all')

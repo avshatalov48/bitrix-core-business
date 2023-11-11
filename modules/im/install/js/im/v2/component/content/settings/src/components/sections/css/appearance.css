@@ -1,0 +1,17 @@
+.bx-im-content-settings__container {
+	--im-content-chat__max-width_textarea_container: 830px;
+}
+
+.bx-im-content-settings__container .bx-im-content-chat__container {
+	height: 100%;
+	padding-bottom: 10px;
+	border-radius: 6px;
+}
+
+.bx-im-content-settings__container .bx-im-dialog-chat__scroll-container {
+	overflow-y: hidden;
+}
+
+.bx-im-settings-appearance__demo-chat_container {
+	margin-bottom: 5px;
+}

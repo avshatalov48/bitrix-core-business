@@ -6,15 +6,12 @@ this.BX.Landing = this.BX.Landing || {};
 	/**
 	 * @memberOf BX.Landing.Collection
 	 */
-
 	var NodeCollection = /*#__PURE__*/function (_BaseCollection) {
 	  babelHelpers.inherits(NodeCollection, _BaseCollection);
-
 	  function NodeCollection() {
 	    babelHelpers.classCallCheck(this, NodeCollection);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(NodeCollection).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(NodeCollection, [{
 	    key: "getByNode",
 	    value: function getByNode(node) {
@@ -32,7 +29,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "add",
 	    value: function add(node) {
-	      if (!!node && node instanceof BX.Landing.Block.Node) {
+	      if (!!node && node instanceof BX.Landing.Node) {
 	        babelHelpers.get(babelHelpers.getPrototypeOf(NodeCollection.prototype), "add", this).call(this, node);
 	      }
 	    }

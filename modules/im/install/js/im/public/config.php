@@ -4,7 +4,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-\Bitrix\Main\Loader::includeModule('im');
+$isBeta = false;
+if (\Bitrix\Main\Loader::includeModule('im'))
+{
+	$isBeta = \Bitrix\Im\Settings::isBetaActivated();
+}
 
 return [
 	'js' => [
@@ -14,7 +18,7 @@ return [
 		'main.core',
 	],
 	'settings' => [
-		'v2enabled' => \Bitrix\Im\Settings::isBetaActivated()
+		'v2enabled' => $isBeta
 	],
 	'skip_core' => false,
 ];

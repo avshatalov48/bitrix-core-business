@@ -23,7 +23,7 @@ class CatalogContractorList extends CBitrixComponent
 	];
 	private $navParamName = 'page';
 
-	/** @var \Bitrix\Catalog\Grid\Filter\ContractorDataProvider $itemProvider */
+	/** @var \Bitrix\Catalog\Filter\DataProvider\ContractorDataProvider $itemProvider */
 	private $itemProvider;
 	/** @var \Bitrix\Main\Filter\Filter $filter */
 	private $filter;
@@ -60,7 +60,7 @@ class CatalogContractorList extends CBitrixComponent
 
 	private function init()
 	{
-		$this->itemProvider = new \Bitrix\Catalog\Grid\Filter\ContractorDataProvider();
+		$this->itemProvider = new \Bitrix\Catalog\Filter\DataProvider\ContractorDataProvider();
 		$this->filter = new \Bitrix\Main\Filter\Filter(self::FILTER_ID, $this->itemProvider);
 	}
 

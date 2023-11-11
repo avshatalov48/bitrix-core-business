@@ -64,7 +64,7 @@ class Designer
 				$result = new \Bitrix\Main\Entity\EventResult;
 				$options = $event->getParameter('options');
 				$options['design_block'] = $flag;
-				$options['design_block_allowed'] = Restriction\Manager::isAllowed('limit_crm_free_superblock1');
+				$options['design_block_allowed'] = Restriction\Manager::isAllowed('limit_crm_superblock');
 				$result->modifyFields([
 					'options' => $options
 				]);
@@ -134,6 +134,21 @@ class Designer
 	}
 
 	/**
+	 * Adjusts styles for manifest (for specific selectors adds new features).
+	 * @param string $selector Selector code.
+	 * @param array $item Manifest item's style section.
+	 * @return void
+	 */
+	private static function adjustStylesType(string $selector, array &$item): void
+	{
+		if ($selector === 'landing-block-node-title')
+		{
+			$item['type'] = (array)$item['type'];
+			$item['type'][] = 'heading';
+		}
+	}
+
+	/**
 	 * Returns map of references between classes and type.
 	 * @return array
 	 */
@@ -174,6 +189,10 @@ class Designer
 						if (!isset($selectorName[$selector]))
 						{
 							$selectorName[$selector] = Loc::getMessage('LANDING_DESIGN_NODE_' . mb_strtoupper($selector));
+						}
+						if ($category === 'style')
+						{
+							self::adjustStylesType($selector, $item);
 						}
 						$item['name'] = $selectorName[$selector];
 						$references[$selector][$category] = $item;

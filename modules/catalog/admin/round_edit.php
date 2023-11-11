@@ -13,6 +13,11 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/prolog.php');
 
 Loc::loadMessages(__FILE__);
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."cat_round_list.php?lang=".LANGUAGE_ID;
 $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
@@ -167,7 +172,7 @@ if (!$readOnly && $ruleId > 0)
 			'TEXT' => Loc::getMessage('PRICE_ROUND_EDIT_CONTEXT_COPY'),
 			'LINK' => $addUrl.'&ID='.$ruleId.'&action=copy'
 		);
-		$deleteUrl = $selfFolderUrl."cat_round_list.php?lang=".LANGUAGE_ID."&ID=".$ruleId."&action=delete&".bitrix_sessid_get()."";
+		$deleteUrl = $selfFolderUrl."cat_round_list.php?lang=".LANGUAGE_ID."&ID=".$ruleId."&action=delete&".bitrix_sessid_get();
 		$buttonAction = "LINK";
 		if ($adminSidePanelHelper->isPublicFrame())
 		{
@@ -236,16 +241,16 @@ $control->EndPrologContent();
 $control->BeginEpilogContent();
 echo GetFilterHiddens("filter_");?>
 	<input type="hidden" name="Update" value="Y">
-	<input type="hidden" name="lang" value="<? echo LANGUAGE_ID; ?>">
-	<input type="hidden" name="ID" value="<? echo $ruleId; ?>">
-<?
+	<input type="hidden" name="lang" value="<?= LANGUAGE_ID; ?>">
+	<input type="hidden" name="ID" value="<?= $ruleId; ?>">
+<?php
 if ($copy)
 {
-	?><input type="hidden" name="action" value="copy"><?
+	?><input type="hidden" name="action" value="copy"><?php
 }
 if (!empty($returnUrl))
 {
-	?><input type="hidden" name="return_url" value="<? echo htmlspecialcharsbx($returnUrl); ?>"><?
+	?><input type="hidden" name="return_url" value="<?= htmlspecialcharsbx($returnUrl); ?>"><?php
 }
 echo bitrix_sessid_post();
 $control->EndEpilogContent();

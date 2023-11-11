@@ -9,10 +9,8 @@ const getCanvasToBlobType = (blob: Blob, options: ResizeImageOptions): string =>
 	{
 		return mimeType;
 	}
-	else
-	{
-		return isSupportedMimeType(blob.type) ? blob.type : mimeType;
-	}
+
+	return isSupportedMimeType(blob.type) ? blob.type : mimeType;
 };
 
 export default getCanvasToBlobType;

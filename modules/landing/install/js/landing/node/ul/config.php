@@ -9,7 +9,6 @@ return [
 	'js' => 'dist/ul.bundle.js',
 	'rel' => [
 		'main.core',
-		'landing.node',
 	],
 	'skip_core' => false,
 ];

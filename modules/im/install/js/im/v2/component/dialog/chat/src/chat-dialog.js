@@ -1,29 +1,46 @@
 import { Runtime, Event, Dom } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { PopupManager } from 'main.popup';
+import { PullStatus } from 'pull.vue3.status';
 
 import { Core } from 'im.v2.application.core';
-import { BaseMessage } from 'im.v2.component.message.base';
+import { FileMessage } from 'im.v2.component.message.file';
+import { DefaultMessage } from 'im.v2.component.message.default';
+import { CallInviteMessage } from 'im.v2.component.message.call-invite';
+import { DeletedMessage } from 'im.v2.component.message.deleted';
+import { UnsupportedMessage } from 'im.v2.component.message.unsupported';
+import { SmileMessage } from 'im.v2.component.message.smile';
+import { SystemMessage } from 'im.v2.component.message.system';
 import { ChatCreationMessage } from 'im.v2.component.message.chat-creation';
+import { ConferenceCreationMessage } from 'im.v2.component.message.conference-creation';
 import { Avatar, AvatarSize, ChatInfoPopup } from 'im.v2.component.elements';
 import { Logger } from 'im.v2.lib.logger';
 import { CallManager } from 'im.v2.lib.call';
 import { Utils } from 'im.v2.lib.utils';
 import { MessageService, ChatService } from 'im.v2.provider.service';
-import { DialogBlockType as BlockType, EventType, PopupType, DialogScrollThreshold } from 'im.v2.const';
+import {
+	DialogBlockType as BlockType,
+	EventType,
+	PopupType,
+	DialogScrollThreshold,
+	MessageComponent,
+	UserRole,
+} from 'im.v2.const';
 
+import { MessageComponentManager } from './classes/message-component-manager';
 import { ScrollManager } from './classes/scroll-manager';
 import { CollectionManager } from './classes/collection-manager';
 import { MessageMenu } from './classes/message-menu';
 import { AvatarMenu } from './classes/avatar-menu';
 import { ObserverManager } from './classes/observer-manager';
-import { QuoteManager } from './classes/quote-manager';
+import { PullWatchManager } from './classes/pull-watch-manager';
 import { NewMessagesBlock } from './components/block/new-messages';
 import { MarkedMessagesBlock } from './components/block/marked-messages';
 import { DateGroupTitle } from './components/block/date-group';
 import { PinnedMessages } from './components/pinned/pinned-messages';
 import { DialogStatus } from './components/dialog-status';
 import { DialogLoader } from './components/dialog-loader';
+import { QuoteButton } from './components/quote-button';
 import './css/chat-dialog.css';
 
 import type { ImModelMessage, ImModelDialog, ImModelLayout } from 'im.v2.model';
@@ -38,8 +55,15 @@ export const ChatDialog = {
 	name: 'ChatDialog',
 	components: {
 		Avatar,
-		BaseMessage,
+		DefaultMessage,
+		FileMessage,
+		SmileMessage,
+		CallInviteMessage,
+		DeletedMessage,
+		SystemMessage,
+		UnsupportedMessage,
 		ChatCreationMessage,
+		ConferenceCreationMessage,
 		PinnedMessages,
 		NewMessagesBlock,
 		MarkedMessagesBlock,
@@ -47,6 +71,8 @@ export const ChatDialog = {
 		ChatInfoPopup,
 		DialogStatus,
 		DialogLoader,
+		QuoteButton,
+		PullStatus,
 	},
 	directives: {
 		'message-observer': {
@@ -86,6 +112,10 @@ export const ChatDialog = {
 			initialScrollCompleted: false,
 			isScrolledUp: false,
 			windowFocused: false,
+			showQuoteButton: false,
+			selectedText: null,
+			quoteButtonStyles: {},
+			quoteButtonMessage: 0,
 		};
 	},
 	computed:
@@ -127,6 +157,10 @@ export const ChatDialog = {
 
 			return this.dialogId === openedDialogId;
 		},
+		isGuest(): boolean
+		{
+			return this.dialog.role === UserRole.guest;
+		},
 		debouncedScrollHandler(): Function
 		{
 			const SCROLLING_DEBOUNCE_DELAY = 200;
@@ -157,6 +191,10 @@ export const ChatDialog = {
 				return message.id === this.dialog.lastMessageId;
 			});
 		},
+		showScrollButton(): boolean
+		{
+			return this.isScrolledUp || this.dialog.hasNextPage;
+		},
 	},
 	watch:
 	{
@@ -167,6 +205,7 @@ export const ChatDialog = {
 				return;
 			}
 			// first opening
+			this.getPullWatchManager().onChatLoad();
 			this.onChatInited();
 		},
 		textareaHeight()
@@ -197,6 +236,7 @@ export const ChatDialog = {
 		if (this.dialogInited)
 		{
 			// second+ opening
+			this.getPullWatchManager().onLoadedChatEnter();
 			this.onChatInited();
 		}
 		// there are P&P messages
@@ -218,12 +258,13 @@ export const ChatDialog = {
 			this.saveScrollPosition();
 			this.loadMessagesOnExit();
 		}
+		this.getPullWatchManager().onChatExit();
 	},
 	methods:
 	{
 		readVisibleMessages()
 		{
-			if (!this.dialogInited || !this.windowFocused || this.hasVisibleCall())
+			if (!this.dialogInited || !this.windowFocused || this.hasVisibleCall() || this.isGuest)
 			{
 				return;
 			}
@@ -422,6 +463,15 @@ export const ChatDialog = {
 
 			return this.scrollManager;
 		},
+		getPullWatchManager(): PullWatchManager
+		{
+			if (!this.pullWatchManager)
+			{
+				this.pullWatchManager = new PullWatchManager(this.dialogId);
+			}
+
+			return this.pullWatchManager;
+		},
 		/* endregion Init methods */
 		/* region Event handlers */
 		onChatInited()
@@ -509,7 +559,7 @@ export const ChatDialog = {
 		},
 		onScrollToBottom(event: BaseEvent<ScrollToBottomEvent>)
 		{
-			const { chatId, threshold = DialogScrollThreshold.halfScreenUp } = event.getData();
+			const { chatId, threshold = DialogScrollThreshold.halfScreenUp, animation = true } = event.getData();
 			if (this.dialog.chatId !== chatId)
 			{
 				return;
@@ -539,8 +589,16 @@ export const ChatDialog = {
 				return;
 			}
 
+
 			void this.$nextTick(() => {
-				this.getScrollManager().animatedScrollToBottom();
+				if (animation)
+				{
+					this.getScrollManager().animatedScrollToBottom();
+
+					return;
+				}
+
+				this.getScrollManager().scrollToBottom();
 			});
 		},
 		onGoToMessageContext(event: BaseEvent)
@@ -568,16 +626,13 @@ export const ChatDialog = {
 		{
 			this.getMessageService().unpinMessage(this.dialog.chatId, messageId);
 		},
-		onMessageContextMenuClick(event: {message: ImModelMessage, $event: PointerEvent})
+		onMessageContextMenuClick(eventData: BaseEvent)
 		{
-			const context = { dialogId: this.dialogId, ...event.message };
-			this.messageMenu.openMenu(context, event.$event.currentTarget);
-			this.messageMenuIsActiveForId = event.message.id;
-		},
-		onMessageQuote(event: {message: ImModelMessage})
-		{
-			const { message } = event;
-			QuoteManager.sendQuoteEvent(message);
+			const { message, event }: { message: ImModelMessage, event: PointerEvent } = eventData.getData();
+
+			const context = { dialogId: this.dialogId, ...message };
+			this.messageMenu.openMenu(context, event.currentTarget);
+			this.messageMenuIsActiveForId = message.id;
 		},
 		onScroll(event: Event)
 		{
@@ -633,7 +688,7 @@ export const ChatDialog = {
 			{
 				EventEmitter.emit(EventType.textarea.insertMention, {
 					mentionText: user.name,
-					mentionReplacement: Utils.user.getMentionBbCode(user.id, user.name),
+					mentionReplacement: Utils.text.getMentionBbCode(user.id, user.name),
 				});
 
 				return;
@@ -649,6 +704,13 @@ export const ChatDialog = {
 				return;
 			}
 			this.readVisibleMessages();
+		},
+		onChatClick(event: PointerEvent)
+		{
+			if (this.isGuest)
+			{
+				event.stopPropagation();
+			}
 		},
 		handleSecondScrollButtonClick()
 		{
@@ -677,9 +739,11 @@ export const ChatDialog = {
 		{
 			this.closeMessageMenu();
 			this.chatInfoPopup.show = false;
+			this.showQuoteButton = false;
 			this.avatarMenu.close();
 			PopupManager.getPopupById(PopupType.dialogReactionUsers)?.close();
 			PopupManager.getPopupById(PopupType.dialogReadUsers)?.close();
+			PopupManager.getPopupById(PopupType.messageBaseFileMenu)?.close();
 		},
 		closeMessageMenu()
 		{
@@ -692,6 +756,7 @@ export const ChatDialog = {
 			EventEmitter.subscribe(EventType.dialog.goToMessageContext, this.onGoToMessageContext);
 			EventEmitter.subscribe(EventType.mention.openChatInfo, this.onOpenChatInfo);
 			EventEmitter.subscribe(EventType.call.onFold, this.onCallFold);
+			EventEmitter.subscribe(EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
 
 			Event.bind(window, 'focus', this.onWindowFocus);
 			Event.bind(window, 'blur', this.onWindowBlur);
@@ -702,6 +767,7 @@ export const ChatDialog = {
 			EventEmitter.unsubscribe(EventType.dialog.goToMessageContext, this.onGoToMessageContext);
 			EventEmitter.unsubscribe(EventType.mention.openChatInfo, this.onOpenChatInfo);
 			EventEmitter.unsubscribe(EventType.call.onFold, this.onCallFold);
+			EventEmitter.unsubscribe(EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
 
 			Event.unbind(window, 'focus', this.onWindowFocus);
 			Event.unbind(window, 'blur', this.onWindowBlur);
@@ -709,6 +775,23 @@ export const ChatDialog = {
 		getContainer(): ?HTMLElement
 		{
 			return this.$refs.container;
+		},
+		async onMessageMouseUp(message: ImModelMessage, event: MouseEvent)
+		{
+			await Utils.browser.waitForSelectionToUpdate();
+			const selection = window.getSelection().toString().trim();
+			if (selection.length === 0 || this.isGuest)
+			{
+				return;
+			}
+
+			this.showQuoteButton = true;
+			await this.$nextTick();
+			this.$refs.quoteButton.onMessageMouseUp(message, event);
+		},
+		getMessageComponentName(message: ImModelMessage): $Values<typeof MessageComponent>
+		{
+			return (new MessageComponentManager(message)).getName();
 		},
 	},
 	template: `
@@ -719,7 +802,8 @@ export const ChatDialog = {
 				@messageClick="onPinnedMessageClick"
 				@messageUnpin="onPinnedMessageUnpin"
 			/>
-			<div @scroll="onScroll" class="bx-im-dialog-chat__scroll-container" ref="container">
+			<PullStatus/>
+			<div @scroll="onScroll" @click.capture="onChatClick" class="bx-im-dialog-chat__scroll-container" ref="container">
 				<div class="bx-im-dialog-chat__content">
 					<!-- Loader -->
 					<DialogLoader v-if="!dialogInited" :fullHeight="formattedCollection.length === 0" />
@@ -748,7 +832,7 @@ export const ChatDialog = {
 									<component
 										v-for="(message, index) in dateGroupItem.items"
 										v-message-observer
-										:is="message.componentId"
+										:is="getMessageComponentName(message)"
 										:withTitle="index === 0"
 										:item="message"
 										:dialogId="dialogId"
@@ -756,8 +840,7 @@ export const ChatDialog = {
 										:menuIsActiveForId="messageMenuIsActiveForId"
 										:withAvatar="dateGroupItem.avatar.isNeeded"
 										:data-viewed="message.viewed"
-										@contextMenuClick="onMessageContextMenuClick"
-										@quoteMessage="onMessageQuote"
+										@mouseup="onMessageMouseUp(message, $event)"
 									>
 									</component>
 								</div>
@@ -768,7 +851,7 @@ export const ChatDialog = {
 				</div>
 			</div>
 			<Transition name="scroll-button-transition">
-				<div v-if="isScrolledUp" @click="onScrollButtonClick" class="bx-im-dialog-chat__scroll-button">
+				<div v-if="showScrollButton" @click="onScrollButtonClick" class="bx-im-dialog-chat__scroll-button">
 					<div v-if="dialog.counter" class="bx-im-dialog-chat__scroll-button_counter">{{ formattedCounter }}</div>
 				</div>
 			</Transition>
@@ -779,6 +862,14 @@ export const ChatDialog = {
 				:showPopup="chatInfoPopup.show"
 				@close="chatInfoPopup.show = false"
 			/>
+            <Transition name="fade-up">
+				<QuoteButton 
+					v-if="showQuoteButton" 
+					ref="quoteButton"
+					@close="showQuoteButton = false" 
+					class="bx-im-message-base__quote-button" 
+				/>
+            </Transition>
 		</div>
 	`,
 };

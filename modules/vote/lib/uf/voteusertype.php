@@ -41,20 +41,8 @@ final class VoteUserType
 	public static function getDBColumnType($userField)
 	{
 		$connection = \Bitrix\Main\Application::getConnection();
-		if($connection instanceof \Bitrix\Main\DB\MysqlCommonConnection)
-		{
-			return 'int(11)';
-		}
-		if($connection instanceof \Bitrix\Main\DB\OracleConnection)
-		{
-			return 'number(18)';
-		}
-		if($connection instanceof \Bitrix\Main\DB\MssqlConnection)
-		{
-			return 'int';
-		}
-
-		throw new \Bitrix\Main\NotSupportedException("The '{$connection->getType()}' is not supported in current context");
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\IntegerField('x'));
 	}
 
 	/**

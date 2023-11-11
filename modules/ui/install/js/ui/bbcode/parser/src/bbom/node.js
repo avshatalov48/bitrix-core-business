@@ -1,150 +1,310 @@
 import { Type } from 'main.core';
+import { typeof ElementNode } from './element-node';
+import { typeof TextNode } from './text-node';
+import { typeof NewLineNode } from './new-line-node';
+import { typeof TabNode } from './tab-node';
+import { typeof RootNode } from './root-node';
+import { typeof FragmentNode } from './fragment-node';
 
-type NodeOptions = {
-	name: string,
-	value?: string | number,
-	attributes?: {[key: string]: any},
-	children?: Array<any>,
-	parent?: any,
+export type SpecialCharNode = NewLineNode | TabNode;
+export type ContentNode = ElementNode | TextNode | SpecialCharNode;
+export type ParentNode = RootNode | ElementNode | FragmentNode;
+
+export type NodeOptions = {
+	name?: string,
+	parent?: ParentNode | null,
+	children?: Array<ContentNode | FragmentNode>,
 };
+
+export type SerializedNode = {
+	name: string,
+	children: Array<SerializedNode>,
+};
+
+export const privateMap: WeakMap<Node | ContentNode | RootNode | FragmentNode, {[key: string]: any}> = new WeakMap();
+export const nameSymbol = Symbol('name');
 
 export class Node
 {
-	name: string = '';
-	value: string | number = '';
-	attributes: {[key: string]: any} = {};
-	children: Array<any> = [];
-	parent: any = null;
+	[nameSymbol]: string = 'unknown';
+	children: Array<ContentNode | FragmentNode> = [];
 
 	constructor(options: NodeOptions = {})
 	{
-		this.setName(options.name);
-		this.setValue(options.value);
-		this.setAttributes(options.attributes);
-		this.setChildren(options.children);
+		privateMap.set(this, {});
 		this.setParent(options.parent);
+		this.setName(options.name);
+		this.setChildren(options.children);
+	}
+
+	static get ELEMENT_NODE(): number
+	{
+		return 1;
+	}
+
+	static get TEXT_NODE(): number
+	{
+		return 2;
+	}
+
+	static get ROOT_NODE(): number
+	{
+		return 3;
+	}
+
+	static get FRAGMENT_NODE(): number
+	{
+		return 4;
+	}
+
+	static freezeProperty(node: Node, property: string, value: any, enumerable: boolean = true)
+	{
+		Object.defineProperty(node, property, {
+			value,
+			writable: false,
+			configurable: false,
+			enumerable,
+		});
+	}
+
+	static makeNonEnumerableProperty(node: Node, property: string)
+	{
+		Object.defineProperty(node, property, {
+			writable: false,
+			enumerable: false,
+			configurable: false,
+		});
+	}
+
+	static flattenChildren(children: Array<ContentNode | FragmentNode>): Array<ContentNode>
+	{
+		if (Type.isArrayFilled(children))
+		{
+			return children.flatMap((node: ContentNode | FragmentNode) => {
+				if (node.getType() === Node.FRAGMENT_NODE)
+				{
+					return node.getChildren();
+				}
+
+				return node;
+			});
+		}
+
+		return [];
 	}
 
 	setName(name: string)
 	{
-		if (Type.isStringFilled(name))
+		if (Type.isString(name))
 		{
-			this.name = name;
+			this[nameSymbol] = name;
 		}
 	}
 
 	getName(): string
 	{
-		return this.name;
+		return this[nameSymbol];
 	}
 
-	setValue(value: string | number)
+	setParent(parent: ParentNode | null = null)
 	{
-		if (Type.isStringFilled(value) || Type.isNumber(value))
-		{
-			this.value = value;
-		}
-		else
-		{
-			this.value = '';
-		}
+		privateMap.get(this).parent = parent;
 	}
 
-	getValue(): string | number
+	getParent(): ParentNode | null
 	{
-		return this.value;
+		return privateMap.get(this).parent;
 	}
 
-	setAttributes(attributes: { [key: string]: any })
+	getType(): number
 	{
-		if (Type.isPlainObject(attributes))
-		{
-			this.attributes = { ...attributes };
-		}
+		return privateMap.get(this).type;
 	}
 
-	setAttribute(name: string, value: any)
+	hasParent(): boolean
 	{
-		if (Type.isStringFilled(name))
+		return Boolean(privateMap.get(this).parent);
+	}
+
+	remove()
+	{
+		if (this.hasParent())
 		{
-			if (Type.isNil(value))
-			{
-				delete this.attributes[name];
-			}
-			else
-			{
-				this.attributes[name] = value;
-			}
+			this.getParent().removeChild(this);
 		}
 	}
 
-	getAttribute(name: string): any
-	{
-		return this.attributes[name];
-	}
-
-	getAttributes(): { [key: string]: any }
-	{
-		return { ...this.attributes };
-	}
-
-	setChildren(children: Array<any>)
+	setChildren(children: Array<ContentNode | FragmentNode>)
 	{
 		if (Type.isArray(children))
 		{
-			this.children = [...children];
+			this.children = [];
+			this.appendChild(...children);
 		}
 	}
 
-	appendChild(...children: Array<any>)
+	getChildren(): Array<ContentNode>
 	{
-		this.children.push(...children);
+		return [...this.children];
 	}
 
-	replaceChild(targetNode, ...children: Array<any>)
+	getLastChild(): ?ContentNode
 	{
-		this.children = this.children.flatMap((node) => {
+		return this.getChildren().at(-1);
+	}
+
+	getLastChildOfType(type: number): ?ContentNode
+	{
+		return this.getChildren().reverse().find((node: ContentNode) => {
+			return node.getType() === type;
+		});
+	}
+
+	getLastChildOfName(name: string): ?ContentNode
+	{
+		return this.getChildren().reverse().find((node: ContentNode) => {
+			return node.getType() === Node.ELEMENT_NODE && node.getName() === name;
+		});
+	}
+
+	getFirstChild(): ?ContentNode
+	{
+		return this.getChildren().at(0);
+	}
+
+	getFirstChildOfType(type: number): ?ContentNode
+	{
+		return this.getChildren().find((node: ContentNode) => {
+			return node.getType() === type;
+		});
+	}
+
+	getFirstChildOfName(name: string): ?ContentNode
+	{
+		return this.getChildren().find((node: ContentNode) => {
+			return node.getType() === Node.ELEMENT_NODE && node.getName() === name;
+		});
+	}
+
+	getPreviewsSibling(): ?ContentNode
+	{
+		if (this.hasParent())
+		{
+			const parentChildren: Array<ContentNode> = this.getParent().getChildren();
+			const currentIndex: number = parentChildren.indexOf(this);
+			if (currentIndex > 0)
+			{
+				return parentChildren.at(currentIndex - 1);
+			}
+		}
+
+		return null;
+	}
+
+	getNextSibling(): ?ContentNode
+	{
+		if (this.hasParent())
+		{
+			const parentChildren: Array<ContentNode> = this.getParent().getChildren();
+			const currentIndex: number = parentChildren.indexOf(this);
+			if (currentIndex !== -1 && currentIndex !== parentChildren.length)
+			{
+				return parentChildren.at(currentIndex + 1);
+			}
+		}
+
+		return null;
+	}
+
+	getChildrenCount(): number
+	{
+		return this.children.length;
+	}
+
+	hasChildren(): boolean
+	{
+		return this.getChildrenCount() > 0;
+	}
+
+	appendChild(...children: Array<ContentNode | FragmentNode>)
+	{
+		const flattenedChildren: Array<ContentNode> = Node.flattenChildren(children);
+
+		flattenedChildren.forEach((node: ContentNode) => {
+			node.remove();
+			node.setParent(this);
+			this.children.push(node);
+		});
+	}
+
+	prependChild(...children: Array<ContentNode | FragmentNode>)
+	{
+		const flattenedChildren: Array<ContentNode> = Node.flattenChildren(children);
+
+		flattenedChildren.forEach((node: ContentNode) => {
+			node.remove();
+			node.setParent(this);
+			this.children.unshift(node);
+		});
+	}
+
+	propagateChild(...children: Array<ContentNode>)
+	{
+		if (this.hasParent())
+		{
+			this.getParent().prependChild(
+				...children.filter((node: ContentNode) => {
+					return (
+						node.getType() === Node.ELEMENT_NODE
+						|| node.getName() === '#text'
+					);
+				}),
+			);
+		}
+	}
+
+	removeChild(...children: Array<ContentNode>)
+	{
+		this.children = this.children.reduce((acc: Array<ContentNode>, node: ContentNode) => {
+			if (children.includes(node))
+			{
+				node.setParent(null);
+
+				return acc;
+			}
+
+			return [...acc, node];
+		}, []);
+	}
+
+	replaceChild(targetNode: ContentNode, ...children: Array<ContentNode | FragmentNode>)
+	{
+		this.children = this.children.flatMap((node: ContentNode) => {
 			if (node === targetNode)
 			{
-				return children;
+				node.setParent(null);
+
+				const flattenedChildren: Array<ContentNode> = Node.flattenChildren(children);
+
+				return flattenedChildren.map((child: ContentNode) => {
+					child.remove();
+					child.setParent(this);
+
+					return child;
+				});
 			}
 
 			return node;
 		});
 	}
 
-	getChildren(): Array<any>
+	toJSON(): SerializedNode
 	{
-		return [...this.children];
-	}
-
-	setParent(node: any)
-	{
-		this.parent = node;
-	}
-
-	getParent(): any
-	{
-		return this.parent;
-	}
-
-	toString(): string
-	{
-		const value = this.getValue();
-		const valueString = value ? `=${value}` : '';
-		const attributes = Object
-			.entries(this.getAttributes())
-			.map(([key, attrValue]) => {
-				return attrValue ? `${key}=${attrValue}` : key;
-			})
-			.join(' ');
-		const children = this.getChildren()
-			.map((child) => {
-				return child.toString();
-			})
-			.join('');
-
-		// eslint-disable-next-line sonarjs/no-nested-template-literals
-		return `[${this.getName()}${valueString}${attributes ? ` ${attributes}` : ''}]${children}[/${this.getName()}]`;
+		return {
+			name: this.getName(),
+			children: this.getChildren().map((child: ContentNode) => {
+				return child.toJSON();
+			}),
+		};
 	}
 }

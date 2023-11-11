@@ -134,7 +134,6 @@ if (!empty($_REQUEST['action']))
 		die();
 	}
 }
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 ######### Admin list #######
 #$arFilterFields = array();
 #$lAdmin->InitFilter($arFilterFields);

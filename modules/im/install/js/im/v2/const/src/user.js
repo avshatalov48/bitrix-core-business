@@ -5,11 +5,19 @@ export const UserStatus = {
 	away: 'away',
 	idle: 'idle',
 	dnd: 'dnd',
-	break: 'break'
+	break: 'break',
 };
 
 export const UserExternalType = {
 	default: 'default',
 	bot: 'bot',
-	call: 'call'
+	call: 'call',
+};
+
+export const UserRole = {
+	guest: 'guest',
+	member: 'member',
+	manager: 'manager',
+	owner: 'owner',
+	none: 'none',
 };

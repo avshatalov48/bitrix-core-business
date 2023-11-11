@@ -1,3 +1,5 @@
+import { Browser } from 'main.core';
+
 export default class DesktopHelper
 {
 	static isSupportedDesktopApp(): boolean
@@ -32,21 +34,21 @@ export default class DesktopHelper
 
 	static isMac(): boolean
 	{
-		return navigator.userAgent.toLowerCase().includes('macintosh');
+		return Browser.isMac();
 	}
 
 	static isLinux(): boolean
 	{
-		return navigator.userAgent.toLowerCase().includes('linux');
+		return Browser.isLinux();
 	}
 
 	static isWindows(): boolean
 	{
 		return (
-			navigator.userAgent.toLowerCase().includes('windows')
+			Browser.isWin()
 			|| (
-				!DesktopHelper.isMac()
-				&& !DesktopHelper.isLinux()
+				!Browser.isMac()
+				&& !Browser.isLinux()
 			)
 		);
 	}

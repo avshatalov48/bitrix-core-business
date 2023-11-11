@@ -9,7 +9,7 @@ return [
 	'js' => 'dist/icon.bundle.js',
 	'rel' => [
 		'main.core',
-		'landing.node',
+		'landing.node.img',
 	],
 	'skip_core' => false,
 ];

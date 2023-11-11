@@ -56,7 +56,7 @@
 				}
 				else
 				{
-					this.openExternalUrl(button.dataset.externalUrl);
+					this.openExternalUrl(button.dataset.externalUrl, button.dataset.sliderLoader);
 				}
 
 				return true;
@@ -76,11 +76,11 @@
 				this.openBoardWithKey(button.dataset.reportBoardKey, button.href);
 			}
 		},
-		openExternalUrl: function(url)
+		openExternalUrl: function(url, loader = 'report:analytics')
 		{
 			BX.SidePanel.Instance.open(url, {
 				cacheable: false,
-				loader: 'report:analytics',
+				loader: loader,
 			});
 		},
 		openExternalUrlInNewTab: function(url)

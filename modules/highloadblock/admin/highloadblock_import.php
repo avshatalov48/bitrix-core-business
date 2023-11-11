@@ -324,7 +324,10 @@ if (
 					));
 					if ($row = $res->fetch())
 					{
-						HL\HighloadBlockLangTable::delete($row['ID']);
+						HL\HighloadBlockLangTable::delete([
+							'ID' => $row['ID'],
+							'LID' => $row['LID'],
+						]);
 					}
 					// add new
 					HL\HighloadBlockLangTable::add($lang);
@@ -533,7 +536,7 @@ if (
 							}
 							if (mb_substr($value, 0, 10) == 'serialize#')
 							{
-								$value = unserialize(mb_substr($value, 10));
+								$value = unserialize(mb_substr($value, 10), ['allowed_classes' => false]);
 							}
 							// get base type
 							$userFelds[$key]['BASE_TYPE'] = '';

@@ -103,7 +103,7 @@ class Settings
 		return false;
 	}
 
-	public static function isBetaActivated(): bool
+	public static function isBetaActivated($userId = false): bool
 	{
 		if (!self::isBetaAvailable())
 		{
@@ -112,18 +112,42 @@ class Settings
 
 		$isLegacy = \Bitrix\Main\Context::getCurrent()->getRequest()->getQuery('IM_LEGACY');
 		$isIframe = \Bitrix\Main\Context::getCurrent()->getRequest()->getQuery('IFRAME');
-		$isHistory = \Bitrix\Main\Context::getCurrent()->getRequest()->getQuery('IM_HISTORY');
-		if ($isLegacy === 'Y' || $isIframe === 'Y' || !is_null($isHistory))
+		if ($isLegacy === 'Y' || $isIframe === 'Y')
 		{
 			return false;
 		}
 
-		if (\CUserOptions::GetOption('im', 'v2_enabled', 'N') === 'Y')
+		if (self::isForceBetaActivatedForCurrentUser())
+		{
+			return true;
+		}
+
+		if (\CUserOptions::GetOption('im', 'v2_enabled', 'N', $userId) === 'Y')
 		{
 			return true;
 		}
 
 		return false;
+	}
+
+	public static function isForceBetaActivatedForCurrentUser()
+	{
+		$settings = \Bitrix\Main\Config\Configuration::getValue('im');
+		if (!isset($settings['force_beta']) || $settings['force_beta'] === false)
+		{
+			return false;
+		}
+
+		if (isset($settings['force_beta_disabled']) && is_array($settings['force_beta_disabled']))
+		{
+			global $USER;
+			if (in_array($USER->GetId(), $settings['force_beta_disabled'], true))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public static function setBetaActive($active = true): bool
@@ -143,4 +167,3 @@ class Settings
 		return true;
 	}
 }
-

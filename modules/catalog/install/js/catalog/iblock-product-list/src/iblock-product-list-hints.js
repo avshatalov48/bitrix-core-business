@@ -1,5 +1,5 @@
-import {EventEmitter} from 'main.core.events';
-import {Tag, Loc} from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { Tag, Loc } from 'main.core';
 
 export class IblockProductListHints
 {
@@ -16,7 +16,7 @@ export class IblockProductListHints
 	constructor(options = {})
 	{
 		this.gridId = options.gridId;
-		this.canEditPrice = options.canEditPrice !== undefined ? options.canEditPrice === true : true;
+		this.canEditPrice = options.canEditPrice === undefined ? true : options.canEditPrice === true;
 
 		this.#addAccessDeniedHintForCreateButton();
 		this.handleOnGridUpdatedHandler();
@@ -24,7 +24,7 @@ export class IblockProductListHints
 		EventEmitter.subscribe('Grid::updated', this.handleOnGridUpdatedHandler.bind(this));
 	}
 
-	getGrid()
+	getGrid(): BX.Main.grid
 	{
 		if (!this.grid)
 		{
@@ -45,15 +45,17 @@ export class IblockProductListHints
 	#addAccessDeniedHintForPriceColumns(): void
 	{
 		this.getGrid().getHeaders().forEach((header) => {
-			const cellsTitles = header.querySelectorAll('.main-grid-cell-head[data-name^="CATALOG_GROUP_"] .main-grid-head-title');
+			const cellsTitles = header.querySelectorAll(
+				'.main-grid-cell-head[data-name^="CATALOG_GROUP_"] .main-grid-head-title, .main-grid-cell-head[data-name^="PRICE_"] .main-grid-head-title',
+			);
 			cellsTitles.forEach((title) => {
 				const lockIcon = Tag.render`
-				<span class="ui-btn ui-btn-link ui-btn-icon-lock ui-btn-xs catalog-product-grid-lock-hint"></span>
+					<span class="ui-btn ui-btn-link ui-btn-icon-lock ui-btn-xs catalog-product-grid-lock-hint"></span>
 				`;
 				lockIcon.dataset.hint = Loc.getMessage('CATALOG_IBLOCK_PRODUCT_LIST_PRICE_ACCESS_DENIED_HINT');
 				lockIcon.dataset.hintNoIcon = true;
 
-				BX.UI.Hint.initNode(lockIcon);
+				BX.UI.Hint.createInstance({}).initNode(lockIcon);
 
 				title.prepend(lockIcon);
 			});
@@ -69,7 +71,7 @@ export class IblockProductListHints
 			button.dataset.hint = Loc.getMessage('CATALOG_IBLOCK_PRODUCT_LIST_CREATE_ACCESS_DENIED_HINT');
 			button.dataset.hintNoIcon = true;
 
-			BX.UI.Hint.initNode(button);
+			BX.UI.Hint.createInstance({}).initNode(button);
 		}
 	}
 }

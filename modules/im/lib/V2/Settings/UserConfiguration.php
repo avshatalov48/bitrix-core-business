@@ -247,5 +247,13 @@ class UserConfiguration
 		}
 	}
 
+	public function checkIsPersonalGeneralPreset(): bool
+	{
+		return $this->generalPreset->isPersonal($this->userId);
+	}
 
+	public function getPersonalGeneralPresetId(): ?int
+	{
+		return $this->generalPreset->getId();
+	}
 }

@@ -8,13 +8,13 @@
 					></div>
 					<div class="u-block-hover__additional u-bg-overlay__inner g-pos-abs g-flex-middle g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-15 g-ma-20">
 						<div class="text-uppercase g-flex-middle-item">
-							<h5 class="landing-block-node-subtitle1 landing-semantic-text-image-medium g-font-weight-700 g-color-white g-brd-bottom g-brd-2 g-brd-primary g-mb-20">
+							<h5 class="landing-block-node-subtitle1 g-font-weight-700 g-color-white g-brd-bottom g-brd-2 g-brd-primary g-mb-20">
 								Face massage</h5>
-							<h4 class="landing-block-node-title1 landing-semantic-text-image-big text-uppercase g-line-height-1 g-font-weight-700 g-font-size-35 g-mb-30">
+							<h4 class="landing-block-node-title1 text-uppercase g-line-height-1 g-font-weight-700 g-font-size-35 g-mb-30">
 								<span style="font-weight: bold;">40% Off</span>
 							</h4>
 							<div class="landing-block-node-button1-container">
-								<a class="landing-block-node-button1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
+								<a class="landing-block-node-button1 btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
 								   href="#">Contact us</a>
 							</div>
 						</div>
@@ -28,12 +28,12 @@
 					></div>
 					<div class="u-block-hover__additional u-bg-overlay__inner g-pos-abs g-flex-middle g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-15 g-ma-20">
 						<div class="text-uppercase g-flex-middle-item">
-							<h5 class="landing-block-node-subtitle2 landing-semantic-text-image-medium g-font-weight-700 g-color-white g-mb-5">
+							<h5 class="landing-block-node-subtitle2 g-font-weight-700 g-color-white g-mb-5">
 								20% Discount</h5>
-							<h2 class="landing-block-node-title2 landing-semantic-text-image-big text-uppercase g-line-height-1 g-font-weight-700 g-mb-10">
+							<h2 class="landing-block-node-title2 text-uppercase g-line-height-1 g-font-weight-700 g-mb-10">
 								Products of spa
 							</h2>
-							<div class="landing-block-node-text2 landing-semantic-text-image-medium g-font-weight-700 g-color-white mb-0">
+							<div class="landing-block-node-text2 g-font-weight-700 g-color-white mb-0">
 								When you buy over 100$</div>
 						</div>
 					</div>
@@ -43,10 +43,10 @@
 				<article class="landing-block-node-bg-mini js-animation fadeInUp text-center u-block-hover g-color-white g-bg-primary g-mb-30">
 					<div class="g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-30 g-ma-20">
 						<div class="g-flex-middle-item">
-							<h5 class="landing-block-node-title-mini landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-color-white g-mb-10">
+							<h5 class="landing-block-node-title-mini text-uppercase g-font-weight-700 g-color-white g-mb-10">
 								Relaxing
 								massage</h5>
-							<div class="landing-block-node-text-mini landing-semantic-text-image-small g-color-white mb-0">
+							<div class="landing-block-node-text-mini g-color-white mb-0">
 								<p>Morbi ex urna, porttitor vel consequat non</p>
 							</div>
 						</div>
@@ -57,9 +57,9 @@
 						 alt="">
 					<div class="u-block-hover__additional u-bg-overlay__inner g-pos-abs g-flex-middle g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-15 g-ma-20">
 						<div class="g-flex-middle-item">
-							<h5 class="landing-block-node-title-mini landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-color-white g-mb-5">
+							<h5 class="landing-block-node-title-mini text-uppercase g-font-weight-700 g-color-white g-mb-5">
 								1+1=1</h5>
-							<div class="landing-block-node-text-mini landing-semantic-text-image-small g-color-white mb-0">
+							<div class="landing-block-node-text-mini g-color-white mb-0">
 								<p>Morbi ex urna, porttitor vel consequat non</p>
 							</div>
 						</div>

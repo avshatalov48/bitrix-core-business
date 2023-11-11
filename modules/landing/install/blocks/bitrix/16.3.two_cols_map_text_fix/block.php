@@ -1,10 +1,10 @@
 <section class="landing-block g-pt-0 g-pb-0">
 	<div class="row no-gutters">
 		<div class="landing-block-node-text-container js-animation slideInLeft col-md-6 g-pa-25 g-pa-50--md">
-			<h2 class="landing-block-node-title landing-semantic-title-medium text-uppercase g-font-weight-700">
+			<h2 class="landing-block-node-title text-uppercase g-font-weight-700">
 				Quality results with us
 			</h2>
-			<div class="landing-block-node-text landing-semantic-text-medium ">
+			<div class="landing-block-node-text">
 				<p>
 					Aliquam mattis neque justo, non maximus dui ornare nec. Praesent efficitur velit nisl, sed
 					tincidunt mi imperdiet at. Cras urna libero, fringilla vitae luctus eu, egestas eget metus. Nam

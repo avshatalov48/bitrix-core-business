@@ -1,15 +1,16 @@
-import {Loc} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Loc } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
-import {Messenger} from 'im.public';
-import {Core} from 'im.v2.application.core';
-import {BaseMenu} from 'im.v2.lib.menu';
-import {DialogType, EventType} from 'im.v2.const';
-import {Utils} from 'im.v2.lib.utils';
-import {ChatService} from 'im.v2.provider.service';
+import { Messenger } from 'im.public';
+import { BaseMenu } from 'im.v2.lib.menu';
+import { PermissionManager } from 'im.v2.lib.permission';
+import { EventType, ChatActionType } from 'im.v2.const';
+import { Utils } from 'im.v2.lib.utils';
+import { showKickUserConfirm } from 'im.v2.lib.confirm';
+import { ChatService } from 'im.v2.provider.service';
 
-import type {ImModelUser, ImModelDialog} from 'im.v2.model';
-import type {MenuItem} from 'im.v2.lib.menu';
+import type { ImModelUser, ImModelDialog } from 'im.v2.model';
+import type { MenuItem } from 'im.v2.lib.menu';
 
 type AvatarMenuContext = {
 	user: ImModelUser,
@@ -19,12 +20,14 @@ type AvatarMenuContext = {
 export class AvatarMenu extends BaseMenu
 {
 	context: AvatarMenuContext;
+	permissionManager: PermissionManager;
 
 	constructor()
 	{
 		super();
 
 		this.id = 'bx-im-avatar-context-menu';
+		this.permissionManager = PermissionManager.getInstance();
 	}
 
 	getMenuOptions(): Object
@@ -33,7 +36,7 @@ export class AvatarMenu extends BaseMenu
 			...super.getMenuOptions(),
 			className: this.getMenuClassName(),
 			angle: true,
-			offsetLeft: 21
+			offsetLeft: 21,
 		};
 	}
 
@@ -43,21 +46,21 @@ export class AvatarMenu extends BaseMenu
 			this.getMentionItem(),
 			this.getSendItem(),
 			this.getProfileItem(),
-			this.getKickItem()
+			this.getKickItem(),
 		];
 	}
 
 	getMentionItem(): MenuItem
 	{
 		return {
-			text: Loc.getMessage('IM_DIALOG_AVATAR_MENU_MENTION'),
+			text: Loc.getMessage('IM_DIALOG_AVATAR_MENU_MENTION_2'),
 			onclick: () => {
 				EventEmitter.emit(EventType.textarea.insertMention, {
 					mentionText: this.context.user.name,
-					mentionReplacement: Utils.user.getMentionBbCode(this.context.user.id, this.context.user.name)
+					mentionReplacement: Utils.text.getMentionBbCode(this.context.user.id, this.context.user.name),
 				});
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -68,7 +71,7 @@ export class AvatarMenu extends BaseMenu
 			onclick: () => {
 				Messenger.openChat(this.context.user.id);
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -79,26 +82,29 @@ export class AvatarMenu extends BaseMenu
 			href: Utils.user.getProfileLink(this.context.user.id),
 			onclick: () => {
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
 	getKickItem(): ?MenuItem
 	{
-		const isOwner = Core.getUserId() === this.context.dialog.owner;
-		const isUser = this.context.dialog.type === DialogType.user;
-		if (!isOwner || isUser)
+		const canKick = this.permissionManager.canPerformKick(this.context.dialog.dialogId, this.context.user.id);
+		if (!canKick)
 		{
 			return null;
 		}
 
 		return {
 			text: Loc.getMessage('IM_DIALOG_AVATAR_MENU_KICK'),
-			onclick: () => {
-				const chatService = new ChatService();
-				chatService.kickUserFromChat(this.context.dialog.dialogId, this.context.user.id);
+			onclick: async () => {
 				this.menuInstance.close();
-			}
+				const userChoice = await showKickUserConfirm();
+				if (userChoice === true)
+				{
+					const chatService = new ChatService();
+					chatService.kickUserFromChat(this.context.dialog.dialogId, this.context.user.id);
+				}
+			},
 		};
 	}
 }

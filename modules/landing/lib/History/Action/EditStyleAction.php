@@ -12,13 +12,17 @@ class EditStyleAction extends BaseAction
 	public function execute(bool $undo = true): bool
 	{
 		$block = new Block((int)$this->params['block']);
-		$selector = $this->params['selector'] ?: '';
-		// todo: what about position
-		// $position = (int)($this->params['position'] ?: 0);
+		$selector = $this->params['selector'];
+		$position = $this->params['position'];
+		$isWrapper = $this->params['isWrapper'];
 		$value = $undo ? $this->params['valueBefore'] : $this->params['valueAfter'];
 
 		if ($selector)
 		{
+			if ($position >= 0 && !$isWrapper)
+			{
+				$selector = $selector . '@' . $position;
+			}
 			$data = [
 				$selector => [
 					'classList' => explode(' ', $value['className']),
@@ -40,10 +44,11 @@ class EditStyleAction extends BaseAction
 		 */
 		$block = $params['block'];
 
-		$getValue = static function($content, $selector) {
+		$getValue = static function($content) {
 			$doc = new DOM\Document();
 			$doc->loadHTML($content);
-			$node = $doc->querySelector($selector);
+			$children = $doc->getChildNodesArray();
+			$node = array_pop($children);
 
 			return $node
 				? [
@@ -57,11 +62,12 @@ class EditStyleAction extends BaseAction
 		return [
 			'block' => $block->getId(),
 			'selector' => $params['selector'] ?: '',
-			'position' => $params['position'] ?: 0,
+			'isWrapper' => $params['isWrapper'] ?? false,
+			'position' => $params['position'] ?? -1,
 			'affect' => $params['affect'] ?: [],
 			'lid' => $block->getLandingId(),
-			'valueBefore' => $getValue($params['contentBefore'], $params['selector']),
-			'valueAfter' => $getValue($params['contentAfter'], $params['selector']),
+			'valueBefore' => $getValue($params['contentBefore']),
+			'valueAfter' => $getValue($params['contentAfter']),
 		];
 	}
 
@@ -81,8 +87,6 @@ class EditStyleAction extends BaseAction
 	{
 		$params = parent::getJsCommand($undo);
 
-		// todo: what about position?
-		// $params['params']['selector'] .= '@' . $params['params']['position'];
 		$params['params']['value'] =
 			$undo
 				? $params['params']['valueBefore']

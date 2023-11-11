@@ -79,17 +79,6 @@ class Date extends Base
 					}
 				}
 				break;
-			case FieldType::TIME:
-				if ($value instanceof Value\Date)
-				{
-					$systemObject = $value->toSystemObject();
-					$value = new \Bitrix\Bizproc\BaseType\Value\Time(
-						$systemObject->format(\Bitrix\Bizproc\BaseType\Value\Time::getFormat()),
-						$value->getOffset()
-					);
-				}
-
-				break;
 			default:
 				$value = null;
 		}

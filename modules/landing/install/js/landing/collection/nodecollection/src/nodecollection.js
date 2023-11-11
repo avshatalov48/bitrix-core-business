@@ -5,19 +5,19 @@ import {BaseCollection} from 'landing.collection.basecollection';
  */
 export class NodeCollection extends BaseCollection
 {
-	getByNode(node: HTMLElement): ?BX.Landing.Block.Node
+	getByNode(node: HTMLElement): ?BX.Landing.Node
 	{
 		return this.find((item) => item.node === node);
 	}
 
-	getBySelector(selector: string): ?BX.Landing.Block.Node
+	getBySelector(selector: string): ?BX.Landing.Node
 	{
 		return this.find((item) => item.selector === selector);
 	}
 
-	add(node: BX.Landing.Block.Node)
+	add(node: BX.Landing.Node)
 	{
-		if (!!node && node instanceof BX.Landing.Block.Node)
+		if (!!node && node instanceof BX.Landing.Node)
 		{
 			super.add(node);
 		}

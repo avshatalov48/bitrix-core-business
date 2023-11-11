@@ -4,7 +4,7 @@ import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Planner} from "calendar.planner";
 import {Dialog as EntitySelectorDialog} from 'ui.entity-selector';
 import { ControlButton } from 'intranet.control-button';
-import {AttendeesList} from "calendar.controls";
+import { AttendeesList, IntranetButton } from 'calendar.controls';
 
 export class UserPlannerSelector extends EventEmitter
 {
@@ -200,25 +200,25 @@ export class UserPlannerSelector extends EventEmitter
 			Dom.clean(this.DOM.videocallWrap);
 			Dom.removeClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
 
-			this.intranetControllButton = new ControlButton({
-				container: this.DOM.videocallWrap,
-				entityType: 'calendar_event',
-				entityId: this.entry.parentId,
-				mainItem: 'chat',
-				entityData: {
-					dateFrom: Util.formatDate(this.entry.from),
-					parentId: this.entry.parentId
+			this.intranetControllButton = new IntranetButton({
+				intranetControlButtonParams: {
+					container: this.DOM.videocallWrap,
+					entityType: 'calendar_event',
+					entityId: this.entry.parentId,
+					mainItem: 'chat',
+					entityData: {
+						dateFrom: Util.formatDate(this.entry.from),
+						parentId: this.entry.parentId
+					},
+					analyticsLabel: {
+						formType: 'compact'
+					}
 				},
-				analyticsLabel: {
-					formType: 'compact'
-				}
+				callbacks: {
+					getUsersCount: () => this.attendeeList.accepted.length + this.attendeeList.requested.length,
+					hasChat: () => this.entry.data?.MEETING?.CHAT_ID > 0,
+				},
 			});
-
-			// For testing purposes
-			if (Type.isElementNode(this.intranetControllButton.button))
-			{
-				this.intranetControllButton.button.setAttribute('data-role', 'videocallButton');
-			}
 		}
 		else if(this.DOM.videocallWrap)
 		{
@@ -423,6 +423,7 @@ export class UserPlannerSelector extends EventEmitter
 				entryId: params.entryId || 0,
 				entryLocation: this.entry.data.LOCATION || '',
 				ownerId: this.ownerId,
+				hostId: this.entry.data.MEETING_HOST || null,
 				type: this.type,
 				entityList: params.entityList || [],
 				dateFrom: Util.formatDate(this.planner.scaleDateFrom),
@@ -495,14 +496,7 @@ export class UserPlannerSelector extends EventEmitter
 			}
 		}
 
-		if (userLength > 1)
-		{
-			this.DOM.attendeesLabel.innerHTML = Text.encode(Loc.getMessage('EC_ATTENDEES_LABEL_NUM')).replace('#COUNT#', `<span>(</span>${this.attendeeList.accepted.length}<span>)</span>`);
-		}
-		else
-		{
-			this.DOM.attendeesLabel.innerHTML = Text.encode(Loc.getMessage('EC_ATTENDEES_LABEL_ONE'));
-		}
+		this.DOM.attendeesLabel.innerHTML = Text.encode(Loc.getMessage('EC_ATTENDEES_LABEL_ONE'));
 
 		if (attendees.length > 1)
 		{

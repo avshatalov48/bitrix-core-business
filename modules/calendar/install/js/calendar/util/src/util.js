@@ -3,6 +3,7 @@ import { DateTimeFormat } from "main.date";
 import "ui.notification";
 import {PopupManager} from 'main.popup';
 import {PULL as Pull} from 'pull.client';
+import {MessageBox} from "ui.dialogs.messagebox";
 
 export class Util
 {
@@ -568,6 +569,42 @@ export class Util
 				}
 			}
 		}
+	}
+
+	static showConfirmPopup(action, message, options = {})
+	{
+		this.confirmPopup = new MessageBox({
+			message: Tag.render`
+				<div class="calendar-list-slider-messagebox-text">
+					${message}
+				</div>
+			`,
+			minHeight: 120,
+			minWidth: 280,
+			maxWidth: 300,
+			buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
+			onOk: () => {
+				action();
+				this.confirmPopup?.close();
+			},
+			onCancel: () => {
+				this.confirmPopup?.close();
+			},
+			popupOptions: {
+				events: {
+					onPopupClose: () => {
+						delete this.confirmPopup;
+					},
+				},
+				closeByEsc: false,
+				padding: 0,
+				contentPadding: 0,
+				animation: 'fading-slide',
+			},
+			...options
+		});
+
+		this.confirmPopup.show();
 	}
 
 	static sendAnalyticLabel(label)

@@ -1,5 +1,5 @@
 <?php
-	
+
 namespace Bitrix\Calendar\Sync\Icloud;
 
 use Bitrix\Calendar\Sync\Util\RequestLogger;
@@ -32,7 +32,7 @@ class ApiClient
 			$this->logger = new RequestLogger($this->userId, $this->helper::ACCOUNT_TYPE);
 		}
 	}
-	
+
 	/**
 	 * @param string $url
 	 * @param array|null $properties
@@ -129,11 +129,11 @@ class ApiClient
 
 	/**
 	 * @param string $url
-	 * @param $data
+	 * @param string $data
 	 *
 	 * @return mixed|null
 	 */
-	public function put(string $url, $data)
+	public function put(string $url, string $data)
 	{
 		$this->davClient->Connect();
 		$data = $this->davClient->Decode($data);

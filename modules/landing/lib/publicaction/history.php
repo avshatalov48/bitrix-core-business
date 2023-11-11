@@ -12,8 +12,23 @@ class History
 		$result = new PublicActionResult();
 		$history = new Landing\History($lid, Landing\History::ENTITY_TYPE_LANDING);
 		$result->setResult([
+			'stack' => $history->getJsStack(),
 			'stackCount' => $history->getStackCount(),
-			'step' => $history->getCurrentStep(),
+			'step' => $history->getStep(),
+		]);
+
+		return $result;
+	}
+
+	public static function getForDesignerBlock(int $blockId): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$history = new Landing\History($blockId, Landing\History::ENTITY_TYPE_DESIGNER_BLOCK);
+
+		$result->setResult([
+			'stack' => $history->getJsStack(),
+			'stackCount' => $history->getStackCount(),
+			'step' => $history->getStep(),
 		]);
 
 		return $result;

@@ -1581,7 +1581,7 @@ class CIMDisk
 		{
 			// skip
 		}
-		else if (\Bitrix\Disk\TypeFile::isImage($fileModel->getName()))
+		else if (\Bitrix\Disk\TypeFile::isImage($fileModel))
 		{
 			$contentType = 'image';
 			$params = $fileModel->getFile();
@@ -2165,7 +2165,7 @@ class CIMDisk
 
 		$urlManager = \Bitrix\Main\Engine\UrlManager::getInstance();
 
-		$isImage = \Bitrix\Disk\TypeFile::isImage($fileModel->getName());
+		$isImage = \Bitrix\Disk\TypeFile::isImage($fileModel);
 		$isVideo = \Bitrix\Disk\TypeFile::isVideo($fileModel->getName());
 
 		if ($type == self::PATH_TYPE_SHOW)
@@ -2253,7 +2253,7 @@ class CIMDisk
 
 		$urlManager = \Bitrix\Main\Engine\UrlManager::getInstance();
 		$host = $urlManager->getHostUrl();
-		$isImage = \Bitrix\Disk\TypeFile::isImage($fileModel->getName());
+		$isImage = \Bitrix\Disk\TypeFile::isImage($fileModel);
 
 		$link = $host.'/pub/im.file.php?FILE_ID='.$fileId.'&SIGN='.$signedValue;
 		if ($isImage)

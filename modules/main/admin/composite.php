@@ -6,7 +6,6 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Config\Configuration;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 define("HELP_FILE", "settings/composite.php");
 /** @var CUser $USER */
 /** @var CMain $APPLICATION */

@@ -51,6 +51,8 @@ export class CompactEventForm extends EventEmitter
 		this.checkOutsideClickClose = this.checkOutsideClickClose.bind(this);
 		this.outsideMouseDownClose = this.outsideMouseDownClose.bind(this);
 		this.keyHandler = this.handleKeyPress.bind(this);
+
+		this.lastUsedSaveOptions = {};
 	}
 
 	show(mode = CompactEventForm.EDIT_MODE, params ={})
@@ -107,6 +109,10 @@ export class CompactEventForm extends EventEmitter
 				)
 				{
 					this.userPlannerSelector.showPlanner();
+				}
+				if (this.isTitleOverflowing())
+				{
+					this.DOM.titleInput.title = this.entry.name;
 				}
 
 				this.checkDataBeforeCloseMode = true;
@@ -234,6 +240,7 @@ export class CompactEventForm extends EventEmitter
 				<div class="calendar-field-block">
 					${this.getEntryCounter()}
 					${this.getTitleControl()}
+					${this.getTitleFade()}
 					${this.getColorControl()}
 				</div>
 			</div>`}
@@ -269,6 +276,7 @@ export class CompactEventForm extends EventEmitter
 			<div class="calendar-field-container calendar-field-container-string-select">
 				<div class="calendar-field-block">
 					${this.getTitleControlLocation()}
+					${this.getTitleFade()}
 					${this.getColorControlsLocationView()}
 				</div>
 			</div>`}
@@ -640,6 +648,24 @@ export class CompactEventForm extends EventEmitter
 		this.emitOnChange();
 	}
 
+	updateEventNameInputTitle()
+	{
+		if (this.isTitleOverflowing())
+		{
+			this.DOM.titleInput.title = this.DOM.titleInput.value;
+		}
+		else
+		{
+			this.DOM.titleInput.title = '';
+		}
+	}
+
+	isTitleOverflowing()
+	{
+		const el = this.DOM.titleInput;
+		return el.clientWidth < el.scrollWidth || el.clientHeight < el.scrollHeight;
+	}
+
 	checkLocationForm(event)
 	{
 		if (event && event instanceof BaseEvent)
@@ -861,23 +887,76 @@ export class CompactEventForm extends EventEmitter
 	getTitleControl()
 	{
 		this.DOM.titleInput = Tag.render`
-			<input class="calendar-field calendar-field-string"
+			<input class="calendar-field calendar-field-string --text-overflow-none"
 				value=""
 				placeholder="${Loc.getMessage('EC_ENTRY_NAME')}"
 				type="text"
 			/>
 		`;
 
+		this.bindFade();
+
 		Event.bind(this.DOM.titleInput, 'keyup', this.checkForChangesDebounce);
 		Event.bind(this.DOM.titleInput, 'change', this.checkForChangesDebounce);
+		Event.bind(this.DOM.titleInput, 'keyup', this.updateEventNameInputTitle.bind(this));
+		Event.bind(this.DOM.titleInput, 'change', this.updateEventNameInputTitle.bind(this));
 
 		return this.DOM.titleInput;
+	}
+
+	bindFade()
+	{
+		let isInputFocus = false;
+
+		Event.bind(this.DOM.titleInput, 'focusout', ()=> {
+			if (this.DOM.titleInput.scrollWidth > this.DOM.titleInput.offsetWidth)
+			{
+				this.getTitleFade().classList.add('--show');
+			}
+			else
+			{
+				this.getTitleFade().classList.remove('--show');
+			}
+			isInputFocus = false;
+		});
+
+		Event.bind(this.DOM.titleInput, 'focus', ()=> {
+			this.getTitleFade().classList.remove('--show');
+			isInputFocus = true;
+		});
+
+		Event.bind(this.DOM.titleInput, 'scroll', ()=> {
+			if (
+				this.DOM.titleInput.scrollWidth > this.DOM.titleInput.offsetWidth
+				&& Math.ceil(this.DOM.titleInput.offsetWidth + this.DOM.titleInput.scrollLeft) < this.DOM.titleInput.scrollWidth
+				&& !isInputFocus
+			)
+			{
+				this.getTitleFade().classList.add('--show');
+			}
+			else
+			{
+				this.getTitleFade().classList.remove('--show');
+			}
+		});
+	}
+
+	getTitleFade()
+	{
+		if (!this.DOM.titleFade)
+		{
+			this.DOM.titleFade = Tag.render`
+				<div class="calendar-field-title-fade"></div>	
+			`;
+		}
+
+		return this.DOM.titleFade;
 	}
 
 	getTitleControlLocation()
 	{
 		this.DOM.titleInput = Tag.render`
-			<input class="calendar-field calendar-field-string"
+			<input class="calendar-field calendar-field-string --text-overflow-none"
 				value=""
 				placeholder="${Loc.getMessage('EC_ENTRY_NAME')}"
 				type="text"
@@ -885,9 +964,10 @@ export class CompactEventForm extends EventEmitter
 			/>
 		`;
 
+		this.bindFade();
+
 		return this.DOM.titleInput;
 	}
-
 	getHostControl()
 	{
 		const userId = this.entry.data.CREATED_BY;
@@ -1313,21 +1393,11 @@ export class CompactEventForm extends EventEmitter
 		this.dateTimeControl.setViewMode(readOnly);
 
 		// Title
-		this.DOM.titleInput.value = entry.getName();
+		this.setEventNameInputValue(entry.getName());
 
 		if (readOnly)
 		{
-			if (this.entry.getCurrentStatus() === false)
-			{
-				this.DOM.titleInput.type = 'hidden'; // Hide input
-				// Add label instead
-				this.DOM.titleLabel = this.DOM.titleInput.parentNode.insertBefore(Tag.render`<span class="calendar-field calendar-field-string">${Text.encode(entry.getName())}</span>`, this.DOM.titleInput);
-				Dom.addClass(this.DOM.titleOuterWrap, 'calendar-field-container-view');
-			}
-			else
-			{
-				this.DOM.titleInput.disabled = true;
-			}
+			Dom.attr(this.DOM.titleInput, 'readonly', 'readonly');
 		}
 
 		// Color
@@ -1434,6 +1504,11 @@ export class CompactEventForm extends EventEmitter
 		}
 	}
 
+	setEventNameInputValue(name: string)
+	{
+		this.DOM.titleInput.value = name;
+	}
+
 	setFormValuesLocation()
 	{
 		let
@@ -1454,15 +1529,16 @@ export class CompactEventForm extends EventEmitter
 		this.dateTimeControl.setViewMode(readOnly);
 
 		// Title
+		let name;
 		if (this.entry.id !== this.entry.parentId)
 		{
-			this.DOM.titleInput.value = section.name
-				+ ': ' + BX.util.htmlspecialchars(entry.getName());
+			name = section.name + ': ' + BX.util.htmlspecialchars(entry.getName());
 		}
 		else
 		{
-			this.DOM.titleInput.value = Loc.getMessage('CALENDAR_UPDATE');
+			name = Loc.getMessage('CALENDAR_UPDATE');
 		}
+		this.setEventNameInputValue(name);
 
 		// Color
 		this.colorSelector.setValue(entry.getColor() || section.color, false);
@@ -1526,6 +1602,7 @@ export class CompactEventForm extends EventEmitter
 						? 'all'
 						: params.recursionMode;
 					options.confirmed = true;
+					this.lastUsedSaveOptions = options;
 					this.save(options);
 				}
 			});
@@ -1543,6 +1620,7 @@ export class CompactEventForm extends EventEmitter
 			EntryManager.showReInviteUsersDialog({
 				callback: (params) => {
 					options.sendInvitesAgain = params.sendInvitesAgain;
+					this.lastUsedSaveOptions = options;
 					this.save(options);
 				}
 			});
@@ -1584,7 +1662,7 @@ export class CompactEventForm extends EventEmitter
 			sendInvitesAgain: options.sendInvitesAgain ? 'Y' : 'N',
 			hide_guests: this.userPlannerSelector.hideGuests ? 'Y' : 'N',
 			requestUid: BX.Calendar.Util.registerRequestId(),
-			private_event: entry.isPrivate() ? 'Y' : 'N'
+			private_event: entry.isPrivate() ? 'Y' : 'N',
 		};
 
 		let checkCurrentUsersAccessibility = !entry.id || this.checkCurrentUsersAccessibility();
@@ -1612,6 +1690,8 @@ export class CompactEventForm extends EventEmitter
 			data.newAttendeesList = newAttendeesList;
 		}
 		data.checkCurrentUsersAccessibility = checkCurrentUsersAccessibility ? 'Y' : 'N';
+
+		data.doCheckOccupancy = options.doCheckOccupancy === false ? 'N' : 'Y';
 
 		if (entry.id && entry.isRecursive())
 		{
@@ -1698,18 +1778,28 @@ export class CompactEventForm extends EventEmitter
 				},
 				(response) => {
 					this.unfreezePopup();
+
+					let errors = [];
+					response.errors.forEach((error) => {
+						if (
+							error.code !== "edit_entry_user_busy"
+							&& error.code !== "edit_entry_location_repeat_busy"
+							&& error.code !== "edit_entry_location_busy_recurrence"
+						)
+						{
+							errors.push(error);
+						}
+						else if (error.code === "edit_entry_location_repeat_busy")
+						{
+							this.showLocationRepeatBusyErrorPopup(error.message);
+						}
+					});
+
+					response.errors = errors;
+
 					if (response.data && Type.isPlainObject(response.data.busyUsersList))
 					{
 						this.handleBusyUsersError(response.data.busyUsersList);
-
-						let errors = [];
-						response.errors.forEach((error) => {
-							if (error.code !== "edit_entry_user_busy")
-							{
-								errors.push(error);
-							}
-						});
-						response.errors = errors;
 					}
 
 					if (response.errors && response.errors.length)
@@ -1722,6 +1812,30 @@ export class CompactEventForm extends EventEmitter
 			);
 
 		return true;
+	}
+
+	showLocationRepeatBusyErrorPopup(message)
+	{
+		if (!this.DOM.locationRepeatBusyErrorPopup)
+		{
+			this.DOM.locationRepeatBusyErrorPopup = EntryManager.getLocationRepeatBusyErrorPopup({
+				message,
+				onYesCallback: () => {
+					this.lastUsedSaveOptions.doCheckOccupancy = false;
+					this.save(this.lastUsedSaveOptions);
+					this.lastUsedSaveOptions = {};
+					this.DOM.locationRepeatBusyErrorPopup.close();
+				},
+				onCancelCallback: () => {
+					this.DOM.locationRepeatBusyErrorPopup.close();
+				},
+				onPopupCloseCallback: () => {
+					delete this.DOM.locationRepeatBusyErrorPopup;
+				},
+			});
+
+			this.DOM.locationRepeatBusyErrorPopup.show();
+		}
 	}
 
 	handleBusyUsersError(busyUsers)
@@ -1754,6 +1868,7 @@ export class CompactEventForm extends EventEmitter
 			this.getMode() === CompactEventForm.EDIT_MODE
 			&& e.keyCode === Util.getKeyCode('enter')
 			&& (e.ctrlKey || e.metaKey) && !e.altKey
+			&& !this.isAdditionalPopupShown()
 		)
 		{
 			this.checkDataBeforeCloseMode = false;
@@ -1793,6 +1908,11 @@ export class CompactEventForm extends EventEmitter
 		{
 			this.close(true, true);
 		}
+	}
+
+	isAdditionalPopupShown(): boolean
+	{
+		return this.DOM.locationRepeatBusyErrorPopup;
 	}
 
 	getCurrentEntry()
@@ -2128,8 +2248,8 @@ export class CompactEventForm extends EventEmitter
 		this.DOM.confirmPopup = new MessageBox({
 			message: this.getConfirmContent(),
 			minHeight: 120,
-			minWidth: 280,
-			maxWidth: 300,
+			minWidth: 350,
+			maxWidth: 350,
 			buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
 			onOk: () => {
 				this.close(true, true);

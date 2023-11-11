@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,ui_designTokens,ui_vue,pull_client) {
 	'use strict';
 
@@ -26,21 +27,16 @@
 	  },
 	  created: function created() {
 	    var _this = this;
-
 	    this.isMac = navigator.userAgent.toLowerCase().includes('macintosh');
 	    this.setStatusTimeout = null;
 	    this.hideTimeout = null;
-
 	    this.pullUnSubscribe = function () {};
-
 	    if (this.$Bitrix.PullClient.get()) {
 	      this.subscribe();
 	    }
-
 	    this.$Bitrix.eventEmitter.subscribe(ui_vue.BitrixVue.events.pullClientChange, function () {
 	      return _this.subscribe();
 	    });
-	    window.component = this;
 	  },
 	  beforeDestroy: function beforeDestroy() {
 	    this.pullUnSubscribe();
@@ -48,7 +44,6 @@
 	  methods: {
 	    subscribe: function subscribe() {
 	      var _this2 = this;
-
 	      this.pullUnSubscribe();
 	      this.pullUnSubscribe = this.$Bitrix.PullClient.get().subscribe({
 	        type: pull_client.PullClient.SubscriptionType.Status,
@@ -66,27 +61,20 @@
 	    },
 	    statusChange: function statusChange(status) {
 	      var _this3 = this;
-
 	      clearTimeout(this.setStatusTimeout);
-
 	      if (this.status === status) {
 	        return false;
 	      }
-
 	      var validStatus = [pull_client.PullClient.PullStatus.Online, pull_client.PullClient.PullStatus.Offline, pull_client.PullClient.PullStatus.Connecting];
-
 	      if (validStatus.indexOf(status) < 0) {
 	        return false;
 	      }
-
 	      var timeout = 500;
-
 	      if (status === pull_client.PullClient.PullStatus.Connecting) {
 	        timeout = 5000;
 	      } else if (status === pull_client.PullClient.PullStatus.Offline) {
 	        timeout = 2000;
 	      }
-
 	      this.setStatusTimeout = setTimeout(function () {
 	        _this3.status = status;
 	        _this3.showed = true;
@@ -100,9 +88,7 @@
 	  watch: {
 	    status: function status() {
 	      var _this4 = this;
-
 	      clearTimeout(this.hideTimeout);
-
 	      if (this.status === pull_client.PullClient.PullStatus.Online) {
 	        clearTimeout(this.hideTimeout);
 	        this.hideTimeout = setTimeout(function () {
@@ -114,13 +100,11 @@
 	  computed: {
 	    connectionClass: function connectionClass() {
 	      var result = '';
-
 	      if (this.showed === true) {
 	        result = "bx-pull-status-show";
 	      } else if (this.showed === false) {
 	        result = "bx-pull-status-hide";
 	      }
-
 	      if (this.status === pull_client.PullClient.PullStatus.Online) {
 	        result += " bx-pull-status-online";
 	      } else if (this.status === pull_client.PullClient.PullStatus.Offline) {
@@ -128,12 +112,10 @@
 	      } else if (this.status === pull_client.PullClient.PullStatus.Connecting) {
 	        result += " bx-pull-status-connecting";
 	      }
-
 	      return result;
 	    },
 	    connectionText: function connectionText() {
 	      var result = '';
-
 	      if (this.status === pull_client.PullClient.PullStatus.Online) {
 	        result = this.localize.BX_PULL_STATUS_ONLINE;
 	      } else if (this.status === pull_client.PullClient.PullStatus.Offline) {
@@ -141,20 +123,17 @@
 	      } else if (this.status === pull_client.PullClient.PullStatus.Connecting) {
 	        result = this.localize.BX_PULL_STATUS_CONNECTING;
 	      }
-
 	      return result;
 	    },
 	    button: function button() {
 	      var hotkey = '';
 	      var name = '';
-
 	      if (this.canReconnect) {
 	        name = this.localize.BX_PULL_STATUS_BUTTON_RECONNECT;
 	      } else {
 	        hotkey = this.isMac ? '&#8984;+R' : "Ctrl+R";
 	        name = this.localize.BX_PULL_STATUS_BUTTON_RELOAD;
 	      }
-
 	      return {
 	        title: name,
 	        key: hotkey

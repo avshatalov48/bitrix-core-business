@@ -100,7 +100,7 @@ class EntityChat extends GroupChat
 			return $result->addErrors($paramsResult->getErrors());
 		}
 
-		$chat = new EntityChat($params);
+		$chat = new static($params);
 		$chat->setExtranet($chat->checkIsExtranet());
 		$chat->save();
 
@@ -146,7 +146,7 @@ class EntityChat extends GroupChat
 			}
 		}
 
-		$chat->updateIndex();
+		$chat->addIndex();
 
 		$result->setResult([
 			'CHAT_ID' => $chat->getChatId(),

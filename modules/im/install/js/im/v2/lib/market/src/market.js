@@ -1,12 +1,14 @@
 import 'marketplace';
-import {Store} from 'ui.vue3.vuex';
-import {Runtime} from 'main.core';
+import { Store } from 'ui.vue3.vuex';
+import { Runtime } from 'main.core';
 
-import {Core} from 'im.v2.application.core';
-import {MarketService} from './classes/market-service';
-import {AvailabilityManager} from './classes/availability-manager';
+import { Core } from 'im.v2.application.core';
+import { Logger } from 'im.v2.lib.logger';
 
-import type {ImModelMarketApplication} from 'im.v2.model';
+import { MarketService } from './classes/market-service';
+import { AvailabilityManager } from './classes/availability-manager';
+
+import type { ImModelMarketApplication } from 'im.v2.model';
 
 type MarketApps = {
 	items: ImModelMarketApplication[],
@@ -17,7 +19,7 @@ type MarketApps = {
 
 export class MarketManager
 {
-	static instance: MarketManager;
+	static #instance: MarketManager;
 
 	#store: Store;
 	#marketService: MarketService;
@@ -25,17 +27,17 @@ export class MarketManager
 
 	static getInstance(): MarketManager
 	{
-		if (!this.instance)
+		if (!this.#instance)
 		{
-			this.instance = new this();
+			this.#instance = new this();
 		}
 
-		return this.instance;
+		return this.#instance;
 	}
 
-	static init(marketApps: MarketApps)
+	static init()
 	{
-		MarketManager.getInstance().init(marketApps);
+		MarketManager.getInstance();
 	}
 
 	constructor()
@@ -43,18 +45,17 @@ export class MarketManager
 		this.#store = Core.getStore();
 		this.#marketService = new MarketService();
 		this.#availabilityManager = new AvailabilityManager();
-	}
 
-	init(marketApps: MarketApps)
-	{
-		this.#store.dispatch('market/set', marketApps);
-		this.#marketService.setLoadLink(marketApps.links.load);
+		const { marketApps } = Core.getApplicationData();
+		Logger.warn('MarketManager: marketApps', marketApps);
+		this.#init(marketApps);
 	}
 
 	getAvailablePlacementsByType(placementType: string, dialogId: string = ''): ImModelMarketApplication[]
 	{
 		const placements: ImModelMarketApplication[] = this.#store.getters['market/getByPlacement'](placementType);
-		const dialogType = dialogId ? this.#store.getters['dialogues/get'](dialogId).type : '';
+		const dialog = this.#store.getters['dialogues/get'](dialogId);
+		const dialogType = dialog ? dialog.type : '';
 
 		return this.#availabilityManager.getAvailablePlacements(placements, dialogType);
 	}
@@ -92,5 +93,11 @@ export class MarketManager
 		const marketplaceImPlacementCode = 'IM_CHAT';
 
 		BX.SidePanel.Instance.open(`/market/?placement=${marketplaceImPlacementCode}`);
+	}
+
+	#init(marketApps: MarketApps)
+	{
+		this.#store.dispatch('market/set', marketApps);
+		this.#marketService.setLoadLink(marketApps.links.load);
 	}
 }

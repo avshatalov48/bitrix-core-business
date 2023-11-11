@@ -1,9 +1,10 @@
 this.BX = this.BX || {};
-(function (exports,main_core,main_date,ui_notification,main_popup,pull_client) {
+(function (exports,main_core,main_date,ui_notification,main_popup,pull_client,ui_dialogs_messagebox) {
 	'use strict';
 
 	let _ = t => t,
-	  _t;
+	  _t,
+	  _t2;
 	class Util {
 	  static parseTime(str) {
 	    let date = Util.parseDate1(BX.date.format(Util.getDateFormat(), new Date()) + ' ' + str, false);
@@ -375,6 +376,41 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
+	  static showConfirmPopup(action, message, options = {}) {
+	    this.confirmPopup = new ui_dialogs_messagebox.MessageBox({
+	      message: main_core.Tag.render(_t2 || (_t2 = _`
+				<div class="calendar-list-slider-messagebox-text">
+					${0}
+				</div>
+			`), message),
+	      minHeight: 120,
+	      minWidth: 280,
+	      maxWidth: 300,
+	      buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
+	      onOk: () => {
+	        var _this$confirmPopup;
+	        action();
+	        (_this$confirmPopup = this.confirmPopup) == null ? void 0 : _this$confirmPopup.close();
+	      },
+	      onCancel: () => {
+	        var _this$confirmPopup2;
+	        (_this$confirmPopup2 = this.confirmPopup) == null ? void 0 : _this$confirmPopup2.close();
+	      },
+	      popupOptions: {
+	        events: {
+	          onPopupClose: () => {
+	            delete this.confirmPopup;
+	          }
+	        },
+	        closeByEsc: false,
+	        padding: 0,
+	        contentPadding: 0,
+	        animation: 'fading-slide'
+	      },
+	      ...options
+	    });
+	    this.confirmPopup.show();
+	  }
 	  static sendAnalyticLabel(label) {
 	    BX.ajax.runAction('calendar.api.calendarajax.sendAnalyticsLabel', {
 	      analyticsLabel: label
@@ -624,5 +660,5 @@ this.BX = this.BX || {};
 
 	exports.Util = Util;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX.Main,BX,BX.Main,BX));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX.Main,BX,BX.Main,BX,BX.UI.Dialogs));
 //# sourceMappingURL=util.bundle.js.map

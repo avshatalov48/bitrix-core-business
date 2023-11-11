@@ -43,7 +43,7 @@ export class FilterGuide
 		return `
 			<ul class="bizproc-debugger-filter-guide-list">
 				<li class="bizproc-debugger-filter-guide-list-item">
-					${Helper.toHtml(Loc.getMessage('BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_1'))}
+					${Helper.toHtml(Loc.getMessage('BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_1_MSGVER_1'))}
 				</li>
 				<li class="bizproc-debugger-filter-guide-list-item">
 					${Helper.toHtml(Loc.getMessage('BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_2'))}

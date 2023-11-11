@@ -2059,3 +2059,12 @@ input.ui-entity-editor-header-title-text {
 	margin-top: -6px;
 }
 /*endregion*/
+
+.ui-page-slider-wrapper.--edit__title-input .ui-toolbar .ui-toolbar-title-box {
+	flex-grow: 1;
+}
+
+.ui-page-slider-wrapper.--edit__title-input .ui-toolbar-title-inner,
+.ui-page-slider-wrapper.--edit__title-input .ui-toolbar .crm-pagetitle.ui-toolbar-title-item-box {
+	width: 100%;
+}

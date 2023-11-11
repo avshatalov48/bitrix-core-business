@@ -2,11 +2,20 @@
 
 namespace Bitrix\Im\V2\Controller\Settings;
 
-use Bitrix\Im\Configuration\Configuration;
+use Bitrix\Im\V2\Controller\Filter\SettingsCheckAccess;
 use Bitrix\Im\V2\Settings\UserConfiguration;
 
 class General extends \Bitrix\Im\V2\Controller\BaseController
 {
+	protected function getDefaultPreFilters()
+	{
+		return array_merge(
+			parent::getDefaultPreFilters(),
+			[
+				new SettingsCheckAccess(),
+			]
+		);
+	}
 
 	/**
 	 * @restMethod im.v2.Settings.General.list
@@ -23,7 +32,7 @@ class General extends \Bitrix\Im\V2\Controller\BaseController
 	 */
 	public function updateAction(int $userId, string $name, string $value): bool
 	{
-		$value = $value === '0' ? false : ($value === '1' ? true : $value);
+		$value = $value === 'N' ? false : ($value === 'Y' ? true : $value);
 		$userConfiguration = new UserConfiguration($userId);
 		$userConfiguration->updateGeneralSetting([
 			'name' => $name,

@@ -30,18 +30,10 @@ class CTempFile
 	{
 		$dir_name = self::GetAbsoluteRoot();
 		$file_name = rel2abs("/", "/".$file_name);
-		$i = 0;
 
 		while(true)
 		{
-			$i++;
-
-			if($file_name == '/')
-				$dir_add = Security\Random::getString(32);
-			elseif($i < 25)
-				$dir_add = substr(Security\Random::getString(32), 0, 3);
-			else
-				$dir_add = Security\Random::getString(32);
+			$dir_add = Security\Random::getString(32);
 
 			$temp_path = $dir_name."/".$dir_add.$file_name;
 

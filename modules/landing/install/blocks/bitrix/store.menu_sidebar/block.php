@@ -10,7 +10,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  */
 
 ?>
-<header class="landing-block landing-semantic-background-color container g-bg-white">
+<header class="landing-block container g-bg-white">
 	<ul class="landing-block-node-menu-top catalog-sections-list-menu-items">
 		<li class="landing-block-node-section-menu-item catalog-sections-list-menu-item">
 			<a

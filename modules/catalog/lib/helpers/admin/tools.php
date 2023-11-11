@@ -1,13 +1,12 @@
 <?php
+
 namespace Bitrix\Catalog\Helpers\Admin;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog\Access\ActionDictionary,
-	Bitrix\Catalog\Access\AccessController,
-	Bitrix\Catalog;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
 
 /**
  * Class Tools
@@ -22,39 +21,45 @@ class Tools
 	 *
 	 * @return array
 	 */
-	public static function getPriceTypeLinkList()
+	public static function getPriceTypeLinkList(): array
 	{
 		global $adminPage, $adminSidePanelHelper;
 
 		$selfFolderUrl = $adminPage->getSelfFolderUrl();
 
-		$result = array();
-		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
-		if (!(AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ) || AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT)))
+		if (!(
+			AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+			|| AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT)
+		))
 		{
-			return $result;
+			return [];
 		}
 
-		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
 		$priceTypeLinkTitle = Main\Text\HtmlFilter::encode(
 			AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT)
-			? Loc::getMessage('CATALOG_HELPERS_ADMIN_TOOLS_MESS_PRICE_TYPE_EDIT_TITLE')
-			: Loc::getMessage('CATALOG_HELPERS_ADMIN_TOOLS_MESS_PRICE_TYPE_VIEW_TITLE')
+				? Loc::getMessage('CATALOG_HELPERS_ADMIN_TOOLS_MESS_PRICE_TYPE_EDIT_TITLE')
+				: Loc::getMessage('CATALOG_HELPERS_ADMIN_TOOLS_MESS_PRICE_TYPE_VIEW_TITLE')
 		);
 
-		//TODO: use d7 managed cache for price type list
-		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
-		$priceTypeList = \CCatalogGroup::getListArray();
+		$priceTypeList = Catalog\GroupTable::getTypeList();
 		if (empty($priceTypeList))
-			return $result;
+		{
+			return [];
+		}
+		$result = [];
 		foreach ($priceTypeList as $priceType)
 		{
-			$id = (int)$priceType['ID'];
-			$title = (string)$priceType['NAME_LANG'];
-			$fullTitle = '['.$id.'] ['.$priceType['NAME'].']'.($title != '' ? ' '.$title : '');
-			$editUrl = $selfFolderUrl.'cat_group_edit.php?ID='.$id.'&lang='.LANGUAGE_ID;
+			$id = $priceType['ID'];
+			$title = $priceType['NAME_LANG'];
+			$fullTitle = '['. $id .'] [' . $priceType['NAME'] . ']' . ($title !== null ? ' ' . $title : '');
+			$editUrl = $selfFolderUrl . 'cat_group_edit.php?ID=' . $id . '&lang=' . LANGUAGE_ID;
 			$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
-			$result[$id] = '<a href="'.$editUrl.'" title="'.$priceTypeLinkTitle.'">'.Main\Text\HtmlFilter::encode($fullTitle).'</a>';
+			$result[$id] =
+				'<a href="' . $editUrl . '"'
+				. ' title="' . Main\Text\HtmlFilter::encode($priceTypeLinkTitle) . '">'
+				. Main\Text\HtmlFilter::encode($fullTitle)
+				. '</a>'
+			;
 
 			unset($fullTitle, $title, $id);
 		}
@@ -69,18 +74,17 @@ class Tools
 	 * @param bool $codeIndex	Use price code for result index.
 	 * @return array
 	 */
-	public static function getPriceTypeList($codeIndex = false)
+	public static function getPriceTypeList(bool $codeIndex = false): array
 	{
-		$result = array();
+		$result = [];
 		$codeIndex = ($codeIndex === true);
-		//TODO: use d7 managed cache for price type list
-		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
-		foreach (\CCatalogGroup::getListArray() as $priceType)
+
+		foreach (Catalog\GroupTable::getTypeList() as $priceType)
 		{
-			$id = (int)$priceType['ID'];
-			$title = (string)$priceType['NAME_LANG'];
+			$id = $priceType['ID'];
+			$title = $priceType['NAME_LANG'];
 			$index = ($codeIndex ? $priceType['NAME'] : $id);
-			$result[$index] = '['.$id.'] ['.$priceType['NAME'].']'.($title != '' ? ' '.$title : '');
+			$result[$index] = '['. $id .'] [' . $priceType['NAME'] . ']' . ($title !== null ? ' ' . $title : '');
 			unset($index, $title, $id);
 		}
 		unset($priceType);

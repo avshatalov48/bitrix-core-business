@@ -259,7 +259,7 @@ export default class SharingButton
 		return new Button({
 			size: ButtonSize.MEDIUM,
 			color: ButtonColor.DANGER,
-			text: Loc.getMessage('SHARING_WARNING_POPUP_SUBMIT_BUTTON'),
+			text: Loc.getMessage('SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW'),
 			events: {
 				click: () => this.handleSubmitButtonClick(),
 			}

@@ -1,0 +1,89 @@
+.bx-im-settings-section-content__container {
+	--im-settings-section-content__background-color_header: var(--im-color-palette-white-base);
+	--im-settings-section-content__background-color_body: var(--im-color-palette-white-base);
+	--im-settings-section-content__background-color_body-background: var(--im-color-palette-gray-04);
+	--im-settings-section-content__background-color_separator: rgba(var(--im-color-palette-gray-90-rgb), 0.08);
+	--im-settings-section-content__background-color_icon: #00ace3;
+	--im-settings-section-content__font-color_header: var(--im-color-palette-black-base);
+	--im-settings-section-content__font-color_block-header: var(--im-color-palette-black-base);
+	--im-settings-section_content__font-color_label: var(--im-color-palette-gray-90);
+
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.bx-im-settings-section-content__header {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	width: 100%;
+	height: 65px;
+	padding: 0 16px;
+	background-color: var(--im-settings-section-content__background-color_header);
+	border-bottom: 1px solid var(--im-content-settings__background-color_border);
+}
+
+.bx-im-settings-section-content__header_icon {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 42px;
+	height: 42px;
+	margin-right: 14px;
+	border: 1px solid var(--im-settings-section-content__background-color_icon);
+	border-radius: 50%;
+	opacity: 0.3;
+}
+
+.bx-im-settings-section-content__header_icon > i {
+	font-size: 20px;
+	color: var(--im-settings-section-content__background-color_icon);
+}
+
+.bx-im-settings-section-content__header_title {
+	font: var(--im-font-size-lg) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-settings-section-content__font-color_header);
+}
+
+.bx-im-settings-section-content__background {
+	flex-grow: 1;
+	padding: 22px 24px;
+	background-color: var(--im-settings-section-content__background-color_body-background);
+	overflow-y: auto;
+}
+
+.bx-im-settings-section-content__body {
+	width: 100%;
+	padding: 8px 0;
+	background-color: var(--im-settings-section-content__background-color_body);
+	border-radius: var(--im-border-radius-xs);
+}
+
+.bx-im-settings-section-content__block {
+	width: 100%;
+	padding: 8px 18px;
+}
+
+.bx-im-settings-section-content__block_title {
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-settings-section-content__font-color_block-header);
+	margin-bottom: 12px;
+}
+
+.bx-im-settings-section-content__block_option {
+	margin-bottom: 14px;
+}
+
+.bx-im-settings-section-content__block_option:last-child {
+	margin-bottom: 0;
+}
+
+.bx-im-settings-section-content__separator {
+	width: 100%;
+	height: 1px;
+	margin: 9px 0 9px;
+	background-color: var(--im-settings-section-content__background-color_separator);
+}

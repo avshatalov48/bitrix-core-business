@@ -1,79 +1,65 @@
 import { Type } from 'main.core';
 import { RootNode } from './bbom/root-node';
-import { Node } from './bbom/node';
-import { VoidNode } from './bbom/void-node';
+import { Node, type SpecialCharNode, type ContentNode } from './bbom/node';
+import { ElementNode } from './bbom/element-node';
 import { TextNode } from './bbom/text-node';
 import { NewLineNode } from './bbom/new-line-node';
+import { FragmentNode } from './bbom/fragment-node';
+import { TabNode } from './bbom/tab-node';
+import { TAB, NEW_LINE, SPECIAL_CHARS, LIST_ELEMENTS, LIST_ITEM_ELEMENTS } from './reference';
 
-type AllowedCases = 'initial' | 'lowerCase' | 'upperCase';
-type ParserOptions = {
-	tagNameCase: AllowedCases,
-	attributeNameCase: AllowedCases,
-};
-
-const TAG_REGEX = /\[(\/)?(\w+|\*)([\s\w./:=]+)?]/gs;
+const TAG_REGEX: RegExp = /\[(\/)?(\w+|\*)([\s\w./:=]+)?]/gs;
 
 class Parser
 {
-	constructor(options: ParserOptions = {})
-	{
-		this.options = {
-			tagNameCase: 'lowerCase',
-			attributeNameCase: 'lowerCase',
-			...options,
-		};
-	}
-
-	static prepareCase(value: string, resultCase: AllowedCases): string
+	static toLowerCase(value: string): string
 	{
 		if (Type.isStringFilled(value))
 		{
-			if (resultCase === 'lowerCase')
-			{
-				return value.toLowerCase();
-			}
-
-			if (resultCase === 'upperCase')
-			{
-				return value.toUpperCase();
-			}
+			return value.toLowerCase();
 		}
 
 		return value;
 	}
 
-	prepareTagNameCase(name: string): string
-	{
-		return Parser.prepareCase(name, this.options.tagNameCase);
-	}
-
-	prepareAttributeNameCase(name: string): string
-	{
-		return Parser.prepareCase(name, this.options.attributeNameCase);
-	}
-
-	parseText(text: string, parent = null): Array<TextNode>
+	parseText(text: string): Array<TextNode | SpecialCharNode>
 	{
 		if (Type.isStringFilled(text))
 		{
-			const fragments: Array<string> = (() => {
-				const result = text.split('\n');
-				if (/^\n+$/g.test(text))
-				{
-					return result.slice(1);
-				}
+			return [...text]
+				.reduce((acc: Array<TextNode | SpecialCharNode>, symbol: string) => {
+					if (SPECIAL_CHARS.has(symbol))
+					{
+						acc.push(symbol);
+					}
+					else
+					{
+						const lastItem: string = acc.at(-1);
+						if (SPECIAL_CHARS.has(lastItem) || Type.isNil(lastItem))
+						{
+							acc.push(symbol);
+						}
+						else
+						{
+							acc[acc.length - 1] += symbol;
+						}
+					}
 
-				return result;
-			})();
+					return acc;
+				}, [])
+				.map((fragment: string) => {
+					if (fragment === NEW_LINE)
+					{
+						return new NewLineNode();
+					}
 
-			return fragments.map((fragment: string) => {
-				if (Type.isStringFilled(fragment))
-				{
-					return new TextNode({ content: fragment, parent });
-				}
+					if (fragment === TAB)
+					{
+						return new TabNode();
+					}
 
-				return new NewLineNode({ content: '\n', parent });
-			});
+					return new TextNode(fragment);
+				});
 		}
 
 		return [];
@@ -81,8 +67,8 @@ class Parser
 
 	static findNextTagIndex(bbcode: string, startIndex = 0): number
 	{
-		const nextContent = bbcode.slice(startIndex);
-		const [nextTag] = nextContent.match(new RegExp(TAG_REGEX)) || [];
+		const nextContent: string = bbcode.slice(startIndex);
+		const [nextTag: ?string] = nextContent.match(new RegExp(TAG_REGEX)) || [];
 		if (nextTag)
 		{
 			return bbcode.indexOf(nextTag, startIndex);
@@ -93,7 +79,7 @@ class Parser
 
 	parseAttributes(sourceAttributes: string): { value: ?string, attributes: Array<[string, string]> }
 	{
-		const result = { value: '', attributes: [] };
+		const result: {value: string, attributes: Array<Array<string, string>>} = { value: '', attributes: [] };
 
 		if (Type.isStringFilled(sourceAttributes))
 		{
@@ -109,8 +95,8 @@ class Parser
 						return acc;
 					}
 
-					const [key, value = ''] = item.split('=');
-					acc.attributes.push([this.prepareAttributeNameCase(key), value]);
+					const [key: string, value: string = ''] = item.split('=');
+					acc.attributes.push([Parser.toLowerCase(key), value]);
 
 					return acc;
 				}, result);
@@ -119,41 +105,29 @@ class Parser
 		return result;
 	}
 
-	isListTag(tagName: string): boolean
-	{
-		return ['list', 'ul', 'ol'].includes(tagName);
-	}
-
-	isListItemTag(tagName: string): boolean
-	{
-		return ['*', 'li'].includes(tagName);
-	}
-
-	// eslint-disable-next-line sonarjs/cognitive-complexity
 	parse(bbcode: string): RootNode
 	{
-		const result = new RootNode();
-		const stack = [];
-		let level = -1;
-		let current = null;
+		const result: RootNode = new RootNode();
+		const stack: Array<ElementNode> = [];
+		let current: ?ElementNode = null;
+		let level: number = -1;
 
-		const firstTagIndex = Parser.findNextTagIndex(bbcode);
+		const firstTagIndex: number = Parser.findNextTagIndex(bbcode);
 		if (firstTagIndex !== 0)
 		{
-			const textBeforeFirstTag = firstTagIndex === -1 ? bbcode : bbcode.slice(0, firstTagIndex);
-			// eslint-disable-next-line @bitrix24/bitrix24-rules/no-native-dom-methods
+			const textBeforeFirstTag: string = firstTagIndex === -1 ? bbcode : bbcode.slice(0, firstTagIndex);
 			result.appendChild(
 				...this.parseText(textBeforeFirstTag),
 			);
 		}
 
 		bbcode.replace(TAG_REGEX, (fullTag: string, slash: ?string, tagName: string, attrs: ?string, index: number) => {
-			const isOpenTag = Boolean(slash) === false;
-			const startIndex = fullTag.length + index;
-			const nextContent = bbcode.slice(startIndex);
+			const isOpenTag: boolean = Boolean(slash) === false;
+			const startIndex: number = fullTag.length + index;
+			const nextContent: string = bbcode.slice(startIndex);
 			const attributes = this.parseAttributes(attrs);
-			const caseSensitivityTagName = this.prepareTagNameCase(tagName);
-			let parent = null;
+			const lowerCaseTagName: string = Parser.toLowerCase(tagName);
+			let parent: ?(RootNode | ElementNode) = null;
 
 			if (isOpenTag)
 			{
@@ -161,85 +135,104 @@ class Parser
 
 				if (
 					nextContent.includes(`[/${tagName}]`)
-					|| this.isListItemTag(caseSensitivityTagName)
+					|| LIST_ITEM_ELEMENTS.has(lowerCaseTagName)
 				)
 				{
-					current = new Node({
-						name: caseSensitivityTagName,
+					current = new ElementNode({
+						name: lowerCaseTagName,
 						value: attributes.value,
 						attributes: Object.fromEntries(attributes.attributes),
 					});
 
-					const nextTagIndex = Parser.findNextTagIndex(bbcode, startIndex);
+					const nextTagIndex: number = Parser.findNextTagIndex(bbcode, startIndex);
 					if (nextTagIndex !== 0)
 					{
-						const content = nextTagIndex === -1 ? nextContent : bbcode.slice(startIndex, nextTagIndex);
-						// eslint-disable-next-line @bitrix24/bitrix24-rules/no-native-dom-methods
+						const content: string = nextTagIndex === -1 ? nextContent : bbcode.slice(startIndex, nextTagIndex);
 						current.appendChild(
-							...this.parseText(content, current),
+							...this.parseText(content),
 						);
 					}
 				}
 				else
 				{
-					current = new VoidNode({
-						name: caseSensitivityTagName,
+					current = new ElementNode({
+						name: lowerCaseTagName,
 						value: attributes.value,
 						attributes: Object.fromEntries(attributes.attributes),
+						void: true,
 					});
 				}
 
 				if (level === 0)
 				{
-					// eslint-disable-next-line @bitrix24/bitrix24-rules/no-native-dom-methods
 					result.appendChild(current);
 				}
 
 				parent = stack[level - 1];
 
-				if (this.isListTag(current.getName()))
+				if (LIST_ELEMENTS.has(current.getName()))
 				{
-					if (parent && this.isListTag(parent.getName()))
+					if (parent && LIST_ELEMENTS.has(parent.getName()))
 					{
-						current.setParent(stack[level]);
-						// eslint-disable-next-line @bitrix24/bitrix24-rules/no-native-dom-methods
 						stack[level].appendChild(current);
+					}
+				}
+				else if (
+					parent
+					&& LIST_ELEMENTS.has(parent.getName())
+					&& !LIST_ITEM_ELEMENTS.has(current.getName())
+				)
+				{
+					const lastItem: ?ContentNode = parent.getChildren().at(-1);
+					if (lastItem)
+					{
+						lastItem.appendChild(current);
 					}
 				}
 				else if (parent)
 				{
-					current.setParent(parent);
-					// eslint-disable-next-line @bitrix24/bitrix24-rules/no-native-dom-methods
 					parent.appendChild(current);
 				}
 
 				stack[level] = current;
 
-				if (this.isListItemTag(caseSensitivityTagName) && level > -1)
+				if (LIST_ITEM_ELEMENTS.has(lowerCaseTagName) && level > -1)
 				{
 					level--;
 					current = level === -1 ? result : stack[level];
 				}
 			}
 
-			if (!isOpenTag || current instanceof VoidNode)
+			if (!isOpenTag || current.isVoid())
 			{
-				if (level > -1 && current.getName() === caseSensitivityTagName)
+				if (level > -1 && current.getName() === lowerCaseTagName)
 				{
 					level--;
 					current = level === -1 ? result : stack[level];
 				}
 
-				const nextTagIndex = Parser.findNextTagIndex(bbcode, startIndex);
+				const nextTagIndex: number = Parser.findNextTagIndex(bbcode, startIndex);
 				if (nextTagIndex !== startIndex)
 				{
 					parent = level === -1 ? result : stack[level];
 
-					const content = bbcode.slice(startIndex, nextTagIndex);
-					// eslint-disable-next-line @bitrix24/bitrix24-rules/no-native-dom-methods
-					parent.appendChild(
-						...this.parseText(content, current),
-					);
+					const content: ?string = bbcode.slice(startIndex, nextTagIndex === -1 ? undefined : nextTagIndex);
+					if (LIST_ELEMENTS.has(parent.getName()))
+					{
+						const lastItem: ?ContentNode = parent.getChildren().at(-1);
+						if (lastItem)
+						{
+							lastItem.appendChild(
+								...this.parseText(content),
+							);
+						}
+					}
+					else
+					{
+						parent.appendChild(
+							...this.parseText(content),
+						);
+					}
 				}
 			}
 		});
@@ -252,7 +245,9 @@ export {
 	Parser,
 	RootNode,
 	Node,
+	ElementNode,
 	TextNode,
 	NewLineNode,
-	VoidNode,
+	FragmentNode,
+	TabNode,
 };

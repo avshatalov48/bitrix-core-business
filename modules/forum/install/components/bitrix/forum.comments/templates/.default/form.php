@@ -95,7 +95,8 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 					"iframeCss" => "html body {padding-left: 14px!important;}",
 					"fontSize" => "14px",
 					"bInitByJS" => ($arParams['SHOW_MINIMIZED'] == "Y"),
-					"height" => 80
+					"height" => 80,
+					'copilotParams' => $arParams['LHE']['copilotParams'] ?? null,
 				),
 				"DESTINATION" => Array(
 					"VALUE" => array(),

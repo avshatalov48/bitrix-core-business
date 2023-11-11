@@ -118,6 +118,7 @@ export class Content extends BasePanel
 		{
 			this.closeByEsc = data.closeByEsc;
 		}
+		this.disableScroll = Type.isBoolean(data.disableScroll) ? data.disableScroll : false;
 
 		this.forms = new BX.Landing.UI.Collection.FormCollection();
 		this.buttons = new BX.Landing.UI.Collection.ButtonCollection();
@@ -304,7 +305,10 @@ export class Content extends BasePanel
 			{
 				Dom.addClass(document.body, 'landing-ui-hide-action-panels');
 			}
-			Dom.addClass(document.body, "landing-ui-action-panels-disable-scrollbar");
+			if (this.disableScroll)
+			{
+				Dom.addClass(document.body, "landing-ui-action-panels-disable-scrollbar");
+			}
 
 			void BX.Landing.Utils.Show(this.overlay);
 
@@ -324,7 +328,10 @@ export class Content extends BasePanel
 			{
 				Dom.removeClass(document.body, 'landing-ui-hide-action-panels');
 			}
-			Dom.removeClass(document.body, "landing-ui-action-panels-disable-scrollbar");
+			if (this.disableScroll)
+			{
+				Dom.removeClass(document.body, "landing-ui-action-panels-disable-scrollbar");
+			}
 
 			void BX.Landing.Utils.Hide(this.overlay);
 
@@ -340,6 +347,14 @@ export class Content extends BasePanel
 	{
 		this.forms.add(form);
 		Dom.append(form.getNode(), this.content);
+	}
+
+	replaceForm(newForm, oldForm)
+	{
+		this.forms.add(newForm);
+		Dom.insertAfter(newForm.getNode(), oldForm.getNode());
+		this.forms.remove(oldForm);
+		Dom.remove(oldForm.getNode());
 	}
 
 	appendCard(card)

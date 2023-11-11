@@ -760,7 +760,7 @@ abstract class ElementList extends Base
 	private function checkPcreLimit($data)
 	{
 		$pcreBacktrackLimit = (int)ini_get('pcre.backtrack_limit');
-		$textLen = function_exists('mb_strlen')? mb_strlen($data, 'latin1') : mb_strlen($data);
+		$textLen = strlen($data);
 		$textLen++;
 
 		if ($pcreBacktrackLimit > 0 && $pcreBacktrackLimit < $textLen)
@@ -1741,7 +1741,7 @@ abstract class ElementList extends Base
 				$this->arResult['NAV_PARAM']['TEMPLATE_THEME'] = $this->arParams['TEMPLATE_THEME'];
 			}
 
-			if (!empty($this->arResult['NAV_RESULT']))
+			if (!empty($this->arResult['NAV_RESULT']) && empty($this->arResult['NAV_STRING']))
 			{
 				/** @var \CBitrixComponent $navComponentObject */
 				$this->arResult['NAV_STRING'] = $this->arResult['NAV_RESULT']->GetPageNavStringEx(

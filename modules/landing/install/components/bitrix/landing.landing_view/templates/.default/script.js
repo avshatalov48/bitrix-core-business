@@ -42,7 +42,7 @@
 
 		editorWindow.addEventListener('load', function() {
 			BX.Landing.UI.Panel.StylePanel.getInstance();
-			rootWindow.BX.Landing.UI.Panel.Top.instance = null;
+			rootWindow.BX.Landing.UI.Panel.Top.resetInstance();
 			BX.Landing.UI.Panel.Top.getInstance();
 
 			editorWindow.BX.onCustomEvent('Landing.Editor:load')
@@ -175,7 +175,7 @@
 
 				editorWindow.addEventListener('load', function() {
 					BX.Landing.UI.Panel.StylePanel.getInstance();
-					rootWindow.BX.Landing.UI.Panel.Top.instance = null;
+					rootWindow.BX.Landing.UI.Panel.Top.resetInstance()
 					BX.Landing.UI.Panel.Top.getInstance();
 				});
 			}
@@ -315,9 +315,9 @@
 						.then(function(iframe) {
 							if (iframe.contentWindow.BX)
 							{
-								if (iframe.contentWindow.BX.Landing.Block.Node.Text.currentNode)
+								if (iframe.contentWindow.BX.Landing.Node.Text.currentNode)
 								{
-									iframe.contentWindow.BX.Landing.Block.Node.Text.currentNode.disableEdit();
+									iframe.contentWindow.BX.Landing.Node.Text.currentNode.disableEdit();
 								}
 
 								if (iframe.contentWindow.BX.Landing.UI.Field.BaseField.currentField)
@@ -397,11 +397,12 @@
 				}
 			}
 
-			if (BX('landing-popup-publication-btn'))
+			const publicationBtn = BX('landing-popup-publication-btn');
+			if (publicationBtn && publicationBtn.classList.contains('landing-ui-panel-top-pub-btn-enable'))
 			{
 				var oPopupPublication = null;
 				var oPopupError = null;
-				BX('landing-popup-publication-btn').addEventListener(
+				publicationBtn.addEventListener(
 					'click',
 					function()
 					{
@@ -1344,7 +1345,25 @@
 				typeof BX.SidePanel !== 'undefined'
 			)
 			{
-				BX.SidePanel.Instance.open(landingParams['PAGE_URL_LANDING_SETTINGS']);
+				if (this.type === 'KNOWLEDGE' || this.type === 'GROUP')
+				{
+					BX.SidePanel.Instance.open(landingParams['PAGE_URL_LANDING_SETTINGS'], {
+						events: {
+							onClose: function()
+							{
+								if (top.window['landingSettingsSaved'] === true)
+								{
+									top.window['landingSettingsSaved'] = false;
+									window.location.reload();
+								}
+							},
+						},
+					});
+				}
+				else
+				{
+					BX.SidePanel.Instance.open(landingParams['PAGE_URL_LANDING_SETTINGS']);
+				}
 			}
 		},
 	};

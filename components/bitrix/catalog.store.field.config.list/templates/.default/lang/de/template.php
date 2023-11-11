@@ -1,3 +1,3 @@
 <?php
-$MESS["CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_HINT"] = "Nutzen Sie benutzerdefinierte Felder, um zusätzliche Daten zu Objekten hinzuzufügen. #LINK_START#Mehr#LINK_END#";
-$MESS["CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_TITLE"] = "Einstellungen der benutzerdefinierten Felder";
+$MESS["CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_HINT_MSGVER_1"] = "Verwenden Sie benutzerdefinierte Felder, um benutzerdefinierte Daten zu Lagern hinzuzufügen. #LINK_START#Mehr#LINK_END#";
+$MESS["CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_TITLE_MSGVER_1"] = "Benutzerdefinierte Felder";

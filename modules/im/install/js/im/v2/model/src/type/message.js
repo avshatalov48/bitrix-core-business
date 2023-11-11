@@ -1,4 +1,4 @@
-import { MessageComponent, MessageExtension } from 'im.v2.const';
+import { MessageComponent } from 'im.v2.const';
 
 import type { AttachConfig } from 'im.v2.const';
 
@@ -17,11 +17,10 @@ export type Message = {
 	retry: boolean,
 	componentId: $Values<typeof MessageComponent>,
 	componentParams: Object,
-	extensionId: $Values<typeof MessageExtension>,
-	extensionParams: Object,
 	files: number[],
 	attach: AttachConfig[] | boolean | string,
 	isEdited: boolean,
+	replyId: number,
 	isDeleted: boolean,
 	removeLinks: boolean
 };
@@ -46,12 +45,12 @@ export type RawMessage = {
 export type RawMessageParams = {
 	COMPONENT_ID?: string,
 	COMPONENT_PARAMS?: Object,
-	EXTENSION_ID?: string,
-	EXTENSION_PARAMS?: Object,
 	FILE_ID?: number[],
 	IS_EDITED?: 'Y' | 'N',
 	IS_DELETED?: 'Y' | 'N',
-	ATTACH?: AttachConfig[]
+	REPLY_ID?: string,
+	ATTACH?: AttachConfig[],
+	LINK_ACTIVE: number[],
 };
 
 export type PreparedMessageParams = {
@@ -62,5 +61,6 @@ export type PreparedMessageParams = {
 	files: number[],
 	isEdited: boolean,
 	isDeleted: boolean,
+	replyId: number,
 	attach: AttachConfig[]
 };

@@ -1,0 +1,3 @@
+<?php
+$MESS['IBLOCK_UI_INPUT_SECTION_SELECTOR_SEARCH_TITLE'] = "Ничего не найдено";
+$MESS['IBLOCK_UI_INPUT_SECTION_SELECTOR_SEARCH_SUBTITLE'] = "Проверьте, нет ли опечаток";

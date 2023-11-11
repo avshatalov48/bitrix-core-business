@@ -122,7 +122,7 @@ export const SmilePopup = {
 				<div class="bx-im-smile-popup__tabs-container">
 					<MessengerTabs :colorScheme="TabsColorScheme.gray" :tabs="tabs" @tabSelect="tabSelect"  />
 				</div>
-				<TabSmiles v-show="currentTab === TabType.default" />
+				<TabSmiles v-show="currentTab === TabType.default" @close="$emit('close')" />
 				<TabGiphy v-show="currentTab === TabType.giphy" @close="$emit('close')" :dialogId="dialogId" />
 				<TabMarket v-if="currentTab === TabType.market" :entityId="currentEntityId" :dialogId="dialogId" />
 			</div>

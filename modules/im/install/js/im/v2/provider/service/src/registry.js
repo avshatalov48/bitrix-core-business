@@ -6,3 +6,6 @@ export { NotificationService } from './notification';
 export { DiskService } from './disk';
 export { UnreadRecentService } from './classes/recent/unread-recent';
 export { UploadingService } from './uploading';
+export { SettingsService } from './settings';
+export { LinesService } from './lines';
+export { SearchService } from './search';

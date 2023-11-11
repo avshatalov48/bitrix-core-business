@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\DB;
 
 use Bitrix\Main\ArgumentException;
@@ -16,9 +17,6 @@ class MssqlConnection extends Connection
 	 * SqlHelper
 	 **********************************************************/
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function createSqlHelper()
 	{
 		return new MssqlSqlHelper($this);
@@ -94,13 +92,11 @@ class MssqlConnection extends Connection
 	{
 		$this->connectInternal();
 
-		if ($trackerQuery != null)
-			$trackerQuery->startQuery($sql, $binds);
+		$trackerQuery?->startQuery($sql, $binds);
 
 		$result = sqlsrv_query($this->resource, $sql, array(), array("Scrollable" => 'forward'));
 
-		if ($trackerQuery != null)
-			$trackerQuery->finishQuery();
+		$trackerQuery?->finishQuery();
 
 		$this->lastQueryResult = $result;
 
@@ -336,7 +332,7 @@ class MssqlConnection extends Connection
 	/**
 	 * @inheritDoc
 	 */
-	protected function getErrorMessage()
+	public function getErrorMessage()
 	{
 		$errors = "";
 		foreach (sqlsrv_errors(SQLSRV_ERR_ERRORS) as $error)

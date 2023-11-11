@@ -121,15 +121,6 @@ class CalendarService
 
 		$chat->setContext($this->context);
 
-		$chatTypeModifier = ($chat->getType() === \IM_MESSAGE_PRIVATE) ? 'PRIVATE_' : '';
-		$from = isset($message) ? 'MESSAGE' : 'CHAT';
-		$from = $chatTypeModifier . $from;
-
-		$data['params']['entryName'] = Loc::getMessage(
-			"IM_CHAT_CALENDAR_SERVICE_FROM_{$from}_NEW_TITLE",
-			["#CHAT_TITLE#" => $chat->getDisplayedTitle()]
-		);
-
 		$randomPostfix = mt_rand() & 1000; // get random number from 0 to 1000
 		$data['params']['sliderId'] = "im:chat{$chat->getChatId()}{$randomPostfix}";
 

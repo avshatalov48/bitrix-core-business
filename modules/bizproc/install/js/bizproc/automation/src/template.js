@@ -1,4 +1,4 @@
-import {Type, Dom, Loc, Event, Runtime, Uri, Text, Tag} from 'main.core';
+import { Type, Dom, Loc, Event, Runtime, Uri, Text, Tag, ajax } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import {
 	Context,
@@ -11,13 +11,17 @@ import {
 	DelayIntervalSelector,
 	SelectorManager,
 } from 'bizproc.automation';
-import { Robot } from './robot'
+import { SaveButton, BaseButton, CancelButton } from 'ui.buttons';
+import { Robot } from './robot';
 import { UserOptions } from './user-options';
 import { ViewMode } from './view-mode';
 import { Helper } from './helper';
 import { HelpHint } from './help-hint';
 import { DelayInterval } from './delay-interval';
+import { Popup } from 'main.popup';
+
 import 'ui.hint';
+import showExecutionQueuePopup from './views/execution-queue-popup';
 
 export class Template extends EventEmitter
 {
@@ -74,20 +78,23 @@ export class Template extends EventEmitter
 			{
 				this.#data.CONSTANTS = {};
 			}
+
 			if (!Type.isPlainObject(this.#data.PARAMETERS))
 			{
 				this.#data.PARAMETERS = {};
 			}
+
 			if (!Type.isPlainObject(this.#data.VARIABLES))
 			{
 				this.#data.VARIABLES = {};
 			}
+
 			if (!Type.isNil(this.#data.DOCUMENT_STATUS))
 			{
 				this.#data.DOCUMENT_STATUS = String(this.#data.DOCUMENT_STATUS);
 			}
 
-			this.markExternalModified(this.#data['IS_EXTERNAL_MODIFIED']);
+			this.markExternalModified(this.#data.IS_EXTERNAL_MODIFIED);
 			this.markModified(false);
 		}
 
@@ -96,7 +103,7 @@ export class Template extends EventEmitter
 		if (!this.#viewMode.isNone())
 		{
 			this.#templateNode = this.#templateContainerNode.querySelector(
-				'[data-role="automation-template"][data-status-id="' + this.#data.DOCUMENT_STATUS + '"]'
+				`[data-role="automation-template"][data-status-id="${this.#data.DOCUMENT_STATUS}"]`,
 			);
 			this.#listNode = this.#templateNode.querySelector('[data-role="robot-list"]');
 			this.#buttonsNode = this.#templateNode.querySelector('[data-role="buttons"]');
@@ -106,7 +113,7 @@ export class Template extends EventEmitter
 
 			if (!this.isExternalModified() && this.canEdit())
 			{
-				//register DD
+				// register DD
 				jsDD.registerDest(this.#templateNode, 10);
 			}
 			else
@@ -127,16 +134,16 @@ export class Template extends EventEmitter
 
 	destroy()
 	{
-		this.#robots.forEach(robot => robot.destroy());
+		this.#robots.forEach((robot) => robot.destroy());
 	}
 
 	static copyRobotTo(dstTemplate: Template, robot: Robot, beforeRobot: ?Robot): Robot
 	{
 		const copiedRobot = robot.copyTo(dstTemplate, beforeRobot);
-		dstTemplate.emit('Template:robot:add', {robot: copiedRobot});
+		dstTemplate.emit('Template:robot:add', { robot: copiedRobot });
 	}
 
-	canEdit()
+	canEdit(): boolean
 	{
 		return this.#context.canEdit;
 	}
@@ -176,7 +183,7 @@ export class Template extends EventEmitter
 	{
 		const selectedRobots = [];
 
-		this.#robots.forEach(robot => {
+		this.#robots.forEach((robot) => {
 			if (robot.isSelected())
 			{
 				selectedRobots.push(robot.data.Name);
@@ -189,7 +196,7 @@ export class Template extends EventEmitter
 	getActivatedRobotNames(): Array<string>
 	{
 		const activatedRobots = [];
-		this.#robots.forEach(robot => {
+		this.#robots.forEach((robot) => {
 			if (robot.isActivated())
 			{
 				activatedRobots.push(robot.data.Name);
@@ -202,7 +209,7 @@ export class Template extends EventEmitter
 	getDeactivatedRobotNames(): Array<string>
 	{
 		const deactivatedRobots = [];
-		this.#robots.forEach(robot => {
+		this.#robots.forEach((robot) => {
 			if (!robot.isActivated())
 			{
 				deactivatedRobots.push(robot.data.Name);
@@ -212,10 +219,10 @@ export class Template extends EventEmitter
 		return deactivatedRobots;
 	}
 
-	getSerializedRobots()
+	getSerializedRobots(): []
 	{
 		const serialized = [];
-		this.#robots.forEach(robot => serialized.push(robot.serialize()));
+		this.#robots.forEach((robot) => serialized.push(robot.serialize()));
 
 		return serialized;
 	}
@@ -230,16 +237,16 @@ export class Template extends EventEmitter
 		return this.#data.DOCUMENT_STATUS;
 	}
 
-	getStatus(): ?object
+	getStatus(): ?{}
 	{
-		return this.#context.document.statusList.find(status => String(status.STATUS_ID) === this.getStatusId());
+		return this.#context.document.statusList.find((status) => String(status.STATUS_ID) === this.getStatusId());
 	}
 
-	getTemplateId()
+	getTemplateId(): number
 	{
-		const id = parseInt(this.#data.ID);
+		const id = parseInt(this.#data.ID, 10);
 
-		return !isNaN(id) ? id : 0;
+		return Number.isNaN(id) ? 0 : id;
 	}
 
 	initButtons()
@@ -275,7 +282,16 @@ export class Template extends EventEmitter
 			}
 			else
 			{
-				this.#robots.forEach(robot => robot.enableManageMode(isActive));
+				this.#robots.forEach((robot) => {
+					if (robot.isInvalid())
+					{
+						robot.enableManageMode(false);
+					}
+					else
+					{
+						robot.enableManageMode(isActive);
+					}
+				});
 			}
 		}
 	}
@@ -292,29 +308,43 @@ export class Template extends EventEmitter
 			}
 			else
 			{
-				this.#robots.forEach(robot => robot.disableManageMode());
-			}
+				this.#robots.forEach((robot) => {
+					robot.disableManageMode()
 
-			this.#templateNode.querySelectorAll('.bizproc-automation-robot-container-wrapper').forEach(node => {
-				Dom.addClass(node, 'bizproc-automation-robot-container-wrapper-draggable');
-			});
+					if (!robot.isInvalid())
+					{
+						const draggableNode = robot.node.querySelector('.bizproc-automation-robot-container-wrapper');
+						if (draggableNode)
+						{
+							Dom.addClass(draggableNode, 'bizproc-automation-robot-container-wrapper-draggable');
+						}
+					}
+				});
+			}
 		}
 	}
 
 	enableDragAndDrop()
 	{
-		this.#robots.forEach(robot => robot.registerItem(robot.node));
+		this.#robots.forEach((robot) => {
+			if (!robot.isInvalid())
+			{
+				robot.registerItem(robot.node);
 
-		this.#templateNode.querySelectorAll('.bizproc-automation-robot-container-wrapper').forEach(node => {
-			Dom.addClass(node, 'bizproc-automation-robot-container-wrapper-draggable');
+				const draggableNode = robot.node.querySelector('.bizproc-automation-robot-container-wrapper');
+				if (draggableNode)
+				{
+					Dom.addClass(draggableNode, 'bizproc-automation-robot-container-wrapper-draggable');
+				}
+			}
 		});
 	}
 
 	disableDragAndDrop()
 	{
-		this.#robots.forEach(robot => robot.unregisterItem(robot.node));
+		this.#robots.forEach((robot) => robot.unregisterItem(robot.node));
 
-		this.#templateNode.querySelectorAll('.bizproc-automation-robot-container-wrapper').forEach(node => {
+		this.#templateNode.querySelectorAll('.bizproc-automation-robot-container-wrapper').forEach((node) => {
 			Dom.removeClass(node, 'bizproc-automation-robot-container-wrapper-draggable');
 		});
 	}
@@ -326,35 +356,26 @@ export class Template extends EventEmitter
 			return false;
 		}
 
-		const self = this;
-		const anchor = Dom.create('a', {
-			text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT'),
-			props: {
-				href: '#'
-			},
-			events: {
-				click(event)
-				{
-					event.preventDefault();
+		const anchor = Tag.render`
+			<a class="bizproc-automation-robot-btn-set" href="#" target="_top">
+				${Loc.getMessage('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT')}
+			</a>
+		`;
+		Event.bind(anchor, 'click', (event) => {
+			event.preventDefault();
 
-					if (!self.#viewMode.isManage())
-					{
-						self.onExternalEditTemplateButtonClick(this);
-					}
-				}
-			},
-			attrs: {
-				className: "bizproc-automation-robot-btn-set",
-				target: '_top'
+			if (!this.#viewMode.isManage())
+			{
+				this.onExternalEditTemplateButtonClick(anchor);
 			}
 		});
 
-		if (!this.#context.bizprocEditorUrl.length)
+		if (this.#context.bizprocEditorUrl.length === 0)
 		{
 			Dom.addClass(anchor, 'bizproc-automation-robot-btn-set-locked');
 		}
 
-		this.#buttonsNode.appendChild(anchor);
+		Dom.append(anchor, this.#buttonsNode);
 	}
 
 	createManageModeButton()
@@ -364,37 +385,30 @@ export class Template extends EventEmitter
 			return;
 		}
 
-		const manageButton = Dom.create('a', {
-			text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_MANAGE_ROBOTS_1'),
-			attrs: {
-				className: "bizproc-automation-robot-btn-set",
-				target: '_top',
-			},
-			style: {
-				cursor: 'pointer',
-			},
-			events: {
-				click: event => {
-					event.preventDefault();
-					this.onManageModeButtonClick(manageButton);
-				},
-			}
+		const manageButton = Tag.render`
+			<a class="bizproc-automation-robot-btn-set" target="_top" style="cursor: pointer">
+				${Loc.getMessage('BIZPROC_AUTOMATION_CMP_MANAGE_ROBOTS_1')}
+			</a>
+		`;
+		Event.bind(manageButton, 'click', (event) => {
+			event.preventDefault();
+			this.onManageModeButtonClick(manageButton);
 		});
 
-		this.#buttonsNode.appendChild(manageButton);
+		Dom.append(manageButton, this.#buttonsNode);
 	}
 
 	onManageModeButtonClick(manageButtonNode: HTMLElement)
 	{
-		if (!this.canEdit())
-		{
-			HelpHint.showNoPermissionsHint(manageButtonNode);
-		}
-		else
+		if (this.canEdit())
 		{
 			this.emit('Template:enableManageMode', {
 				documentStatus: this.#data.DOCUMENT_STATUS,
 			});
+		}
+		else
+		{
+			HelpHint.showNoPermissionsHint(manageButtonNode);
 		}
 	}
 
@@ -405,26 +419,23 @@ export class Template extends EventEmitter
 			return false;
 		}
 
-		const url =
-			!this.#viewMode.isManage()
-				? this.#context.constantsEditorUrl.replace('#ID#', this.getTemplateId())
-				: '#'
-		;
+		const url = (
+			this.#viewMode.isManage()
+				? '#'
+				: this.#context.constantsEditorUrl.replace('#ID#', this.getTemplateId())
+		);
 
-		if (!url.length)
+		if (url.length === 0)
 		{
 			return false;
 		}
 
-		const anchor = Dom.create('a', {
-			text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_CONSTANTS_EDIT'),
-			props: {
-				href: url
-			},
-			attrs: { className: "bizproc-automation-robot-btn-set" }
-		});
-
-		this.#buttonsNode.appendChild(anchor);
+		const anchor = Tag.render`
+			<a class="bizproc-automation-robot-btn-set" href="${Text.encode(url)}">
+				${Loc.getMessage('BIZPROC_AUTOMATION_CMP_CONSTANTS_EDIT')}
+			</a>
+		`;
+		Dom.append(anchor, this.#buttonsNode);
 	}
 
 	createParametersEditButton(): boolean | undefined
@@ -436,83 +447,60 @@ export class Template extends EventEmitter
 
 		const url = this.#context.parametersEditorUrl.replace('#ID#', this.getTemplateId());
 
-		if (!url.length || this.#viewMode.isManage())
+		if (url.length === 0 || this.#viewMode.isManage())
 		{
 			return false;
 		}
 
-		const anchor = Dom.create('a', {
-			text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_PARAMETERS_EDIT'),
-			props: {
-				href: url
-			},
-			attrs: { className: "bizproc-automation-robot-btn-set" }
-		});
-
-		this.#buttonsNode.appendChild(anchor);
+		const anchor = Tag.render`
+			<a class="bizproc-automation-robot-btn-set" href="${Text.encode(url)}">
+				${Loc.getMessage('BIZPROC_AUTOMATION_CMP_PARAMETERS_EDIT')}
+			</a>
+		`;
+		Dom.append(anchor, this.#buttonsNode);
 	}
 
 	createExternalLocker()
 	{
-		const div = Dom.create("div", {
-			attrs: {
-				className: "bizproc-automation-robot-container"
-			},
-			children: [
-				Dom.create('div', {
-					attrs: {
-						className: 'bizproc-automation-robot-container-wrapper bizproc-automation-robot-container-wrapper-lock'
-					},
-					children: [
-						Dom.create("div", {
-							attrs: { className: "bizproc-automation-robot-deadline" }
-						}),
-						Dom.create("div", {
-							attrs: { className: "bizproc-automation-robot-title" },
-							text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_TEXT')
-						}),
-					]
-				})
-			]
-		});
+		const div = Tag.render`
+			<div class="bizproc-automation-robot-container">
+				<div class="bizproc-automation-robot-container-wrapper bizproc-automation-robot-container-wrapper-lock">
+					<div class="bizproc-automation-robot-deadline"></div>
+					<div class="bizproc-automation-robot-title">
+						${Loc.getMessage('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_TEXT')}
+					</div>
+				</div>
+			</div>
+		`;
 
 		if (this.#viewMode.isEdit())
 		{
-			const settingsBtn = Dom.create('div', {
-				attrs: {
-					className: 'bizproc-automation-robot-btn-settings'
-				},
-				text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_EDIT')
-			});
-
-			const self = this;
-			Event.bind(div, 'click', function (event) {
+			const settingsBtn = Tag.render`
+				<div class="bizproc-automation-robot-btn-settings">
+					${Loc.getMessage('BIZPROC_AUTOMATION_CMP_EDIT')}
+				</div>
+			`;
+			Event.bind(div, 'click', (event) => {
 				event.stopPropagation();
-				if (!self.#viewMode.isManage())
+				if (!this.#viewMode.isManage())
 				{
-					self.onExternalEditTemplateButtonClick(this);
+					this.onExternalEditTemplateButtonClick(div);
 				}
 			});
-			div.appendChild(settingsBtn);
+			Dom.append(settingsBtn, div);
 
-			const deleteBtn = Dom.create('SPAN', {
-				attrs: {
-					className: 'bizproc-automation-robot-btn-delete'
-				}
-			});
-
-			Event.bind(deleteBtn, 'click', function (event) {
+			const deleteBtn = Tag.render`<span class="bizproc-automation-robot-btn-delete"></span>`;
+			Event.bind(deleteBtn, 'click', (event) => {
 				event.stopPropagation();
-
-				if (!self.#viewMode.isManage())
+				if (!this.#viewMode.isManage())
 				{
-					self.onUnsetExternalModifiedClick(this);
+					this.onUnsetExternalModifiedClick(deleteBtn);
 				}
 			});
-			div.lastChild.appendChild(deleteBtn);
+			Dom.append(deleteBtn, div.lastChild);
 		}
 
-		this.#listNode.appendChild(div);
+		Dom.append(div, this.#listNode);
 		this.#templateNode = div;
 	}
 
@@ -524,7 +512,7 @@ export class Template extends EventEmitter
 		}
 		else
 		{
-			this.#robots.forEach(robot => robot.onSearch(event));
+			this.#robots.forEach((robot) => robot.onSearch(event));
 		}
 	}
 
@@ -533,7 +521,7 @@ export class Template extends EventEmitter
 		if (this.#templateNode)
 		{
 			const query = event.getData().queryString;
-			BX[!query ? 'removeClass' : 'addClass'](this.#templateNode, '--search-mismatch');
+			Dom[query ? 'addClass' : 'removeClass'](this.#templateNode, '--search-mismatch');
 		}
 	}
 
@@ -542,9 +530,11 @@ export class Template extends EventEmitter
 		if (!this.canEdit())
 		{
 			HelpHint.showNoPermissionsHint(button);
+
 			return;
 		}
-		if (!this.#context.bizprocEditorUrl.length)
+
+		if (this.#context.bizprocEditorUrl.length === 0)
 		{
 			if (top.BX.UI && top.BX.UI.InfoHelper)
 			{
@@ -563,6 +553,13 @@ export class Template extends EventEmitter
 
 	onUnsetExternalModifiedClick(button)
 	{
+		if (!this.canEdit())
+		{
+			HelpHint.showNoPermissionsHint(button);
+
+			return;
+		}
+
 		this.#templateNode = null;
 
 		this.markExternalModified(false);
@@ -572,7 +569,7 @@ export class Template extends EventEmitter
 
 	openBizprocEditor(templateId)
 	{
-		top.window.location.href = this.#context.bizprocEditorUrl.replace('#ID#', templateId)
+		top.window.location.href = this.#context.bizprocEditorUrl.replace('#ID#', templateId);
 	}
 
 	addRobot(robotData, callback)
@@ -584,11 +581,11 @@ export class Template extends EventEmitter
 			tracker: this.#tracker,
 		});
 		const initData = {
-			Type: robotData['CLASS'],
+			Type: robotData.CLASS,
 			Properties: {
-				Title: robotData['NAME']
+				Title: robotData.NAME,
 			},
-			DialogContext: robotData['DIALOG_CONTEXT'],
+			DialogContext: robotData.DIALOG_CONTEXT,
 		};
 
 		if (this.#robots.length > 0)
@@ -596,8 +593,8 @@ export class Template extends EventEmitter
 			const parentRobot = this.#robots[this.#robots.length - 1];
 			if (!parentRobot.getDelayInterval().isNow() || parentRobot.isExecuteAfterPrevious())
 			{
-				initData['Delay'] = parentRobot.getDelayInterval().serialize();
-				initData['ExecuteAfterPrevious'] =  1;
+				initData.Delay = parentRobot.getDelayInterval().serialize();
+				initData.ExecuteAfterPrevious = 1;
 			}
 		}
 
@@ -606,7 +603,7 @@ export class Template extends EventEmitter
 
 		this.insertRobot(robot);
 		this.insertRobotNode(robot.node);
-		this.emit('Template:robot:add', {robot});
+		this.emit('Template:robot:add', { robot });
 
 		if (callback)
 		{
@@ -652,7 +649,7 @@ export class Template extends EventEmitter
 
 	deleteRobot(robot, callback)
 	{
-		for(let i = 0; i < this.#robots.length; ++i)
+		for (let i = 0; i < this.#robots.length; ++i)
 		{
 			if (this.#robots[i].isEqual(robot))
 			{
@@ -678,7 +675,7 @@ export class Template extends EventEmitter
 		}
 		else
 		{
-			this.#listNode.appendChild(robotNode);
+			Dom.append(robotNode, this.#listNode);
 		}
 	}
 
@@ -701,71 +698,60 @@ export class Template extends EventEmitter
 			}
 		}
 
-		const formName = 'bizproc_automation_robot_dialog';
+		const robotBrokenLinks = robot.getBrokenLinks();
 
-		const form = Dom.create('form', {
-			props: {
-				name: formName
-			}
-		});
+		const formName = 'bizproc_automation_robot_dialog';
+		const form = Tag.render`
+			<form name="${formName}">
+				${this.#renderExecutionQueue(robot)}
+				${this.renderDelaySettings(robot)}
+				${this.renderConditionSettings(robot)}
+				${robotBrokenLinks.length > 0 ? this.renderBrokenLinkAlert(robotBrokenLinks) : ''}
+			</form>
+		`;
 
 		Designer.getInstance().setRobotSettingsDialog({
 			template: this,
-			context: context,
-			robot: robot,
-			form: form
+			context,
+			robot,
+			form,
 		});
 
-		form.appendChild(this.renderDelaySettings(robot));
-		form.appendChild(this.renderConditionSettings(robot));
-
-		const robotBrokenLinks = robot.getBrokenLinks();
-		if (robotBrokenLinks.length > 0)
+		context.DOCUMENT_CATEGORY_ID = this.#context.document.getCategoryId();
+		if (
+			Type.isPlainObject(robot.data.DialogContext)
+			&& !Type.isNil(robot.data.DialogContext.addMenuGroup)
+		)
 		{
-			Dom.append(this.renderBrokenLinkAlert(robotBrokenLinks), form);
+			context.addMenuGroup = robot.data.DialogContext.addMenuGroup;
 		}
 
-		const iconHelp = Dom.create('div', {
-			attrs: { className: 'bizproc-automation-robot-help' },
-			events: {
-				click: (event) => this.emit('Template:help:show', event)
-			},
-		});
-		form.appendChild(iconHelp);
-		context['DOCUMENT_CATEGORY_ID'] = this.#context.document.getCategoryId();
-		if (Type.isPlainObject(robot.data.DialogContext) && (robot.data.DialogContext.hasOwnProperty('addMenuGroup')))
-		{
-			context['addMenuGroup'] = robot.data.DialogContext.addMenuGroup;
-		}
-
-		BX.ajax({
+		ajax({
 			method: 'POST',
 			dataType: 'html',
 			url: Uri.addParam(
 				this.#context.ajaxUrl,
 				{
-					analyticsLabel: `automation_robot${robot.draft ? '_draft' : ''}_settings_${robot.data.Type.toLowerCase()}`
-				}
+					analyticsLabel: `automation_robot${robot.draft ? '_draft' : ''}_settings_${robot.data.Type.toLowerCase()}`,
+				},
 			),
 			data: {
 				ajax_action: 'get_robot_dialog',
 				document_signed: this.#context.signedDocument,
 				document_status: this.#context.document.getCurrentStatusId(),
-				context: context,
+				context,
 				robot_json: Helper.toJsonString(robot.serialize()),
-				form_name: formName
+				form_name: formName,
 			},
-			onsuccess: html => {
+			onsuccess: (html) => {
 				if (html)
 				{
-					const dialogRows = Dom.create('div', {
-						html: html
-					});
-					form.appendChild(dialogRows);
+					const dialogRows = Dom.create('div', { html });
+					Dom.append(dialogRows, form);
 				}
 
 				this.showRobotSettingsPopup(robot, form, saveCallback);
-			}
+			},
 		});
 	}
 
@@ -779,7 +765,8 @@ export class Template extends EventEmitter
 			// TODO move from if?
 			this.emit('Template:robot:showSettings');
 			popupWidth = parseInt(
-				this.#userOptions.get('defaults', 'robot_settings_popup_width', 580)
+				this.#userOptions.get('defaults', 'robot_settings_popup_width', 580),
+				10,
 			);
 		}
 
@@ -822,24 +809,46 @@ export class Template extends EventEmitter
 		`;
 		HelpHint.bindAll(titleBarContent);
 
-		const me = this;
-		const popup = new BX.PopupWindow(Helper.generateUniqueId(), null, {
-			titleBar: {
-				content: titleBarContent,
-			},
+		const popup = new Popup({
+			id: Helper.generateUniqueId(),
+			bindElement: null,
 			content: form,
-			closeIcon: true,
-			width: popupWidth,
-			resizable: {
-				minWidth: popupMinWidth,
-				minHeight: 100
-			},
-			offsetLeft: 0,
-			offsetTop: 0,
 			closeByEsc: true,
-			draggable: {restrict: false},
+			buttons: [
+				new SaveButton({
+					onclick: (button: BaseButton) => {
+						const isNewRobot = robot.draft;
+						const callback = () => {
+							popup.close();
+							if (isNewRobot)
+							{
+								this.emit('Template:robot:add', { robot });
+							}
+
+							if (saveCallback)
+							{
+								saveCallback(robot);
+							}
+						};
+
+						this.saveRobotSettings(form, robot, callback, button.getContainer());
+					},
+				}),
+				new CancelButton({
+					text: Loc.getMessage('BIZPROC_JS_AUTOMATION_CANCEL_BUTTON_CAPS'),
+					onclick: () => {
+						popup.close();
+					},
+				}),
+			],
+			width: popupWidth,
+			minWidth: popupMinWidth,
+			minHeight: 100,
+			contentPadding: 12,
+			resizable: true,
+			closeIcon: true,
 			events: {
-				onPopupClose: (popup) => {
+				onPopupClose: () => {
 					Designer.getInstance().setRobotSettingsDialog(null);
 					this.destroyRobotSettingsControls();
 					popup.destroy();
@@ -848,51 +857,17 @@ export class Template extends EventEmitter
 				onPopupResize: () => {
 					this.onResizeRobotSettings();
 				},
-				onPopupResizeEnd: function() {
-					if (me.#userOptions)
+				onPopupResizeEnd: () => {
+					if (this.#userOptions)
 					{
-						me.#userOptions.set(
-							'defaults',
-							'robot_settings_popup_width',
-							this.getWidth()
-						);
+						this.#userOptions.set('defaults', 'robot_settings_popup_width', popup.getWidth());
 					}
-				}
+				},
 			},
-			buttons: [
-				new BX.PopupWindowButton({
-					text : Loc.getMessage('JS_CORE_WINDOW_SAVE'),
-					className : "popup-window-button-accept",
-					events : {
-						click()
-						{
-							const isNewRobot = robot.draft;
-
-							me.saveRobotSettings(form, robot, BX.delegate(function()
-							{
-								this.popupWindow.close();
-								if (isNewRobot)
-								{
-									me.emit('Template:robot:add', { robot });
-								}
-								if (saveCallback)
-								{
-									saveCallback(robot);
-								}
-							}, this), this.buttonNode);
-						}
-					}
-				}),
-				new BX.PopupWindowButtonLink({
-					text : Loc.getMessage('JS_CORE_WINDOW_CANCEL'),
-					className : "popup-window-button-link-cancel",
-					events : {
-						click: function(){
-							this.popupWindow.close();
-						}
-					}
-				})
-			]
+			titleBar: {
+				content: titleBarContent,
+			},
+			draggable: { restrict: false },
 		});
 
 		Designer.getInstance().getRobotSettingsDialog().popup = popup;
@@ -907,9 +882,9 @@ export class Template extends EventEmitter
 		}
 
 		const controlNodes = node.querySelectorAll('[data-role]');
-		for (let i = 0; i < controlNodes.length; ++i)
+		for (const controlNode of controlNodes)
 		{
-			this.initRobotSettingsControl(robot, controlNodes[i]);
+			this.initRobotSettingsControl(robot, controlNode);
 		}
 	}
 
@@ -938,13 +913,13 @@ export class Template extends EventEmitter
 			const fieldProperty = JSON.parse(controlNode.getAttribute('data-property'));
 			controlProps.context.set('additionalUserFields', [
 				...this.#getUserSelectorAdditionalFields(fieldProperty),
-				...this.globalConstants.filter(constant => constant['Type'] === 'user').map(constant => ({
-					id: constant['Expression'],
-					title: constant['Name'],
+				...this.globalConstants.filter((constant) => constant.Type === 'user').map((constant) => ({
+					id: constant.Expression,
+					title: constant.Name,
 				})),
-				...this.globalVariables.filter(variable => variable['Type'] === 'user').map(variable => ({
-					id: variable['Expression'],
-					title: variable['Name'],
+				...this.globalVariables.filter((variable) => variable.Type === 'user').map((variable) => ({
+					id: variable.Expression,
+					title: variable.Name,
 				})),
 			]);
 		}
@@ -954,13 +929,13 @@ export class Template extends EventEmitter
 				controlProps.context.fields.push(
 					...robot
 						.getReturnFieldsDescription()
-						.filter(field => field['Type'] === 'file')
+						.filter((field) => field.Type === 'file')
 						.map((field) => ({
-							Id: `{{~${robot.getId()}:${field['Id']}}}`,
-							Name: `${robot.getTitle()}: ${field['Name']}`,
+							Id: `{{~${robot.getId()}:${field.Id}}}`,
+							Name: `${robot.getTitle()}: ${field.Name}`,
 							Type: 'file',
-							Expression: `{{~${robot.getId()}:${field['Id']}}}`,
-						}))
+							Expression: `{{~${robot.getId()}:${field.Id}}}`,
+						})),
 				);
 			});
 		}
@@ -972,11 +947,11 @@ export class Template extends EventEmitter
 			control.renderTo(controlNode);
 
 			control.subscribe('onAskConstant', (event) => {
-				const {fieldProperty} = event.getData();
+				const { fieldProperty } = event.getData();
 				control.onFieldSelect(this.addConstant(fieldProperty));
 			});
 			control.subscribe('onAskParameter', (event) => {
-				const {fieldProperty} = event.getData();
+				const { fieldProperty } = event.getData();
 				control.onFieldSelect(this.addParameter(fieldProperty));
 			});
 			control.subscribe('onOpenFieldMenu', (event) => this.onOpenMenu(event, robot));
@@ -996,16 +971,15 @@ export class Template extends EventEmitter
 		const additionalFields = (
 			this
 				.#getRobotsWithReturnFields()
-				.map((robot) => (
+				.flatMap((robot) => (
 					robot
 						.getReturnFieldsDescription()
-						.filter(field => field['Type'] === 'user')
+						.filter((field) => field.Type === 'user')
 						.map((field) => ({
-							id: `{{~${robot.getId()}:${field['Id']}}}`,
-							title: `${robot.getTitle()}: ${field['Name']}`,
+							id: `{{~${robot.getId()}:${field.Id}}}`,
+							title: `${robot.getTitle()}: ${field.Name}`,
 						}))
 				))
-				.flat()
 		);
 
 		if (this.#context.get('showTemplatePropertiesMenuOnSelecting') && fieldProperty)
@@ -1052,7 +1026,7 @@ export class Template extends EventEmitter
 						id: field.Expression,
 						title: field.Name,
 						customData: { field },
-					}))
+					})),
 				}))
 		);
 
@@ -1061,7 +1035,7 @@ export class Template extends EventEmitter
 			selector.addGroup('__RESULT', {
 				id: '__RESULT',
 				title: Loc.getMessage('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
-				children: robotMenuItems
+				children: robotMenuItems,
 			});
 		}
 	}
@@ -1082,14 +1056,14 @@ export class Template extends EventEmitter
 				id: constant.SystemExpression,
 				title: constant.Name,
 				supertitle: Loc.getMessage('BIZPROC_AUTOMATION_CMP_TEMPLATE_CONSTANTS_LIST'),
-				customData: { field: constant }
+				customData: { field: constant },
 			};
 		});
 
 		this.globalConstants.forEach((constant) => {
 			constants.push({
 				id: constant.SystemExpression,
-				title: constant['Name'],
+				title: constant.Name,
 				supertitle: constant.SuperTitle,
 				customData: { field: constant },
 			});
@@ -1102,8 +1076,8 @@ export class Template extends EventEmitter
 				{
 					id: '__CONSTANTS',
 					title: Loc.getMessage('BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST'),
-					children: constants
-				}
+					children: constants,
+				},
 			);
 		}
 	}
@@ -1123,7 +1097,7 @@ export class Template extends EventEmitter
 				id: variable.SystemExpression,
 				title: variable.Name,
 				supertitle: variable.SuperTitle,
-				customData: {field: variable},
+				customData: { field: variable },
 			};
 		});
 
@@ -1135,12 +1109,12 @@ export class Template extends EventEmitter
 					id: '__GLOB_VARIABLES',
 					title: Loc.getMessage('BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST_1'),
 					children: gVariables,
-				}
+				},
 			);
 		}
 	}
 
-	#getRobotsWithReturnFields(skipRobot: ?Robot = undefined): Array<Robot>
+	#getRobotsWithReturnFields(skipRobot: ?Robot): Array<Robot>
 	{
 		const skipId = skipRobot?.getId() || '';
 
@@ -1205,65 +1179,76 @@ export class Template extends EventEmitter
 	renderDelaySettings(robot)
 	{
 		const delay = robot.getDelayInterval().clone();
-		const idSalt = Helper.generateUniqueId();
 
-		const delayTypeNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: "delay_type",
-				value: delay.type
-			}
-		});
-		const delayValueNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: "delay_value",
-				value: delay.value
-			}
-		});
-		const delayValueTypeNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: "delay_value_type",
-				value: delay.valueType
-			}
-		});
-		const delayBasisNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: "delay_basis",
-				value: delay.basis
-			}
-		});
-		const delayWorkTimeNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: "delay_worktime",
-				value: delay.workTime ? 1 : 0
-			}
-		});
-
-		const delayWaitWorkDayNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: "delay_wait_workday",
-				value: delay.waitWorkDay ? 1 : 0
-			}
-		});
-
-		const delayInTimeNode = Dom.create("input", {
-			attrs: {
-				type: "hidden",
-				name: "delay_in_time",
-				value: delay.inTimeString,
-			}
-		});
-
-		const delayIntervalLabelNode = Dom.create("span", {
-			attrs: {
-				className: "bizproc-automation-popup-settings-link bizproc-automation-delay-interval-basis"
-			}
-		});
+		const {
+			root,
+			delayTypeNode,
+			delayValueNode,
+			delayValueTypeNode,
+			delayBasisNode,
+			delayWorkTimeNode,
+			delayWaitWorkDayNode,
+			delayInTimeNode,
+			delayIntervalLabelNode,
+		} = Tag.render`
+			<div class="bizproc-automation-popup-settings">
+				<div class="bizproc-automation-popup-settings-block">
+					<span class="bizproc-automation-popup-settings-title-wrapper">
+						<input
+							ref="delayTypeNode"
+							type="hidden"
+							name="delay_type"
+							value="${Text.encode(delay.type)}"
+						/>
+						<input
+							ref="delayValueNode"
+							type="hidden"
+							name="delay_value"
+							value="${Text.encode(delay.value)}"
+						/>
+						<input
+							ref="delayValueTypeNode"
+							type="hidden"
+							name="delay_value_type"
+							value="${Text.encode(delay.valueType)}"
+						/>
+						<input
+							ref="delayBasisNode"
+							type="hidden"
+							name="delay_basis"
+							value="${Text.encode(delay.basis)}"
+						/>
+						<input 
+							ref="delayWorkTimeNode"
+							type="hidden"
+							name="delay_worktime"
+							value="${delay.workTime ? 1 : 0}"
+						/>
+						<input
+							ref="delayWaitWorkDayNode"
+							type="hidden"
+							name="delay_wait_workday"
+							value="${delay.waitWorkDay ? 1 : 0}"
+						/>
+						<input
+							ref="delayInTimeNode"
+							type="hidden"
+							name="delay_in_time"
+							value="${Text.encode(delay.inTimeString)}"
+						/>
+						<span
+							class="bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-left"
+						>
+							${Loc.getMessage('BIZPROC_JS_AUTOMATION_TO_EXECUTE_TITLE')}
+						</span>
+						<span
+							ref="delayIntervalLabelNode"
+							class="bizproc-automation-popup-settings-link bizproc-automation-delay-interval-basis"
+						></span>
+					</span>
+				</div>
+			</div>
+		`;
 
 		const basisFields = [];
 
@@ -1272,10 +1257,9 @@ export class Template extends EventEmitter
 
 		if (Type.isArray(docFields))
 		{
-			for (let i = 0; i < docFields.length; ++i)
+			for (const field of docFields)
 			{
-				const field = docFields[i];
-				if (field['Type'] === 'date' || field['Type'] === 'datetime')
+				if (field.Type === 'date' || field.Type === 'datetime')
 				{
 					basisFields.push(field);
 				}
@@ -1293,93 +1277,32 @@ export class Template extends EventEmitter
 				delayWaitWorkDayNode.value = delay.waitWorkDay ? 1 : 0;
 				delayInTimeNode.value = delay.inTimeString;
 			},
-			basisFields: basisFields,
-			minLimitM: minLimitM,
+			basisFields,
+			minLimitM,
 			useAfterBasis: true,
 			showWaitWorkDay: true,
 		});
-
-		let executeAfterPreviousBlock = null;
-		if (robot.hasTemplate())
-		{
-			const executeAfterPreviousCheckbox = Dom.create("input", {
-				attrs: {
-					type: "checkbox",
-					id: "param-group-3-1" + idSalt,
-					name: "execute_after_previous",
-					value: '1',
-					style: 'vertical-align: middle'
-				}
-			});
-			if (robot.isExecuteAfterPrevious())
-			{
-				executeAfterPreviousCheckbox.setAttribute('checked', 'checked');
-			}
-			executeAfterPreviousBlock = Dom.create("div", {
-				attrs: { className: "bizproc-automation-popup-settings-block" },
-				children: [
-					executeAfterPreviousCheckbox,
-					Dom.create("label", {
-						attrs: {
-							for: "param-group-3-1" + idSalt,
-							style: 'color: #535C69'
-						},
-						text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_AFTER_PREVIOUS_WIDE')
-					})
-				]
-			})
-		}
-
-		const div = Dom.create("div", {
-			attrs: { className: "bizproc-automation-popup-settings bizproc-automation-popup-settings-flex" },
-			children: [
-				Dom.create("div", {
-					attrs: { className: "bizproc-automation-popup-settings-block bizproc-automation-popup-settings-block-flex" },
-					children: [
-						Dom.create("span", {
-							attrs: { className: "bizproc-automation-popup-settings-title-wrapper" },
-							children: [
-								delayTypeNode,
-								delayValueNode,
-								delayValueTypeNode,
-								delayBasisNode,
-								delayWorkTimeNode,
-								delayWaitWorkDayNode,
-								delayInTimeNode,
-								Dom.create("span", {
-									attrs: { className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-left" },
-									text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_TO_EXECUTE') + ":"
-								}),
-								delayIntervalLabelNode
-							]
-						})
-					]
-				}),
-				executeAfterPreviousBlock
-			]
-		});
-
 		delayIntervalSelector.init(delay);
 
-		return div;
+		return root;
 	}
 
-	setDelaySettingsFromForm(formFields,  robot)
+	setDelaySettingsFromForm(formFields, robot)
 	{
 		const delay = new DelayInterval();
-		delay.setType(formFields['delay_type']);
-		delay.setValue(formFields['delay_value']);
-		delay.setValueType(formFields['delay_value_type']);
-		delay.setBasis(formFields['delay_basis']);
-		delay.setWorkTime(formFields['delay_worktime'] === '1');
-		delay.setWaitWorkDay(formFields['delay_wait_workday'] === '1');
-		delay.setInTime(formFields['delay_in_time'] ? formFields['delay_in_time'].split(':') : null);
+		delay.setType(formFields.delay_type);
+		delay.setValue(formFields.delay_value);
+		delay.setValueType(formFields.delay_value_type);
+		delay.setBasis(formFields.delay_basis);
+		delay.setWorkTime(formFields.delay_worktime === '1');
+		delay.setWaitWorkDay(formFields.delay_wait_workday === '1');
+		delay.setInTime(formFields.delay_in_time ? formFields.delay_in_time.split(':') : null);
 		robot.setDelayInterval(delay);
 
 		if (robot.hasTemplate())
 		{
 			robot.setExecuteAfterPrevious(
-				formFields['execute_after_previous'] && (formFields['execute_after_previous']) === '1'
+				formFields.execute_after_previous && (formFields.execute_after_previous) === '1',
 			);
 		}
 
@@ -1393,23 +1316,64 @@ export class Template extends EventEmitter
 			fields: this.#context.document.getFields(),
 			onOpenFieldMenu: (event) => this.onOpenMenu(event, robot),
 			onOpenMenu: (event) => this.onOpenMenu(event, robot),
+			caption: {
+				head: Loc.getMessage('BIZPROC_JS_AUTOMATION_ROBOT_CONDITION_TITLE'),
+			},
+			isExpanded: this.#userOptions?.get('defaults', 'isConditionGroupExpanded', 'N') === 'Y',
 		});
 
-		return Dom.create("div", {
-			attrs: { className: "bizproc-automation-popup-settings" },
-			children: [
-				Dom.create("div", {
-					attrs: { className: "bizproc-automation-popup-settings-block" },
-					children: [
-						Dom.create("span", {
-							attrs: { className: "bizproc-automation-popup-settings-title" },
-							text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION') + ":"
-						}),
-						this.conditionSelector.createNode(),
-					],
-				})
-			]
+		this.conditionSelector.subscribe('onToggleGroupViewClick', (event: BaseEvent) => {
+			const data = event.getData();
+			this.#userOptions.set('defaults', 'isConditionGroupExpanded', data.isExpanded ? 'Y' : 'N');
 		});
+
+		return this.conditionSelector.createNode();
+	}
+
+	#renderExecutionQueue(robot): HTMLDivElement
+	{
+		const title = (
+			robot.isExecuteAfterPrevious()
+				? Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_AFTER_PREVIOUS_TITLE')
+				: Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_PARALLEL_TITLE')
+		);
+		const value = robot.isExecuteAfterPrevious() ? '1' : '0';
+
+		const { root, executionQueueLink, input } = Tag.render`
+			<div class="bizproc-automation-popup-settings">
+				<div class="bizproc-automation-popup-settings-block">
+					<span class="bizproc-automation-popup-settings-title">
+						${Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_TITLE')}
+					</span>
+					<span class="bizproc-automation-popup-settings-link-wrapper">
+						<a ref="executionQueueLink" class="bizproc-automation-popup-settings-link">${title}</a>
+					</span>
+					<input ref="input" type="hidden" value="${value}" name="execute_after_previous"/>
+				</div>
+			</div>
+		`;
+		Event.bind(executionQueueLink, 'click', () => {
+			showExecutionQueuePopup({
+				bindElement: executionQueueLink,
+				currentValue: input.value,
+				onSubmitButtonClick: (formData: FormData) => {
+					const afterPrevious = formData.get('execution') === 'afterPrevious';
+					Dom.adjust(input, { attrs: { value: afterPrevious ? '1' : '0' } });
+					Dom.adjust(
+						executionQueueLink,
+						{
+							text: (
+								afterPrevious
+									? Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_AFTER_PREVIOUS_TITLE')
+									: Loc.getMessage('BIZPROC_JS_AUTOMATION_EXECUTION_QUEUE_PARALLEL_TITLE')
+							),
+						},
+					);
+				},
+			});
+		});
+
+		return root;
 	}
 
 	onOpenMenu(event: BaseEvent, robot: Robot): void
@@ -1423,8 +1387,8 @@ export class Template extends EventEmitter
 			{
 				template: this,
 				robot,
-				...event.getData()
-			}
+				...event.getData(),
+			},
 		);
 	}
 
@@ -1435,11 +1399,14 @@ export class Template extends EventEmitter
 		return this;
 	}
 
-	renderBrokenLinkAlert(brokenLinks: [] = [])
+	renderBrokenLinkAlert(brokenLinks: [] = []): HTMLDivElement
 	{
 		const moreInfoNode = Tag.render`
 			<div class="bizproc-automation-robot-broken-link-full-info">
-				${brokenLinks.map((value) => {return Text.encode(value)}).join('<br>')}
+				${brokenLinks
+					.map((value) => Text.encode(value))
+					.join('<br>')
+				}
 			</div>
 		`;
 
@@ -1449,7 +1416,7 @@ export class Template extends EventEmitter
 			</span>
 		`;
 		Event.bindOnce(showMoreLabel, 'click', () => {
-			Dom.style(moreInfoNode, 'height', moreInfoNode.scrollHeight + 'px');
+			Dom.style(moreInfoNode, 'height', `${moreInfoNode.scrollHeight}px`);
 			Dom.remove(showMoreLabel);
 		});
 
@@ -1468,7 +1435,9 @@ export class Template extends EventEmitter
 			</div>
 		`;
 
-		Event.bindOnce(closeBtn, 'click', () => {Dom.remove(alert)});
+		Event.bindOnce(closeBtn, 'click', () => {
+			Dom.remove(alert);
+		});
 
 		return alert;
 	}
@@ -1477,7 +1446,7 @@ export class Template extends EventEmitter
 	{
 		if (btnNode)
 		{
-			btnNode.classList.add('popup-window-button-wait');
+			Dom.addClass(btnNode, 'ui-btn-wait');
 		}
 
 		this.onBeforeSaveRobotSettings();
@@ -1485,33 +1454,33 @@ export class Template extends EventEmitter
 
 		const ajaxUrl = this.#context.ajaxUrl;
 		const documentSigned = this.#context.signedDocument;
-		BX.ajax({
+		ajax({
 			method: 'POST',
 			dataType: 'json',
 			url: Uri.addParam(
 				ajaxUrl,
 				{
-					analyticsLabel: `automation_robot${robot.draft ? '_draft' : ''}_save_${robot.data.Type.toLowerCase()}`
-				}
+					analyticsLabel: `automation_robot${robot.draft ? '_draft' : ''}_save_${robot.data.Type.toLowerCase()}`,
+				},
 			),
 			data: {
 				ajax_action: 'save_robot_settings',
 				document_signed: documentSigned,
 				robot_json: Helper.toJsonString(robot.serialize()),
-				form_data_json: Helper.toJsonString(formData['data']),
-				form_data: formData['data'], /** @bug 0135641 */
+				form_data_json: Helper.toJsonString(formData.data),
+				form_data: formData.data, /** @bug 0135641 */
 			},
-			onsuccess: response => {
+			onsuccess: (response) => {
 				if (btnNode)
 				{
-					btnNode.classList.remove('popup-window-button-wait');
+					Dom.removeClass(btnNode, 'ui-btn-wait');
 				}
 
 				if (response.SUCCESS)
 				{
 					robot.updateData(response.DATA.robot);
-					this.setDelaySettingsFromForm(formData['data'], robot);
-					this.setConditionSettingsFromForm(formData['data'], robot);
+					this.setDelaySettingsFromForm(formData.data, robot);
+					this.setConditionSettingsFromForm(formData.data, robot);
 
 					robot.draft = false;
 
@@ -1519,26 +1488,26 @@ export class Template extends EventEmitter
 					this.markModified();
 					if (callback)
 					{
-						callback(response.DATA)
+						callback(response.DATA);
 					}
 				}
 				else
 				{
 					alert(response.ERRORS[0]);
 				}
-			}
+			},
 		});
 	}
 
 	serialize()
 	{
-		const data = BX.clone(this.#data);
-		data['IS_EXTERNAL_MODIFIED'] = this.isExternalModified() ? 1 : 0;
-		data['ROBOTS'] = [];
+		const data = Runtime.clone(this.#data);
+		data.IS_EXTERNAL_MODIFIED = this.isExternalModified() ? 1 : 0;
+		data.ROBOTS = [];
 
 		for (let i = 0; i < this.#robots.length; ++i)
 		{
-			data['ROBOTS'].push(this.#robots[i].serialize());
+			data.ROBOTS.push(this.#robots[i].serialize());
 		}
 
 		return data;
@@ -1556,7 +1525,7 @@ export class Template extends EventEmitter
 
 	getRobotById(id)
 	{
-		return this.#robots.find(robot => robot.getId() === id);
+		return this.#robots.find((robot) => robot.getId() === id);
 	}
 
 	isModified()
@@ -1578,13 +1547,13 @@ export class Template extends EventEmitter
 	{
 		const constants = [];
 
-		Object.keys(this.#data.CONSTANTS).forEach(id => {
+		Object.keys(this.#data.CONSTANTS).forEach((id) => {
 			const constant = Runtime.clone(this.#data.CONSTANTS[id]);
 
 			constant.Id = id;
 			constant.ObjectId = 'Constant';
-			constant.SystemExpression = '{=Constant:' + id + '}';
-			constant.Expression = '{{~&:' + id + '}}';
+			constant.SystemExpression = `{=Constant:${id}}`;
+			constant.Expression = `{{~&:${id}}}`;
 
 			constants.push(constant);
 		});
@@ -1596,11 +1565,11 @@ export class Template extends EventEmitter
 	{
 		const constants = this.getConstants();
 
-		for (let i = 0; i < constants.length; ++i)
+		for (const constant of constants)
 		{
-			if (constants[i].Id === id)
+			if (constant.Id === id)
 			{
-				return constants[i];
+				return constant;
 			}
 		}
 
@@ -1637,7 +1606,7 @@ export class Template extends EventEmitter
 		//TODO: only Description yet.
 		this.#data.CONSTANTS[id].Description = property.Description;
 
-		this.emit('Template:constant:update', {constant: this.getConstant(id)});
+		this.emit('Template:constant:update', { constant: this.getConstant(id) });
 		// if (this.component)
 		// {
 		// 	BX.onCustomEvent(this.component, 'onTemplateConstantUpdate', [this, this.getConstant(id)]);
@@ -1657,7 +1626,7 @@ export class Template extends EventEmitter
 	{
 		if (this.#data.CONSTANTS[id])
 		{
-			this.#data.CONSTANTS[id]['Default'] = value;
+			this.#data.CONSTANTS[id].Default = value;
 
 			return true;
 		}
@@ -1669,13 +1638,13 @@ export class Template extends EventEmitter
 	{
 		const params = [];
 
-		Object.keys(this.#data.PARAMETERS).forEach(id => {
-			const param = BX.clone(this.#data.PARAMETERS[id]);
+		Object.keys(this.#data.PARAMETERS).forEach((id) => {
+			const param = Runtime.clone(this.#data.PARAMETERS[id]);
 
 			param.Id = id;
 			param.ObjectId = 'Template';
-			param.SystemExpression = '{=Template:' + id + '}';
-			param.Expression = '{{~*:' + id + '}}';
+			param.SystemExpression = `{=Template:${id}}`;
+			param.Expression = `{{~*:${id}}}`;
 
 			params.push(param);
 		});
@@ -1687,11 +1656,11 @@ export class Template extends EventEmitter
 	{
 		const params = this.getParameters();
 
-		for (let i = 0; i < params.length; ++i)
+		for (const param of params)
 		{
-			if (params[i].Id === id)
+			if (param.Id === id)
 			{
-				return params[i];
+				return param;
 			}
 		}
 
@@ -1709,7 +1678,7 @@ export class Template extends EventEmitter
 
 		this.#data.PARAMETERS[id] = property;
 
-		this.emit('Template:parameter:add', {parameter: this.getParameter(id)});
+		this.emit('Template:parameter:add', { parameter: this.getParameter(id) });
 		// if (this.component)
 		// {
 		// 	BX.onCustomEvent(this.component, 'onTemplateParameterAdd', [this, this.getParameter(id)]);
@@ -1725,10 +1694,10 @@ export class Template extends EventEmitter
 			throw `Parameter with id "${id}" does not exists`;
 		}
 
-		//TODO: only Description yet.
+		// TODO: only Description yet.
 		this.#data.PARAMETERS[id].Description = property.Description;
 
-		this.emit('Template:parameter:update', {parameter: this.getParameter(id)});
+		this.emit('Template:parameter:update', { parameter: this.getParameter(id) });
 		// if (this.component)
 		// {
 		// 	BX.onCustomEvent(this.component, 'onTemplateParameterUpdate', [this, this.getParameter(id)]);
@@ -1748,7 +1717,7 @@ export class Template extends EventEmitter
 	{
 		if (this.#data.PARAMETERS[id])
 		{
-			this.#data.PARAMETERS[id]['Default'] = value;
+			this.#data.PARAMETERS[id].Default = value;
 
 			return true;
 		}
@@ -1760,13 +1729,13 @@ export class Template extends EventEmitter
 	{
 		const variables = [];
 
-		Object.keys(this.#data.VARIABLES).forEach(id => {
+		Object.keys(this.#data.VARIABLES).forEach((id) => {
 			const variable = Runtime.clone(this.#data.VARIABLES[id]);
 
 			variable.Id = id;
 			variable.ObjectId = 'Variable';
-			variable.SystemExpression = '{=Variable:' + id + '}';
-			variable.Expression = '{=Variable:' + id + '}';
+			variable.SystemExpression = `{=Variable:${id}}`;
+			variable.Expression = `{=Variable:${id}}`;
 
 			variables.push(variable);
 		});
@@ -1777,11 +1746,11 @@ export class Template extends EventEmitter
 	generatePropertyId(prefix, existsList)
 	{
 		let index;
-		for(index = 1; index <= 1000; ++index)
+		for (index = 1; index <= 1000; ++index)
 		{
 			if (!existsList[prefix + index])
 			{
-				break; //found
+				break; // found
 			}
 		}
 
@@ -1797,14 +1766,14 @@ export class Template extends EventEmitter
 			Parameter: new Set(),
 			GlobalConstant: new Set(),
 			GlobalVariable: new Set(),
-			Activity: new Set()
+			Activity: new Set(),
 		};
 
-		this.#robots.forEach(robot => {
+		this.#robots.forEach((robot) => {
 			const robotUsages = robot.collectUsages();
 
-			Object.keys(usages).forEach(key => {
-				robotUsages[key].forEach(usage => {
+			Object.keys(usages).forEach((key) => {
+				robotUsages[key].forEach((usage) => {
 					if (!usages[key].has(usage))
 					{
 						usages[key].add(usage);
@@ -1818,21 +1787,21 @@ export class Template extends EventEmitter
 
 	subscribeRobotEvents(eventName: string, listener: (BaseEvent) => void): this
 	{
-		this.#robots.forEach(robot => robot.subscribe(eventName, listener))
+		this.#robots.forEach((robot) => robot.subscribe(eventName, listener));
 
 		return this;
 	}
 
 	unsubscribeRobotEvents(eventName: string, listener: (BaseEvent) => void)
 	{
-		this.#robots.forEach(robot => robot.unsubscribe(eventName, listener));
+		this.#robots.forEach((robot) => robot.unsubscribe(eventName, listener));
 
 		return this;
 	}
 
 	getRobotDescription(type: string): ?object
 	{
-		return this.#context.availableRobots.find(item => item['CLASS'] === type);
+		return this.#context.availableRobots.find((item) => item.CLASS === type);
 	}
 
 	get globalConstants(): []

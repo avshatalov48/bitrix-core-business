@@ -27,8 +27,11 @@ final class Configuration
 	 *
 	 * @return BaseProvider|null
 	 */
-	public static function getProvider($entityId, $options = [])
+	public static function getProvider(Entity $entity)
 	{
+		$entityId = $entity->getId();
+		$options = $entity->getOptions();
+
 		self::load();
 
 		if (!is_string($entityId) || !isset(self::$entities[$entityId]))
@@ -41,8 +44,21 @@ final class Configuration
 			return self::$providers[$entityId];
 		}
 
-		$moduleId = self::$entities[$entityId]['provider']['moduleId'] ?? null;;
-		$className = self::$entities[$entityId]['provider']['className'] ?? null;
+		$substituteEntityId = $entity->getSubstituteEntityId();
+		if (
+			is_string($substituteEntityId)
+			&& isset(self::$entities[$substituteEntityId]['substitutes'])
+			&& self::$entities[$substituteEntityId]['substitutes'] === $entityId
+		)
+		{
+			$moduleId = self::$entities[$substituteEntityId]['provider']['moduleId'] ?? null;;
+			$className = self::$entities[$substituteEntityId]['provider']['className'] ?? null;
+		}
+		else
+		{
+			$moduleId = self::$entities[$entityId]['provider']['moduleId'] ?? null;;
+			$className = self::$entities[$entityId]['provider']['className'] ?? null;
+		}
 
 		self::$providers[$entityId] = self::createProvider($moduleId, $className, $options);
 

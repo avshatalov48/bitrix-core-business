@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,main_core,catalog_entityEditor_field_productset,catalog_entityEditor_field_sectionset,catalog_entityEditor_field_contractor,catalog_agentContract) {
 	'use strict';
 

@@ -1239,6 +1239,7 @@ class CIMMessageParamAttach
 
 		$attach = new CIMMessageParamAttach();
 		$attach->SetColor($color);
+		$attach->SetDescription($description);
 		foreach ($blocks as $data)
 		{
 			if (isset($data['USER']))

@@ -17,7 +17,7 @@ class Dictionary
 		'failed'    => 'failed',
 		'delete'    => 'delete',
 		'create'    => 'create',
-		'recreate' => 'recreate',
+		'recreate'  => 'recreate',
 		'update'    => 'update',
 		'next'      => 'next',
 		'parent'    => 'parent',

@@ -275,6 +275,7 @@ class CCalendarNotify
 			);
 
 		$fields['MESSAGE'] .= "\n\n".Loc::getMessage('EC_MESS_INVITE_DETAILS_SITE', ['#LINK#' => $params["pathToEvent"]]);
+		$fields['NOTIFY_LINK'] = $params["pathToEvent"];
 
 		$fields['NOTIFY_BUTTONS'] = [
 			['TITLE' => Loc::getMessage('EC_MESS_INVITE_CONF_Y_SITE'), 'VALUE' => 'Y', 'TYPE' => 'accept'],
@@ -489,6 +490,7 @@ class CCalendarNotify
 
 		$fields['MESSAGE'] .= "\n\n".Loc::getMessage('EC_MESS_INVITE_DETAILS_SITE', ['#LINK#' => $params["pathToEvent"]]);
 		$fields['MESSAGE_OUT'] .= "\n\n".Loc::getMessage('EC_MESS_INVITE_DETAILS', ['#LINK#' => $params["pathToEvent"]]);
+		$fields['NOTIFY_LINK'] = $params["pathToEvent"];
 
 		$fields['TITLE'] = Loc::getMessage('EC_MESS_INVITE_CHANGED_TITLE',['#TITLE#' => $params["name"]]);
 		return $fields;
@@ -603,6 +605,7 @@ class CCalendarNotify
 				'#ACTIVE_FROM#' => $params["from_formatted"]
 			]
 		);
+		$fields['NOTIFY_LINK'] = $params["pathToEvent"];
 
 		$fields['MESSAGE_OUT'] = Loc::getMessage(
 			$params['mode'] ==='accept'
@@ -650,6 +653,7 @@ class CCalendarNotify
 					'#ACTIVE_FROM#' => $params["from_formatted"]
 				]
 			);
+			$fields['NOTIFY_LINK'] = $params["pathToEvent"];
 		}
 
 		$fields['MESSAGE_OUT'] = Loc::getMessage(

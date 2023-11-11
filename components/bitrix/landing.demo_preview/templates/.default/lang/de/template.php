@@ -7,6 +7,7 @@ $MESS["LANDING_TPL_BUTTON_CREATE_KB"] = "Wissensbasis erstellen";
 $MESS["LANDING_TPL_BUTTON_CREATE_PAGE"] = "Seite erstellen";
 $MESS["LANDING_TPL_BUTTON_CREATE_SITE"] = "Website erstellen";
 $MESS["LANDING_TPL_BUTTON_CREATE_STORE"] = "Onlineshop erstellen";
+$MESS["LANDING_TPL_BUTTON_REPLACE_PAGE"] = "Vorlage anwenden";
 $MESS["LANDING_TPL_BUTTON_SHOW_IN_MOBILE"] = "Auf mobilem Gerät öffnen";
 $MESS["LANDING_TPL_HEADER_LOGO_BITRIX"] = "Bitrix";
 $MESS["LANDING_TPL_HEADER_LOGO_KB"] = "Wissensbasis";

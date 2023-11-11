@@ -56,9 +56,19 @@ export const CreateEntityMenu = {
 		},
 		isAiBetaAvailable(): boolean
 		{
+			return this.isAiTextAvailable || this.isAiImageAvailable;
+		},
+		isAiTextAvailable(): boolean
+		{
 			const settings = Extension.getSettings('im.v2.component.textarea');
 
-			return settings.get('isAiBetaAvailable');
+			return settings.get('isAiTextBetaAvailable');
+		},
+		isAiImageAvailable(): boolean
+		{
+			const settings = Extension.getSettings('im.v2.component.textarea');
+
+			return settings.get('isAiImageBetaAvailable');
 		},
 	},
 	methods:
@@ -110,21 +120,22 @@ export const CreateEntityMenu = {
 		>
 		</div>
 		<MessengerMenu v-if="showMenu" :config="menuConfig" @close="showMenu = false">
-			<MenuItem
-				v-if="isAiBetaAvailable"
-				:icon="MenuItemIcon.aiText"
-				:title="loc('IM_TEXTAREA_CREATE_AI_TEXT_TITLE')"
-				:subtitle="loc('IM_TEXTAREA_CREATE_AI_TEXT_SUBTITLE')"
-				@click="onCreateAiTextClick"
-			/>
-			<MenuItem
-				v-if="isAiBetaAvailable"
-				:icon="MenuItemIcon.aiImage"
-				:title="loc('IM_TEXTAREA_CREATE_AI_IMAGE_TITLE')"
-				:subtitle="loc('IM_TEXTAREA_CREATE_AI_IMAGE_SUBTITLE')"
-				@click="onCreateAiImageClick"
-				:disabled="true"
-			/>
+			<template v-if="isAiBetaAvailable">
+				<MenuItem
+					:icon="MenuItemIcon.aiText"
+					:title="loc('IM_TEXTAREA_CREATE_AI_TEXT_TITLE')"
+					:subtitle="loc('IM_TEXTAREA_CREATE_AI_TEXT_SUBTITLE')"
+					:disabled="!isAiTextAvailable"
+					@click="onCreateAiTextClick"
+				/>
+				<MenuItem
+					:icon="MenuItemIcon.aiImage"
+					:title="loc('IM_TEXTAREA_CREATE_AI_IMAGE_TITLE')"
+					:subtitle="loc('IM_TEXTAREA_CREATE_AI_IMAGE_SUBTITLE')"
+					:disabled="!isAiImageAvailable"
+					@click="onCreateAiImageClick"
+				/>
+			</template>
 			<MenuItem
 				:icon="MenuItemIcon.task"
 				:title="loc('IM_TEXTAREA_CREATE_TASK_TITLE')"

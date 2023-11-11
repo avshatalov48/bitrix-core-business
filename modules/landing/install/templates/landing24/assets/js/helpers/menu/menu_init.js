@@ -147,7 +147,11 @@
 			if (!markActiveByLid(selector))
 			{
 				// just mark first
-				addActive(document.querySelector(selector).querySelector('.nav-item'));
+				const selectorNode = document.querySelector(selector);
+				if (selectorNode)
+				{
+					addActive(selectorNode.querySelector('.nav-item'));
+				}
 			}
 		}
 		else
@@ -171,7 +175,10 @@
 		}
 
 		var nav = document.querySelector(selector);
-		var links = [].slice.call(nav.querySelectorAll('.nav-link'))
+		if (nav)
+		{
+			var links = [].slice.call(nav.querySelectorAll('.nav-link'));
+		}
 		if (!!links && links.length)
 		{
 			var pageLinkMatcher = new RegExp("#landing([0-9]+)");
@@ -254,13 +261,16 @@
 	function removeAllActive(selector)
 	{
 		var nav = document.querySelector(selector);
-		var navItems = [].slice.call(nav.querySelectorAll('.nav-item'));
-		if (!!navItems && navItems.length)
+		if (nav)
 		{
-			navItems.forEach(function (navItem)
+			var navItems = [].slice.call(nav.querySelectorAll('.nav-item'));
+			if (!!navItems && navItems.length)
 			{
-				removeActive(navItem)
-			});
+				navItems.forEach(function (navItem)
+				{
+					removeActive(navItem)
+				});
+			}
 		}
 	}
 

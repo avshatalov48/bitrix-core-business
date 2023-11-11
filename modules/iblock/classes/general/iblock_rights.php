@@ -1875,31 +1875,59 @@ class CIBlockRightsStorage
 
 	function CleanUp($bFull = false)
 	{
-		global $DB;
+		$conn = Main\Application::getConnection();
+		$helper = $conn->getSqlHelper();
 
-		if($bFull)
+		$iblockRightsTable = $helper->quote('b_iblock_right');
+		$sectionRightsTable = $helper->quote('b_iblock_section_right');
+		$elementRightsTable = $helper->quote('b_iblock_element_right');
+
+		$iblockField = $helper->quote('IBLOCK_ID');
+		$entityField = $helper->quote('ENTITY_TYPE');
+		$idField = $helper->quote('ID');
+		$rightIdField = $helper->quote('RIGHT_ID');
+
+		if ($bFull)
 		{
-			$DB->Query("DELETE FROM b_iblock_element_right WHERE IBLOCK_ID = ".$this->IBLOCK_ID);
-			$DB->Query("DELETE FROM b_iblock_section_right WHERE IBLOCK_ID = ".$this->IBLOCK_ID);
-			$DB->Query("DELETE FROM b_iblock_right WHERE IBLOCK_ID = ".$this->IBLOCK_ID);
+			$conn->queryExecute(
+				'delete from ' . $elementRightsTable . ' where ' . $iblockField . ' = ' . $this->IBLOCK_ID
+			);
+			$conn->queryExecute(
+				'delete from ' . $sectionRightsTable . ' where ' . $iblockField . ' = ' . $this->IBLOCK_ID
+			);
+			$conn->queryExecute(
+				'delete from ' . $iblockRightsTable . ' where ' . $iblockField . ' = ' . $this->IBLOCK_ID
+			);
 		}
 		else
 		{
-			$DB->Query("
-				DELETE FROM b_iblock_right
-				WHERE IBLOCK_ID = ".$this->IBLOCK_ID."
-				AND ENTITY_TYPE <> 'iblock'
-				AND ID NOT IN (
-					SELECT RIGHT_ID
-					FROM b_iblock_section_right
-					WHERE IBLOCK_ID = ".$this->IBLOCK_ID."
-				)
-				AND ID NOT IN (
-					SELECT RIGHT_ID
-					FROM b_iblock_element_right
-					WHERE IBLOCK_ID = ".$this->IBLOCK_ID."
-				)
-			");
+			$entityExists = $conn->queryScalar(
+				'select 1 from ' . $iblockRightsTable
+				. ' where ' . $iblockField . ' = ' . $this->IBLOCK_ID
+				. ' and ' . $entityField . ' != \'iblock\''
+			);
+			if ($entityExists !== null)
+			{
+				$subSectionRights =
+					'select ' . $rightIdField . ' from  ' . $sectionRightsTable
+					. ' where ' . $iblockField . ' = ' . $this->IBLOCK_ID
+				;
+				$subElementRights =
+					'select ' . $rightIdField . ' from  ' . $elementRightsTable
+					. ' where ' . $iblockField . ' = ' . $this->IBLOCK_ID
+				;
+				$conn->queryExecute(
+					'delete from ' . $iblockRightsTable
+					. ' where ' . $iblockField . ' = ' . $this->IBLOCK_ID
+					. ' and ' . $entityField . ' != \'iblock\''
+					. ' and ' . $idField . ' not in ('
+					. $subSectionRights
+					. ')'
+					. ' and ' . $idField . ' not in ('
+					. $subElementRights
+					. ')'
+				);
+			}
 		}
 	}
 

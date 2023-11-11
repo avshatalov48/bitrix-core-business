@@ -665,6 +665,8 @@ class CBPDocument
 				$filter['ID'] = $ids;
 		}
 
+		$isSinglePostfix = count($ids) === 1 ? '_SINGLE' : '';
+
 		$iterator = CBPTaskService::GetList(
 				array('ID'=>'ASC'),
 				$filter,
@@ -680,11 +682,14 @@ class CBPDocument
 		{
 			if ($allowedDelegationType && !in_array((int)$task['DELEGATION_TYPE'], $allowedDelegationType, true))
 			{
-				$errors[] = GetMessage('BPCGDOC_ERROR_DELEGATE_'.$task['DELEGATION_TYPE'], array('#NAME#' => $task['NAME']));
+				$errors[] = GetMessage(
+					'BPCGDOC_ERROR_DELEGATE_' . $task['DELEGATION_TYPE'] . $isSinglePostfix,
+					['#NAME#' => $task['NAME']],
+				);
 			}
 			elseif (!CBPTaskService::delegateTask($task['ID'], $fromUserId, $toUserId))
 			{
-				$errors[] = GetMessage('BPCGDOC_ERROR_DELEGATE', array('#NAME#' => $task['NAME']));
+				$errors[] = GetMessage('BPCGDOC_ERROR_DELEGATE' . $isSinglePostfix, ['#NAME#' => $task['NAME']]);
 			}
 			else
 			{

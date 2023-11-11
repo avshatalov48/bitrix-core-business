@@ -26,6 +26,11 @@ export class ChatDataExtractor
 		return this.#restResult.chat.id;
 	}
 
+	getDialogId(): string
+	{
+		return this.#restResult.chat.dialogId;
+	}
+
 	isOpenlinesChat(): boolean
 	{
 		return this.#restResult.chat.type === DialogType.lines;

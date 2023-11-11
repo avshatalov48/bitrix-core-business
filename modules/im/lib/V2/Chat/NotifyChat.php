@@ -149,7 +149,7 @@ class NotifyChat extends Chat
 			return $result->addError(new ChatError(ChatError::WRONG_RECIPIENT));
 		}
 
-		$chat = new NotifyChat($params);
+		$chat = new static($params);
 		$chat->save();
 
 		if ($chat->getChatId() <= 0)
@@ -498,5 +498,15 @@ class NotifyChat extends Chat
 		{
 			\CIMNotify::DeleteByTag($message->getNotifyTag());
 		}
+	}
+
+	protected function addIndex(): Chat
+	{
+		return $this;
+	}
+
+	protected function updateIndex(): Chat
+	{
+		return $this;
 	}
 }

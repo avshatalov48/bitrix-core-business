@@ -1,31 +1,27 @@
+/* eslint-disable */
 (function (exports,ui_fonts_opensans,ui_vue_directives_lazyload,ui_vue,ui_dexie) {
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var SmileManager = /*#__PURE__*/function () {
 	  function SmileManager(restClient) {
 	    babelHelpers.classCallCheck(this, SmileManager);
-
 	    if (typeof restClient !== 'undefined') {
 	      this.restClient = restClient;
 	    } else {
 	      this.restClient = new BX.RestClient();
 	    }
-
 	    this.db = new ui_dexie.Dexie('bx-ui-smiles');
 	    this.db.version(1).stores({
 	      sets: "id, parentId, name, type, image",
 	      smiles: "id, setId, name, image, typing, width, height, originalWidth, originalHeight, definition"
 	    });
 	  }
-
 	  babelHelpers.createClass(SmileManager, [{
 	    key: "loadFromCache",
 	    value: function loadFromCache() {
 	      var _this = this;
-
 	      var promise = new BX.Promise();
 	      var sets = [];
 	      var smiles = [];
@@ -58,7 +54,6 @@
 	    key: "loadFromServer",
 	    value: function loadFromServer() {
 	      var _this2 = this;
-
 	      var promise = new BX.Promise();
 	      this.restClient.callMethod('smile.get').then(function (result) {
 	        var sets = [];
@@ -69,23 +64,18 @@
 	          if (!setImage[smile.setId]) {
 	            setImage[smile.setId] = smile.image;
 	          }
-
 	          var originalWidth = smile.width;
-
 	          if (smile.definition == 'HD') {
 	            originalWidth = originalWidth * 2;
 	          } else if (smile.definition == 'UHD') {
 	            originalWidth = originalWidth * 4;
 	          }
-
 	          var originalHeight = smile.height;
-
 	          if (smile.definition == 'HD') {
 	            originalHeight = originalHeight * 2;
 	          } else if (smile.definition == 'UHD') {
 	            originalHeight = originalHeight * 4;
 	          }
-
 	          return _objectSpread(_objectSpread({}, smile), {}, {
 	            originalWidth: originalWidth,
 	            originalHeight: originalHeight
@@ -106,11 +96,9 @@
 	          smiles: smiles
 	        };
 	        promise.resolve(promiseResult);
-
 	        _this2.db.smiles.clear().then(function () {
 	          return _this2.db.sets.clear().then(function () {
 	            _this2.db.sets.bulkAdd(sets);
-
 	            _this2.db.smiles.bulkAdd(answer.smiles);
 	          })["catch"](function (error) {
 	            return promise.reject(error);
@@ -3118,7 +3106,6 @@
 	  },
 	  created: function created() {
 	    var _this = this;
-
 	    this.setSelected = 0;
 	    this.serverLoad = false;
 	    var restClient = this.$root.$bitrixRestClient || this.$Bitrix.RestClient.get();
@@ -3143,24 +3130,19 @@
 	  methods: {
 	    selectSet: function selectSet(setId) {
 	      var _this2 = this;
-
 	      this.mode = "smile";
 	      this.$emit('selectSet', {
 	        setId: setId
 	      });
 	      this.smilesController.changeSet(setId).then(function (result) {
 	        _this2.smiles = result;
-
 	        _this2.sets.map(function (set) {
 	          set.selected = set.id === setId;
-
 	          if (set.selected) {
 	            _this2.setSelected = setId;
 	          }
-
 	          return set;
 	        });
-
 	        _this2.$refs.elements.scrollTop = 0;
 	      });
 	    },
@@ -3204,7 +3186,6 @@
 	    },
 	    emojiIconStyle: function emojiIconStyle() {
 	      var style = 'bx-ui-smiles-set-emoji';
-
 	      if (this.isMac()) {
 	        return style += '-mac';
 	      } else if (this.isLinux()) {

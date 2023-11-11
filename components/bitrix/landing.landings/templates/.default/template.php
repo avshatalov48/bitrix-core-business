@@ -70,19 +70,6 @@ $sliderConditions = [
 	),
 ];
 
-if ($arParams['TILE_MODE'] === 'view')
-{
-	$sliderConditions[] = str_replace(
-		array(
-			'#landing_edit#', '?'
-		),
-		array(
-			'(\d+)', '\?'
-		),
-		CUtil::jsEscape($arParams['PAGE_URL_LANDING_VIEW'])
-	);
-}
-
 $sliderFullConditions = [];
 if ($arParams['TYPE'] === 'PAGE' && $component->isUseNewMarket())
 {

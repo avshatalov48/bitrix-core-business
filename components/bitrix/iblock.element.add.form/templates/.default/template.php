@@ -13,6 +13,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var CBitrixComponent $component */
 $this->setFrameMode(false);
 
+$existValues = $arParams['ID'] > 0 || !empty($arResult['ERRORS']);
 if (!empty($arResult["ERRORS"])):?>
 	<?ShowError(implode("<br />", $arResult["ERRORS"]))?>
 <?endif;
@@ -59,7 +60,7 @@ if ($arResult["MESSAGE"] <> ''):?>
 
 						if ($arResult["PROPERTY_LIST_FULL"][$propertyID]["MULTIPLE"] == "Y")
 						{
-							$inputNum = ($arParams["ID"] > 0 || count($arResult["ERRORS"]) > 0) ? count($arResult["ELEMENT_PROPERTIES"][$propertyID]) : 0;
+							$inputNum = $existValues ? count($arResult["ELEMENT_PROPERTIES"][$propertyID]) : 0;
 							$inputNum += $arResult["PROPERTY_LIST_FULL"][$propertyID]["MULTIPLE_CNT"];
 						}
 						else
@@ -76,7 +77,7 @@ if ($arResult["MESSAGE"] <> ''):?>
 							case "USER_TYPE":
 								for ($i = 0; $i<$inputNum; $i++)
 								{
-									if ($arParams["ID"] > 0 || count($arResult["ERRORS"]) > 0)
+									if ($existValues)
 									{
 										$value = intval($propertyID) > 0 ? $arResult["ELEMENT_PROPERTIES"][$propertyID][$i]["~VALUE"] : $arResult["ELEMENT"][$propertyID];
 										$description = intval($propertyID) > 0 ? $arResult["ELEMENT_PROPERTIES"][$propertyID][$i]["DESCRIPTION"] : "";
@@ -168,7 +169,7 @@ if ($arResult["MESSAGE"] <> ''):?>
 								for ($i = 0; $i<$inputNum; $i++)
 								{
 
-									if ($arParams["ID"] > 0 || count($arResult["ERRORS"]) > 0)
+									if ($existValues)
 									{
 										$value = intval($propertyID) > 0 ? $arResult["ELEMENT_PROPERTIES"][$propertyID][$i]["VALUE"] : $arResult["ELEMENT"][$propertyID];
 									}
@@ -190,7 +191,7 @@ if ($arResult["MESSAGE"] <> ''):?>
 							case "N":
 								for ($i = 0; $i<$inputNum; $i++)
 								{
-									if ($arParams["ID"] > 0 || count($arResult["ERRORS"]) > 0)
+									if ($existValues)
 									{
 										$value = intval($propertyID) > 0 ? $arResult["ELEMENT_PROPERTIES"][$propertyID][$i]["VALUE"] : $arResult["ELEMENT"][$propertyID];
 									}
@@ -269,7 +270,7 @@ if ($arResult["MESSAGE"] <> ''):?>
 										foreach ($arResult["PROPERTY_LIST_FULL"][$propertyID]["ENUM"] as $key => $arEnum)
 										{
 											$checked = false;
-											if ($arParams["ID"] > 0 || count($arResult["ERRORS"]) > 0)
+											if ($existValues)
 											{
 												if (is_array($arResult["ELEMENT_PROPERTIES"][$propertyID]))
 												{
@@ -306,7 +307,7 @@ if ($arResult["MESSAGE"] <> ''):?>
 										foreach ($arResult["PROPERTY_LIST_FULL"][$propertyID]["ENUM"] as $key => $arEnum)
 										{
 											$checked = false;
-											if ($arParams["ID"] > 0 || count($arResult["ERRORS"]) > 0)
+											if ($existValues)
 											{
 												foreach ($arResult[$sKey][$propertyID] as $elKey => $arElEnum)
 												{

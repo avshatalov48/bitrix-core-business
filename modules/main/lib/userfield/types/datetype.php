@@ -48,7 +48,9 @@ class DateType extends BaseType
 	 */
 	public static function getDbColumnType(): string
 	{
-		return 'date';
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\DateField('x'));
 	}
 
 	/**

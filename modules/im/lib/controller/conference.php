@@ -58,6 +58,7 @@ class Conference extends JsonController
 
 		$fields = $payload->getData()['fields'];
 		$fields = array_change_key_case($fields, CASE_UPPER);
+		$fields = self::recursiveWhiteList($fields, \Bitrix\Im\Call\Conference::AVAILABLE_PARAMS);
 
 		$fields['ID'] = isset($fields['ID']) ? (int)$fields['ID'] : 0;
 		if ($fields['ID'] > 0)
@@ -105,6 +106,11 @@ class Conference extends JsonController
 			return $updatingResult->addError(new Error(Loc::getMessage('IM_CONFERENCE_EDIT_ERROR_CANT_EDIT')));
 		}
 
+		if ($conference->getOwnerId() !== (int)$this->getCurrentUser()->getId())
+		{
+			return $updatingResult->addError(new Error(Loc::getMessage('IM_CONFERENCE_EDIT_ERROR_CANT_EDIT')));
+		}
+
 		return $conference->update($fields);
 	}
 
@@ -119,5 +125,23 @@ class Conference extends JsonController
 		}
 
 		return ConferenceClass::add($fields);
+	}
+
+	private static function recursiveWhiteList(array $fields, $whiteList, bool $readOnly = false): array
+	{
+		$data = [];
+		foreach ($fields as $field => $value)
+		{
+			if (is_array($value))
+			{
+				$data[$field] = self::recursiveWhiteList($value, $whiteList[$field], true);
+			}
+			elseif ((is_array($whiteList) && in_array($field, $whiteList)) || $readOnly)
+			{
+				$data[$field] = $value;
+			}
+		}
+
+		return $data;
 	}
 }

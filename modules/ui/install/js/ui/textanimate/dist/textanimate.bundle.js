@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports) {
 	'use strict';
@@ -9,7 +10,6 @@ this.BX = this.BX || {};
 	    this.interval = options.interval;
 	    this.currentText = null;
 	  }
-
 	  babelHelpers.createClass(TextAnimate, [{
 	    key: "setInterval",
 	    value: function setInterval(interval) {
@@ -19,18 +19,13 @@ this.BX = this.BX || {};
 	    key: "init",
 	    value: function init(text) {
 	      var _this = this;
-
 	      text = text.trim();
 	      this.currentText = this.container.innerText;
 	      var interval = setInterval(function () {
 	        var symbolRnd = parseInt(Math.random() * Math.max(text.length, _this.currentText.length));
 	        var symbolLink = text[symbolRnd];
 	        if (typeof symbolLink === 'undefined') symbolLink = ' ';
-
-	        while (_this.currentText.length < symbolRnd) {
-	          _this.currentText += ' ';
-	        }
-
+	        while (_this.currentText.length < symbolRnd) _this.currentText += ' ';
 	        _this.currentText = (_this.currentText.slice(0, symbolRnd) + symbolLink + _this.currentText.slice(symbolRnd + 1)).trim();
 	        _this.container.innerText = _this.currentText.length === 0 ? '&nbsp;' : _this.currentText;
 	        if (text === _this.container.innerText) clearInterval(interval);

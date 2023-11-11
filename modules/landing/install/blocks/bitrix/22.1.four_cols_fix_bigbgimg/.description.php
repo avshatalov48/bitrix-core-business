@@ -78,7 +78,7 @@ return array(
 				'type' => 'button',
 			),
 			'.landing-block-node-button-container' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODEBUTTON'),
+				'name' => Loc::getMessage('LANDING_BLOCK_22_1_BUTTON_AREA'),
 				'type' => 'text-align',
 			),
 			'.landing-block-inner' => array(

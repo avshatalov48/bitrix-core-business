@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,ui_fonts_opensans,main_polyfill_intersectionobserver,ui_vue,main_core_events) {
 	'use strict';
 
@@ -9,14 +10,12 @@
 	 * @subpackage ui
 	 * @copyright 2001-2021 Bitrix
 	 */
-
 	var _State = Object.freeze({
 	  play: 'play',
 	  pause: 'pause',
 	  stop: 'stop',
 	  none: 'none'
 	});
-
 	ui_vue.BitrixVue.component('bx-audioplayer', {
 	  props: {
 	    id: {
@@ -81,32 +80,25 @@
 	  methods: {
 	    loadFile: function loadFile() {
 	      var play = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
 	      if (this.loaded) {
 	        return true;
 	      }
-
 	      if (this.loading && !play) {
 	        return true;
 	      }
-
 	      this.preload = 'auto';
-
 	      if (play) {
 	        this.loading = true;
-
 	        if (this.source()) {
 	          this.source().play();
 	        }
 	      }
-
 	      return true;
 	    },
 	    clickToButton: function clickToButton() {
 	      if (!this.src) {
 	        return false;
 	      }
-
 	      if (this.state === _State.play) {
 	        this.pause();
 	      } else {
@@ -118,7 +110,6 @@
 	        this.loadFile(true);
 	        return false;
 	      }
-
 	      this.source().play();
 	    },
 	    pause: function pause() {
@@ -133,14 +124,11 @@
 	        this.loadFile(true);
 	        return false;
 	      }
-
 	      var pixelPerPercent = this.$refs.track.offsetWidth / 100;
 	      this.setProgress(this.seek / pixelPerPercent, this.seek);
-
 	      if (this.state !== _State.play) {
 	        this.state = _State.pause;
 	      }
-
 	      this.play();
 	      this.source().currentTime = this.timeTotal / 100 * this.progress;
 	    },
@@ -148,7 +136,6 @@
 	      if (!this.loaded) {
 	        return false;
 	      }
-
 	      this.seek = event.offsetX > 0 ? event.offsetX : 0;
 	      return true;
 	    },
@@ -160,26 +147,20 @@
 	    formatTime: function formatTime(second) {
 	      second = Math.floor(second);
 	      var hour = Math.floor(second / 60 / 60);
-
 	      if (hour > 0) {
 	        second -= hour * 60 * 60;
 	      }
-
 	      var minute = Math.floor(second / 60);
-
 	      if (minute > 0) {
 	        second -= minute * 60;
 	      }
-
 	      return (hour > 0 ? hour + ':' : '') + (hour > 0 ? minute.toString().padStart(2, "0") + ':' : minute + ':') + second.toString().padStart(2, "0");
 	    },
 	    registerPlayer: function registerPlayer(id) {
 	      var _this = this;
-
 	      if (id <= 0) {
 	        return false;
 	      }
-
 	      var registry = this.$Bitrix.Data.get('ui-audioplayer-id', []);
 	      registry = babelHelpers.toConsumableArray(new Set([].concat(babelHelpers.toConsumableArray(registry), [id]))).filter(function (id) {
 	        return id !== _this.registeredId;
@@ -192,11 +173,9 @@
 	    },
 	    unregisterPlayer: function unregisterPlayer() {
 	      var _this2 = this;
-
 	      if (!this.registeredId) {
 	        return true;
 	      }
-
 	      var registry = this.$Bitrix.Data.get('ui-audioplayer-id', []).filter(function (id) {
 	        return id !== _this2.registeredId;
 	      });
@@ -206,86 +185,68 @@
 	    },
 	    playNext: function playNext() {
 	      var _this3 = this;
-
 	      if (!this.registeredId || !this.autoPlayNext) {
 	        return false;
 	      }
-
 	      var nextId = this.$Bitrix.Data.get('ui-audioplayer-id', []).filter(function (id) {
 	        return id > _this3.registeredId;
 	      }).slice(0, 1)[0];
-
 	      if (nextId) {
 	        this.$Bitrix.eventEmitter.emit('ui:audioplayer:play', {
 	          id: nextId,
 	          start: true
 	        });
 	      }
-
 	      return true;
 	    },
 	    preloadNext: function preloadNext() {
 	      var _this4 = this;
-
 	      if (this.preloadRequestSent) {
 	        return true;
 	      }
-
 	      if (!this.registeredId || !this.autoPlayNext) {
 	        return false;
 	      }
-
 	      this.preloadRequestSent = true;
 	      var nextId = this.$Bitrix.Data.get('ui-audioplayer-id', []).filter(function (id) {
 	        return id > _this4.registeredId;
 	      }).slice(0, 1)[0];
-
 	      if (nextId) {
 	        this.$Bitrix.eventEmitter.emit('ui:audioplayer:preload', {
 	          id: nextId
 	        });
 	      }
-
 	      return true;
 	    },
 	    onPlay: function onPlay(event) {
 	      var data = event.getData();
-
 	      if (data.id !== this.id) {
 	        return false;
 	      }
-
 	      if (data.start) {
 	        this.stop();
 	      }
-
 	      this.play();
 	    },
 	    onStop: function onStop(event) {
 	      var data = event.getData();
-
 	      if (data.initiator === this.id) {
 	        return false;
 	      }
-
 	      this.stop();
 	    },
 	    onPause: function onPause(event) {
 	      var data = event.getData();
-
 	      if (data.initiator === this.id) {
 	        return false;
 	      }
-
 	      this.pause();
 	    },
 	    onPreload: function onPreload(event) {
 	      var data = event.getData();
-
 	      if (data.id !== this.id) {
 	        return false;
 	      }
-
 	      this.loadFile();
 	    },
 	    source: function source() {
@@ -307,10 +268,8 @@
 	        if (!this.source()) {
 	          return;
 	        }
-
 	        this.timeCurrent = this.source().currentTime;
 	        this.setProgress(Math.round(100 / this.timeTotal * this.timeCurrent));
-
 	        if (this.state === _State.play && this.timeCurrent >= this.timeTotal) {
 	          this.playNext();
 	        }
@@ -320,12 +279,10 @@
 	        }
 	      } else if (eventName === 'play') {
 	        this.state = _State.play;
-
 	        if (this.state === _State.stop) {
 	          this.progress = 0;
 	          this.timeCurrent = 0;
 	        }
-
 	        if (this.id > 0) {
 	          this.$Bitrix.eventEmitter.emit('ui:audioplayer:pause', {
 	            initiator: this.id
@@ -335,17 +292,14 @@
 	    },
 	    getObserver: function getObserver() {
 	      var _this5 = this;
-
 	      if (this.observer) {
 	        return this.observer;
 	      }
-
 	      this.observer = new IntersectionObserver(function (entries, observer) {
 	        entries.forEach(function (entry) {
 	          if (entry.isIntersecting) {
 	            if (_this5.preload === "none") {
 	              _this5.preload = "metadata";
-
 	              _this5.observer.unobserve(entry.target);
 	            }
 	          }
@@ -364,29 +318,24 @@
 	      if (!this.loaded && !this.seek || this.isMobile) {
 	        return 'display: none';
 	      }
-
 	      return "left: ".concat(this.seek, "px;");
 	    },
 	    progressPosition: function progressPosition() {
 	      if (!this.loaded || this.state === _State.none) {
 	        return "width: 100%;";
 	      }
-
 	      return "width: ".concat(this.progressInPixel, "px;");
 	    },
 	    labelTime: function labelTime() {
 	      if (!this.loaded && !this.timeTotal) {
 	        return '--:--';
 	      }
-
 	      var time;
-
 	      if (this.state === _State.play) {
 	        time = this.timeTotal - this.timeCurrent;
 	      } else {
 	        time = this.timeTotal;
 	      }
-
 	      return this.formatTime(time);
 	    },
 	    isMobile: function isMobile() {

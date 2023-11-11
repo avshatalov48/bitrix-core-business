@@ -20,7 +20,7 @@ const getFilesFromItem = (item: DataTransferItem): Promise<File[]> => {
 
 export const getFilesFromDataTransfer = (dataTransfer: DataTransfer, browseFolders = true): Promise<File[]> => {
 	return new Promise((resolve, reject): void => {
-		if (!dataTransfer.items)
+		if (!dataTransfer.items || dataTransfer.items.length === 0)
 		{
 			resolve(dataTransfer.files ? [...dataTransfer.files] : []);
 

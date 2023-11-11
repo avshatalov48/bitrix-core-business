@@ -936,7 +936,7 @@ class LandingPubComponent extends LandingBaseComponent
 		foreach ($ids as $id => $date)
 		{
 			$sitemap .= '<url>';
-			$sitemap .= '<loc>' . $urls[$id] . '</loc>';
+			$sitemap .= '<loc>' . htmlspecialcharsbx($urls[$id]) . '</loc>';
 			$sitemap .= '<lastmod>' . date('c', $date) . '</lastmod>';
 			$sitemap .= '</url>';
 		}

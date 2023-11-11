@@ -21,6 +21,7 @@ import 'ui.hint';
 
 import 'ui.fonts.opensans';
 import './css/style.css';
+import {History} from 'landing.history';
 
 type CrmField = {
 	type: 'list' | 'string' | 'checkbox' | 'date' | 'text' | 'typed_string' | 'file',
@@ -1574,7 +1575,10 @@ export class FormSettingsPanel extends BasePresetPanel
 					siteId: this.getCurrentBlock().siteId,
 				},
 				{code: this.getCurrentBlock().manifest.code},
-			);
+			)
+			.then(result => {
+				return History.getInstance().push();
+			});
 	}
 
 	onCancelClick()

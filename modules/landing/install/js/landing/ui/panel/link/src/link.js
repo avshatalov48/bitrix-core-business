@@ -59,7 +59,7 @@ export class Link extends Content
 
 		this.title.innerHTML = BX.Landing.Loc.getMessage("LANDING_EDIT_LINK");
 
-		if (!!node && node instanceof BX.Landing.Block.Node.Link)
+		if (!!node && node instanceof BX.Landing.Node.Link)
 		{
 			this.node = node;
 			form = new BX.Landing.UI.Form.BaseForm({title: this.node.manifest.name});
@@ -72,7 +72,7 @@ export class Link extends Content
 			BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 		}
 
-		if (!!node && (node instanceof BX.Landing.Block.Node.Text || node instanceof BX.Landing.UI.Field.Text))
+		if (!!node && (node instanceof BX.Landing.Node.Text || node instanceof BX.Landing.UI.Field.Text))
 		{
 			this.range = document.getSelection().getRangeAt(0);
 			this.node = node;
@@ -144,7 +144,7 @@ export class Link extends Content
 	{
 		if (this.field.isChanged())
 		{
-			if (!!this.node && this.node instanceof BX.Landing.Block.Node.Link)
+			if (!!this.node && this.node instanceof BX.Landing.Node.Link)
 			{
 				this.node.setValue(this.field.getValue());
 			}

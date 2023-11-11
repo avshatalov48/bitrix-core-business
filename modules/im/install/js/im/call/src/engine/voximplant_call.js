@@ -290,6 +290,36 @@ export class VoximplantCall extends AbstractCall
 			{
 				this.runCallback(CallEvent.onRemoteMediaStopped, e);
 			},
+			onMediaRenderEnabled: (e) =>
+			{
+				const endpoint = e.endpoint;
+				const userName = endpoint.userName;
+				// user connected to conference (userName is in format `user${id}`
+				const userId = parseInt(userName.substring(4));
+				if (this.peers[userId])
+				{
+					this.runCallback(CallEvent.onBadNetworkIndicator, {
+						userId: userId,
+						badNetworkIndicator: false
+					});
+				}
+			},
+			onMediaRenderDisabled: (e) =>
+			{
+				const endpoint = e.endpoint;
+				const userName = endpoint.userName;
+				if (Type.isStringFilled(userName) && userName.startsWith('user'))
+				{
+					const userId = parseInt(userName.substring(4));
+					if (this.peers[userId] && e.reason === 'disabledByServer')
+					{
+						this.runCallback(CallEvent.onBadNetworkIndicator, {
+							userId: userId,
+							badNetworkIndicator: true
+						});
+					}
+				}
+			},
 			onVoiceStarted: () =>
 			{
 				// todo: uncomment to switch to SDK VAD events
@@ -2176,6 +2206,8 @@ class Peer
 			onMediaRemoved: Type.isFunction(params.onMediaRemoved) ? params.onMediaRemoved : BX.DoNothing,
 			onVoiceStarted: Type.isFunction(params.onVoiceStarted) ? params.onVoiceStarted : BX.DoNothing,
 			onVoiceEnded: Type.isFunction(params.onVoiceEnded) ? params.onVoiceEnded : BX.DoNothing,
+			onMediaRenderEnabled: Type.isFunction(params.onMediaRenderEnabled) ? params.onMediaRenderEnabled : BX.DoNothing,
+			onMediaRenderDisabled: Type.isFunction(params.onMediaRenderDisabled) ? params.onMediaRenderDisabled : BX.DoNothing,
 		};
 
 		this.calculatedState = this.calculateState();
@@ -2328,6 +2360,8 @@ class Peer
 		this.endpoint.addEventListener(VoxImplant.EndpointEvents.VoiceStart, this.#onEndpointVoiceStart);
 		this.endpoint.addEventListener(VoxImplant.EndpointEvents.VoiceEnd, this.#onEndpointVoiceEnd);
 		this.endpoint.addEventListener(VoxImplant.EndpointEvents.Removed, this.#onEndpointRemoved);
+		this.endpoint.addEventListener(VoxImplant.EndpointEvents.MediaRenderEnabled, this.#onEndpointMediaRenderEnabled);
+		this.endpoint.addEventListener(VoxImplant.EndpointEvents.MediaRenderDisabled, this.#onEndpointMediaRenderDisabled);
 	}
 
 	removeEndpointEventHandlers()
@@ -2337,6 +2371,8 @@ class Peer
 		this.endpoint.removeEventListener(VoxImplant.EndpointEvents.VoiceStart, this.#onEndpointVoiceStart);
 		this.endpoint.removeEventListener(VoxImplant.EndpointEvents.VoiceEnd, this.#onEndpointVoiceEnd);
 		this.endpoint.removeEventListener(VoxImplant.EndpointEvents.Removed, this.#onEndpointRemoved);
+		this.endpoint.removeEventListener(VoxImplant.EndpointEvents.MediaRenderEnabled, this.#onEndpointMediaRenderEnabled);
+		this.endpoint.removeEventListener(VoxImplant.EndpointEvents.MediaRenderDisabled, this.#onEndpointMediaRenderDisabled);
 	}
 
 	calculateState()
@@ -2499,6 +2535,16 @@ class Peer
 		}
 
 		this.updateCalculatedState();
+	}
+
+	#onEndpointMediaRenderEnabled = (e) =>
+	{
+		this.callbacks.onMediaRenderEnabled(e);
+	}
+
+	#onEndpointMediaRenderDisabled = (e) =>
+	{
+		this.callbacks.onMediaRenderDisabled(e);
 	}
 
 	log()

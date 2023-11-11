@@ -1,10 +1,10 @@
 const BitmapWorker = function() {
-	self.onmessage = event => {
+	self.onmessage = (event: MessageEvent) => {
 		// Hack for Safari. Workers can become unpredictable.
 		// Sometimes 'self.postMessage' doesn't emit 'onmessage' event.
 		setTimeout(() => {
 			createImageBitmap(event.data.message.file)
-				.then(bitmap => {
+				.then((bitmap: ImageBitmap) => {
 					self.postMessage({ id: event?.data?.id, message: bitmap }, [bitmap]);
 				})
 				.catch(() => {

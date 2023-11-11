@@ -5,22 +5,30 @@ export const MessageType = Object.freeze({
 });
 
 export const MessageComponent = Object.freeze({
-	base: 'BaseMessage',
+	default: 'DefaultMessage',
+	file: 'FileMessage',
+	smile: 'SmileMessage',
+	unsupported: 'UnsupportedMessage',
+	deleted: 'DeletedMessage',
+	callInvite: 'CallInviteMessage',
 	chatCreation: 'ChatCreationMessage',
-});
-
-export const MessageExtension = Object.freeze({
-	text: 'TextExtension',
-	deleted: 'DeletedExtension',
-	unsupported: 'UnsupportedExtension',
-	callInvite: 'CallInviteExtension',
+	conferenceCreation: 'ConferenceCreationMessage',
+	system: 'SystemMessage',
 });
 
 export const MessageMentionType = Object.freeze({
 	user: 'USER',
 	chat: 'CHAT',
+	lines: 'LINES',
 	context: 'CONTEXT',
+	call: 'CALL',
 });
+
+export const MessageStatus = {
+	received: 'received',
+	delivered: 'delivered',
+	error: 'error',
+};
 
 export const OwnMessageStatus = Object.freeze({
 	sending: 'sending',

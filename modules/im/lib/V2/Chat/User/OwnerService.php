@@ -142,7 +142,7 @@ class OwnerService
 		if ($canPostAll)
 		{
 			$generalChat
-				->setCanPost(Chat::MANAGE_RIGHTS_ALL)
+				->setCanPost(Chat::MANAGE_RIGHTS_MEMBER)
 				->save();
 
 			return '';

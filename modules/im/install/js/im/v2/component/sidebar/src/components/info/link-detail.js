@@ -1,29 +1,32 @@
-import type {ImModelSidebarLinkItem} from 'im.v2.model';
-import {SidebarDetailBlock} from 'im.v2.const';
-import {SidebarCollectionFormatter} from '../../classes/sidebar-collection-formatter';
-import {LinkMenu} from '../../classes/context-menu/link/link-menu';
-import {SidebarDetail} from '../detail';
-import {LinkItem} from './link-item';
-import {DateGroup} from '../date-group';
-import {DetailEmptyState} from '../detail-empty-state';
+import { SidebarDetailBlock } from 'im.v2.const';
+
+import { SidebarCollectionFormatter } from '../../classes/sidebar-collection-formatter';
+import { LinkMenu } from '../../classes/context-menu/link/link-menu';
+import { SidebarDetail } from '../detail';
+import { LinkItem } from './link-item';
+import { DateGroup } from '../date-group';
+import { DetailEmptyState } from '../detail-empty-state';
+
 import '../../css/info/link-detail.css';
+
+import type { ImModelSidebarLinkItem } from 'im.v2.model';
 
 // @vue/component
 export const LinkDetail = {
 	name: 'LinkDetail',
-	components: {LinkItem, SidebarDetail, DateGroup, DetailEmptyState},
+	components: { LinkItem, SidebarDetail, DateGroup, DetailEmptyState },
 	props: {
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		chatId: {
 			type: Number,
-			required: true
+			required: true,
 		},
 		service: {
 			type: Object,
-			required: true
+			required: true,
 		},
 	},
 	computed:
@@ -37,10 +40,10 @@ export const LinkDetail = {
 		{
 			return this.collectionFormatter.format(this.links);
 		},
-		isEmptyState()
+		isEmptyState(): boolean
 		{
 			return this.formattedCollection.length === 0;
-		}
+		},
 	},
 	created()
 	{
@@ -80,17 +83,17 @@ export const LinkDetail = {
 			v-slot="slotProps"
 			class="bx-im-sidebar-link-detail__scope"
 		>
-			<template v-for="dateGroup in formattedCollection">
+			<div v-for="dateGroup in formattedCollection" class="bx-im-sidebar-link-detail__date-group_container">
 				<DateGroup :dateText="dateGroup.dateGroupTitle" />
 				<template v-for="link in dateGroup.items">
 					<LinkItem :link="link" @contextMenuClick="onContextMenuClick" />
 				</template>
-			</template>
+			</div>
 			<DetailEmptyState
 				v-if="!slotProps.isLoading && isEmptyState"
 				:title="$Bitrix.Loc.getMessage('IM_SIDEBAR_LINKS_EMPTY')"
 				:iconType="SidebarDetailBlock.link"
 			/>
 		</SidebarDetail>
-	`
+	`,
 };

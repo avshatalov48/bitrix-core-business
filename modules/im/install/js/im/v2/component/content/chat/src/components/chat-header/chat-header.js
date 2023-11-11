@@ -1,16 +1,15 @@
-import { Loc } from 'main.core';
-import { EventEmitter } from 'main.core.events';
+import 'ui.notification';
+import { Loc, type JsonObject } from 'main.core';
 
 import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
 import { ChatService } from 'im.v2.provider.service';
-import { DialogType, EventType, SidebarDetailBlock } from 'im.v2.const';
+import { DialogType, ChatActionType, UserRole } from 'im.v2.const';
 import { AddToChat } from 'im.v2.component.entity-selector';
 import { Utils } from 'im.v2.lib.utils';
-
-import 'ui.notification';
+import { PermissionManager } from 'im.v2.lib.permission';
 
 import { EditableChatTitle } from './editable-chat-title';
-import { CallButton } from './call-button';
+import { CallButton } from './call-button/call-button';
 
 import '../../css/chat-header.css';
 
@@ -30,8 +29,13 @@ export const ChatHeader = {
 			type: Boolean,
 			required: true,
 		},
+		sidebarSearchOpened: {
+			type: Boolean,
+			default: false,
+		},
 	},
-	data()
+	emits: ['toggleRightPanel', 'toggleSearchPanel', 'toggleMembersPanel'],
+	data(): JsonObject
 	{
 		return {
 			showAddToChatPopup: false,
@@ -60,6 +64,10 @@ export const ChatHeader = {
 		{
 			return !this.isUser;
 		},
+		isGuest(): boolean
+		{
+			return this.dialog.role === UserRole.guest;
+		},
 		avatarStyle(): {backgroundImage: string}
 		{
 			return { backgroundImage: `url('${this.dialog.avatar}')` };
@@ -87,12 +95,24 @@ export const ChatHeader = {
 		{
 			return this.$store.getters['users/getLastOnline'](this.dialogId);
 		},
+		showInviteButton(): boolean
+		{
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
+		},
+		canChangeAvatar(): boolean
+		{
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.avatar, this.dialogId);
+		},
 	},
 	methods:
 	{
 		toggleRightPanel()
 		{
 			this.$emit('toggleRightPanel');
+		},
+		toggleSearchPanel()
+		{
+			this.$emit('toggleSearchPanel');
 		},
 		onMembersClick()
 		{
@@ -101,7 +121,7 @@ export const ChatHeader = {
 				return;
 			}
 
-			EventEmitter.emit(EventType.sidebar.open, {detailBlock: SidebarDetailBlock.main});
+			this.$emit('toggleMembersPanel');
 		},
 		onNewTitleSubmit(newTitle: string)
 		{
@@ -124,23 +144,65 @@ export const ChatHeader = {
 		{
 			this.showAddToChatPopup = true;
 		},
+		onAvatarClick()
+		{
+			if (!this.isChat || !this.canChangeAvatar)
+			{
+				return;
+			}
+			this.$refs.avatarInput.click();
+		},
+		async onAvatarSelect(event: Event)
+		{
+			const input: HTMLInputElement = event.target;
+			const file: File = input.files[0];
+			if (!file)
+			{
+				return;
+			}
+
+			const preparedAvatar = await this.getChatService().prepareAvatar(file);
+			if (!preparedAvatar)
+			{
+				return;
+			}
+			void this.getChatService().changeAvatar(this.dialog.chatId, preparedAvatar);
+		},
+		onContainerClick(event: PointerEvent)
+		{
+			if (this.isGuest)
+			{
+				event.stopPropagation();
+			}
+		},
 		loc(phraseCode: string, replacements: {[string]: string} = {}): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 		},
 	},
 	template: `
-		<div class="bx-im-chat-header__scope bx-im-chat-header__container">
+		<div @click.capture="onContainerClick" class="bx-im-chat-header__scope bx-im-chat-header__container">
 			<div class="bx-im-chat-header__left">
-				<div class="bx-im-chat-header__avatar">
+				<div class="bx-im-chat-header__avatar" :class="{'--can-change': canChangeAvatar}" @click="onAvatarClick">
 					<Avatar v-if="isChat" :dialogId="dialogId" :size="AvatarSize.L" :withStatus="true" />
 					<a v-else :href="userLink" target="_blank">
 						<Avatar :dialogId="dialogId" :size="AvatarSize.L" :withStatus="true" />
 					</a>
 				</div>
+				<input 
+					type="file" 
+					@change="onAvatarSelect" 
+					accept="image/*" 
+					class="bx-im-chat-header__avatar_input" 
+					ref="avatarInput"
+				>
 				<div v-if="isChat" class="bx-im-chat-header__info">
 					<EditableChatTitle :dialogId="dialogId" @newTitleSubmit="onNewTitleSubmit" />
-					<div :title="loc('IM_CONTENT_CHAT_HEADER_OPEN_MEMBERS')" @click="onMembersClick" class="bx-im-chat-header__subtitle --click" >
+					<div 
+						:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_MEMBERS')" 
+						@click="onMembersClick" 
+						class="bx-im-chat-header__subtitle --click"
+					>
 						{{ dialogDescription }}
 					</div>
 				</div>
@@ -156,14 +218,23 @@ export const ChatHeader = {
 			</div>
 			<div class="bx-im-chat-header__right">
 				<CallButton :dialogId="dialogId" />
-				<div 
+				<div
+					v-if="showInviteButton"
 					class="bx-im-chat-header__icon --add-people"
 					:class="{'--active': showAddToChatPopup}"
 					@click="openInvitePopup" 
 					ref="add-members"
 				></div>
-				<!--<div class="bx-im-chat-header__icon --search"></div>-->
-				<div @click="toggleRightPanel" class="bx-im-chat-header__icon --panel" :class="{'--active': sidebarOpened}"></div>
+				<div 
+					@click="toggleSearchPanel" 
+					class="bx-im-chat-header__icon --search" 
+					:class="{'--active': sidebarSearchOpened}"
+				></div>
+				<div 
+					@click="toggleRightPanel" 
+					class="bx-im-chat-header__icon --panel" 
+					:class="{'--active': sidebarOpened}"
+				></div>
 			</div>
 			<AddToChat
 				:bindElement="$refs['add-members'] || {}"
@@ -174,5 +245,5 @@ export const ChatHeader = {
 				@close="showAddToChatPopup = false"
 			/>
 		</div>
-	`
+	`,
 };

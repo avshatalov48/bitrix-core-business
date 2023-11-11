@@ -42,8 +42,6 @@ BitrixVue.component('bx-pull-component-status',
 			this.subscribe();
 		}
 		this.$Bitrix.eventEmitter.subscribe(BitrixVue.events.pullClientChange, () => this.subscribe());
-
-		window.component = this;
 	},
 	beforeDestroy()
 	{

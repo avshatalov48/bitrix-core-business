@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Message\Send;
 
+use Bitrix\Im\V2\Message\PushFormat;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Im\Text;
@@ -63,7 +64,7 @@ class PushService
 		$pullMessage = [
 			'module_id' => 'im',
 			'command' => 'message',
-			'params' => $this->formatPrivateMessage($message, $chat),
+			'params' => (new PushFormat())->formatPrivateMessage($message, $chat),
 			'extra' => \Bitrix\Im\Common::getPullExtra(),
 		];
 
@@ -107,49 +108,6 @@ class PushService
 				]]));
 			}
 		}
-	}
-
-	/**
-	 * @param Message $message
-	 * @param PrivateChat $chat
-	 * @return array
-	 */
-	private function formatPrivateMessage(Message $message, PrivateChat $chat): array
-	{
-		$fromUserId = $message->getAuthorId();
-		$toUserId = $chat->getCompanion()->getId();
-
-		$users = \CIMContactList::GetUserData([
-			'ID' =>  [$toUserId, $fromUserId],
-			'PHONES' => 'Y',
-		]);
-
-		return [
-			'chatId' => $chat->getChatId(),
-			'dialogId' => 0,
-			'chat' => [],
-			'lines' => null,
-			'userInChat' => [],
-			'userBlockChat' => [],
-			'users' => !empty($users['users']) ? $users['users'] : null,
-			'message' => [
-				'id' => $message->getMessageId(),
-				'templateId' => $message->getUuid(),
-				'templateFileId' => $message->getFileUuid(),
-				'prevId' => $chat->getPrevMessageId(),
-				'chatId' => $chat->getChatId(),
-				'senderId' => $fromUserId,
-				'recipientId' => $toUserId,
-				'system' => ($message->isSystem() ? 'Y' : 'N'),
-				'date' => DateTime::createFromTimestamp(time()),// DATE_CREATE
-				'text' => Text::parse($message->getMessage()),
-				'textLegacy' => Text::parseLegacyFormat($message->getMessage()),
-				'params' => $message->getParams()->toPullFormat(),
-				'counter' => 0,
-			],
-			'files' => $message->getFilesDiskData(),
-			'notify' => true,
-		];
 	}
 
 	/**
@@ -417,6 +375,8 @@ class PushService
 				'textLegacy' => Text::parseLegacyFormat($message->getMessage()),
 				'params' => $message->getParams()->toPullFormat(),
 				'counter' => 0,
+				'isImportant' => $message->isImportant(),
+				'importantFor' => $message->getImportantFor(),
 			],
 			'files' => $message->getFilesDiskData(),
 			'notify' => 'Y',

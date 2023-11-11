@@ -17,11 +17,11 @@ export const NewUserPopup = {
 		this.setCloseTimer(5000);
 
 		this.onClosePopupHandler = this.onClosePopup.bind(this);
-		EventEmitter.subscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
+		// EventEmitter.subscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
 	},
 	beforeUnmount()
 	{
-		EventEmitter.unsubscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
+		// EventEmitter.unsubscribe(EventType.dialog.closePopup, this.onClosePopupHandler);
 	},
 	methods:
 	{

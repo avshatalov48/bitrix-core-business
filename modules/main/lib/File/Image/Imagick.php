@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 namespace Bitrix\Main\File\Image;
@@ -66,10 +66,7 @@ class Imagick extends Engine
 				return false;
 			}
 
-			$source = $info->toRectangle();
-			$maxSize = $this->getMaxSize();
-
-			if ($maxSize && $source->resize($maxSize, File\Image::RESIZE_PROPORTIONAL))
+			if ($this->exceedsMaxSize())
 			{
 				// the image exceeds maximum sizes, optionally substitute it
 				return $this->substituteImage();
@@ -119,6 +116,7 @@ class Imagick extends Engine
 			if ($substImage->load())
 			{
 				$this->image = clone $substImage->image;
+				$this->substituted = true;
 
 				return true;
 			}
@@ -508,16 +506,6 @@ class Imagick extends Engine
 		{
 			return $formats[$format];
 		}
-		return null;
-	}
-
-	protected function getMaxSize()
-	{
-		if (isset($this->options["maxSize"]) && is_array($this->options["maxSize"]))
-		{
-			return new Rectangle($this->options["maxSize"][0], $this->options["maxSize"][1]);
-		}
-
 		return null;
 	}
 

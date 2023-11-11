@@ -33,6 +33,7 @@ $this->SetViewTarget("inside_pagetitle");
 			"FILTER" => $arParams["FILTER"],
 			"FILTER_PRESETS" => $arParams["FILTER_PRESETS"],
 			'ENABLE_LIVE_SEARCH' => true,
+			"ENABLE_LABEL" => true,
 			'THEME' => Bitrix\Main\UI\Filter\Theme::MUTED,
 		),
 		$component,

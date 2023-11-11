@@ -1,0 +1,43 @@
+.bx-im-message-default-content__scope {
+	--im-message-default-content__font-color_message: var(--im-color-palette-black-base);
+	--im-message-default-content__color_message-links: #2067b0;
+}
+
+.bx-im-message-default-content__text {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-message-default-content__font-color_message);
+	word-break: break-word;
+	padding-right: 20px;
+}
+
+.bx-im-message-default-content__text a {
+	text-decoration: none;
+	font-size: inherit;
+	color: var(--im-message-default-content__color_message-links);
+}
+
+.bx-im-message-default-content__attach {
+	margin-top: 8px;
+}
+
+.bx-im-message-base__text_smile {
+	object-fit: contain;
+	vertical-align: middle;
+	max-height: 180px;
+	max-width: 180px;
+}
+
+.bx-im-message-default-content__bottom-panel {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+}
+
+.bx-im-message-default-content__status-container {
+	display: flex;
+	margin-left: auto;
+}
+
+.bx-im-message-default-content__reaction-list {
+	margin: 10px 8px 0 0;
+}

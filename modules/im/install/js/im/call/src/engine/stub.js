@@ -38,6 +38,11 @@ export class CallStub
 		return false;
 	};
 
+	addInvitedUsers()
+	{
+		console.error("unexpected call to CallStub.addInvitedUsers");
+	}
+
 	destroy()
 	{
 		clearTimeout(this.deleteTimeout);

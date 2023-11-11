@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/recent-list.bundle.js',
 	'rel' => [
 		'ui.design-tokens',
+		'main.polyfill.intersectionobserver',
 		'im.v2.provider.service',
 		'im.v2.lib.menu',
 		'im.v2.lib.draft',
@@ -20,6 +21,7 @@ return [
 		'im.v2.lib.date-formatter',
 		'im.v2.component.elements',
 		'im.v2.lib.call',
+		'im.v2.lib.create-chat',
 		'main.core',
 		'im.v2.lib.utils',
 		'main.core.events',

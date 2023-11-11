@@ -125,6 +125,9 @@ $MESS["EC_SEC_SLIDER_CREATE_CHAT_LINK"] = "Чат с участниками";
 $MESS["EC_SEC_SLIDER_ACCESS"] = "права доступа";
 $MESS["EC_SEC_SLIDER_ACCESS_ADD"] = "добавить";
 $MESS["EC_SEC_SLIDER_SAVE"] = "Сохранить";
+$MESS["EC_LOCATION_REPEAT_BUSY_POPUP_TITLE"] = "Выбранная переговорная занята в некоторые дни";
+$MESS["EC_LOCATION_REPEAT_BUSY_POPUP_SAVE_WITHOUT_ROOM"] = "Всё равно сохранить встречу";
+$MESS["EC_LOCATION_REPEAT_BUSY_POPUP_RETURN_TO_EDIT"] = "Выбрать другую переговорную";
 $MESS["EC_SEC_SLIDER_CANCEL"] = "Отменить";
 $MESS["EC_SEC_SLIDER_CLOSE"] = "Закрыть";
 $MESS["EC_SEC_SLIDER_POPUP_NEW_TITLE"] = "Новый";
@@ -304,6 +307,10 @@ $MESS["EC_COLLAPSED_MESSAGE"] = "Событий";
 $MESS["EC_SAVE_ENTRY_CONFIRM"] = "Все несохраненные данные будут потеряны";
 $MESS['EC_LEAVE_EVENT_CONFIRM_QUESTION'] = 'Закрыть форму редактирования события?';
 $MESS['EC_LEAVE_EVENT_CONFIRM_DESC'] = 'Изменения не сохранятся';
+$MESS['EC_CREATE_CHAT_CONFIRM_QUESTION'] = 'Вы уверены, что хотите создать чат со всеми участниками события?';
+$MESS['EC_START_VIDEOCONFERENCE_CONFIRM_QUESTION'] = 'Вы уверены, что хотите начать видеозвонок со всеми участниками события?';
+$MESS['EC_CREATE_CHAT_OK'] = 'Да, создать';
+$MESS['EC_START_VIDEOCONFERENCE_OK'] = 'Да, начать';
 $MESS["EC_LOCATION_SETTINGS_MESSAGE_DESCRIPTION"] = "Выберите, кто может добавлять, удалять и настраивать переговорные комнаты вашей организации";
 $MESS["EC_LOCATION_SETTINGS_MORE_INFO"] = "Подробнее";
 $MESS["EC_ACCESS_GROUP_ADMIN"] = "Владелец группы";
@@ -345,3 +352,5 @@ $MESS['EC_CALENDAR_OFFICE365_CALENDAR'] = 'Календарь Office 365';
 $MESS['EC_CALENDAR_NO_INVITATIONS_TITLE'] = 'У вас пока нет неотвеченных приглашений';
 
 $MESS['EC_CALENDAR_CANT_DRAG_SHARED_EVENT'] = 'Нельзя перенести встречу с внешним участником';
+
+$MESS['EC_CALENDAR_HOW_DOES_IT_WORK'] = 'Как это работает';

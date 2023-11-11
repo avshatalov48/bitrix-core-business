@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,main_core,catalog_agentContract) {
 	'use strict';
 
@@ -50,7 +51,7 @@
 	    key: "openHelpDesk",
 	    value: function openHelpDesk() {
 	      if (top.BX.Helper) {
-	        top.BX.Helper.show("redirect=detail&code=17917894");
+	        top.BX.Helper.show('redirect=detail&code=17917894');
 	        event.preventDefault();
 	      }
 	    }

@@ -206,51 +206,13 @@ class Helper
 			return gzdecode($data);
 		}
 
-		$data = self::getBinarySubstring($data, 10, -8);
+		$data = substr($data, 10, -8);
 		if ($data !== "")
 		{
 			$data = gzinflate($data);
 		}
 
 		return $data;
-	}
-
-	/**
-	 *
-	 * Binary version of substr
-	 *
-	 * @param $str
-	 * @param $start
-	 *
-	 * @return string
-	 */
-	private static function getBinarySubstring($str, $start)
-	{
-		if (function_exists("mb_substr"))
-		{
-			$length = (func_num_args() > 2 ? func_get_arg(2) : self::getBinaryLength($str));
-
-			return mb_substr($str, $start, $length, "latin1");
-		}
-
-		if (func_num_args() > 2)
-		{
-			return mb_substr($str, $start, func_get_arg(2));
-		}
-
-		return mb_substr($str, $start);
-	}
-
-	/**
-	 * Binary version of strlen
-	 *
-	 * @param $str
-	 *
-	 * @return int
-	 */
-	public static function getBinaryLength($str)
-	{
-		return function_exists("mb_strlen")? mb_strlen($str, "latin1") : mb_strlen($str);
 	}
 
 	/**
@@ -477,7 +439,7 @@ class Helper
 
 			$content .= ");\n?>";
 			$written = fwrite($fh, $content);
-			$len = function_exists('mb_strlen')? mb_strlen($content, 'latin1') : mb_strlen($content);
+			$len = strlen($content);
 			if ($written === $len)
 			{
 				fclose($fh);
@@ -693,7 +655,7 @@ class Helper
 			}
 		}
 
-		if (function_exists("IsModuleInstalled"))
+		if (defined("BX_STARTED"))
 		{
 			$arOptions["COMPRESS"] = false;
 			$arOptions["STORE_PASSWORD"] = \COption::GetOptionString("main", "store_password", "Y");

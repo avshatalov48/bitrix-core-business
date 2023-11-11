@@ -20,6 +20,8 @@ return [
 		'im.v2.lib.notifier',
 		'im.v2.lib.market',
 		'im.v2.lib.desktop',
+		'im.v2.lib.promo',
+		'im.v2.lib.permission',
 	],
 	'skip_core' => true,
 ];

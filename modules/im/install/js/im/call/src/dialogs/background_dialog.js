@@ -1,6 +1,6 @@
-import {Type} from 'main.core';
-import {Utils as MessengerUtils} from 'im.lib.utils';
-import {DesktopApi} from 'im.v2.lib.desktop-api';
+import { Type } from 'main.core';
+import { Utils as MessengerUtils } from 'im.lib.utils';
+import { DesktopApi } from 'im.v2.lib.desktop-api';
 
 export class BackgroundDialog
 {
@@ -31,13 +31,13 @@ export class BackgroundDialog
 
 		const html =
 			`<div id="bx-desktop-loader" class="bx-desktop-loader-wrap">
-						<div class="bx-desktop-loader">
-							<svg class="bx-desktop-loader-circular" viewBox="25 25 50 50">
-								<circle class="bx-desktop-loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
-							</svg>
-						</div>
-					</div>
-					<div id="placeholder"></div>`
+				<div class="bx-desktop-loader">
+					<svg class="bx-desktop-loader-circular" viewBox="25 25 50 50">
+						<circle class="bx-desktop-loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
+					</svg>
+				</div>
+			</div>
+			<div id="placeholder"></div>`
 		;
 
 		const js = `BX.Runtime.loadExtension("im.v2.component.call-background").then(function(exports) {

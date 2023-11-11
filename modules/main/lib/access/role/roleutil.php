@@ -180,8 +180,8 @@ abstract class RoleUtil
 		}
 
 		$query = '
-			INSERT INTO `'. $permissionClass::getTableName() .'`
-				(ROLE_ID, PERMISSION_ID, `VALUE`)
+			INSERT INTO '. $helper->quote($permissionClass::getTableName()) .'
+				(ROLE_ID, PERMISSION_ID, ' . $helper->quote('VALUE') . ')
 				VALUES
 				'. implode(',', $query) .'
 		';

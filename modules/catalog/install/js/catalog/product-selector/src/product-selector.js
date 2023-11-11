@@ -1,16 +1,16 @@
-import {ajax, Cache, Dom, Event, Extension, Loc, Reflection, Runtime, Tag, Text, Type} from 'main.core';
+import { ajax, Cache, Dom, Extension, Loc, Reflection, Runtime, Tag, Text, Type } from 'main.core';
 import 'ui.design-tokens';
 import 'ui.forms';
 import 'fileinput';
 import 'ui.notification';
-import {EventEmitter} from 'main.core.events';
-import {SkuTree} from 'catalog.sku-tree';
-import {ProductSearchInput} from "./product-search-input";
-import {ProductImageInput} from "./product-image-input";
-import {ProductModel, RightActionDictionary} from "catalog.product-model";
+import { EventEmitter } from 'main.core.events';
+import { SkuTree } from 'catalog.sku-tree';
+import { ProductSearchInput } from './product-search-input';
+import { ProductImageInput } from './product-image-input';
+import { ProductModel, RightActionDictionary } from 'catalog.product-model';
 import './component.css';
-import {BarcodeSearchInput} from "./barcode-search-input";
-import {SelectorErrorCode} from "./selector-error-code";
+import { BarcodeSearchInput } from './barcode-search-input';
+import { SelectorErrorCode } from './selector-error-code';
 
 const instances = new Map();
 const iblockSkuTreeProperties = new Map();
@@ -79,7 +79,7 @@ export class ProductSelector extends EventEmitter
 					fields: options.fields,
 					skuTree: options.skuTree,
 					storeMap: options.storeMap,
-				}
+				},
 			);
 		}
 
@@ -93,7 +93,7 @@ export class ProductSelector extends EventEmitter
 		{
 			this.model.getErrorCollection().setError(
 				SelectorErrorCode.FAILED_PRODUCT,
-				''
+				'',
 			);
 		}
 
@@ -101,7 +101,7 @@ export class ProductSelector extends EventEmitter
 		{
 			this.model.getErrorCollection().setError(
 				SelectorErrorCode.NOT_SELECTED_PRODUCT,
-				this.getEmptySelectErrorMessage()
+				this.getEmptySelectErrorMessage(),
 			);
 		}
 
@@ -109,6 +109,7 @@ export class ProductSelector extends EventEmitter
 		{
 			this.model.getImageCollection().setPreview(options.fileView);
 		}
+
 		if (options.fileInput)
 		{
 			this.model.getImageCollection().setEditInput(options.fileInput);
@@ -141,7 +142,7 @@ export class ProductSelector extends EventEmitter
 		return this.model;
 	}
 
-	setMode(mode: ProductSelector.MODE_VIEW | ProductSelector.MODE_EDIT ): void
+	setMode(mode: ProductSelector.MODE_VIEW | ProductSelector.MODE_EDIT): void
 	{
 		if (!Type.isNil(mode))
 		{
@@ -181,7 +182,6 @@ export class ProductSelector extends EventEmitter
 			: Loc.getMessage('CATALOG_SELECTOR_SELECT_PRODUCT_TITLE')
 		;
 	}
-
 
 	getMobileScannerToken(): string
 	{
@@ -248,8 +248,8 @@ export class ProductSelector extends EventEmitter
 				this.options.fileInputId,
 				{
 					selector: this,
-					enableSaving: this.getConfig('ENABLE_IMAGE_CHANGE_SAVING', false)
-				}
+					enableSaving: this.getConfig('ENABLE_IMAGE_CHANGE_SAVING', false),
+				},
 			);
 		}
 
@@ -276,11 +276,9 @@ export class ProductSelector extends EventEmitter
 
 	isShowableEmptyProductError(): boolean
 	{
-		return this.isEnabledEmptyProductError() &&
-			(
-				this.model.isEmpty() && this.model.isChanged()
-				|| this.model.isSimple()
-			);
+		const emptyChanged = this.model.isEmpty() && this.model.isChanged();
+
+		return this.isEnabledEmptyProductError() && (emptyChanged || this.model.isSimple());
 	}
 
 	isShowableErrors(): boolean
@@ -356,7 +354,11 @@ export class ProductSelector extends EventEmitter
 
 		if (this.isImageFieldEnabled())
 		{
-			if (!Reflection.getClass('BX.UI.ImageInput'))
+			if (Reflection.getClass('BX.UI.ImageInput'))
+			{
+				this.layoutImage();
+			}
+			else
 			{
 				if (ProductSelector.UIInputRequest instanceof Promise)
 				{
@@ -368,11 +370,14 @@ export class ProductSelector extends EventEmitter
 				{
 					ProductSelector.UIInputRequest = new Promise(resolve => {
 						ajax
-							.runAction(	'catalog.productSelector.getFileInput', {
-								json:{
-									iblockId: this.getModel().getIblockId()
-								}
-							})
+							.runAction(
+								'catalog.productSelector.getFileInput',
+								{
+									json: {
+										iblockId: this.getModel().getIblockId(),
+									},
+								},
+							)
 							.then(() => {
 								this.layoutImage();
 								ProductSelector.UIInputRequest = null;
@@ -380,10 +385,6 @@ export class ProductSelector extends EventEmitter
 							});
 					});
 				}
-			}
-			else
-			{
-				this.layoutImage();
 			}
 
 			Dom.append(this.getImageContainer(), wrapper);
@@ -456,7 +457,7 @@ export class ProductSelector extends EventEmitter
 			{
 				Dom.append(
 					Tag.render`<div class="catalog-product-error-item">${errors[code].text}</div>`,
-					this.getErrorContainer()
+					this.getErrorContainer(),
 				);
 
 				if (this.searchInput)
@@ -471,7 +472,7 @@ export class ProductSelector extends EventEmitter
 	{
 		Dom.addClass(
 			this.getImageContainer().querySelector('.adm-fileinput-area'),
-			'adm-fileinput-drag-area-error'
+			'adm-fileinput-drag-area-error',
 		);
 	}
 
@@ -479,7 +480,7 @@ export class ProductSelector extends EventEmitter
 	{
 		Dom.removeClass(
 			this.getImageContainer().querySelector('.adm-fileinput-area'),
-			'adm-fileinput-drag-area-error'
+			'adm-fileinput-drag-area-error',
 		);
 	}
 
@@ -532,17 +533,21 @@ export class ProductSelector extends EventEmitter
 
 	clearLayout(): void
 	{
+		this.unsubscribeToVariationChange();
 		const wrapper = this.getWrapper();
 		if (wrapper)
 		{
 			wrapper.innerHTML = '';
 		}
-
-		this.unsubscribeToVariationChange();
 	}
 
 	subscribeEvents()
 	{
+		EventEmitter.incrementMaxListeners('ProductList::onChangeFields', 1);
+		EventEmitter.incrementMaxListeners('ProductSelector::onNameChange', 1);
+		EventEmitter.incrementMaxListeners('Catalog.ImageInput::save', 1);
+		EventEmitter.incrementMaxListeners('onUploaderIsInited', 1);
+
 		EventEmitter.subscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 		EventEmitter.subscribe('ProductSelector::onNameChange', this.onNameChangeFieldHandler);
 		EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
@@ -597,7 +602,6 @@ export class ProductSelector extends EventEmitter
 		}
 
 		return Tag.render`<span title="${namePlaceholder}">${productName}</span>`;
-
 	}
 
 	getNameInputFilledValue(): string
@@ -630,7 +634,7 @@ export class ProductSelector extends EventEmitter
 							selector: this,
 							model: this.getModel(),
 							inputName: this.options.inputFieldName,
-						}
+						},
 					);
 				}
 			}
@@ -644,8 +648,8 @@ export class ProductSelector extends EventEmitter
 						inputName: this.options.inputFieldName,
 						isSearchEnabled: this.isProductSearchEnabled(),
 						isEnabledEmptyProductError: this.isEnabledEmptyProductError(),
-						isEnabledDetailLink: this.isInputDetailLinkEnabled()
-					}
+						isEnabledDetailLink: this.isInputDetailLinkEnabled(),
+					},
 				);
 			}
 
@@ -679,16 +683,17 @@ export class ProductSelector extends EventEmitter
 			}
 			else
 			{
-				ajax.runAction(
-					'catalog.productSelector.getSkuTreeProperties',
-					{
-						json: {
-							iblockId: this.getModel().getIblockId(),
-						}
-					}
-				)
+				ajax
+					.runAction(
+						'catalog.productSelector.getSkuTreeProperties',
+						{
+							json: {
+								iblockId: this.getModel().getIblockId(),
+							},
+						},
+					)
 					.then(response => {
-						iblockSkuTreeProperties.set(this.getModel().getIblockId(), response)
+						iblockSkuTreeProperties.set(this.getModel().getIblockId(), response);
 						resolve(response);
 					});
 			}
@@ -742,24 +747,25 @@ export class ProductSelector extends EventEmitter
 
 		this.emit('onBeforeChange', {
 			selectorId: this.getId(),
-			rowId: this.getRowId()
+			rowId: this.getRowId(),
 		});
 
 		this.#inAjaxProcess = true;
-		ajax.runAction(
-			'catalog.productSelector.getSelectedSku',
-			{
-				json: {
-					variationId,
-					options: {
-						priceId: this.basePriceId,
-						currency: this.model.getCurrency(),
-						urlBuilder: this.getConfig('URL_BUILDER_CONTEXT')
-					}
-				}
-			}
-		)
-			.then(response => this.processResponse(response, {...this.options.config}));
+		ajax
+			.runAction(
+				'catalog.productSelector.getSelectedSku',
+				{
+					json: {
+						variationId,
+						options: {
+							priceId: this.basePriceId,
+							currency: this.model.getCurrency(),
+							urlBuilder: this.getConfig('URL_BUILDER_CONTEXT'),
+						},
+					},
+				},
+			)
+			.then(response => this.processResponse(response, { ...this.options.config }));
 	}
 
 	onChangeFields(event)
@@ -778,12 +784,15 @@ export class ProductSelector extends EventEmitter
 	reloadFileInput()
 	{
 		ajax
-			.runAction(	'catalog.productSelector.getFileInput', {
-				json:{
-					iblockId: this.getModel().getIblockId(),
-					skuId: this.getModel()?.getSkuId()
-				}
-			})
+			.runAction(
+				'catalog.productSelector.getFileInput',
+				{
+					json: {
+						iblockId: this.getModel().getIblockId(),
+						skuId: this.getModel()?.getSkuId(),
+					},
+				},
+			)
 			.then((event) => {
 				this.getModel().getImageCollection().setEditInput(event.data.html);
 				if (this.isImageFieldEnabled())
@@ -848,12 +857,12 @@ export class ProductSelector extends EventEmitter
 	{
 		this.emit('onProductSelect', {
 			selectorId: this.getId(),
-			rowId: this.getRowId()
+			rowId: this.getRowId(),
 		});
 
 		this.emit('onBeforeChange', {
 			selectorId: this.getId(),
-			rowId: this.getRowId()
+			rowId: this.getRowId(),
 		});
 
 		this.productSelectAjaxAction(productId, itemConfig);
@@ -864,10 +873,10 @@ export class ProductSelector extends EventEmitter
 		itemConfig = {
 			isNew: false,
 			immutableFields: [],
-		}
+		},
 	)
 	{
-		this.#inAjaxProcess = true
+		this.#inAjaxProcess = true;
 		ajax
 			.runAction(
 				'catalog.productSelector.getProduct',
@@ -877,12 +886,12 @@ export class ProductSelector extends EventEmitter
 						options: {
 							priceId: this.basePriceId,
 							currency: this.model.getCurrency(),
-							urlBuilder: this.getConfig('URL_BUILDER_CONTEXT')
-						}
-					}
-				}
+							urlBuilder: this.getConfig('URL_BUILDER_CONTEXT'),
+						},
+					},
+				},
 			)
-			.then(response => this.processResponse(response, {...this.options.config, ...itemConfig}, true));
+			.then(response => this.processResponse(response, { ...this.options.config, ...itemConfig }, true));
 	}
 
 	processResponse(response, config = {}, isProductAction = false)
@@ -950,7 +959,7 @@ export class ProductSelector extends EventEmitter
 			id: '',
 			input: '',
 			preview: '',
-			values: []
+			values: [],
 		};
 
 		if (Type.isObject(data.image))

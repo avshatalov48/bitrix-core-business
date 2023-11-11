@@ -61,7 +61,7 @@ class Collect
 	 * @param Main\Engine\Controller $controller Parent controller object.
 	 * @param array $config Additional configuration.
 	 */
-	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
 		$this->keepField([
 			'seekPathLangId', 'convertEncoding', 'encoding', 'assemblyDate',
@@ -211,7 +211,7 @@ class Collect
 				if (!$tempDir->isExists())
 				{
 					$this->addError(
-						new Error(Loc::getMessage('TR_ERROR_CREATE_TEMP_FOLDER', array('#PATH#' => $this->tmpFolderPath)))
+						new Error(Loc::getMessage('TR_ERROR_CREATE_TEMP_FOLDER', ['#PATH#' => $this->tmpFolderPath]))
 					);
 				}
 			}
@@ -227,21 +227,21 @@ class Collect
 				if ($fileDateMark->putContents($assemblyDate) === false)
 				{
 					$this->addError(
-						new Error(Loc::getMessage('TR_ERROR_OPEN_FILE', array('#FILE#' => $fileDateMarkFullPath)))
+						new Error(Loc::getMessage('TR_ERROR_OPEN_FILE', ['#FILE#' => $fileDateMarkFullPath]))
 					);
 				}
 			}
 
-			$this->totalItems = (int)Index\Internals\PathLangTable::getCount(array('=%PATH' => $path.'%'));
+			$this->totalItems = (int)Index\Internals\PathLangTable::getCount(['=%PATH' => $path.'%']);
 			$this->processedItems = 0;
 
 			$this->saveProgressParameters();
 
-			return array(
+			return [
 				'STATUS' => ($this->totalItems > 0 ? Translate\Controller\STATUS_PROGRESS : Translate\Controller\STATUS_COMPLETED),
 				'PROCESSED_ITEMS' => 0,
 				'TOTAL_ITEMS' => $this->totalItems,
-			);
+			];
 		}
 
 		$progressParams = $this->getProgressParameters();
@@ -265,7 +265,7 @@ class Collect
 			$this->seekPathLangId = $progressParams['seekPathLangId'];
 		}
 
-		return $this->performStep('runCollecting', array('path' => $path));
+		return $this->performStep('runCollecting', ['path' => $path]);
 	}
 
 
@@ -291,19 +291,19 @@ class Collect
 			$path = Grabber::START_PATH;
 		}
 
-		$pathFilter = array(
+		$pathFilter = [
 			'=%PATH' => $path.'%'
-		);
+		];
 		if (!empty($this->seekPathLangId))
 		{
 			$pathFilter['>ID'] = $this->seekPathLangId;
 		}
 
-		$cachePathLangRes = Index\Internals\PathLangTable::getList(array(
+		$cachePathLangRes = Index\Internals\PathLangTable::getList([
 			'filter' => $pathFilter,
-			'order' => array('ID' => 'ASC'),
+			'order' => ['ID' => 'ASC'],
 			'select' => ['ID', 'PATH'],
-		));
+		]);
 		$processedItemCount = 0;
 		while ($pathLang = $cachePathLangRes->fetch())
 		{
@@ -323,7 +323,7 @@ class Collect
 					try
 					{
 						$content = $source->getContents();
-						$content = \str_replace(array("\r\n", "\r"), array("\n", "\n"), $content);
+						$content = \str_replace(["\r\n", "\r"], ["\n", "\n"], $content);
 
 						if ($this->convertEncoding)
 						{
@@ -357,10 +357,10 @@ class Collect
 
 		$this->processedItems += $processedItemCount;
 
-		$result = array(
+		$result = [
 			'PROCESSED_ITEMS' => $this->processedItems,
 			'TOTAL_ITEMS' => $this->totalItems,
-		);
+		];
 
 		if ($this->instanceTimer()->hasTimeLimitReached() !== true)
 		{
@@ -371,11 +371,11 @@ class Collect
 			$this->seekPathLangId = null;
 			$this->saveProgressParameters();
 
-			$messagePlaceholders = array(
+			$messagePlaceholders = [
 				'#TOTAL_FILES#' => $this->totalFileCount,
 				'#LANG#' => \mb_strtoupper($this->languageId),
 				'#PATH#' => '~tmp~',
-			);
+			];
 			$result['SUMMARY'] = Loc::getMessage('TR_LANGUAGE_COLLECTED_FOLDER', $messagePlaceholders);
 		}
 
@@ -415,7 +415,7 @@ class Collect
 					continue;
 				}
 
-				if ((\mb_substr($name, -4) === '.php') && \is_file($fullPath))
+				if (Translate\IO\Path::isPhpFile($fullPath, true))
 				{
 					$files[$storeFolderRelPath.'/'.$name] = $fullPath;
 				}

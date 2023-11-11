@@ -33,6 +33,7 @@ $formParams = [
 		"MentionUser", "Spoiler", "SmileList", "Source"
 	),
 	"BUTTONS" => [
+		"Copilot",
 		(
 			in_array("UF_BLOG_COMMENT_FILE", $arParams["COMMENT_PROPERTY"], true)
 			|| in_array("UF_BLOG_COMMENT_DOC", $arParams["COMMENT_PROPERTY"], true)
@@ -81,7 +82,12 @@ $formParams = [
 		"id" => "idLHE_blogCommentForm" . $arResult['FORM_ID'],
 		"fontSize" => "14px",
 		"bInitByJS" => true,
-		"height" => 80
+		"height" => 80,
+		'copilotParams' => [
+			'moduleId' => 'socialnetwork',
+			'contextId' => 'sonet_comment_' . $USER->GetID(),
+			'category' => 'livefeed_comments',
+		],
 	),
 	"IS_BLOG" => true,
 	"PROPERTIES" => array(

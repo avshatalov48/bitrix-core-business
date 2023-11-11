@@ -381,7 +381,10 @@ export default class Bg extends BgColor
 					processorValue[Bg.BG_URL_2X_VAR] = defaultValue[Bg.BG_IMAGE];
 				}
 				const computedStyleNode = getComputedStyle(this.styleNode.getNode()[0], ':after');
-				processorValue[Bg.BG_OVERLAY_VAR] = computedStyleNode.backgroundColor;
+				if (!processorValue[Bg.BG_OVERLAY_VAR])
+				{
+					processorValue[Bg.BG_OVERLAY_VAR] = computedStyleNode.backgroundColor;
+				}
 				const currentColorRgb = rgbaStringToRgbString(computedStyleNode.backgroundColor);
 				const primaryColorRgb = rgbaStringToRgbString(computedStyleNode.getPropertyValue('--primary-opacity-0'));
 				if (

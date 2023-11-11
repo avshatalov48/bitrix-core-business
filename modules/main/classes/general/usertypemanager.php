@@ -396,7 +396,7 @@ class CUserTypeManager
 					$select = $field_id;
 				}
 
-				$rs = $DB->Query("SELECT " . $select . " VALUE FROM " . $strTableName . " WHERE VALUE_ID = " . $value_id, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+				$rs = $DB->Query("SELECT " . $select . " " . $DB->quote('VALUE') . " FROM " . $strTableName . " WHERE VALUE_ID = " . $value_id, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 				if($ar = $rs->Fetch())
 				{
 					if($arUserField["MULTIPLE"] == "Y")

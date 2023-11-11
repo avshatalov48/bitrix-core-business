@@ -44,7 +44,7 @@ class FileIndexTable extends DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_translate_file';
 	}
@@ -54,7 +54,7 @@ class FileIndexTable extends DataManager
 	 *
 	 * @return string
 	 */
-	public static function getObjectClass()
+	public static function getObjectClass(): string
 	{
 		return Index\FileIndex::class;
 	}
@@ -64,7 +64,7 @@ class FileIndexTable extends DataManager
 	 *
 	 * @return string
 	 */
-	public static function getCollectionClass()
+	public static function getCollectionClass(): string
 	{
 		return Index\FileIndexCollection::class;
 	}
@@ -74,68 +74,59 @@ class FileIndexTable extends DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
-		return array(
-			'ID' => array(
+		return [
+			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-			),
-			'PATH_ID' => array(
+			],
+			'PATH_ID' => [
 				'data_type' => 'integer',
-			),
-			'LANG_ID' => array(
+			],
+			'LANG_ID' => [
 				'data_type' => 'string',
-			),
-			'FULL_PATH' => array(
+			],
+			'FULL_PATH' => [
 				'data_type' => 'string',
-			),
-			'PHRASE_COUNT' => array(
+			],
+			'PHRASE_COUNT' => [
 				'data_type' => 'integer',
-			),
-			'INDEXED' => array(
+			],
+			'INDEXED' => [
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
+				'values' => ['N', 'Y'],
 				'default_value' => 'N',
-			),
-			'INDEXED_TIME' => array(
+			],
+			'INDEXED_TIME' => [
 				'data_type' => 'datetime',
-			),
-			'PHRASE' => array(
-				'data_type' => '\Bitrix\Translate\Index\Internals\PhraseIndexTable',
-				'reference' => array(
-					'=this.ID' => 'ref.FILE_ID',
-					'=this.LANG_ID' => 'ref.LANG_ID',
-				),
-				'join_type' => 'LEFT',
-			),
-			'PATH' => array(
-				'data_type' => '\Bitrix\Translate\Index\Internals\PathIndexTable',
-				'reference' => array(
+			],
+			'PATH' => [
+				'data_type' => Index\Internals\PathIndexTable::class,
+				'reference' => [
 					'=this.PATH_ID' => 'ref.ID',
-				),
+				],
 				'join_type' => 'INNER',
-			),
-		);
+			],
+		];
 	}
 
 
 	/**
 	 * Drop index.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 * @param bool $recursively Drop index recursively.
 	 *
 	 * @return void
 	 */
-	public static function purge(Translate\Filter $filter = null, $recursively = true)
+	public static function purge(?Translate\Filter $filter = null, bool $recursively = true): void
 	{
 		if (($filterOut = static::processFilter($filter)) !== false)
 		{
 			if ($recursively)
 			{
-				Index\Internals\FileDiffTable::purge($filter);
 				Index\Internals\PhraseIndexTable::purge($filter);
 			}
 
@@ -148,13 +139,13 @@ class FileIndexTable extends DataManager
 	 *
 	 * @param Translate\Filter $filter Params to filter file list.
 	 *
-	 * @return array|bool
+	 * @return array
 	 */
-	public static function processFilter(Translate\Filter $filter = null)
+	public static function processFilter(?Translate\Filter $filter = null): array
 	{
-		$filterOut = array();
+		$filterOut = [];
 
-		if ($filter !== null && ($filter instanceof Translate\Filter || $filter instanceof \Traversable))
+		if ($filter !== null)
 		{
 			foreach ($filter as $key => $value)
 			{

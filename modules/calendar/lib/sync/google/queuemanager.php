@@ -10,6 +10,9 @@ use Bitrix\Main\DI\ServiceLocator;
 use CCalendar;
 use CTimeZone;
 
+/**
+ * @deprecated
+ */
 class QueueManager
 {
 	public const PERMANENT_UPDATE_TIME = 5;
@@ -87,38 +90,6 @@ class QueueManager
 	public static function checkIncompleteSync()
 	{
 		return true;
-
-		if (!CCalendar::isGoogleApiEnabled())
-		{
-			return null;
-		}
-
-		$sections = self::getNotIncompleteSections();
-		if ($sections)
-		{
-			foreach ($sections as $section)
-			{
-				$tokens = \CCalendarSync::syncCalendarEvents($section);
-				if ($tokens)
-				{
-					\CCalendarSect::Edit([
-						'arFields' => [
-							'ID' => $section['ID'],
-							'SYNC_TOKEN' => $tokens['nextSyncToken'],
-							'PAGE_TOKEN' => $tokens['nextPageToken'],
-						]
-					]);
-				}
-			}
-
-			self::setIntervalForAgent(self::PERMANENT_UPDATE_TIME, self::PERMANENT_UPDATE_TIME);
-
-			return "\\Bitrix\\Calendar\\Sync\\Google\\QueueManager::checkIncompleteSync();";
-		}
-
-		self::setIntervalForAgent();
-
-		return "\\Bitrix\\Calendar\\Sync\\Google\\QueueManager::checkIncompleteSync();";
 	}
 
 	/**

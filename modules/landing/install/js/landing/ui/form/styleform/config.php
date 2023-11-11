@@ -12,6 +12,7 @@ return [
 		'landing.ui.form.baseform',
 		'landing.ui.highlight',
 		'landing.ui.field.basefield',
+		'landing.env',
 		'landing.ui.component.internal',
 		'ui.design-tokens',
 	],

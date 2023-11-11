@@ -92,7 +92,7 @@ this.BX = this.BX || {};
 	    });
 	  }
 	  displaySearchResult(calendarContext, entries) {
-	    if (!entries) {
+	    if (!entries || this.isFilterEmpty()) {
 	      return;
 	    }
 	    if (!this.isInvitationPresetEnabled() && entries.length === 0) {

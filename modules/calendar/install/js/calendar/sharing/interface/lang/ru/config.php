@@ -16,6 +16,7 @@ $MESS['SHARING_WARNING_POPUP_CONTENT'] = 'При повторном включе
 $MESS['SHARING_WARNING_POPUP_TITLE_1'] = 'Закрыть доступ к слотам?';
 $MESS['SHARING_WARNING_POPUP_CONTENT_1'] = 'При повторном включении слоты будут доступны только по новой ссылке';
 $MESS['SHARING_WARNING_POPUP_SUBMIT_BUTTON'] = 'Закрыть доступ';
+$MESS['SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW'] = 'Закрыть доступ';
 $MESS['SHARING_WARNING_POPUP_CANCEL_BUTTON'] = 'Отменить';
 $MESS['SHARING_INFO_POPUP_CONTENT_1'] = 'Планируйте встречи без долгих переписок. Отправьте ссылку, по которой клиент, партнер или подрядчик увидят ваше свободное время и смогут сами подобрать удобный вариант.';
 $MESS['SHARING_INFO_POPUP_CONTENT_2'] = 'Никто не увидит ваше расписание, мы покажем только время, когда вы свободны.';

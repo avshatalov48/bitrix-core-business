@@ -80,16 +80,6 @@ class FileCollection extends EntityCollection
 		return $copies;
 	}
 
-	public function getAny(): ?FileItem
-	{
-		foreach ($this as $file)
-		{
-			return $file;
-		}
-
-		return null;
-	}
-
 	public function addToTmp(string $source): Result
 	{
 		$tmpCollection = new EO_FileTemporary_Collection();

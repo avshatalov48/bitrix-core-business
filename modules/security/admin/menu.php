@@ -1,4 +1,4 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/prolog.php");
 
@@ -61,16 +61,6 @@ if(
 	);
 }
 
-if($USER->CanDoOperation('view_event_log'))
-{
-	$aMenu["items"][] = array(
-		"text" => GetMessage("SEC_MENU_FILTER_LOG_ITEM"),
-		"url" => "/bitrix/admin/event_log.php?lang=".LANGUAGE_ID."&set_filter=Y&find_type=audit_type_id&find_audit_type[]=SECURITY_VIRUS&find_audit_type[]=SECURITY_FILTER_SQL&find_audit_type[]=SECURITY_FILTER_XSS&find_audit_type[]=SECURITY_FILTER_XSS2&find_audit_type[]=SECURITY_FILTER_PHP&find_audit_type[]=SECURITY_REDIRECT&find_audit_type[]=SECURITY_HOST_RESTRICTION&mod=security",
-		"more_url" => Array("event_log.php?find_type=audit_type_id&mod=security"),
-		"title" => GetMessage("SEC_MENU_FILTER_LOG_TITLE"),
-	);
-}
-
 if(
 	$USER->CanDoOperation('security_otp_settings_read')
 	|| $USER->CanDoOperation('security_otp_settings_write')
@@ -81,6 +71,28 @@ if(
 		"url" => "/bitrix/admin/security_otp.php?lang=".LANGUAGE_ID,
 		"more_url" => Array("security_otp.php"),
 		"title" => GetMessage("SEC_MENU_OTP_NEW_ITEM_TITLE"),
+	);
+}
+
+if ($USER->isAdmin())
+{
+	$aMenu["items"][] = array(
+		"text" => GetMessage('SEC_MENU_TROJANS'),
+		"items_id" => "menu_xscan",
+		"items" => array(
+			array(
+				"text" => GetMessage('SEC_MENU_OS'),
+				"url" => "xscan_system.php?lang=".LANGUAGE_ID,
+			),
+			array(
+				"text" => GetMessage('SEC_MENU_HTACCESS'),
+				"url" => "xscan_htaccess.php?lang=".LANGUAGE_ID,
+			),
+			array(
+				"text" => GetMessage('SEC_MENU_FILE_SCAN'),
+				"url" => "xscan_worker.php?lang=".LANGUAGE_ID,
+			),
+		),
 	);
 }
 
@@ -150,7 +162,17 @@ if(
 	);
 }
 
-if(CModule::IncludeModule('statistic') && (
+if($USER->isAdmin())
+{
+	$aMenu["items"][] = array(
+		"text" => GetMessage("SEC_MENU_HOSTS_ITEM"),
+		"url" => "security_hosts.php?lang=".LANGUAGE_ID."&find_rule_type=M",
+		"more_url" => Array("security_hosts.php"),
+		"title" => GetMessage("SEC_MENU_HOSTS_TITLE"),
+	);
+}
+
+if (IsModuleInstalled('statistic') && (
 	$USER->CanDoOperation('security_stat_activity_settings_read')
 	|| $USER->CanDoOperation('security_stat_activity_settings_write')
 ))
@@ -176,37 +198,17 @@ if(
 	);
 }
 
-if($USER->isAdmin())
+if($USER->CanDoOperation('view_event_log'))
 {
 	$aMenu["items"][] = array(
-		"text" => GetMessage("SEC_MENU_HOSTS_ITEM"),
-		"url" => "security_hosts.php?lang=".LANGUAGE_ID."&find_rule_type=M",
-		"more_url" => Array("security_hosts.php"),
-		"title" => GetMessage("SEC_MENU_HOSTS_TITLE"),
+		"text" => GetMessage("SEC_MENU_FILTER_LOG_ITEM"),
+		"url" => "/bitrix/admin/event_log.php?lang=".LANGUAGE_ID."&set_filter=Y&find_type=audit_type_id&find_audit_type[]=SECURITY_VIRUS&find_audit_type[]=SECURITY_FILTER_SQL&find_audit_type[]=SECURITY_FILTER_XSS&find_audit_type[]=SECURITY_FILTER_XSS2&find_audit_type[]=SECURITY_FILTER_PHP&find_audit_type[]=SECURITY_REDIRECT&find_audit_type[]=SECURITY_HOST_RESTRICTION&mod=security",
+		"more_url" => Array("event_log.php?find_type=audit_type_id&mod=security"),
+		"title" => GetMessage("SEC_MENU_FILTER_LOG_TITLE"),
 	);
-}
-
-if(LANGUAGE_ID == "ru" && $USER->IsAdmin() && !IsModuleInstalled("intranet"))
-{
-	$aMenu1 = array($aMenu);
-	$aMenu1[] = array(
-		"parent_menu" => "global_menu_settings",
-		"section" => "security_ddos",
-		"sort" => 211,
-		"text" => GetMessage("SEC_MENU_DDOS_ITEM"),
-		"title" => GetMessage("SEC_MENU_DDOS_TITLE"),
-		"icon" => "security_menu_ddos_icon",
-		"page_icon" => "",
-		"items_id" => "menu_security_ddos",
-		"items" => array(),
-		"url" => "security_ddos.php?lang=".LANGUAGE_ID,
-		"more_url" => "security_ddos.php",
-	);
-	$aMenu = $aMenu1;
 }
 
 if((isset($aMenu["items"]) && count($aMenu["items"]) > 0) || (isset($aMenu[0]["items"]) && count($aMenu[0]["items"]) > 0))
 	return $aMenu;
 else
 	return false;
-?>

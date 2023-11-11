@@ -24,6 +24,14 @@ class User implements RestEntity
 	public const PHONE_MOBILE = 'PERSONAL_MOBILE';
 	public const PHONE_PERSONAL = 'PERSONAL_PHONE';
 	public const PHONE_WORK = 'WORK_PHONE';
+	public const ONLINE_DATA_SELECTED_FIELDS = [
+		'USER_ID' => 'ID',
+		'USER_STATUS' => 'STATUS.STATUS',
+		'IDLE' => 'STATUS.IDLE',
+		'DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
+		'MOBILE_LAST_DATE' => 'STATUS.MOBILE_LAST_DATE',
+		'LAST_ACTIVITY_DATE'
+	];
 
 	/**
 	 * @var ModuleManager
@@ -230,10 +238,17 @@ class User implements RestEntity
 			return;
 		}
 
-		$select = ['USER_ID', 'STATUS', 'IDLE', 'MOBILE_LAST_DATE', 'DESKTOP_LAST_DATE', 'LAST_ACTIVITY_DATE' => 'USER.LAST_ACTIVITY_DATE'];
-		$statusData = StatusTable::query()
-			->setSelect($select)
-			->where('USER_ID', $this->getId())
+		$statusData = UserTable::query()
+			->setSelect(self::ONLINE_DATA_SELECTED_FIELDS)
+			->registerRuntimeField(
+				new Reference(
+					'STATUS',
+					StatusTable::class,
+					Join::on('this.ID', 'ref.USER_ID'),
+					['join_type' => Join::TYPE_LEFT]
+				)
+			)
+			->where('ID', $this->getId())
 			->fetch() ?: []
 		;
 
@@ -261,6 +276,21 @@ class User implements RestEntity
 			];
 		}
 
+		$status = false;
+		$idle = false;
+		$lastActivityDate = false;
+		$mobileLastDate = false;
+		$desktopLastDate = false;
+
+		if (!isset($option['WITHOUT_ONLINE']) || $option['WITHOUT_ONLINE'] === false)
+		{
+			$status = $this->getStatus();
+			$idle = $this->getIdle() ? $this->getIdle()->format('c') : false;
+			$lastActivityDate = $this->getLastActivityDate() ? $this->getLastActivityDate()->format('c') : false;
+			$mobileLastDate = $this->getMobileLastDate() ? $this->getMobileLastDate()->format('c') : false;
+			$desktopLastDate = $this->getDesktopLastDate() ? $this->getDesktopLastDate()->format('c') : false;
+		}
+
 		return [
 			'id' => $this->getId(),
 			'active' => $this->isActive(),
@@ -278,14 +308,15 @@ class User implements RestEntity
 			'bot' => $this->isBot(),
 			'connector' => $this->isConnector(),
 			'externalAuthId' => $this->getExternalAuthId(),
-			'status' => $this->getStatus(),
-			'idle' => $this->getIdle() ? $this->getIdle()->format('c') : false,
-			'lastActivityDate' => $this->getLastActivityDate() ? $this->getLastActivityDate()->format('c') : false,
-			'mobileLastDate' => $this->getMobileLastDate() ? $this->getMobileLastDate()->format('c') : false,
-			'desktopLastDate' => $this->getDesktopLastDate() ? $this->getDesktopLastDate()->format('c') : false,
+			'status' => $status,
+			'idle' => $idle,
+			'lastActivityDate' => $lastActivityDate,
+			'mobileLastDate' => $mobileLastDate,
+			'desktopLastDate' => $desktopLastDate,
 			'absent' => $this->getAbsent() !== null ? $this->getAbsent()->format('c') : false,
 			'departments' => $this->getDepartmentIds(),
 			'phones' => empty($this->getPhones()) ? false : $this->getPhones(),
+			'botData' => null,
 		];
 	}
 
@@ -298,7 +329,7 @@ class User implements RestEntity
 
 	public function setOnlineData(array $onlineData): void
 	{
-		$this->status = $onlineData['STATUS'] ?? null;
+		$this->status = $onlineData['USER_STATUS'] ?? null;
 		$this->idle = $onlineData['IDLE'] ?? null;
 		$this->lastActivityDate = $onlineData['LAST_ACTIVITY_DATE'] ?? null;
 		$this->mobileLastDate = $onlineData['MOBILE_LAST_DATE'] ?? null;
@@ -448,7 +479,7 @@ class User implements RestEntity
 	{
 		$this->fillOnlineData();
 
-		return $this->status;
+		return $this->status ?? 'online';
 	}
 
 	public function getIdle(): ?DateTime

@@ -864,6 +864,13 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setCopyright("Copyright Voximplant <https://voximplant.com/>")
 				->setProductUrl('https://www.npmjs.com/package/voximplant-websdk')
 				->setLicence(static::LICENCE_COMMERCIAL),
+
+			// main/vendor/nikic/php-parser
+			(new static("PHP Parser"))
+				->setCopyright('Copyright (c) 2011, Nikita Popov')
+				->setProductUrl('https://github.com/nikic/PHP-Parser/')
+				->setLicence(static::LICENCE_BSD3)
+				->setLicenceUrl('https://github.com/nikic/PHP-Parser/blob/4.x/LICENSE'),
 		];
 	}
 }

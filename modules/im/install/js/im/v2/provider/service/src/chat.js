@@ -1,10 +1,11 @@
-import {LoadService} from './classes/chat/load';
-import {CreateService} from './classes/chat/create';
-import {RenameService} from './classes/chat/rename';
-import {MuteService} from './classes/chat/mute';
-import {PinService} from './classes/chat/pin';
-import {ReadService} from './classes/chat/read';
-import {UserService} from './classes/chat/user';
+import { LoadService } from './classes/chat/load';
+import { CreateService } from './classes/chat/create';
+import { UpdateService } from './classes/chat/update';
+import { RenameService } from './classes/chat/rename';
+import { MuteService } from './classes/chat/mute';
+import { PinService } from './classes/chat/pin';
+import { ReadService } from './classes/chat/read';
+import { UserService } from './classes/chat/user';
 
 export class ChatService
 {
@@ -12,6 +13,7 @@ export class ChatService
 
 	#loadService: LoadService;
 	#createService: CreateService;
+	#updateService: UpdateService;
 	#renameService: RenameService;
 	#muteService: MuteService;
 	#pinService: PinService;
@@ -46,11 +48,23 @@ export class ChatService
 	// endregion 'load'
 
 	// region 'create'
-	createChat(chatConfig): Promise
+	createChat(chatConfig): Promise<string>
 	{
 		return this.#createService.createChat(chatConfig);
 	}
 	// endregion 'create'
+
+	// region 'update'
+	prepareAvatar(avatarFile: File): Promise<File>
+	{
+		return this.#updateService.prepareAvatar(avatarFile);
+	}
+
+	changeAvatar(chatId: number, avatarFile: File): Promise
+	{
+		return this.#updateService.changeAvatar(chatId, avatarFile);
+	}
+	// endregion 'update'
 
 	// region 'rename'
 	renameChat(dialogId: string, newName: string): Promise
@@ -125,12 +139,18 @@ export class ChatService
 	{
 		return this.#userService.addToChat(addConfig);
 	}
+
+	joinChat(dialogId: string)
+	{
+		this.#userService.joinChat(dialogId);
+	}
 	// endregion 'user
 
 	#initServices()
 	{
 		this.#loadService = new LoadService();
 		this.#createService = new CreateService();
+		this.#updateService = new UpdateService();
 		this.#renameService = new RenameService();
 		this.#muteService = new MuteService();
 		this.#pinService = new PinService();

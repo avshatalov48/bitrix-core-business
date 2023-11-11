@@ -7,7 +7,6 @@ use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
 require_once(__DIR__ . "/../include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/main/prolog.php");
 
 if(!$USER->CanDoOperation('edit_other_settings') && !$USER->CanDoOperation('view_other_settings'))
 	$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED"));

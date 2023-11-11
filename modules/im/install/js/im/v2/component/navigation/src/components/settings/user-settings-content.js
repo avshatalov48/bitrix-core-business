@@ -3,10 +3,10 @@ import { Avatar, AvatarSize, UserStatus, UserStatusSize } from 'im.v2.component.
 import { Utils } from 'im.v2.lib.utils';
 import { DesktopManager } from 'im.v2.lib.desktop';
 import { Logger } from 'im.v2.lib.logger';
+import { Extension } from 'main.core';
 
 import { ButtonPanel } from './button-panel';
 import { UserStatusPopup } from '../status/user-status-popup';
-import { BackgroundPopup } from '../background/background-popup';
 import { VersionService } from '../../classes/version-service';
 
 import 'ui.buttons';
@@ -18,13 +18,12 @@ import { UserStatus as UserStatusType } from 'im.v2.const';
 // @vue/component
 export const UserSettingsContent = {
 	name: 'UserSettingsContent',
-	components: { Avatar, UserStatus, ButtonPanel, UserStatusPopup, BackgroundPopup },
+	components: { Avatar, UserStatus, ButtonPanel, UserStatusPopup },
 	emits: ['closePopup', 'enableAutoHide', 'disableAutoHide'],
 	data(): Object
 	{
 		return {
 			showStatusPopup: false,
-			showBackgroundPopup: false,
 			isChangingVersion: false,
 		};
 	},
@@ -66,6 +65,12 @@ export const UserSettingsContent = {
 		{
 			return Utils.user.getProfileLink(this.currentUserId);
 		},
+		showOldChatButton(): boolean
+		{
+			const settings = Extension.getSettings('im.v2.component.navigation');
+
+			return Boolean(settings.get('force_beta')) === false;
+		},
 	},
 	methods:
 	{
@@ -94,36 +99,6 @@ export const UserSettingsContent = {
 		{
 			this.showStatusPopup = false;
 			this.$emit('enableAutoHide');
-		},
-		onBackgroundSelectClick()
-		{
-			this.showBackgroundPopup = true;
-			this.$emit('disableAutoHide');
-		},
-		onBackgroundPopupClose()
-		{
-			this.showBackgroundPopup = false;
-			this.$emit('enableAutoHide');
-		},
-		onHelpClick()
-		{
-			const ARTICLE_CODE = '17373696';
-			BX.Helper?.show(`redirect=detail&code=${ARTICLE_CODE}`);
-			this.$emit('closePopup');
-		},
-		onFeedbackClick()
-		{
-			BX.UI.Feedback.Form.open({
-				id: 'im-v2-feedback',
-				forms: [
-					{ zones: ['ru'], id: 550, sec: '50my2x', lang: 'ru' },
-					{ zones: ['en'], id: 560, sec: '621lbr', lang: 'ru' },
-				],
-				presets: {
-					sender_page: 'profile',
-				},
-			});
-			this.$emit('closePopup');
 		},
 		getVersionService(): VersionService
 		{
@@ -167,35 +142,11 @@ export const UserSettingsContent = {
 					<div class="bx-im-user-settings-popup__list-item_icon --chevron" ref="status-select"></div>
 				</div>
 				<div class="bx-im-user-settings-popup__separator"></div>
-				<!-- Background select -->
-				<div @click="onBackgroundSelectClick" class="bx-im-user-settings-popup__list-item --with-icon">
-					<div class="bx-im-user-settings-popup__list-item_left">
-						<div class="bx-im-user-settings-popup__list-item_icon --background"></div>
-						<div class="bx-im-user-settings-popup__list-item_text">{{ loc('IM_USER_SETTINGS_CHAT_BACKGROUND') }}</div>
-					</div>
-					<div class="bx-im-user-settings-popup__list-item_icon --chevron" ref="background-select"></div>
-				</div>
-				<div class="bx-im-user-settings-popup__separator"></div>
-				<!-- Help -->
-				<div @click="onHelpClick" class="bx-im-user-settings-popup__list-item">
-					<div class="bx-im-user-settings-popup__list-item_left">
-						<div class="bx-im-user-settings-popup__list-item_icon --help"></div>
-						<div class="bx-im-user-settings-popup__list-item_text">{{ loc('IM_USER_SETTINGS_HELP') }}</div>
-					</div>
-				</div>
-				<div class="bx-im-user-settings-popup__separator"></div>
-				<!-- Feedback -->
-				<div @click="onFeedbackClick" class="bx-im-user-settings-popup__list-item">
-					<div class="bx-im-user-settings-popup__list-item_left">
-						<div class="bx-im-user-settings-popup__list-item_icon --feedback"></div>
-						<div class="bx-im-user-settings-popup__list-item_text">{{ loc('IM_USER_SETTINGS_FEEDBACK') }}</div>
-					</div>
-				</div>
 			</div>
 			<!-- Back to old chat -->
-			<div :class="{'--loading': isChangingVersion}" class="bx-im-user-settings-popup__old-chat">
+			<div v-if="showOldChatButton" class="bx-im-user-settings-popup__old-chat" :class="{'--loading': isChangingVersion}" @click="onBackToOldChatClick">
 				<div class="bx-im-user-settings-popup__list-item_icon --arrow-left"></div>
-				<div @click="onBackToOldChatClick" class="bx-im-user-settings-popup__old-chat_text">
+				<div class="bx-im-user-settings-popup__old-chat_text">
 					{{ loc('IM_USER_SETTINGS_OLD_CHAT') }}
 				</div>
 			</div>
@@ -204,11 +155,6 @@ export const UserSettingsContent = {
 			v-if="showStatusPopup"
 			:bindElement="$refs['status-select'] || {}"
 			@close="onStatusPopupClose"
-		/>
-		<BackgroundPopup
-			v-if="showBackgroundPopup"
-			:bindElement="$refs['background-select'] || {}"
-			@close="onBackgroundPopupClose"
 		/>
 	`,
 };

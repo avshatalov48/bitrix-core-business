@@ -4,7 +4,9 @@ import {EndpointDirection, UserState} from '../engine/engine';
 
 export class UserModel
 {
-	id: number
+	// todo: revert after adding new provider to mobile apps
+	// id: number
+	id: number | string
 	name: string
 	avatar: string
 	gender: string
@@ -28,7 +30,9 @@ export class UserModel
 	constructor(config)
 	{
 		this.data = {
-			id: BX.prop.getInteger(config, "id", 0),
+			// todo: revert after adding new provider to mobile apps
+			// id: BX.prop.getInteger(config, "id", 0),
+			id: BX.prop.getInteger(config, "id", config.id),
 			name: BX.prop.getString(config, "name", ""),
 			avatar: BX.prop.getString(config, "avatar", ""),
 			gender: BX.prop.getString(config, "gender", ""),

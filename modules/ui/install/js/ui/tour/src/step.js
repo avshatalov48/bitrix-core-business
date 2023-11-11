@@ -1,4 +1,4 @@
-import {Type, Reflection, Event, Dom} from 'main.core';
+import { Dom, Event, Reflection, Type } from 'main.core';
 
 export class Step extends Event.EventEmitter
 {
@@ -19,6 +19,7 @@ export class Step extends Event.EventEmitter
 		this.text = options.text;
 		this.areaPadding = options.areaPadding;
 		this.link = options.link || "";
+		this.linkTitle = options.linkTitle || null;
 		this.rounded = options.rounded || false;
 		this.title = options.title || null;
 		this.article = options.article || null;
@@ -98,6 +99,11 @@ export class Step extends Event.EventEmitter
 	getLink()
 	{
 		return this.link;
+	}
+
+	getLinkTitle(): ?string
+	{
+		return this.linkTitle;
 	}
 
 	getTitle()

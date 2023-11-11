@@ -269,7 +269,6 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var CAllMain */
 			$GLOBALS['APPLICATION']->SetTitle($result['TITLE']);
 		}
 

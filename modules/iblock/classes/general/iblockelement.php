@@ -706,6 +706,8 @@ class CAllIBlockElement
 	public function MkFilter($arFilter, &$arJoinProps, &$arAddWhereFields, $level = 0, $bPropertyLeftJoin = false)
 	{
 		global $DB, $USER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$catalogIncluded = Loader::includeModule('catalog');
 		$catalogFields = array();
@@ -768,6 +770,7 @@ class CAllIBlockElement
 				$arJoinProps["FC_DISTINCT"] = $f->getDistinct();
 			}
 		}
+
 		foreach($arFilter as $orig_key => $val)
 		{
 			$res = CIBlock::MkOperationFilter($orig_key);
@@ -1087,7 +1090,8 @@ class CAllIBlockElement
 				if($val <> '')
 				{
 					$USER_ID = is_object($USER)? intval($USER->GetID()): 0;
-					$arSqlSearch[] = " if(BE.WF_DATE_LOCK is null, 'green', if(DATE_ADD(BE.WF_DATE_LOCK, interval ".COption::GetOptionInt("workflow", "MAX_LOCK_TIME", 60)." MINUTE)<now(), 'green', if(BE.WF_LOCKED_BY=".$USER_ID.", 'yellow', 'red'))) = '".$DB->ForSql($val)."'";
+					$lockInterval = COption::GetOptionInt("workflow", "MAX_LOCK_TIME", 60) * 60;
+					$arSqlSearch[] = "case when BE.WF_DATE_LOCK is null then 'green' when " . $helper->addSecondsToDateTime($lockInterval, 'BE.WF_DATE_LOCK') . " < " . $helper->getCurrentDateTimeFunction() . " then 'green' when BE.WF_LOCKED_BY = " . $USER_ID . " then 'yellow' else 'red' end) = '" . $DB->ForSql($val) . "'";
 				}
 				break;
 			case "WF_LAST_STATUS_ID":
@@ -2929,13 +2933,13 @@ class CAllIBlockElement
 				elseif(mb_substr($val, 0, 9) == "PROPERTY_")
 				{
 					$PR_ID = mb_strtoupper(mb_substr($val, 9));
-					if($db_prop = CIBlockProperty::GetPropertyArray($PR_ID, CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"])))
+					if($db_prop = CIBlockProperty::GetPropertyArray($PR_ID, $iblockIds))
 						$sGroupBy .= CIBlockElement::MkPropertyGroup($db_prop, $arJoinProps);
 				}
 				elseif(mb_substr($val, 0, 13) == "PROPERTYSORT_")
 				{
 					$PR_ID = mb_strtoupper(mb_substr($val, 13));
-					if($db_prop = CIBlockProperty::GetPropertyArray($PR_ID, CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"])))
+					if($db_prop = CIBlockProperty::GetPropertyArray($PR_ID, $iblockIds))
 						$sGroupBy .= CIBlockElement::MkPropertyGroup($db_prop, $arJoinProps, true);
 				}
 			}
@@ -5692,11 +5696,17 @@ class CAllIBlockElement
 				if (isset($userType['ConvertFromDB']))
 				{
 					$userTypesList[$property['ID']] = $userType;
-					if(array_key_exists("DEFAULT_VALUE", $property))
+					if (array_key_exists('DEFAULT_VALUE', $property))
 					{
-						$value = array("VALUE" => $property["DEFAULT_VALUE"], "DESCRIPTION" => "");
-						$value = call_user_func_array($userType["ConvertFromDB"], array($property, $value));
-						$property["DEFAULT_VALUE"] = $value["VALUE"];
+						$value = [
+							'VALUE' => $property['DEFAULT_VALUE'],
+							'DESCRIPTION' => '',
+						];
+						$value = call_user_func_array(
+							$userType['ConvertFromDB'],
+							[$property, $value]
+						);
+						$property['DEFAULT_VALUE'] = $value['VALUE'] ?? '';
 					}
 				}
 			}
@@ -6418,14 +6428,18 @@ class CAllIBlockElement
 		}
 	}
 
-	public static function SetPropertyValuesEx($ELEMENT_ID, $IBLOCK_ID, $PROPERTY_VALUES, $FLAGS=array())
+	public static function SetPropertyValuesEx($ELEMENT_ID, $IBLOCK_ID, $PROPERTY_VALUES, $FLAGS = [])
 	{
 		//Check input parameters
-		if(!is_array($PROPERTY_VALUES))
+		if (!is_array($PROPERTY_VALUES))
+		{
 			return;
+		}
 
-		if(!is_array($FLAGS))
-			$FLAGS=array();
+		if (!is_array($FLAGS))
+		{
+			$FLAGS = [];
+		}
 		//FLAGS - modify function behavior
 		//NewElement - if present no db values select will be issued
 		//DoNotValidateLists - if present list values do not validates against metadata tables
@@ -6433,18 +6447,21 @@ class CAllIBlockElement
 		global $DB;
 		global $BX_IBLOCK_PROP_CACHE;
 
-		$ELEMENT_ID = intval($ELEMENT_ID);
-		if($ELEMENT_ID <= 0)
-			return;
-
-		$IBLOCK_ID = intval($IBLOCK_ID);
-		if($IBLOCK_ID<=0)
+		$ELEMENT_ID = (int)$ELEMENT_ID;
+		if ($ELEMENT_ID <= 0)
 		{
-			$rs = $DB->Query("select IBLOCK_ID from b_iblock_element where ID=".$ELEMENT_ID);
-			if($ar = $rs->Fetch())
-				$IBLOCK_ID = $ar["IBLOCK_ID"];
-			else
+			return;
+		}
+
+		$IBLOCK_ID = (int)$IBLOCK_ID;
+		if ($IBLOCK_ID <= 0)
+		{
+			$ar = static::GetIBlockByID($ELEMENT_ID);
+			if (empty($ar))
+			{
 				return;
+			}
+			$IBLOCK_ID = $ar;
 		}
 
 		//Get property metadata
@@ -6771,7 +6788,13 @@ class CAllIBlockElement
 								$bDBFound = false;
 								foreach($db_values as $db_id=>$db_row)
 								{
-									if(strcmp($value["VALUE"],$db_row["VALUE"])==0 && strcmp($value["DESCRIPTION"],$db_row["DESCRIPTION"])==0)
+									if (
+										strcmp($value['VALUE'], $db_row['VALUE']) === 0
+										&& strcmp(
+											(string)($value['DESCRIPTION'] ?? ''),
+											(string)($db_row['DESCRIPTION'] ?? '')
+										) === 0
+									)
 									{
 										unset($db_values[$db_id]);
 										$bDBFound = true;
@@ -7021,22 +7044,23 @@ class CAllIBlockElement
 
 			$maxValuesLen = $DB->type=="MYSQL"?1024:0;
 			$strSqlValues = "";
-			foreach($properties as $property_id=>$values)
+			foreach ($properties as $property_id=>$values)
 			{
-				foreach($values as $value)
+				foreach ($values as $value)
 				{
-					if((string)$value["VALUE"] <> '')
+					if ((string)$value["VALUE"] <> '')
 					{
+						$description = (string)($value['DESCRIPTION'] ?? '');
 						$strSqlValues .= ",\n(".
 							$property_id.", ".
 							$ELEMENT_ID.", ".
 							"'".$DB->ForSQL($value["VALUE"])."', ".
 							intval($value["VALUE"]).", ".
 							CIBlock::roundDB($value["VALUE"]).", ".
-							($value["DESCRIPTION"] <> ''? "'".$DB->ForSQL($value["DESCRIPTION"])."'" : "null")." ".
+							($description !== ''? "'".$DB->ForSQL($description)."'" : "null")." ".
 						")";
 					}
-					if(mb_strlen($strSqlValues) > $maxValuesLen)
+					if (mb_strlen($strSqlValues) > $maxValuesLen)
 					{
 						$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 						$strSqlValues = "";
@@ -7589,7 +7613,7 @@ class CAllIBlockElement
 			return $code;
 		}
 
-		$checkSimilar = (isset($options['CHECK_SIMILAR']) && $options['CHECK_SIMILAR'] === 'Y');
+		$checkSimilar = ($options['CHECK_SIMILAR'] ?? 'N') === 'Y';
 
 		$list = [];
 		$iterator = Iblock\ElementTable::getList([
@@ -7670,7 +7694,7 @@ class CAllIBlockElement
 			if ($iblock['FIELDS']['CODE']['DEFAULT_VALUE']['TRANSLITERATION'] === 'Y'
 				&& (
 					$iblock['FIELDS']['CODE']['DEFAULT_VALUE']['UNIQUE'] === 'Y'
-					|| (isset($options['CHECK_UNIQUE']) || $options['CHECK_UNIQUE'] === 'Y')
+					|| ($options['CHECK_UNIQUE'] ?? 'N') === 'Y'
 				)
 			)
 			{

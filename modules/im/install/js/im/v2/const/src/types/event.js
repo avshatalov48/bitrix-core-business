@@ -34,5 +34,6 @@ export type EditMessageEvent = {
 
 export type ScrollToBottomEvent = {
 	chatId: number,
-	threshold?: $Values<typeof DialogScrollThreshold>
+	threshold?: $Values<typeof DialogScrollThreshold>,
+	animation?: boolean,
 };

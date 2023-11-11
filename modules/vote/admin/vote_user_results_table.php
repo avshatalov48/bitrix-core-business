@@ -1,4 +1,4 @@
-<?
+<?php
 #############################################
 # Bitrix Site Manager Forum					#
 # Copyright (c) 2002-2009 Bitrix			#
@@ -8,8 +8,10 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/prolog.php");
 $VOTE_RIGHT = $APPLICATION->GetGroupRight("vote");
-if($VOTE_RIGHT=="D")
+if ($VOTE_RIGHT == "D")
+{
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/include.php");
 ClearVars();
 IncludeModuleLangFile(__FILE__);
@@ -18,8 +20,14 @@ IncludeModuleLangFile(__FILE__);
 ********************************************************************/
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 $EVENT_ID = intval($request->getQuery("EVENT_ID"));
-if (!(($event=\CVoteEvent::GetByID($EVENT_ID)->fetch()) && $event &&
-	GetVoteDataByID($event["VOTE_ID"], $arChannel, $arVote, $arQuestions, $arAnswers, $arDropDown, $arMultiSelect, $arGroupAnswers, "N", $template, $res_template)))
+if (
+	$EVENT_ID <= 0 ||
+	!(
+		($event = \CVoteEvent::GetByID($EVENT_ID)->fetch()) &&
+		$event &&
+		GetVoteDataByID($event["VOTE_ID"], $arChannel, $arVote, $arQuestions, $arAnswers, $arDropDown, $arMultiSelect, $arGroupAnswers, "N", $template, $res_template)
+	)
+)
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo ShowError(GetMessage("VOTE_RESULT_NOT_FOUND"));
@@ -72,7 +80,7 @@ $tabControl->BeginNextTab();
 	</tr>
 	<tr>
 		<td><?=GetMessage("VOTE_VOTE")?></td>
-		<td> [<a class="tablebodylink" href="vote_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$arVote["ID"]?>" class="tablebodytext"><?=$arVote["ID"]?></a>]&nbsp;<?
+		<td> [<a class="tablebodylink" href="vote_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$arVote["ID"]?>" class="tablebodytext"> <?=$arVote["ID"]?> </a>]&nbsp;<?
 		if ($arVote["TITLE"] <> '') echo $arVote["TITLE"];
 		elseif ($arVote["DESCRIPTION_TYPE"]=="html")
 			echo TruncateText(strip_tags($arVote["~DESCRIPTION"]),200);
@@ -82,22 +90,25 @@ $tabControl->BeginNextTab();
 	</tr>
 	<tr>
 		<td><?=GetMessage("VOTE_CHANNEL")?></td>
-		<td><?="[<a class='tablebodylink' href='vote_channel_edit.php?ID=".$arChannel["ID"]."&lang=".LANGUAGE_ID."'>".$arChannel["ID"]."</a>] ".$arChannel["TITLE"]?></td>
+		<td><?="[<a class='tablebodylink' href='vote_channel_edit.php?ID=".$arChannel["ID"]."&lang=".LANGUAGE_ID."'> ".$arChannel["ID"]." </a>] ".$arChannel["TITLE"]?></td>
 	</tr>
 	<tr>
 		<td><?=GetMessage("VOTE_GUEST")?></td>
-		<td><?
-			if ($event["AUTH_USER_ID"]>0) :
-				?>[<a class="tablebodylink" title="<?=GetMessage("VOTE_EDIT_USER")?>" href="user_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$event["AUTH_USER_ID"]?>"><?=$event["AUTH_USER_ID"]?></a>] (<?=$event["LOGIN"]?>) <?=$event["AUTH_USER_NAME"]?> [<?
-					if (CModule::IncludeModule("statistic")) : 
-						?><a class="tablebodylink" href="guest_list.php?lang=<?=LANGUAGE_ID?>&find_id=<?=$event["STAT_GUEST_ID"]?>&set_filter=Y"><?=$event["STAT_GUEST_ID"]?></a><?
-					else : 
-						echo $event["STAT_GUEST_ID"];
-					endif;
-				?>]<?
-			else :
-				?><?=GetMessage("VOTE_NOT_AUTHORIZED")?><?
-			endif;
+		<td><?php
+			if ($event["AUTH_USER_ID"] > 0)
+			{
+				?>[<a class="tablebodylink" title="<?=GetMessage("VOTE_EDIT_USER")?>" href="user_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$event["AUTH_USER_ID"]?>">
+					<?=$event["AUTH_USER_ID"]?>
+				</a>] (<?=htmlspecialcharsbx($event["LOGIN"])?>) <?=htmlspecialcharsbx($event["AUTH_USER_NAME"])?><?php
+				if (CModule::IncludeModule("statistic"))
+				{
+					?> [ <a class="tablebodylink" href="guest_list.php?lang=<?=LANGUAGE_ID?>&find_id=<?=$event["STAT_GUEST_ID"]?>&set_filter=Y"><?=$event["STAT_GUEST_ID"]?></a> ]<?php
+				}
+			}
+			else
+			{
+				echo GetMessage("VOTE_NOT_AUTHORIZED");
+			}
 			?></td>
 	</tr>
 	<tr>

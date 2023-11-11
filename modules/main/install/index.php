@@ -48,7 +48,9 @@ class main extends CModule
 		if (!is_object($APPLICATION))
 			$APPLICATION = new CMain;
 
-		$DB = new CDatabase;
+		$application = \Bitrix\Main\HttpApplication::getInstance();
+
+		$connectionType = $application->getConnection()->getType();
 		$DB->DebugToFile = false;
 		$DB->debug = true;
 
@@ -69,11 +71,21 @@ class main extends CModule
 		if (defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
 			$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 
-		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/mysql/install.sql");
+		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/" . $connectionType ."/install.sql");
 		if ($errors !== false)
 		{
 			$APPLICATION->ThrowException(implode("", $errors));
 			return false;
+		}
+
+		if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/" . $connectionType . "/install_add.sql"))
+		{
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/" . $connectionType . "/install_add.sql");
+			if ($errors !== false)
+			{
+				$APPLICATION->ThrowException(implode("", $errors));
+				return false;
+			}
 		}
 
 		if(\Bitrix\Main\ORM\Fields\CryptoField::cryptoAvailable())

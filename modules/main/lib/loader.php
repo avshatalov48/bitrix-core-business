@@ -135,13 +135,13 @@ class Loader
 		$res = true;
 		if (file_exists($pathToInclude."/include.php"))
 		{
-			//recursion control
-			self::$semiloadedModules[$moduleName] = true;
-
 			if (class_exists('\Dev\Main\Migrator\ModuleUpdater'))
 			{
 				\Dev\Main\Migrator\ModuleUpdater::checkUpdates($moduleName, $pathToInclude);
 			}
+
+			//recursion control
+			self::$semiloadedModules[$moduleName] = true;
 
 			$res = self::includeModuleInternal($pathToInclude."/include.php");
 

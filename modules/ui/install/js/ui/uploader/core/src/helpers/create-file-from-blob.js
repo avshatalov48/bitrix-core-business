@@ -3,16 +3,16 @@ import getExtensionFromType from './get-extension-from-type';
 
 let counter = 0;
 const createFileFromBlob = (blob: Blob, fileName: string): File => {
-
-	if (!Type.isStringFilled(fileName))
+	let newFileName = fileName;
+	if (!Type.isStringFilled(newFileName))
 	{
 		const date = new Date();
-		fileName = `File ${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${++counter}`;
+		newFileName = `File ${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${++counter}`;
 
 		const extension = getExtensionFromType(blob.type);
 		if (extension)
 		{
-			fileName += `.${extension}`;
+			newFileName += `.${extension}`;
 		}
 	}
 
@@ -20,18 +20,18 @@ const createFileFromBlob = (blob: Blob, fileName: string): File => {
 	{
 		return new File(
 			[blob],
-			fileName,
+			newFileName,
 			{
 				lastModified: Date.now(),
 				lastModifiedDate: new Date(),
-				type: blob.type
-			}
+				type: blob.type,
+			},
 		);
 	}
-	catch (exception)
+	catch
 	{
 		const file = blob.slice(0, blob.size, blob.type);
-		file.name = fileName;
+		file.name = newFileName;
 		file.lastModified = Date.now();
 		file.lastModifiedDate = new Date();
 

@@ -744,6 +744,26 @@ class Template
 	{
 		if (!in_array($activity['Type'], static::getAvailableRobotClasses($this->getDocumentType())))
 		{
+			if ($this->isRestRobot($activity))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		if (!empty($activity['Children']))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	private function isRestRobot(array $activity): bool
+	{
+		if (!(mb_strpos($activity['Type'], \CBPRuntime::REST_ACTIVITY_PREFIX) === 0))
+		{
 			return false;
 		}
 

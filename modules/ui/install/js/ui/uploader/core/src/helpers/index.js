@@ -20,7 +20,7 @@ import getArrayBuffer from './get-array-buffer';
 import getJpegOrientation from './get-jpeg-orientation';
 import createVideoPreview from './create-video-preview';
 import isJpeg from './is-jpeg';
-import { getFilesFromDataTransfer, hasDataTransferOnlyFiles } from './get-files-from-data-transfer'
+import { getFilesFromDataTransfer, hasDataTransferOnlyFiles } from './get-files-from-data-transfer';
 import { isFilePasted } from './get-files-from-data-transfer';
 
 export {

@@ -144,3 +144,16 @@ CREATE TABLE b_sec_recovery_codes
 	PRIMARY KEY(ID),
 	INDEX ix_b_sec_recovery_codes_user_id (USER_ID)
 );
+
+CREATE TABLE IF NOT EXISTS b_xscan_results
+(
+    `id` int NOT NULL AUTO_INCREMENT,
+    `type` varchar(5) NOT NULL,
+    `src` varchar(255) NOT NULL,
+    `message` varchar(255) NOT NULL,
+    `score` double NOT NULL,
+    `mtime` DATETIME NULL,
+    `ctime` DATETIME NULL,
+    `tags` TEXT NUll,
+    PRIMARY KEY(`id`)
+);

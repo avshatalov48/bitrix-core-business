@@ -6,8 +6,11 @@ use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Web\Uri;
 use CFile;
-use CMain;
 
+/**
+ * @deprecated Use \Bitrix\Main\Engine\Response\Zip\DirectoryEntry
+ * or \Bitrix\Main\Engine\Response\Zip\FileEntry instead.
+ */
 class ArchiveEntry
 {
 	/**
@@ -182,15 +185,6 @@ class ArchiveEntry
 		$zipEntry->path = Uri::urnEncode($zipEntry->path, 'UTF-8');
 
 		return $zipEntry;
-	}
-
-	/**
-	 * Get main instance of \CMain.
-	 * @return CMain
-	 */
-	protected static function getApplication()
-	{
-		return $GLOBALS['APPLICATION'];
 	}
 
 	/**

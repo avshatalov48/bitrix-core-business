@@ -51,13 +51,16 @@ class CAgent extends CAllAgent
 			}
 		}
 
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$strSql = "
 			SELECT 'x'
 			FROM b_agent
 			WHERE
 				ACTIVE = 'Y'
-				AND NEXT_EXEC <= now()
-				AND (DATE_CHECK IS NULL OR DATE_CHECK <= now())
+				AND NEXT_EXEC <= " . $helper->getCurrentDateTimeFunction() . "
+				AND (DATE_CHECK IS NULL OR DATE_CHECK <= " . $helper->getCurrentDateTimeFunction() . ")
 				".$str_crontab."
 			LIMIT 1
 		";
@@ -65,7 +68,7 @@ class CAgent extends CAllAgent
 		$db_result_agents = $DB->Query($strSql);
 		if ($db_result_agents->Fetch())
 		{
-			if(!\Bitrix\Main\Application::getConnection()->lock('agent'))
+			if(!$connection->lock('agent'))
 			{
 				return "";
 			}
@@ -74,7 +77,7 @@ class CAgent extends CAllAgent
 		{
 			if (CACHED_b_agent !== false)
 			{
-				$rs = $DB->Query("SELECT UNIX_TIMESTAMP(NEXT_EXEC)-UNIX_TIMESTAMP(NOW()) DATE_DIFF FROM b_agent WHERE ACTIVE = 'Y' ".$str_crontab." ORDER BY NEXT_EXEC LIMIT 1");
+				$rs = $DB->Query("SELECT UNIX_TIMESTAMP(NEXT_EXEC)-UNIX_TIMESTAMP(" . $helper->getCurrentDateTimeFunction() . ") DATE_DIFF FROM b_agent WHERE ACTIVE = 'Y' " . $str_crontab . " ORDER BY NEXT_EXEC LIMIT 1");
 				$ar = $rs->Fetch();
 
 				if (!$ar || $ar["DATE_DIFF"] < 0)
@@ -99,8 +102,8 @@ class CAgent extends CAllAgent
 			"SELECT ID, NAME, AGENT_INTERVAL, IS_PERIOD, MODULE_ID, RETRY_COUNT ".
 			"FROM b_agent ".
 			"WHERE ACTIVE = 'Y' ".
-			"	AND NEXT_EXEC <= now() ".
-			"	AND (DATE_CHECK IS NULL OR DATE_CHECK <= now()) ".
+			"	AND NEXT_EXEC <= " . $helper->getCurrentDateTimeFunction() . " ".
+			"	AND (DATE_CHECK IS NULL OR DATE_CHECK <= " . $helper->getCurrentDateTimeFunction() . ") ".
 			$str_crontab.
 			" ORDER BY RUNNING ASC, SORT desc ";
 
@@ -123,11 +126,11 @@ class CAgent extends CAllAgent
 		}
 		if ($ids <> '')
 		{
-			$strSql = "UPDATE b_agent SET DATE_CHECK = DATE_ADD(now(), INTERVAL " . self::LOCK_TIME. " SECOND) WHERE ID IN (".$ids.")";
+			$strSql = "UPDATE b_agent SET DATE_CHECK = " . $helper->addSecondsToDateTime(self::LOCK_TIME) . " WHERE ID IN (".$ids.")";
 			$DB->Query($strSql);
 		}
 
-		\Bitrix\Main\Application::getConnection()->unlock('agent');
+		$connection->unlock('agent');
 
 		/** @var callable|false $logFunction */
 		$logFunction = (defined("BX_AGENTS_LOG_FUNCTION") && function_exists(BX_AGENTS_LOG_FUNCTION)? BX_AGENTS_LOG_FUNCTION : false);
@@ -217,8 +220,8 @@ class CAgent extends CAllAgent
 				$strSql = "
 					UPDATE b_agent SET
 						NAME = '".$DB->ForSQL($eval_result)."',
-						LAST_EXEC = now(),
-						NEXT_EXEC = DATE_ADD(".($arAgent["IS_PERIOD"]=="Y"? "NEXT_EXEC" : "now()").", INTERVAL ".$pPERIOD." SECOND),
+						LAST_EXEC = " . $helper->getCurrentDateTimeFunction() . ",
+						NEXT_EXEC = " . $helper->addSecondsToDateTime($pPERIOD, $arAgent["IS_PERIOD"]=="Y"? "NEXT_EXEC" : null) . ",
 						DATE_CHECK = NULL,
 						RUNNING = 'N',
 						RETRY_COUNT = 0

@@ -123,7 +123,7 @@ export class Search
 
 	displaySearchResult(calendarContext, entries)
 	{
-		if (!entries)
+		if (!entries || this.isFilterEmpty())
 		{
 			return;
 		}

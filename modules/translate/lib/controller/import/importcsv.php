@@ -62,7 +62,7 @@ class ImportCsv
 	 * @param Main\Engine\Controller $controller Parent controller object.
 	 * @param array $config Additional configuration.
 	 */
-	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
 		$fields = ['tabId', 'encodingIn', 'updateMethod', 'csvFilePath', 'seekLine', 'importedPhrasesCount'];
 
@@ -113,15 +113,15 @@ class ImportCsv
 		{
 			$this->addError(new Main\Error(Loc::getMessage('TR_IMPORT_EMPTY_FILE_ERROR')));
 
-			return array(
+			return [
 				'STATUS' => Translate\Controller\STATUS_COMPLETED
-			);
+			];
 		}
 		if (!$this->verifyCsvFile())
 		{
-			return array(
+			return [
 				'STATUS' => Translate\Controller\STATUS_COMPLETED
-			);
+			];
 		}
 
 		if ($this->csvFile->hasUtf8Bom())
@@ -144,11 +144,11 @@ class ImportCsv
 
 			$this->saveProgressParameters();
 
-			return array(
+			return [
 				'STATUS' => Translate\Controller\STATUS_PROGRESS,
 				'PROCESSED_ITEMS' => 0,
 				'TOTAL_ITEMS' => $this->totalItems,
-			);
+			];
 		}
 		else
 		{
@@ -176,7 +176,7 @@ class ImportCsv
 	 *
 	 * @return array
 	 */
-	private function runImporting()
+	private function runImporting(): array
 	{
 		$fileIndex = $this->columnList['file'];
 		$keyIndex = $this->columnList['key'];
@@ -188,7 +188,7 @@ class ImportCsv
 		while (true)
 		{
 			$linePortion = 0;
-			$phraseList = array();
+			$phraseList = [];
 
 			while ($csvRow = $this->csvFile->fetch())
 			{
@@ -211,7 +211,7 @@ class ImportCsv
 					continue;
 				}
 
-				$rowErrors = array();
+				$rowErrors = [];
 
 				$filePath = (isset($csvRow[$fileIndex]) ? $csvRow[$fileIndex] : '');
 				$key = (isset($csvRow[$keyIndex]) ? $csvRow[$keyIndex] : '');
@@ -321,7 +321,7 @@ class ImportCsv
 			{
 				if (Translate\IO\Path::isLangDir($filePath, true) !== true)
 				{
-					$this->addError(new Main\Error(Loc::getMessage('TR_IMPORT_ERROR_FILE_NOT_LANG', array('#FILE#' => $filePath))));
+					$this->addError(new Main\Error(Loc::getMessage('TR_IMPORT_ERROR_FILE_NOT_LANG', ['#FILE#' => $filePath])));
 					continue;
 				}
 
@@ -480,11 +480,11 @@ class ImportCsv
 			$this->clearProgressParameters();
 		}
 
-		return array(
+		return [
 			'PROCESSED_ITEMS' => $this->processedItems,
 			'TOTAL_ITEMS' => $this->totalItems,
 			'TOTAL_PHRASES' => $this->importedPhraseCount,
-		);
+		];
 	}
 
 
@@ -493,13 +493,13 @@ class ImportCsv
 	 *
 	 * @return boolean
 	 */
-	private function verifyCsvFile()
+	private function verifyCsvFile(): bool
 	{
-		$testDelimiters = array(
+		$testDelimiters = [
 			Translate\IO\CsvFile::DELIMITER_TZP,
 			Translate\IO\CsvFile::DELIMITER_TAB,
 			Translate\IO\CsvFile::DELIMITER_ZPT,
-		);
+		];
 		foreach ($testDelimiters as $delimiter)
 		{
 			$this->csvFile->setFieldDelimiter($delimiter);

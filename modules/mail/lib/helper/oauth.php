@@ -8,6 +8,9 @@ use Bitrix\Mail;
 abstract class OAuth
 {
 
+	/**
+	 * @var \CSocServOAuthTransport
+	 */
 	protected $oauthEntity;
 
 	protected $service, $storedUid;
@@ -266,7 +269,7 @@ abstract class OAuth
 	 */
 	public function getRedirect(bool $final = true): string
 	{
-		if(isModuleInstalled('bitrix24') && !$final)
+		if (isModuleInstalled('bitrix24') && defined('BX24_HOST_NAME') && !$final)
 		{
 			return $this->getControllerUrl() . '/redirect.php';
 		}
@@ -285,7 +288,7 @@ abstract class OAuth
 	{
 		global $APPLICATION;
 
-		if (isModuleInstalled('bitrix24'))
+		if (isModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
 		{
 			$state = sprintf(
 				'%s?%s',

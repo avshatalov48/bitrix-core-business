@@ -1,19 +1,17 @@
-import {Dom, Tag, Type} from 'main.core';
+import { Dom, Tag, Type } from 'main.core';
+import { getUtils, getSmileManager, getBigSmileOption } from '../utils/core-proxy';
 
-import {getCore, getUtils, getSmileManager, getBigSmileOption} from '../utils/core-proxy';
-
-import type {Smile} from '../utils/core-proxy';
+import type { Smile } from '../utils/core-proxy';
 
 export const RatioConfig = Object.freeze({
 	Default: 1,
 	Big: 1.6,
 });
-const getSmileRatio = (text: string, pattern: string, config = RatioConfig): number =>
-{
+const getSmileRatio = (text: string, pattern: string, config = RatioConfig): number => {
 	const replacedText = text.replaceAll(new RegExp(pattern, 'g'), '');
 	const hasOnlySmiles = replacedText.trim().length === 0;
 
-	const matchOnlySmiles = new RegExp(`(?:(?:${pattern})\\s*){3,}`);
+	const matchOnlySmiles = new RegExp(`(?:(?:${pattern})\\s*){4,}`);
 	if (hasOnlySmiles && !matchOnlySmiles.test(text))
 	{
 		return config.Big;
@@ -21,8 +19,8 @@ const getSmileRatio = (text: string, pattern: string, config = RatioConfig): num
 
 	return config.Default;
 };
-const mapTypings = (smiles: Array<Smile>): {[string]: HTMLElement} =>
-{
+
+const mapTypings = (smiles: Array<Smile>): {[string]: HTMLElement} => {
 	const typings = smiles.reduce((acc, smile) => {
 		const {
 			image,
@@ -30,7 +28,7 @@ const mapTypings = (smiles: Array<Smile>): {[string]: HTMLElement} =>
 			definition,
 			name,
 			width,
-			height
+			height,
 		} = smile;
 		const smileImg = Tag.render`
 			<img
@@ -41,15 +39,17 @@ const mapTypings = (smiles: Array<Smile>): {[string]: HTMLElement} =>
 				alt="${typing}"
 				class="bx-smile bx-im-message-base__text_smile"
 				style="width: ${width}px; height: ${height}px;"
+				draggable="false"
 			/>
 		`;
 
-		return {...acc, [typing]: smileImg};
+		return { ...acc, [typing]: smileImg };
 	}, {});
 
 	return typings;
 };
-const lookBehind = function (text, match, offset): string
+
+const lookBehind = function(text, match, offset): string
 {
 	const substring = text.slice(0, offset + match.length);
 	const escaped = getUtils().text.escapeRegex(match);
@@ -81,6 +81,7 @@ export const ParserSmile = {
 		{
 			this.loadSmilePatterns();
 		}
+
 		if (!this.pattern)
 		{
 			return text;
@@ -97,7 +98,7 @@ export const ParserSmile = {
 		}
 
 		const ratioConfig = Type.isObjectLike(options.ratioConfig) ? options.ratioConfig : RatioConfig;
-		const ratio = enableBigSmile? getSmileRatio(text, this.pattern, ratioConfig): ratioConfig.Default;
+		const ratio = enableBigSmile ? getSmileRatio(text, this.pattern, ratioConfig) : ratioConfig.Default;
 
 		const pattern = `(?:(?:${this.pattern})(?=(?:(?:${this.pattern})|\\s|&quot;|<|$)))`;
 		const regExp = new RegExp(pattern, 'g');
@@ -109,7 +110,7 @@ export const ParserSmile = {
 			}
 
 			const image = this.typings[match].cloneNode();
-			const {width, height} = image.style;
+			const { width, height } = image.style;
 			Dom.style(image, 'width', `${Number.parseInt(width, 10) * ratio}px`);
 			Dom.style(image, 'height', `${Number.parseInt(height, 10) * ratio}px`);
 
@@ -117,5 +118,5 @@ export const ParserSmile = {
 		});
 
 		return replacedText;
-	}
+	},
 };

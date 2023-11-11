@@ -63,6 +63,8 @@ trait AnnotationTrait
 		$code[] = "\t * ---------------";
 		$code[] = "\t *";
 
+		$exceptions = [];
+
 		foreach ($entity->getFields() as $field)
 		{
 			$objectFieldCode = [];
@@ -73,33 +75,42 @@ trait AnnotationTrait
 				continue;
 			}
 
-			if ($field instanceof ScalarField)
+			try
 			{
-				list($objectFieldCode, $collectionFieldCode) = static::annotateScalarField($field);
-			}
-			elseif ($field instanceof UserTypeField)
-			{
-				list($objectFieldCode, $collectionFieldCode) = static::annotateUserType($field);
-			}
-			elseif ($field instanceof ExpressionField)
-			{
-				list($objectFieldCode, $collectionFieldCode) = static::annotateExpression($field);
-			}
-			elseif ($field instanceof Reference)
-			{
-				list($objectFieldCode, $collectionFieldCode) = static::annotateReference($field);
-			}
-			elseif ($field instanceof OneToMany)
-			{
-				list($objectFieldCode, $collectionFieldCode) = static::annotateOneToMany($field);
-			}
-			elseif ($field instanceof ManyToMany)
-			{
-				list($objectFieldCode, $collectionFieldCode) = static::annotateManyToMany($field);
-			}
+				if ($field instanceof ScalarField)
+				{
+					[$objectFieldCode, $collectionFieldCode] = static::annotateScalarField($field);
+				}
+				elseif ($field instanceof UserTypeField)
+				{
+					[$objectFieldCode, $collectionFieldCode] = static::annotateUserType($field);
+				}
+				elseif ($field instanceof ExpressionField)
+				{
+					[$objectFieldCode, $collectionFieldCode] = static::annotateExpression($field);
+				}
+				elseif ($field instanceof Reference)
+				{
+					[$objectFieldCode, $collectionFieldCode] = static::annotateReference($field);
+				}
+				elseif ($field instanceof OneToMany)
+				{
+					[$objectFieldCode, $collectionFieldCode] = static::annotateOneToMany($field);
+				}
+				elseif ($field instanceof ManyToMany)
+				{
+					[$objectFieldCode, $collectionFieldCode] = static::annotateManyToMany($field);
+				}
 
-			$objectCode = array_merge($objectCode, $objectFieldCode);
-			$collectionCode = array_merge($collectionCode, $collectionFieldCode);
+				$objectCode = array_merge($objectCode, $objectFieldCode);
+				$collectionCode = array_merge($collectionCode, $collectionFieldCode);
+			}
+			catch (\Exception $e)
+			{
+				$exceptions[] = new \Exception(
+					"Can not annotate `{$entity->getFullName()}.{$field->getName()}` field", 0, $e
+				);
+			}
 		}
 
 		// return if there is no fields to annotate (e.g. empty uf)
@@ -332,7 +343,8 @@ trait AnnotationTrait
 		{
 			return [
 				join("\n", $codeTable),
-				join("\n", $code)
+				join("\n", $code),
+				$exceptions
 			];
 		}
 	}

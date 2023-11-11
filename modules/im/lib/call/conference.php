@@ -5,6 +5,7 @@ namespace Bitrix\Im\Call;
 use Bitrix\Im\Alias;
 use Bitrix\Im\Chat;
 use Bitrix\Im\Common;
+use Bitrix\Im\Dialog;
 use Bitrix\Im\Model\AliasTable;
 use Bitrix\Im\Model\ConferenceUserRoleTable;
 use Bitrix\Im\Model\RelationTable;
@@ -40,6 +41,16 @@ class Conference
 	public const PRESENTERS_LIMIT = 4;
 	public const BROADCAST_USER_LIMIT = 500;
 	public const ROLE_PRESENTER = 'presenter';
+	public const AVAILABLE_PARAMS = [
+		'ID',
+		'TITLE',
+		'PASSWORD_NEEDED',
+		'PASSWORD',
+		'USERS',
+		'BROADCAST_MODE',
+		'PRESENTERS',
+		'INVITATION',
+	];
 
 	protected $id;
 	protected $alias;
@@ -125,6 +136,13 @@ class Conference
 				'avatar' => $user['avatar']
 			];
 		}, $users);
+	}
+
+	public function getOwnerId(): ?int
+	{
+		$authorId = Chat::getOwnerById(Dialog::getDialogId($this->getChatId()));
+
+		return $authorId;
 	}
 
 	public function getUserLimit(): int
@@ -576,9 +594,9 @@ class Conference
 		return $result;
 	}
 
-	protected static function validateFields(array $fields): Result
+	protected static function validateFields(array $fields): \Bitrix\Im\V2\Result
 	{
-		$result = new Result();
+		$result = new \Bitrix\Im\V2\Result();
 		$validatedFields = [];
 
 		$fields = array_change_key_case($fields, CASE_UPPER);
@@ -607,7 +625,7 @@ class Conference
 		}
 		else
 		{
-			$validatedFields['VIDEOCONF']['PASSWORD'] = '';
+			$validatedFields['VIDEOCONF']['PASSWORD'] = $fields['VIDEOCONF']['PASSWORD'] ?? '';
 		}
 
 		if (isset($fields['INVITATION']) && is_string($fields['INVITATION']))
@@ -625,6 +643,10 @@ class Conference
 			}
 
 			$validatedFields['VIDEOCONF']['INVITATION'] = $fields['INVITATION'];
+		}
+		elseif (isset($fields['VIDEOCONF']['INVITATION']) && is_string($fields['VIDEOCONF']['INVITATION']))
+		{
+			$validatedFields['VIDEOCONF']['INVITATION'] = $fields['VIDEOCONF']['INVITATION'];
 		}
 
 		if (isset($fields['USERS']) && is_array($fields['USERS']))
@@ -689,10 +711,17 @@ class Conference
 		}
 		else
 		{
-			$validatedFields['VIDEOCONF']['ALIAS_DATA'] = Alias::addUnique([
-				"ENTITY_TYPE" => Alias::ENTITY_TYPE_VIDEOCONF,
-				"ENTITY_ID" => 0
-			]);
+			if (isset($fields['VIDEOCONF']['ALIAS_DATA']))
+			{
+				$validatedFields['VIDEOCONF']['ALIAS_DATA'] = $fields['VIDEOCONF']['ALIAS_DATA'];
+			}
+			else
+			{
+				$validatedFields['VIDEOCONF']['ALIAS_DATA'] = Alias::addUnique([
+					"ENTITY_TYPE" => Alias::ENTITY_TYPE_VIDEOCONF,
+					"ENTITY_ID" => 0
+				]);
+			}
 		}
 
 		$result->setData(['FIELDS' => $validatedFields]);
@@ -702,39 +731,14 @@ class Conference
 
 	public static function add(array $fields = []): Result
 	{
-		$result = new Result();
+		$result = self::prepareParamsForAdd($fields);
 
-		if (!static::isEnvironmentConfigured())
+		if (!$result->isSuccess())
 		{
-			return $result->addError(
-				new Error(
-					Loc::getMessage('IM_CALL_CONFERENCE_ERROR_ENVIRONMENT_CONFIG'),
-					'ENVIRONMENT_CONFIG_ERROR'
-				)
-			);
+			return $result;
 		}
 
-		$validationResult = static::validateFields($fields);
-		if (!$validationResult->isSuccess())
-		{
-			return $result->addErrors($validationResult->getErrors());
-		}
-
-		$addData = $validationResult->getData()['FIELDS'];
-		$addData['ENTITY_TYPE'] = static::ALIAS_TYPE;
-		$addData['ENTITY_DATA_1'] = $addData['VIDEOCONF']['IS_BROADCAST'] === 'Y'? static::BROADCAST_MODE: '';
-
-		$currentUser = \Bitrix\Im\User::getInstance();
-		$addData['AUTHOR_ID'] = $currentUser->getId();
-
-		$addData['MANAGERS'] = [];
-		if ($addData['VIDEOCONF']['IS_BROADCAST'] === 'Y')
-		{
-			foreach ($addData['VIDEOCONF']['PRESENTERS'] as $presenter)
-			{
-				$addData['MANAGERS'][$presenter] = true;
-			}
-		}
+		$addData = $result->getData()['FIELDS'];
 
 		$result = ChatFactory::getInstance()->addChat($addData);
 		if (!$result->isSuccess() || !$result->hasResult())
@@ -752,6 +756,50 @@ class Conference
 			'CHAT_ID' => $chatResult['CHAT_ID'],
 			'ALIAS_DATA' => $addData['VIDEOCONF']['ALIAS_DATA']
 		]);
+	}
+
+	public static function prepareParamsForAdd(array $fields): \Bitrix\Im\V2\Result
+	{
+		$result = new \Bitrix\Im\V2\Result();
+
+		if (!static::isEnvironmentConfigured()) {
+			return $result->addError(
+				new Error(
+					Loc::getMessage('IM_CALL_CONFERENCE_ERROR_ENVIRONMENT_CONFIG'),
+					'ENVIRONMENT_CONFIG_ERROR'
+				)
+			);
+		}
+
+			$validationResult = static::validateFields($fields);
+
+		if (!$validationResult->isSuccess())
+		{
+			return $result->addErrors($validationResult->getErrors());
+		}
+
+		$addData = $validationResult->getData()['FIELDS'];
+		$addData['ENTITY_TYPE'] = static::ALIAS_TYPE;
+		$addData['ENTITY_DATA_1'] = $addData['VIDEOCONF']['IS_BROADCAST'] === 'Y'? static::BROADCAST_MODE: '';
+
+		$currentUser = \Bitrix\Im\User::getInstance();
+		$addData['AUTHOR_ID'] = $currentUser->getId();
+
+		if (!isset($fields['MANAGERS']))
+		{
+			$addData['MANAGERS'] = [];
+			if ($addData['VIDEOCONF']['IS_BROADCAST'] === 'Y')
+			{
+				foreach ($addData['VIDEOCONF']['PRESENTERS'] as $presenter)
+				{
+					$addData['MANAGERS'][$presenter] = true;
+				}
+			}
+		}
+
+		$result->setData(['FIELDS' => $addData]);
+
+		return $result;
 	}
 
 	public static function getByAlias(string $alias)

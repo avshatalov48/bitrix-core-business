@@ -7,7 +7,7 @@ const createBlobFromDataUri = (dataURI: string): Blob => {
 
 	for (let i = 0; i < byteString.length; i++)
 	{
-		view[i] = byteString.charCodeAt(i);
+		view[i] = byteString.codePointAt(i);
 	}
 
 	return new Blob([buffer], { type: mimeString });

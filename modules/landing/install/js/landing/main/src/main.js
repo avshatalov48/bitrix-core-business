@@ -949,12 +949,16 @@ export class Main extends EventEmitter
 				self.currentArea = null;
 
 				const blockId = parseInt(res.id);
-				const oldBlock = BX.Landing.PageObject.getBlocks().get(blockId);
-
-				if (oldBlock)
+				const allOldBlocks = BX.Landing.PageObject.getBlocks();
+				if (allOldBlocks)
 				{
-					Dom.remove(oldBlock.node);
-					BX.Landing.PageObject.getBlocks().remove(oldBlock);
+					allOldBlocks.forEach((oldBlock) => {
+						if (oldBlock.id === blockId)
+						{
+							Dom.remove(oldBlock.node);
+							BX.Landing.PageObject.getBlocks().remove(oldBlock);
+						}
+					});
 				}
 
 				// Init block entity

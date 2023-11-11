@@ -54,7 +54,7 @@ class Text extends \Bitrix\Landing\Field
 	{
 		?>
 		<input type="text" <?
-		?><?= $params['autocomplete'] != '' ? 'autocomplete="'. $params['autocomplete'] . '" ' : ''?><?
+		?><?= isset($params['autocomplete']) ? 'autocomplete="'. $params['autocomplete'] . '" ' : ''?><?
 		?><?= isset($params['additional']) ? $params['additional'] . ' ' : ''?><?
 		?><?= isset($params['id']) ? 'id="' . \htmlspecialcharsbx($params['id']) . '" ' : ''?><?
 		?><?= $this->maxlength > 0 ? 'maxlength="'. $this->maxlength . '" ' : ''?><?

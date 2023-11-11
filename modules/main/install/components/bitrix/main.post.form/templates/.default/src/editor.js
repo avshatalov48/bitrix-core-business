@@ -1,4 +1,4 @@
-import {Type, Dom, Runtime} from 'main.core';
+import {Type, Dom, Runtime, Loc} from 'main.core';
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import getKnownParser from './parsers/index';
 import {bindAutoSave, bindHTML, bindToolbar,
@@ -15,6 +15,7 @@ export default class Editor
 	eventNode: Element;
 	toolbar: Toolbar;
 	jobs: Map = new Map();
+	isCopilotEnabled: true;
 
 	editorParams = {
 		height: 100,
@@ -406,6 +407,34 @@ export default class Editor
 				htmlEditor.iframeView.container.dispatchEvent(event);
 			}
 		);
+
+		EventEmitter.subscribe(this.getEditor(), 'OnSetViewAfter', (data) => {
+			if (this.getEditor() === data.target)
+			{
+				this.OnEditorSetViewAfter();
+			}
+		});
+	}
+
+	OnEditorSetViewAfter(): void
+	{
+		const copilot = this.toolbar.container.querySelector('[data-id="copilot"]');
+
+		if (copilot)
+		{
+			if (this.getEditor().GetViewMode() === 'code')
+			{
+				this.isCopilotEnabled = false;
+				Dom.attr(copilot, 'title', Loc.getMessage('MPF_COPILOT_BB_CODE'));
+				Dom.addClass(copilot, 'disabled');
+			}
+			else
+			{
+				this.isCopilotEnabled = true;
+				Dom.attr(copilot, 'title', '');
+				Dom.removeClass(copilot, 'disabled');
+			}
+		}
 	}
 
 	getEditor()
@@ -753,6 +782,14 @@ export default class Editor
 	controllerInit(status)
 	{
 		EventEmitter.emit(this.getEventObject(), 'onShowControllers', status === 'hide' ? 'hide' : 'show');
+	}
+
+	showCopilot(): void
+	{
+		if (this.isCopilotEnabled)
+		{
+			this.getEditor().ShowCopilotAtTheBottom();
+		}
 	}
 
 	get controllers()

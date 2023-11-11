@@ -33,6 +33,7 @@ export const SearchUtils = {
 				return 'user';
 			case EntityIdTypes.chat:
 			case EntityIdTypes.chatUser:
+			case EntityIdTypes.lines:
 				return 'chat';
 			case EntityIdTypes.department:
 				return 'department';

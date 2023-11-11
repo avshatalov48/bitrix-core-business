@@ -18,7 +18,10 @@ class CBPIfElseActivity extends CBPCompositeActivity
 		$flag = true;
 		foreach ($this->arActivities as $activity)
 		{
-			if (($activity->Condition == null) || $activity->Condition->Evaluate($activity))
+			if (
+				$activity->isActivated()
+				&& (($activity->Condition == null) || $activity->Condition->Evaluate($activity))
+			)
 			{
 				$flag = false;
 				$activity->AddStatusChangeHandler(self::ClosedEvent, $this);

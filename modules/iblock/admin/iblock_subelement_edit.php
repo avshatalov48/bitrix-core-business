@@ -811,16 +811,20 @@ do{ //one iteration loop
 					${"SUB_PREVIEW_PICTURE_del"} === "Y",
 					${"SUB_PREVIEW_PICTURE_descr"}
 				);
-				if ($arPREVIEW_PICTURE["error"] == 0)
-					$arPREVIEW_PICTURE["COPY_FILE"] = "Y";
+				if (is_array($arPREVIEW_PICTURE) && ($arPREVIEW_PICTURE['error'] ?? 0) === 0)
+				{
+					$arPREVIEW_PICTURE['COPY_FILE'] = 'Y';
+				}
 
 				$arDETAIL_PICTURE = CIBlock::makeFileArray(
 					array_key_exists("SUB_DETAIL_PICTURE", $_FILES)? $_FILES["SUB_DETAIL_PICTURE"]: $_REQUEST["SUB_DETAIL_PICTURE"],
 					${"SUB_DETAIL_PICTURE_del"} === "Y",
 					${"SUB_DETAIL_PICTURE_descr"}
 				);
-				if ($arDETAIL_PICTURE["error"] == 0)
-					$arDETAIL_PICTURE["COPY_FILE"] = "Y";
+				if (is_array($arDETAIL_PICTURE) && ($arDETAIL_PICTURE['error'] ?? 0) === 0)
+				{
+					$arDETAIL_PICTURE['COPY_FILE'] = 'Y';
+				}
 
 				$textIndex = ($bSubCopy ? $copyID : $ID);
 				$arFields = array(

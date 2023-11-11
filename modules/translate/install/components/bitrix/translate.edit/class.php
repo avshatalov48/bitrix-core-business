@@ -125,7 +125,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 			$this->includeComponentTemplate(self::TEMPLATE_ERROR);
 			return;
 		}
-		if (!Translate\IO\Path::isLangDir($this->filePath) || (mb_substr($this->filePath, -4) !== '.php'))
+		if (!Translate\IO\Path::isLangDir($this->filePath) || !Translate\IO\Path::isPhpFile($this->filePath))
 		{
 			$this->addError(new Error(Loc::getMessage('TR_EDIT_FILE_NOT_LANG', array('#FILE#' => $this->filePath)), self::STATUS_DENIED));
 			$this->includeComponentTemplate(self::TEMPLATE_ERROR);
@@ -259,7 +259,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 	{
 		return
 			(!empty($prefix) ? $prefix. '_' : '').
-			str_replace(['.', '-'], '_', $phraseId).
+			str_replace(['.', '-', ' '], '_', $phraseId).
 			(!empty($suffix) ? '_'.$suffix : '');
 	}
 

@@ -12,6 +12,9 @@ class CIBlockElement extends CAllIBlockElement
 	public static function WF_GetLockStatus($ID, &$locked_by, &$date_lock)
 	{
 		global $DB, $USER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$err_mess = "FILE: ".__FILE__."<br> LINE:";
 		$ID = (int)$ID;
 		$MAX_LOCK = (int)COption::GetOptionString("workflow","MAX_LOCK_TIME","60");
@@ -20,9 +23,12 @@ class CIBlockElement extends CAllIBlockElement
 		$strSql = "
 			SELECT WF_LOCKED_BY,
 				".$DB->DateToCharFunction("WF_DATE_LOCK")." WF_DATE_LOCK,
-				if (WF_DATE_LOCK is null, 'green',
-					if(DATE_ADD(WF_DATE_LOCK, interval $MAX_LOCK MINUTE)<now(), 'green',
-						if(WF_LOCKED_BY=$uid, 'yellow', 'red'))) LOCK_STATUS
+				case
+					when WF_DATE_LOCK is null then 'green'
+					when " . $helper->addSecondsToDateTime($MAX_LOCK * 60, 'WF_DATE_LOCK') . " < " . $helper->getCurrentDateTimeFunction() . " then 'green'
+					when WF_LOCKED_BY = " . $uid . " then 'yellow'
+					else 'red'
+				end LOCK_STATUS
 			FROM b_iblock_element
 			WHERE ID = ".$ID."
 		";
@@ -212,7 +218,7 @@ class CIBlockElement extends CAllIBlockElement
 			SELECT
 				E.*,
 				".$DB->DateToCharFunction("E.TIMESTAMP_X")." TIMESTAMP_X,
-				concat('(', U.LOGIN, ') ', ifnull(U.NAME,''), ' ', ifnull(U.LAST_NAME,'')) USER_NAME,
+				concat('(', U.LOGIN, ') ', coalesce(U.NAME,''), ' ', coalesce(U.LAST_NAME,'')) USER_NAME,
 				S.TITLE STATUS_TITLE
 			FROM
 				b_iblock_element E
@@ -231,6 +237,8 @@ class CIBlockElement extends CAllIBlockElement
 	function prepareSql($arSelectFields=array(), $arFilter=array(), $arGroupBy=false, $arOrder=array("SORT"=>"ASC"))
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 		$MAX_LOCK = intval(COption::GetOptionString("workflow","MAX_LOCK_TIME","60"));
 		$uid = $this->userId;
 
@@ -253,28 +261,28 @@ class CIBlockElement extends CAllIBlockElement
 						?
 							$DB->DateToCharFunction("BE.ACTIVE_FROM", $shortFormatActiveDates)
 						:
-							"IF(EXTRACT(HOUR_SECOND FROM BE.ACTIVE_FROM)>0, ".$DB->DateToCharFunction("BE.ACTIVE_FROM", "FULL").", ".$DB->DateToCharFunction("BE.ACTIVE_FROM", "SHORT").")"
+							"BE.ACTIVE_FROM as ACTIVE_FROM_X, case when EXTRACT(HOUR FROM BE.ACTIVE_FROM) > 0 OR EXTRACT(MINUTE FROM BE.ACTIVE_FROM) > 0 OR EXTRACT(SECOND FROM BE.ACTIVE_FROM) > 0 then ".$DB->DateToCharFunction("BE.ACTIVE_FROM", "FULL")." else ".$DB->DateToCharFunction("BE.ACTIVE_FROM", "SHORT")." end"
 						),
 				"ACTIVE_TO"=>(
 						$formatActiveDates
 						?
 							$DB->DateToCharFunction("BE.ACTIVE_TO", $shortFormatActiveDates)
 						:
-							"IF(EXTRACT(HOUR_SECOND FROM BE.ACTIVE_TO)>0, ".$DB->DateToCharFunction("BE.ACTIVE_TO", "FULL").", ".$DB->DateToCharFunction("BE.ACTIVE_TO", "SHORT").")"
+							"case when EXTRACT(HOUR FROM BE.ACTIVE_TO) > 0 OR EXTRACT(MINUTE FROM BE.ACTIVE_TO) > 0 OR EXTRACT(SECOND FROM BE.ACTIVE_TO) > 0 then ".$DB->DateToCharFunction("BE.ACTIVE_TO", "FULL")." else ".$DB->DateToCharFunction("BE.ACTIVE_TO", "SHORT")." end"
 						),
 				"DATE_ACTIVE_FROM"=>(
 						$formatActiveDates
 						?
 							$DB->DateToCharFunction("BE.ACTIVE_FROM", $shortFormatActiveDates)
 						:
-							"IF(EXTRACT(HOUR_SECOND FROM BE.ACTIVE_FROM)>0, ".$DB->DateToCharFunction("BE.ACTIVE_FROM", "FULL").", ".$DB->DateToCharFunction("BE.ACTIVE_FROM", "SHORT").")"
+							"case when EXTRACT(HOUR FROM BE.ACTIVE_FROM) > 0 OR EXTRACT(MINUTE FROM BE.ACTIVE_FROM) > 0 OR EXTRACT(SECOND FROM BE.ACTIVE_FROM) > 0 then ".$DB->DateToCharFunction("BE.ACTIVE_FROM", "FULL")." else ".$DB->DateToCharFunction("BE.ACTIVE_FROM", "SHORT")." end"
 						),
 				"DATE_ACTIVE_TO"=>(
 						$formatActiveDates
 						?
 							$DB->DateToCharFunction("BE.ACTIVE_TO", $shortFormatActiveDates)
 						:
-							"IF(EXTRACT(HOUR_SECOND FROM BE.ACTIVE_TO)>0, ".$DB->DateToCharFunction("BE.ACTIVE_TO", "FULL").", ".$DB->DateToCharFunction("BE.ACTIVE_TO", "SHORT").")"
+							"case when EXTRACT(HOUR FROM BE.ACTIVE_TO) > 0 OR EXTRACT(MINUTE FROM BE.ACTIVE_TO) > 0 OR EXTRACT(SECOND FROM BE.ACTIVE_TO) > 0 then ".$DB->DateToCharFunction("BE.ACTIVE_TO", "FULL")." else ".$DB->DateToCharFunction("BE.ACTIVE_TO", "SHORT")." end"
 						),
 				"SORT"=>"BE.SORT",
 				"NAME"=>"BE.NAME",
@@ -289,7 +297,7 @@ class CIBlockElement extends CAllIBlockElement
 				"WF_PARENT_ELEMENT_ID"=>"BE.WF_PARENT_ELEMENT_ID",
 				"WF_LAST_HISTORY_ID"=>"BE.WF_LAST_HISTORY_ID",
 				"WF_NEW"=>"BE.WF_NEW",
-				"LOCK_STATUS"=>"if (BE.WF_DATE_LOCK is null, 'green', if(DATE_ADD(BE.WF_DATE_LOCK, interval ".$MAX_LOCK." MINUTE)<now(), 'green', if(BE.WF_LOCKED_BY=".$uid.", 'yellow', 'red')))",
+				"LOCK_STATUS"=>"case when BE.WF_DATE_LOCK is null then 'green' when " . $helper->addSecondsToDateTime($MAX_LOCK * 60, 'BE.WF_DATE_LOCK') . " < " . $helper->getCurrentDateTimeFunction() . " then 'green' when BE.WF_LOCKED_BY = " . $uid . " then 'yellow' else 'red' end",
 				"WF_LOCKED_BY"=>"BE.WF_LOCKED_BY",
 				"WF_DATE_LOCK"=>$DB->DateToCharFunction("BE.WF_DATE_LOCK"),
 				"WF_COMMENTS"=>"BE.WF_COMMENTS",
@@ -302,9 +310,9 @@ class CIBlockElement extends CAllIBlockElement
 				"XML_ID"=>"BE.XML_ID",
 				"EXTERNAL_ID"=>"BE.XML_ID",
 				"TMP_ID"=>"BE.TMP_ID",
-				"USER_NAME"=>"concat('(',U.LOGIN,') ',ifnull(U.NAME,''),' ',ifnull(U.LAST_NAME,''))",
-				"LOCKED_USER_NAME"=>"concat('(',UL.LOGIN,') ',ifnull(UL.NAME,''),' ',ifnull(UL.LAST_NAME,''))",
-				"CREATED_USER_NAME"=>"concat('(',UC.LOGIN,') ',ifnull(UC.NAME,''),' ',ifnull(UC.LAST_NAME,''))",
+				"USER_NAME"=>"concat('(',U.LOGIN,') ',coalesce(U.NAME,''),' ',coalesce(U.LAST_NAME,''))",
+				"LOCKED_USER_NAME"=>"concat('(',UL.LOGIN,') ',coalesce(UL.NAME,''),' ',coalesce(UL.LAST_NAME,''))",
+				"CREATED_USER_NAME"=>"concat('(',UC.LOGIN,') ',coalesce(UC.NAME,''),' ',coalesce(UC.LAST_NAME,''))",
 				"LANG_DIR"=>"L.DIR",
 				"LID"=>"B.LID",
 				"IBLOCK_TYPE_ID"=>"B.IBLOCK_TYPE_ID",
@@ -315,7 +323,7 @@ class CIBlockElement extends CAllIBlockElement
 				"LIST_PAGE_URL"=>"B.LIST_PAGE_URL",
 				"CANONICAL_PAGE_URL"=>"B.CANONICAL_PAGE_URL",
 				"CREATED_DATE"=>$DB->DateFormatToDB("YYYY.MM.DD", "BE.DATE_CREATE"),
-				"BP_PUBLISHED"=>"if(BE.WF_STATUS_ID = 1, 'Y', 'N')",
+				"BP_PUBLISHED"=>"case when BE.WF_STATUS_ID = 1 then 'Y' else 'N' end",
 			);
 		unset($shortFormatActiveDates);
 		unset($formatActiveDates);
@@ -2720,7 +2728,7 @@ class CIBlockElement extends CAllIBlockElement
 
 	public static function GetShowedFunction()
 	{
-		return " IfNULL(BE.SHOW_COUNTER/((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(BE.SHOW_COUNTER_START)+0.1)/60/60),0) ";
+		return " coalesce(BE.SHOW_COUNTER/((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(BE.SHOW_COUNTER_START)+0.1)/60/60),0) ";
 	}
 
 	///////////////////////////////////////////////////////////////////

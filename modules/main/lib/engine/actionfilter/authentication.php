@@ -29,7 +29,7 @@ final class Authentication extends Base
 	{
 		global $USER;
 
-		if (!($USER instanceof \CAllUser) || !$USER->getId())
+		if (!($USER instanceof \CUser) || !$USER->getId())
 		{
 			$isAjax = $this->getAction()->getController()->getRequest()->getHeader('BX-Ajax');
 			if ($this->enableRedirect && !$isAjax)

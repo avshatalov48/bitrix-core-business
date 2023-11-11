@@ -1,9 +1,10 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,landing_ui_form_baseform,landing_ui_highlight,landing_ui_field_basefield,landing_ui_component_internal) {
+(function (exports,main_core,landing_ui_form_baseform,landing_ui_highlight,landing_ui_field_basefield,landing_env,landing_ui_component_internal) {
 	'use strict';
 
+	var _templateObject, _templateObject2;
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
@@ -14,6 +15,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	 */
 	var _styleFields = /*#__PURE__*/new WeakMap();
 	var _toggleLinkedFields = /*#__PURE__*/new WeakSet();
+	var _addReplaceByTemplateCard = /*#__PURE__*/new WeakSet();
 	var StyleForm = /*#__PURE__*/function (_BaseForm) {
 	  babelHelpers.inherits(StyleForm, _BaseForm);
 	  function StyleForm() {
@@ -21,6 +23,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, StyleForm);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(StyleForm).call(this, options));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _addReplaceByTemplateCard);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _toggleLinkedFields);
 	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _styleFields, {
 	      writable: true,
@@ -33,6 +36,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.node = 'node' in options ? options.node : null;
 	    _this.selector = 'selector' in options ? options.selector : null;
 	    _this.collapsed = 'collapsed' in options ? options.collapsed : null;
+	    _this.currentTarget = 'currentTarget' in options ? options.currentTarget : null;
+	    _this.specialType = 'specialType' in options ? options.specialType : null;
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _styleFields, new Map());
 	    _this.onHeaderEnter = _this.onHeaderEnter.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.onHeaderLeave = _this.onHeaderLeave.bind(babelHelpers.assertThisInitialized(_this));
@@ -46,6 +51,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 	    if (_this.collapsed) {
 	      main_core.Dom.addClass(_this.layout, 'landing-ui-form-style--collapsed');
+	    }
+	    if (_this.specialType && _this.specialType === 'crm_forms' && landing_env.Env.getInstance().getOptions().specialType === 'crm_forms' && landing_env.Env.getInstance().getOptions().release_autumn_2023 === 'Y') {
+	      _classPrivateMethodGet(babelHelpers.assertThisInitialized(_this), _addReplaceByTemplateCard, _addReplaceByTemplateCard2).call(babelHelpers.assertThisInitialized(_this));
 	    }
 	    return _this;
 	  }
@@ -102,10 +110,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "prepareHeader",
 	    value: function prepareHeader() {
-	      var headerText = document.createElement('div');
-	      BX.Dom.addClass(headerText, 'landing-ui-form-header-text');
-	      while (this.header.childNodes[0]) {
-	        BX.Dom.append(this.header.childNodes[0], headerText);
+	      var headerText = BX.Dom.create({
+	        tag: 'div',
+	        props: {
+	          classList: 'landing-ui-form-header-text'
+	        }
+	      });
+	      if (this.header.childNodes) {
+	        this.header.childNodes.forEach(function (childNode) {
+	          BX.Dom.append(childNode, headerText);
+	        });
 	      }
 	      BX.Dom.append(headerText, this.header);
 	    }
@@ -136,8 +150,25 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	  }
 	}
+	function _addReplaceByTemplateCard2() {
+	  var button = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"ui-btn ui-btn-sm ui-btn-primary ui-btn-hover ui-btn-round\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('LANDING_REPLACE_BY_TEMPLATES_BUTTON'));
+	  var card = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-replace-by-templates-card\">\n\t\t\t<div class=\"landing-ui-form-replace-by-templates-card-title\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t", "\n\t\t</div>"])), main_core.Loc.getMessage('LANDING_REPLACE_BY_TEMPLATES_TITLE'), button);
+	  main_core.Dom.insertBefore(card, this.header);
+	  main_core.Event.bind(button, 'click', function () {
+	    var metrika = new BX.Landing.Metrika(true);
+	    metrika.sendLabel(null, 'templateMarket', 'open&replaceLid=' + landingParams['LANDING_ID']);
+	    var templatesMarketUrl = landingParams['PAGE_URL_LANDING_REPLACE'];
+	    if (templatesMarketUrl) {
+	      BX.SidePanel.Instance.open(templatesMarketUrl, {
+	        allowChangeHistory: false,
+	        cacheable: false,
+	        customLeftBoundary: 0
+	      });
+	    }
+	  });
+	}
 
 	exports.StyleForm = StyleForm;
 
-}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX.Landing.UI.Form,BX.Landing.UI,BX.Landing.UI.Field,BX.Landing.UI.Component));
+}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX.Landing.UI.Form,BX.Landing.UI,BX.Landing.UI.Field,BX.Landing,BX.Landing.UI.Component));
 //# sourceMappingURL=styleform.bundle.js.map

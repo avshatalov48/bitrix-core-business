@@ -185,7 +185,7 @@ class CIMNotify
 				->fetchAll()
 			;
 
-			$messageIds = array_column($result, 'MESSAGEE_ID');
+			$messageIds = array_column($result, 'MESSAGE_ID');
 
 			if (empty($messageIds))
 			{

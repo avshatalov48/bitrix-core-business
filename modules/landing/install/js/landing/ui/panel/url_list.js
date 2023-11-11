@@ -133,6 +133,16 @@
 			this.clear();
 			this.showLoader();
 
+			const env = BX.Landing.Env.getInstance();
+			if (env.getOptions().specialType === 'crm_forms')
+			{
+				if (!BX.Type.isPlainObject(options.filter))
+				{
+					options.filter = {};
+				}
+				options.filter.SPECIAL = 'Y';
+			}
+
 			if (view === TYPE_PAGE)
 			{
 				removeClass(this.layout, "landing-ui-panel-url-list-blocks");
@@ -192,7 +202,10 @@
 				delete options.filter.ID;
 			}
 
-			options.filter.SPECIAL = 'N';
+			if (!BX.Type.isString(options.filter.SPECIAL))
+			{
+				options.filter.SPECIAL = 'N';
+			}
 
 			void BX.Landing.Backend.getInstance()
 				.getSites(options).then(sites => {
@@ -302,7 +315,7 @@
 					SPECIAL: 'N',
 				};
 			}
-			else
+			else if (!BX.Type.isString(options.filter.SPECIAL))
 			{
 				options.filter.SPECIAL = 'N';
 			}

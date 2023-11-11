@@ -11,5 +11,5 @@ $MESS["FIP_CRM_FF_LEAD"] = "Лиды";
 $MESS["FIP_CRM_FF_CONTACT"] = "Контакты";
 $MESS["FIP_CRM_FF_COMPANY"] = "Компании";
 $MESS["FIP_CRM_FF_DEAL"] = "Сделки";
-$MESS["FIP_CRM_FF_QUOTE"] = "Предложения";
+$MESS["FIP_CRM_FF_QUOTE_MSGVER_1"] = "Предложения";
 ?>

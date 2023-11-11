@@ -364,11 +364,15 @@ class IblockPropertyDetails extends CBitrixComponent implements Controllerable
 
 		$parts = $this->parseUserType($propertyFullType);
 
-		$this->entityFields = [
-			'IBLOCK_ID' => $this->iblockId,
-			'PROPERTY_TYPE' => $parts[0],
-			'USER_TYPE' => $parts[1],
-		];
+		$this->entityFields = array_merge(
+			[
+				'IBLOCK_ID' => $this->iblockId,
+				'ID' => $this->propertyId,
+				'PROPERTY_TYPE' => $parts[0],
+				'USER_TYPE' => $parts[1],
+			],
+			$this->getAdditionalEntityFields($parts[0], $parts[1])
+		);
 
 		$this->initResult();
 
@@ -416,5 +420,74 @@ class IblockPropertyDetails extends CBitrixComponent implements Controllerable
 		];
 
 		return new HtmlContent($content);
+	}
+
+	private function getAdditionalEntityFields(string $propertyType, ?string $userType): array
+	{
+		$defaultValues = [
+			'NAME' => '',
+			'ACTIVE' => 'Y',
+			'SORT' => '500',
+			'CODE' => '',
+			'DEFAULT_VALUE' => '',
+			'ROW_COUNT' => '1',
+			'COL_COUNT' => '30',
+			'LIST_TYPE' => PropertyTable::LISTBOX,
+			'MULTIPLE' => 'N',
+			'XML_ID' => '',
+			'FILE_TYPE' => '',
+			'MULTIPLE_CNT' => PropertyTable::DEFAULT_MULTIPLE_CNT,
+			'TMP_ID' => '',
+			'LINK_IBLOCK_ID' => '0',
+			'WITH_DESCRIPTION' => 'N',
+			'SEARCHABLE' => 'N',
+			'FILTRABLE' => 'N',
+			'IS_REQUIRED' => 'N',
+			'USER_TYPE_SETTINGS' => '',
+			'HINT' => '',
+		];
+
+		$result = null;
+		if ($this->propertyId > 0)
+		{
+			$row = PropertyTable::getRow([
+				'filter' => [
+					'=ID' => $this->propertyId,
+				]
+			]);
+			if (is_array($row))
+			{
+				$row['USER_TYPE'] = (string)$row['USER_TYPE'];
+				if ($row['USER_TYPE'] === '')
+				{
+					$row['USER_TYPE'] = null;
+				}
+				if (
+					$row['PROPERTY_TYPE'] === $propertyType
+					&& $row['USER_TYPE'] === $userType
+				)
+				{
+					$result = array_intersect_key($row, $defaultValues);
+					$result['USER_TYPE_SETTINGS'] = (string)$result['USER_TYPE_SETTINGS'];
+					if (
+						$result['USER_TYPE_SETTINGS'] !== ''
+						&& CheckSerializedData($result['USER_TYPE_SETTINGS'])
+					)
+					{
+						$result['USER_TYPE_SETTINGS'] = unserialize($result['USER_TYPE_SETTINGS'], ['allowed_classes' => false]);
+					}
+					if (!is_array($result['USER_TYPE_SETTINGS']))
+					{
+						$result['USER_TYPE_SETTINGS'] = [];
+					}
+				}
+			}
+		}
+
+		return
+			is_array($result)
+				? $result
+				: $defaultValues
+		;
 	}
 }

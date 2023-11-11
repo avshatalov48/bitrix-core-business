@@ -771,10 +771,11 @@ class CIMChat
 				'USERS' => [$userId],
 				'MESSAGE' => GetMessage('IM_PERSONAL_DESCRIPTION')
 			]);
+
+			return $favoriteChatResult->getResult()['CHAT_ID'];
 		}
 
-		$result = $favoriteChatResult->getResult();
-		return $result['ID'];
+		return $favoriteChatResult->getResult()['ID'];
 	}
 
 	/**
@@ -816,7 +817,7 @@ class CIMChat
 	 */
 	public static function GetGeneralChatId()
 	{
-		return IM\V2\Chat\GeneralChat::getGeneralChatId();
+		return IM\V2\Chat\GeneralChat::getGeneralChatId() ?? 0;
 	}
 
 	/**
@@ -847,8 +848,8 @@ class CIMChat
 		}
 
 		$generalChatId = \COption::GetOptionString('im', 'general_chat_id');
-		$generalChat = IM\V2\Chat\ChatFactory::getInstance()->getChat($generalChatId);
-		if ($generalChat)
+		$generalChat = IM\V2\Chat::getInstance((int)$generalChatId);
+		if ($generalChat instanceof IM\V2\Chat\GeneralChat)
 		{
 			return $generalChat->hasPostAccess($userId);
 		}
@@ -1010,6 +1011,10 @@ class CIMChat
 				C.ENTITY_DATA_1 ENTITY_DATA_1,
 				C.ENTITY_DATA_2 ENTITY_DATA_2,
 				C.ENTITY_DATA_3 ENTITY_DATA_3,
+				C.MANAGE_USERS,
+				C.MANAGE_UI,
+				C.MANAGE_SETTINGS,
+				C.CAN_POST,
 				A.ALIAS ALIAS_NAME,
 				".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." CHAT_DATE_CREATE,
 				C.ENTITY_ID,
@@ -1107,6 +1112,10 @@ class CIMChat
 					'manager_list' => array(),
 					'date_create' => $arRes["CHAT_DATE_CREATE"]? \Bitrix\Main\Type\DateTime::createFromTimestamp($arRes["CHAT_DATE_CREATE"]): false,
 					'type' => $chatType,
+					'manage_users' => mb_strtolower($arRes['MANAGE_USERS']),
+					'manage_ui' => mb_strtolower($arRes['MANAGE_UI']),
+					'manage_settings' => mb_strtolower($arRes['MANAGE_SETTINGS']),
+					'can_post' => mb_strtolower($arRes['CAN_POST']),
 					'message_type' => $arRes["CHAT_TYPE"],
 				);
 			}
@@ -1935,6 +1944,11 @@ class CIMChat
 			IM\Model\RelationTable::update($relations[$userId]['ID'], Array('MANAGER' => $status));
 		}
 
+		if ($chat['TYPE'] === IM\V2\Chat::IM_TYPE_OPEN || $chat['ENTITY_TYPE'] === IM\V2\Chat::ENTITY_TYPE_GENERAL)
+		{
+			IM\V2\Chat\GeneralChat::cleanGeneralChatCache(IM\V2\Chat\GeneralChat::MANAGERS_CACHE_ID);
+		}
+
 		$managers = [];
 		foreach ($relations as $relation)
 		{
@@ -2142,6 +2156,7 @@ class CIMChat
 						"TO_CHAT_ID" => $chatId,
 						"MESSAGE" => GetMessage("IM_CHAT_CHANGE_TITLE", Array('#CHAT_TITLE#' => $title)),
 						"SYSTEM" => 'Y',
+						"SKIP_USER_CHECK" => 'Y',
 					));
 				}
 			}
@@ -3257,7 +3272,8 @@ class CIMChat
 					"CODE" => 'CHAT_JOIN',
 					"NOTIFY" => $chatEntityType == 'LINES'? 'Y': 'N',
 				),
-				"PUSH" => 'N'
+				"PUSH" => 'N',
+				"SKIP_USER_CHECK" => 'Y',
 			));
 		}
 		else
@@ -3713,6 +3729,7 @@ class CIMChat
 			"FROM_USER_ID" => $userId,
 			"MESSAGE" => $message,
 			"SYSTEM" => 'Y',
+			"SKIP_USER_CHECK" => 'Y',
 		));
 	}
 

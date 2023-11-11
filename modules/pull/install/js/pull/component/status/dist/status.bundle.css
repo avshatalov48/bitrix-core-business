@@ -96,12 +96,6 @@
 .bx-pull-status-online .bx-pull-status-button {
 	display: none;
 }
-.bx-ie .bx-pull-status {
-	position: absolute;
-}
-.bx-ie .bx-pull-status-wrap {
-	min-width: 533px;
-}
 
 @-webkit-keyframes pullStatusShow {
 	0% { opacity: 0; max-height: 0; }

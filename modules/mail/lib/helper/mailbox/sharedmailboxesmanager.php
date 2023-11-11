@@ -56,9 +56,13 @@ class SharedMailboxesManager
 	 */
 	private static function getBaseQueryForSharedMailboxes()
 	{
+		$helper = MailboxAccessTable::getEntity()->getConnection()->getSqlHelper();
 		return MailboxAccessTable::query()
 			->registerRuntimeField('', new ReferenceField('ref', MailboxTable::class, ['=this.MAILBOX_ID' => 'ref.ID'], ['join_type' => 'INNER']))
-			->where(new ExpressionField('ac', 'CONCAT("U", %s)', 'ref.USER_ID'), '!=', new Column('ACCESS_CODE'))
+			->where(new ExpressionField(
+				'ac',
+				$helper->getConcatFunction("'U'", '%s'),
+				'ref.USER_ID'), '!=', new Column('ACCESS_CODE'))
 			->where('ref.ACTIVE', 'Y')
 			->where('ref.LID', SITE_ID);
 	}

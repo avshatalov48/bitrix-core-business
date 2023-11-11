@@ -348,6 +348,7 @@
 	min-width: 800px;
 	position: relative;
 	min-height: 100%;
+	--main-grid-top-border-radius: 0;
 }
 
 .main-grid-cell-head.mail-msg-list-subject-cell-head {

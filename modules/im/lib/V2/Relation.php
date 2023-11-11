@@ -78,6 +78,33 @@ class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 		return Chat::getInstance($this->getChatId());
 	}
 
+	public function fillRestriction(bool $hideHistory, Chat $chat): self
+	{
+		if ($hideHistory)
+		{
+			$this
+				->setStartId($chat->getLastMessageId() + 1)
+				->setLastFileId($chat->getLastFileId())
+				->setStartCounter($chat->getMessageCount())
+			;
+		}
+
+		if (!$hideHistory && $chat->getContext()->getUserId() > 0)
+		{
+			$selfRelation = $chat->getSelfRelation();
+			if ($selfRelation !== null && $selfRelation->getStartId() > 0)
+			{
+				$this
+					->setStartCounter($selfRelation->getStartId())
+					->setLastFileId($selfRelation->getLastFileId())
+					->setStartCounter($selfRelation->getStartCounter())
+				;
+			}
+		}
+
+		return $this;
+	}
+
 	/**
 	 * @return array<array>
 	 */

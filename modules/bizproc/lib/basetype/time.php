@@ -3,6 +3,7 @@
 namespace Bitrix\Bizproc\BaseType;
 
 use Bitrix\Bizproc\FieldType;
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 
 class Time extends Base
@@ -14,22 +15,14 @@ class Time extends Base
 
 	public static function internalizeValue(FieldType $fieldType, $context, $value)
 	{
-		$format = Value\Time::getFormat();
-		$offset = \CTimeZone::GetOffset();
-
-		if ($value && is_string($value))
-		{
-			return new Value\Time($value, $offset);
-		}
-
-		if ($value instanceof \Bitrix\Main\Type\Date)
-		{
-			return new Value\Time($value->format($format), $offset);
-		}
-
 		if (\CBPActivity::isExpression($value))
 		{
 			return $value;
+		}
+
+		if (is_string($value) && Value\Time::isCorrect($value))
+		{
+			return new Value\Time($value, \CTimeZone::GetOffset());
 		}
 
 		return null;
@@ -37,18 +30,19 @@ class Time extends Base
 
 	public static function getFormats()
 	{
-		$formats = parent::getFormats();
-		$formats['server'] = [
-			'callable' => 'formatValueServer',
-			'separator' => ', ',
-		];
-		$formats['responsible'] = [
-			'callable' => 'formatValueResponsible',
-			'separator' => ', ',
+		$formats = [
+			'server' => [
+				'callable' => 'formatValueServer',
+				'separator' => ', ',
+			],
+			'responsible' => [
+				'callable' => 'formatValueResponsible',
+				'separator' => ', ',
+			],
 		];
 		$formats['author'] = $formats['responsible'];
 
-		return $formats;
+		return array_merge(parent::getFormats(), $formats);
 	}
 
 	protected static function formatValueServer(FieldType $fieldType, $value)
@@ -85,7 +79,9 @@ class Time extends Base
 
 			if (Value\Time::isCorrect($value))
 			{
-				return new Value\Time($value, \CTimeZone::GetOffset());
+				$value = new Value\Time($value, \CTimeZone::GetOffset());
+
+				return $value->serialize();
 			}
 
 			static::addError([
@@ -109,24 +105,38 @@ class Time extends Base
 	protected static function renderControl(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
 		$name = static::generateControlName($field);
-		$value = (string)static::internalizeValue($fieldType, 'Renderer', $value);
+		$value = static::internalizeValue($fieldType, 'Renderer', $value);
+		if ($value instanceof Value\Time)
+		{
+			$value = $value->toSystemObject()->format(Value\Time::getRenderFormat());
+		}
 		$className = static::generateControlClassName($fieldType, $field);
 
 		$renderResult = '<select name="' . htmlspecialcharsbx($name) . '" class="' . htmlspecialcharsbx($className) . '">';
 		$renderResult .= '<option value="">' . Loc::getMessage('BPDT_TIME_NOT_SET') . '</option>';
-		$format = \Bitrix\Bizproc\BaseType\Value\Time::getFormat();
+		$format = Value\Time::getFormat();
 		for ($hour = 0; $hour < 24; $hour++)
 		{
-			$time = (new \Bitrix\Main\Type\DateTime())->setTime($hour, 0)->format($format);
+			$time = (new \Bitrix\Main\Type\DateTime())->setTime($hour, 0);
 
-			$selected = ($value === $time) ? ' selected' : '';
-			$timeHtml = htmlspecialcharsbx($time);
-			$renderResult .= '<option value="' . $timeHtml . '"' . $selected . '>' . $timeHtml . '</option>';
+			$selected =
+				($value === $time->format(Value\Time::getRenderFormat()))
+					? ' selected'
+					: ''
+			;
+			$timeValue = htmlspecialcharsbx($time->format(Value\Time::getRenderFormat()));
+			$timeText = htmlspecialcharsbx($time->format($format));
+			$renderResult .= '<option value="' . $timeValue . '"' . $selected . '>' . $timeText . '</option>';
 
-			$time = (new \Bitrix\Main\Type\DateTime())->setTime($hour, 30)->format($format);
-			$selected = ($value === $time) ? ' selected' : '';
-			$timeHtml = htmlspecialcharsbx($time);
-			$renderResult .= '<option value="' . $timeHtml . '"' . $selected . '>' . $timeHtml . '</option>';
+			$time = (new \Bitrix\Main\Type\DateTime())->setTime($hour, 30);
+			$selected =
+				($value === $time->format(Value\Time::getRenderFormat()))
+					? ' selected'
+					: ''
+			;
+			$timeValue = htmlspecialcharsbx($time->format(Value\Time::getRenderFormat()));
+			$timeText = htmlspecialcharsbx($time->format($format));
+			$renderResult .= '<option value="' . $timeValue . '"' . $selected . '>' . $timeText . '</option>';
 
 		}
 		$renderResult .= '</select>';
@@ -137,8 +147,69 @@ class Time extends Base
 	protected static function getResponsibleOffset(FieldType $fieldType): int
 	{
 		$documentId = $fieldType->getDocumentId();
-		$userId = $documentId ? \CBPHelper::ExtractUsers(['author', 'responsible'], $documentId, true) : null;
+		$userId = $documentId ? \CBPHelper::extractFirstUser(['author', 'responsible'], $documentId) : null;
 
 		return $userId ? \CTimeZone::GetOffset($userId, true) : 0;
+	}
+
+	public static function convertTo(FieldType $fieldType, $value, $toTypeClass)
+	{
+		$isCorrectValue = (
+			$value instanceof Value\Time
+			|| Value\Time::isCorrect((string)$value)
+		);
+
+		/** @var Base $toTypeClass */
+		$type = $toTypeClass::getType();
+
+		switch ($type)
+		{
+			case FieldType::BOOL:
+				$result = $isCorrectValue;
+				break;
+			case FieldType::DATE:
+			case FieldType::DATETIME:
+				$culture = Application::getInstance()->getContext()->getCulture();
+				$dateFormat =
+					\Bitrix\Main\Type\DateTime::convertFormatToPhp($culture?->getDateFormat() ?? 'DD.MM.YYYY')
+				;
+				$dateTimeFormat =
+					\Bitrix\Main\Type\DateTime::convertFormatToPhp($culture?->getDateTimeFormat() ?? 'DD.MM.YYYY HH:MI:SS')
+				;
+
+				$currentDate = new \Bitrix\Main\Type\DateTime();
+				$date =
+					$isCorrectValue
+						? (new Value\Time((string)$value, \CTimeZone::GetOffset()))->toSystemObject()
+						: new \Bitrix\Main\Type\DateTime()
+				;
+				$date->setDate($currentDate->format('Y'), $currentDate->format('m'), $currentDate->format('d'));
+
+				$result = $date->format($type === FieldType::DATE ? $dateFormat : $dateTimeFormat);
+
+				break;
+			case FieldType::DOUBLE:
+			case FieldType::INT:
+				$result =
+					$isCorrectValue
+						? (new \Bitrix\Bizproc\BaseType\Value\Time((string)$value, \CTimeZone::GetOffset()))->getTimestamp()
+						: 0
+				;
+				break;
+			case FieldType::STRING:
+			case FieldType::TEXT:
+			case FieldType::TIME:
+				$result =
+					$isCorrectValue
+						? (string)(new \Bitrix\Bizproc\BaseType\Value\Time((string)$value, \CTimeZone::GetOffset()))
+						: ''
+				;
+
+				break;
+			default:
+				$result = null;
+		}
+
+		return $result;
 	}
 }

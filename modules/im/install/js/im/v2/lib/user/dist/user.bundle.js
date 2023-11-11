@@ -20,7 +20,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      avatar: user.avatar,
 	      color: user.color,
 	      name: user.name,
-	      type: im_v2_const.DialogType.user
+	      type: im_v2_const.DialogType.user,
+	      role: im_v2_const.UserRole.member
 	    };
 	  }
 	  setUsersToModel(rawUsers) {

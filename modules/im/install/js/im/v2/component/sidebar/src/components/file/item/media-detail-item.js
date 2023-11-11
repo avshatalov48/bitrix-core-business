@@ -1,19 +1,21 @@
-import {ImModelSidebarFileItem, ImModelFile} from 'im.v2.model';
-import {Avatar, AvatarSize} from 'im.v2.component.elements';
-import {SocialVideo} from 'ui.vue3.components.socialvideo';
-import {Utils} from 'im.v2.lib.utils';
 import 'ui.viewer';
+import { SocialVideo } from 'ui.vue3.components.socialvideo';
+
+import { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
+import { Avatar, AvatarSize } from 'im.v2.component.elements';
+import { Utils } from 'im.v2.lib.utils';
+
 import '../../../css/file/media-detail-item.css';
 
 // @vue/component
 export const MediaDetailItem = {
 	name: 'MediaDetailItem',
-	components: {SocialVideo, Avatar},
+	components: { SocialVideo, Avatar },
 	props: {
 		fileItem: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['contextMenuClick'],
 	data() {
@@ -68,39 +70,39 @@ export const MediaDetailItem = {
 			}
 
 			return this.formatTime(this.videoDuration);
-		}
+		},
 	},
 	methods:
 	{
 		formatTime(rawSeconds: number): string
 		{
 			rawSeconds = Math.floor(rawSeconds);
-			const durationHours = Math.floor(rawSeconds/60/60);
+			const durationHours = Math.floor(rawSeconds / 60 / 60);
 			if (durationHours > 0)
 			{
-				rawSeconds -= durationHours*60*60;
+				rawSeconds -= durationHours * 60 * 60;
 			}
 
-			const durationMinutes = Math.floor(rawSeconds/60);
+			const durationMinutes = Math.floor(rawSeconds / 60);
 			if (durationMinutes > 0)
 			{
-				rawSeconds -= durationMinutes*60;
+				rawSeconds -= durationMinutes * 60;
 			}
 
-			const hours = durationHours > 0 ? `${durationHours}:`: '';
-			const minutes = hours > 0 ? `${durationMinutes.toString().padStart(2, '0')}:`: `${durationMinutes}:`;
+			const hours = durationHours > 0 ? `${durationHours}:` : '';
+			const minutes = hours > 0 ? `${durationMinutes.toString().padStart(2, '0')}:` : `${durationMinutes}:`;
 			const seconds = rawSeconds.toString().padStart(2, '0');
 
 			return hours + minutes + seconds;
 		},
 		handleVideoEvent()
 		{
-			if (!this.$refs['video'])
+			if (!this.$refs.video)
 			{
 				return;
 			}
 
-			this.videoDuration = this.$refs['video'].duration;
+			this.videoDuration = this.$refs.video.duration;
 		},
 		onContextMenuClick(event)
 		{
@@ -109,7 +111,7 @@ export const MediaDetailItem = {
 				file: this.file,
 				messageId: this.sidebarFileItem.messageId,
 			}, event.currentTarget);
-		}
+		},
 	},
 	template: `
 		<div 
@@ -155,5 +157,5 @@ export const MediaDetailItem = {
 				<span class="bx-im-sidebar-file-media-detail-item__video-controls-time">{{ videoDurationText }}</span>
 			</div>
 		</div>
-	`
+	`,
 };

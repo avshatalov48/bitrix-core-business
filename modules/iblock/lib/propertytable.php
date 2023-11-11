@@ -47,9 +47,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Property_Query query()
- * @method static EO_Property_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Property_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Property_Result getById($id)
- * @method static EO_Property_Result getList(array $parameters = array())
+ * @method static EO_Property_Result getList(array $parameters = [])
  * @method static EO_Property_Entity getEntity()
  * @method static \Bitrix\Iblock\Property createObject($setDefaultValues = true)
  * @method static \Bitrix\Iblock\EO_Property_Collection createCollection()
@@ -59,17 +59,17 @@ Loc::loadMessages(__FILE__);
 
 class PropertyTable extends ORM\Data\DataManager
 {
-	const CHECKBOX = 'C';
-	const LISTBOX = 'L';
+	public const CHECKBOX = 'C';
+	public const LISTBOX = 'L';
 
-	const TYPE_STRING = 'S';
-	const TYPE_NUMBER = 'N';
-	const TYPE_FILE = 'F';
-	const TYPE_ELEMENT = 'E';
-	const TYPE_SECTION = 'G';
-	const TYPE_LIST = 'L';
+	public const TYPE_STRING = 'S';
+	public const TYPE_NUMBER = 'N';
+	public const TYPE_FILE = 'F';
+	public const TYPE_ELEMENT = 'E';
+	public const TYPE_SECTION = 'G';
+	public const TYPE_LIST = 'L';
 
-	const DEFAULT_MULTIPLE_CNT = 5;
+	public const DEFAULT_MULTIPLE_CNT = 5;
 
 	// iblock module
 	public const USER_TYPE_DATE = \CIBlockPropertyDate::USER_TYPE;

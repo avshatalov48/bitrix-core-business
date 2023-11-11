@@ -28,12 +28,21 @@ export default function editStyle(entry)
 		.then((block) => {
 			let elements = slice(block.node.querySelectorAll(entry.selector));
 
-			if (block.selector === entry.selector)
+			if (entry.params.isWrapper)
 			{
 				elements = [block.content];
+				entry.selector += ' > :first-child';
 			}
 
-			elements.forEach((element) => {
+			elements.forEach((element, pos) => {
+				if (
+					entry.params.position >= 0
+					&& entry.params.position !== pos
+				)
+				{
+					return;
+				}
+
 				element.className = entry.params.value.className;
 				if (entry.params.value.style && entry.params.value.style !== '')
 				{
@@ -76,7 +85,10 @@ export default function editStyle(entry)
 				{
 					styleNode.setAffects(entry.params.affect);
 				}
-				block.onStyleInputWithDebounce({node: styleNode.node, data: styleNode.getValue()}, true);
+				block.onStyleInputWithDebounce({
+					node: styleNode.node,
+					data: styleNode.getValue()
+				}, true);
 			}
 		});
 }

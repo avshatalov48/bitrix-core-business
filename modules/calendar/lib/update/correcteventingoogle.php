@@ -2,13 +2,7 @@
 
 namespace Bitrix\Calendar\Update;
 
-use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Sync\Google\Dictionary;
-use Bitrix\Calendar\Sync\GoogleApiBatch;
-use Bitrix\Calendar\Sync\GoogleApiPush;
-use Bitrix\Calendar\Sync\GoogleApiSync;
-use Bitrix\Main\Config\Option;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Update\Stepper;
 use Bitrix\Main\Type;
 
@@ -24,49 +18,10 @@ class CorrectEventInGoogle extends Stepper
 	/**
 	 * @param array $result
 	 * @return bool
-	 * @throws \Bitrix\Main\LoaderException
 	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public function execute(array &$result): bool
 	{
-		if (!Loader::includeModule("calendar") || !Loader::includeModule("dav"))
-		{
-			return self::FINISH_EXECUTION;
-		}
-
-
-		if ($events = $this->getLocalEventWronglySent())
-		{
-			foreach ($events as $event)
-			{
-				GoogleApiPush::setBlockPush(GoogleApiPush::TYPE_SECTION, (int)$event['SECTION_ID']);
-
-				$google = new GoogleApiSync((int)$event['OWNER_ID'], (int)$event['CONNECTION_ID']);
-				$google->deleteEvent($event['G_EVENT_ID'], $event['GAPI_CALENDAR_ID']);
-				\CCalendarEvent::updateSyncStatus((int)$event['ID'], Dictionary::SYNC_STATUS['deleted']);
-
-				GoogleApiPush::setUnblockPush(GoogleApiPush::TYPE_SECTION, (int)$event['SECTION_ID']);
-			}
-
-			return self::CONTINUE_EXECUTION;
-		}
-
-		if ($recurrentEvents = $this->getRecurrentEvents())
-		{
-			foreach ($recurrentEvents as $event)
-			{
-				GoogleApiPush::setBlockPush(GoogleApiPush::TYPE_SECTION, (int)$event['SECTION_ID']);
-
-				$google = new GoogleApiSync((int)$event['OWNER_ID']);
-				$google->saveEvent($event, $event['GAPI_CALENDAR_ID'], $event['CONNECTION_ID']);
-				\CCalendarEvent::updateSyncStatus((int)$event['ID'], Dictionary::SYNC_STATUS['exdated']);
-
-				GoogleApiPush::setUnblockPush(GoogleApiPush::TYPE_SECTION, (int)$event['SECTION_ID']);
-			}
-
-			return self::CONTINUE_EXECUTION;
-		}
-
 		return self::FINISH_EXECUTION;
 	}
 

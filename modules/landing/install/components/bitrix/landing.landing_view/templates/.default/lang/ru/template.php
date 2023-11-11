@@ -79,6 +79,7 @@ $MESS['LANDING_PAGE_STATUS_PUBLIC_NOW'] = 'Опубликовано сейчас
 $MESS['LANDING_SITE_TILE_POPUP_COPY_LINK_COMPLETE'] = 'Ссылка скопирована.';
 $MESS['LANDING_FORM_EDITOR_TOP_PANEL_SETTINGS'] = 'Настройки';
 $MESS['LANDING_SITE_HINT_AUTOPUBLISHING_OPTIONS'] = 'Параметры автопубликации';
+$MESS['LANDING_SITE_HINT_AUTOPUBLISHING_AREA'] = 'Для настройки автопубликации перейдите на страницу, которая не является включаемой областью';
 $MESS['LANDING_LABEL_NEW'] = 'Новое';
 $MESS['LANDING_PREVIEW_DEVICE_MOBILES'] = 'Телефоны';
 $MESS['LANDING_PREVIEW_DEVICE_TABLETS'] = 'Планшеты';

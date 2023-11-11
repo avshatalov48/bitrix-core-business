@@ -1,6 +1,6 @@
 import { Extension, Type } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
-import { getFilesFromDataTransfer, isFilePasted } from 'ui.uploader.core';
+import { isFilePasted } from 'ui.uploader.core';
 
 import { EventType, LocalStorageKey, SoundType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
@@ -8,19 +8,23 @@ import { DraftManager } from 'im.v2.lib.draft';
 import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
 import { LocalStorageManager } from 'im.v2.lib.local-storage';
-import { MessageService, SendingService } from 'im.v2.provider.service';
+import { MessageService, SendingService, UploadingService } from 'im.v2.provider.service';
 import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
+import { isSendMessageCombination, isNewLineCombination } from 'im.v2.lib.hotkey';
+import { Textarea } from 'im.v2.lib.textarea';
 
+import { MentionManager, MentionManagerEvents } from './classes/mention-manager';
 import { ResizeManager } from './classes/resize-manager';
 import { TypingService } from './classes/typing-service';
-import { Text } from './classes/text';
 import { SmileSelector } from './components/smile-selector/smile-selector';
 import { EditPanel } from './components/edit-panel';
+import { ReplyPanel } from './components/reply-panel';
 import { UploadMenu } from './components/upload-menu/upload-menu';
 import { CreateEntityMenu } from './components/create-entity-menu/create-entity-menu';
 import { SendButton } from './components/send-button';
 import { MarketAppsPanel } from './components/market-apps-panel/market-apps-panel';
 import { UploadPreviewPopup } from './components/upload-preview/upload-preview-popup';
+import { MentionPopup } from './components/mention/mention-popup';
 
 import './css/textarea.css';
 
@@ -30,6 +34,7 @@ import type { InsertTextEvent, InsertMentionEvent, EditMessageEvent } from 'im.v
 // @vue/component
 export const ChatTextarea = {
 	components: {
+		ReplyPanel,
 		EditPanel,
 		UploadMenu,
 		CreateEntityMenu,
@@ -37,6 +42,7 @@ export const ChatTextarea = {
 		SendButton,
 		UploadPreviewPopup,
 		MarketAppsPanel,
+		MentionPopup,
 	},
 	props: {
 		dialogId: {
@@ -51,7 +57,11 @@ export const ChatTextarea = {
 			mentions: {},
 			textareaHeight: ResizeManager.minHeight,
 			editMessageId: 0,
+			replyMessageId: 0,
 			showMarketApps: false,
+
+			showMention: false,
+			mentionQuery: '',
 
 			showUploadPreviewPopup: false,
 			previewPopupUploaderId: '',
@@ -66,6 +76,10 @@ export const ChatTextarea = {
 		dialogInited(): boolean
 		{
 			return this.dialog.inited;
+		},
+		replyMode(): boolean
+		{
+			return Boolean(this.replyMessageId);
 		},
 		editMode(): boolean
 		{
@@ -121,13 +135,16 @@ export const ChatTextarea = {
 		this.restoreTextareaHeight();
 		this.restoreMarketPanelOpenState();
 		this.restoreDraftText();
+		this.initSendingService();
 
 		EventEmitter.subscribe(EventType.textarea.insertMention, this.onInsertMention);
 		EventEmitter.subscribe(EventType.textarea.insertText, this.onInsertText);
 		EventEmitter.subscribe(EventType.textarea.editMessage, this.onEditMessage);
+		EventEmitter.subscribe(EventType.textarea.replyMessage, this.onReplyMessage);
 	},
 	mounted()
 	{
+		this.initMentionManager();
 		this.$refs.textarea.focus();
 	},
 	beforeUnmount()
@@ -136,6 +153,7 @@ export const ChatTextarea = {
 		EventEmitter.unsubscribe(EventType.textarea.insertMention, this.onInsertMention);
 		EventEmitter.unsubscribe(EventType.textarea.insertText, this.onInsertText);
 		EventEmitter.unsubscribe(EventType.textarea.editMessage, this.onEditMessage);
+		EventEmitter.unsubscribe(EventType.textarea.replyMessage, this.onReplyMessage);
 	},
 	methods:
 	{
@@ -147,6 +165,8 @@ export const ChatTextarea = {
 				return;
 			}
 
+			const text = this.hasMentions ? this.replaceMentions(this.text) : this.text;
+
 			if (this.editMode)
 			{
 				if (this.text === '')
@@ -155,21 +175,23 @@ export const ChatTextarea = {
 				}
 				else
 				{
-					this.getMessageService().editMessageText(this.editMessageId, this.text);
+					this.getMessageService().editMessageText(this.editMessageId, text);
 				}
-				this.closeEditPanel();
-				this.clear();
+				this.onEditPanelClose();
 
 				return;
 			}
 
-			const text = this.hasMentions ? this.replaceMentions(this.text) : this.text;
-
-			this.getSendingService().sendMessage({ text, dialogId: this.dialogId });
+			this.getSendingService().sendMessage({ text, dialogId: this.dialogId, replyId: this.replyMessageId });
 			this.getTypingService().stopTyping();
 			this.clear();
 			DraftManager.getInstance().clearDraftInRecentList(this.dialogId);
 			SoundNotificationManager.getInstance().playOnce(SoundType.send);
+
+			if (this.replyMode)
+			{
+				this.closeReplyPanel();
+			}
 		},
 		replaceMentions(text: string): string
 		{
@@ -196,6 +218,11 @@ export const ChatTextarea = {
 			this.showMarketApps = false;
 			const message: ImModelMessage = this.$store.getters['messages/getById'](messageId);
 
+			if (this.replyMode)
+			{
+				this.closeReplyPanel();
+			}
+
 			if (message.isDeleted)
 			{
 				return;
@@ -206,9 +233,28 @@ export const ChatTextarea = {
 
 			this.$refs.textarea.focus();
 		},
+		openReplyPanel(messageId: number)
+		{
+			this.showMarketApps = false;
+
+			if (this.editMode)
+			{
+				this.closeEditPanel();
+				this.clear();
+			}
+
+			this.replyMessageId = messageId;
+
+			this.$refs.textarea.focus();
+		},
 		closeEditPanel()
 		{
 			this.editMessageId = 0;
+			this.restoreMarketPanelOpenState();
+		},
+		closeReplyPanel()
+		{
+			this.replyMessageId = 0;
 			this.restoreMarketPanelOpenState();
 		},
 		async adjustTextareaHeight()
@@ -250,7 +296,7 @@ export const ChatTextarea = {
 		{
 			this.text = DraftManager.getInstance().getDraft(this.dialogId);
 		},
-		onKeyDown(event: KeyboardEvent)
+		async onKeyDown(event: KeyboardEvent)
 		{
 			const exitEditCombination = Utils.key.isCombination(event, 'Escape');
 			if (this.editMode && exitEditCombination)
@@ -260,26 +306,40 @@ export const ChatTextarea = {
 				return;
 			}
 
-			const sendMessageCombination = Utils.key.isCombination(event, ['Enter', 'NumpadEnter']);
-			const newLineCombination = Utils.key.isCombination(event, 'Shift+Enter');
-			if (sendMessageCombination && !newLineCombination)
+			if (this.replyMode && exitEditCombination)
+			{
+				this.closeReplyPanel();
+
+				return;
+			}
+
+			const sendMessageCombination = isSendMessageCombination(event);
+			const newLineCombination = isNewLineCombination(event);
+			if (sendMessageCombination && !newLineCombination && !this.showMention)
 			{
 				event.preventDefault();
 				this.sendMessage();
+			}
+
+			if (newLineCombination)
+			{
+				event.preventDefault();
+				this.text = Textarea.addNewLine(this.$refs.textarea);
+
+				return;
 			}
 
 			const tabCombination = Utils.key.isCombination(event, 'Tab');
 			if (tabCombination)
 			{
 				event.preventDefault();
-				const { textarea } = this.$refs;
 				if (event.shiftKey)
 				{
-					this.text = Text.removeTab(textarea);
+					this.text = Textarea.removeTab(this.$refs.textarea);
 
 					return;
 				}
-				this.text = Text.addTab(textarea);
+				this.text = Textarea.addTab(this.$refs.textarea);
 
 				return;
 			}
@@ -288,8 +348,7 @@ export const ChatTextarea = {
 			if (decorationCombination)
 			{
 				event.preventDefault();
-				const { textarea } = this.$refs;
-				this.text = Text.handleDecorationTag(textarea, event.code);
+				this.text = Textarea.handleDecorationTag(this.$refs.textarea, event.code);
 
 				return;
 			}
@@ -303,26 +362,38 @@ export const ChatTextarea = {
 					this.openEditPanel(lastOwnMessageId);
 				}
 			}
+
+			this.mentionManager.onKeyDown(event);
 		},
 		onResizeStart(event)
 		{
 			this.resizeManager.onResizeStart(event, this.textareaHeight);
 		},
-		onFileSelect(fileEvent: InputEvent)
+		onFileSelect({ event, sendAsFile }: InputEvent)
 		{
-			const files = Object.values(fileEvent.target.files);
+			const files = Object.values(event.target.files);
 
-			this.getSendingService().sendFilesFromInput(files, this.dialogId);
+			this.getUploadingService().addFilesFromInput(files, this.dialogId, sendAsFile);
 		},
 		onDiskFileSelect({ files })
 		{
-			this.getSendingService().sendFilesFromDisk(files, this.dialogId);
+			this.getUploadingService().uploadFileFromDisk(files, this.dialogId);
 		},
 		onInsertMention(event: BaseEvent<InsertMentionEvent>)
 		{
-			const { mentionText, mentionReplacement } = event.getData();
+			const { mentionText, mentionReplacement, textToReplace = '' } = event.getData();
+
 			this.mentions[mentionText] = mentionReplacement;
-			this.text += `${mentionText} `;
+			const queryWithMentionSymbol = `${this.mentionManager.getMentionSymbol()}${textToReplace}`;
+			if (queryWithMentionSymbol.length > 0)
+			{
+				this.text = this.text.replace(queryWithMentionSymbol, `${mentionText} `);
+			}
+			else
+			{
+				this.text += `${mentionText} `;
+			}
+
 			this.$refs.textarea.focus();
 		},
 		onInsertText(event: BaseEvent<InsertTextEvent>)
@@ -355,6 +426,11 @@ export const ChatTextarea = {
 			const { messageId } = event.getData();
 			this.openEditPanel(messageId);
 		},
+		onReplyMessage(event: BaseEvent<EditMessageEvent>)
+		{
+			const { messageId } = event.getData();
+			this.openReplyPanel(messageId);
+		},
 		onEditPanelClose()
 		{
 			this.closeEditPanel();
@@ -370,34 +446,32 @@ export const ChatTextarea = {
 
 			clipboardEvent.preventDefault();
 
-			getFilesFromDataTransfer(clipboardData).then((files: File[]) => {
-				const imagesOnly = files.filter((file) => Utils.file.isImage(file.name));
-				if (imagesOnly.length === 0)
-				{
-					return [];
-				}
+			this.getUploadingService().addFilesFromClipboard(clipboardData, this.dialogId)
+				.then(({ files, uploaderId }) => {
+					if (files.length === 0)
+					{
+						return;
+					}
 
-				return this.getSendingService().sendFilesFromClipboard(imagesOnly, this.dialogId);
-			}).then(({ files, uploaderId }) => {
-				if (files.length === 0)
-				{
-					return;
-				}
-
-				this.showUploadPreviewPopup = true;
-				this.previewPopupUploaderId = uploaderId;
-			}).catch((error) => {
-				Logger.error('Textarea: onPaste error', error);
-			});
+					this.showUploadPreviewPopup = true;
+					this.previewPopupUploaderId = uploaderId;
+				}).catch((error) => {
+					Logger.error('Textarea: error paste file from clipboard', error);
+				});
 		},
 		onMarketIconClick()
 		{
-			this.showMarketApps = !this.showMarketApps;
-			this.saveMarketPanelOpenState(this.showMarketApps);
-			if (this.showMarketApps && this.editMode)
+			if (this.editMode)
 			{
 				this.onEditPanelClose();
 			}
+
+			if (this.replyMode)
+			{
+				this.closeReplyPanel();
+			}
+			this.showMarketApps = !this.showMarketApps;
+			this.saveMarketPanelOpenState(this.showMarketApps);
 		},
 		initResizeManager()
 		{
@@ -412,13 +486,29 @@ export const ChatTextarea = {
 				this.saveTextareaHeight();
 			});
 		},
-		getSendingService(): SendingService
+		initSendingService()
 		{
-			if (!this.sendingService)
+			if (this.sendingService)
 			{
-				this.sendingService = SendingService.getInstance();
+				return;
 			}
 
+			this.sendingService = SendingService.getInstance();
+		},
+		initMentionManager()
+		{
+			this.mentionManager = new MentionManager(this.$refs.textarea);
+			this.mentionManager.subscribe(MentionManagerEvents.showMentionPopup, (event) => {
+				const { mentionQuery } = event.getData();
+				this.showMentionPopup(mentionQuery);
+			});
+
+			this.mentionManager.subscribe(MentionManagerEvents.hideMentionPopup, () => {
+				this.closeMentionPopup();
+			});
+		},
+		getSendingService(): SendingService
+		{
 			return this.sendingService;
 		},
 		getTypingService(): TypingService
@@ -439,9 +529,14 @@ export const ChatTextarea = {
 
 			return this.messageService;
 		},
-		loc(phraseCode: string): string
+		getUploadingService(): UploadingService
 		{
-			return this.$Bitrix.Loc.getMessage(phraseCode);
+			if (!this.uploadingService)
+			{
+				this.uploadingService = UploadingService.getInstance();
+			}
+
+			return this.uploadingService;
 		},
 		restoreMarketPanelOpenState()
 		{
@@ -459,14 +554,28 @@ export const ChatTextarea = {
 		onSendFilesFromPreviewPopup(event)
 		{
 			this.text = '';
-			const { groupFiles, text, uploaderId, sendAsFile } = event;
-			this.getSendingService().sendMessagesWithFiles({
-				groupFiles,
-				text,
-				uploaderId,
-				dialogId: this.dialogId,
-				sendAsFile,
-			});
+			const { groupFiles, text, uploaderId } = event;
+			if (groupFiles)
+			{
+				return;
+			}
+
+			this.getUploadingService().sendSeparateMessagesWithFiles({ uploaderId, text });
+		},
+		closeMentionPopup()
+		{
+			this.showMention = false;
+			this.mentionQuery = '';
+			this.mentionManager.onMentionPopupClose();
+		},
+		showMentionPopup(mentionQuery: string)
+		{
+			this.mentionQuery = mentionQuery;
+			this.showMention = true;
+		},
+		loc(phraseCode: string): string
+		{
+			return this.$Bitrix.Loc.getMessage(phraseCode);
 		},
 	},
 	template: `
@@ -474,6 +583,7 @@ export const ChatTextarea = {
 			<div class="bx-im-textarea__container">
 				<div @mousedown="onResizeStart" class="bx-im-textarea__drag-handle"></div>
 				<EditPanel v-if="editMode" :messageId="editMessageId" @close="onEditPanelClose" />
+				<ReplyPanel v-if="replyMode" :messageId="replyMessageId" @close="closeReplyPanel" />
 				<MarketAppsPanel v-if="showMarketApps" :dialogId="dialogId"/>
 				<div class="bx-im-textarea__content">
 					<div class="bx-im-textarea__left">
@@ -514,6 +624,13 @@ export const ChatTextarea = {
 				:textareaValue="text"
 				@close="showUploadPreviewPopup = false"
 				@sendFiles="onSendFilesFromPreviewPopup"
+			/>
+			<MentionPopup 
+				v-if="showMention" 
+				:bindElement="$refs.textarea"
+				:dialogId="dialogId"
+				:query="mentionQuery"
+				@close="closeMentionPopup"
 			/>
 		</div>
 	`,

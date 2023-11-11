@@ -160,6 +160,10 @@ final class Product extends Base
 
 		if ($result->isSuccess())
 		{
+			$catalogInfo = \CCatalogSku::GetInfoByOfferIBlock($iblockId);
+			$skuPropertyId = $catalogInfo['SKU_PROPERTY_ID'] ?? null;
+			unset($catalogInfo);
+
 			$allowedTypes = array_fill_keys(self::getUserType(), true);
 
 			$cache = [
@@ -191,6 +195,7 @@ final class Product extends Base
 			]);
 			while ($property = $iterator->fetch())
 			{
+				$property['ID'] = (int)$property['ID'];
 				$userType = (string)$property['USER_TYPE'];
 				if (
 					$userType !== ''
@@ -224,7 +229,7 @@ final class Product extends Base
 				)
 				{
 					$enumFilter = [
-						'=PROPERTY_ID' => (int)$property['ID'],
+						'=PROPERTY_ID' => $property['ID'],
 					];
 					if (Iblock\PropertyEnumerationTable::getCount($enumFilter, $cache) === 1)
 					{
@@ -249,11 +254,19 @@ final class Product extends Base
 					$info['USER_TYPE'] = Catalog\Controller\Enum::PROPERTY_USER_TYPE_BOOL_ENUM;
 				}
 
-				$fieldsInfo['PROPERTY_' . $property['ID']] = $info;
+				$canonicalName = 'PROPERTY_' . $property['ID'];
+				if ($property['ID'] === $skuPropertyId)
+				{
+					$info['CANONICAL_NAME'] = $canonicalName;
+					$fieldsInfo['PARENT_ID'] = $info;
+				}
+				else
+				{
+					$fieldsInfo[$canonicalName] = $info;
+				}
+				unset($canonicalName);
 			}
 			unset($property, $iterator);
-
-			$fieldsInfo = $this->addCanonicalFieldName($fieldsInfo);
 
 			$fieldsInfo['PROPERTY_*'] = [
 				'TYPE' => DataType::TYPE_PRODUCT_PROPERTY,
@@ -264,28 +277,6 @@ final class Product extends Base
 			];
 
 			$result->setData($fieldsInfo);
-		}
-
-		return $result;
-	}
-
-	private function addCanonicalFieldName($fields): array
-	{
-		$result = [];
-
-		foreach ($fields as $name => $info)
-		{
-			if (
-				$info['PROPERTY_TYPE'] === PropertyTable::TYPE_ELEMENT
-				&& $info['USER_TYPE'] === PropertyTable::USER_TYPE_SKU
-			)
-			{
-				$result['PARENT_ID'] = $info + ['CANONICAL_NAME' => $name];
-			}
-			else
-			{
-				$result[$name] = $info;
-			}
 		}
 
 		return $result;
@@ -738,15 +729,22 @@ final class Product extends Base
 			if ($r->isSuccess())
 			{
 				$propertyValues = $this->getFieldsIBlockPropertyValuesByFilter(['IBLOCK_ID' => $iblockId]);
+				$properties = [];
+				if ($propertyValues->isSuccess())
+				{
+					$properties = $propertyValues->getData();
+					unset($properties['PROPERTY_*']);
+				}
+				unset($propertyValues);
 				$result->setData(
 					array_merge(
 						$this->getFieldsIBlockElement(),
-						($propertyValues->isSuccess() ? $propertyValues->getData() : []),
+						$properties,
 						$this->getFieldsCatalogProductCommonFields(),
 						$this->getFieldsCatalogProductByType($productTypeId)
 					)
 				);
-				unset($propertyValues);
+				unset($properties);
 			}
 			else
 			{
@@ -1049,7 +1047,6 @@ final class Product extends Base
 					$booleanValue = $value[0]['VALUE'];
 					if ($booleanValue === self::BOOLEAN_VALUE_YES)
 					{
-						//$value[0]['VALUE'] = current($info['VALUES'])['ID'];
 						$value[0]['VALUE'] = $info['BOOLEAN_VALUE_YES']['ID'];
 					}
 					elseif ($booleanValue === self::BOOLEAN_VALUE_NO)

@@ -1,5 +1,6 @@
 import {Dom, Tag} from 'main.core';
 import {EventEmitter} from 'main.core.events';
+import { ParserRecursionPrevention } from '../utils/recursion-prevention';
 
 import {ParserUtils} from '../utils/utils';
 import {getUtils, getConst} from '../utils/core-proxy';
@@ -64,6 +65,8 @@ export const ParserQuote = {
 
 	decodeQuote(text): string
 	{
+		text = ParserRecursionPrevention.cutTags(text);
+
 		text = text.replace(
 			/-{54}(<br \/>(.*?)\[(.*?)]( #(?:chat\d+|\d+:\d+)\/\d+)?)?<br \/>(.*?)-{54}(<br \/>)?/gs,
 			(whole, userBlock, userName, timeTag, contextTag, text): string => {
@@ -111,6 +114,8 @@ export const ParserQuote = {
 				return layout.outerHTML;
 			}
 		);
+
+		text = ParserRecursionPrevention.recoverTags(text);
 
 		return text;
 	},

@@ -340,11 +340,11 @@ if(
 			$arResult['AUTH'] = array();
 		}
 
-		if(!is_array($arResult['AUTH']) || !$arResult['AUTH']['access_token'])
+		if (!is_array($arResult['AUTH']) || !$arResult['AUTH']['access_token'])
 		{
-			if($arResult['AUTH']['error'])
+			if ($arResult['AUTH']['error'])
 			{
-				if(
+				if (
 					$arResult['AUTH']['error'] == 'ERROR_OAUTH'
 					&& $arResult['AUTH']['error_description'] == 'Application not installed'
 				)
@@ -358,7 +358,7 @@ if(
 						->getClient()
 						->installApplication($queryFields);
 
-					if($installResult['result'])
+					if ($installResult['result'])
 					{
 						$arResult['AUTH'] = \Bitrix\Rest\Application::getAuthProvider()->get(
 							$arApp['CLIENT_ID'],
@@ -396,9 +396,9 @@ if(
 					return;
 				}
 
-				if($arResult['AUTH']['error'])
+				if ($arResult['AUTH']['error'])
 				{
-					if($arResult['AUTH']['error'] !== "PAYMENT_REQUIRED")
+					if ($arResult['AUTH']['error'] !== "PAYMENT_REQUIRED")
 					{
 						$componentPage = 'error';
 						$arResult['ERROR_MESSAGE'] = $arResult['AUTH']['error'].($arResult['AUTH']['error_description'] ? ': '.$arResult['AUTH']['error_description'] : '');
@@ -410,6 +410,34 @@ if(
 						\Bitrix\Rest\AppTable::updateAppStatusInfo();
 						$arApp = \Bitrix\Rest\AppTable::getByClientId($arParams['ID']);
 					}
+				}
+			}
+			else
+			{
+				$arResult['AUTH'] = \Bitrix\Rest\Application::getAuthProvider()->get(
+					$arApp['CLIENT_ID'],
+					$arApp['SCOPE'],
+					array(),
+					$USER->GetID()
+				);
+
+				if (!is_array($arResult['AUTH']) || !$arResult['AUTH']['access_token'])
+				{
+					if (isset($arResult['AUTH']['error']))
+					{
+						$arResult['ERROR_MESSAGE'] = $arResult['AUTH']['error']
+							. ($arResult['AUTH']['error_description'] ? ': '
+							. $arResult['AUTH']['error_description'] : '');
+					}
+					else
+					{
+						$arResult['ERROR_MESSAGE'] = GetMessage('REST_AL_ERROR_APP_GET_OAUTH_TOKEN');
+					}
+
+					$componentPage = 'error';
+					$this->IncludeComponentTemplate($componentPage);
+
+					return;
 				}
 			}
 		}

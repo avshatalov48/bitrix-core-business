@@ -1,0 +1,69 @@
+.bx-im-message-search-item__scope {
+	--im-sidebar-message-search-detail__background-color_item: #f5f7f8;
+	--im-sidebar-message-search-detail__color_author-text: #6a737f;
+	--im-sidebar-message-search-detail__color_message-text: #525c69;
+	--im-sidebar-message-search-detail__color_highlight: var(--im-color-palette-black-solid);
+	--im-sidebar-message-search-detail__background-color_highlight: #faf16d;
+}
+
+.bx-im-message-search-item__container {
+	background-color: var(--im-sidebar-message-search-detail__background-color_item);
+	border-radius: 12px;
+	padding: 6px 12px 10px;
+	margin: 0 10px 0 15px;
+	cursor: pointer;
+}
+
+.bx-im-message-search-item__container + .bx-im-message-search-item__container {
+	margin-top: 8px;
+}
+
+.bx-im-message-search-item__author-container {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	overflow: hidden;
+}
+
+.bx-im-message-search-item__header-container {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 6px;
+}
+
+.bx-im-message-search-item__author-avatar {
+	flex-shrink: 0;
+}
+
+.bx-im-message-search-item__author-text .bx-im-chat-title__text {
+	--im-chat-title__font-color: var(--im-sidebar-message-search-detail__color_author-text);
+
+	font: var(--im-font-size-xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+}
+
+.bx-im-message-search-item__author-text .bx-im-chat-title__icon::before {
+	top: 2px;
+}
+
+.bx-im-message-search-item__system-author {
+	height: 18px;
+	font: var(--im-font-size-xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-sidebar-message-search-detail__color_author-text);
+}
+
+.bx-im-message-search-item__message-text {
+	font: var(--im-font-size-xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-sidebar-message-search-detail__color_message-text);
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	white-space: initial;
+}
+
+.bx-im-message-search-item__message-text .--highlight {
+	color: var(--im-sidebar-message-search-detail__color_highlight);
+	background-color: var(--im-sidebar-message-search-detail__background-color_highlight);
+}

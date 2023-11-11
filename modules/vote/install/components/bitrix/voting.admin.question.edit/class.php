@@ -117,7 +117,7 @@ namespace
 		}
 
 		/**
-		 * @return Application|\Bitrix\Main\HttpApplication|\CAllMain|\CMain
+		 * @return Application|\Bitrix\Main\HttpApplication|CMain
 		 */
 		protected function getApplication()
 		{
@@ -126,7 +126,7 @@ namespace
 		}
 
 		/**
-		 * @return array|bool|\CAllUser|\CUser
+		 * @return array|bool|CUser
 		 */
 		protected function getUser()
 		{
@@ -588,7 +588,7 @@ namespace Bitrix\Vote\Component
 			return (++$this->maxId);
 		}
 		/**
-		 * @return \Application|\Bitrix\Main\HttpApplication|\CAllMain|\CMain
+		 * @return \Application|\Bitrix\Main\HttpApplication|CMain
 		 */
 		protected function getApplication()
 		{

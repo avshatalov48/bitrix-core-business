@@ -2,29 +2,28 @@
 
 namespace Bitrix\Calendar\Rooms;
 
-use CIBlock;
-use CIBlockElement;
-use CIBlockFormatProperties;
-use CIBlockSection;
-use COption;
+use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
 use CPHPCache;
 
 class IBlockMeetingRoom
 {
 	private static $meetingRoomList;
 	private static $allowReserveMeeting = true;
-	
+
 	/**
 	 * @param array $params
 	 *
 	 * @return array
+	 * @throws LoaderException
 	 */
 	public static function getMeetingRoomList(array $params = []): array
 	{
-		if (COption::GetOptionString('calendar', 'eventWithLocationConverted', 'N') === 'Y')
+		if (\COption::GetOptionString('calendar', 'eventWithLocationConverted', 'N') === 'Y')
 		{
 			$meetingRoomList = [];
 			self::$meetingRoomList = $meetingRoomList;
+
 			return $meetingRoomList;
 		}
 		if (isset(self::$meetingRoomList))
@@ -34,7 +33,7 @@ class IBlockMeetingRoom
 		else
 		{
 			$meetingRoomList = [];
-			if (!\CCalendar::IsBitrix24())
+			if (!\CCalendar::IsBitrix24() && Loader::includeModule('iblock'))
 			{
 				if (!isset($params['RMiblockId']) && !isset($params['VMiblockId']))
 				{
@@ -52,12 +51,12 @@ class IBlockMeetingRoom
 					$pathToMR = $params['pathToMR'];
 				}
 				
-				if (self::$allowReserveMeeting && !\CCalendar::IsAdmin() && (CIBlock::GetPermission($RMiblockId) < 'R'))
+				if (self::$allowReserveMeeting && !\CCalendar::IsAdmin() && (\CIBlock::GetPermission($RMiblockId) < 'R'))
 				{
 					self::$allowReserveMeeting = false;
 				}
 				
-				if ((int)$RMiblockId > 0 && CIBlock::GetPermission($RMiblockId) >= 'R' && self::$allowReserveMeeting)
+				if ((int)$RMiblockId > 0 && \CIBlock::GetPermission($RMiblockId) >= 'R' && self::$allowReserveMeeting)
 				{
 					$orderBy = [
 						'NAME' => 'ASC',
@@ -76,7 +75,7 @@ class IBlockMeetingRoom
 						'UF_PLACE',
 						'UF_PHONE'
 					];
-					$res = CIBlockSection::GetList($orderBy, $filter, false, $selectFields );
+					$res = \CIBlockSection::GetList($orderBy, $filter, false, $selectFields );
 					while ($arMeeting = $res->GetNext())
 					{
 						$meetingRoomList[] = [
@@ -99,15 +98,21 @@ class IBlockMeetingRoom
 		
 		return $meetingRoomList;
 	}
-	
+
 	/**
 	 * @param $params
 	 *
 	 * @return array|false
+	 * @throws LoaderException
 	 */
 	public static function getMeetingRoomById($params)
 	{
-		if ((int)$params['RMiblockId'] > 0 && CIBlock::GetPermission($params['RMiblockId']) >= 'R')
+		if (!Loader::includeModule('iblock'))
+		{
+			return false;
+		}
+
+		if ((int)$params['RMiblockId'] > 0 && \CIBlock::GetPermission($params['RMiblockId']) >= 'R')
 		{
 			$filter = [
 				'IBLOCK_ID' => $params['RMiblockId'],
@@ -115,14 +120,14 @@ class IBlockMeetingRoom
 				'ID' => $params['id']
 			];
 			$selectFields = ['NAME'];
-			$res = CIBlockSection::GetList([], $filter, false, $selectFields);
+			$res = \CIBlockSection::GetList([], $filter, false, $selectFields);
 			if ($meeting = $res->GetNext())
 			{
 				return $meeting;
 			}
 		}
 		
-		if((int)$params['VMiblockId'] > 0 && CIBlock::GetPermission($params['VMiblockId']) >= 'R')
+		if ((int)$params['VMiblockId'] > 0 && \CIBlock::GetPermission($params['VMiblockId']) >= 'R')
 		{
 			$filter = [
 				'IBLOCK_ID' => $params['VMiblockId'],
@@ -134,8 +139,8 @@ class IBlockMeetingRoom
 				'DESCRIPTION',
 				'IBLOCK_ID'
 			];
-			$res = CIBlockSection::GetList([], $filter, false, $selectFields);
-			if($meeting = $res->GetNext())
+			$res = \CIBlockSection::GetList([], $filter, false, $selectFields);
+			if ($meeting = $res->GetNext())
 			{
 				return [
 					'ID' => $params['VMiblockId'],
@@ -147,18 +152,24 @@ class IBlockMeetingRoom
 		
 		return false;
 	}
-	
+
 	/**
 	 * @param array $params
 	 *
 	 * @return int
+	 * @throws LoaderException
 	 */
 	public static function reserveMeetingRoom(array $params)
 	{
+		if (!Loader::includeModule('iblock'))
+		{
+			return false;
+		}
+
 		$tst = MakeTimeStamp($params['dateTo']);
 		if (date('H:i', $tst) === '00:00')
 		{
-			$params['dateTo'] = CIBlockFormatProperties::DateFormat(
+			$params['dateTo'] = \CIBlockFormatProperties::DateFormat(
 				\CCalendar::DFormat(true),
 				$tst + (23 * 60 + 59) * 60
 			);
@@ -188,7 +199,7 @@ class IBlockMeetingRoom
 			'ACTIVE' => 'Y'
 		];
 		
-		$iBlockElem= new CIBlockElement;
+		$iBlockElem= new \CIBlockElement;
 		$id = $iBlockElem->Add($fields);
 		
 		// Hack: reserve meeting calendar based on old calendar's cache
@@ -199,12 +210,18 @@ class IBlockMeetingRoom
 		
 		return (int)$id;
 	}
-	
+
 	/**
 	 * @param array $params
+	 * @throws LoaderException
 	 */
 	public static function releaseMeetingRoom(array $params): void
 	{
+		if (!Loader::includeModule('iblock'))
+		{
+			return;
+		}
+
 		$settings = \CCalendar::GetSettings(['request' => false]);
 		$params['RMiblockId'] = $settings['rm_iblock_id'];
 		
@@ -215,10 +232,10 @@ class IBlockMeetingRoom
 			'SECTION_ID' => [$params['mrid']]
 		];
 		
-		$res = CIBlockElement::GetList([], $filter, false, false, ['ID']);
+		$res = \CIBlockElement::GetList([], $filter, false, false, ['ID']);
 		if ($res->Fetch())
 		{
-			$iBlockElem = new CIBlockElement;
+			$iBlockElem = new \CIBlockElement;
 			$iBlockElem::Delete($params['mrevid']);
 		}
 		
@@ -228,14 +245,20 @@ class IBlockMeetingRoom
 		$cache->CleanDir('event_calendar/events/');
 		$cache->CleanDir('event_calendar/events/'.$params['RMiblockId']);
 	}
-	
+
 	/**
 	 * @param array $params
 	 *
 	 * @return array
+	 * @throws LoaderException
 	 */
 	public static function getAccessibilityForMeetingRoom(array $params): array
 	{
+		if (!Loader::includeModule('iblock'))
+		{
+			return [];
+		}
+
 		$allowReserveMeeting =
 			$params['allowReserveMeeting'] ?? self::$allowReserveMeeting
 		;
@@ -269,14 +292,14 @@ class IBlockMeetingRoom
 				$filter['!ID'] = (int)$curEventId;
 			}
 			
-			$rsElement = CIBlockElement::GetList(['ACTIVE_FROM' => 'ASC'], $filter, false, false, $select);
+			$rsElement = \CIBlockElement::GetList(['ACTIVE_FROM' => 'ASC'], $filter, false, false, $select);
 			while($iBlockElem = $rsElement->GetNextElement())
 			{
 				$item = $iBlockElem->GetFields();
-				$item['DISPLAY_ACTIVE_FROM'] = CIBlockFormatProperties::DateFormat(
+				$item['DISPLAY_ACTIVE_FROM'] = \CIBlockFormatProperties::DateFormat(
 					\CCalendar::DFormat(true), MakeTimeStamp($item['ACTIVE_FROM'])
 				);
-				$item['DISPLAY_ACTIVE_TO'] = CIBlockFormatProperties::DateFormat(
+				$item['DISPLAY_ACTIVE_TO'] = \CIBlockFormatProperties::DateFormat(
 					\CCalendar::DFormat(true), MakeTimeStamp($item['ACTIVE_TO'])
 				);
 				
@@ -293,14 +316,20 @@ class IBlockMeetingRoom
 		
 		return $result;
 	}
-	
+
 	/**
 	 * @param $params
 	 *
 	 * @return bool|string
+	 * @throws LoaderException
 	 */
 	public static function checkMeetingRoom($params)
 	{
+		if (!Loader::includeModule('iblock'))
+		{
+			return false;
+		}
+
 		$fromDateTime = MakeTimeStamp($params['dateFrom']);
 		$toDateTime = MakeTimeStamp($params['dateTo']);
 		$filter = [
@@ -317,7 +346,7 @@ class IBlockMeetingRoom
 			$filter['!=ID'] = $params['mrevid_old'];
 		}
 
-		$dbElements = CIBlockElement::GetList(
+		$dbElements = \CIBlockElement::GetList(
 			['DATE_ACTIVE_FROM' => 'ASC'],
 			$filter,
 			false,

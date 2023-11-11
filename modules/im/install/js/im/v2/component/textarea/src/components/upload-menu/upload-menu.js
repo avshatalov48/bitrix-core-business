@@ -1,21 +1,23 @@
-import {MessengerMenu, MenuItem, MenuItemIcon} from 'im.v2.component.elements';
+import { MessengerMenu, MenuItem, MenuItemIcon } from 'im.v2.component.elements';
 
-import {DocumentPanel} from './document-panel';
-import {DiskPopup} from './disk-popup';
+import { DocumentPanel } from './document-panel';
+import { DiskPopup } from './disk-popup';
 
 import '../../css/upload-menu.css';
 
-import type {PopupOptions} from 'main.popup';
+import type { PopupOptions } from 'main.popup';
+import type { JsonObject } from 'main.core';
 
 // @vue/component
 export const UploadMenu = {
-	components: {DocumentPanel, MessengerMenu, MenuItem, DiskPopup},
+	components: { DocumentPanel, MessengerMenu, MenuItem, DiskPopup },
 	emits: ['fileSelect', 'diskFileSelect'],
-	data()
+	data(): JsonObject
 	{
 		return {
 			showMenu: false,
-			showDiskPopup: false
+			showDiskPopup: false,
+			onlyPhotoOrVideo: false,
 		};
 	},
 	computed:
@@ -25,21 +27,33 @@ export const UploadMenu = {
 		{
 			return {
 				width: 278,
-				bindElement: this.$refs['upload'] || {},
+				bindElement: this.$refs.upload || {},
 				bindOptions: {
-					position: 'top'
+					position: 'top',
 				},
 				offsetTop: 30,
 				offsetLeft: -10,
 				padding: 0,
 			};
-		}
+		},
 	},
 	methods:
 	{
+		onSelectFromPhotoOrVideo()
+		{
+			this.onlyPhotoOrVideo = true;
+			// @see \CFile::GetImageExtensions
+			const acceptedFormats = '.jpg, .bmp, .jpeg, .jpe, .gif, .png, .webp, video/*';
+
+			this.$refs.fileInput.setAttribute('accept', acceptedFormats);
+			this.$refs.fileInput.click();
+			this.showMenu = false;
+		},
 		onSelectFromComputerClick()
 		{
-			this.$refs['fileInput'].click();
+			this.onlyPhotoOrVideo = false;
+			this.$refs.fileInput.removeAttribute('accept');
+			this.$refs.fileInput.click();
 			this.showMenu = false;
 		},
 		onSelectFromDiskClick()
@@ -49,7 +63,10 @@ export const UploadMenu = {
 		},
 		onFileSelect(event)
 		{
-			this.$emit('fileSelect', event);
+			this.$emit('fileSelect', {
+				event,
+				sendAsFile: !this.onlyPhotoOrVideo,
+			});
 			this.showMenu = false;
 		},
 		onDiskFileSelect(event)
@@ -59,7 +76,7 @@ export const UploadMenu = {
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
-		}
+		},
 	},
 	template: `
 		<div
@@ -76,16 +93,21 @@ export const UploadMenu = {
 			</template>
 			<MenuItem
 				:icon="MenuItemIcon.upload"
-				:title="loc('IM_TEXTAREA_SELECT_FROM_COMPUTER')"
+				:title="loc('IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO')"
+				@click="onSelectFromPhotoOrVideo"
+			/>
+			<MenuItem
+				:icon="MenuItemIcon.file"
+				:title="loc('IM_TEXTAREA_SELECT_FILE')"
 				@click="onSelectFromComputerClick"
 			/>
 			<MenuItem
 				:icon="MenuItemIcon.disk"
-				:title="loc('IM_TEXTAREA_SELECT_FROM_BITRIX24_DISK')"
+				:title="loc('IM_TEXTAREA_SELECT_FILE_FROM_DISK')"
 				@click="onSelectFromDiskClick"
 			/>
 			<input type="file" @change="onFileSelect" multiple class="bx-im-file-menu__file-input" ref="fileInput">
 		</MessengerMenu>
 		<DiskPopup v-if="showDiskPopup" @diskFileSelect="onDiskFileSelect" @close="showDiskPopup = false"/>
-	`
+	`,
 };

@@ -36,7 +36,9 @@ class MemcacheSessionHandler extends AbstractSessionHandler
 
 	public function open($savePath, $sessionName): bool
 	{
-		return $this->createConnection();
+		$this->createConnection();
+
+		return $this->isConnected();
 	}
 
 	public function close(): bool
@@ -106,6 +108,11 @@ class MemcacheSessionHandler extends AbstractSessionHandler
 		$connectionPool = Application::getInstance()->getConnectionPool();
 		/** @var MemcacheConnection $redisConnection */
 		$memcacheConnection = $connectionPool->getConnection(self::SESSION_MEMCACHE_CONNECTION);
+		if (!$memcacheConnection)
+		{
+			return false;
+		}
+
 		$this->connection = $memcacheConnection->getResource();
 
 		return (bool)$this->connection;
@@ -175,6 +182,7 @@ class MemcacheSessionHandler extends AbstractSessionHandler
 
 	protected function unlock($sessionId): bool
 	{
+
 		return $this->connection->replace($this->getPrefix() . "{$sessionId}.lock", 0, 0, 1);
 	}
 }

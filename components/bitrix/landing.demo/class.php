@@ -1227,6 +1227,15 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 											]
 										);
 									}
+									if ($code === 'store_v3' || $code === 'clothes')
+									{
+										$content = str_replace(
+											'@landing[' . $landCode . ']',
+											$landId,
+											$content,
+											$count
+										);
+									}
 								}
 								else
 								{
@@ -2033,7 +2042,6 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		$params = [];
 
 		$params[] = 'b24partner' . Option::get('landing', 'b24partner', 'N');
-		$params[] = 'instagram' . Option::get('crm', 'import_instagram_enabled', 'Y');
 		// chats can be exist not always
 		if ($chatsEnabled = (Manager::isB24() && ModuleManager::isModuleInstalled('salescenter')))
 		{
@@ -2346,7 +2354,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			'PATH' => 'colors_files/iblock/64f/64f32941a654a1cbe2105febe7e77f33.jpg',
 			'FILE_NAME' => 'flowers.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => 'colors_files/iblock/64f/64f32941a654a1cbe2105febe7e77f33.jpg'
+			'TITLE' => ''
 		];
 
 		$colors['DARKBLUE'] = [

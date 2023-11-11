@@ -7,7 +7,8 @@ import {
 	TimeSelector,
 	UserSelector,
 } from 'bizproc.automation';
-import {Type} from "main.core";
+import { Type } from 'main.core';
+import { InlineTimeSelector } from './inline-time-selector';
 
 export class Manager
 {
@@ -17,6 +18,7 @@ export class Manager
 	static SELECTOR_ROLE_INLINE_HTML = 'inline-selector-html';
 	static SELECTOR_ROLE_TIME = 'time-selector';
 	static SELECTOR_ROLE_SAVE_STATE = 'save-state-checkbox';
+	static SELECTOR_ROLE_INLINE_TIME = 'inline-selector-time';
 
 	static getSelectorByTarget(targetInput: HTMLElement): ?InlineSelector
 	{
@@ -48,6 +50,10 @@ export class Manager
 		else if (role === this.SELECTOR_ROLE_INLINE_HTML)
 		{
 			return new InlineSelectorHtml(selectorProps);
+		}
+		else if (role === this.SELECTOR_ROLE_INLINE_TIME)
+		{
+			return new InlineTimeSelector(selectorProps);
 		}
 		else if (role === this.SELECTOR_ROLE_TIME)
 		{

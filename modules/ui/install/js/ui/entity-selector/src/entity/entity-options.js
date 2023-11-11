@@ -14,5 +14,6 @@ export type EntityOptions = {
 	searchFields?: SearchFieldOptions[],
 	searchCacheLimits?: string[],
 	dynamicLoad?: boolean,
-	dynamicSearch?: boolean
+	dynamicSearch?: boolean,
+	substituteEntityId?: string,
 };

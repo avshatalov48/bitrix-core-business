@@ -124,21 +124,96 @@ class ElementType extends EnumType
 	 */
 	public static function getList(array $userField)
 	{
-		if(self::$iblockIncluded === null)
+		$iblockId = (int)($userField['SETTINGS']['IBLOCK_ID'] ?? 0);
+		$activeFilter = (string)($userField['SETTINGS']['ACTIVE_FILTER'] ?? 'N');
+
+		if (self::$iblockIncluded === null)
 		{
 			self::$iblockIncluded = Loader::includeModule('iblock');
 		}
-
-		$elementEnumList = false;
-
-		if(self::$iblockIncluded && (int)$userField['SETTINGS']['IBLOCK_ID'])
+		if ($iblockId <= 0 || !self::$iblockIncluded)
 		{
-			$elementEnumList = CIBlockElementEnum::getTreeList(
-				(int)$userField['SETTINGS']['IBLOCK_ID'],
-				$userField['SETTINGS']['ACTIVE_FILTER']
-			);
+			return false;
 		}
-		return $elementEnumList;
+
+		$cacheTtl = 86400;
+
+		$iblockRights = self::getIblockRightsMode($iblockId, $cacheTtl);
+		if ($iblockRights === null)
+		{
+			return false;
+		}
+
+		$result = false;
+		$filter = [
+			'IBLOCK_ID' => $iblockId
+		];
+		if ($iblockRights === Iblock\IblockTable::RIGHTS_SIMPLE)
+		{
+			if ($activeFilter === 'Y')
+			{
+				$filter['=ACTIVE'] = 'Y';
+			}
+
+			$rows = [];
+			$elements = \Bitrix\Iblock\ElementTable::getList([
+				'select' => [
+					'ID',
+					'NAME',
+				],
+				'filter' => \CIBlockElement::getPublicElementsOrmFilter($filter),
+				'order' => [
+					'NAME' => 'ASC',
+					'ID' => 'ASC',
+				],
+				'cache' => [
+					'ttl' => $cacheTtl,
+				],
+			]);
+
+			while($element = $elements->fetch())
+			{
+				$rows[] = $element;
+			}
+			unset($elements);
+
+			if (!empty($rows))
+			{
+				$result = new \CIBlockElementEnum();
+				$result->InitFromArray($rows);
+			}
+			unset($rows);
+		}
+		else
+		{
+			$filter['CHECK_PERMISSIONS'] = 'Y';
+			$filter['MIN_PERMISSION'] = \CIBlockRights::PUBLIC_READ;
+			if ($activeFilter === 'Y')
+			{
+				$filter['ACTIVE'] = 'Y';
+			}
+
+			$result = \CIBlockElement::GetList(
+				[
+					'NAME' => 'ASC',
+					'ID' => 'ASC',
+				],
+				$filter,
+				false,
+				false,
+				[
+					'ID',
+					'NAME',
+				]
+			);
+
+			if($result)
+			{
+				$result = new \CIBlockElementEnum($result);
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -152,6 +227,7 @@ class ElementType extends EnumType
 			self::$iblockIncluded = Loader::includeModule('iblock');
 		}
 
+		$userField['MANDATORY'] ??= 'N';
 		$userField['SETTINGS']['IBLOCK_ID'] ??= 0;
 		$userField['SETTINGS']['SHOW_NO_VALUE'] ??= 'Y';
 		$userField['SETTINGS']['DISPLAY'] ??= '';
@@ -188,9 +264,31 @@ class ElementType extends EnumType
 			];
 		}
 
+		$filter = [];
+		if (isset($additionalParameters['CURRENT_VALUES']))
+		{
+			if (is_array($additionalParameters['CURRENT_VALUES']))
+			{
+				Type\Collection::normalizeArrayValuesByInt($additionalParameters['CURRENT_VALUES']);
+			}
+			else
+			{
+				$additionalParameters['CURRENT_VALUES'] = (int)$additionalParameters['CURRENT_VALUES'];
+				if ($additionalParameters['CURRENT_VALUES'] <= 0)
+				{
+					$additionalParameters['CURRENT_VALUES'] = null;
+				}
+			}
+			if (!empty($additionalParameters['CURRENT_VALUES']))
+			{
+				$filter['ID'] = $additionalParameters['CURRENT_VALUES'];
+			}
+		}
+		$filter['ACTIVE'] = $userField['SETTINGS']['ACTIVE_FILTER'] === 'Y';
+
 		$elements = self::getElements(
 			(int)$userField['SETTINGS']['IBLOCK_ID'],
-			$userField['SETTINGS']['ACTIVE_FILTER']
+			$filter
 		);
 
 		if (!is_array($elements))
@@ -198,7 +296,14 @@ class ElementType extends EnumType
 			return;
 		}
 
-		$result = array_replace($result, $elements);
+		if (!empty($additionalParameters['CURRENT_VALUES']))
+		{
+			$result = $elements;
+		}
+		else
+		{
+			$result = array_replace($result, $elements);
+		}
 
 		$userField['USER_TYPE']['FIELDS'] = $result;
 	}
@@ -209,86 +314,63 @@ class ElementType extends EnumType
 		return ($userField['MULTIPLE'] === 'Y' ? [$value] : $value);
 	}
 
-	protected static function getElements($iblockId, $activeFilter = 'N')
+	protected static function getElements(int $iblockId, array $additionalFilter = [])
 	{
-		if ($iblockId <= 0 || !Loader::includeModule('iblock'))
+		if (self::$iblockIncluded === null)
+		{
+			self::$iblockIncluded = Loader::includeModule('iblock');
+		}
+		if ($iblockId <= 0 || !self::$iblockIncluded)
 		{
 			return false;
 		}
 
 		$cacheTtl = 86400;
 
-		$iblock = Iblock\IblockTable::getRow([
-			'select' => [
-				'ID',
-				'RIGHTS_MODE',
-			],
-			'filter' => [
-				'=ID' => $iblockId
-			],
-			'cache' => [
-				'ttl' => $cacheTtl,
-			],
-		]);
-		if ($iblock === null)
+		$iblockRights = self::getIblockRightsMode($iblockId, $cacheTtl);
+		if ($iblockRights === null)
 		{
 			return false;
 		}
 
-		if ($iblock['RIGHTS_MODE'] === Iblock\IblockTable::RIGHTS_SIMPLE)
+		if ($iblockRights === Iblock\IblockTable::RIGHTS_SIMPLE)
 		{
-			$currentCache = \Bitrix\Main\Data\Cache::createInstance();
-
-			$cacheId = md5('CIBlockElementEnum::getTreeList_' . $iblockId . '_' . $activeFilter);
-			$cacheDir = '/iblock/elementtype/' . $iblockId;
-
-			if ($currentCache->initCache($cacheTtl, $cacheId, $cacheDir))
+			$filter = ['IBLOCK_ID' => $iblockId];
+			if ($additionalFilter['ACTIVE'])
 			{
-				$result = $currentCache->getVars();
+				$filter['=ACTIVE'] = 'Y';
 			}
-			else
+			if (isset($additionalFilter['ID']))
 			{
-				$currentCache->startDataCache();
-
-				$taggedCache = Application::getInstance()->getTaggedCache();
-				$taggedCache->startTagCache($cacheDir);
-
-				$filter = ['IBLOCK_ID' => $iblockId];
-				if($activeFilter === 'Y')
-				{
-					$filter['=ACTIVE'] = 'Y';
-				}
-
-				$result = [];
-				$elements = \Bitrix\Iblock\ElementTable::getList([
-					'select' => [
-						'ID',
-						'NAME',
-					],
-					'filter' => \CIBlockElement::getPublicElementsOrmFilter($filter),
-					'order' => [
-						'NAME' => 'ASC',
-						'ID' => 'ASC',
-					],
-				]);
-
-				while($element = $elements->fetch())
-				{
-					$result[$element['ID']] = $element['NAME'];
-				}
-				unset($elements);
-
-				$taggedCache->registerTag('iblock_id_' . $iblockId);
-				$taggedCache->endTagCache();
-
-				if (empty($result))
-				{
-					$result = false;
-				}
-
-				$currentCache->endDataCache($result);
+				$filter['@ID'] = $additionalFilter['ID'];
 			}
-			unset($currentCache);
+
+			$result = [];
+			$elements = \Bitrix\Iblock\ElementTable::getList([
+				'select' => [
+					'ID',
+					'NAME',
+				],
+				'filter' => \CIBlockElement::getPublicElementsOrmFilter($filter),
+				'order' => [
+					'NAME' => 'ASC',
+					'ID' => 'ASC',
+				],
+				'cache' => [
+					'ttl' => $cacheTtl,
+				],
+			]);
+
+			while($element = $elements->fetch())
+			{
+				$result[$element['ID']] = $element['NAME'];
+			}
+			unset($element, $elements);
+
+			if (empty($result))
+			{
+				$result = false;
+			}
 		}
 		else
 		{
@@ -297,9 +379,13 @@ class ElementType extends EnumType
 				'CHECK_PERMISSIONS' => 'Y',
 				'MIN_PERMISSION' => \CIBlockRights::PUBLIC_READ,
 			];
-			if ($activeFilter === 'Y')
+			if ($additionalFilter['ACTIVE'])
 			{
 				$filter['ACTIVE'] = 'Y';
+			}
+			if (isset($additionalFilter['ID']))
+			{
+				$filter['ID'] = $additionalFilter['ID'];
 			}
 
 			$result = [];
@@ -321,9 +407,27 @@ class ElementType extends EnumType
 			{
 				$result[$element['ID']] = $element['NAME'];
 			}
-			unset($iterator);
+			unset($element, $iterator);
 		}
 
 		return $result;
+	}
+
+	private static function getIblockRightsMode(int $iblockId, int $cacheTtl): ?string
+	{
+		$iblock = Iblock\IblockTable::getRow([
+			'select' => [
+				'ID',
+				'RIGHTS_MODE',
+			],
+			'filter' => [
+				'=ID' => $iblockId
+			],
+			'cache' => [
+				'ttl' => $cacheTtl,
+			],
+		]);
+
+		return ($iblock['RIGHTS_MODE'] ?? null);
 	}
 }

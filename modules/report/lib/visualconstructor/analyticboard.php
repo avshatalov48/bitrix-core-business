@@ -29,6 +29,7 @@ class AnalyticBoard
 	private $isSliderSupport = true;
 	private $options;
 	private $setOptionsCallback;
+	private ?string $sliderLoader = null;
 
 	public function __construct(string $boardId = '', array $options = [])
 	{
@@ -347,6 +348,16 @@ class AnalyticBoard
 	public function setSliderSupport(bool $isSliderSupport): void
 	{
 		$this->isSliderSupport = $isSliderSupport;
+	}
+
+	public function getSliderLoader(): ?string
+	{
+		return $this->sliderLoader;
+	}
+
+	public function setSliderLoader(string $sliderLoader): void
+	{
+		$this->sliderLoader = $sliderLoader;
 	}
 
 	public function getDisplayComponentName()

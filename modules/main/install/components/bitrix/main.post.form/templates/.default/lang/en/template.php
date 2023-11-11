@@ -3,6 +3,7 @@ $MESS["MPF_ADD_TAG"] = "Add more";
 $MESS["MPF_ADD_TAG1"] = "Add";
 $MESS["MPF_BUTTON_CANCEL"] = "Cancel";
 $MESS["MPF_BUTTON_SEND"] = "Send";
+$MESS["MPF_COPILOT"] = "CoPilot";
 $MESS["MPF_DESTINATION"] = "To:";
 $MESS["MPF_DESTINATION_1"] = "Add persons, groups or department";
 $MESS["MPF_DESTINATION_2"] = "Add more";

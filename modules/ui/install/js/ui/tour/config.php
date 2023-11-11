@@ -8,8 +8,8 @@ return [
 	'css' => 'dist/tour.bundle.css',
 	'js' => 'dist/tour.bundle.js',
 	'rel' => [
-		'main.popup',
 		'main.core.events',
+		'main.popup',
 		'ui.design-tokens',
 		'main.core',
 	],

@@ -1,7 +1,6 @@
 import {Core} from 'im.v2.application.core';
 import {Messenger as MessengerComponent} from 'im.v2.component.messenger';
 import {SidebarPullHandler} from 'im.v2.provider.pull';
-import {ApplicationName} from 'im.v2.const';
 
 type MessengerApplicationParams = {
 	node?: string | HTMLElement

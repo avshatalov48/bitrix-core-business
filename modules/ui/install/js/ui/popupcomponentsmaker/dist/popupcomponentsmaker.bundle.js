@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_popup,main_core_events,main_core,main_loader) {
 	'use strict';

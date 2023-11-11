@@ -15,7 +15,7 @@
 	/**
 	 * Shows panel for text node
 	 * @static
-	 * @param {BX.Landing.Block.Node} [node]
+	 * @param {BX.Landing.Node} [node]
 	 */
 	BX.Landing.UI.Panel.SmallEditorPanel.show = function(node)
 	{

@@ -56,6 +56,8 @@ class Client
 	const HTTP_SOCKET_TIMEOUT = 10;
 	const HTTP_STREAM_TIMEOUT = 10;
 
+	private const NAME_IDENTIFIER_REQUEST = 'bx24_request_id';
+
 	protected $clientId;
 	protected $clientSecret;
 	protected $licenseKey;
@@ -118,9 +120,31 @@ class Client
 		));
 	}
 
-	protected function getRequestUrl($methodName)
+	protected function getRequestId(string $methodName): string
 	{
-		return static::SERVICE_URL.static::SERVICE_PATH.$methodName;
+		$requestId = '';
+		if (isset($_SERVER['BX24_REQUEST_ID']))
+		{
+			if (str_contains($methodName, '?'))
+			{
+				$separator = '&';
+			}
+			else
+			{
+				$separator = '/?';
+			}
+
+			$requestId = $separator . http_build_query([
+				static::NAME_IDENTIFIER_REQUEST => urlencode($_SERVER['BX24_REQUEST_ID'])
+			]);
+		}
+
+		return $requestId;
+	}
+
+	protected function getRequestUrl($methodName): string
+	{
+		return static::SERVICE_URL . static::SERVICE_PATH . $methodName . $this->getRequestId($methodName);
 	}
 
 	/**
@@ -136,7 +160,7 @@ class Client
 	 */
 	public function call($methodName, $additionalParams = null, $licenseCheck = false)
 	{
-		if($this->clientId && $this->clientSecret)
+		if ($this->clientId && $this->clientSecret)
 		{
 			$additionalParams = $this->prepareRequest($additionalParams, $licenseCheck);
 
@@ -148,16 +172,24 @@ class Client
 
 			$response = $this->prepareResponse($httpResult);
 
-			if($response)
+			if ($response)
 			{
-				if(!$licenseCheck && is_array($response) && isset($response['error']) && $response['error'] === 'verification_needed')
+				if (!$licenseCheck && is_array($response) && isset($response['error']) && $response['error'] === 'verification_needed')
 				{
 					return $this->call($methodName, $additionalParams, true);
 				}
 			}
 			else
 			{
-				addMessage2Log('Strange answer from Bitrix Service! '.static::SERVICE_URL.static::SERVICE_PATH.$methodName.": ".$httpClient->getStatus().' '.$httpResult);
+				addMessage2Log(
+					'Strange answer from Bitrix Service! '
+					. static::SERVICE_URL
+					. static::SERVICE_PATH
+					. $methodName . ": "
+					. $httpClient->getStatus() . ' '
+					. implode(" ", $httpClient->getError())
+					. $httpResult
+				);
 			}
 
 			return $response;

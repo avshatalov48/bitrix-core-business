@@ -21,7 +21,7 @@ trait BulkOperation
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\DB\SqlQueryException
 	 */
-	public static function bulkAdd(array $rows, $primary = null)
+	public static function bulkAdd(array $rows, $primary = null): void
 	{
 		if (empty($rows))
 		{
@@ -90,7 +90,7 @@ trait BulkOperation
 	 * @return void
 	 * @throws Main\DB\SqlQueryException
 	 */
-	public static function bulkUpdate(array $fields, array $filter = [])
+	public static function bulkUpdate(array $fields, array $filter = []): void
 	{
 		if (empty($fields))
 		{
@@ -148,7 +148,7 @@ trait BulkOperation
 	 * @return void
 	 * @throws Main\DB\SqlQueryException
 	 */
-	public static function bulkDelete(array $filter = [])
+	public static function bulkDelete(array $filter = []): void
 	{
 		$tableName = static::getTableName();
 		$connection = Main\Application::getConnection();
@@ -196,7 +196,7 @@ trait BulkOperation
 	 *
 	 * @return string
 	 */
-	private static function prepareWhere(array $filterFields, array $filterAlias = array())
+	private static function prepareWhere(array $filterFields, array $filterAlias = []): string
 	{
 		$sqlHelper = Main\Application::getConnection()->getSqlHelper();
 

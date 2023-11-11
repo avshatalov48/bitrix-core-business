@@ -47,6 +47,7 @@ class Mailer extends PHPMailer
 				'debug' => $configuration['debug'] ?? false,
 				'force_from' => $configuration['force_from'] ?? false,
 				'logFile' => $configuration['log_file'] ?? null,
+				'isOauth' => $context->getSmtp()->getIsOauth(),
 			];
 		}
 
@@ -78,6 +79,7 @@ class Mailer extends PHPMailer
 		$this->isSMTP();
 
 		$this->SMTPAuth = (bool)$this->configuration['password'];
+		$this->prepareOauthConfiguration();
 
 		if (
 			!$this->configuration['host']
@@ -103,6 +105,23 @@ class Mailer extends PHPMailer
 		$this->Timeout = $this->configuration['connection_timeout'] ?? 30;
 
 		return true;
+	}
+
+	/**
+	 * Prepares OAuth configuration, if need
+	 *
+	 * @return void
+	 */
+	private function prepareOauthConfiguration(): void
+	{
+		if (!empty($this->configuration['isOauth']))
+		{
+			$this->AuthType = 'XOAUTH2';
+			$this->setOAuth(new PreparedOauthCredentials([
+				'userName' => $this->configuration['login'],
+				'token' => $this->configuration['password'],
+			]));
+		}
 	}
 
 	/**
@@ -144,6 +163,11 @@ class Mailer extends PHPMailer
 	{
 
 		$addresses = Mailer::parseAddresses($sourceTo)??[];
+		if (empty($addresses))
+		{
+			return false;
+		}
+
 		$eol = \Bitrix\Main\Mail\Mail::getMailEol();
 
 		if ($subject && $additional_headers)

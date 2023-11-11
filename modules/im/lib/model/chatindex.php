@@ -36,6 +36,8 @@ Loc::loadMessages(__FILE__);
 
 class ChatIndexTable extends Main\Entity\DataManager
 {
+	use Main\ORM\Data\Internal\DeleteByFilterTrait;
+
 	/**
 	 * Returns DB table name for entity.
 	 *

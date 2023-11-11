@@ -953,7 +953,7 @@ class CIBlockXMLFile
 				$result = false;
 				break;
 			case self::UNPACK_STATUS_CONTINUE:
-				$result = $internalResult['LAST_INDEX'];
+				$result = $internalResult['DATA']['LAST_INDEX'];
 				break;
 			case self::UNPACK_STATUS_FINAL:
 			default:

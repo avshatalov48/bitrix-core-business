@@ -28,6 +28,7 @@ class StyleImg extends Node
 	];
 	protected const STYLES_URL_MARKER = '#url#';
 	protected const STYLES_URL_REGEXP = '/url\([\'"]?([^\'")]+)[\'")]?\)/i';
+	protected const STYLES_NODE_CLASS = 'g-bg-image';
 
 	/**
 	 * Get class - frontend handler.
@@ -129,9 +130,9 @@ class StyleImg extends Node
 								if (!$stylesChanged)
 								{
 									$classList = $resultList[$pos]->getAttribute('class');
-									if (!stripos($classList, 'g-bg-image'))
+									if (!stripos($classList, self::STYLES_NODE_CLASS))
 									{
-										$classList .= ' g-bg-image';
+										$classList .= ' ' . self::STYLES_NODE_CLASS;
 									}
 									$resultList[$pos]->setAttribute('class', $classList);
 									$fileArray1x = \CFile::GetFileArray($id);
@@ -358,7 +359,7 @@ class StyleImg extends Node
 		$pattern = '/' . substr($selector, 1) . '[^\"]*/i';
 		if (preg_match($pattern, $block->getContent(), $matches) === 1)
 		{
-			$pattern = '/[\s]?g-bg-image[\s]?/i';
+			$pattern = '/[\s]?' . self::STYLES_NODE_CLASS . '[\s]?/i';
 			if (preg_match($pattern, $matches[0]) === 1)
 			{
 				return true;

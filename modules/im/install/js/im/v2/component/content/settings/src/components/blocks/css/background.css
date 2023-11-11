@@ -1,0 +1,29 @@
+.bx-im-settings-background__container {
+	--im-settings-background__background-color_selected: #00B0E8;
+	--im-settings-background__font-color_title: var(--im-color-palette-black-base);
+
+	min-width: 200px;
+	max-width: 524px;
+	position: relative;
+	box-sizing: border-box;
+	padding-top: 5px;
+}
+
+.bx-im-settings-background__list {
+	display: flex;
+	flex-wrap: wrap;
+	align-content: flex-start;
+	gap: 12px;
+}
+
+.bx-im-settings-background__item {
+	width: 119px;
+	height: 70px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.bx-im-settings-background__item.--active {
+	outline: 2px solid var(--im-settings-background__background-color_selected);
+	outline-offset: 2px;
+}

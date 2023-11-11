@@ -2,13 +2,12 @@
 
 namespace Bitrix\Calendar\Sync\Util;
 
-use Bitrix\Main\Config\Option;
 use Bitrix\Main;
-use Psr\Log\AbstractLogger;
+use Bitrix\Main\Config\Option;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-class RequestLogger extends AbstractLogger
+class RequestLogger extends Main\Diag\Logger
 {
 	private const OPTION_KEY = 'calendar_logger_enable';
 
@@ -113,37 +112,19 @@ class RequestLogger extends AbstractLogger
 		}
 	}
 
-	/**
-	 * @param $level
-	 * @param $message
-	 * @param array $context{
-		requestParams: array,
-		url: string,
-		method: string,
-		statusCode: string,
-		response: string,
-		error: string,
-		host: string,
-		}
-	 *
-	 * @return void
-	 *
-	 * @throws Main\LoaderException
-	 */
-	public function log($level, $message, array $context = [])
+	private function prepareMessage(): string
 	{
-		$context['serviceName'] = $this->serviceName;
-		$context['userId'] = $this->userId;
-		$logger = $this->getLogger();
-		if (is_a($logger, DatabaseLogger::class))
-		{
-			$logger->logToDatabase($context);
-		}
-		else
-		{
-			$logger->log($level, $this->prepareMessage(), $context);
-		}
+		return "{date} SERVICE_NAME {serviceName}
+			HOST: {host},
+			REQUEST_PARAMS: {requestParams}, 
+			URL: {url},
+			METHOD: {method},
+			STATUS_CODE: {statusCode},
+			RESPONSE: {response},
+			ERROR: {error}
+		";
 	}
+
 
 	/**
 	 * @return LoggerInterface
@@ -160,5 +141,10 @@ class RequestLogger extends AbstractLogger
 	private function getDatabaseLogger(): DatabaseLogger
 	{
 		return new DatabaseLogger();
+	}
+
+	protected function logMessage(string $level, string $message)
+	{
+
 	}
 }

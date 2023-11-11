@@ -128,6 +128,7 @@
 		if (this.__inited)
 			return;
 
+		this.configureMenuItemId = 'signature-configure';
 		this.formId = 'main_mail_form_'+this.id;
 		this.formWrapper = BX(this.formId);
 		this.htmlForm = BX.findParent(this.formWrapper, {tag: 'form'});
@@ -149,38 +150,14 @@
 			if(!BX.type.isString(signature))
 			{
 				signature = '';
-				var currentSender;
-				var input = BX(field.fieldId+'_value');
-				if(input)
+				var currentSignatures = form.getSenderSignatures(field);
+				var firstSignature = currentSignatures[0];
+				if (BX.type.isNotEmptyObject(firstSignature) && BX.type.isNotEmptyString(firstSignature.full))
 				{
-					currentSender = input.value;
-				}
-				if(currentSender && field.params && BX.type.isArray(field.params.mailboxes) && BX.type.isNotEmptyObject(field.params.signatures))
-				{
-					for(var i in field.params.mailboxes)
-					{
-						if(field.params.mailboxes.hasOwnProperty(i))
-						{
-							if(field.params.mailboxes[i].formated === currentSender)
-							{
-								if(BX.type.isNotEmptyString(field.params.signatures[field.params.mailboxes[i].formated]))
-								{
-									signature = field.params.signatures[field.params.mailboxes[i].formated];
-								}
-								else if(BX.type.isNotEmptyString(field.params.signatures[field.params.mailboxes[i].email]))
-								{
-									signature = field.params.signatures[field.params.mailboxes[i].email];
-								}
-								else if(BX.type.isNotEmptyString(field.params.signatures['']))
-								{
-									signature = field.params.signatures[''];
-								}
-								break;
-							}
-						}
-					}
+					signature = firstSignature.full;
 				}
 			}
+			this.rebuildSignatureMenu(currentSignatures, field.params);
 			this.insertSignature(signature);
 		}, this));
 
@@ -1316,6 +1293,237 @@
 
 			break;
 		}
+	};
+
+	BXMainMailForm.prototype.rebuildSignatureMenu = function(signatures, params)
+	{
+		if (BX.type.isNotEmptyObject(params)
+			&& BX.type.isNotEmptyString(params.signatureSelectTitle)
+			&& BX.type.isNotEmptyString(params.signatureConfigureTitle)
+			&& BX.type.isNotEmptyString(params.pathToMailSignatures))
+		{
+			if (!this.signatureSelectButton) {
+				this.appendSignatureSelectButton(params.signatureSelectTitle);
+			}
+			if (this.signatureSelectButton)
+			{
+				this.initSignatureMenu(params.signatureConfigureTitle, params.pathToMailSignatures);
+				this.removeSignaturesFromMenu();
+				this.appendSignaturesToMenu(signatures);
+			}
+		}
+	};
+
+	BXMainMailForm.prototype.appendSignatureSelectButton = function(title)
+	{
+		var id = 'signature-select';
+		this.postForm.getToolbar().insertAfter({
+			BODY: '<i></i>' + title,
+			ID: id,
+		});
+		this.signatureSelectButton = this.getSignatureSelectButton(id);
+	};
+
+	BXMainMailForm.prototype.getSignatureSelectButton = function(id)
+	{
+		var items = this.postForm.getToolbar().getItems();
+		for (var i in items)
+		{
+			if (items.hasOwnProperty(i)
+				&& items[i].attributes
+				&& items[i].attributes.getNamedItem('data-id')
+				&& items[i].attributes.getNamedItem('data-id').value === id)
+			{
+				return items[i];
+			}
+		}
+		return null;
+	};
+
+	BXMainMailForm.prototype.initSignatureMenu = function(configureTitle, configurePath)
+	{
+		if (!this.signatureSelectMenu)
+		{
+			var form = this;
+			this.signatureSelectMenu = new BX.PopupMenuWindow({
+				maxWidth: 300,
+				maxHeight: 300,
+				bindElement: this.signatureSelectButton,
+				items: [
+					{
+						id: this.configureMenuItemId,
+						text: configureTitle,
+						onclick: function(event, item)
+						{
+							item.getMenuWindow().close();
+							BX.SidePanel.Instance.open(configurePath, {
+								events: {
+									onCloseComplete: function()
+									{
+										form.ajaxRefreshSignatures();
+									}
+								}
+							});
+						},
+					}
+				]
+			});
+			var signatureSelectMenu = this.signatureSelectMenu;
+			this.signatureSelectButton.addEventListener("click", function()
+			{
+				if (signatureSelectMenu.getMenuItems().length > 1) {
+					signatureSelectMenu.show();
+				} else {
+					BX.SidePanel.Instance.open(configurePath, {
+						events: {
+							onCloseComplete: function()
+							{
+								form.ajaxRefreshSignatures();
+							}
+						}
+					});
+				}
+			});
+		}
+	}
+
+	BXMainMailForm.prototype.ajaxRefreshSignatures = function()
+	{
+		var form = this;
+		BX.ajax.runComponentAction(
+			'bitrix:main.mail.form',
+			'signatures',
+			{ mode: 'class' }
+		).then(function(response)
+		{
+			if (BX.type.isNotEmptyObject(response)
+				&& BX.type.isNotEmptyObject(response.data)
+				&& response.data.hasOwnProperty('signatures'))
+			{
+				for (var i in form.fields)
+				{
+					if (form.fields.hasOwnProperty(i)
+						&& BX.type.isNotEmptyObject(form.fields[i])
+						&& BX.type.isNotEmptyObject(form.fields[i].params)
+						&& form.fields[i].params.hasOwnProperty('allUserSignatures')) {
+						var field = form.fields[i];
+						field.params.allUserSignatures = response.data.signatures;
+						var currentSignatures = form.getSenderSignatures(field);
+						form.rebuildSignatureMenu(currentSignatures, field.params);
+						break;
+					}
+				}
+			}
+		});
+	}
+
+	BXMainMailForm.prototype.getSenderSignatures = function(field)
+	{
+		var currentSender;
+		var input = BX(field.fieldId+'_value');
+		var currentSignatures = [];
+		if (input)
+		{
+			currentSender = input.value;
+		}
+		if (currentSender
+			&& field.params
+			&& BX.type.isArray(field.params.mailboxes)
+			&& BX.type.isNotEmptyObject(field.params.allUserSignatures))
+		{
+			for (var i in field.params.mailboxes)
+			{
+				if (field.params.mailboxes.hasOwnProperty(i))
+				{
+					if (field.params.mailboxes[i].formated === currentSender)
+					{
+						var mailbox = field.params.mailboxes[i];
+						var signatures = field.params.allUserSignatures;
+						if (BX.type.isArrayFilled(signatures[mailbox.formated]))
+						{
+							currentSignatures.push.apply(currentSignatures ,signatures[mailbox.formated]);
+						}
+						if (BX.type.isArrayFilled(signatures[mailbox.email]))
+						{
+							currentSignatures.push.apply(currentSignatures ,signatures[mailbox.email]);
+						}
+						if (BX.type.isArrayFilled(signatures['']))
+						{
+							currentSignatures.push.apply(currentSignatures , signatures['']);
+						}
+						break;
+					}
+				}
+			}
+		}
+		return currentSignatures;
+	}
+
+	BXMainMailForm.prototype.removeSignaturesFromMenu = function()
+	{
+		var ids = this.signatureSelectMenu.getMenuItems().map(function(item)
+		{
+			return item.getId();
+		});
+		for (var i in ids)
+		{
+			if (ids.hasOwnProperty(i) && ids[i] !== this.configureMenuItemId)
+			{
+				this.signatureSelectMenu.removeMenuItem(ids[i]);
+			}
+		}
+	}
+
+	BXMainMailForm.prototype.appendSignaturesToMenu = function(signatures) {
+		var items = this.getSignatureSelectItemsMenu(signatures);
+		for (var i in items)
+		{
+			if (items.hasOwnProperty(i))
+			{
+				this.signatureSelectMenu.addMenuItem(items[i], this.configureMenuItemId);
+			}
+		}
+	}
+
+	BXMainMailForm.prototype.getSignatureSelectItemsMenu = function(signatures)
+	{
+		var signatureSelectItems = [];
+
+		if (BX.type.isArrayFilled(signatures))
+		{
+
+			var form = this;
+			for(var i in signatures)
+			{
+				if (signatures.hasOwnProperty(i)
+					&& BX.type.isNotEmptyObject(signatures[i])
+					&& BX.type.isNotEmptyString(signatures[i].list)
+					&& BX.type.isNotEmptyString(signatures[i].full))
+				{
+					signatureSelectItems.push({
+						id: 'signature-' + i,
+						text: signatures[i].list,
+						title: signatures[i].list,
+						fullSignature: signatures[i].full,
+						onclick: function(event, item)
+						{
+							item.getMenuWindow().close();
+							form.insertSignature(item.fullSignature);
+						},
+					})
+				}
+			}
+
+			if (signatureSelectItems.length)
+			{
+				signatureSelectItems.push({
+					id: 'after-signatures-delimiter',
+					delimiter: true,
+				})
+			}
+
+		}
+		return signatureSelectItems;
 	};
 
 	window.BXMainMailForm = BXMainMailForm;

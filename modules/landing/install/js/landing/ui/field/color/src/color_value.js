@@ -169,11 +169,12 @@ export default class ColorValue implements IColorValue
 
 	getHsla(): ColorValueOptions
 	{
+		const a = this.value.a || 1;
 		return {
 			h: this.value.h,
 			s: this.value.s,
 			l: this.value.l,
-			a: this.value.a,
+			a,
 		};
 	}
 

@@ -44,6 +44,9 @@ class EntityUsageTable extends Data\DataManager
 	 */
 	public static function getMap()
 	{
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		return [
 			new Fields\IntegerField("USER_ID", [
 				"primary" => true,
@@ -84,7 +87,7 @@ class EntityUsageTable extends Data\DataManager
 			//Compatible Fields for FinderDestTable
 			new Fields\ExpressionField(
 				'CODE',
-				'IF(%s=\'department\',REPLACE(CONCAT(%s, %s), \':F\', \'\'), CONCAT(%s, %s))',
+				'CASE WHEN %s=\'department\' THEN REPLACE(' . $helper->getConcatFunction('%s', '%s') . ', \':F\', \'\') ELSE ' . $helper->getConcatFunction('%s', '%s') . ' END',
 				['ENTITY_ID', 'PREFIX', 'ITEM_ID', 'PREFIX', 'ITEM_ID']
 			),
 			new Fields\ExpressionField(

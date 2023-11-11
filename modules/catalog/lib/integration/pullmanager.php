@@ -2,13 +2,15 @@
 
 namespace Bitrix\Catalog\Integration;
 
+use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\AccessController;
-use Bitrix\CatalogMobile\StoreDocumentList\Item;
+use Bitrix\CatalogMobile\StoreDocumentList;
+use Bitrix\CatalogMobile\RealizationList;
 use Bitrix\Pull\Event;
 use Bitrix\Pull\Model\WatchTable;
 
@@ -175,7 +177,14 @@ class PullManager
 				|| $action === self::EVENT_DOCUMENT_ADDED
 			)
 			{
-				$mobileItem = new Item($document);
+				if ($document['DOC_TYPE'] === StoreDocumentTable::TYPE_SALES_ORDERS)
+				{
+					$mobileItem = new RealizationList\Item($document);
+				}
+				else
+				{
+					$mobileItem = new StoreDocumentList\Item($document);
+				}
 				$preparedMobileItem = $mobileItem->prepareItem();
 				$items[$key]['mobileData'] = (
 					is_array($preparedMobileItem) // @todo For compatibility. Delete after exiting dto in the mobile.

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core) {
@@ -13,16 +14,13 @@ this.BX.UI = this.BX.UI || {};
 	    this.analyticsLabel = main_core.Type.isPlainObject(params.analyticsLabel) ? params.analyticsLabel : {};
 	    this.sidePanelId = 'manual-side-panel-' + this.manualCode;
 	  }
-
 	  babelHelpers.createClass(Manual, [{
 	    key: "open",
 	    value: function open() {
 	      var _this = this;
-
 	      if (this.isOpen()) {
 	        return;
 	      }
-
 	      BX.SidePanel.Instance.open(this.sidePanelId, {
 	        contentCallback: function contentCallback() {
 	          return _this.createFrame();
@@ -34,7 +32,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "createFrame",
 	    value: function createFrame() {
 	      var _this2 = this;
-
 	      return new Promise(function (resolve, reject) {
 	        main_core.ajax.runAction('ui.manual.getInitParams', {
 	          data: {

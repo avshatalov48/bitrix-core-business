@@ -7,19 +7,19 @@
 			<div class="landing-block-node-block-top col-md-6 col-lg-6 d-flex align-items-center text-center g-pa-50 js-animation fadeInRight">
 				<div class="w-100">
 					<div class="g-mb-25">
-						<h4 class="landing-block-node-subtitle landing-semantic-subtitle-medium-primary g-font-weight-700 g-color-primary g-mb-25">
+						<h4 class="landing-block-node-subtitle g-font-weight-700 g-color-primary g-mb-25">
 							About Spa</h4>
-						<h2 class="landing-block-node-title landing-semantic-title-medium text-uppercase g-font-weight-700 mb-0">
+						<h2 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">
 							Perfect place for your
 							relaxation</h2>
 					</div>
 
-					<div class="landing-block-node-text landing-semantic-text-medium g-mb-35">
+					<div class="landing-block-node-text g-mb-35">
 						<p>Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim
 							justo, rhoncus ut, imperdiet a, venenatis vitae, justo.</p>
 					</div>
 					<div class="landing-block-node-button-container">
-						<a class="landing-block-node-button landing-semantic-link-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
+						<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
 						   href="#">View our procedures</a>
 					</div>
 				</div>

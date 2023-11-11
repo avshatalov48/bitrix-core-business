@@ -7,9 +7,7 @@ use Bitrix\Translate;
 use Bitrix\Translate\Index;
 use Bitrix\Translate\Text\StringHelper;
 
-class File
-	extends Translate\IO\File
-	implements \Iterator, \Countable, \ArrayAccess
+class File extends Translate\IO\File implements \Iterator, \Countable, \ArrayAccess
 {
 	/** @var string */
 	protected $languageId;
@@ -49,9 +47,9 @@ class File
 	 * @return Translate\File
 	 * @throws Main\ArgumentException
 	 */
-	public static function instantiateByPath($path)
+	public static function instantiateByPath(string $path): self
 	{
-		if (empty($path) || !\is_string($path) || (\mb_substr($path, -4) !== '.php') || !\preg_match("#.+/lang/[a-z]{2}/.+\.php$#", $path))
+		if (empty($path) || !Translate\IO\Path::isPhpFile($path) || !\preg_match("#.+/lang/[a-z]{2}/.+\.php$#", $path))
 		{
 			throw new Main\ArgumentException("Parameter 'path' has a wrong value");
 		}
@@ -69,19 +67,10 @@ class File
 	 * @param Index\FileIndex $fileIndex Language file index.
 	 *
 	 * @return Translate\File
-	 * @throws Main\ArgumentException
 	 */
-	public static function instantiateByIndex(Index\FileIndex $fileIndex)
+	public static function instantiateByIndex(Index\FileIndex $fileIndex): self
 	{
-		if (!$fileIndex instanceof Index\FileIndex)
-		{
-			throw new Main\ArgumentException();
-		}
-
-		$file = (new static($fileIndex->getFullPath()))
-			->setLangId($fileIndex->getLangId());
-
-		return $file;
+		return (new static($fileIndex->getFullPath()))->setLangId($fileIndex->getLangId());
 	}
 
 
@@ -93,17 +82,14 @@ class File
 	 * @return Translate\File
 	 * @throws Main\ArgumentException
 	 */
-	public static function instantiateByIoFile(Main\IO\File $fileIn)
+	public static function instantiateByIoFile(Main\IO\File $fileIn): self
 	{
-		if (!$fileIn instanceof Main\IO\File || $fileIn->getExtension() !== 'php')
+		if ($fileIn->getExtension() !== 'php')
 		{
 			throw new Main\ArgumentException();
 		}
 
-		$file = (new static($fileIn->getPath()))
-			->setLangId(Translate\IO\Path::extractLangId($fileIn->getPath()));
-
-		return $file;
+		return (new static($fileIn->getPath()))->setLangId(Translate\IO\Path::extractLangId($fileIn->getPath()));
 	}
 
 	//endregion
@@ -114,12 +100,13 @@ class File
 	 * Returns language code of the file. If it is empty tries to detect it.
 	 * @return string
 	 */
-	public function getLangId()
+	public function getLangId(): string
 	{
 		if (empty($this->languageId))
 		{
 			$this->languageId = Translate\IO\Path::extractLangId($this->getPath());
 		}
+
 		return $this->languageId;
 	}
 
@@ -130,7 +117,7 @@ class File
 	 *
 	 * @return self
 	 */
-	public function setLangId($languageId)
+	public function setLangId(string $languageId): self
 	{
 		$this->languageId = $languageId;
 
@@ -139,12 +126,11 @@ class File
 
 	/**
 	 * Returns source encoding of the file.
-	 * @return bool
+	 * @return string
 	 */
-	public function getSourceEncoding()
+	public function getSourceEncoding(): string
 	{
-		static $encodingCache = array();
-
+		static $encodingCache = [];
 		if (empty($this->sourceEncoding))
 		{
 			$language = $this->getLangId();
@@ -169,7 +155,7 @@ class File
 	 *
 	 * @return self
 	 */
-	public function setSourceEncoding($encoding)
+	public function setSourceEncoding(string $encoding): self
 	{
 		$this->sourceEncoding = $encoding;
 
@@ -178,9 +164,9 @@ class File
 
 	/**
 	 * Returns operating encoding.
-	 * @return bool
+	 * @return string
 	 */
-	public function getOperatingEncoding()
+	public function getOperatingEncoding(): string
 	{
 		if (empty($this->operatingEncoding))
 		{
@@ -197,7 +183,7 @@ class File
 	 *
 	 * @return self
 	 */
-	public function setOperatingEncoding($encoding)
+	public function setOperatingEncoding(string $encoding): self
 	{
 		$this->operatingEncoding = $encoding;
 
@@ -218,10 +204,10 @@ class File
 	 * @return bool
 	 */
 	public function lint(
-		$content = '',
-		$validTokens = array(\T_OPEN_TAG, \T_CLOSE_TAG, \T_WHITESPACE, \T_CONSTANT_ENCAPSED_STRING, \T_VARIABLE, \T_COMMENT, \T_DOC_COMMENT),
-		$validChars = array('[', ']', ';', '=')
-	)
+		string $content = '',
+		array $validTokens = [\T_OPEN_TAG, \T_CLOSE_TAG, \T_WHITESPACE, \T_CONSTANT_ENCAPSED_STRING, \T_VARIABLE, \T_COMMENT, \T_DOC_COMMENT],
+		array $validChars = ['[', ']', ';', '=']
+	): bool
 	{
 		$isValid = false;
 
@@ -289,7 +275,7 @@ class File
 	 * @return bool
 	 * @throws \ParseError
 	 */
-	public function load()
+	public function load(): bool
 	{
 		$this->messages = [];
 		$this->messageCodes = [];
@@ -375,7 +361,7 @@ class File
 	 *
 	 * @return bool
 	 */
-	public function loadTokens()
+	public function loadTokens(): bool
 	{
 		$this->messages = [];
 		$this->messageCodes = [];
@@ -594,11 +580,11 @@ class File
 	/**
 	 * Save changes or create new file.
 	 *
-	 * @return boolean
+	 * @return bool
 	 * @throws Main\IO\IoException
 	 * @throws Main\SystemException
 	 */
-	public function save()
+	public function save(): bool
 	{
 		// language id
 		$langId = $this->getLangId();
@@ -714,9 +700,9 @@ class File
 	/**
 	 * Removes empty parent chain up to "lang".
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function removeEmptyParents()
+	public function removeEmptyParents(): bool
 	{
 		// todo: Add module setting that will allow / disallow drop empty lang folders.
 		$ret = true;
@@ -751,7 +737,7 @@ class File
 	 *
 	 * @return bool
 	 */
-	public function backup()
+	public function backup(): bool
 	{
 		if (!$this->isExists())
 		{
@@ -829,13 +815,12 @@ class File
 
 	//region Index
 
-
 	/**
 	 * Returns or creates file index instance.
 	 *
 	 * @return Index\FileIndex
 	 */
-	public function getFileIndex()
+	public function getFileIndex(): Index\FileIndex
 	{
 		if (!$this->fileIndex instanceof Index\FileIndex)
 		{
@@ -859,34 +844,71 @@ class File
 		return $this->fileIndex;
 	}
 
-
 	/**
 	 * Updates phrase index.
 	 *
 	 * @return Index\FileIndex
 	 */
-	public function updatePhraseIndex()
+	public function updatePhraseIndex(): Index\FileIndex
 	{
 		$this->getFileIndex();
-		if ($this->fileIndex->getId() > 0)
+		$fileId = $this->fileIndex->getId();
+		if ($fileId > 0)
 		{
-			$phraseData = array();
+			$phraseId = Index\Internals\PhraseIndexTable::query()
+				->registerRuntimeField(new Main\ORM\Fields\ExpressionField('MAXID', 'MAX(%s)', ['ID']))
+				->addSelect('MAXID')
+				->exec()
+				->fetch()['MAXID'];
+
+			$pathId = $this->fileIndex->getPathId();
+			$phraseData = [];
+			$phraseCodeData = [];
 			foreach ($this as $code => $phrase)
 			{
-				$phraseData[] = array(
-					'FILE_ID' => $this->fileIndex->getId(),
-					'PATH_ID' => $this->fileIndex->getPathId(),
-					'LANG_ID' => $this->getLangId(),
+				$phraseId ++;
+				$langId = $this->getLangId();
+				$phraseCodeData[] = [
+					'ID' => $phraseId,
+					'FILE_ID' => $fileId,
+					'PATH_ID' => $pathId,
+					'LANG_ID' => $langId,
+					'CODE' => $code,
+				];
+
+				if (!isset($phraseData[$langId]))
+				{
+					$phraseData[$langId] = [];
+				}
+				$phraseData[$langId][] = [
+					'ID' => $phraseId,
+					'FILE_ID' => $fileId,
+					'PATH_ID' => $pathId,
 					'CODE' => $code,
 					'PHRASE' => $phrase,
-				);
+				];
 			}
 
-			Index\Internals\PhraseIndexTable::purge(new Translate\Filter(['fileId' => $this->fileIndex->getId()]));
+			// delete
+			$filter = new Translate\Filter(['fileId' => $fileId]);
 
-			if (\count($phraseData) > 0)
+			Index\Internals\PhraseIndexTable::purge($filter);
+
+			foreach (Translate\Config::getLanguages() as $langId)
 			{
-				Index\Internals\PhraseIndexTable::bulkAdd($phraseData);
+				$ftsClass = Index\Internals\PhraseFts::getFtsEntityClass($langId);
+				$ftsClass::purge($filter);
+			}
+
+			// add
+			if (\count($phraseCodeData) > 0)
+			{
+				Index\Internals\PhraseIndexTable::bulkAdd($phraseCodeData);
+				foreach ($phraseData as $langId => $phraseLangData)
+				{
+					$ftsClass = Index\Internals\PhraseFts::getFtsEntityClass($langId);
+					$ftsClass::bulkAdd($phraseLangData, 'ID');
+				}
 			}
 
 			$this->fileIndex
@@ -899,18 +921,26 @@ class File
 		return $this->fileIndex;
 	}
 
-
 	/**
 	 * Drops phrase index.
 	 *
 	 * @return bool
 	 */
-	public function deletePhraseIndex()
+	public function deletePhraseIndex(): bool
 	{
 		$this->getFileIndex();
 		if ($this->fileIndex->getId() > 0)
 		{
-			Index\Internals\FileIndexTable::purge(new Translate\Filter(['id' => $this->fileIndex->getId()]));
+			$filter = new Translate\Filter(['id' => $this->fileIndex->getId()]);
+
+			Index\Internals\FileIndexTable::purge($filter);
+
+			foreach (Translate\Config::getLanguages() as $langId)
+			{
+				$ftsClass = Index\Internals\PhraseFts::getFtsEntityClass($langId);
+				$ftsClass::purge($filter);
+			}
+
 			unset($this->fileIndex);
 		}
 
@@ -922,7 +952,7 @@ class File
 	 *
 	 * @return Index\PhraseIndexCollection
 	 */
-	public function getPhraseIndexCollection()
+	public function getPhraseIndexCollection(): Index\PhraseIndexCollection
 	{
 		$phraseIndexCollection = new Index\PhraseIndexCollection();
 		foreach ($this->messages as $code => $message)
@@ -1237,9 +1267,9 @@ class File
 	 *
 	 * @param self $ethalon File to compare.
 	 *
-	 * @return bool|int
+	 * @return int
 	 */
-	public function countExcess(self $ethalon)
+	public function countExcess(self $ethalon): int
 	{
 		return (int)\count(\array_diff($this->getCodes(), $ethalon->getCodes()));
 	}
@@ -1249,9 +1279,9 @@ class File
 	 *
 	 * @param self $ethalon File to compare.
 	 *
-	 * @return bool|int
+	 * @return int
 	 */
-	public function countDeficiency(self $ethalon)
+	public function countDeficiency(self $ethalon): int
 	{
 		return (int)\count(\array_diff($ethalon->getCodes(), $this->getCodes()));
 	}

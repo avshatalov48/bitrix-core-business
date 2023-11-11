@@ -1,44 +1,52 @@
-import {Loc} from 'main.core';
+import { Loc, Tag } from 'main.core';
 
 export const ParserLines = {
 
 	decode(text): string
 	{
-		text = text.replace(
-			/\[LIKE]/gi,
-			`<span style="color: #004d00">${Loc.getMessage('IM_PARSER_LINES_RATING_LIKE')}</span>`
+		let result = text;
+
+		result = result.replaceAll(
+			/\[like]/gi,
+			`<span class="bx-im-lines-vote-like" title="${Loc.getMessage('IM_PARSER_LINES_RATING_LIKE')}"></span>`,
 		);
 
-		text = text.replace(
-			/\[DISLIKE]/gi,
-			`<span style="color: #cc0000">${Loc.getMessage('IM_PARSER_LINES_RATING_DISLIKE')}</span>`
+		result = result.replaceAll(
+			/\[dislike]/gi,
+			`<span class="bx-im-lines-vote-dislike" title="${Loc.getMessage('IM_PARSER_LINES_RATING_DISLIKE')}"></span>`,
 		);
 
-		text = text.replace(/\[RATING=([1-5])]/gi, (rating, group) => {
-			rating = parseInt(group);
-			return `<span class="bx-smile bx-im-smile-rating bx-im-smile-rating-'+rating+'">${Loc.getMessage('IM_PARSER_LINES_RATING')} - ${rating}</span>`;
+		result = result.replaceAll(/\[rating=([1-5])]/gi, (whole, rating) => {
+			const tag = Tag.render`
+				<span class="bx-im-lines-rating" title="${Loc.getMessage('IM_PARSER_LINES_RATING')} - ${rating}">
+					<span class="bx-im-lines-rating-selected" style="width: ${rating * 20}%"></span>
+				</span>
+			`;
+
+			return tag.outerHTML;
 		});
 
-		return text;
+		return result;
 	},
 
 	purify(text): string
 	{
-		text = text.replace(
-			/\[LIKE]/gi,
-			Loc.getMessage('IM_PARSER_LINES_RATING_LIKE')
+		let result = text;
+
+		result = result.replaceAll(
+			/\[like]/gi,
+			Loc.getMessage('IM_PARSER_LINES_RATING_LIKE'),
 		);
 
-		text = text.replace(
-			/\[DISLIKE]/gi,
-			Loc.getMessage('IM_PARSER_LINES_RATING_DISLIKE')
+		result = result.replaceAll(
+			/\[dislike]/gi,
+			Loc.getMessage('IM_PARSER_LINES_RATING_DISLIKE'),
 		);
 
-		text = text.replace(/\[RATING=([1-5])]/gi, () => {
-			return '['+Loc.getMessage('IM_PARSER_LINES_RATING')+'] ';
+		result = result.replaceAll(/\[rating=([1-5])]/gi, () => {
+			return `[${Loc.getMessage('IM_PARSER_LINES_RATING')}] `;
 		});
 
-		return text;
-	}
-}
-
+		return result;
+	},
+};

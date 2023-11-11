@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_field_basefield,main_popup,ui_fonts_opensans,ui_designTokens,main_core_events,landing_ui_field_image,landing_backend,landing_pageobject,main_core) {
+(function (exports,landing_ui_field_basefield,main_popup,ui_fonts_opensans,ui_designTokens,main_core_events,landing_ui_field_image,landing_backend,landing_env,landing_pageobject,main_core) {
 	'use strict';
 
 	const matcher = /^rgba? ?\((\d{1,3})[, ]+(\d{1,3})[, ]+(\d{1,3})([, ]+([\d\.]{1,5}))?\)$/i;
@@ -30,7 +30,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      b
 	    };
 	  }
-
 	  if (hex.length === 7) {
 	    const r = parseInt(`0x${hex[1]}${hex[2]}`, 16);
 	    const g = parseInt(`0x${hex[3]}${hex[4]}`, 16);
@@ -41,7 +40,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      b
 	    };
 	  }
-
 	  return {
 	    r: 255,
 	    g: 255,
@@ -56,8 +54,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  const max = Math.max(r, g, b);
 	  const min = Math.min(r, g, b);
 	  let h,
-	      s,
-	      l = (max + min) / 2; // let l = h;
+	    s,
+	    l = (max + min) / 2;
+	  // let l = h;
 	  // let s;
 
 	  if (max === min) {
@@ -65,31 +64,28 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  } else {
 	    const d = max - min;
 	    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
 	    switch (max) {
 	      case r:
 	        h = (g - b) / d + (g < b ? 6 : 0);
 	        break;
-
 	      case g:
 	        h = (b - r) / d + 2;
 	        break;
-
 	      case b:
 	        h = (r - g) / d + 4;
 	        break;
 	    }
-
 	    h *= 0.6;
 	  }
-
 	  return {
 	    h: Math.round(h * 100),
 	    s: Math.round(s * 100),
 	    l: Math.round(l * 100),
 	    a: 'a' in rgb ? rgb.a : 1
 	  };
-	} // 	const v = Math.max(r, g, b);
+	}
+
+	// 	const v = Math.max(r, g, b);
 	// 	const diff = v - Math.min(r, g, b);
 	// 	const diffc = (c) => {
 	// 		return (v - c) / 6 / diff + 1 / 2;
@@ -147,19 +143,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  let r = rgb.r.toString(16);
 	  let g = rgb.g.toString(16);
 	  let b = rgb.b.toString(16);
-
 	  if (r.length === 1) {
 	    r = "0" + r;
 	  }
-
 	  if (g.length === 1) {
 	    g = "0" + g;
 	  }
-
 	  if (b.length === 1) {
 	    b = "0" + b;
 	  }
-
 	  return "#" + r + g + b;
 	}
 
@@ -177,7 +169,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  let r = 0;
 	  let g = 0;
 	  let b = 0;
-
 	  if (0 <= h && h < 60) {
 	    r = c;
 	    g = x;
@@ -203,7 +194,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    g = 0;
 	    b = x;
 	  }
-
 	  r = Math.round((r + m) * 255);
 	  g = Math.round((g + m) * 255);
 	  b = Math.round((b + m) * 255);
@@ -221,7 +211,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	function rgbStringToHsla(rgbString) {
 	  let matches = rgbString.trim().match(matcher);
-
 	  if (matches.length > 0) {
 	    return rgbToHsla({
 	      r: main_core.Text.toNumber(matches[1]),
@@ -234,7 +223,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	function hslStringToHsl(hslString) {
 	  let matches = hslString.trim().match(matcherHsl);
-
 	  if (matches && matches.length > 0) {
 	    return {
 	      h: main_core.Text.toNumber(matches[1]),
@@ -251,43 +239,33 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 	function parseCssVar(css) {
 	  const matches = css.trim().match(matcher$1);
-
 	  if (!!matches) {
 	    const cssVar = {
 	      full: matches[2],
 	      name: matches[3]
 	    };
-
 	    if (matches[3]) {
 	      const cssVarWithOpacity = '--primary-opacity-0_';
 	      const cssVarWithOpacity0 = '--primary-opacity-0';
-
 	      if (matches[3].startsWith(cssVarWithOpacity0) && !matches[3].startsWith(cssVarWithOpacity)) {
 	        cssVar.opacity = 0;
 	      }
-
 	      if (matches[3].startsWith(cssVarWithOpacity)) {
 	        let newOpacity = matches[3].substr(cssVarWithOpacity.length);
-
 	        if (newOpacity.length === 1 && newOpacity !== 0) {
 	          newOpacity = newOpacity / 10;
 	        }
-
 	        if (newOpacity.length === 2) {
 	          newOpacity = newOpacity / 100;
 	        }
-
 	        cssVar.opacity = newOpacity;
 	      }
 	    }
-
 	    if (matches[5]) {
 	      cssVar.opacity = +parseFloat(matches[5].replace('_', '.')).toFixed(1);
 	    }
-
 	    return cssVar;
 	  }
-
 	  return null;
 	}
 
@@ -317,18 +295,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	   * if set css variable value - save them in '--var-name' format
 	   * @type {?string}
 	   */
+
 	  constructor(value) {
 	    this.value = defaultColorValueOptions;
 	    this.hex = null;
 	    this.cssVar = null;
 	    this.setValue(value);
 	  }
-
 	  getName() {
 	    if (this.hex) {
 	      return this.getHex() + '_' + this.getOpacity();
 	    }
-
 	    const {
 	      h,
 	      s,
@@ -336,7 +313,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    } = this.getHsl();
 	    return `${h}-${s}-${l}-${this.getOpacity()}`;
 	  }
-
 	  setValue(value) {
 	    if (main_core.Type.isObject(value)) {
 	      if (value instanceof ColorValue) {
@@ -344,17 +320,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.cssVar = value.getCssVar();
 	        this.hex = value.getHexOriginal();
 	      } else {
-	        this.value = { ...this.value,
+	        this.value = {
+	          ...this.value,
 	          ...value
 	        };
 	      }
 	    }
-
 	    if (main_core.Type.isString(value)) {
 	      if (isHslString(value)) {
 	        this.value = hslStringToHsl(value);
 	      } else if (isHex(value)) {
-	        this.value = { ...hexToHsl(value),
+	        this.value = {
+	          ...hexToHsl(value),
 	          a: defaultColorValueOptions.a
 	        };
 	        this.hex = value;
@@ -363,10 +340,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      } else if (isCssVar(value)) {
 	        const cssVar = parseCssVar(value);
 	        const cssPrimaryVarName = '--primary';
-
 	        if (cssVar !== null) {
 	          this.cssVar = cssVar.name;
-
 	          if ('opacity' in cssVar) {
 	            this.cssVar = cssPrimaryVarName;
 	            this.setValue(main_core.Dom.style(document.documentElement, this.cssVar));
@@ -377,58 +352,48 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }
 	      }
 	    }
-
 	    this.value.h = Math.round(this.value.h);
 	    this.value.s = Math.round(this.value.s);
 	    this.value.l = Math.round(this.value.l);
 	    this.value.a = this.value.a.toFixed(2);
 	    const offsetFromCorrectValue = Math.round(this.value.a * 100 % 5);
-
 	    if (offsetFromCorrectValue < 3) {
 	      this.value.a = (this.value.a * 100 - offsetFromCorrectValue) / 100;
 	    } else {
 	      this.value.a = (this.value.a * 100 - offsetFromCorrectValue + 5) / 100;
 	    }
-
 	    return this;
 	  }
-
 	  setOpacity(opacity) {
 	    this.setValue({
 	      a: opacity
 	    });
 	    return this;
 	  }
-
 	  lighten(percent) {
 	    this.value.l = Math.min(this.value.l + percent, 100);
 	    this.hex = null;
 	    return this;
 	  }
-
 	  darken(percent) {
 	    this.value.l = Math.max(this.value.l - percent, 0);
 	    this.hex = null;
 	    return this;
 	  }
-
 	  saturate(percent) {
 	    this.value.s = Math.min(this.value.s + percent, 100);
 	    this.hex = null;
 	    return this;
 	  }
-
 	  desaturate(percent) {
 	    this.value.s = Math.max(this.value.s - percent, 0);
 	    this.hex = null;
 	    return this;
 	  }
-
 	  adjustHue(degree) {
 	    this.value.h = (this.value.h + degree) % 360;
 	    return this;
 	  }
-
 	  getHsl() {
 	    return {
 	      h: this.value.h,
@@ -436,55 +401,48 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      l: this.value.l
 	    };
 	  }
-
 	  getHsla() {
+	    const a = this.value.a || 1;
 	    return {
 	      h: this.value.h,
 	      s: this.value.s,
 	      l: this.value.l,
-	      a: this.value.a
+	      a
 	    };
 	  }
+
 	  /**
 	   * Return original hex-string or convert value to hex (w.o. alpha)
 	   * @returns {string}
 	   */
-
-
 	  getHex() {
 	    return this.hex || hslToHex(this.value);
 	  }
+
 	  /**
 	   * Return hex only if value created from hex-string
 	   */
-
-
 	  getHexOriginal() {
 	    return this.hex;
 	  }
-
 	  getOpacity() {
 	    var _this$value$a;
-
 	    return (_this$value$a = this.value.a) != null ? _this$value$a : defaultColorValueOptions.a;
 	  }
-
 	  getCssVar() {
 	    return this.cssVar;
 	  }
+
 	  /**
 	   * Get style string for set inline css var.
 	   * Set hsla value or primary css var with opacity in format --var-name-opacity_12_3
 	   * @returns {string}
 	   */
-
-
 	  getStyleString() {
 	    if (this.cssVar === null) {
 	      if (this.hex && this.getOpacity() === defaultColorValueOptions.a) {
 	        return this.hex;
 	      }
-
 	      const {
 	        h,
 	        s,
@@ -494,15 +452,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return `hsla(${h}, ${s}%, ${l}%, ${a})`;
 	    } else {
 	      let fullCssVar = this.cssVar;
-
 	      if (this.value.a !== defaultColorValueOptions.a) {
 	        fullCssVar = fullCssVar + '-opacity-' + String(this.value.a).replace('.', '_');
 	      }
-
 	      return `var(${fullCssVar})`;
 	    }
 	  }
-
 	  getStyleStringForOpacity() {
 	    const {
 	      h,
@@ -511,11 +466,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    } = this.value;
 	    return `linear-gradient(to right, hsla(${h}, ${s}%, ${l}%, 0) 0%, hsla(${h}, ${s}%, ${l}%, 1) 100%)`;
 	  }
-
 	  static compare(color1, color2) {
 	    return color1.getHsla().h === color2.getHsla().h && color1.getHsla().s === color2.getHsla().s && color1.getHsla().l === color2.getHsla().l && color1.getHsla().a === color2.getHsla().a && color1.cssVar === color2.cssVar;
 	  }
-
 	  static getMedian(color1, color2) {
 	    return new ColorValue({
 	      h: (color1.getHsla().h + color2.getHsla().h) / 2,
@@ -524,41 +477,36 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      a: (color1.getHsla().a + color2.getHsla().a) / 2
 	    });
 	  }
+
 	  /**
 	   * Special formula for contrast. Not only color invert!
 	   * @returns {string}
 	   */
-
-
 	  getContrast() {
-	    let k = 60; // math h range to 0-2pi radian and add modifier by sinus
-
+	    let k = 60;
+	    // math h range to 0-2pi radian and add modifier by sinus
 	    let rad = this.getHsl().h * Math.PI / 180;
 	    k += Math.sin(rad) * 10 + 5; // 10 & 5 is approximate coefficients
 	    // lighten by started light
-
 	    let deltaL = k - 45 * this.getHsl().l / 100;
 	    return new ColorValue(this.value).setValue({
 	      l: (this.getHsl().l + deltaL) % 100
 	    });
 	  }
+
 	  /**
 	   * Special formula for lighten, good for dark and light colors
 	   */
-
-
 	  getLighten() {
 	    let {
 	      h,
 	      s,
 	      l
 	    } = this.getHsl();
-
 	    if (s > 0) {
 	      s += (l - 50) / 100 * 60;
 	      s = Math.min(100, Math.max(0, l));
 	    }
-
 	    l += 10 + 20 * l / 100;
 	    l = Math.min(100, l);
 	    return new ColorValue({
@@ -567,11 +515,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      l
 	    });
 	  }
-
 	}
 
 	let _ = t => t,
-	    _t;
+	  _t;
 	class BaseProcessor extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
@@ -581,76 +528,62 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.pseudoClass = null;
 	    this.setEventNamespace('BX.Landing.UI.Field.Processor.BaseProcessor');
 	  }
-
 	  getProperty() {
 	    return main_core.Type.isArray(this.property) ? this.property : [this.property];
 	  }
-
 	  getVariableName() {
 	    return main_core.Type.isArray(this.variableName) ? this.variableName : [this.variableName];
 	  }
-
 	  isNullValue(value) {
 	    return main_core.Type.isNull(value);
 	  }
-
 	  getNullValue() {
 	    return new ColorValue();
 	  }
-
 	  getPseudoClass() {
 	    return this.pseudoClass;
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return this.buildLayout();
 	    });
 	  }
-
 	  buildLayout() {
 	    return main_core.Tag.render(_t || (_t = _`<div>Base processor</div>`));
 	  }
-
 	  getClassName() {
 	    return [this.className];
 	  }
-
 	  getValue() {}
-
 	  getStyle() {
 	    if (main_core.Type.isNull(this.getValue())) {
 	      return {
 	        [this.getVariableName()]: null
 	      };
 	    }
-
 	    return {
 	      [this.getVariableName()]: this.getValue().getStyleString()
 	    };
 	  }
+
 	  /**
 	   * Set value by new format
 	   * @param value {string: string}
 	   */
-
-
 	  setProcessorValue(value) {
 	    // Just get last css variable
 	    const processorProperty = this.getVariableName()[this.getVariableName().length - 1];
 	    this.cache.delete('value');
 	    this.setValue(value[processorProperty]);
 	  }
+
 	  /**
 	   * Set old-type value by computedStyle
 	   * @param value {string: string} | null
 	   */
-
-
 	  setDefaultValue(value) {
 	    if (!main_core.Type.isNull(value)) {
 	      const inlineProperty = this.getProperty()[this.getProperty().length - 1];
-
 	      if (inlineProperty in value) {
 	        this.setValue(value[inlineProperty]);
 	        this.cache.delete('value');
@@ -658,48 +591,37 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        return;
 	      }
 	    }
-
 	    this.setValue(null);
 	    this.cache.set('value', null);
 	  }
-
 	  setValue(value) {}
-
 	  onReset() {
 	    this.emit('onReset');
 	  }
-
 	  unsetActive() {}
-
 	  onChange() {
 	    this.cache.delete('value');
 	    this.emit('onChange');
 	  }
-
 	  defineActiveControl(items, currentNode) {}
-
 	  setActiveControl(controlName) {}
-
 	  prepareProcessorValue(processorValue, defaultValue, data) {
 	    return processorValue;
 	  }
-
 	}
 
 	let _$1 = t => t,
-	    _t$1;
+	  _t$1;
 	class BaseControl extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
 	    this.cache = new main_core.Cache.MemoryCache();
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return this.buildLayout();
 	    });
 	  }
-
 	  buildLayout() {
 	    return main_core.Tag.render(_t$1 || (_t$1 = _$1`
 			<div class="landing-ui-field-base-control">
@@ -707,49 +629,41 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>
 		`));
 	  }
-
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      return new ColorValue();
 	    });
 	  }
-
 	  isNeedSetValue(value) {
 	    return value !== this.getValue();
 	  }
-
 	  setValue(value) {
 	    this.cache.set('value', value);
 	  }
-
 	  onChange(event) {
 	    this.cache.delete('value');
 	    this.emit('onChange', {
 	      color: this.getValue()
 	    });
 	  }
-
 	  setActive() {
 	    main_core.Dom.addClass(this.getLayout(), BaseControl.ACTIVE_CLASS);
 	  }
-
 	  unsetActive() {
 	    main_core.Dom.removeClass(this.getLayout(), BaseControl.ACTIVE_CLASS);
 	  }
-
 	  isActive() {
 	    return main_core.Dom.hasClass(this.getLayout(), BaseControl.ACTIVE_CLASS);
 	  }
-
 	}
 	BaseControl.ACTIVE_CLASS = 'active';
 
 	let _$2 = t => t,
-	    _t$2,
-	    _t2,
-	    _t3,
-	    _t4,
-	    _t5;
+	  _t$2,
+	  _t2,
+	  _t3,
+	  _t4,
+	  _t5;
 	class Hex extends BaseControl {
 	  constructor() {
 	    super();
@@ -758,18 +672,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.onInput = main_core.Runtime.debounce(this.onInput.bind(this), 300);
 	    this.onButtonClick = this.onButtonClick.bind(this);
 	  }
-
 	  setPreviewMode(preview) {
 	    this.previewMode = !!preview;
 	  }
-
 	  buildLayout() {
 	    if (!this.previewMode) {
 	      // todo: add Enter click handler
 	      main_core.Event.bind(this.getInput(), 'input', this.onInput);
 	      main_core.Event.bind(this.getButton(), 'click', this.onButtonClick);
 	    }
-
 	    this.adjustColors(Hex.DEFAULT_COLOR, Hex.DEFAULT_BG);
 	    return main_core.Tag.render(_t$2 || (_t$2 = _$2`
 			<div class="landing-ui-field-color-hex">
@@ -778,13 +689,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>
 		`), this.getInput(), this.getButton());
 	  }
-
 	  getInput() {
 	    return this.cache.remember('input', () => {
 	      return this.previewMode ? main_core.Tag.render(_t2 || (_t2 = _$2`<div class="landing-ui-field-color-hex-preview">${0}</div>`), Hex.DEFAULT_TEXT) : main_core.Tag.render(_t3 || (_t3 = _$2`<input type="text" name="hexInput" value="${0}" class="landing-ui-field-color-hex-input">`), Hex.DEFAULT_TEXT);
 	    });
 	  }
-
 	  getButton() {
 	    return this.cache.remember('editButton', () => {
 	      return this.previewMode ? main_core.Tag.render(_t4 || (_t4 = _$2`
@@ -802,21 +711,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 					</svg>`));
 	    });
 	  }
-
 	  onInput() {
 	    let value = this.getInput().value.replace(/[^\da-f]/gi, '');
 	    value = value.substring(0, 6);
 	    this.getInput().value = '#' + value.toLowerCase();
 	    this.onChange();
 	  }
-
 	  onButtonClick() {
 	    this.onChange();
 	    this.emit('onButtonClick', {
 	      color: this.getValue()
 	    });
 	  }
-
 	  onChange(event) {
 	    const color = this.getInput().value.length === 7 && isHex(this.getInput().value) ? new ColorValue(this.getInput().value) : null;
 	    this.setValue(color);
@@ -825,40 +731,33 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      color: color
 	    });
 	  }
-
 	  adjustColors(textColor, bgColor) {
 	    main_core.Dom.style(this.getInput(), 'background-color', bgColor);
 	    main_core.Dom.style(this.getInput(), 'color', textColor);
 	    main_core.Dom.style(this.getButton().querySelector('path'), 'fill', textColor);
 	  }
-
 	  focus() {
 	    if (!this.previewMode) {
 	      if (this.getValue() === null) {
 	        this.getInput().value = '#';
 	      }
-
 	      this.getInput().focus();
 	    }
 	  }
-
 	  unFocus() {
 	    if (!this.previewMode) {
 	      this.getInput().blur();
 	    }
 	  }
-
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      return this.getInput().value === Hex.DEFAULT_TEXT ? null : new ColorValue(this.getInput().value);
 	    });
 	  }
-
 	  setValue(value) {
 	    // todo: set checking in always controls?
 	    if (this.isNeedSetValue(value)) {
 	      super.setValue(value);
-
 	      if (value !== null) {
 	        this.adjustColors(value.getContrast().getHex(), value.getHex());
 	        this.setActive();
@@ -866,7 +765,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.adjustColors(Hex.DEFAULT_COLOR, Hex.DEFAULT_BG);
 	        this.unsetActive();
 	      }
-
 	      if (this.previewMode) {
 	        this.getInput().innerText = value !== null ? value.getHex() : Hex.DEFAULT_TEXT;
 	      } else if (landing_pageobject.PageObject.getRootWindow().document.activeElement !== this.getInput()) {
@@ -874,27 +772,23 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    }
 	  }
-
 	  setActive() {
 	    main_core.Dom.addClass(this.getInput(), Hex.ACTIVE_CLASS);
 	  }
-
 	  unsetActive() {
 	    main_core.Dom.removeClass(this.getInput(), Hex.ACTIVE_CLASS);
 	  }
-
 	  isActive() {
 	    return main_core.Dom.hasClass(this.getInput(), Hex.ACTIVE_CLASS);
 	  }
-
 	}
 	Hex.DEFAULT_TEXT = '#HEX';
 	Hex.DEFAULT_COLOR = '#000000';
 	Hex.DEFAULT_BG = '#eeeeee';
 
 	let _$3 = t => t,
-	    _t$3,
-	    _t2$1;
+	  _t$3,
+	  _t2$1;
 	class Spectrum extends BaseControl {
 	  // todo: debug, del method, change calls, change css
 	  static getDefaultSaturation() {
@@ -904,7 +798,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    window.top.document.body.style.setProperty('--saturation', saturation + '%');
 	    return parseInt(saturation);
 	  }
-
 	  constructor(options) {
 	    super();
 	    this.setEventNamespace('BX.Landing.UI.Field.Color.Spectrum');
@@ -916,7 +809,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.scrollContext = options.contentRoot;
 	    main_core.Event.bind(this.getLayout(), 'mousedown', this.onPickerDragStart);
 	  }
-
 	  buildLayout() {
 	    return main_core.Tag.render(_t$3 || (_t$3 = _$3`
 			<div class="landing-ui-field-color-spectrum">
@@ -924,25 +816,21 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>
 		`), this.getPicker());
 	  }
-
 	  getPicker() {
 	    return this.cache.remember('picker', () => {
 	      return main_core.Tag.render(_t2$1 || (_t2$1 = _$3`<div class="landing-ui-field-color-spectrum-picker"></div>`));
 	    });
 	  }
-
 	  getPickerPos() {
 	    return {
 	      x: main_core.Text.toNumber(main_core.Dom.style(this.getPicker(), 'left')),
 	      y: main_core.Text.toNumber(main_core.Dom.style(this.getPicker(), 'top'))
 	    };
 	  }
-
 	  onPickerDragStart(event) {
 	    if (event.ctrlKey || event.metaKey || event.button) {
 	      return;
 	    }
-
 	    main_core.Event.bind(this.scrollContext, 'scroll', this.onScroll);
 	    main_core.Event.bind(this.document, 'mousemove', this.onPickerDragMove);
 	    main_core.Event.bind(this.document, 'mouseup', this.onPickerDragEnd);
@@ -951,27 +839,22 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.showPicker();
 	    this.onPickerDragMove(event);
 	  }
-
 	  onPickerDragMove(event) {
 	    if (event.target === this.getPicker()) {
 	      return;
 	    }
-
 	    this.setPickerPos(event.pageX, event.pageY);
 	    this.onChange();
 	  }
-
 	  onPickerDragEnd() {
 	    main_core.Event.unbind(this.scrollContext, 'scroll', this.onScroll);
 	    main_core.Event.unbind(this.document, 'mousemove', this.onPickerDragMove);
 	    main_core.Event.unbind(this.document, 'mouseup', this.onPickerDragEnd);
 	    main_core.Dom.removeClass(this.document.body, 'landing-ui-field-color-draggable');
 	  }
-
 	  onScroll() {
 	    this.cache.delete('layoutSize');
 	  }
-
 	  getLayoutRect() {
 	    return this.cache.remember('layoutSize', () => {
 	      const layoutRect = this.getLayout().getBoundingClientRect();
@@ -983,13 +866,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      };
 	    });
 	  }
+
 	  /**
 	   * Set picker by absolut page coords
 	   * @param x
 	   * @param y
 	   */
-
-
 	  setPickerPos(x, y) {
 	    const {
 	      width,
@@ -1004,22 +886,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      top: `${Math.min(Math.max(y - top, 0), height)}px`
 	    });
 	  }
-
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      if (main_core.Dom.hasClass(this.getPicker(), Spectrum.HIDE_CLASS)) {
 	        return null;
 	      }
-
 	      const layoutWidth = this.getLayout().getBoundingClientRect().width;
 	      const h = this.getPickerPos().x / layoutWidth * Spectrum.HUE_RANGE;
 	      const layoutHeight = this.getLayout().getBoundingClientRect().height;
 	      const l = (1 - this.getPickerPos().y / layoutHeight) * 100;
-
 	      if (isNaN(h) || isNaN(l)) {
 	        return null;
 	      }
-
 	      return new ColorValue({
 	        h: Math.min(h, Spectrum.HUE_RANGE_GRAY_THRESHOLD),
 	        s: h >= Spectrum.HUE_RANGE_GRAY_THRESHOLD ? 0 : Spectrum.getDefaultSaturation(),
@@ -1027,10 +905,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    });
 	  }
-
 	  setValue(value) {
 	    super.setValue(value);
-
 	    if (value !== null && Spectrum.isSpectrumValue(value)) {
 	      // in first set value we can't match bounding client rect (layout not render). Then, use percents
 	      const {
@@ -1047,23 +923,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.hidePicker();
 	    }
 	  }
-
 	  hidePicker() {
 	    main_core.Dom.addClass(this.getPicker(), Spectrum.HIDE_CLASS);
 	  }
-
 	  showPicker() {
 	    main_core.Dom.removeClass(this.getPicker(), Spectrum.HIDE_CLASS);
 	  }
-
 	  isActive() {
 	    return this.getValue() !== null && Spectrum.isSpectrumValue(this.getValue());
 	  }
-
 	  static isSpectrumValue(value) {
 	    return value !== null && (value.getHsl().s === Spectrum.getDefaultSaturation() || value.getHsl().s === 0);
 	  }
-
 	}
 	Spectrum.DEFAULT_SATURATION = 100;
 	Spectrum.HUE_RANGE = 375;
@@ -1072,26 +943,23 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	Spectrum.HIDE_CLASS = 'hidden';
 
 	let _$4 = t => t,
-	    _t$4,
-	    _t2$2;
+	  _t$4,
+	  _t2$2;
 	class Recent extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
 	    this.cache = new main_core.Cache.MemoryCache();
 	    this.setEventNamespace('BX.Landing.UI.Field.Color.Recent');
 	  }
-
 	  getLayout() {
 	    this.initItems();
 	    return this.getLayoutContainer();
 	  }
-
 	  getLayoutContainer() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$4 || (_t$4 = _$4`<div class="landing-ui-field-color-recent"></div>`));
 	    });
 	  }
-
 	  initItems() {
 	    if (Recent.itemsLoaded) {
 	      this.buildItemsLayout();
@@ -1109,7 +977,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          Recent.itemsLoaded = true;
 	          this.buildItemsLayout();
 	        }
-	      }); // todo: what if ajax error?
+	      });
+	      // todo: what if ajax error?
 	    }
 	  }
 
@@ -1128,42 +997,32 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    return this;
 	  }
-
 	  onItemClick(event) {
 	    this.emit('onChange', {
 	      hex: event.currentTarget.dataset.value
 	    });
 	  }
-
 	  addItem(hex) {
 	    if (isHex(hex)) {
 	      let pos = Recent.items.indexOf(hex);
-
 	      if (pos !== -1) {
 	        Recent.items.splice(pos, 1);
 	      }
-
 	      Recent.items.unshift(hex);
-
 	      if (Recent.items.length > Recent.MAX_ITEMS) {
 	        Recent.items.splice(Recent.MAX_ITEMS);
 	      }
-
 	      this.buildItemsLayout();
 	      this.saveItems();
 	    }
-
 	    return this;
 	  }
-
 	  saveItems() {
 	    if (Recent.items.length > 0) {
 	      BX.userOptions.save('landing', Recent.USER_OPTION_NAME, 'items', Recent.items);
 	    }
-
 	    return this;
 	  }
-
 	}
 	Recent.USER_OPTION_NAME = 'color_field_recent_colors';
 	Recent.MAX_ITEMS = 6;
@@ -1171,10 +1030,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	Recent.itemsLoaded = false;
 
 	let _$5 = t => t,
-	    _t$5,
-	    _t2$3,
-	    _t3$1,
-	    _t4$1;
+	  _t$5,
+	  _t2$3,
+	  _t3$1,
+	  _t4$1;
 	class Colorpicker extends BaseControl {
 	  constructor(options) {
 	    super();
@@ -1183,8 +1042,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.popupTargetContainer = options.contentRoot;
 	    this.hexPreview = new Hex();
 	    this.hexPreview.setPreviewMode(true);
-	    main_core.Event.bind(this.hexPreview.getLayout(), 'click', this.onPopupOpenClick.bind(this)); // popup
+	    main_core.Event.bind(this.hexPreview.getLayout(), 'click', this.onPopupOpenClick.bind(this));
 
+	    // popup
 	    this.hex = new Hex();
 	    this.hex.subscribe('onChange', this.onHexChange.bind(this));
 	    this.hex.subscribe('onButtonClick', this.onSelectClick.bind(this));
@@ -1193,21 +1053,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.recent = new Recent();
 	    this.recent.subscribe('onChange', this.onRecentChange.bind(this));
 	    main_core.Event.bind(this.getCancelButton(), 'click', this.onCancelClick.bind(this));
-	    main_core.Event.bind(this.getSelectButton(), 'click', this.onSelectClick.bind(this)); // end popup
+	    main_core.Event.bind(this.getSelectButton(), 'click', this.onSelectClick.bind(this));
+	    // end popup
 
 	    this.previously = this.getValue();
 	  }
-
 	  onSelectClick(event) {
 	    const value = event instanceof main_core_events.BaseEvent ? event.getData().color : this.getValue();
-
 	    if (value !== null) {
 	      this.recent.addItem(this.getValue().getHex());
 	    }
-
 	    this.getPopup().close();
 	  }
-
 	  buildLayout() {
 	    return main_core.Tag.render(_t$5 || (_t$5 = _$5`
 			<div class="landing-ui-field-color-colorpicker">
@@ -1215,7 +1072,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>
 		`), this.hexPreview.getLayout());
 	  }
-
 	  getPopupContent() {
 	    return main_core.Tag.render(_t2$3 || (_t2$3 = _$5`
 			<div class="landing-ui-field-color-popup-container">
@@ -1231,7 +1087,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>
 		`), this.recent.getLayout(), this.hex.getLayout(), this.spectrum.getLayout(), this.getSelectButton(), this.getCancelButton());
 	  }
-
 	  getSelectButton() {
 	    return this.cache.remember('selectButton', () => {
 	      return main_core.Tag.render(_t3$1 || (_t3$1 = _$5`
@@ -1241,7 +1096,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-BUTTON_SELECT'));
 	    });
 	  }
-
 	  getCancelButton() {
 	    return this.cache.remember('cancelButton', () => {
 	      return main_core.Tag.render(_t4$1 || (_t4$1 = _$5`
@@ -1251,11 +1105,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-BUTTON_CANCEL'));
 	    });
 	  }
-
 	  getHexPreviewObject() {
 	    return this.hexPreview;
 	  }
-
 	  getPopup() {
 	    return this.cache.remember('popup', () => {
 	      return main_popup.PopupManager.create({
@@ -1278,24 +1130,20 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    });
 	  }
-
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      return this.spectrum.getValue();
 	    });
 	  }
-
 	  onHexChange(event) {
 	    this.setValue(event.getData().color);
 	    this.onChange(event);
 	  }
-
 	  onSpectrumChange(event) {
 	    this.hex.unFocus();
 	    this.setValue(event.getData().color);
 	    this.onChange(event);
 	  }
-
 	  onRecentChange(event) {
 	    const recentColor = new ColorValue(event.getData().hex);
 	    this.setValue(recentColor);
@@ -1305,7 +1153,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    }));
 	  }
-
 	  onCancelClick() {
 	    this.setValue(this.previously);
 	    this.getPopup().close();
@@ -1315,17 +1162,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    }));
 	  }
-
 	  onPopupOpenClick() {
 	    this.recent.buildItemsLayout();
 	    this.previously = this.getValue();
 	    this.getPopup().show();
-
 	    if (this.getPopup().isShown()) {
 	      this.hex.focus();
 	    }
 	  }
-
 	  setValue(value) {
 	    if (this.isNeedSetValue(value)) {
 	      super.setValue(value);
@@ -1333,10 +1177,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.hex.setValue(value);
 	      this.hexPreview.setValue(value);
 	    }
-
 	    this.setActivity(value);
 	  }
-
 	  setActivity(value) {
 	    if (value !== null) {
 	      if (this.spectrum.isActive()) {
@@ -1344,24 +1186,20 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      } else {
 	        this.hex.setActive();
 	      }
-
 	      this.hexPreview.setActive();
 	    }
 	  }
-
 	  unsetActive() {
 	    this.hex.unsetActive();
 	    this.hexPreview.unsetActive();
 	  }
-
 	  isActive() {
 	    return this.hex.isActive() || this.hexPreview.isActive();
 	  }
-
 	}
 
 	let _$6 = t => t,
-	    _t$6;
+	  _t$6;
 	class Primary extends main_core_events.EventEmitter {
 	  // todo: layout or control?
 	  constructor() {
@@ -1370,7 +1208,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.setEventNamespace('BX.Landing.UI.Field.Color.Primary');
 	    main_core.Event.bind(this.getLayout(), 'click', () => this.onClick());
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$6 || (_t$6 = _$6`
@@ -1383,36 +1220,29 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRIMARY_TITLE'));
 	    });
 	  }
-
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      return new ColorValue(Primary.CSS_VAR);
 	    });
 	  }
-
 	  onClick() {
 	    this.setActive();
 	    this.emit('onChange', {
 	      color: this.getValue()
 	    });
 	  }
-
 	  setActive() {
 	    main_core.Dom.addClass(this.getLayout(), Primary.ACTIVE_CLASS);
 	  }
-
 	  unsetActive() {
 	    main_core.Dom.removeClass(this.getLayout(), Primary.ACTIVE_CLASS);
 	  }
-
 	  isActive() {
 	    return main_core.Dom.hasClass(this.getLayout(), Primary.ACTIVE_CLASS);
 	  }
-
 	  isPrimaryValue(value) {
 	    return value !== null && this.getValue().getCssVar() === value.getCssVar();
 	  }
-
 	}
 	Primary.ACTIVE_CLASS = 'active';
 	Primary.CSS_VAR = '--primary';
@@ -1427,8 +1257,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	const matcherGradient = /^(linear|radial)-gradient\(.*\)$/i;
 	const matcherGradientAngle = /^(linear|radial)-gradient\(.*?((\d)+deg).*?\)$/ig;
 	const hexMatcher = regexpToString(matcherHex);
-	const matcherGradientColors = new RegExp('((rgba|hsla)?\\([\\d% .,]+\\)|transparent|' + hexMatcher + ')+', 'ig'); // todo: whooooouuuu, is so not-good
+	const matcherGradientColors = new RegExp('((rgba|hsla)?\\([\\d% .,]+\\)|transparent|' + hexMatcher + ')+', 'ig');
+	// todo: whooooouuuu, is so not-good
+
 	// todo: add hex greaident match
+
 	// todo: for tests
 	// "linear-gradient(45deg, rgb(71, 155, 255) 0%, rgb(0, 207, 78) 100%)"
 	// "linear-gradient(45deg, #123321 0%, #543asdbd 100%)"
@@ -1449,12 +1282,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    };
 	    this.setValue(value);
 	  }
-
 	  getName() {
 	    return this.value.from.getName() + '_' + this.value.to.getName() + '_' + this.getAngle() + '_' + this.getType();
-	  } // todo: parse grad string?
+	  }
 
-
+	  // todo: parse grad string?
 	  setValue(value) {
 	    if (main_core.Type.isObject(value)) {
 	      if (value instanceof GradientValue) {
@@ -1466,15 +1298,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        if ('from' in value) {
 	          this.value.from = new ColorValue(value.from);
 	        }
-
 	        if ('to' in value) {
 	          this.value.to = new ColorValue(value.to);
 	        }
-
 	        if ('angle' in value) {
 	          this.value.angle = main_core.Text.toNumber(value.angle);
 	        }
-
 	        if ('type' in value) {
 	          this.value.type = value.type;
 	        }
@@ -1482,35 +1311,27 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    } else if (main_core.Type.isString(value) && isGradientString(value)) {
 	      this.parseGradientString(value);
 	    }
-
 	    return this;
 	  }
-
 	  setOpacity(opacity) {
 	    this.value.from.setOpacity(opacity);
 	    this.value.to.setOpacity(opacity);
 	    return this;
 	  }
-
 	  parseGradientString(value) {
 	    const typeMatches = value.trim().match(matcherGradient);
-
 	    if (!!typeMatches) {
 	      this.setValue({
 	        type: typeMatches[1]
 	      });
 	    }
-
 	    const angleMatches = value.trim().match(matcherGradientAngle);
-
 	    if (!!angleMatches) {
 	      this.setValue({
 	        angle: angleMatches[2]
 	      });
 	    }
-
 	    const colorMatches = value.trim().match(matcherGradientColors);
-
 	    if (colorMatches && colorMatches.length > 0) {
 	      this.setValue({
 	        from: new ColorValue(colorMatches[0])
@@ -1520,45 +1341,34 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    }
 	  }
-
 	  getFrom() {
 	    return this.value.from;
 	  }
-
 	  getTo() {
 	    return this.value.to;
 	  }
-
 	  getAngle() {
 	    return this.value.angle;
 	  }
-
 	  setAngle(angle) {
 	    if (main_core.Type.isNumber(angle)) {
 	      this.value.angle = Math.min(Math.max(angle, 0), 360);
 	    }
-
 	    return this;
 	  }
-
 	  getType() {
 	    return this.value.type;
 	  }
-
 	  setType(type) {
 	    if (type === GradientValue.TYPE_RADIAL || type === GradientValue.TYPE_LINEAR) {
 	      this.value.type = type;
 	    }
-
 	    return this;
 	  }
-
 	  getOpacity() {
 	    var _ref;
-
 	    return (_ref = (this.value.from.getOpacity() + this.value.to.getOpacity()) / 2) != null ? _ref : defaultColorValueOptions.a;
 	  }
-
 	  getStyleString() {
 	    const angle = this.value.angle;
 	    const type = this.value.type;
@@ -1566,17 +1376,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    const toString = this.value.to.getStyleString();
 	    return type === 'linear' ? `linear-gradient(${angle}deg, ${fromString} 0%, ${toString} 100%)` : `radial-gradient(circle farthest-side at 50% 50%, ${fromString} 0%, ${toString} 100%)`;
 	  }
-
 	  getStyleStringForOpacity() {
 	    return `radial-gradient(at top left, ${this.value.from.getHex()}, transparent)` + `, radial-gradient(at bottom left, ${this.value.to.getHex()}, transparent)`;
 	  }
-
 	  static compare(value1, value2, full = true) {
 	    const base = ColorValue.compare(value1.getFrom(), value2.getFrom()) && ColorValue.compare(value1.getTo(), value2.getTo()) || ColorValue.compare(value1.getTo(), value2.getFrom()) && ColorValue.compare(value1.getFrom(), value2.getTo());
 	    const ext = full ? value1.getAngle() === value2.getAngle() && value1.getType() === value2.getType() : true;
 	    return base && ext;
 	  }
-
 	}
 	GradientValue.TYPE_RADIAL = 'radial';
 	GradientValue.TYPE_LINEAR = 'linear';
@@ -1600,7 +1407,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return presets;
 	    });
 	  }
-
 	  static getPrimaryColorPreset() {
 	    return this.cache.remember('primary', () => {
 	      const preset = {
@@ -1609,21 +1415,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      };
 	      const primary = new ColorValue(main_core.Dom.style(document.documentElement, '--primary').trim());
 	      preset.items.push(new ColorValue(primary));
-
 	      if (primary.getHsl().s <= 10) {
 	        const lBeforeCount = primary.getHsl().l > 50 ? Math.ceil(primary.getHsl().l / 100 * 5) : Math.floor(primary.getHsl().l / 100 * 5);
 	        const lAfterCount = 5 - lBeforeCount;
 	        const deltaLBefore = primary.getHsl().l / (lBeforeCount + 1);
 	        const deltaLAfter = (100 - primary.getHsl().l) / (lAfterCount + 1);
-
 	        for (let i = 1; i <= lBeforeCount; i++) {
 	          preset.items.push(new ColorValue(primary).darken(deltaLBefore * i));
 	        }
-
 	        for (let ii = 1; ii <= lAfterCount; ii++) {
 	          preset.items.push(new ColorValue(primary).lighten(deltaLAfter * ii));
 	        }
-
 	        const deltaBitrixL = 15;
 	        const deltaBitrixS = 15;
 	        const bitrixColor = new ColorValue(Generator.BITRIX_COLOR);
@@ -1654,11 +1456,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        preset.items[6] = new ColorValue(primary.adjustHue(40));
 	        preset.items[10] = new ColorValue(primary.adjustHue(40));
 	      }
-
 	      return preset;
 	    });
 	  }
-
 	  static getBlackAndWhitePreset() {
 	    return this.cache.remember('blackAndWhite', () => {
 	      const preset = {
@@ -1677,7 +1477,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return preset;
 	    });
 	  }
-
 	  static getGradientByColorOptions(options) {
 	    const items = [];
 	    const pairs = [[1, 2], [1, 4], [5, 12], [1, 8], [8, 9], [1, 9], [10, 7], [7, 11]];
@@ -1694,7 +1493,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      items: items
 	    };
 	  }
-
 	}
 	Generator.BITRIX_COLOR = '#2fc6f6';
 	Generator.cache = new main_core.Cache.MemoryCache();
@@ -1758,8 +1556,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}];
 
 	let _$7 = t => t,
-	    _t$7,
-	    _t2$4;
+	  _t$7,
+	  _t2$4;
 	class Preset extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
@@ -1770,11 +1568,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.items = options.items;
 	    this.activeItem = null;
 	  }
-
 	  getId() {
 	    return this.id;
 	  }
-
 	  getGradientPreset() {
 	    const options = this.type === gradientType ? {
 	      type: gradientType,
@@ -1784,7 +1580,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    return new Preset(options);
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$7 || (_t$7 = _$7`
@@ -1796,7 +1591,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }));
 	    });
 	  }
-
 	  getItemLayout(name) {
 	    return this.cache.remember(name, () => {
 	      const color = this.getItemByName(name);
@@ -1812,45 +1606,36 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return item;
 	    });
 	  }
-
 	  getItemByName(name) {
 	    return this.items.find(item => name === item.getName()) || null;
 	  }
-
 	  isPresetValue(value) {
 	    if (value === null) {
 	      return false;
 	    }
-
 	    return this.items.some(item => {
 	      if (item instanceof ColorValue && value instanceof ColorValue) {
 	        return ColorValue.compare(item, new ColorValue(value).setOpacity(1));
 	      } else if (item instanceof GradientValue && value instanceof GradientValue) {
 	        return GradientValue.compare(item, value, false);
 	      }
-
 	      return false;
 	    });
 	  }
-
 	  onItemClick(event) {
 	    this.setActiveItem(event.currentTarget.dataset.name);
 	    let value = null;
-
 	    if (this.activeItem !== null) {
 	      value = this.activeItem instanceof GradientValue ? new GradientValue(this.activeItem) : new ColorValue(this.activeItem);
 	    }
-
 	    this.emit('onChange', {
 	      color: value
 	    });
 	  }
-
 	  setActiveItem(name) {
 	    this.activeItem = this.getItemByName(name);
 	    this.items.forEach(item => {
 	      const itemName = item.getName();
-
 	      if (name === itemName) {
 	        main_core.Dom.addClass(this.getItemLayout(itemName), Preset.ACTIVE_CLASS);
 	      } else {
@@ -1858,7 +1643,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    });
 	  }
-
 	  setActiveValue(value) {
 	    if (value !== null) {
 	      if (value instanceof GradientValue) {
@@ -1868,28 +1652,25 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    }
 	  }
-
 	  unsetActive() {
 	    this.items.forEach(item => {
 	      main_core.Dom.removeClass(this.getItemLayout(item.getName()), Preset.ACTIVE_CLASS);
 	    });
 	  }
-
 	  isActive() {
 	    return this.items.some(item => {
 	      return main_core.Dom.hasClass(this.getItemLayout(item.getName()), Preset.ACTIVE_CLASS);
 	    });
 	  }
-
 	}
 	Preset.ACTIVE_CLASS = 'active';
 
 	let _$8 = t => t,
-	    _t$8,
-	    _t2$5,
-	    _t3$2,
-	    _t4$2,
-	    _t5$1;
+	  _t$8,
+	  _t2$5,
+	  _t3$2,
+	  _t4$2,
+	  _t5$1;
 	class PresetCollection extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
@@ -1906,38 +1687,30 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.onPresetChangeGlobal = this.onPresetChangeGlobal.bind(this);
 	    main_core_events.EventEmitter.subscribe('BX.Landing.UI.Field.Color.PresetCollection:onChange', this.onPresetChangeGlobal);
 	  }
-
 	  addDefaultPresets() {
 	    this.addPreset(Generator.getPrimaryColorPreset());
 	    Generator.getDefaultPresets().map(item => {
 	      this.addPreset(item);
 	    });
 	  }
-
 	  addPreset(options) {
 	    this.cache.delete('popupLayout');
-
 	    if (!Object.keys(this.presets).length || !(options.id in this.presets)) {
 	      this.presets[options.id] = options;
 	    }
 	  }
-
 	  getGlobalActiveId() {
 	    return PresetCollection.globalActiveId;
 	  }
-
 	  getActiveId() {
 	    return this.getGlobalActiveId() || this.getDefaultPreset().getId();
 	  }
-
 	  getActivePreset() {
 	    return this.getPresetById(this.getActiveId());
 	  }
-
 	  getDefaultPreset() {
 	    return Object.keys(this.presets).length ? this.getPresetById(Object.keys(this.presets)[0]) : null;
 	  }
-
 	  getPresetById(id) {
 	    if (id in this.presets) {
 	      return this.cache.remember(id, () => new Preset(this.presets[id]));
@@ -1945,15 +1718,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return null;
 	    }
 	  }
-
 	  getPresetByItemValue(value) {
 	    if (value === null) {
 	      return null;
 	    }
-
 	    for (let id in this.presets) {
 	      const preset = this.getPresetById(id);
-
 	      if (preset && value instanceof ColorValue) {
 	        if (preset.isPresetValue(value)) {
 	          return preset;
@@ -1964,10 +1734,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }
 	      }
 	    }
-
 	    return null;
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('value', () => {
 	      return main_core.Tag.render(_t$8 || (_t$8 = _$8`
@@ -1982,7 +1750,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRESETS_TITLE'), this.getOpenButton());
 	    });
 	  }
-
 	  getOpenButton() {
 	    return this.cache.remember('openButton', () => {
 	      return main_core.Tag.render(_t2$5 || (_t2$5 = _$8`<span class="landing-ui-field-color-presets-open">
@@ -1990,13 +1757,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</span>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRESETS_MORE'));
 	    });
 	  }
-
 	  getTitleContainer() {
 	    return this.cache.remember('titleContainer', () => {
 	      return this.getLayout().querySelector('.landing-ui-field-color-presets-left');
 	    });
 	  }
-
 	  getPopup() {
 	    // todo: bind to event target? or need button
 	    return this.cache.remember('popup', () => {
@@ -2017,7 +1782,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    });
 	  }
-
 	  getPopupLayout() {
 	    return this.cache.remember('popupLayout', () => {
 	      const layouts = main_core.Tag.render(_t3$2 || (_t3$2 = _$8`<div class="landing-ui-field-color-presets-popup">
@@ -2027,23 +1791,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 				<div class="landing-ui-field-color-presets-popup-inner"></div>
 			</div>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRESETS_MORE_COLORS'));
 	      const innerLayouts = layouts.querySelector('.landing-ui-field-color-presets-popup-inner');
-
 	      for (const presetId in this.presets) {
 	        const layout = this.getPresetLayout(presetId);
-
 	        if (presetId === this.getActiveId()) {
 	          main_core.Dom.addClass(layout, PresetCollection.ACTIVE_CLASS);
 	          this.activeId = presetId;
 	        }
-
 	        main_core.Event.bind(layout, 'click', this.onPresetClick);
 	        main_core.Dom.append(layout, innerLayouts);
 	      }
-
 	      return layouts;
 	    });
 	  }
-
 	  getPresetLayout(presetId) {
 	    return this.cache.remember(presetId + 'layout', () => {
 	      return main_core.Tag.render(_t4$2 || (_t4$2 = _$8`
@@ -2058,7 +1817,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }));
 	    });
 	  }
-
 	  onPresetClick(event) {
 	    this.getPopup().close();
 	    this.setActiveItem(event.currentTarget.dataset.id);
@@ -2066,41 +1824,35 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      presetId: this.getActiveId()
 	    });
 	  }
-
 	  onPresetChangeGlobal(event) {
 	    if (event.getData().presetId !== this.activeId) {
 	      this.setActiveItem(event.getData().presetId);
 	      this.emit('onChange', event);
 	    }
 	  }
-
 	  setActiveItem(presetId) {
 	    if (presetId !== null && presetId !== this.activeId) {
 	      PresetCollection.globalActiveId = presetId;
 	      this.activeId = presetId;
-
 	      for (const id in this.presets) {
 	        main_core.Dom.removeClass(this.getPresetLayout(id), PresetCollection.ACTIVE_CLASS);
-
 	        if (id === presetId) {
 	          main_core.Dom.addClass(this.getPresetLayout(id), PresetCollection.ACTIVE_CLASS);
 	        }
 	      }
 	    }
 	  }
-
 	  unsetActive() {
 	    for (const presetId in this.presets) {
 	      main_core.Dom.removeClass(this.getPresetLayout(presetId), PresetCollection.ACTIVE_CLASS);
 	    }
 	  }
-
 	}
 	PresetCollection.globalActiveId = null;
 	PresetCollection.ACTIVE_CLASS = 'active';
 
 	let _$9 = t => t,
-	    _t$9;
+	  _t$9;
 	class Reset extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
@@ -2115,7 +1867,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    hint.init(this.getLayout());
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$9 || (_t$9 = _$9`
@@ -2129,16 +1880,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-RESET_HINT_2'));
 	    });
 	  }
-
 	  onClick() {
 	    this.emit('onReset');
 	  }
-
 	}
 
 	let _$a = t => t,
-	    _t$a,
-	    _t2$6;
+	  _t$a,
+	  _t2$6;
 	class ColorSet extends BaseControl {
 	  constructor(options) {
 	    super();
@@ -2157,7 +1906,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.preset.unsetActive();
 	      this.blackAndWhitePreset.unsetActive();
 	      const color = event.getData().color;
-
 	      if (this.preset.isPresetValue(color)) {
 	        this.preset.setActiveValue(color);
 	        this.colorpicker.unsetActive();
@@ -2165,7 +1913,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.blackAndWhitePreset.setActiveValue(color);
 	        this.colorpicker.unsetActive();
 	      }
-
 	      this.onChange(event);
 	    });
 	    this.presets = new PresetCollection(options);
@@ -2174,12 +1921,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    this.presets.addDefaultPresets();
 	    const preset = this.presets.getActivePreset();
-
 	    if (preset) {
 	      this.setPreset(preset);
 	    }
 	  }
-
 	  buildLayout() {
 	    main_core.Dom.append(this.reset.getLayout(), this.presets.getTitleContainer());
 	    return main_core.Tag.render(_t$a || (_t$a = _$a`
@@ -2195,23 +1940,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>
 		`), this.presets.getLayout(), this.getPresetContainer(), this.blackAndWhitePreset.getLayout(), this.colorpicker.getLayout());
 	  }
-
 	  getTitleLayout() {
 	    return this.cache.remember('titleLayout', () => {
 	      return this.getLayout().querySelector('.landing-ui-field-color-colorset-title');
 	    });
 	  }
-
 	  getPresetContainer() {
 	    return this.cache.remember('presetContainer', () => {
 	      return main_core.Tag.render(_t2$6 || (_t2$6 = _$a`<div class="landing-ui-field-color-colorset-preset-container"></div>`));
 	    });
 	  }
-
 	  setPreset(preset) {
 	    this.preset = preset;
 	    this.preset.unsetActive();
-
 	    if (this.getValue() !== null && this.preset.isPresetValue(this.getValue())) {
 	      this.unsetActive();
 	      this.preset.setActiveValue(this.getValue());
@@ -2219,7 +1960,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.unsetActive();
 	      this.colorpicker.setValue(this.getValue());
 	    }
-
 	    this.preset.subscribe('onChange', event => {
 	      this.blackAndWhitePreset.unsetActive();
 	      this.onPresetItemChange(event);
@@ -2230,66 +1970,55 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      preset: preset
 	    });
 	  }
-
 	  getPreset() {
 	    return this.preset;
 	  }
-
 	  getPresetsCollection() {
 	    return this.presets;
 	  }
-
 	  onPresetItemChange(event) {
 	    this.colorpicker.setValue(event.getData().color);
 	    this.colorpicker.unsetActive();
 	    this.onChange(event);
 	  }
-
 	  onChange(event) {
 	    this.cache.set('value', event.getData().color);
 	    this.emit('onChange', event);
 	  }
-
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      return this.colorpicker.getValue();
 	    });
 	  }
-
 	  setValue(value) {
 	    if (this.isNeedSetValue(value)) {
 	      super.setValue(value);
 	      this.colorpicker.setValue(value);
 	      const activePreset = this.presets.getGlobalActiveId() ? this.presets.getPresetById(this.presets.getGlobalActiveId()) : this.presets.getPresetByItemValue(value);
-
 	      if (activePreset !== null) {
 	        this.setPreset(activePreset);
 	        this.presets.setActiveItem(activePreset.getId());
 	      }
-
 	      if (value !== null && this.blackAndWhitePreset.isPresetValue(value)) {
 	        this.unsetActive();
 	        this.blackAndWhitePreset.setActiveValue(value);
 	      }
 	    }
 	  }
-
 	  unsetActive() {
 	    this.preset.unsetActive();
 	    this.blackAndWhitePreset.unsetActive();
 	    this.colorpicker.unsetActive();
 	  }
-
 	  isActive() {
 	    return this.preset.isActive() || this.blackAndWhitePreset.isActive() || this.colorpicker.isActive();
 	  }
-
 	}
 
 	let _$b = t => t,
-	    _t$b,
-	    _t2$7,
-	    _t3$3;
+	  _t$b,
+	  _t2$7,
+	  _t3$3;
 	class Opacity extends BaseControl {
 	  constructor(options) {
 	    super();
@@ -2309,7 +2038,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    main_core.Event.bind(this.arrowsDown, 'click', this.onArrowClick.bind(this, 'down'));
 	    main_core.Event.bind(this.pickerControl, 'mousedown', this.onPickerDragStart);
 	  }
-
 	  buildLayout() {
 	    const defaultOpacityValue = this.defaultOpacity * 100;
 	    const layout = main_core.Tag.render(_t$b || (_t$b = _$b`
@@ -2334,53 +2062,45 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.setPickerPosByOpacity(this.defaultOpacity);
 	    return layout;
 	  }
-
 	  onPickerDragStart(event) {
 	    if (event.ctrlKey || event.metaKey || event.button) {
 	      return;
 	    }
-
 	    main_core.Event.bind(this.document, 'mousemove', this.onPickerDragMove);
 	    main_core.Event.bind(this.document, 'mouseup', this.onPickerDragEnd);
 	    main_core.Dom.addClass(this.document.body, 'landing-ui-field-color-draggable');
 	    this.onPickerDragMove(event);
 	  }
-
 	  onPickerDragMove(event) {
 	    if (event.target === this.getPicker()) {
 	      return;
 	    }
-
 	    this.setPickerPos(event.pageX);
 	    this.onChange();
 	    this.onRangeControlChange();
 	  }
-
 	  onPickerDragEnd() {
 	    main_core.Event.unbind(this.document, 'mousemove', this.onPickerDragMove);
 	    main_core.Event.unbind(this.document, 'mouseup', this.onPickerDragEnd);
 	    main_core.Dom.removeClass(this.document.body, 'landing-ui-field-color-draggable');
 	  }
+
 	  /**
 	   * Set picker by absolute page coords
 	   * @param x
 	   */
-
-
 	  setPickerPos(x) {
 	    const leftPos = Math.max(Math.min(x - this.getLayoutRect().left, this.getLayoutRect().width), 0);
 	    main_core.Dom.style(this.getPicker(), {
 	      left: `${leftPos}px`
 	    });
 	  }
-
 	  setPickerPosByOpacity(opacity) {
 	    opacity = Math.min(1, Math.max(0, opacity));
 	    main_core.Dom.style(this.getPicker(), {
 	      left: `${opacity * 100}%`
 	    });
 	  }
-
 	  getLayoutRect() {
 	    return this.cache.remember('layoutSize', () => {
 	      const layoutRect = this.pickerControl.getBoundingClientRect();
@@ -2390,7 +2110,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      };
 	    });
 	  }
-
 	  getColorLayout() {
 	    return this.cache.remember('colorLayout', () => {
 	      return main_core.Tag.render(_t2$7 || (_t2$7 = _$b`
@@ -2398,7 +2117,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			`));
 	    });
 	  }
-
 	  getPicker() {
 	    return this.cache.remember('picker', () => {
 	      return main_core.Tag.render(_t3$3 || (_t3$3 = _$b`
@@ -2409,13 +2127,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 				</div>`));
 	    });
 	  }
-
 	  getDefaultValue() {
 	    return this.cache.remember('default', () => {
 	      return new ColorValue(Opacity.DEFAULT_COLOR).setOpacity(this.defaultOpacity);
 	    });
 	  }
-
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      const pickerLeft = main_core.Text.toNumber(main_core.Dom.style(this.getPicker(), 'left'));
@@ -2423,11 +2139,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return this.getDefaultValue().setOpacity(pickerLeft / layoutWidth);
 	    });
 	  }
-
 	  setValue(value) {
 	    const valueToSet = !main_core.Type.isNull(value) ? value : this.getDefaultValue();
 	    super.setValue(valueToSet);
-
 	    if (!main_core.Type.isNull(value)) {
 	      main_core.Dom.style(this.getColorLayout(), {
 	        background: valueToSet.getStyleStringForOpacity()
@@ -2440,18 +2154,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    }
 	  }
-
 	  onRangeControlChange() {
 	    const opacity = parseInt(this.getValue().getOpacity() * 100);
 	    this.rangeInput.title = opacity;
 	    this.rangeInput.innerHTML = opacity;
 	  }
-
 	  onArrowClick(arrowName) {
 	    let newOpacityInputValue;
 	    const opacity = this.getValue().getOpacity();
 	    const opacityInputValue = parseInt(opacity * 100);
-
 	    if (arrowName === 'up') {
 	      if (opacityInputValue < 100) {
 	        newOpacityInputValue = (opacityInputValue + 5) / 100;
@@ -2459,7 +2170,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        newOpacityInputValue = opacityInputValue / 100;
 	      }
 	    }
-
 	    if (arrowName === 'down') {
 	      if (opacityInputValue > 0) {
 	        newOpacityInputValue = (opacityInputValue - 5) / 100;
@@ -2467,7 +2177,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        newOpacityInputValue = opacityInputValue / 100;
 	      }
 	    }
-
 	    this.rangeInput.title = parseInt(newOpacityInputValue * 100);
 	    this.rangeInput.innerHTML = parseInt(newOpacityInputValue * 100);
 	    const width = this.pickerControl.getBoundingClientRect().width;
@@ -2477,18 +2186,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    this.onChange();
 	  }
-
 	}
 	Opacity.DEFAULT_COLOR = '#cccccc';
 	Opacity.DEFAULT_OPACITY = 1;
 
 	let _$c = t => t,
-	    _t$c,
-	    _t2$8,
-	    _t3$4,
-	    _t4$3,
-	    _t5$2,
-	    _t6;
+	  _t$c,
+	  _t2$8,
+	  _t3$4,
+	  _t4$3,
+	  _t5$2,
+	  _t6;
 	class Tabs extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -2499,18 +2207,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.isBig = false;
 	    this.onToggle = this.onToggle.bind(this);
 	  }
-
 	  setMultiple(multiple) {
 	    this.multiple = multiple;
 	    return this;
 	  }
-
 	  setBig(big) {
 	    this.isBig = big;
 	    this.multiple = false;
 	    return this;
 	  }
-
 	  appendTab(id, title, items) {
 	    const tab = new Tab({
 	      id: id,
@@ -2522,7 +2227,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.cache.delete('layout');
 	    return this;
 	  }
-
 	  prependTab(id, title, items) {
 	    const tab = new Tab({
 	      id: id,
@@ -2534,44 +2238,35 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.cache.delete('layout');
 	    return this;
 	  }
-
 	  bindEvents(tab) {
 	    tab.subscribe('onToggle', this.onToggle);
 	    tab.subscribe('onShow', this.onToggle);
 	    tab.subscribe('onHide', this.onToggle);
 	  }
-
 	  onToggle(event) {
 	    this.emit('onToggle', event);
 	  }
-
 	  showTab(id) {
 	    if (!this.multiple) {
 	      this.tabs.forEach(tab => {
 	        tab.hide();
 	      });
 	    }
-
 	    const tab = this.getTabById(id);
-
 	    if (tab) {
 	      tab.show();
 	    }
-
 	    return this;
 	  }
-
 	  getTabById(id) {
 	    return this.tabs.find(tab => {
 	      return tab.id === id;
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      const additional = this.isBig ? ' landing-ui-field-color-tabs--big' : '';
 	      const layout = main_core.Tag.render(_t$c || (_t$c = _$c`<div class="landing-ui-field-color-tabs${0}"></div>`), additional);
-
 	      if (this.isBig) {
 	        const head = main_core.Tag.render(_t2$8 || (_t2$8 = _$c`
 					<div class="landing-ui-field-color-tabs-head landing-ui-field-color-tabs-head--big"></div>
@@ -2592,9 +2287,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 					</div>`), tab.getTitle(), tab.getLayout());
 	          main_core.Dom.append(tabLayout, layout);
 	        });
-	      } // events
+	      }
 
-
+	      // events
 	      this.tabs.forEach(tab => {
 	        main_core.Event.bind(tab.getTitle(), 'click', () => {
 	          if (!this.multiple) {
@@ -2602,14 +2297,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	              tab.hide();
 	            });
 	          }
-
 	          tab.toggle();
 	        });
 	      });
 	      return layout;
 	    });
 	  }
-
 	}
 	class Tab extends main_core_events.EventEmitter {
 	  constructor(options) {
@@ -2619,11 +2312,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.items = options.items;
 	    this.cache = new main_core.Cache.MemoryCache();
 	  }
-
 	  getId() {
 	    return this.id;
 	  }
-
 	  getTitle() {
 	    return this.cache.remember('title', () => {
 	      return main_core.Tag.render(_t5$2 || (_t5$2 = _$c`
@@ -2634,7 +2325,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			`), this.title);
 	    });
 	  }
-
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t6 || (_t6 = _$c`
@@ -2644,7 +2334,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			`), this.items.map(item => item.getLayout()));
 	    });
 	  }
-
 	  toggle() {
 	    main_core.Dom.toggleClass(this.getLayout(), Tab.SHOW_CLASS);
 	    main_core.Dom.toggleClass(this.getTitle(), Tab.SHOW_CLASS);
@@ -2653,7 +2342,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    return this;
 	  }
-
 	  show() {
 	    main_core.Dom.addClass(this.getLayout(), Tab.SHOW_CLASS);
 	    main_core.Dom.addClass(this.getTitle(), Tab.SHOW_CLASS);
@@ -2662,7 +2350,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    return this;
 	  }
-
 	  hide() {
 	    main_core.Dom.removeClass(this.getLayout(), Tab.SHOW_CLASS);
 	    main_core.Dom.removeClass(this.getTitle(), Tab.SHOW_CLASS);
@@ -2671,12 +2358,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    return this;
 	  }
-
 	}
 	Tab.SHOW_CLASS = 'show';
 
 	let _$d = t => t,
-	    _t$d;
+	  _t$d;
 	class Zeroing extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
@@ -2685,16 +2371,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.setEventNamespace('BX.Landing.UI.Field.Color.Zeroing');
 	    main_core.Event.bind(this.getLayout(), 'click', () => this.onClick());
 	  }
-
 	  getLayout() {
 	    let textCode = 'LANDING_FIELD_COLOR-ZEROING_TITLE_2';
-
 	    if (this.options) {
 	      if (this.options.textCode) {
 	        textCode = this.options.textCode;
 	      }
 	    }
-
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$d || (_t$d = _$d`<div class="landing-ui-field-color-zeroing">
 				<div class="landing-ui-field-color-zeroing-preview">
@@ -2706,30 +2389,25 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>`), main_core.Loc.getMessage(textCode));
 	    });
 	  }
-
 	  onClick() {
 	    this.emit('onChange', {
 	      color: null
 	    });
 	  }
-
 	  setActive() {
 	    main_core.Dom.addClass(this.getLayout(), Zeroing.ACTIVE_CLASS);
 	  }
-
 	  unsetActive() {
 	    main_core.Dom.removeClass(this.getLayout(), Zeroing.ACTIVE_CLASS);
 	  }
-
 	  isActive() {
 	    return main_core.Dom.hasClass(this.getLayout(), Zeroing.ACTIVE_CLASS);
 	  }
-
 	}
 	Zeroing.ACTIVE_CLASS = 'active';
 
 	let _$e = t => t,
-	    _t$e;
+	  _t$e;
 	class Color extends BaseProcessor {
 	  constructor(options) {
 	    super(options);
@@ -2748,15 +2426,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.primary.subscribe('onChange', this.onPrimaryChange.bind(this));
 	    this.tabs = new Tabs().appendTab('Opacity', main_core.Loc.getMessage('LANDING_FIELD_COLOR-TAB_OPACITY'), this.opacity);
 	  }
-
 	  isNullValue(value) {
 	    return value === null || value === 'none' || value === 'rgba(0, 0, 0, 0)';
 	  }
-
 	  getNullValue() {
 	    return new ColorValue('rgba(0, 0, 0, 0)');
 	  }
-
 	  buildLayout() {
 	    return main_core.Tag.render(_t$e || (_t$e = _$e`
 			<div class="landing-ui-field-color-color">
@@ -2767,24 +2442,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>
 		`), this.colorSet.getLayout(), this.primary.getLayout(), this.zeroing.getLayout(), this.tabs.getLayout());
 	  }
-
 	  onColorSetChange(event) {
 	    this.primary.unsetActive();
 	    this.zeroing.unsetActive();
 	    const color = event.getData().color;
-
 	    if (color !== null) {
 	      color.setOpacity(this.opacity.getValue().getOpacity());
 	    }
-
 	    this.opacity.setValue(color);
 	    this.onChange();
 	  }
-
 	  onOpacityChange() {
 	    this.onChange();
 	  }
-
 	  onPrimaryChange(event) {
 	    this.colorSet.setValue(event.getData().color);
 	    this.onColorSetChange(event);
@@ -2792,90 +2462,75 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.zeroing.unsetActive();
 	    this.primary.setActive();
 	  }
-
 	  onZeroingChange(event) {
 	    this.colorSet.unsetActive();
 	    this.primary.unsetActive();
 	    this.zeroing.setActive();
-	    this.setValue(event.getData().color); // todo: need reload computed props and reinit
-
+	    this.setValue(event.getData().color);
+	    // todo: need reload computed props and reinit
 	    this.onChange(event);
 	  }
-
 	  unsetActive() {
 	    this.colorSet.unsetActive();
 	    this.primary.unsetActive();
 	  }
-
 	  setValue(value) {
 	    const valueObj = value !== null ? new ColorValue(value) : null;
 	    this.colorSet.setValue(valueObj);
-	    this.opacity.setValue(valueObj); // todo: what about opacity in primary?
+	    this.opacity.setValue(valueObj);
 
+	    // todo: what about opacity in primary?
 	    if (this.primary.isPrimaryValue(valueObj)) {
 	      this.primary.setActive();
 	      this.colorSet.unsetActive();
 	    }
-
 	    if (value !== null && valueObj.getOpacity() < 1) {
 	      this.tabs.showTab('Opacity');
 	    }
 	  }
-
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      const value = this.primary.isActive() ? this.primary.getValue() : this.colorSet.getValue();
 	      return value === null ? null : value.setOpacity(this.opacity.getValue().getOpacity());
 	    });
 	  }
-
 	  setDefaultValue(value) {
 	    this.zeroing.setActive();
-
 	    if (!main_core.Type.isNull(value)) {
 	      this.colorSet.colorpicker.hex.setActive();
 	    }
-
 	    super.setDefaultValue(value);
 	  }
-
 	  onReset() {
 	    this.zeroing.unsetActive();
 	    super.onReset();
 	  }
-
 	  setActiveControl(controlName) {
 	    if (controlName === 'primary') {
 	      this.primary.setActive();
 	    }
-
 	    if (controlName === 'hex') {
 	      this.colorSet.colorpicker.hexPreview.setActive();
 	    }
 	  }
-
 	  defineActiveControl(items, styleNode) {
 	    if (!main_core.Type.isUndefined(styleNode)) {
 	      let oldClass;
 	      let activeControl;
 	      const node = styleNode.getNode();
-
 	      if (node.length > 0) {
 	        items.forEach(item => {
 	          if (main_core.Dom.hasClass(node[0], item.value)) {
 	            oldClass = item.value;
 	          }
 	        });
-
 	        if (oldClass) {
 	          const reg = /g-[a-z]+-[a-z0-9-]+/i;
 	          const found = oldClass.match(reg);
-
 	          if (found) {
 	            const reg = /primary/i;
 	            const found = oldClass.match(reg);
 	            this.zeroing.unsetActive();
-
 	            if (found) {
 	              activeControl = 'primary';
 	            } else {
@@ -2883,14 +2538,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            }
 	          }
 	        }
-
 	        if (activeControl) {
 	          this.setActiveControl(activeControl);
 	        }
 	      }
 	    }
 	  }
-
 	}
 	Color.PRIMARY_VAR = 'var(--primary)';
 
@@ -2903,17 +2556,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.className = 'g-color--hover';
 	    this.pseudoClass = ':hover';
 	  }
-
 	}
 
 	let _$f = t => t,
-	    _t$f,
-	    _t2$9,
-	    _t3$5,
-	    _t4$4,
-	    _t5$3,
-	    _t6$1,
-	    _t7;
+	  _t$f,
+	  _t2$9,
+	  _t3$5,
+	  _t4$4,
+	  _t5$3,
+	  _t6$1,
+	  _t7;
 	class Gradient extends BaseControl {
 	  constructor(options) {
 	    super();
@@ -2935,12 +2587,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    main_core.Event.bind(this.getSwapButton(), 'click', this.onSwap.bind(this));
 	    this.preset = null;
 	  }
-
 	  onColorChange(fromValue, toValue) {
 	    if (fromValue === null && toValue === null) {
 	      return;
 	    }
-
 	    const valueToSet = this.getValue() || new GradientValue();
 	    const fromValueToSet = fromValue || valueToSet.getFrom() || new GradientValue().getFrom();
 	    const toValueToSet = toValue || valueToSet.getTo() || new GradientValue().getTo();
@@ -2952,19 +2602,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.preset.unsetActive();
 	    this.onChange();
 	  }
-
 	  onPopupOpen() {
 	    this.getPopup().toggle();
 	  }
-
 	  onRotate(event) {
 	    // todo: not set colorpicker active
 	    if (!Gradient.isButtonEnable(event.target)) {
 	      return;
 	    }
-
 	    const value = this.getValue();
-
 	    if (value !== null) {
 	      value.setValue({
 	        angle: (value.getAngle() + this.ROTATE_STEP) % 360
@@ -2972,18 +2618,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.setValue(value);
 	      this.onChange();
 	    }
-
 	    this.getPopup().close();
 	  }
-
 	  onSwitchType(event) {
 	    // todo: not set colorpicker active
 	    if (!Gradient.isButtonEnable(event.target)) {
 	      return;
 	    }
-
 	    const value = this.getValue();
-
 	    if (value !== null) {
 	      if (value.getType() === GradientValue.TYPE_LINEAR) {
 	        value.setValue({
@@ -2996,22 +2638,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        });
 	        Gradient.enableButton(this.getRotateButton());
 	      }
-
 	      this.setValue(value);
 	      this.onChange();
 	    }
-
 	    this.getPopup().close();
 	  }
-
 	  onSwap(event) {
 	    // todo: not set colorpicker active
 	    if (!Gradient.isButtonEnable(event.target)) {
 	      return;
 	    }
-
 	    const value = this.getValue();
-
 	    if (value !== null) {
 	      value.setValue({
 	        to: value.getFrom(),
@@ -3020,32 +2657,25 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.setValue(value);
 	      this.onChange();
 	    }
-
 	    this.getPopup().close();
 	  }
-
 	  static disableButton(button) {
 	    main_core.Dom.addClass(button, Gradient.DISABLE_CLASS);
 	  }
-
 	  static enableButton(button) {
 	    main_core.Dom.removeClass(button, Gradient.DISABLE_CLASS);
 	  }
-
 	  static isButtonEnable(button) {
 	    return !main_core.Dom.hasClass(button, Gradient.DISABLE_CLASS);
 	  }
-
 	  correctColorpickerColors() {
 	    const value = this.getValue();
-
 	    if (value !== null) {
 	      const angle = value.getAngle();
 	      const hexFrom = this.colorpickerFrom.getHexPreviewObject();
 	      const hexTo = this.colorpickerTo.getHexPreviewObject();
 	      const colorFrom = value.getFrom();
 	      const colorTo = value.getTo();
-
 	      if (value.getType() === GradientValue.TYPE_LINEAR) {
 	        if (angle === 270 || angle === 90) {
 	          const median = ColorValue.getMedian(colorFrom, colorTo).getContrast().getHex();
@@ -3064,7 +2694,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    }
 	  }
-
 	  getPopup() {
 	    return this.cache.remember('popup', () => {
 	      return main_popup.PopupManager.create({
@@ -3088,7 +2717,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    });
 	  }
-
 	  getPopupContent() {
 	    return this.cache.remember('popupContainer', () => {
 	      return main_core.Tag.render(_t$f || (_t$f = _$f`
@@ -3099,13 +2727,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			`), this.getRotateButton(), this.getSwapButton());
 	    });
 	  }
-
 	  buildLayout() {
 	    if (this.preset) {
 	      main_core.Dom.clean(this.getPresetContainer());
 	      main_core.Dom.append(this.preset.getLayout(), this.getPresetContainer());
 	    }
-
 	    return main_core.Tag.render(_t2$9 || (_t2$9 = _$f`
 			<div class="landing-ui-field-color-gradient">
 				${0}
@@ -3120,24 +2746,20 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>
 		`), this.getPresetContainer(), this.colorpickerFrom.getLayout(), this.getPopupButton(), this.colorpickerTo.getLayout(), this.getSwitchTypeButton());
 	  }
-
 	  getContainerLayout() {
 	    // todo: do better after change vyorstka
 	    return this.getLayout().querySelector('.landing-ui-field-color-gradient-container');
 	  }
-
 	  getPresetContainer() {
 	    return this.cache.remember('presetContainer', () => {
 	      return main_core.Tag.render(_t3$5 || (_t3$5 = _$f`<div class="landing-ui-field-color-gradient-preset-container"></div>`));
 	    });
 	  }
-
 	  getPopupButton() {
 	    return this.cache.remember('popupButton', () => {
 	      return main_core.Tag.render(_t4$4 || (_t4$4 = _$f`<span class="landing-ui-field-color-gradient-open-popup"></span>`));
 	    });
 	  }
-
 	  getSwitchTypeButton() {
 	    return this.cache.remember('switchTypeButton', () => {
 	      return main_core.Tag.render(_t5$3 || (_t5$3 = _$f`
@@ -3147,7 +2769,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 				></span>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_SWITCH_TYPE'));
 	    });
 	  }
-
 	  getRotateButton() {
 	    return this.cache.remember('rotateButton', () => {
 	      return main_core.Tag.render(_t6$1 || (_t6$1 = _$f`
@@ -3157,7 +2778,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 				></span>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_ROTATE'));
 	    });
 	  }
-
 	  getSwapButton() {
 	    return this.cache.remember('swapButton', () => {
 	      return main_core.Tag.render(_t7 || (_t7 = _$f`
@@ -3167,7 +2787,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 				></span>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_SWAP'));
 	    });
 	  }
-
 	  setPreset(preset) {
 	    this.preset = preset;
 	    this.preset.unsetActive();
@@ -3179,17 +2798,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    main_core.Dom.clean(this.getPresetContainer());
 	    main_core.Dom.append(preset.getLayout(), this.getPresetContainer());
 	  }
-
 	  getPreset() {
 	    return this.preset;
 	  }
-
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      if (this.colorpickerFrom.getValue() === null || this.colorpickerTo.getValue() === null) {
 	        return null;
 	      }
-
 	      let rotate = this.getRotateButton().dataset.rotate;
 	      rotate = rotate ? main_core.Text.toNumber(rotate) : 0;
 	      const type = this.getSwitchTypeButton().dataset.type || GradientValue.TYPE_LINEAR;
@@ -3201,10 +2817,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    });
 	  }
-
 	  setValue(value) {
 	    super.setValue(value);
-
 	    if (value === null) {
 	      this.colorpickerFrom.setValue(null);
 	      this.colorpickerTo.setValue(null);
@@ -3224,7 +2838,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.style(this.getContainerLayout(), 'background', this.getValue().getStyleString());
 	      Gradient.enableButton(this.getSwitchTypeButton());
 	      Gradient.enableButton(this.getSwapButton());
-
 	      if (value.getType() === GradientValue.TYPE_RADIAL) {
 	        Gradient.disableButton(this.getRotateButton());
 	        this.getSwitchTypeButton().innerText = main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_DO_LINEAR');
@@ -3232,21 +2845,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        Gradient.enableButton(this.getRotateButton());
 	        this.getSwitchTypeButton().innerText = main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_DO_RADIAL');
 	      }
-
 	      this.setActive();
 	    }
 	  }
-
 	  onChange(event) {
 	    this.cache.delete('value');
 	    this.emit('onChange', {
 	      gradient: this.getValue()
 	    });
 	  }
-
 	  setActive() {
 	    const value = this.getValue();
-
 	    if (this.preset.isPresetValue(value)) {
 	      this.preset.setActiveValue(value);
 	      this.unsetColorpickerActive();
@@ -3255,22 +2864,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.setColorpickerActive();
 	    }
 	  }
-
 	  unsetActive() {
 	    this.preset.unsetActive();
 	    this.unsetColorpickerActive();
 	  }
-
 	  setColorpickerActive() {
 	    main_core.Dom.addClass(this.getContainerLayout(), Gradient.ACTIVE_CLASS);
 	  }
-
 	  unsetColorpickerActive() {
 	    this.colorpickerFrom.unsetActive();
 	    this.colorpickerTo.unsetActive();
 	    main_core.Dom.removeClass(this.getContainerLayout(), Gradient.ACTIVE_CLASS);
 	  }
-
 	}
 	Gradient.DISABLE_CLASS = 'disable';
 
@@ -3291,7 +2896,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    this.tabs.subscribe('onToggle', this.onTabsToggle.bind(this));
 	  }
-
 	  setGradientPreset(preset) {
 	    const gradientPreset = preset.getGradientPreset();
 	    this.gradient.setPreset(gradientPreset);
@@ -3300,7 +2904,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.onChange();
 	    });
 	    const value = this.getValue();
-
 	    if (value !== null && value instanceof GradientValue) {
 	      if (this.gradient.getPreset().isPresetValue(value)) {
 	        this.colorSet.getPreset().unsetActive();
@@ -3309,45 +2912,36 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    }
 	  }
-
 	  onColorSetChange(event) {
 	    this.activeControl = this.colorSet;
 	    this.gradient.unsetActive();
 	    super.onColorSetChange(event);
 	  }
-
 	  onGradientChange(event) {
 	    this.activeControl = this.gradient;
 	    this.colorSet.unsetActive();
 	    const gradValue = event.getData().gradient;
-
 	    if (gradValue !== null) {
 	      this.opacity.setValue(gradValue.setOpacity(this.opacity.getValue().getOpacity()));
 	    }
-
 	    this.onChange();
 	  }
-
 	  onOverlayOpacityChange() {
 	    this.onChange();
 	  }
-
 	  onTabsToggle() {
 	    this.gradient.getPopup().close();
 	  }
-
 	  unsetActive() {
 	    this.colorSet.unsetActive();
 	    this.gradient.unsetActive();
 	    this.primary.unsetActive();
 	  }
-
 	  setValue(value) {
 	    this.colorSet.setValue(null);
 	    this.gradient.setValue(null);
 	    this.unsetActive();
 	    this.activeControl = null;
-
 	    if (main_core.Type.isNil(value)) ; else if (isRgbString(value) || isHex(value) || isHslString(value) || isCssVar(value)) {
 	      super.setValue(value);
 	      this.activeControl = this.colorSet;
@@ -3358,20 +2952,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.opacity.setValue(gradientValue);
 	      const presets = this.colorSet.getPresetsCollection();
 	      const activePreset = presets.getGlobalActiveId() ? presets.getPresetById(presets.getGlobalActiveId()) : presets.getPresetByItemValue(gradientValue);
-
 	      if (activePreset !== null && activePreset !== this.colorSet.getPreset()) {
 	        this.colorSet.setPreset(activePreset);
 	        this.setGradientPreset(activePreset);
 	      }
-
 	      this.tabs.showTab('Gradient');
-
 	      if (gradientValue.getOpacity() < 1) {
 	        this.tabs.showTab('Opacity');
 	      }
 	    }
 	  }
-
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      if (this.activeControl === null) {
@@ -3384,7 +2974,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    });
 	  }
-
 	}
 
 	const matcherBgImage = /url\(['"]?([^ '"]*)['"]?\)([\w \/]*)/i;
@@ -3392,10 +2981,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  if (!!bgImage.trim().match(matcherBgImage)) {
 	    return true;
 	  }
-
 	  return !!bgImage.trim().match(getMatcherWithOverlay());
 	}
-
 	function getMatcherWithOverlay() {
 	  const matcherBgString = regexpToString(matcherBgImage);
 	  const matcherGradientString = regexpToString(matcherGradient);
@@ -3408,13 +2995,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.value = defaultBgImageValueOptions;
 	    this.setValue(value);
 	  }
-
 	  getName() {
 	    return `
 			${this.value.url.replace(/[^\w\d]/g, '')}_${this.value.size}_${this.value.attachment}
 		`;
 	  }
-
 	  setValue(value) {
 	    if (main_core.Type.isObject(value)) {
 	      if (value instanceof BgImageValue) {
@@ -3426,134 +3011,111 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.value.size = value.getSize();
 	        this.value.attachment = value.getAttachment();
 	      } else {
-	        this.value = { ...this.value,
+	        this.value = {
+	          ...this.value,
 	          ...value
 	        };
 	      }
 	    }
-
 	    if (main_core.Type.isString(value) && isBgImageString(value)) {
 	      this.parseBgString(value);
 	    }
-
 	    return this;
 	  }
-
 	  parseBgString(string) {
 	    // todo: check matcher for 2x
 	    const options = defaultBgImageValueOptions;
 	    const matchesBg = string.trim().match(regexpWoStartEnd(matcherBgImage));
-
 	    if (!!matchesBg) {
 	      options.url = matchesBg[1];
 	      options.size = matchesBg[2].indexOf('auto') === -1 ? defaultBgImageSize : 'auto';
 	      options.attachment = matchesBg[2].indexOf('fixed') === -1 ? defaultBgImageAttachment : 'fixed';
 	    }
-
 	    const matchesOverlay = string.trim().match(regexpWoStartEnd(matcherGradientColors));
-
 	    if (!!string.trim().match(regexpWoStartEnd(matcherGradient)) && !!matchesOverlay) {
 	      options.overlay = new ColorValue(matchesOverlay[0]);
 	    }
-
 	    this.setValue(options);
 	  }
-
 	  setOpacity(opacity) {
 	    // todo: what for image?
+
 	    return this;
 	  }
-
 	  setUrl(value) {
 	    this.setValue({
 	      url: value
 	    });
 	    return this;
 	  }
-
 	  setUrl2x(value) {
 	    this.setValue({
 	      url2x: value
 	    });
 	    return this;
 	  }
-
 	  setFileId(value) {
 	    this.setValue({
 	      fileId: value
 	    });
 	    return this;
 	  }
-
 	  setFileId2x(value) {
 	    this.setValue({
 	      fileId2x: value
 	    });
 	    return this;
 	  }
-
 	  setSize(value) {
 	    this.setValue({
 	      size: value
 	    });
 	    return this;
 	  }
-
 	  setAttachment(value) {
 	    this.setValue({
 	      attachment: value
 	    });
 	    return this;
 	  }
-
 	  setOverlay(value) {
 	    this.setValue({
 	      overlay: value
 	    });
 	    return this;
 	  }
-
 	  getUrl() {
 	    return this.value.url;
 	  }
-
 	  getUrl2x() {
 	    return this.value.url2x;
 	  }
-
 	  getFileId() {
 	    return this.value.fileId;
 	  }
-
 	  getFileId2x() {
 	    return this.value.fileId2x;
 	  }
-
 	  getSize() {
 	    return this.value.size;
 	  }
-
 	  getAttachment(needBool = false) {
 	    return needBool ? this.value.attachment === 'fixed' : this.value.attachment;
 	  }
-
 	  getOverlay() {
 	    return this.value.overlay;
 	  }
-
 	  getOpacity() {
 	    // todo: how image can have opacity?
 	    return 1;
 	  }
-
 	  getStyleString() {
 	    let style = '';
-
 	    if (this.value.overlay !== null) {
 	      style = `linear-gradient(${this.value.overlay.getStyleString()},${this.value.overlay.getStyleString()})`;
-	    } // todo: what if url is null
+	    }
 
-
+	    // todo: what if url is null
 	    const {
 	      url,
 	      url2x,
@@ -3561,26 +3123,20 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      attachment
 	    } = this.value;
 	    const endString = `center / ${size} ${attachment}`;
-
 	    if (url !== null) {
 	      style = style.length ? style + ',' : '';
-
 	      if (url2x !== null) {
 	        style += `-webkit-image-set(url('${url}') 1x, url('${url2x}') 2x) ${endString},`;
 	        style += `image-set(url('${url}') 1x, url('${url2x}') 2x) ${endString},`;
 	      }
-
 	      style += `url('${url}') ${endString}`;
 	    }
-
 	    return style;
 	  }
-
 	  getStyleStringForOpacity() {
 	    // todo: how image can have opacity?
 	    return '';
 	  }
-
 	  static getSizeItemsForButtons() {
 	    return [{
 	      name: main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_COVER'),
@@ -3590,17 +3146,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      value: 'auto'
 	    }];
 	  }
-
 	  static getAttachmentValueByBool(value) {
 	    return value ? 'fixed' : 'scroll';
 	  }
-
 	}
 
 	let _$g = t => t,
-	    _t$g;
+	  _t$g;
 	class Image extends BaseControl {
 	  // todo: move to type
+
 	  constructor(options) {
 	    super();
 	    this.setEventNamespace('BX.Landing.UI.Field.Color.Image');
@@ -3613,6 +3168,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      disableLink: true,
 	      disableAltField: true,
 	      allowClear: true,
+	      allowAiImage: landing_env.Env.getInstance().getOptions()['allow_ai_image'],
 	      dimensions: {
 	        width: 1920
 	      },
@@ -3643,7 +3199,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      onChange: this.onAttachmentChange.bind(this)
 	    });
 	  }
-
 	  buildLayout() {
 	    return main_core.Tag.render(_t$g || (_t$g = _$g`
 			<div class="landing-ui-field-color-image">
@@ -3653,14 +3208,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>
 		`), this.imgField.getLayout(), this.sizeField.getLayout(), this.attachmentField.getLayout());
 	  }
-
 	  onImageChange(event) {
 	    const value = this.getValue() || new BgImageValue();
-
 	    if (event.getData().value.src) {
 	      value.setUrl(event.getData().value.src);
 	      value.setFileId(event.getData().value.id);
-
 	      if (event.getData().value.src2x) {
 	        value.setUrl2x(event.getData().value.src2x);
 	        value.setFileId2x(event.getData().value.id2x);
@@ -3671,17 +3223,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      value.setUrl2x(null);
 	      value.setFileId2x(null);
 	    }
-
 	    this.setValue(value);
 	    this.onChange();
 	    this.saveNode(value);
 	  }
-
 	  saveNode(value) {
 	    const style = this.options.styleNode;
 	    const block = this.options.block;
 	    let selector;
-
 	    if (style.selector === block.selector || style.selector === block.makeAbsoluteSelector(block.selector)) {
 	      selector = '#wrapper';
 	    } else if (!style.isSelectGroup()) {
@@ -3689,7 +3238,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    } else {
 	      selector = style.selector.split("@")[0];
 	    }
-
 	    const data = {
 	      [selector]: {}
 	    };
@@ -3700,7 +3248,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      data: data
 	    });
 	  }
-
 	  onSizeChange(size) {
 	    if (main_core.Type.isString(size)) {
 	      const value = this.getValue() || new BgImageValue();
@@ -3709,7 +3256,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.onChange();
 	    }
 	  }
-
 	  onAttachmentChange(event) {
 	    if (event instanceof main_core_events.BaseEvent) {
 	      const value = this.getValue() || new BgImageValue();
@@ -3718,7 +3264,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.onChange();
 	    }
 	  }
-
 	  onChange(event) {
 	    this.cache.delete('value');
 	    this.emit('onChange', {
@@ -3727,13 +3272,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	    });
 	  }
-
 	  getValue() {
 	    // todo: get size and attachement from controls
 	    return this.cache.remember('value', () => {
 	      const imgValue = this.imgField.getValue();
 	      const url = imgValue.src;
-
 	      if (url === null) {
 	        return null;
 	      } else {
@@ -3741,65 +3284,56 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          url: url,
 	          fileId: imgValue.id
 	        });
-
 	        if (imgValue.src2x) {
 	          value.setUrl2x(imgValue.src2x);
 	          value.setFileId2x(imgValue.fileId2x);
 	        }
-
 	        const size = this.sizeField.getValue();
-
 	        if (size !== null) {
 	          value.setSize(size);
 	        }
+	        value.setAttachment(BgImageValue.getAttachmentValueByBool(this.attachmentField.getValue()));
 
-	        value.setAttachment(BgImageValue.getAttachmentValueByBool(this.attachmentField.getValue())); // todo: set overlay
+	        // todo: set overlay
 
 	        return value;
 	      }
 	    });
 	  }
-
 	  setValue(value) {
 	    if (this.isNeedSetValue(value)) {
 	      // todo: can delete prev image
 	      super.setValue(value);
-
 	      if (value === null) {
 	        this.imgField.setValue({
 	          src: ''
-	        }, true); // todo: what set size and attachement?
+	        }, true);
+	        // todo: what set size and attachement?
 	      } else {
 	        if (value.getUrl() !== null) {
 	          this.setActive();
 	        }
-
 	        const imgFieldValue = {
 	          type: 'image',
 	          src: value.getUrl(),
 	          id: value.getFileId()
 	        };
-
 	        if (value.getUrl2x()) {
 	          imgFieldValue.src2x = value.getUrl2x();
 	          imgFieldValue.id2x = value.getFileId2x();
 	        }
-
 	        this.imgField.setValue(imgFieldValue, true);
 	        this.sizeField.setValue(value.getSize(), true);
 	        this.attachmentField.setValue([value.getAttachment(true)]);
 	      }
 	    }
 	  }
-
 	  setActive() {
 	    main_core.Dom.addClass(this.imgField.getLayout(), Image.ACTIVE_CLASS);
 	  }
-
 	  unsetActive() {
 	    main_core.Dom.removeClass(this.imgField.getLayout(), Image.ACTIVE_CLASS);
 	  }
-
 	}
 
 	function rgbaStringToRgbString(str) {
@@ -3808,20 +3342,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  const r = rgba[0] ? rgba[0] : null;
 	  const g = rgba[1] ? rgba[1] : null;
 	  const b = rgba[2] ? rgba[2] : null;
-
 	  if (r === null || g === null || b === null) {
 	    return null;
 	  }
-
 	  return createRgbString(r, g, b);
 	}
-
 	function createRgbString(r, g, b) {
 	  return 'rgb(' + r + ',' + g + ',' + b + ')';
 	}
 
 	let _$h = t => t,
-	    _t$h;
+	  _t$h;
 	class Bg extends BgColor {
 	  constructor(options) {
 	    super(options);
@@ -3848,7 +3379,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.imageTabs = new Tabs().appendTab('Overlay', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_OVERLAY'), [this.overlay, this.overlayPrimary, this.overlayZeroing, this.overlayOpacity]);
 	    this.bigTabs = new Tabs().setBig(true).appendTab('Color', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_COLOR'), [this.colorSet, this.primary, this.zeroing, this.tabs]).appendTab('Image', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_IMAGE'), [this.image, this.imageTabs]);
 	  }
-
 	  buildLayout() {
 	    return main_core.Tag.render(_t$h || (_t$h = _$h`
 			<div class="landing-ui-field-color-color">
@@ -3856,19 +3386,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 			</div>
 		`), this.bigTabs.getLayout());
 	  }
-
 	  onColorSetChange(event) {
 	    this.image.unsetActive();
 	    this.overlay.unsetActive();
 	    super.onColorSetChange(event);
 	  }
-
 	  onGradientChange(event) {
 	    this.image.unsetActive();
 	    this.overlay.unsetActive();
 	    super.onGradientChange(event);
 	  }
-
 	  onImageChange() {
 	    // todo: can drop image from b_landing_file after change
 	    this.unsetActive();
@@ -3876,17 +3403,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.image.setActive();
 	    this.modifyStyleNode(this.styleNode);
 	  }
-
 	  onOverlayChange(event) {
 	    const overlayValue = event.getData().color;
-
 	    if (overlayValue !== null) {
 	      overlayValue.setOpacity(this.overlayOpacity.getValue().getOpacity());
 	    }
-
 	    this.overlayOpacity.setValue(overlayValue);
 	    const imageValue = this.image.getValue();
-
 	    if (imageValue !== null) {
 	      this.image.setValue(imageValue.setOverlay(overlayValue));
 	      this.activeControl = this.image;
@@ -3894,51 +3417,42 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.colorSet.unsetActive();
 	      this.gradient.unsetActive();
 	    }
-
 	    this.modifyStyleNode(this.styleNode);
 	  }
-
 	  onOverlayOpacityChange() {
 	    this.modifyStyleNode(this.styleNode);
 	  }
-
 	  onOverlayColorChange(event) {
 	    this.overlayPrimary.unsetActive();
 	    this.overlayZeroing.unsetActive();
 	    this.onOverlayChange(event);
 	  }
-
 	  onOverlayPrimaryChange(event) {
 	    this.overlay.unsetActive();
 	    this.overlayZeroing.unsetActive();
 	    this.onOverlayChange(event);
 	  }
-
 	  overlayZeroingChange(event) {
 	    this.overlay.unsetActive();
 	    this.overlayPrimary.unsetActive();
 	    this.overlayZeroing.setActive();
 	    this.onOverlayChange(event);
 	  }
-
 	  unsetActive() {
 	    super.unsetActive();
 	    this.image.unsetActive();
 	  }
+
 	  /**
 	   * Set value by new format
 	   */
-
-
 	  setProcessorValue(value) {
 	    this.cache.delete('value');
 	    this.setValue(value);
 	  }
-
 	  setValue(value) {
 	    this.image.setValue(null);
 	    this.bigTabs.showTab('Color');
-
 	    if (main_core.Type.isNull(value)) {
 	      super.setValue(value);
 	    } else if (main_core.Type.isString(value)) {
@@ -3948,37 +3462,29 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    } else if (main_core.Type.isObject(value)) {
 	      // todo: super.setValue null?
 	      const bgValue = new BgImageValue();
-
 	      if (Bg.BG_URL_VAR in value) {
 	        bgValue.setUrl(value[Bg.BG_URL_VAR].replace(/url\(["']/i, '').replace(/['"]\)/i, ''));
 	      }
-
 	      if (Bg.BG_URL_2X_VAR in value) {
 	        bgValue.setUrl2x(value[Bg.BG_URL_2X_VAR].replace(/url\(["']/i, '').replace(/['"]\)/i, ''));
 	      }
-
 	      if (Bg.BG_SIZE_VAR in value) {
 	        bgValue.setSize(value[Bg.BG_SIZE_VAR]);
 	      }
-
 	      if (Bg.BG_ATTACHMENT_VAR in value) {
 	        bgValue.setAttachment(value[Bg.BG_ATTACHMENT_VAR]);
 	      }
-
 	      if (Bg.BG_OVERLAY_VAR in value) {
 	        bgValue.setOverlay(new ColorValue(value[Bg.BG_OVERLAY_VAR]));
 	      }
-
 	      this.image.setValue(bgValue);
 	      this.bigTabs.showTab('Image');
 	      this.activeControl = this.image;
 	      this.imageTabs.showTab('Overlay');
-
 	      if (Bg.BG_OVERLAY_VAR in value) {
 	        const overlayValue = new ColorValue(value[Bg.BG_OVERLAY_VAR]);
 	        this.overlay.setValue(overlayValue);
 	        this.overlayOpacity.setValue(overlayValue);
-
 	        if (value[Bg.BG_OVERLAY_VAR].startsWith('var(--primary') || value['isPrimaryBasedColor'] === true) {
 	          this.overlayPrimary.setActive();
 	          this.overlay.unsetActive();
@@ -3987,53 +3493,45 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.overlayZeroing.setActive();
 	      }
 	    }
-	  } // todo: create base value instead interface. In this case can return ALL types, color, grad, bg
+	  }
 
-
+	  // todo: create base value instead interface. In this case can return ALL types, color, grad, bg
 	  getValue() {
 	    return this.cache.remember('value', () => {
 	      if (this.activeControl === this.image) {
 	        const imageValue = this.image.getValue();
 	        let overlayValue;
 	        let isActive = false;
-
 	        if (this.overlay.isActive()) {
 	          overlayValue = this.overlay.getValue();
 	          isActive = true;
 	        }
-
 	        if (this.overlayPrimary.isActive()) {
 	          overlayValue = this.overlayPrimary.getValue();
 	          isActive = true;
 	        }
-
 	        if (this.overlayZeroing.isActive()) {
 	          overlayValue = null;
 	        }
-
 	        if (imageValue !== null && overlayValue !== null && isActive) {
 	          overlayValue.setOpacity(this.overlayOpacity.getValue().getOpacity());
 	          imageValue.setOverlay(overlayValue);
 	        }
-
 	        return imageValue;
 	      } else {
 	        return super.getValue();
 	      }
 	    });
 	  }
-
 	  getClassName() {
 	    const value = this.getValue();
-
 	    if (value === null || value instanceof ColorValue || value instanceof GradientValue) {
 	      return [this.parentClassName];
 	    }
-
 	    return [this.className];
-	  } // todo: what about fileid?
+	  }
 
-
+	  // todo: what about fileid?
 	  getStyle() {
 	    if (this.getValue() === null) {
 	      // todo: not null, but what?
@@ -4046,7 +3544,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        [Bg.BG_ATTACHMENT_VAR]: null
 	      };
 	    }
-
 	    const value = this.getValue();
 	    let color = null;
 	    let image = null;
@@ -4055,7 +3552,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    let size = null;
 	    let attachment = null;
 	    const backgroundImage = '';
-
 	    if (value instanceof ColorValue || value instanceof GradientValue) {
 	      // todo: need change class if not a image?
 	      color = value.getStyleString();
@@ -4066,7 +3562,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      size = value.getSize();
 	      attachment = value.getAttachment();
 	    }
-
 	    return {
 	      [this.parentVariableName]: color,
 	      [Bg.BG_URL_VAR]: image,
@@ -4077,31 +3572,25 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      [Bg.BG_IMAGE]: backgroundImage
 	    };
 	  }
-
 	  modifyStyleNode(styleNode) {
 	    main_core.Dom.style(styleNode.getNode()[0], Bg.BG_IMAGE, '');
 	    this.onChange();
 	  }
-
 	  prepareProcessorValue(processorValue, defaultValue) {
 	    if (defaultValue && defaultValue.hasOwnProperty(Bg.BG_IMAGE)) {
 	      const regUrl = /url\(/i;
 	      const searchUrl = defaultValue[Bg.BG_IMAGE].match(regUrl);
-
 	      if (searchUrl !== null) {
 	        processorValue[Bg.BG_IMAGE] = '';
 	        processorValue[Bg.BG_SIZE_VAR] = defaultBgImageSize;
 	        processorValue[Bg.BG_ATTACHMENT_VAR] = defaultBgImageAttachment;
 	        const regUrl = /image-set\(url\(/i;
 	        const searchUrl = defaultValue[Bg.BG_IMAGE].match(regUrl);
-
 	        if (searchUrl !== null) {
 	          const regSearchUrl = /"(https?:\/)?\/[\S]*"/gi;
 	          const search = defaultValue[Bg.BG_IMAGE].match(regSearchUrl);
-
 	          if (search) {
 	            processorValue[Bg.BG_URL_VAR] = search[0].replaceAll('"', '');
-
 	            if (search.length === 2) {
 	              processorValue[Bg.BG_URL_2X_VAR] = search[1].replaceAll('"', '');
 	            } else {
@@ -4112,21 +3601,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          processorValue[Bg.BG_URL_VAR] = defaultValue[Bg.BG_IMAGE];
 	          processorValue[Bg.BG_URL_2X_VAR] = defaultValue[Bg.BG_IMAGE];
 	        }
-
 	        const computedStyleNode = getComputedStyle(this.styleNode.getNode()[0], ':after');
-	        processorValue[Bg.BG_OVERLAY_VAR] = computedStyleNode.backgroundColor;
+	        if (!processorValue[Bg.BG_OVERLAY_VAR]) {
+	          processorValue[Bg.BG_OVERLAY_VAR] = computedStyleNode.backgroundColor;
+	        }
 	        const currentColorRgb = rgbaStringToRgbString(computedStyleNode.backgroundColor);
 	        const primaryColorRgb = rgbaStringToRgbString(computedStyleNode.getPropertyValue('--primary-opacity-0'));
-
 	        if (currentColorRgb !== null && primaryColorRgb !== null && currentColorRgb === primaryColorRgb) {
 	          processorValue['isPrimaryBasedColor'] = true;
 	        }
 	      }
 	    }
-
 	    return processorValue;
 	  }
-
 	}
 	Bg.BG_URL_VAR = '--bg-url';
 	Bg.BG_URL_2X_VAR = '--bg-url-2x';
@@ -4143,7 +3630,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.variableName = '--border-color';
 	    this.className = 'g-border-color';
 	  }
-
 	}
 
 	class BorderColorHover extends Color {
@@ -4155,7 +3641,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.className = 'g-border-color--hover';
 	    this.pseudoClass = ':hover';
 	  }
-
 	}
 
 	class BgColorHover extends BgColor {
@@ -4167,7 +3652,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.className = 'g-bg--hover';
 	    this.pseudoClass = ':hover';
 	  }
-
 	}
 
 	class BgColorAfter extends BgColor {
@@ -4182,7 +3666,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.opacity.setValue(opacityValue.setOpacity(0.5));
 	    this.tabs.showTab('Opacity');
 	  }
-
 	}
 
 	class BgColorBefore extends BgColor {
@@ -4197,7 +3680,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.opacity.setValue(opacityValue.setOpacity(0.5));
 	    this.tabs.showTab('Opacity');
 	  }
-
 	}
 
 	class NavbarColor extends Color {
@@ -4208,7 +3690,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.variableName = '--navbar-color';
 	    this.className = 'u-navbar-color';
 	  }
-
 	}
 
 	class NavbarColorHover extends Color {
@@ -4220,7 +3701,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.className = 'u-navbar-color--hover';
 	    this.pseudoClass = ':hover';
 	  }
-
 	}
 
 	class NavbarColorFixMoment extends Color {
@@ -4231,7 +3711,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.variableName = '--navbar-color--fix-moment';
 	    this.className = 'u-navbar-color--fix-moment';
 	  }
-
 	}
 
 	class NavbarColorFixMomentHover extends Color {
@@ -4243,7 +3722,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.className = 'u-navbar-color--fix-moment--hover';
 	    this.pseudoClass = ':hover';
 	  }
-
 	}
 
 	class NavbarBgColor extends Color {
@@ -4254,7 +3732,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.variableName = '--navbar-bg-color';
 	    this.className = 'u-navbar-bg';
 	  }
-
 	}
 
 	class NavbarBgColorHover extends Color {
@@ -4266,7 +3743,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.className = 'u-navbar-bg--hover';
 	    this.pseudoClass = ':hover';
 	  }
-
 	}
 
 	class BorderColorTop extends Color {
@@ -4277,7 +3753,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.variableName = '--border-color-top';
 	    this.className = 'g-border-color-top';
 	  }
-
 	}
 
 	class FillColor extends Color {
@@ -4289,7 +3764,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.variableName = '--fill-first';
 	    this.className = 'g-fill-first';
 	  }
-
 	}
 
 	class FillColorSecond extends Color {
@@ -4301,15 +3775,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.variableName = '--fill-second';
 	    this.className = 'g-fill-second';
 	  }
-
 	}
 
 	class ButtonColor extends Color {
 	  constructor(options) {
 	    super(options);
 	    this.setEventNamespace('BX.Landing.UI.Field.Processor.ButtonColor');
-	    this.property = 'background-color'; // order is important! Base variable must be last. Hack :-/
-
+	    this.property = 'background-color';
+	    // order is important! Base variable must be last. Hack :-/
 	    this.variableName = [ButtonColor.COLOR_CONTRAST_VAR, ButtonColor.COLOR_HOVER_VAR, ButtonColor.COLOR_LIGHT_VAR, ButtonColor.COLOR_VAR];
 	    this.className = 'g-button-color'; //todo: ?
 	  }
@@ -4323,7 +3796,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        [ButtonColor.COLOR_VAR]: null
 	      };
 	    }
-
 	    const value = this.getValue();
 	    const valueContrast = value.getContrast().lighten(10);
 	    const valueHover = new ColorValue(value).lighten(10);
@@ -4335,7 +3807,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      [ButtonColor.COLOR_VAR]: value.getStyleString()
 	    };
 	  }
-
 	}
 	ButtonColor.COLOR_CONTRAST_VAR = '--button-color-contrast';
 	ButtonColor.COLOR_HOVER_VAR = '--button-color-hover';
@@ -4350,7 +3821,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.variableName = '--navbar-collapse-bg-color';
 	    this.className = 'u-navbar-collapse-bg';
 	  }
-
 	}
 
 	class ColorField extends landing_ui_field_basefield.BaseField {
@@ -4366,123 +3836,99 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      contentRoot: this.contentRoot
 	    };
 	    this.changeHandler = typeof options.onChange === "function" ? options.onChange : () => {};
-	    this.resetHandler = typeof options.onReset === "function" ? options.onReset : function () {}; // todo: rename "subtype"
+	    this.resetHandler = typeof options.onReset === "function" ? options.onReset : function () {};
 
+	    // todo: rename "subtype"
 	    switch (options.subtype) {
 	      case 'color':
 	        this.processor = new Color(processorOptions);
 	        break;
-
 	      case 'color-hover':
 	        this.processor = new ColorHover(processorOptions);
 	        break;
-
 	      case 'bg':
 	        this.processor = new Bg(processorOptions);
 	        break;
-
 	      case 'bg-color':
 	        this.processor = new BgColor(processorOptions);
 	        break;
-
 	      case 'bg-color-hover':
 	        this.processor = new BgColorHover(processorOptions);
 	        break;
-
 	      case 'bg-color-after':
 	        this.processor = new BgColorAfter(processorOptions);
 	        break;
-
 	      case 'bg-color-before':
 	        this.processor = new BgColorBefore(processorOptions);
 	        break;
-
 	      case 'border-color':
 	        this.processor = new BorderColor(processorOptions);
 	        break;
-
 	      case 'border-color-hover':
 	        this.processor = new BorderColorHover(processorOptions);
 	        break;
-
 	      case 'border-color-top':
 	        this.processor = new BorderColorTop(processorOptions);
 	        break;
-
 	      case 'navbar-color':
 	        this.processor = new NavbarColor(processorOptions);
 	        break;
-
 	      case 'navbar-color-hover':
 	        this.processor = new NavbarColorHover(processorOptions);
 	        break;
-
 	      case 'navbar-color-fix-moment':
 	        this.processor = new NavbarColorFixMoment(processorOptions);
 	        break;
-
 	      case 'navbar-color-fix-moment-hover':
 	        this.processor = new NavbarColorFixMomentHover(processorOptions);
 	        break;
-
 	      case 'navbar-bg-color':
 	        this.processor = new NavbarBgColor(processorOptions);
 	        break;
-
 	      case 'navbar-bg-color-hover':
 	        this.processor = new NavbarBgColorHover(processorOptions);
 	        break;
-
 	      case 'navbar-collapse-bg-color':
 	        this.processor = new NavbarCollapseBgColor(processorOptions);
 	        break;
-
 	      case 'fill-color':
 	        this.processor = new FillColor(processorOptions);
 	        break;
-
 	      case 'fill-color-second':
 	        this.processor = new FillColorSecond(processorOptions);
 	        break;
-
 	      case 'button-color':
 	        this.processor = new ButtonColor(processorOptions);
 	        break;
-
 	      default:
 	        break;
 	    }
-
 	    this.property = this.processor.getProperty()[this.processor.getProperty().length - 1];
 	    this.processor.getClassName().forEach(item => this.items.push({
 	      name: item,
 	      value: item
-	    })); // todo: what a input?
+	    }));
 
+	    // todo: what a input?
 	    main_core.Dom.remove(this.input);
 	    this.layout.classList.add("landing-ui-field-color");
 	    main_core.Dom.append(this.processor.getLayout(), this.layout);
 	    this.processor.subscribe('onChange', this.onChange.bind(this));
 	    this.processor.subscribe('onReset', this.onReset.bind(this));
 	  }
-
 	  getInlineProperties() {
 	    return this.processor.getVariableName();
 	  }
-
 	  prepareInlineProperties(props) {
 	    props.push('background-image');
 	    return props;
 	  }
-
 	  getComputedProperties() {
 	    return this.processor.getProperty();
 	  }
-
 	  getPseudoElement() {
 	    return this.processor.getPseudoClass();
 	  }
-
 	  onChange() {
 	    this.changeHandler({
 	      className: this.processor.getClassName(),
@@ -4490,24 +3936,20 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }, this.items, this.postfix, this.property);
 	    this.emit('onChange');
 	  }
-
 	  onReset() {
 	    this.resetHandler(this.items, this.postfix, this.property);
 	  }
-
 	  getValue() {
 	    return this.processor.getValue() || this.processor.getNullValue();
 	  }
-
 	  setValue(value) {
-	    let processorValue = null; // now for multiple properties get just last value. Maybe, need object-like values
-
+	    let processorValue = null;
+	    // now for multiple properties get just last value. Maybe, need object-like values
 	    this.prepareInlineProperties(this.getInlineProperties()).forEach(prop => {
 	      if (prop in value && !this.processor.isNullValue(value[prop])) {
 	        if (!main_core.Type.isObject(processorValue)) {
 	          processorValue = {};
 	        }
-
 	        processorValue[prop] = value[prop];
 	      }
 	    });
@@ -4517,12 +3959,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        if (!main_core.Type.isObject(defaultValue)) {
 	          defaultValue = {};
 	        }
-
 	        defaultValue[prop] = value[prop];
 	      }
 	    });
 	    processorValue = this.processor.prepareProcessorValue(processorValue, defaultValue);
-
 	    if (processorValue !== null) {
 	      this.processor.setProcessorValue(processorValue);
 	    } else {
@@ -4530,16 +3970,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.processor.defineActiveControl(this.items, this.data.styleNode);
 	    }
 	  }
-
 	  onFrameLoad() {
 	    // todo: now not work with "group select", can use just any node from elements. If group - need forEach
 	    const value = this.data.styleNode.getValue(true);
 	    this.setValue(value.style);
 	  }
-
 	}
 
 	exports.ColorField = ColorField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX.Main,BX,BX,BX.Event,BX.Landing.UI.Field,BX.Landing,BX.Landing,BX));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX.Main,BX,BX,BX.Event,BX.Landing.UI.Field,BX.Landing,BX.Landing,BX.Landing,BX));
 //# sourceMappingURL=color_field.bundle.js.map

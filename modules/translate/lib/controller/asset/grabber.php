@@ -47,72 +47,72 @@ class Grabber
 		$permission = new Translate\Controller\CheckPermission(Translate\Permission::WRITE);
 		$permissionSource = new Translate\Controller\CheckPermission(Translate\Permission::SOURCE);
 
-		$configureActions[self::ACTION_COLLECT] = array(
+		$configureActions[self::ACTION_COLLECT] = [
 			'class' => Translate\Controller\Asset\Collect::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_EXTRACT] = array(
+			],
+		];
+		$configureActions[self::ACTION_EXTRACT] = [
 			'class' => Translate\Controller\Asset\Extract::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission,
 				$permissionSource
-			),
-		);
-		$configureActions[self::ACTION_APPLY] = array(
+			],
+		];
+		$configureActions[self::ACTION_APPLY] = [
 			'class' => Translate\Controller\Asset\Apply::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission,
 				$permissionSource
-			),
-		);
-		$configureActions[self::ACTION_APPLY_PUBLIC] = array(
+			],
+		];
+		$configureActions[self::ACTION_APPLY_PUBLIC] = [
 			'class' => Translate\Controller\Asset\ApplyPublic::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission,
 				$permissionSource
-			),
-		);
-		$configureActions[self::ACTION_PACK] = array(
+			],
+		];
+		$configureActions[self::ACTION_PACK] = [
 			'class' => Translate\Controller\Asset\Pack::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_UPLOAD] = array(
-			'+prefilters' => array(
+			],
+		];
+		$configureActions[self::ACTION_UPLOAD] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_DOWNLOAD] = array(
-			'-prefilters' => array(
+			],
+		];
+		$configureActions[self::ACTION_DOWNLOAD] = [
+			'-prefilters' => [
 				Main\Engine\ActionFilter\Csrf::class,
-			),
-			'+prefilters' => array(
+			],
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_PURGE] = array(
-			'+prefilters' => array(
+			],
+		];
+		$configureActions[self::ACTION_PURGE] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_CANCEL] = array(
-			'+prefilters' => array(
+			],
+		];
+		$configureActions[self::ACTION_CANCEL] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_CLEAR] = array(
-			'+prefilters' => array(
+			],
+		];
+		$configureActions[self::ACTION_CLEAR] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_FINALIZE] = array(
-			'+prefilters' => array(
+			],
+		];
+		$configureActions[self::ACTION_FINALIZE] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
+			],
+		];
 
 		return $configureActions;
 	}
@@ -133,9 +133,9 @@ class Grabber
 	 *
 	 * @return array
 	 */
-	public function uploadAction()
+	public function uploadAction(): array
 	{
-		$result = array();
+		$result = [];
 		$success = false;
 		if (
 			isset($_FILES, $_FILES['tarFile'], $_FILES['tarFile']['tmp_name']) &&
@@ -208,7 +208,7 @@ class Grabber
 	 *
 	 * @return boolean
 	 */
-	private function moveUploadedFile($postedFile, $suffix = '.tar', $timeToLive = 3)
+	private function moveUploadedFile($postedFile, $suffix = '.tar', $timeToLive = 3): bool
 	{
 		if (
 			isset($postedFile['tmp_name']) &&
@@ -236,7 +236,7 @@ class Grabber
 	 *
 	 * @return array
 	 */
-	public function finalizeAction()
+	public function finalizeAction(): array
 	{
 		$settings = $this->getProgressParameters();
 
@@ -253,9 +253,9 @@ class Grabber
 			}
 		}
 
-		return array(
+		return [
 			'STATUS' => Translate\Controller\STATUS_COMPLETED
-		);
+		];
 	}
 
 
@@ -264,7 +264,7 @@ class Grabber
 	 *
 	 * @return array
 	 */
-	public function clearAction()
+	public function clearAction(): array
 	{
 		return $this->purgeAction();
 	}
@@ -275,7 +275,7 @@ class Grabber
 	 *
 	 * @return array
 	 */
-	public function purgeAction()
+	public function purgeAction(): array
 	{
 		$settings = $this->getProgressParameters();
 
@@ -288,10 +288,10 @@ class Grabber
 			}
 		}
 
-		return array(
+		return [
 			'SUMMARY' => Loc::getMessage('TR_EXPORT_FILE_DROPPED'),
 			'STATUS' => Translate\Controller\STATUS_COMPLETED
-		);
+		];
 	}
 
 
@@ -300,7 +300,7 @@ class Grabber
 	 *
 	 * @return array
 	 */
-	public function cancelAction()
+	public function cancelAction(): array
 	{
 		$this->finalizeAction();
 		$this->purgeAction();
@@ -313,10 +313,10 @@ class Grabber
 				Loc::getMessage('TR_IMPORT_ACTION_CANCELED')
 		;
 
-		return array(
+		return [
 			'SUMMARY' => $summary,
 			'STATUS' => Translate\Controller\STATUS_COMPLETED
-		);
+		];
 	}
 
 

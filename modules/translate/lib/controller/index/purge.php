@@ -33,6 +33,6 @@ class Purge extends Translate\Controller\Action
 			(new Translate\Index\PathIndexCollection())->purge();
 		}
 
-		return array('STATUS' => Translate\Controller\STATUS_COMPLETED);
+		return ['STATUS' => Translate\Controller\STATUS_COMPLETED];
 	}
 }

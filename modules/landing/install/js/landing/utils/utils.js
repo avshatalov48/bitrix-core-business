@@ -25,11 +25,9 @@
 						resolve(event);
 					});
 
-				requestAnimationFrame(function() {
-					element.hidden = false;
-					element.classList.remove("landing-ui-hide");
-					element.classList.add("landing-ui-show");
-				});
+				element.hidden = false;
+				element.classList.remove("landing-ui-hide");
+				element.classList.add("landing-ui-show");
 			}
 			else
 			{
@@ -1655,7 +1653,13 @@
 	BX.Landing.Utils.rename2x = function(path)
 	{
 		path = path.replace(/@2x/, "");
-		return !!path ? path.replace(/\.[^\.]+$/, "@2x." + BX.util.getExtension(path)) : path;
+		let extension = BX.util.getExtension(path);
+		if (extension.length > 4)
+		{
+			extension = extension.split('_').pop();
+		}
+
+		return !!path ? path.replace(/\.[^\.]+$/, "@2x." + extension) : path;
 	};
 
 	/**

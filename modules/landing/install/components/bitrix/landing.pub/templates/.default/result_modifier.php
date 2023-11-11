@@ -10,7 +10,7 @@ use \Bitrix\Landing\Hook\Page;
 
 // Web forms backward compatibility hooks.
 
-if ($arResult['SPECIAL_TYPE'] != 'crm_forms')
+if (($arResult['SPECIAL_TYPE'] ?? null) != 'crm_forms')
 {
 	return;
 }

@@ -41,9 +41,6 @@ class AddCardAction extends BaseAction
 			'block' => $block->getId(),
 			'selector' => $selector,
 			'lid' => $block->getLandingId(),
-			// 'code' => $code,
-			// 'currentBlock' => $previousId,
-			// 'insertBefore' => false,
 			'position' => $position,
 			'content' => $content,
 		];

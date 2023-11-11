@@ -357,7 +357,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td style="width: 40%;"><?= Loc::getMessage("CVAT_SORT") ?>:</td>
 		<td style="width: 60%;">
-			<input type="text" name="C_SORT" value="<?=htmlspecialcharsbx($fields['SORT']); ?>" size="5" <?=($bReadOnly) ? " disabled" : ""?>>
+			<input type="text" name="SORT" value="<?=htmlspecialcharsbx($fields['SORT']); ?>" size="5" <?=($bReadOnly) ? " disabled" : ""?>>
 		</td>
 	</tr>
 <?php

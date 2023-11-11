@@ -19,7 +19,7 @@ class Component extends \Bitrix\Landing\Node
 	 */
 	public static function getHandlerJS()
 	{
-		return 'BX.Landing.Block.Node.Component';
+		return 'BX.Landing.Node.Component';
 	}
 
 	/**

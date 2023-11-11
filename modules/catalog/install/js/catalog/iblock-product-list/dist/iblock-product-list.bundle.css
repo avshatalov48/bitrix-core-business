@@ -27,7 +27,7 @@
 }
 
 .catalog-product-grid-lock-hint {
-	height: 1em !important;
+	height: 14px !important; /* it is `.main-grid-head-title` font size */
 }
 
 /* for full height in sliders */

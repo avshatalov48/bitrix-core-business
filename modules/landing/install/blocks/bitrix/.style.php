@@ -2985,9 +2985,6 @@ return [
 			'display', 'background-attachment', 'background-size',
 			'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top', 'background-overlay',
 		],
-		'block-default-background-overlay-paddings-x' => [
-			'display', 'background-attachment', 'background-size', 'padding-left', 'padding-right', 'margin-top', 'background-overlay',
-		],
 		'block-default-background-overlay-height-vh' => [
 			'display', 'background-attachment', 'background-size', 'height-vh',
 			'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top', 'background-overlay',
@@ -3017,9 +3014,6 @@ return [
 		],
 		'block-default-wo-background' => [
 			'display', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top',
-		],
-		'block-default-wo-background-height-vh' => [
-			'display', 'height-vh', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top',
 		],
 		'block-default-wo-paddings' => ['display', 'background-color'],
 		'block-default-wo-background-vh-animation' => [

@@ -1,10 +1,10 @@
-import { Type, Dom, Reflection, Event, Tag, Text, userOptions, Loc } from 'main.core';
-import { Popup, PopupWindowButton } from 'main.popup';
+import { Dom, Event, Loc, Reflection, Tag, Text, Type, userOptions } from 'main.core';
 import { EventEmitter } from 'main.core.events';
-import { Step } from './step.js';
-import GuideConditionColor from './guide-condition-color';
+import { Popup, PopupWindowButton } from 'main.popup';
 
 import 'ui.design-tokens';
+import GuideConditionColor from './guide-condition-color';
+import { Step } from './step.js';
 import './style.css';
 
 export class Guide extends Event.EventEmitter
@@ -855,9 +855,10 @@ export class Guide extends Event.EventEmitter
 	{
 		if (!this.layout.link)
 		{
+			const title = this.steps[this.currentStepIndex].getLinkTitle() ?? Loc.getMessage('JS_UI_TOUR_LINK');
 			this.layout.link = Tag.render`
 				<a target="_blank" href="" class="ui-tour-popup-link">
-					${Loc.getMessage("JS_UI_TOUR_LINK")}
+					${title}
 				</a>
 			`;
 		}

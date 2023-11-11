@@ -7,6 +7,9 @@ use Bitrix\Calendar\Internals;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ORM\Query\Query;
 
+/**
+ * @deprecated
+ */
 class GoogleApiSection
 {
 	/**

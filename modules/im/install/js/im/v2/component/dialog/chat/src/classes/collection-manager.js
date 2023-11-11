@@ -1,8 +1,8 @@
-import {Core} from 'im.v2.application.core';
-import {DialogBlockType as BlockType, MessageType, MessageComponent} from 'im.v2.const';
-import {DateFormatter, DateTemplate} from 'im.v2.lib.date-formatter';
+import { Core } from 'im.v2.application.core';
+import { DialogBlockType as BlockType, MessageType, Settings, DialogAlignment } from 'im.v2.const';
+import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 
-import type {ImModelMessage, ImModelDialog} from 'im.v2.model';
+import type { ImModelMessage, ImModelDialog } from 'im.v2.model';
 
 export type FormattedCollectionItem = {
 	type: BlockType.dateGroup,
@@ -55,7 +55,7 @@ export class CollectionManager
 		let lastAuthorItems = null;
 
 		const dialog: ImModelDialog = this.store.getters['dialogues/get'](this.dialogId);
-		const {markedId, inited} = dialog;
+		const { markedId, inited } = dialog;
 		let markInserted = false;
 		const lastReadId = this.store.getters['dialogues/getLastReadId'](this.dialogId);
 
@@ -155,26 +155,23 @@ export class CollectionManager
 	getAvatarConfig(message: ImModelMessage): {isNeeded: boolean, avatarId: string}
 	{
 		const messageType = this.getMessageType(message);
-		let avatarId = message.authorId.toString();
-		// if (messageType === MessageType.system)
-		// {
-		// 	// show avatar of current chat
-		// 	avatarId = `chat${message.chatId}`;
-		// }
+		const isSystem = messageType === MessageType.system;
+		const isSelf = messageType === MessageType.self;
 
+		const alignment = this.store.getters['application/settings/get'](Settings.appearance.alignment);
 		let isNeeded = true;
-		if (
-			messageType === MessageType.self
-			|| messageType === MessageType.system
-			|| message.componentId !== MessageComponent.base
-		)
+		if (alignment === DialogAlignment.left)
 		{
-			isNeeded = false;
+			isNeeded = !isSystem;
+		}
+		else if (alignment === DialogAlignment.center)
+		{
+			isNeeded = !isSelf && !isSystem;
 		}
 
 		return {
 			isNeeded,
-			avatarId
+			avatarId: message.authorId.toString(),
 		};
 	}
 
@@ -184,13 +181,12 @@ export class CollectionManager
 		{
 			return MessageType.system;
 		}
-		else if (message.authorId === Core.getUserId())
+
+		if (message.authorId === Core.getUserId())
 		{
 			return MessageType.self;
 		}
-		else
-		{
-			return MessageType.opponent;
-		}
+
+		return MessageType.opponent;
 	}
 }

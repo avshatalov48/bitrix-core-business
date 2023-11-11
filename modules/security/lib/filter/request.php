@@ -3,7 +3,7 @@
 * Bitrix Security Module
 * @package Bitrix
 * @subpackage Security
-* @copyright 2001-2022 Bitrix
+* @copyright 2001-2023 Bitrix
 * @since File available since 14.0.0
 */
 namespace Bitrix\Security\Filter;
@@ -136,7 +136,14 @@ class Request implements IRequestFilter
 		foreach ($values as $key => &$val)
 		{
 			if (!isset($this->filteringMap[$key]))
+			{
 				continue;
+			}
+
+			if (!is_array($val))
+			{
+				continue;
+			}
 
 			$val = $this->filterArray(
 				$key,
@@ -150,9 +157,10 @@ class Request implements IRequestFilter
 		$this->onFilterFinished();
 
 		if ($isReturnChangedOnly)
+		{
 			return array_intersect_key($values, $this->changedContext);
-		else
-			return $values;
+		}
+		return $values;
 	}
 
 

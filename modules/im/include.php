@@ -1,6 +1,8 @@
 <?php
 
-use Bitrix\Main\Loader;
+use Bitrix\Main\EventResult;
+use Bitrix\Main\EventManager;
+use Bitrix\Main\UI\Copyright;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -102,13 +104,14 @@ CModule::AddAutoloadClasses(
 	)
 );
 
+$isBetaActivated = \Bitrix\Im\Settings::isBetaActivated();
+
 $jsCoreRel = [
 	'ui.design-tokens',
 	'ui.fonts.opensans',
 	'im_desktop_utils',
 	'resize_observer',
 	'im_common',
-	'im_phone_call_view',
 	'im.lib.localstorage',
 	'clipboard',
 	'sidepanel',
@@ -119,7 +122,7 @@ $jsCoreRel = [
 	'ui.buttons',
 	'ui.switcher',
 	'ui.hint',
-	'im.application.notifications',
+	'im.application.launch',
 	'im.old-chat-embedding.application.left-panel',
 	'im.old-chat-embedding.application.sidebar',
 	'im.call',
@@ -154,16 +157,6 @@ if (IsModuleInstalled('pull') || IsModuleInstalled('disk'))
 $jsCoreRelPage = $jsCoreRel;
 $jsCoreRelPage[] = 'im_window';
 
-$userAgent = \Bitrix\Main\Context::getCurrent()->getRequest()->getUserAgent();
-/* TODO 2 tabs desktop
-if (mb_strpos(mb_strtolower($userAgent), "bitrixdesktop") !== false)
-{
-	$jsCoreRelPage[] = 'im_desktop';
-	$jsCoreRelPage[] = 'im_timecontrol';
-}
-*/
-
-
 $jsIm = [
 	'/bitrix/js/im/im.js'
 ];
@@ -180,13 +173,6 @@ CJSCore::RegisterExt('im_common', array(
 	'rel' => array('ui.design-tokens', 'ls', 'ajax', 'date', 'fx', 'user', 'rest.client', 'phone_number', 'loader', 'ui.viewer', 'main.md5', 'im.debug', 'ui.notification')
 ));
 
-CJSCore::RegisterExt('im_phone_call_view', array(
-	'js' => '/bitrix/js/im/phone_call_view.js',
-	'css' => array('/bitrix/js/im/css/phone_call_view.css', '/bitrix/components/bitrix/crm.card.show/templates/.default/style.css'),
-	'lang' => '/bitrix/modules/im/js_phone_call_view.php',
-	'rel' => array('ui.design-tokens', 'applayout', 'crm_form_loader', 'phone_number')
-));
-
 CJSCore::RegisterExt('im_web', array(
 	'js' => $jsIm,
 	'css' => array(
@@ -200,6 +186,7 @@ CJSCore::RegisterExt('im_page', array(
 	'js' => $jsIm,
 	'css' => array(
 		'/bitrix/js/im/css/im.css',
+		'/bitrix/js/im/css/call/keypad.css',
 		'/bitrix/js/im/css/call/view.css',
 		'/bitrix/js/im/css/call/sidebar.css',
 		'/bitrix/js/im/css/call/promo-popup.css',
@@ -242,6 +229,19 @@ CJSCore::RegisterExt('im_timecontrol', array(
 	'rel' => array('timecontrol'),
 ));
 
-$GLOBALS["APPLICATION"]->AddJSKernelInfo('im', array_merge(['/bitrix/js/im/common.js', '/bitrix/js/im/window.js'], $jsIm));
-$GLOBALS["APPLICATION"]->AddCSSKernelInfo('im', array('/bitrix/js/im/css/common.css', '/bitrix/js/im/css/dark_im.css', '/bitrix/js/im/css/window.css', '/bitrix/js/im/css/im.css', '/bitrix/js/im/css/call/view.css', '/bitrix/js/im/css/call/sidebar.css', '/bitrix/js/im/css/call/promo-popup.css'));
+if (!$isBetaActivated)
+{
+	$GLOBALS["APPLICATION"]->AddJSKernelInfo('im', array_merge(['/bitrix/js/im/common.js', '/bitrix/js/im/window.js'], $jsIm));
+	$GLOBALS["APPLICATION"]->AddCSSKernelInfo('im', array('/bitrix/js/im/css/common.css', '/bitrix/js/im/css/dark_im.css', '/bitrix/js/im/css/window.css', '/bitrix/js/im/css/im.css', '/bitrix/js/im/css/call/view.css', '/bitrix/js/im/css/call/sidebar.css', '/bitrix/js/im/css/call/promo-popup.css'));
+}
 
+/* Copyrights */
+
+EventManager::getInstance()->addEventHandler('main', 'onGetThirdPartySoftware', function() {
+	return new EventResult(EventResult::SUCCESS, [
+		(new Copyright("Emoji-test-regex-pattern v15.1"))
+			->setCopyright(" (c) Copyright Mathias Bynens <https://mathiasbynens.be/>")
+			->setProductUrl('https://github.com/mathiasbynens/emoji-test-regex-pattern/')
+			->setLicence(Copyright::LICENCE_MIT)
+	]);
+});

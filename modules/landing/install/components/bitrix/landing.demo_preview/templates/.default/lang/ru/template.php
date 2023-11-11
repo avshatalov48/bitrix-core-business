@@ -9,6 +9,7 @@ $MESS['LANDING_TPL_BUTTON_CREATE_SITE'] = 'Создать сайт';
 $MESS['LANDING_TPL_BUTTON_CREATE_STORE'] = 'Создать магазин';
 $MESS['LANDING_TPL_BUTTON_CREATE_KB'] = 'Создать Базу знаний';
 $MESS['LANDING_TPL_BUTTON_CREATE_PAGE'] = 'Создать страницу';
+$MESS['LANDING_TPL_BUTTON_REPLACE_PAGE'] = 'Применить шаблон';
 $MESS['LANDING_TPL_BUTTON_SHOW_IN_MOBILE'] = 'Открыть на мобильном устройстве';
 $MESS['LANDING_TPL_POPUP_TEXT'] = 'Наведите камеру телефона на QR-код, чтобы открыть сайт';
 $MESS['LANDING_TPL_POPUP_TEXT_STORE'] = 'Наведите камеру телефона на QR-код, чтобы открыть магазин';

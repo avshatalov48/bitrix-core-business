@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\DB;
 
 use Bitrix\Main\ArgumentException;
@@ -86,8 +87,8 @@ abstract class MysqlCommonConnection extends Connection
 			$this->connectInternal();
 
 			$sqlTableName = ($tableName[0] === '(')
-				? $sqlTableName = $tableName.' AS xyz' // subquery
-				: $sqlTableName = $this->getSqlHelper()->quote($tableName); // regular table name
+				? $tableName.' AS xyz' // subquery
+				: $this->getSqlHelper()->quote($tableName); // regular table name
 
 			$query = $this->queryInternal("SELECT * FROM {$sqlTableName} LIMIT 0");
 

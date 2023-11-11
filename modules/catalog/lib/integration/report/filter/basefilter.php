@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\Integration\Report\Filter;
 
+use Bitrix\Catalog;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Product\BaseProduct;
@@ -39,7 +40,7 @@ abstract class BaseFilter extends Filter
 				'id' => 'product_variation',
 				'options' => [
 					'iblockId' => \Bitrix\Crm\Product\Catalog::getDefaultId(),
-					'basePriceId' => \Bitrix\Crm\Product\Price::getBaseId(),
+					'basePriceId' => Catalog\GroupTable::getBasePriceTypeId(),
 					'showPriceInCaption' => false,
 				],
 			];

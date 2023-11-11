@@ -6,13 +6,13 @@
 				<article class="row align-items-stretch text-center mx-0">
 					<!--Article Content-->
 					<div class="landing-block-node-block col-sm-6 u-ns-bg-v1-bottom u-ns-bg-bottom u-ns-bg-v1-right--md g-bg-black g-pl-30 g-pr-30 g-pb-45 g-pt-45">
-						<h4 class="landing-block-node-title landing-semantic-subtitle-image-medium js-animation flipInX text-uppercase g-color-white g-mb-25">Become a
+						<h4 class="landing-block-node-title js-animation flipInX text-uppercase g-color-white g-mb-25">Become a
 							<span style="font-weight: bold;" class="landing-block-node-title-add d-block g-color-primary">Volunteer</span></h4>
-						<div class="landing-block-node-text landing-semantic-text-medium g-color-gray-dark-v5 js-animation fadeIn g-mb-25"><p>Praesent pulvinar gravida efficitur. Aenean
+						<div class="landing-block-node-text g-color-gray-dark-v5 js-animation fadeIn g-mb-25"><p>Praesent pulvinar gravida efficitur. Aenean
 								bibendum purus eu nisi pulvinar
 								venenatis vitae non velit.</p></div>
 						<div class="landing-block-node-button-container">
-							<a class="landing-block-node-button landing-semantic-link-medium-white js-animation fadeIn btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-primary g-btn-size-md g-btn-px-m g-color-black"
+							<a class="landing-block-node-button js-animation fadeIn btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-primary g-btn-size-md g-btn-px-m g-color-black"
 							   href="#">Join Us</a>
 						</div>
 					</div>
@@ -36,13 +36,13 @@
 
 					<!--Article Content-->
 					<div class="landing-block-node-block col-sm-6 u-ns-bg-v1-top u-ns-bg-v1-left--md g-bg-black g-pl-30 g-pr-30 g-pb-45 g-pt-45">
-						<h4 class="landing-block-node-title landing-semantic-subtitle-image-medium js-animation flipInX text-uppercase g-color-white g-mb-25">Make a
+						<h4 class="landing-block-node-title js-animation flipInX text-uppercase g-color-white g-mb-25">Make a
 							<span style="font-weight: bold;" class="landing-block-node-title-add d-block g-color-primary">Donation</span></h4>
-						<div class="landing-block-node-text landing-semantic-text-medium g-color-gray-dark-v5 js-animation fadeIn g-mb-25"><p>Praesent pulvinar gravida efficitur. Aenean
+						<div class="landing-block-node-text g-color-gray-dark-v5 js-animation fadeIn g-mb-25"><p>Praesent pulvinar gravida efficitur. Aenean
 								bibendum purus eu nisi pulvinar
 								venenatis vitae non velit.</p></div>
 						<div class="landing-block-node-button-container">
-							<a class="landing-block-node-button landing-semantic-link-medium-white js-animation fadeIn btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-primary g-btn-size-md g-btn-px-m g-color-black"
+							<a class="landing-block-node-button js-animation fadeIn btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-primary g-btn-size-md g-btn-px-m g-color-black"
 						   href="#">Join Us</a>
 						</div>
 					</div>

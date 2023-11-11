@@ -214,7 +214,7 @@ if ($allowEdit)
 		'TRIAL_PRICE_ID' => false,
 		'WITHOUT_ORDER' => false,
 		'BARCODE_MULTI' => $barcodeMultiply,
-		'MEASURE' => $SUBCAT_MEASURE,
+		'MEASURE' => $SUBCAT_MEASURE ?? null,
 		'TYPE' => Catalog\ProductTable::TYPE_OFFER,
 	];
 	if ($quantityTrace !== null)
@@ -256,12 +256,12 @@ if ($allowEdit)
 
 	if(!$bUseStoreControl)
 	{
-		$productFields['QUANTITY'] = $SUBCAT_BASE_QUANTITY;
+		$productFields['QUANTITY'] = $SUBCAT_BASE_QUANTITY ?? null;
 		if ($productFields['QUANTITY'] === '' || $productFields['QUANTITY'] === null)
 			unset($productFields['QUANTITY']);
 		if ($bEnableReservation)
 		{
-			$productFields['QUANTITY_RESERVED'] = $SUBCAT_BASE_QUANTITY_RESERVED;
+			$productFields['QUANTITY_RESERVED'] = $SUBCAT_BASE_QUANTITY_RESERVED ?? null;
 			if ($productFields['QUANTITY_RESERVED'] === '' || $productFields['QUANTITY_RESERVED'] === null)
 				unset($productFields['QUANTITY_RESERVED']);
 		}
@@ -320,14 +320,14 @@ if ($allowEdit)
 
 	$arMeasureRatio = [
 		'PRODUCT_ID' => $PRODUCT_ID,
-		'RATIO' => $SUBCAT_MEASURE_RATIO,
+		'RATIO' => $SUBCAT_MEASURE_RATIO ?? 1,
 		'IS_DEFAULT' => 'Y'
 	];
 	$newRatio = true;
 	$currentRatioID = 0;
 	if (isset($_POST['SUBCAT_MEASURE_RATIO_ID']))
 		$currentRatioID = (int)$_POST['SUBCAT_MEASURE_RATIO_ID'];
-	$ratioFilter = ['=PRODUCT_ID' => $PRODUCT_ID, '=RATIO' => $SUBCAT_MEASURE_RATIO];
+	$ratioFilter = ['=PRODUCT_ID' => $PRODUCT_ID, '=RATIO' => $arMeasureRatio['RATIO']];
 	$ratioIterator = Catalog\MeasureRatioTable::getList([
 		'select' => ['*'],
 		'filter' => $ratioFilter

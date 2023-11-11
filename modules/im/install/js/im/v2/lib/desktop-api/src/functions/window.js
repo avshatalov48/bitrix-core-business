@@ -1,31 +1,71 @@
-import {Type, Event} from 'main.core';
-import {BaseEvent, EventEmitter} from 'main.core.events';
-
-import {EventType} from 'im.v2.const';
+import { Type, Event, Dom, Extension } from 'main.core';
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import { EventType } from 'im.v2.const';
 
 export const windowFunctions = {
-	showWindow()
+	isTwoWindowMode(): boolean
 	{
-		BXDesktopSystem?.SetActiveTab();
-		window.BXDesktopWindow?.ExecuteCommand('show');
+		return Boolean(BXDesktopSystem?.IsTwoWindowsMode());
 	},
-	hideWindow()
+	isChatWindow(): boolean
 	{
-		window.BXDesktopWindow?.ExecuteCommand('hide');
+		const settings = Extension.getSettings('im.v2.lib.desktop-api');
+
+		return (
+			this.isDesktop()
+			&& settings.get('isChatWindow')
+		);
 	},
-	closeWindow()
+	isChatTab(): boolean
 	{
-		window.BXDesktopWindow?.ExecuteCommand('close');
+		return (
+			this.isChatWindow()
+			|| (
+				this.isDesktop()
+				&& location.href.includes('&IM_TAB=Y')
+			)
+		);
 	},
-	closeWindowByName(name: string = '')
+	setActiveTab(target = window)
 	{
-		const window = this.findWindow(name);
-		if (!window)
+		if (!Type.isObject(target))
 		{
 			return;
 		}
-
-		window.BXDesktopWindow?.ExecuteCommand('close');
+		target.BXDesktopSystem?.SetActiveTab();
+	},
+	showWindow(target = window)
+	{
+		if (!Type.isObject(target))
+		{
+			return;
+		}
+		target.BXDesktopWindow?.ExecuteCommand('show');
+	},
+	activateWindow(target = window)
+	{
+		this.setActiveTab(target);
+		this.showWindow(target);
+	},
+	hideWindow(target = window)
+	{
+		if (!Type.isObject(target))
+		{
+			return;
+		}
+		target.BXDesktopWindow?.ExecuteCommand('hide');
+	},
+	closeWindow(target = window)
+	{
+		if (!Type.isObject(target))
+		{
+			return;
+		}
+		target.BXDesktopWindow?.ExecuteCommand('close');
+	},
+	hideLoader()
+	{
+		Dom.remove(document.getElementById('bx-desktop-loader'));
 	},
 	reloadWindow()
 	{
@@ -35,15 +75,27 @@ export const windowFunctions = {
 	},
 	findWindow(name: string = ''): ?Window
 	{
-		const mainWindow = opener ?? top;
+		const mainWindow = opener || top;
 
-		return mainWindow.BXWindows.find(window => window?.name === name);
+		return mainWindow.BXWindows.find((window) => window?.name === name);
+	},
+	createTab(path: string): void
+	{
+		const preparedPath = Dom.create({ tag: 'a', attrs: { href: path } }).href;
+
+		BXDesktopSystem.CreateTab(preparedPath);
+	},
+	createImTab(path: string): void
+	{
+		const preparedPath = Dom.create({ tag: 'a', attrs: { href: path } }).href;
+
+		BXDesktopSystem.CreateImTab(preparedPath);
 	},
 	createWindow(name: string, callback: Function)
 	{
 		BXDesktopSystem.GetWindow(name, callback);
 	},
-	createTopmostWindow(htmlContent: string)
+	createTopmostWindow(htmlContent: string): boolean
 	{
 		return BXDesktopSystem.ExecuteCommand('topmost.show.html', htmlContent);
 	},
@@ -56,7 +108,7 @@ export const windowFunctions = {
 		});
 		BXDesktopWindow?.SetProperty('position', preparedParams);
 	},
-	prepareHtml(html: string | HTMLElement, js: string | HTMLElement)
+	prepareHtml(html: string | HTMLElement, js: string | HTMLElement): string
 	{
 		if (Type.isDomNode(html))
 		{
@@ -81,13 +133,24 @@ export const windowFunctions = {
 			`;
 		}
 
+		const head = document.head.outerHTML.replaceAll(/BX\.PULL\.start\([^)]*\);/g, '');
+
 		return `
 			<!DOCTYPE html>
 			<html>
+				${head}
 				<body class="im-desktop im-desktop-popup">
 					${html}${js}
 				</body>
 			</html>
 		`;
-	}
+	},
+	setWindowSize(width: number, height: number)
+	{
+		BXDesktopWindow.SetProperty("clientSize", { Width: width, Height: height });
+	},
+	setMinimumWindowSize(width: number, height: number)
+	{
+		BXDesktopWindow.SetProperty("minClientSize", { Width: width, Height: height });
+	},
 };

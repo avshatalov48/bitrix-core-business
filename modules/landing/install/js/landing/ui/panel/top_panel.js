@@ -7,6 +7,7 @@
 	var addClass = BX.Landing.Utils.addClass;
 	var onCustomEvent = BX.Landing.Utils.onCustomEvent;
 	var bind = BX.Landing.Utils.bind;
+	var unbind = BX.Landing.Utils.unbind;
 	var makeFilterablePopupMenu = BX.Landing.Utils.makeFilterablePopupMenu;
 	var makeSelectablePopupMenu = BX.Landing.Utils.makeSelectablePopupMenu;
 	var style = BX.Landing.Utils.style;
@@ -46,18 +47,10 @@
 		this.onPageButtonClick = this.onPageButtonClick.bind(this);
 		this.onUndo = this.onUndo.bind(this);
 		this.onRedo = this.onRedo.bind(this);
-		this.onKeyDown = this.onKeyDown.bind(this);
 		this.adjustHistoryButtonsState = this.adjustHistoryButtonsState.bind(this);
 
-		bind(this.desktopButton, "click", this.onDesktopSizeChange);
-		bind(this.tabletButton, "click", this.onTabletSizeChange);
-		bind(this.mobileButton, "click", this.onMobileSizeChange);
-		bind(this.iframe.contentDocument, "click", this.onIframeClick);
-		bind(this.undoButton, "click", this.onUndo);
-		bind(this.redoButton, "click", this.onRedo);
-		bind(document, "keydown", this.onKeyDown);
+		this.bindEvents();
 
-		onCustomEvent(document, "iframe:keydown", this.onKeyDown);
 		onCustomEvent(window, "BX.Landing.History:init", this.adjustHistoryButtonsState);
 		onCustomEvent(window, "BX.Landing.History:update", this.adjustHistoryButtonsState);
 
@@ -88,6 +81,14 @@
 
 	BX.Landing.UI.Panel.Top.instance = null;
 
+	BX.Landing.UI.Panel.Top.resetInstance = function() {
+		if (BX.Landing.UI.Panel.Top.instance)
+		{
+			BX.Landing.UI.Panel.Top.instance.unbindEvents();
+			BX.Landing.UI.Panel.Top.instance = null;
+		}
+	};
+
 
 	/**
 	 * Gets instance of BX.Landing.UI.Panel.Top
@@ -111,6 +112,25 @@
 		__proto__: BX.Landing.UI.Panel.BasePanel.prototype,
 		superclass: BX.Landing.UI.Panel.BasePanel.prototype,
 
+		bindEvents: function()
+		{
+			bind(this.desktopButton, "click", this.onDesktopSizeChange);
+			bind(this.tabletButton, "click", this.onTabletSizeChange);
+			bind(this.mobileButton, "click", this.onMobileSizeChange);
+			bind(this.iframe.contentDocument, "click", this.onIframeClick);
+			bind(this.undoButton, "click", this.onUndo);
+			bind(this.redoButton, "click", this.onRedo);
+		},
+
+		unbindEvents: function()
+		{
+			unbind(this.desktopButton, "click", this.onDesktopSizeChange);
+			unbind(this.tabletButton, "click", this.onTabletSizeChange);
+			unbind(this.mobileButton, "click", this.onMobileSizeChange);
+			unbind(this.iframe.contentDocument, "click", this.onIframeClick);
+			unbind(this.undoButton, "click", this.onUndo);
+			unbind(this.redoButton, "click", this.onRedo);
+		},
 
 		/**
 		 * Handles keydown event
@@ -118,29 +138,10 @@
 		 */
 		onKeyDown: function(event)
 		{
-			var key = event.keyCode || event.which;
-
+			const key = event.keyCode || event.which;
 			if (key === 90 && (window.navigator.userAgent.match(/win/i) ? event.ctrlKey : event.metaKey))
 			{
-				var rootWindow = BX.Landing.PageObject.getRootWindow();
-				var formSettingsPanel = rootWindow.BX.Reflection.getClass('BX.Landing.UI.Panel.FormSettingsPanel');
-
-				if (
-					!formSettingsPanel
-					|| !formSettingsPanel.getInstance().isShown()
-				)
-				{
-					if (event.shiftKey)
-					{
-						event.preventDefault();
-						this.onRedo();
-					}
-					else
-					{
-						event.preventDefault();
-						this.onUndo();
-					}
-				}
+				// ctrl + z handle was here, but we remove this functionality
 			}
 		},
 

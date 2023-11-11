@@ -54,6 +54,7 @@ class Initiator extends Providers\Base\Initiator
 				$fromList[] = [
 					'id' => $channel['subjectId'],
 					'name' => $channel['name'],
+					'channelPhone' => $channel['channelAttribute'] ?? '',
 				];
 			}
 		}

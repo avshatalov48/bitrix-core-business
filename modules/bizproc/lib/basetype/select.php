@@ -586,6 +586,6 @@ class Select extends Base
 	{
 		$value = parent::validateValueMultiple($value, $fieldType);
 
-		return array_values(array_filter($value, fn($v) => (!is_null($v))));
+		return array_values(array_filter($value, static fn($v) => ($v !== null)));
 	}
 }

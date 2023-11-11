@@ -1,4 +1,6 @@
 <?php
+
+use Bitrix\Main;
 use Bitrix\Iblock;
 
 global $IBLOCK_CACHE_PROPERTY;
@@ -682,106 +684,209 @@ class CAllIBlockProperty
 
 	public static function GetPropertyArray($ID, $IBLOCK_ID, $bCached=true)
 	{
-		global $DB;
-
-		$block_id = false;
-		$block_code = false;
-		if(is_array($IBLOCK_ID))
+		if (!is_int($ID) && !is_string($ID))
 		{
-			foreach($IBLOCK_ID as $v)
+			return false;
+		}
+
+		$iblockIdList = [];
+		$iblockCodeList = [];
+
+		if (is_array($IBLOCK_ID))
+		{
+			foreach ($IBLOCK_ID as $value)
 			{
-				if(is_numeric($v))
+				if (is_numeric($value))
 				{
-					if($block_id)
-						$block_id .= ", ";
-					else
-						$block_id = "";
-
-					$block_id .= (int)$v;
+					$value = (int)$value;
+					if ($value > 0)
+					{
+						$iblockIdList[$value] = $value;
+					}
 				}
-				elseif($v <> '')
+				elseif (is_string($value))
 				{
-					if($block_code)
-						$block_code .= ", ";
-					else
-						$block_code = "";
-
-					$block_code .= "'".$DB->ForSQL($v, 200)."'";
+					$value = trim($value);
+					if ($value !== '')
+					{
+						$iblockCodeList[$value] = $value;
+					}
 				}
 			}
 		}
-		elseif(is_numeric($IBLOCK_ID))
-			$block_id = (int)$IBLOCK_ID;
-		elseif($IBLOCK_ID <> '')
-			$block_code = "'".$DB->ForSQL($IBLOCK_ID, 200)."'";
+		elseif (is_numeric($IBLOCK_ID))
+		{
+			$iblockId = (int)$IBLOCK_ID;
+			if ($iblockId > 0)
+			{
+				$iblockIdList[$iblockId] = $iblockId;
+			}
+			unset($iblockId);
+		}
+		elseif (is_string($IBLOCK_ID))
+		{
+			$iblockCode = trim($IBLOCK_ID);
+			if ($iblockCode !== '')
+			{
+				$iblockCodeList[$iblockCode] = $iblockCode;
+			}
+			unset($iblockCode);
+		}
 
-		$cacheId = $ID . '|' . $block_id . '|' . $block_code;
+		$cacheId = $ID . '|' . implode(', ', $iblockIdList) . '|' . implode(', ', $iblockCodeList);
 
 		global $IBLOCK_CACHE_PROPERTY;
-
 		if ($bCached && isset($IBLOCK_CACHE_PROPERTY[$cacheId]))
 		{
 			return $IBLOCK_CACHE_PROPERTY[$cacheId];
 		}
 
-		if($block_code && $block_id)
-			$cond = " AND (B.ID IN (".$block_id.") OR B.CODE IN (".$block_code.")) ";
-		elseif($block_code)
-			$cond = " AND B.CODE IN (".$block_code.") ";
-		elseif($block_id)
-			$cond = " AND B.ID IN (".$block_id.") ";
-		else
-			$cond = "";
-
-		$upperID = mb_strtoupper($ID);
-
-		$strSql = "
-			SELECT BP.*
-			FROM
-				b_iblock_property BP
-				,b_iblock B
-			WHERE BP.IBLOCK_ID=B.ID
-			".$cond."
-			".(mb_substr($upperID, -6) == '_VALUE'?
-				(is_numeric(mb_substr($ID, 0, 1))?
-					"AND BP.ID=".(int)$ID
-				:
-					"AND ((UPPER(BP.CODE)='".$DB->ForSql($upperID)."' AND BP.PROPERTY_TYPE!='L') OR (UPPER(BP.CODE)='".$DB->ForSql(mb_substr($upperID, 0, -6))."' AND BP.PROPERTY_TYPE='L'))"
-				)
-			:
-				(is_numeric(mb_substr($ID, 0, 1))?
-					"AND BP.ID=".(int)$ID
-				:
-					"AND UPPER(BP.CODE)='".$DB->ForSql($upperID)."'"
-				)
-			);
-
-		$res = $DB->Query($strSql);
-		if($arr = $res->Fetch())
+		$runtime = [];
+		$filter = [];
+		if (!empty($iblockIdList) && !empty($iblockCode))
 		{
-			$arr["ORIG_ID"] = $arr["ID"];    //it saves original (digital) id
-			$arr["IS_CODE_UNIQUE"] = true;   //boolean check for global code uniquess
-			$arr["IS_VERSION_MIXED"] = false;//boolean check if varios versions of ibformation block properties
-			while($arr2 = $res->Fetch())
-			{
-				$arr["IS_CODE_UNIQUE"] = false;
-				if($arr["VERSION"] != $arr2["VERSION"])
-					$arr["IS_VERSION_MIXED"] = true;
-			}
-
-			if(
-				mb_substr($upperID, -6) == '_VALUE'
-				&& $arr["PROPERTY_TYPE"] == "L"
-				&& mb_strtoupper($arr["CODE"]) == mb_substr($upperID, 0, -6)
-			)
-				$arr["ID"] = mb_substr($ID, 0, -6);
-			else
-				$arr["ID"] = $ID;
+			$filter[] = [
+				'LOGIC' => 'OR',
+				'@IBLOCK.ID' => $iblockIdList,
+				'@IBLOCK.CODE' => $iblockCodeList
+			];
+		}
+		elseif (!empty($iblockIdList))
+		{
+			$filter['@IBLOCK.ID'] = $iblockIdList;
+		}
+		elseif (!empty($iblockCodeList))
+		{
+			$filter['@IBLOCK.CODE'] = $iblockCodeList;
 		}
 
-		$IBLOCK_CACHE_PROPERTY[$cacheId] = $arr;
+		$propertyId = null;
+		$propertyCode = null;
+		$propertyFullCode = null;
+		$existsValuePostfix = false;
+		if (is_int($ID))
+		{
+			$propertyId = $ID;
+		}
+		else
+		{
+			$upperId = mb_strtoupper($ID);
+			$preparedId = [];
+			if (preg_match('/^([A-Za-z0-9_]+)(_VALUE)$/', $upperId, $preparedId))
+			{
+				$existsValuePostfix = true;
+				$value = (int)$preparedId[1];
+				if ($value > 0)
+				{
+					$propertyId = $value;
+				}
+				else
+				{
+					$propertyCode = $preparedId[1];
+					$propertyFullCode = $preparedId[0];
+				}
+			}
+			else
+			{
+				$value = (int)$upperId;
+				if ($value > 0)
+				{
+					$propertyId = $value;
+				}
+				else
+				{
+					$propertyCode = $upperId;
+				}
+			}
+			unset($value);
+			unset($preparedId);
+			unset($upperId);
+		}
 
-		return $arr;
+		if ($propertyId !== null)
+		{
+			$filter['=ID'] = $propertyId;
+		}
+		else
+		{
+			$runtime[] = new Main\ORM\Fields\ExpressionField(
+				'UPPER_PROPERTY_CODE',
+				'UPPER(%s)',
+				'CODE'
+			);
+			if ($existsValuePostfix)
+			{
+				$filter[] = [
+					'LOGIC' => 'OR',
+					[
+						'=UPPER_PROPERTY_CODE' => $propertyFullCode,
+						'!=PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_LIST,
+					],
+					[
+						'=UPPER_PROPERTY_CODE' => $propertyCode,
+						'=PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_LIST,
+					]
+				];
+			}
+			else
+			{
+				$filter['=UPPER_PROPERTY_CODE'] = $propertyCode;
+			}
+		}
+
+		$params = [
+			'select' => ['*'],
+			'filter' => $filter,
+			'cache' => [
+				'ttl' => 86400,
+			],
+		];
+		if (!empty($runtime))
+		{
+			$params['runtime'] = $runtime;
+		}
+
+		$iterator = Iblock\PropertyTable::getList($params);
+		$propertyRow = $iterator->fetch();
+		if (!empty($propertyRow))
+		{
+			unset($propertyRow['USER_TYPE_SETTINGS_LIST']);
+			if ($propertyRow['TIMESTAMP_X'] instanceof Main\Type\DateTime)
+			{
+				$propertyRow['TIMESTAMP_X'] = $propertyRow['TIMESTAMP_X']->format('Y-m-d H:i:s');
+			}
+			$propertyRow['ORIG_ID'] = $propertyRow['ID']; //it saves original (digital) id
+			$propertyRow['IS_CODE_UNIQUE'] = true; //boolean check for global code uniquess
+			$propertyRow['IS_VERSION_MIXED'] = false; //boolean check if varios versions of ibformation block properties
+
+			while ($row = $iterator->fetch())
+			{
+				$propertyRow['IS_CODE_UNIQUE'] = false;
+				if ($propertyRow['VERSION'] !== $row['VERSION'])
+				{
+					$propertyRow['IS_VERSION_MIXED'] = true;
+				}
+			}
+			unset($row);
+
+			if (
+				$existsValuePostfix
+				&& $propertyRow['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_LIST
+				&& mb_strtoupper((string)$propertyRow['CODE']) === $propertyCode
+			)
+			{
+				$propertyRow['ID'] = mb_substr($ID, 0, -6);
+			}
+			else
+			{
+				$propertyRow['ID'] = $ID;
+			}
+		}
+		unset($iterator);
+
+		$IBLOCK_CACHE_PROPERTY[$cacheId] = $propertyRow;
+
+		return $propertyRow;
 	}
 
 	public static function GetPropertyEnum($PROP_ID, $arOrder = array("SORT"=>"asc"), $arFilter = array())

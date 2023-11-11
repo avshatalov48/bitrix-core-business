@@ -525,10 +525,14 @@ class ConferenceApplication
 
 		tryJoinExistingCall()
 		{
+			const provider = Call.Util.isBitrixCallServerAllowed()
+				? Call.Provider.Bitrix
+				: Call.Provider.Voximplant;
+
 			this.restClient.callMethod("im.call.tryJoinCall", {
 					entityType: 'chat',
 					entityId: this.params.dialogId,
-					provider: Call.Provider.Voximplant,
+					provider: provider,
 					type: Call.Type.Permanent
 				})
 				.then(result => {
@@ -729,7 +733,9 @@ class ConferenceApplication
 
 	startCall(videoEnabled, viewerMode = false)
 	{
-		const provider = Call.Provider.Voximplant;
+		const provider = Call.Util.isBitrixCallServerAllowed()
+			? Call.Provider.Bitrix
+			: Call.Provider.Voximplant;
 
 		if (Utils.device.isMobile())
 		{

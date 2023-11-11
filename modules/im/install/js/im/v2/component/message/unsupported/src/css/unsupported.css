@@ -1,0 +1,27 @@
+.bx-im-message-unsupported__scope {
+	--im-message-unsupported__color_text: var(--im-color-palette-gray-60);
+}
+
+.bx-im-message-unsupported__container {
+	padding: var(--im-message-base__padding_body);
+}
+
+.bx-im-message-unsupported__content {
+	display: flex;
+	align-items: center;
+	margin-left: -5px;
+}
+
+.bx-im-message-unsupported__icon {
+	width: 17px;
+	height: 17px;
+	background-image: url('./images/unsupported.svg');
+	background-repeat: no-repeat;
+	background-position: center;
+	margin-right: 3px;
+}
+
+.bx-im-message-unsupported__text {
+	font: var(--im-font-size-lg) var(--im-font-family-system);
+	color: var(--im-message-unsupported__color_text);
+}

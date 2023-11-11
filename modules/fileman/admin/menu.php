@@ -279,6 +279,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 	$arSites = Array();
 	$arSitesDR = Array();
 	$arSitesDR_ = Array();
+	$arSite = [];
 	$dbSitesList = Main\SiteTable::getList([
 		'select' => ['*', 'ID'],
 		'order' => ['SORT' => 'ASC'],

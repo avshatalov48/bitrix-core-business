@@ -1,6 +1,6 @@
-import {Type, Tag, Text, Event, Dom, Loc, Runtime} from 'main.core';
-import type {ConditionType} from "../types";
-import {Operator} from "../condition";
+import { Type, Tag, Text, Event, Dom, Loc, Runtime } from 'main.core';
+import type { ConditionType } from '../types';
+import { Operator } from '../condition';
 
 import 'bp_field_type';
 
@@ -60,7 +60,7 @@ export class BpCondition
 						${Text.encode(Operator.getOperatorLabel(operator))}
 					</option>
 				`,
-				select
+				select,
 			);
 		});
 
@@ -100,11 +100,11 @@ export class BpCondition
 			Dom.show(valueRow);
 		}
 
-		const needRerender =
+		const needRerender = (
 			previousOperator === Operator.BETWEEN
 			|| this.#operator === Operator.BETWEEN
 			|| Operator.getOperatorsWithoutRenderValue().includes(previousOperator)
-		;
+		);
 		if (needRerender)
 		{
 			this.rerenderValue(this.#lastFieldProperty);
@@ -127,7 +127,7 @@ export class BpCondition
 						${Text.encode(Operator.getOperatorLabel(operator))}
 					</option>
 				`,
-				this.#operatorElement
+				this.#operatorElement,
 			);
 		});
 		this.#operator = this.#operatorElement.selectedOptions[0].value;
@@ -157,11 +157,11 @@ export class BpCondition
 	{
 		this.#lastFieldProperty = fieldProperty;
 
-		this.#valueElement =
+		this.#valueElement = (
 			this.#operator === Operator.BETWEEN
 				? this.#renderBetweenValue(fieldProperty, this.#value)
 				: this.#getFieldControl(fieldProperty, this.#value)
-		;
+		);
 
 		return Tag.render`
 			<tr${Operator.getOperatorsWithoutRenderValue().includes(this.#operator) ? ' hidden' : ''}>
@@ -177,37 +177,38 @@ export class BpCondition
 
 	#renderBetweenValue(fieldProperty: {}, value): HTMLElement
 	{
-		fieldProperty = Object.assign(fieldProperty, {Multiple: false});
+		const property = Object.assign(Runtime.clone(fieldProperty), { Multiple: false });
 
 		const valueElement1 = this.#getFieldControl(
-			fieldProperty,
+			property,
 			value[0] || '',
-			this.#valueName + '_greater_then'
+			`${this.#valueName}_greater_then`,
 		);
 		const valueElement2 = this.#getFieldControl(
-			fieldProperty,
+			property,
 			value[1] || '',
-			this.#valueName + '_less_then'
+			`${this.#valueName}_less_then`,
 		);
 
 		return Tag.render`
 			<table>
 				<tbody>
 					<tr><td>${valueElement1}</td></tr>
-					<tr><td>${Loc.getMessage('BIZPROC_JS_CONDITION_BETWEEN_JOINER')}</td></tr>
 					<tr><td>${valueElement2}</td></tr>
 				</tbody>
 			</table>
 		`;
 	}
 
-	rerenderValue(fieldProperty: {}): void
+	rerenderValue(fieldProperty: {})
 	{
 		this.#lastFieldProperty = fieldProperty;
 
 		if (this.#operator === Operator.BETWEEN)
 		{
-			return this.#rerenderBetweenValue(fieldProperty);
+			this.#rerenderBetweenValue(fieldProperty);
+
+			return;
 		}
 
 		const valueElement = this.#getFieldControl(fieldProperty, '');
@@ -216,7 +217,7 @@ export class BpCondition
 		this.#valueElement = valueElement;
 	}
 
-	#rerenderBetweenValue(fieldProperty: {}): void
+	#rerenderBetweenValue(fieldProperty: {})
 	{
 		const valueElement = this.#renderBetweenValue(fieldProperty, ['', '']);
 		Dom.replace(this.#valueElement, valueElement);
@@ -225,12 +226,9 @@ export class BpCondition
 
 	#getFieldControl(fieldProperty: {}, value: any, valueName?: string): any
 	{
-		if (Type.isNil(valueName))
-		{
-			valueName = this.#valueName;
-		}
+		const name = Type.isNil(valueName) ? this.#valueName : valueName;
 
-		return BX.Bizproc.FieldType.renderControl(this.#documentType, fieldProperty, valueName, value, 'designer');
+		return BX.Bizproc.FieldType.renderControl(this.#documentType, fieldProperty, name, value, 'designer');
 	}
 
 	renderValueTo(fieldType: string, to: HTMLElement)

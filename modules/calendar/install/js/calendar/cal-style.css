@@ -1730,7 +1730,6 @@ td.bx-cal-view-text-cell-r{
 .bxec-d-files .wduf-selectdialog-switcher, .bxec-d-files .diskuf-selectdialog-switcher{display:none;}
 .bxec-d-files .diskuf-selectdialog {margin:10px 0;}
 
-.feed-com-files {padding:10px 0 0 0;}
 .feed-com-files-title {color:#5c6470; font-size:12px; font-weight:var(--ui-font-weight-bold); float:left; min-width:50px;}
 .feed-com-files+.feed-com-tags-block {padding-top: 0; margin-top: -2px;}
 .feed-com-tags-block .feed-com-files-title { min-width: 0; }

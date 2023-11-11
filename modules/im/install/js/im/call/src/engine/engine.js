@@ -1,6 +1,7 @@
 import {Type} from 'main.core'
 import {DesktopApi} from 'im.v2.lib.desktop-api';
 import {PlainCall} from './plain_call'
+import {BitrixCall} from './bitrix_call'
 import {VoximplantCall} from './voximplant_call'
 import {CallStub} from './stub'
 import Util from '../util'
@@ -39,6 +40,7 @@ export const CallType = {
 export const Provider = {
 	Plain: 'Plain',
 	Voximplant: 'Voximplant',
+	Bitrix: 'Bitrix',
 };
 
 export const StreamTag = {
@@ -97,6 +99,7 @@ export const CallEvent = {
 	onCallFailure: 'onCallFailure',
 	onRemoteMediaReceived: 'onRemoteMediaReceived',
 	onRemoteMediaStopped: 'onRemoteMediaStopped',
+	onBadNetworkIndicator: 'onBadNetworkIndicator',
 	onNetworkProblem: 'onNetworkProblem',
 	onReconnecting: 'onReconnecting',
 	onReconnected: 'onReconnected',
@@ -278,7 +281,10 @@ class Engine
 						onDestroy: this.#onCallDestroy.bind(this)
 					},
 					debug: config.debug === true,
-					logToken: createCallResponse.logToken
+					logToken: createCallResponse.logToken,
+					connectionData: createCallResponse.connectionData,
+					// jwt: callFields['JWT'],
+					// endpoint: callFields['ENDPOINT'],
 				});
 
 				this.calls[callFields['ID']] = call;
@@ -351,7 +357,10 @@ class Engine
 					events: {
 						onDestroy: this.#onCallDestroy.bind(this)
 					},
-					logToken: createCallResponse.logToken
+					logToken: createCallResponse.logToken,
+					connectionData: createCallResponse.connectionData,
+					// jwt: callFields['JWT'],
+					// endpoint: callFields['ENDPOINT']
 				});
 
 				this.calls[callFields['ID']] = call;
@@ -367,7 +376,7 @@ class Engine
 		});
 	};
 
-	#instantiateCall(callFields, users, logToken): AbstractCall
+	#instantiateCall(callFields, users, logToken, connectionData): AbstractCall
 	{
 		if (this.calls[callFields['ID']])
 		{
@@ -387,6 +396,9 @@ class Engine
 			type: callFields.TYPE,
 			startDate: callFields['START_DATE'],
 			logToken: logToken,
+			connectionData: connectionData,
+			// jwt: callFields['JWT'],
+			// endpoint: callFields['ENDPOINT'],
 
 			events: {
 				onDestroy: this.#onCallDestroy.bind(this)
@@ -418,7 +430,7 @@ class Engine
 			{
 				const data = answer.data();
 				resolve({
-					call: this.#instantiateCall(data.call, data.users, data.logToken),
+					call: this.#instantiateCall(data.call, data.users, data.logToken, data.connectionData),
 					isNew: false
 				})
 			}).catch((error) =>
@@ -498,6 +510,7 @@ class Engine
 
 	#onPullIncomingCall(params, extra)
 	{
+		console.log('#onPullIncomingCall');
 		if (extra.server_time_ago > 30)
 		{
 			console.error("Call was started too long time ago");
@@ -537,9 +550,12 @@ class Engine
 				type: callFields.TYPE,
 				startDate: callFields.START_DATE,
 				logToken: params.logToken,
+				connectionData: params.connectionData,
 				events: {
 					onDestroy: this.#onCallDestroy.bind(this)
-				}
+				},
+				// jwt: callFields['JWT'],
+				// endpoint: callFields['ENDPOINT']
 			});
 
 			this.calls[callId] = call;
@@ -549,9 +565,10 @@ class Engine
 			}]);
 		}
 
-		call.addInvitedUsers(params.invitedUsers);
 		if (call)
 		{
+			call.addInvitedUsers(params.invitedUsers);
+
 			BX.onCustomEvent(window, "CallEvents::incomingCall", [{
 				call: call,
 				video: params.video === true,
@@ -647,9 +664,17 @@ class Engine
 
 	#getCallFactory(providerType: string)
 	{
+		if (providerType == Provider.Bitrix)
+		{
+			return BitrixCallFactory;
+		}
 		if (providerType == Provider.Plain)
 		{
 			return PlainCallFactory;
+		}
+		else if (providerType == Provider.Bitrix)
+		{
+			return BitrixCallFactory;
 		}
 		else if (providerType == Provider.Voximplant)
 		{
@@ -672,7 +697,7 @@ class Engine
 
 		if (DesktopApi.isDesktop())
 		{
-			DesktopApi.log(BX.message('USER_ID') + '.video.log', text);
+			DesktopApi.writeToLogFile(BX.message('USER_ID') + '.video.log', text);
 		}
 		if (this.debugFlag)
 		{
@@ -717,6 +742,14 @@ class PlainCallFactory
 	}
 }
 
+class BitrixCallFactory
+{
+	static createCall(config): BitrixCall
+	{
+		return new BitrixCall(config);
+	}
+}
+
 class VoximplantCallFactory
 {
 	static createCall(config): VoximplantCall
@@ -724,5 +757,6 @@ class VoximplantCallFactory
 		return new VoximplantCall(config);
 	}
 }
+
 
 export const CallEngine = new Engine();

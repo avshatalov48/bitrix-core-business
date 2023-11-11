@@ -1,17 +1,19 @@
-import {Avatar, AvatarSize, ChatTitle} from 'im.v2.component.elements';
-import {Utils} from 'im.v2.lib.utils';
-import type {ImModelSidebarLinkItem} from 'im.v2.model';
+import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { Utils } from 'im.v2.lib.utils';
+
 import '../../css/info/link-item.css';
+
+import type { ImModelSidebarLinkItem } from 'im.v2.model';
 
 // @vue/component
 export const LinkItem = {
 	name: 'LinkItem',
-	components: {Avatar, ChatTitle},
+	components: { Avatar, ChatTitle },
 	props:
 	{
 		link: {
 			type: Object,
-			required: true
+			required: true,
 		},
 	},
 	emits: ['contextMenuClick'],
@@ -34,7 +36,8 @@ export const LinkItem = {
 		shortDescription(): string
 		{
 			let hostName = '';
-			try {
+			try
+			{
 				hostName = new URL(this.source).hostname;
 			}
 			catch (error)
@@ -47,7 +50,7 @@ export const LinkItem = {
 		},
 		description(): string
 		{
-			const {name, description} = this.linkItem.richData;
+			const { name, description } = this.linkItem.richData;
 			const descriptionToShow = description || name || this.source;
 
 			return Utils.text.convertHtmlEntities(descriptionToShow);
@@ -58,7 +61,7 @@ export const LinkItem = {
 		},
 		hasPreview(): boolean
 		{
-			return !!this.linkItem.richData?.previewUrl;
+			return Boolean(this.linkItem.richData?.previewUrl);
 		},
 		previewStyles(): Object
 		{
@@ -93,9 +96,9 @@ export const LinkItem = {
 				id: this.linkItem.id,
 				messageId: this.linkItem.messageId,
 				source: this.source,
-				target: event.currentTarget
+				target: event.currentTarget,
 			});
-		}
+		},
 	},
 	template: `
 		<div 
@@ -130,5 +133,5 @@ export const LinkItem = {
 				<button class="bx-im-messenger__context-menu-icon" @click="onContextMenuClick"></button>
 			</div>
 		</div>
-	`
+	`,
 };

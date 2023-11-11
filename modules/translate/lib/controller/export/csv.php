@@ -2,7 +2,9 @@
 namespace Bitrix\Translate\Controller\Export;
 
 use Bitrix\Main;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Error;
+use Bitrix\Main\HttpResponse;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Translate;
 
@@ -13,39 +15,40 @@ class Csv
 {
 	use Translate\Controller\ProcessParams;
 
-	const SETTING_ID = 'TRANSLATE_EXPORT';
+	public const SETTING_ID = 'TRANSLATE_EXPORT';
 
-	const ACTION_EXPORT = 'export';
-	const ACTION_EXPORT_PATH = 'exportPath';
-	const ACTION_EXPORT_FILE = 'exportFile';
-	const ACTION_EXPORT_FILE_LIST = 'exportFileList';
-	const ACTION_EXPORT_FILE_SEARCH = 'exportFileSearch';
-	const ACTION_EXPORT_PHRASE_SEARCH = 'exportPhraseSearch';
-	const ACTION_PURGE = 'purge';
-	const ACTION_CANCEL = 'cancel';
-	const ACTION_DOWNLOAD = 'download';
-	const ACTION_CLEAR = 'clear';
+	public const ACTION_EXPORT = 'export';
+	public const ACTION_EXPORT_PATH = 'exportPath';
+	public const ACTION_EXPORT_FILE = 'exportFile';
+	public const ACTION_EXPORT_FILE_LIST = 'exportFileList';
+	public const ACTION_EXPORT_FILE_SEARCH = 'exportFileSearch';
+	public const ACTION_EXPORT_PHRASE_SEARCH = 'exportPhraseSearch';
+	public const ACTION_PURGE = 'purge';
+	public const ACTION_CANCEL = 'cancel';
+	public const ACTION_DOWNLOAD = 'download';
+	public const ACTION_CLEAR = 'clear';
 
 	/** @var int Session tab counter. */
-	private $tabId = 0;
+	private int $tabId = 0;
 
-	/** @var Translate\Filter */
-	private $filter;
+	private Translate\Filter $filter;
 
-	/** @var bool */
-	private $convertEncoding;
+	private bool $convertEncoding;
 
-	/** @var string */
-	private $encodingOut;
+	private string $encodingOut;
 
-	/** @var bool */
-	private $collectUntranslated;
+	private bool $collectUntranslated;
+
+	private bool $appendSamples;
+	private int $samplesCount = 10;
+	private array $samplesRestriction = [];
 
 	/** @var string[] */
-	private $languages;
+	private array $languages;
 
-	/** @var array */
-	private $downloadParams;
+	/** @var array Fields to keep download file attributes */
+	private array $export;
+	private array $samples;
 
 	/**
 	 * Configures actions.
@@ -57,64 +60,64 @@ class Csv
 		$configureActions = parent::configureActions();
 		$permission = new Translate\Controller\CheckPermission(Translate\Permission::READ);
 
-		$configureActions[self::ACTION_EXPORT] = array(
-			'+prefilters' => array(
+		$configureActions[self::ACTION_EXPORT] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_EXPORT_PATH] = array(
+			],
+		];
+		$configureActions[self::ACTION_EXPORT_PATH] = [
 			'class' => Translate\Controller\Export\ExportPath::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_EXPORT_FILE] = array(
+			],
+		];
+		$configureActions[self::ACTION_EXPORT_FILE] = [
 			'class' => Translate\Controller\Export\ExportFile::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_EXPORT_FILE_LIST] = array(
+			],
+		];
+		$configureActions[self::ACTION_EXPORT_FILE_LIST] = [
 			'class' => Translate\Controller\Export\ExportFileList::class,
-			'+prefilters' => array(
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_EXPORT_FILE_SEARCH] = array(
-			'+prefilters' => array(
+			],
+		];
+		$configureActions[self::ACTION_EXPORT_FILE_SEARCH] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_EXPORT_PHRASE_SEARCH] = array(
-			'+prefilters' => array(
+			],
+		];
+		$configureActions[self::ACTION_EXPORT_PHRASE_SEARCH] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
+			],
+		];
 
-		$configureActions[self::ACTION_PURGE] = array(
-			'+prefilters' => array(
+		$configureActions[self::ACTION_PURGE] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_CANCEL] = array(
-			'+prefilters' => array(
+			],
+		];
+		$configureActions[self::ACTION_CANCEL] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
-		$configureActions[self::ACTION_CLEAR] = array(
-			'+prefilters' => array(
+			],
+		];
+		$configureActions[self::ACTION_CLEAR] = [
+			'+prefilters' => [
 				$permission
-			),
-		);
+			],
+		];
 
-		$configureActions[self::ACTION_DOWNLOAD] = array(
-			'-prefilters' => array(
+		$configureActions[self::ACTION_DOWNLOAD] = [
+			'-prefilters' => [
 				Main\Engine\ActionFilter\Csrf::class,
-			),
-			'+prefilters' => array(
+			],
+			'+prefilters' => [
 				$permission
-			),
-		);
+			],
+		];
 
 		return $configureActions;
 	}
@@ -137,6 +140,16 @@ class Csv
 
 		// untranslated only
 		$this->collectUntranslated = ($this->request->get('collectUntranslated') === 'Y');
+
+		// with samples
+		$this->appendSamples = ($this->request->get('appendSamples') === 'Y');
+		$this->samplesCount = (int)$this->request->get('samplesCount') ?: 10;
+
+		$this->samplesRestriction = [];
+		if (!empty($this->request->get('samplesRestriction')))
+		{
+			$this->samplesRestriction = array_filter($this->request->get('samplesRestriction'), 'intVal');
+		}
 
 		//  encoding
 		$this->convertEncoding = ($this->request->get('convertEncoding') === 'Y');
@@ -179,8 +192,9 @@ class Csv
 	 * @param string $path Path to indexing.
 	 *
 	 * @return array
+	 * @throws Main\ArgumentException
 	 */
-	public function exportAction($tabId, $path = '')
+	public function exportAction($tabId, $path = ''): array
 	{
 		if (empty($tabId) || (int)$tabId <= 0)
 		{
@@ -191,7 +205,7 @@ class Csv
 			$path = Translate\Config::getDefaultPath();
 		}
 
-		/** @var Translate\Controller\Export\ExportAction | Translate\Controller\Export\ExportFileList $action */
+		/** @var ExportAction|ExportFileList $action */
 		$action = $this->detectAction($path);
 
 		$result = $action->run($path, true);
@@ -201,51 +215,50 @@ class Csv
 			$this->addErrors($action->getErrors());
 		}
 
-		if ($action instanceof Translate\Controller\ITimeLimit)
+		if ($action->hasProcessCompleted() && $result['TOTAL_ITEMS'] == 0)
 		{
-			if ($action->hasProcessCompleted() && $result['TOTAL_ITEMS'] == 0)
-			{
-				$result['SUMMARY'] = Loc::getMessage('TR_EXPORT_VOID');
-			}
-			else
-			{
-				$fileProperties = $action->getDownloadingParameters();
+			$result['SUMMARY'] = Loc::getMessage('TR_EXPORT_VOID');
+		}
+		elseif ($action->hasProcessCompleted())
+		{
+			$fileProperties = $action->getDownloadingParameters();
+			$result['FILE_NAME'] = $fileProperties['fileName'];
+			$result['DOWNLOAD_LINK'] = $this->generateDownloadLink($fileProperties, 'export');
 
-				$messagePlaceholders = array(
-					'#TOTAL_PHRASES#' => $result['TOTAL_PHRASES'],
-					'#FILE_SIZE_FORMAT#' => \CFile::formatSize($fileProperties['fileSize']),
-				);
+			$messagePlaceholders = [
+				'#TOTAL_PHRASES#' => $result['TOTAL_PHRASES'],
+				'#FILE_SIZE_FORMAT#' => \CFile::formatSize($fileProperties['fileSize']),
+				'#FILE_NAME#' => $result['FILE_NAME'],
+				'#FILE_LINK#' => $result['DOWNLOAD_LINK'],
+			];
+			$result['SUMMARY'] =
+				Loc::getMessage('TR_EXPORT_COMPLETED')
+				. "\n". Loc::getMessage('TR_EXPORT_ACTION_EXPORT', $messagePlaceholders)
+				. " ". Loc::getMessage('TR_EXPORT_DOWNLOAD', $messagePlaceholders)
+			;
 
-				if ($action->hasProcessCompleted())
+			if ($this->appendSamples)
+			{
+				if ($result['TOTAL_SAMPLES'] > 0)
 				{
-					$result['SUMMARY'] =
-						Loc::getMessage('TR_EXPORT_COMPLETED')."\n".
-						Loc::getMessage('TR_EXPORT_ACTION_EXPORT', $messagePlaceholders);
+					$fileSamplesProperties = $action->getDownloadingSamplesParameters();
+					$result['SAMPLES_LINK'] = $this->generateDownloadLink($fileSamplesProperties, 'samples');
+					$result['SAMPLES_FILE'] = $fileSamplesProperties['fileName'];
 
-					$result['FILE_NAME'] = $fileProperties['fileName'];
-					$result['DOWNLOAD_LINK'] = $this->generateDownloadLink($fileProperties);
+					$messagePlaceholders = [
+						'#TOTAL_SAMPLES#' => $result['TOTAL_SAMPLES'],
+						'#FILE_SIZE_FORMAT#' => \CFile::formatSize($fileSamplesProperties['fileSize']),
+						'#FILE_NAME#' => $result['SAMPLES_FILE'],
+						'#FILE_LINK#' => $result['SAMPLES_LINK'],
+					];
+					$result['SUMMARY'] .= "\n" . Loc::getMessage('TR_EXPORT_SAMPLES', $messagePlaceholders);
+					$result['SUMMARY'] .= " " . Loc::getMessage('TR_EXPORT_DOWNLOAD', $messagePlaceholders);
 				}
 				else
 				{
-					$result['SUMMARY'] = Loc::getMessage('TR_EXPORT_ACTION_EXPORT', $messagePlaceholders);
+					$result['SUMMARY'] .= "\n" . Loc::getMessage('TR_EXPORT_SAMPLES_NOT_FOUND');
 				}
 			}
-		}
-		else
-		{
-			$fileProperties = $action->getDownloadingParameters();
-
-			$messagePlaceholders = array(
-				'#TOTAL_PHRASES#' => $result['TOTAL_PHRASES'],
-				'#FILE_SIZE_FORMAT#' => \CFile::formatSize($fileProperties['fileSize']),
-			);
-
-			$result['SUMMARY'] =
-				Loc::getMessage('TR_EXPORT_COMPLETED')."\n".
-				Loc::getMessage('TR_EXPORT_ACTION_EXPORT', $messagePlaceholders);
-
-			$result['FILE_NAME'] = $fileProperties['fileName'];
-			$result['DOWNLOAD_LINK'] = $this->generateDownloadLink($fileProperties);
 		}
 
 		return $result;
@@ -257,9 +270,9 @@ class Csv
 	 *
 	 * @param string $path Path to indexing.
 	 *
-	 * @return Translate\Controller\Export\ExportAction
+	 * @return ExportAction
 	 */
-	private function detectAction($path)
+	private function detectAction($path): ExportAction
 	{
 		// I. Based on pure file list.
 		$nextAction = self::ACTION_EXPORT_FILE_LIST;
@@ -267,10 +280,10 @@ class Csv
 
 		// II. Based on file search.
 		if (
-			!empty($this->filter['FILE_NAME']) ||
-			!empty($this->filter['FOLDER_NAME']) ||
-			!empty($this->filter['INCLUDE_PATHS']) ||
-			!empty($this->filter['EXCLUDE_PATHS'])
+			!empty($this->filter['FILE_NAME'])
+			|| !empty($this->filter['FOLDER_NAME'])
+			|| !empty($this->filter['INCLUDE_PATHS'])
+			|| !empty($this->filter['EXCLUDE_PATHS'])
 		)
 		{
 			$nextAction = self::ACTION_EXPORT_FILE_SEARCH;
@@ -287,10 +300,10 @@ class Csv
 
 		// IV. Based on phrase search.
 		if (
-			!empty($this->filter['PHRASE_CODE']) ||
-			!empty($this->filter['INCLUDE_PHRASE_CODES']) ||
-			!empty($this->filter['EXCLUDE_PHRASE_CODES']) ||
-			!empty($this->filter['PHRASE_TEXT'])
+			!empty($this->filter['PHRASE_CODE'])
+			|| !empty($this->filter['INCLUDE_PHRASE_CODES'])
+			|| !empty($this->filter['EXCLUDE_PHRASE_CODES'])
+			|| !empty($this->filter['PHRASE_TEXT'])
 		)
 		{
 			$nextAction = self::ACTION_EXPORT_PHRASE_SEARCH;
@@ -313,13 +326,16 @@ class Csv
 		}
 
 
-		/** @var Translate\Controller\Export\ExportAction $action */
+		/** @var ExportAction $action */
 		$action = new $exporterClass(
 			$nextAction,
 			$this,
 			[
 				'tabId' => $this->tabId,
 				'collectUntranslated' => $this->collectUntranslated,
+				'appendSamples' => $this->appendSamples,
+				'samplesCount' => $this->samplesCount,
+				'samplesRestriction' => $this->samplesRestriction,
 				'convertEncoding' => $this->convertEncoding,
 				'encodingOut' => $this->encodingOut,
 				'languages' => $this->languages,
@@ -337,8 +353,9 @@ class Csv
 	 * @param int $tabId Id of session storage.
 	 *
 	 * @return array
+	 * @throws Main\ArgumentException
 	 */
-	public function clearAction($tabId)
+	public function clearAction($tabId): array
 	{
 		return $this->purgeAction($tabId);
 	}
@@ -350,8 +367,9 @@ class Csv
 	 * @param int $tabId Id of session storage.
 	 *
 	 * @return array
+	 * @throws Main\ArgumentException
 	 */
-	public function purgeAction($tabId)
+	public function purgeAction($tabId): array
 	{
 		$result = $this->cancelAction($tabId);
 
@@ -367,30 +385,38 @@ class Csv
 	 * @param int $tabId Id of session storage.
 	 *
 	 * @return array
+	 * @throws Main\ArgumentException
 	 */
-	public function cancelAction($tabId)
+	public function cancelAction($tabId): array
 	{
 		if (empty($tabId))
 		{
 			throw new Main\ArgumentException("Missing 'tabId' parameter");
 		}
 
-		$this->keepField('downloadParams')->restoreProgressParameters();
+		$this
+			->keepField('export')
+			->keepField('samples')
+			->restoreProgressParameters();
 
-		if (!empty($this->downloadParams['filePath']))
+		foreach (['export', 'samples'] as $type)
 		{
-			$path = new Main\IO\File($this->downloadParams['filePath']);
-			if ($path->isExists())
+			if (!empty($this->{$type}['filePath']))
 			{
-				$path->delete();
+				$path = new Main\IO\File($this->{$type}['filePath']);
+				if ($path->isExists())
+				{
+					$path->delete();
+				}
 			}
 		}
+
 		$this->clearProgressParameters();
 
-		return array(
+		return [
 			'SUMMARY' => Loc::getMessage('TR_EXPORT_ACTION_CANCEL'),
 			'STATUS' => Translate\Controller\STATUS_COMPLETED
-		);
+		];
 	}
 
 
@@ -401,39 +427,44 @@ class Csv
 	 *
 	 * @return string
 	 */
-	private function generateDownloadLink($params)
+	private function generateDownloadLink(array $params, string $type): string
 	{
-		$this->downloadParams = $params;
-		$this->keepField('downloadParams')->saveProgressParameters();
+		$this->{$type} = $params;
+		$this->keepField($type)->saveProgressParameters();
 
-		return $this->getActionUri(self::ACTION_DOWNLOAD, ['tabId' => $this->tabId])->getUri();
+		return $this->getActionUri(self::ACTION_DOWNLOAD, ['tabId' => $this->tabId, 'type' => $type])->getUri();
 	}
 
 	/**
 	 * Starts downloading genereted file.
 	 *
 	 * @param int $tabId Id of session storage.
-	 *
-	 * @return \Bitrix\Main\HttpResponse|void
+	 * @param string $type
+	 * @return HttpResponse|void
+	 * @throws ArgumentException
 	 */
-	public function downloadAction($tabId)
+	public function downloadAction(int $tabId, string $type)
 	{
-		if (empty($tabId) || (int)$tabId <= 0)
+		if ($tabId <= 0)
 		{
 			throw new Main\ArgumentException("Missing 'tabId' parameter");
 		}
-
-		$this->keepField('downloadParams')->restoreProgressParameters();
-
-		if (!empty($this->downloadParams['filePath']) && !empty($this->downloadParams['fileName']))
+		if (empty($type) || !in_array($type, ['export', 'samples'], true))
 		{
-			$path = new Main\IO\File($this->downloadParams['filePath']);
+			throw new Main\ArgumentException("Missing 'type' parameter");
+		}
+
+		$this->keepField($type)->restoreProgressParameters();
+
+		if (!empty($this->{$type}['filePath']) && !empty($this->{$type}['fileName']))
+		{
+			$path = new Main\IO\File($this->{$type}['filePath']);
 			if ($path->isExists())
 			{
 				$response = new Main\Engine\Response\File(
 					$path->getPath(),
-					$this->downloadParams['fileName'],
-					$this->downloadParams['fileType']
+					$this->{$type}['fileName'],
+					$this->{$type}['fileType']
 				);
 
 				return $response;

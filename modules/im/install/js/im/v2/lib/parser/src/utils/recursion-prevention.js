@@ -1,36 +1,32 @@
 export const ParserRecursionPrevention = {
 
-	_startTagReplacement: [],
+	_tagsReplacement: [],
 	_putReplacement: [],
 	_sendReplacement: [],
 	_codeReplacement: [],
 
 	clean()
 	{
-		this._startTagReplacement = [];
+		this._tagsReplacement = [];
 		this._putReplacement = [];
 		this._sendReplacement = [];
 		this._codeReplacement = [];
 	},
 
-	cutStartTag(text): string
+	cutTags(text): string
 	{
-		text = text.replace(/\[(.+?)]/gi, (tag) => {
-			if (tag.startsWith('/'))
-			{
-				return tag;
-			}
-			const id = this._startTagReplacement.length;
-			this._startTagReplacement.push(tag);
+		text = text.replaceAll(/\[(.+?)](.*?)\[\/(.+?)]/gi, (tag) => {
+			const id = this._tagsReplacement.length;
+			this._tagsReplacement.push(tag);
 			return '####REPLACEMENT_TAG_'+id+'####';
 		});
 
 		return text;
 	},
 
-	recoverStartTag(text): string
+	recoverTags(text): string
 	{
-		this._startTagReplacement.forEach((tag, index) => {
+		this._tagsReplacement.forEach((tag, index) => {
 			text = text.replace('####REPLACEMENT_TAG_'+index+'####', tag);
 		});
 

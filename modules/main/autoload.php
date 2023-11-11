@@ -64,6 +64,7 @@ Loader::registerAutoLoadClasses(
 		"CHotKeys" => "classes/general/hot_keys.php",
 		"CHotKeysCode" => "classes/general/hot_keys.php",
 		"CBXSanitizer" => "classes/general/sanitizer.php",
+		"IBXArchive" => "classes/general/archive.php",
 		"CBXArchive" => "classes/general/archive.php",
 		"CAdminNotify" => "classes/general/admin_notify.php",
 		"CBXFavAdmMenu" => "classes/general/favorites.php",
@@ -139,6 +140,12 @@ Loader::registerAutoLoadClasses(
 		"CUserTypeStringFormatted" => "classes/general/usertypestrfmt.php",
 		"CUserTypeUrl" => "classes/general/usertypeurl.php",
 		"BXGadget" => "classes/general/gadget.php",
+		"CMainAdmin" => "classes/general/main_admin.php",
+		"CTemplates" => "classes/general/templates.php",
+		"CPageTemplate" => "classes/general/page_template.php",
+		"FilesCmp" => "classes/general/files_cmp.php",
+		"CArchiver" => "classes/general/tar_gz.php",
+		"CZip" => "classes/general/zip.php",
 
 		//deprecated
 		"CUrlRewriter" => "classes/general/urlrewriter.php",

@@ -1,4 +1,4 @@
-import { Loc, Type } from 'main.core';
+import { Loc } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
@@ -9,8 +9,6 @@ import { MessageService, DiskService } from 'im.v2.provider.service';
 import { EventType, PlacementType } from 'im.v2.const';
 import { MarketManager } from 'im.v2.lib.market';
 import { Utils } from 'im.v2.lib.utils';
-
-import { QuoteManager } from './quote-manager';
 
 import 'ui.notification';
 
@@ -44,7 +42,7 @@ export class MessageMenu extends BaseMenu
 	getMenuItems(): MenuItem[]
 	{
 		return [
-			this.getQuoteItem(),
+			this.getReplyItem(),
 			this.getCopyItem(),
 			this.getDelimiter(),
 
@@ -65,12 +63,14 @@ export class MessageMenu extends BaseMenu
 		];
 	}
 
-	getQuoteItem(): MenuItem
+	getReplyItem(): MenuItem
 	{
 		return {
-			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_QUOTE'),
+			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_REPLY'),
 			onclick: () => {
-				QuoteManager.sendQuoteEvent(this.context);
+				EventEmitter.emit(EventType.textarea.replyMessage, {
+					messageId: this.context.id,
+				});
 				this.menuInstance.close();
 			},
 		};

@@ -15,6 +15,8 @@ final class OpenLinesIndex extends Stepper
 
 	public function execute(array &$option)
 	{
+		return false;
+
 		if (!Loader::includeModule(self::$moduleId))
 		{
 			return false;

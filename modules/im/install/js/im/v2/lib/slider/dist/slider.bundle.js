@@ -2,13 +2,15 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_logger,im_v2_application_launch,im_v2_lib_call,im_v2_lib_utils,im_v2_lib_desktop) {
+(function (exports,im_v2_lib_desktopApi,main_core,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_logger,im_v2_application_launch,im_v2_lib_call,im_v2_lib_phone,im_v2_lib_utils,im_v2_lib_desktop,im_v2_provider_service) {
 	'use strict';
 
 	const SLIDER_PREFIX = 'im:slider';
 	const BASE_STACK_INDEX = 1200;
 	const SLIDER_CONTAINER_CLASS = 'bx-im-messenger__slider';
 	const LOADER_CHATS_PATH = '/bitrix/js/im/v2/lib/slider/src/images/loader-chats.svg?v2';
+	var _checkHistoryDialogId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("checkHistoryDialogId");
+	var _prepareHistorySliderLink = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareHistorySliderLink");
 	class MessengerSlider {
 	  static init() {
 	    if (this.instance) {
@@ -21,6 +23,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return this.instance;
 	  }
 	  constructor() {
+	    Object.defineProperty(this, _prepareHistorySliderLink, {
+	      value: _prepareHistorySliderLink2
+	    });
+	    Object.defineProperty(this, _checkHistoryDialogId, {
+	      value: _checkHistoryDialogId2
+	    });
 	    this.instances = {};
 	    this.sidePanelManager = BX.SidePanel.Instance;
 	    this.v2enabled = false;
@@ -29,62 +37,81 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.bindEvents();
 	    this.store = im_v2_application_core.Core.getStore();
 	  }
-	  openChat(dialogId = '', text = '') {
+	  async openChat(dialogId = '') {
+	    const preparedDialogId = dialogId.toString();
+	    if (im_v2_lib_utils.Utils.dialog.isLinesExternalId(preparedDialogId)) {
+	      return this.openLines(preparedDialogId);
+	    }
+	    await this.openSlider();
+	    await this.store.dispatch('application/setLayout', {
+	      layoutName: im_v2_const.Layout.chat.name,
+	      entityId: preparedDialogId
+	    });
+	    main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onOpenChat, {
+	      dialogId: preparedDialogId
+	    });
+	    return Promise.resolve();
+	  }
+	  async openLines(dialogId = '') {
 	    let preparedDialogId = dialogId.toString();
 	    if (im_v2_lib_utils.Utils.dialog.isLinesExternalId(preparedDialogId)) {
-	      return this.openLines();
+	      const linesService = new im_v2_provider_service.LinesService();
+	      preparedDialogId = await linesService.getDialogIdByUserCode(preparedDialogId);
 	    }
-	    if (main_core.Type.isNumber(preparedDialogId)) {
-	      preparedDialogId = preparedDialogId.toString();
+	    await this.openSlider();
+	    return this.store.dispatch('application/setLayout', {
+	      layoutName: im_v2_const.Layout.openlines.name,
+	      entityId: preparedDialogId
+	    });
+	  }
+	  openHistory(dialogId = '') {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _checkHistoryDialogId)[_checkHistoryDialogId](dialogId)) {
+	      return Promise.reject();
 	    }
-	    return this.openSlider().then(() => {
-	      return this.store.dispatch('application/setLayout', {
-	        layoutName: im_v2_const.Layout.chat.name,
-	        entityId: preparedDialogId
-	      });
-	    }).then(() => {
-	      main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onOpenChat, {
-	        dialogId: preparedDialogId
-	      });
+	    const sliderLink = babelHelpers.classPrivateFieldLooseBase(this, _prepareHistorySliderLink)[_prepareHistorySliderLink](dialogId);
+	    BX.SidePanel.Instance.open(sliderLink, {
+	      width: im_v2_lib_utils.Utils.dialog.isLinesExternalId(dialogId) ? 700 : 1000,
+	      allowChangeHistory: false,
+	      allowChangeTitle: false,
+	      cacheable: false
 	    });
+	    return Promise.resolve();
 	  }
-	  openLines() {
+	  async openNotifications() {
+	    await this.openSlider();
+	    await this.store.dispatch('application/setLayout', {
+	      layoutName: im_v2_const.Layout.notification.name
+	    });
+	    main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onOpenNotifications);
+	    return Promise.resolve();
+	  }
+	  async openRecentSearch() {
+	    await this.openSlider();
+	    await this.store.dispatch('application/setLayout', {
+	      layoutName: im_v2_const.Layout.chat.name
+	    });
+	    main_core_events.EventEmitter.emit(im_v2_const.EventType.recent.openSearch);
+	    return Promise.resolve();
+	  }
+	  async openSettings(options = {}) {
+	    im_v2_lib_logger.Logger.warn('Slider: openSettings', options);
+	    await this.openSlider();
+	    await this.store.dispatch('application/setLayout', {
+	      layoutName: im_v2_const.Layout.settings.name
+	    });
+	    return Promise.resolve();
+	  }
+	  openConference(code = '') {
+	    im_v2_lib_logger.Logger.warn('Slider: openConference', code);
+	    if (!im_v2_lib_utils.Utils.conference.isValidCode(code)) {
+	      return new Promise((resolve, reject) => {
+	        reject();
+	      });
+	    }
+	    const url = im_v2_lib_utils.Utils.conference.getUrlByCode(code);
+	    im_v2_lib_utils.Utils.browser.openLink(url, im_v2_lib_utils.Utils.conference.getWindowNameByCode(code));
 	    return new Promise((resolve, reject) => {
-	      BX.UI.Notification.Center.notify({
-	        content: main_core.Loc.getMessage('IM_LIB_SLIDER_LINES_NOT_IMPLEMENTED_2'),
-	        position: 'top-right',
-	        autoHideDelay: 10000
-	      });
-	      reject(new Error('Messenger: lines are not implemented yet'));
-	    });
-	  }
-	  openNotifications() {
-	    return this.openSlider().then(() => {
-	      return this.store.dispatch('application/setLayout', {
-	        layoutName: im_v2_const.Layout.notification.name
-	      });
-	    }).then(() => {
-	      main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onOpenNotifications);
-	    });
-	  }
-	  openRecentSearch() {
-	    return this.openSlider().then(() => {
-	      this.store.dispatch('application/setLayout', {
-	        layoutName: im_v2_const.Layout.chat.name
-	      });
-	    }).then(() => {
-	      main_core_events.EventEmitter.emit(im_v2_const.EventType.recent.openSearch);
-	    });
-	  }
-	  openSettings(selected = '', section = '') {
-	    im_v2_lib_logger.Logger.warn('Slider: onOpenSettings', selected, section);
-	    return new Promise((resolve, reject) => {
-	      BX.UI.Notification.Center.notify({
-	        content: main_core.Loc.getMessage('IM_LIB_SLIDER_SETTINGS_NOT_IMPLEMENTED'),
-	        position: 'top-right',
-	        autoHideDelay: 10000
-	      });
-	      reject(new Error('Messenger: settings are not implemented yet'));
+	      resolve();
 	    });
 	  }
 	  startVideoCall(dialogId = '', withVideo = true) {
@@ -95,6 +122,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    im_v2_lib_call.CallManager.getInstance().startCall(dialogId, withVideo);
 	    return Promise.resolve();
+	  }
+	  startPhoneCall(number, params) {
+	    im_v2_lib_logger.Logger.warn('Slider: startPhoneCall', number, params);
+	    im_v2_lib_phone.PhoneManager.getInstance().startCall(number, params);
+	    return Promise.resolve();
+	  }
+	  startCallList(callListId, params) {
+	    im_v2_lib_logger.Logger.warn('Slider: startCallList', callListId, params);
+	    im_v2_lib_phone.PhoneManager.getInstance().startCallList(callListId, params);
+	    return Promise.resolve();
+	  }
+	  openNewTab(path) {
+	    if (im_v2_lib_desktopApi.DesktopApi.getApiVersion() >= 75 && im_v2_lib_desktopApi.DesktopApi.isChatTab()) {
+	      im_v2_lib_desktopApi.DesktopApi.createImTab(`${path}&${im_v2_const.GetParameter.desktopChatTabMode}=Y`);
+	    } else {
+	      im_v2_lib_utils.Utils.browser.openLink(path);
+	    }
 	  }
 	  bindEvents() {
 	    if (!this.v2enabled) {
@@ -112,7 +156,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.v2enabled = settings.get('v2enabled', false);
 	  }
 	  openSlider() {
-	    if (im_v2_lib_desktop.DesktopManager.isDesktop()) {
+	    if (im_v2_lib_desktop.DesktopManager.isChatWindow()) {
+	      this.sidePanelManager.closeAll(true);
+	      return Promise.resolve();
+	    }
+	    if (this.isOpened()) {
+	      main_core.ZIndexManager.bringToFront(this.getCurrent().getOverlay());
 	      return Promise.resolve();
 	    }
 	    this.launchMessengerApplication();
@@ -191,7 +240,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	    const id = this.getIdFromSliderId(sliderId);
 	    delete this.instances[id];
-	    this.openChat();
+	    main_core_events.EventEmitter.emit(im_v2_const.EventType.slider.onClose);
+	    this.store.dispatch('application/setLayout', {
+	      layoutName: im_v2_const.Layout.chat.name,
+	      entityId: ''
+	    });
 	  }
 	  onCloseByEsc({
 	    data: event
@@ -259,9 +312,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return Number.parseInt(sliderId.slice(SLIDER_PREFIX.length + 1), 10);
 	  }
 	}
+	function _checkHistoryDialogId2(dialogId) {
+	  return im_v2_lib_utils.Utils.dialog.isDialogId(dialogId) || im_v2_lib_utils.Utils.dialog.isLinesHistoryId(dialogId) || im_v2_lib_utils.Utils.dialog.isLinesExternalId(dialogId);
+	}
+	function _prepareHistorySliderLink2(dialogId) {
+	  const getParams = new URLSearchParams({
+	    [im_v2_const.GetParameter.openHistory]: dialogId,
+	    [im_v2_const.GetParameter.backgroundType]: 'light'
+	  });
+	  return `/desktop_app/history.php?${getParams.toString()}`;
+	}
 	MessengerSlider.instance = null;
 
 	exports.MessengerSlider = MessengerSlider;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service));
 //# sourceMappingURL=slider.bundle.js.map

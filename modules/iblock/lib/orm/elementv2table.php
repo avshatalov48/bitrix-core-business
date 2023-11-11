@@ -22,9 +22,9 @@ use Bitrix\Main\ORM\Objectify\EntityObject;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_ElementV2_Query query()
- * @method static EO_ElementV2_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ElementV2_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_ElementV2_Result getById($id)
- * @method static EO_ElementV2_Result getList(array $parameters = array())
+ * @method static EO_ElementV2_Result getList(array $parameters = [])
  * @method static EO_ElementV2_Entity getEntity()
  * @method static \Bitrix\Iblock\ORM\EO_ElementV2 createObject($setDefaultValues = true)
  * @method static \Bitrix\Iblock\ORM\EO_ElementV2_Collection createCollection()

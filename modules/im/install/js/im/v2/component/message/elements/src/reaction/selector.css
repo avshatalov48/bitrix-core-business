@@ -1,0 +1,39 @@
+.bx-im-reaction-selector__container {
+	position: absolute;
+	bottom: -3px;
+	right: -21px;
+	width: 28px;
+	height: 24px;
+	opacity: 0;
+	transition: opacity .3s;
+	z-index: 3;
+}
+
+.bx-im-message-base__container:hover .bx-im-reaction-selector__container {
+	opacity: 1;
+}
+
+.bx-im-reaction-selector__selector {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	border-radius: 38px;
+	background-color: rgb(255 255 255 / 80%);
+	cursor: pointer;
+	box-shadow: 0 1px 3px rgb(0 0 0 / 6%);
+}
+
+.bx-im-reaction-selector__icon {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background-image: url('./images/like.svg?v2');
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.bx-im-reaction-selector__icon.--active {
+	background-image: url('./images/like-active.svg?v2');
+}

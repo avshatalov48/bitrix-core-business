@@ -1,6 +1,6 @@
 <?php
 $MESS['IM_SIDEBAR_HEADER_TITLE'] = "О чате";
-$MESS['IM_SIDEBAR_ENABLE_NOTIFICATION_TITLE'] = "Уведомления";
+$MESS['IM_SIDEBAR_ENABLE_NOTIFICATION_TITLE_2'] = "Звук";
 $MESS['IM_SIDEBAR_ENABLE_AUTODELETE_TITLE'] = "Автоудаление сообщений";
 $MESS['IM_SIDEBAR_AUTODELETE_STATUS_OFF'] = "Выкл";
 $MESS['IM_SIDEBAR_ADD_BUTTON_TEXT'] = "Добавить";
@@ -12,6 +12,9 @@ $MESS['IM_SIDEBAR_LINKS_NOT_AVAILABLE'] = "Подождите, идёт конв
 $MESS['IM_SIDEBAR_MUTE_NOT_AVAILABLE'] = "В этом чате нельзя отключить уведомления";
 $MESS['IM_SIDEBAR_FILE_SAVE_ON_DISK_SUCCESS'] = "Файл успешно сохранён на ваш Диск";
 $MESS['IM_SIDEBAR_SYSTEM_USER'] = "Системный пользователь";
+$MESS['IM_SIDEBAR_SYSTEM_MESSAGE'] = "Системное сообщение";
+$MESS['IM_SIDEBAR_SEARCH_MESSAGE_PLACEHOLDER'] = "Поиск по чату";
+$MESS['IM_SIDEBAR_SEARCH_MESSAGE_START_TITLE'] = "Здесь появятся сообщения, которые вы ищете";
 
 // detail titles
 $MESS['IM_SIDEBAR_MAIN_DETAIL_TITLE'] = "Участники: #NUMBER#";
@@ -51,11 +54,14 @@ $MESS['IM_SIDEBAR_TASKS_EMPTY'] = "Нет задач";
 $MESS['IM_SIDEBAR_BRIEFS_EMPTY'] = "Нет резюме встреч";
 $MESS['IM_SIDEBAR_MEDIA_AND_FILES_EMPTY'] = "Нет медиа и файлов";
 $MESS['IM_SIDEBAR_MEETINGS_EMPTY'] = "Нет встреч";
+$MESS['IM_SIDEBAR_MESSAGE_SEARCH_NOT_FOUND'] = "Ничего не найдено";
+$MESS['IM_SIDEBAR_MESSAGE_SEARCH_NOT_FOUND_DESCRIPTION'] = "Попробуйте сформулировать иначе";
 
 //tabs
 $MESS['IM_SIDEBAR_FILES_MEDIA_TAB'] = "Медиа";
 $MESS['IM_SIDEBAR_FILES_AUDIO_TAB'] = "Аудио";
 $MESS['IM_SIDEBAR_FILES_DOCUMENT_TAB'] = "Документы";
+$MESS['IM_SIDEBAR_FILES_BRIEF_TAB'] = "Резюме";
 $MESS['IM_SIDEBAR_FILES_OTHER_TAB'] = "Другое";
 
 //chat types

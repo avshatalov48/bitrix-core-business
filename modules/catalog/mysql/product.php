@@ -243,7 +243,7 @@ class CCatalogProduct extends CAllCatalogProduct
 	from b_catalog_product CAT_PR
 	left join b_iblock_element BE on (BE.ID = CAT_PR.ID)
 	left join b_catalog_iblock CAT_IB on ((CAT_PR.VAT_ID is null or CAT_PR.VAT_ID = 0) and CAT_IB.IBLOCK_ID = BE.IBLOCK_ID)
-	left join b_catalog_vat CAT_VAT on (CAT_VAT.ID = IF((CAT_PR.VAT_ID is null or CAT_PR.VAT_ID = 0), CAT_IB.VAT_ID, CAT_PR.VAT_ID))
+	left join b_catalog_vat CAT_VAT on (CAT_VAT.ID = CASE WHEN (CAT_PR.VAT_ID is null or CAT_PR.VAT_ID = 0) THEN CAT_IB.VAT_ID ELSE CAT_PR.VAT_ID END)
 	where CAT_PR.ID in (".implode(', ', $ids).")
 	and CAT_VAT.ACTIVE='Y'
 	"

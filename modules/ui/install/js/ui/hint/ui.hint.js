@@ -319,6 +319,8 @@
 				}
 
 				this.popup = new BX.PopupWindow(this.id, anchorNode, parameters);
+
+				BX.bind(this.popup.getPopupContainer(), 'mouseleave', this.hide.bind(this, this.popup.getPopupContainer()));
 			}
 
 			if (anchorNode.hasAttribute(this.attributeInteractivityName))

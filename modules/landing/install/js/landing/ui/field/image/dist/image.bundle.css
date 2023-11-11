@@ -67,7 +67,11 @@
 	background-position: 0 0, 0 10px, 10px -10px, -10px 0;
 	border: 1px solid rgba(82,92,106,.2);
 	border-radius: 2px;
-	margin: 19px 0 13px 0;
+	margin-bottom: 13px;
+}
+
+.landing-ui-field-image--compact .landing-ui-field-image-dropzone {
+	margin-bottom: 13px;
 }
 
 .landing-ui-field-image-preview-inner {

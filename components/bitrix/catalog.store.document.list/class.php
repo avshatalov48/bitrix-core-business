@@ -18,7 +18,9 @@ use Bitrix\UI\Buttons\CreateButton;
 use Bitrix\UI\Buttons\LockedButton;
 use Bitrix\Catalog\v2\Contractor\Provider\Manager;
 use Bitrix\Catalog\ContractorTable;
+use Bitrix\Catalog\Filter\Factory\DocumentFilterFactory;
 use Bitrix\Catalog\StoreTable;
+use Bitrix\Main\Filter\Settings;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -46,10 +48,9 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 	];
 	private $navParamName = 'page';
 
-	/** @var \Bitrix\Catalog\Grid\Filter\DocumentDataProvider $itemProvider */
-
+	/** @var \Bitrix\Catalog\Filter\DataProvider\DocumentDataProvider $itemProvider */
 	private $itemProvider;
-	/** @var \Bitrix\Main\Filter\Filter $filter */
+	/** @var \Bitrix\Catalog\Filter\DocumentFilter $filter */
 	private $filter;
 	/** @var array $contractors */
 	private $contractors;
@@ -252,8 +253,13 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 	{
 		$this->initMode();
 
-		$this->itemProvider = new \Bitrix\Catalog\Grid\Filter\DocumentDataProvider($this->mode);
-		$this->filter = new \Bitrix\Main\Filter\Filter($this->getFilterId(), $this->itemProvider);
+		$settings = new Settings([
+			'ID' => $this->getFilterId(),
+		]);
+
+		$this->filter = (new DocumentFilterFactory)->createBySettings($this->mode, $settings);
+
+		$this->itemProvider = $this->filter->getEntityDataProvider();
 	}
 
 	private function initMode()
@@ -954,7 +960,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			'THEME' => Bitrix\Main\UI\Filter\Theme::LIGHT,
 			'CONFIG' => [
 				'AUTOFOCUS' => false,
-			]
+			],
 		];
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterOptions);
 
@@ -1111,10 +1117,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 	private function getUserFilter(): array
 	{
-		$filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filter->getID());
-		$filterFields = $this->filter->getFieldArrays();
-
-		return $filterOptions->getFilterLogic($filterFields);
+		return $this->filter->getValue();
 	}
 
 	private function getListFilter()

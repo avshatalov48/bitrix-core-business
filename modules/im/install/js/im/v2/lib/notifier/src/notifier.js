@@ -5,6 +5,7 @@ import {BaseEvent} from 'main.core.events';
 
 import {Core} from 'im.v2.application.core';
 import {Parser} from 'im.v2.lib.parser';
+import { DesktopManager } from 'im.v2.lib.desktop';
 import {Messenger} from 'im.public';
 import {NotificationTypesCodes} from 'im.v2.const';
 import {NotificationService} from 'im.v2.provider.service';
@@ -28,12 +29,15 @@ type NotifierActionParams = {
 };
 
 const CHAT_MESSAGE_PREFIX = 'im-chat';
+const LINES_MESSAGE_PREFIX = 'im-lines';
 const NOTIFICATION_PREFIX = 'im-notify';
 const ACTION_BUTTON_PREFIX = 'button_';
 const ButtonNumber = {
 	first: '1',
 	second: '2'
 };
+
+const DIALOG_TYPE_USER = 'user';
 
 export class NotifierManager
 {
@@ -65,24 +69,38 @@ export class NotifierManager
 		this.#subscribeToNotifierEvents();
 	}
 
-	showMessage(message: ImModelMessage, dialog: ImModelDialog, user?: ImModelUser)
+	showMessage(params: {message: ImModelMessage, dialog: ImModelDialog, user?: ImModelUser, lines: boolean})
 	{
+		const { message, dialog, user, lines } = params;
 		let text = '';
-		if (user)
+		if (user && dialog.type !== DIALOG_TYPE_USER)
 		{
 			text += `${user.name}: `;
 		}
 
 		text += Parser.purifyMessage(message);
 
+		let id = `im-chat-${dialog.dialogId}-${message.id}`;
+		if (lines)
+		{
+			id = `im-lines-${dialog.dialogId}-${message.id}`;
+		}
 		const notificationOptions = {
-			id: `im-chat-${dialog.dialogId}-${message.id}`,
+			id,
 			title: dialog.name,
 			icon: dialog.avatar || user?.avatar,
-			text
+			text,
 		};
 
-		Notifier.notify(notificationOptions);
+		const isDesktopFocused: boolean = DesktopManager.isChatWindow() && document.hasFocus();
+		if (isDesktopFocused)
+		{
+			Notifier.notifyViaBrowserProvider(notificationOptions);
+		}
+		else
+		{
+			Notifier.notify(notificationOptions);
+		}
 	}
 
 	showNotification(notification: ImModelNotification, user?: ImModelUser)
@@ -103,7 +121,15 @@ export class NotifierManager
 
 		const notificationOptions = this.#prepareNotificationOptions(title, notification, user);
 
-		Notifier.notify(notificationOptions);
+		const isDesktopFocused: boolean = DesktopManager.isChatWindow() && document.hasFocus();
+		if (isDesktopFocused)
+		{
+			Notifier.notifyViaBrowserProvider(notificationOptions);
+		}
+		else
+		{
+			Notifier.notify(notificationOptions);
+		}
 	}
 
 	#prepareNotificationOptions(
@@ -151,6 +177,11 @@ export class NotifierManager
 		{
 			const dialogId = this.#extractDialogId(id);
 			Messenger.openChat(dialogId);
+		}
+		else if (this.#isLinesMessage(id))
+		{
+			const dialogId = this.#extractDialogId(id);
+			Messenger.openLines(dialogId);
 		}
 		else if (this.#isNotification(id))
 		{
@@ -210,6 +241,11 @@ export class NotifierManager
 	#isChatMessage(id: string): boolean
 	{
 		return id.startsWith(CHAT_MESSAGE_PREFIX);
+	}
+
+	#isLinesMessage(id: string): boolean
+	{
+		return id.startsWith(LINES_MESSAGE_PREFIX);
 	}
 
 	#isNotification(id: string): boolean

@@ -278,7 +278,7 @@ $filterFields[] = array(
 );
 $filterFields[] = array(
 	"id" => "EXTERNAL_ID",
-	"name" => GetMessage("IBSEC_A_XML_ID"),
+	"name" => GetMessage("IBSEC_A_XML_ID_MSGVER_1"),
 	"filterable" => ""
 );
 
@@ -593,7 +593,7 @@ $arHeaders = array(
 	),
 	array(
 		"id" => "XML_ID",
-		"content" => GetMessage("IBSEC_A_XML_ID"),
+		"content" => GetMessage("IBSEC_A_XML_ID_MSGVER_1"),
 		"sort" => "xml_id",
 	),
 	array(

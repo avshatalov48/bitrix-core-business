@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
-(function (exports,main_core_events,im_v2_lib_uuid,im_v2_provider_service,im_public,ui_vue3_vuex,im_v2_lib_counter,im_v2_lib_logger,main_core,im_v2_lib_user,im_v2_application_core,im_v2_const,im_v2_lib_notifier,im_v2_lib_desktop,im_v2_lib_call,im_v2_lib_soundNotification) {
+(function (exports,main_core_events,im_v2_lib_uuid,im_v2_provider_service,im_public,ui_vue3_vuex,im_v2_lib_counter,im_v2_lib_user,im_v2_lib_desktopApi,im_v2_const,im_v2_lib_notifier,im_v2_lib_desktop,im_v2_lib_call,im_v2_lib_soundNotification,main_core,im_v2_application_core,im_v2_lib_logger) {
 	'use strict';
 
 	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
@@ -119,7 +119,11 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/update', {
 	      id: params.id,
 	      fields: {
-	        params: params.params
+	        text: '',
+	        isDeleted: true,
+	        files: [],
+	        attach: [],
+	        replyId: 0
 	      }
 	    });
 	  }
@@ -200,6 +204,9 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	          lastId: params.lastId
 	        }
 	      });
+	    }).catch(error => {
+	      // eslint-disable-next-line no-console
+	      console.error('MessagePullHandler: error handling readMessage', error);
 	    });
 	  }
 	  handleReadMessageOpponent(params) {
@@ -211,7 +218,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    im_v2_lib_logger.Logger.warn('MessagePullHandler: handlePinAdd', params);
 	    babelHelpers.classPrivateFieldLooseBase(this, _setFiles)[_setFiles](params);
 	    babelHelpers.classPrivateFieldLooseBase(this, _setUsers)[_setUsers](params);
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/store', params.pin.message);
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/store', params.additionalMessages);
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/pin/add', {
 	      chatId: params.pin.chatId,
 	      messageId: params.pin.messageId
@@ -229,6 +236,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  // helpers
 	}
 	function _setMessageChat2(params) {
+	  var _params$message, _params$message$param;
 	  if (!(params != null && params.chat[params.chatId])) {
 	    return;
 	  }
@@ -236,6 +244,11 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    ...params.chat[params.chatId],
 	    dialogId: params.dialogId
 	  };
+	  const dialogExists = Boolean(babelHelpers.classPrivateFieldLooseBase(this, _getDialog)[_getDialog](params.dialogId));
+	  const messageWithoutNotification = !params.notify || ((_params$message = params.message) == null ? void 0 : (_params$message$param = _params$message.params) == null ? void 0 : _params$message$param.NOTIFY) === 'N';
+	  if (!dialogExists && !messageWithoutNotification && !chatToAdd.role) {
+	    chatToAdd.role = im_v2_const.UserRole.member;
+	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('dialogues/set', chatToAdd);
 	}
 	function _setUsers2(params) {
@@ -251,14 +264,14 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	  const files = Object.values(params.files);
 	  files.forEach(file => {
-	    var _params$message;
+	    var _params$message2;
 	    const templateFileIdExists = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['files/isInCollection']({
-	      fileId: (_params$message = params.message) == null ? void 0 : _params$message.templateFileId
+	      fileId: (_params$message2 = params.message) == null ? void 0 : _params$message2.templateFileId
 	    });
 	    if (templateFileIdExists) {
-	      var _params$message2;
+	      var _params$message3;
 	      babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('files/updateWithId', {
-	        id: (_params$message2 = params.message) == null ? void 0 : _params$message2.templateFileId,
+	        id: (_params$message3 = params.message) == null ? void 0 : _params$message3.templateFileId,
 	        fields: file
 	      });
 	    } else {
@@ -287,11 +300,11 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  const newMessage = {
 	    ...message
 	  };
-	  if (message.senderId !== im_v2_application_core.Core.getUserId()) {
+	  if (message.senderId === im_v2_application_core.Core.getUserId()) {
+	    newMessage.unread = false;
+	  } else {
 	    newMessage.unread = true;
 	    newMessage.viewed = false;
-	  } else {
-	    newMessage.unread = false;
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/setChatCollection', {
 	    messages: [newMessage]
@@ -305,9 +318,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	  if (params.message.senderId === im_v2_application_core.Core.getUserId() && params.message.id > dialog.lastReadId) {
 	    dialogFieldsToUpdate.lastId = params.message.id;
-	  } else {
-	    dialogFieldsToUpdate.counter = params.counter;
 	  }
+	  dialogFieldsToUpdate.counter = params.counter;
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('dialogues/update', {
 	    dialogId: params.dialogId,
 	    fields: dialogFieldsToUpdate
@@ -330,7 +342,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  if (!isLastMessage) {
 	    return;
 	  }
-	  const hasFirstViewer = !!dialog.lastMessageViews.firstViewer;
+	  const hasFirstViewer = Boolean(dialog.lastMessageViews.firstViewer);
 	  if (hasFirstViewer) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('dialogues/incrementLastMessageViews', {
 	      dialogId: params.dialogId
@@ -468,7 +480,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  handleChatAvatar(params) {
 	    const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].getters['dialogues/getByChatId'](params.chatId);
 	    if (!dialog) {
-	      return false;
+	      return;
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('dialogues/update', {
 	      dialogId: dialog.dialogId,
@@ -486,7 +498,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	function _updateChatUsers2(params) {
 	  if (params.users) {
 	    const userManager = new im_v2_lib_user.UserManager();
-	    userManager.setUsersToModel(params.users);
+	    userManager.setUsersToModel(Object.values(params.users));
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('dialogues/update', {
 	    dialogId: params.dialogId,
@@ -529,10 +541,22 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	}
 
+	class SettingsPullHandler {
+	  handleSettingsUpdate(params) {
+	    im_v2_lib_logger.Logger.warn('SettingsPullHandler: handleSettingsUpdate', params);
+	    Object.entries(params).forEach(([optionName, optionValue]) => {
+	      im_v2_application_core.Core.getStore().dispatch('application/settings/set', {
+	        [optionName]: optionValue
+	      });
+	    });
+	  }
+	}
+
 	var _messageHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("messageHandler");
 	var _chatHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("chatHandler");
 	var _userHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userHandler");
 	var _desktopHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("desktopHandler");
+	var _settingsHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("settingsHandler");
 	class BasePullHandler {
 	  constructor() {
 	    Object.defineProperty(this, _messageHandler, {
@@ -551,10 +575,15 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _settingsHandler, {
+	      writable: true,
+	      value: void 0
+	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _messageHandler)[_messageHandler] = new MessagePullHandler();
 	    babelHelpers.classPrivateFieldLooseBase(this, _chatHandler)[_chatHandler] = new ChatPullHandler();
 	    babelHelpers.classPrivateFieldLooseBase(this, _userHandler)[_userHandler] = new UserPullHandler();
 	    babelHelpers.classPrivateFieldLooseBase(this, _desktopHandler)[_desktopHandler] = new DesktopPullHandler();
+	    babelHelpers.classPrivateFieldLooseBase(this, _settingsHandler)[_settingsHandler] = new SettingsPullHandler();
 	  }
 	  getModuleId() {
 	    return 'im';
@@ -652,6 +681,12 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _desktopHandler)[_desktopHandler].handleDesktopOffline();
 	  }
 	  // endregion 'desktop'
+
+	  // region 'settings'
+	  handleSettingsUpdate(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _settingsHandler)[_settingsHandler].handleSettingsUpdate(params);
+	  }
+	  // endregion 'settings'
 	}
 
 	class RecentPullHandler {
@@ -693,9 +728,11 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	        date: params.message.date,
 	        senderId: params.message.senderId,
 	        sending: false,
+	        status: im_v2_const.MessageStatus.received,
 	        attach,
 	        file
-	      }
+	      },
+	      dateUpdate: new Date()
 	    };
 	    const recentItem = this.store.getters['recent/get'](params.dialogId);
 	    if (recentItem) {
@@ -745,7 +782,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	            withFile: false,
 	            withAttach: false
 	          }
-	        }
+	        },
+	        dateUpdate: new Date()
 	      }
 	    });
 	  }
@@ -758,7 +796,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      this.store.dispatch('recent/update', {
 	        id: params.dialogId,
 	        fields: {
-	          message: params.newLastMessage
+	          message: params.newLastMessage,
+	          dateUpdate: new Date()
 	        }
 	      });
 	    }
@@ -770,6 +809,9 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    this.updateUnloadedChatCounter(params);
 	  }
 	  handleReadMessageChat(params) {
+	    if (params.lines) {
+	      return;
+	    }
 	    this.updateUnloadedChatCounter(params);
 	  }
 	  handleUnreadMessage(params) {
@@ -792,7 +834,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    });
 	    this.store.dispatch('recent/unread', {
 	      id: params.dialogId,
-	      action: params.active
+	      action: params.active,
+	      dateUpdate: new Date()
 	    });
 	  }
 	  /* endregion Counters handling */
@@ -886,7 +929,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    }
 	    this.store.dispatch('recent/pin', {
 	      id: params.dialogId,
-	      action: params.active
+	      action: params.active,
+	      dateUpdate: new Date()
 	    });
 	  }
 	  handleChatHide(params) {
@@ -1219,19 +1263,47 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	}
 
 	var _shouldShowNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("shouldShowNotification");
+	var _shouldShowLinesNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("shouldShowLinesNotification");
 	var _isChatOpened = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isChatOpened");
+	var _isLinesChatOpened = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isLinesChatOpened");
+	var _isImportantMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isImportantMessage");
+	var _shouldShowToUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("shouldShowToUser");
 	var _isUserDnd = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isUserDnd");
 	var _desktopWillShowNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("desktopWillShowNotification");
+	var _flashDesktopIcon = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("flashDesktopIcon");
+	var _playOpenedChatMessageSound = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("playOpenedChatMessageSound");
+	var _playMessageSound = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("playMessageSound");
 	class NotifierPullHandler {
 	  constructor() {
+	    Object.defineProperty(this, _playMessageSound, {
+	      value: _playMessageSound2
+	    });
+	    Object.defineProperty(this, _playOpenedChatMessageSound, {
+	      value: _playOpenedChatMessageSound2
+	    });
+	    Object.defineProperty(this, _flashDesktopIcon, {
+	      value: _flashDesktopIcon2
+	    });
 	    Object.defineProperty(this, _desktopWillShowNotification, {
 	      value: _desktopWillShowNotification2
 	    });
 	    Object.defineProperty(this, _isUserDnd, {
 	      value: _isUserDnd2
 	    });
+	    Object.defineProperty(this, _shouldShowToUser, {
+	      value: _shouldShowToUser2
+	    });
+	    Object.defineProperty(this, _isImportantMessage, {
+	      value: _isImportantMessage2
+	    });
+	    Object.defineProperty(this, _isLinesChatOpened, {
+	      value: _isLinesChatOpened2
+	    });
 	    Object.defineProperty(this, _isChatOpened, {
 	      value: _isChatOpened2
+	    });
+	    Object.defineProperty(this, _shouldShowLinesNotification, {
+	      value: _shouldShowLinesNotification2
 	    });
 	    Object.defineProperty(this, _shouldShowNotification, {
 	      value: _shouldShowNotification2
@@ -1251,18 +1323,24 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _shouldShowNotification)[_shouldShowNotification](params)) {
 	      return;
 	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isChatOpened)[_isChatOpened](params)) {
-	      im_v2_lib_soundNotification.SoundNotificationManager.getInstance().playOnce(im_v2_const.SoundType.newMessage2);
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isChatOpened)[_isChatOpened](params.dialogId)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _playOpenedChatMessageSound)[_playOpenedChatMessageSound](params);
 	      return;
 	    }
-	    im_v2_lib_soundNotification.SoundNotificationManager.getInstance().playOnce(im_v2_const.SoundType.newMessage1);
+	    babelHelpers.classPrivateFieldLooseBase(this, _playMessageSound)[_playMessageSound](params);
+	    babelHelpers.classPrivateFieldLooseBase(this, _flashDesktopIcon)[_flashDesktopIcon]();
 	    const message = this.store.getters['messages/getById'](params.message.id);
 	    const dialog = this.store.getters['dialogues/get'](params.dialogId, true);
 	    const user = this.store.getters['users/get'](message.authorId);
-	    im_v2_lib_notifier.NotifierManager.getInstance().showMessage(message, dialog, user);
+	    im_v2_lib_notifier.NotifierManager.getInstance().showMessage({
+	      message,
+	      dialog,
+	      user,
+	      lines: Boolean(params.lines)
+	    });
 	  }
 	  handleNotifyAdd(params) {
-	    if (params.onlyFlash === true || babelHelpers.classPrivateFieldLooseBase(this, _isUserDnd)[_isUserDnd]() || babelHelpers.classPrivateFieldLooseBase(this, _desktopWillShowNotification)[_desktopWillShowNotification]()) {
+	    if (params.onlyFlash === true || babelHelpers.classPrivateFieldLooseBase(this, _isUserDnd)[_isUserDnd]() || babelHelpers.classPrivateFieldLooseBase(this, _desktopWillShowNotification)[_desktopWillShowNotification]() || im_v2_lib_call.CallManager.getInstance().hasCurrentCall()) {
 	      return;
 	    }
 	    if (document.hasFocus()) {
@@ -1276,6 +1354,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    if (params.silent !== 'Y') {
 	      im_v2_lib_soundNotification.SoundNotificationManager.getInstance().playOnce(im_v2_const.SoundType.reminder);
 	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _flashDesktopIcon)[_flashDesktopIcon]();
 	    im_v2_lib_notifier.NotifierManager.getInstance().showNotification(notification, user);
 	  }
 	}
@@ -1284,15 +1363,15 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  if (im_v2_application_core.Core.getUserId() === params.message.senderId) {
 	    return false;
 	  }
-	  if (!params.notify || ((_params$message = params.message) == null ? void 0 : (_params$message$param = _params$message.params) == null ? void 0 : _params$message$param.NOTIFY) === 'N' || babelHelpers.classPrivateFieldLooseBase(this, _isUserDnd)[_isUserDnd]() || babelHelpers.classPrivateFieldLooseBase(this, _desktopWillShowNotification)[_desktopWillShowNotification]()) {
+	  if (params.lines && !babelHelpers.classPrivateFieldLooseBase(this, _shouldShowLinesNotification)[_shouldShowLinesNotification](params)) {
 	    return false;
 	  }
-	  const dialog = this.store.getters['dialogues/get'](params.dialogId, true);
-	  if (dialog.type === im_v2_const.DialogType.lines) {
-	    return;
+	  const messageWithoutNotification = !params.notify || ((_params$message = params.message) == null ? void 0 : (_params$message$param = _params$message.params) == null ? void 0 : _params$message$param.NOTIFY) === 'N';
+	  if (messageWithoutNotification || !babelHelpers.classPrivateFieldLooseBase(this, _shouldShowToUser)[_shouldShowToUser](params) || babelHelpers.classPrivateFieldLooseBase(this, _desktopWillShowNotification)[_desktopWillShowNotification]()) {
+	    return false;
 	  }
-	  const isMuted = dialog.muteList.includes(im_v2_application_core.Core.getUserId());
-	  if (isMuted) {
+	  const callIsActive = im_v2_lib_call.CallManager.getInstance().hasCurrentCall();
+	  if (callIsActive && im_v2_lib_call.CallManager.getInstance().getCurrentCallDialogId() !== params.dialogId.toString()) {
 	    return false;
 	  }
 	  const screenSharingIsActive = im_v2_lib_call.CallManager.getInstance().hasCurrentScreenSharing();
@@ -1301,17 +1380,103 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	  return true;
 	}
-	function _isChatOpened2(params) {
-	  const isChatOpen = this.store.getters['application/isChatOpen'](params.dialogId);
-	  return !!(document.hasFocus() && isChatOpen);
+	function _shouldShowLinesNotification2(params) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _isLinesChatOpened)[_isLinesChatOpened](params.dialogId)) {
+	    return false;
+	  }
+	  const authorId = params.message.senderId;
+	  if (authorId > 0 && params.users[authorId].extranet === false) {
+	    return true;
+	  }
+	  const counter = this.store.getters['recent/getSpecificLinesCounter'](params.chatId);
+	  return counter === 0;
+	}
+	function _isChatOpened2(dialogId) {
+	  const isChatOpen = this.store.getters['application/isChatOpen'](dialogId);
+	  return Boolean(document.hasFocus() && isChatOpen);
+	}
+	function _isLinesChatOpened2(dialogId) {
+	  const isLinesChatOpen = this.store.getters['application/isLinesChatOpen'](dialogId);
+	  return Boolean(document.hasFocus() && isLinesChatOpen);
+	}
+	function _isImportantMessage2(params) {
+	  const {
+	    message
+	  } = params;
+	  return message.isImportant || message.importantFor.includes(im_v2_application_core.Core.getUserId());
+	}
+	function _shouldShowToUser2(params) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _isImportantMessage)[_isImportantMessage](params)) {
+	    return true;
+	  }
+	  const dialog = this.store.getters['dialogues/get'](params.dialogId, true);
+	  const isMuted = dialog.muteList.includes(im_v2_application_core.Core.getUserId());
+	  return !babelHelpers.classPrivateFieldLooseBase(this, _isUserDnd)[_isUserDnd]() && !isMuted;
 	}
 	function _isUserDnd2() {
 	  const currentUser = this.store.getters['users/get'](im_v2_application_core.Core.getUserId(), true);
 	  return currentUser.status === im_v2_const.UserStatus.dnd;
 	}
 	function _desktopWillShowNotification2() {
-	  const isDesktopChatWindow = im_v2_lib_desktop.DesktopManager.isDesktop() && im_v2_lib_desktop.DesktopManager.isChatWindow();
+	  const isDesktopChatWindow = im_v2_lib_desktop.DesktopManager.isChatWindow();
 	  return !isDesktopChatWindow && im_v2_lib_desktop.DesktopManager.getInstance().isDesktopActive();
+	}
+	function _flashDesktopIcon2() {
+	  if (!im_v2_lib_desktop.DesktopManager.isDesktop()) {
+	    return;
+	  }
+	  im_v2_lib_desktopApi.DesktopApi.flashIcon();
+	}
+	function _playOpenedChatMessageSound2(params) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _isImportantMessage)[_isImportantMessage](params)) {
+	    im_v2_lib_soundNotification.SoundNotificationManager.getInstance().forcePlayOnce(im_v2_const.SoundType.newMessage2);
+	    return;
+	  }
+	  im_v2_lib_soundNotification.SoundNotificationManager.getInstance().playOnce(im_v2_const.SoundType.newMessage2);
+	}
+	function _playMessageSound2(params) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _isImportantMessage)[_isImportantMessage](params)) {
+	    im_v2_lib_soundNotification.SoundNotificationManager.getInstance().forcePlayOnce(im_v2_const.SoundType.newMessage1);
+	    return;
+	  }
+	  im_v2_lib_soundNotification.SoundNotificationManager.getInstance().playOnce(im_v2_const.SoundType.newMessage1);
+	}
+
+	class LinesPullHandler {
+	  constructor() {
+	    this.store = im_v2_application_core.Core.getStore();
+	  }
+	  getModuleId() {
+	    return 'im';
+	  }
+	  handleMessageChat(params) {
+	    this.updateUnloadedLinesCounter(params);
+	  }
+	  handleReadMessageChat(params) {
+	    this.updateUnloadedLinesCounter(params);
+	  }
+	  handleUnreadMessageChat(params) {
+	    this.updateUnloadedLinesCounter(params);
+	  }
+	  updateUnloadedLinesCounter(params) {
+	    const {
+	      dialogId,
+	      chatId,
+	      counter,
+	      lines
+	    } = params;
+	    if (!lines || main_core.Type.isUndefined(counter)) {
+	      return;
+	    }
+	    im_v2_lib_logger.Logger.warn('LinesPullHandler: updateUnloadedLinesCounter:', {
+	      dialogId,
+	      chatId,
+	      counter
+	    });
+	    this.store.dispatch('recent/setUnloadedLinesCounters', {
+	      [chatId]: counter
+	    });
+	  }
 	}
 
 	exports.BasePullHandler = BasePullHandler;
@@ -1319,6 +1484,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	exports.NotificationPullHandler = NotificationPullHandler;
 	exports.SidebarPullHandler = SidebarPullHandler;
 	exports.NotifierPullHandler = NotifierPullHandler;
+	exports.LinesPullHandler = LinesPullHandler;
 
-}((this.BX.Messenger.v2.Provider.Pull = this.BX.Messenger.v2.Provider.Pull || {}),BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Provider.Pull = this.BX.Messenger.v2.Provider.Pull || {}),BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib));
 //# sourceMappingURL=registry.bundle.js.map

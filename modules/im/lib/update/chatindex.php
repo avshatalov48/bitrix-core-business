@@ -94,6 +94,17 @@ final class ChatIndex extends Stepper
 			if ($found === false)
 			{
 				Option::delete(self::$moduleId, ["name" => self::OPTION_NAME]);
+				if (!IsModuleInstalled('bitrix24'))
+				{
+					\CAdminNotify::Add([
+						"MESSAGE" => Loc::getMessage(
+							'IM_UPDATE_CHAT_INDEX_OPTIMIZE',
+							['#B_TAG_START#' => '<b>', '#B_TAG_END#' => '</b>']
+						),
+						"TAG" => "IM_CHAT_INDEX_OPTIMIZE_1",
+						"MODULE_ID" => "IM",
+					]);
+				}
 			}
 		}
 		return $return;

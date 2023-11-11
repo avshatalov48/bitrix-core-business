@@ -1,11 +1,8 @@
-<?
-use \Bitrix\Main\Application;
+<?php
+
+use Bitrix\Main\Application;
 
 IncludeModuleLangFile(__FILE__);
-
-/*********************************************************************
-							Фильтр
-*********************************************************************/
 
 function CheckFilterDates($date1, $date2, &$date1_wrong, &$date2_wrong, &$date2_less_date1)
 {
@@ -273,6 +270,7 @@ function GetFilterParams($var="filter_", $bDoHtmlEncode=true, $button = array("f
 // устаревшая функция, оставлена для совместимости
 function GetFilterStr($arr, $button="set_filter")
 {
+	$str = '';
 	foreach ($arr as $var)
 	{
 		global $$var;
@@ -439,7 +437,6 @@ function BeginFilter($sID, $bFilterSet, $bShowStatus=true)
 	{
 		$s .= '
 <script type="text/javascript">
-<!--
 function showfilter(id)
 {
 	var div = document.getElementById("flt_div_"+id);
@@ -514,7 +511,6 @@ function hidefilter(id)
 tmpImage = new Image();
 tmpImage.src = "'.BX_ROOT.'/images/admin/line_down.gif";
 tmpImage.src = "'.BX_ROOT.'/images/admin/line_up.gif";
-//-->
 </script>
 ';
 		$bFilterScriptShown = true;
@@ -659,10 +655,6 @@ $s .= '
 return $s;
 }
 
-/*********************************************************************
-							Сортировка
-*********************************************************************/
-
 function InitSorting($Path=false, $sByVar="by", $sOrderVar="order")
 {
 	global $APPLICATION, $$sByVar, $$sOrderVar;
@@ -682,8 +674,8 @@ function InitSorting($Path=false, $sByVar="by", $sOrderVar="order")
 	else
 		$$sOrderVar = Application::getInstance()->getSession()["SESS_SORT_ORDER"][$md5Path];
 
-	mb_strtolower($$sByVar);
-	mb_strtolower($$sOrderVar);
+	$$sByVar = strtolower($$sByVar);
+	$$sOrderVar = strtolower($$sOrderVar);
 }
 
 function SortingEx($By, $Path = false, $sByVar="by", $sOrderVar="order", $Anchor="nav_start")
@@ -723,4 +715,4 @@ function SortingEx($By, $Path = false, $sByVar="by", $sOrderVar="order", $Anchor
 
 	return "<nobr><a href=\"".htmlspecialcharsbx($Path.$strAdd2URL.$sByVar."=".$By."&".$sOrderVar."=asc#".$Anchor)."\">".$sImgDown."</a>".
 			"<a href=\"".htmlspecialcharsbx($Path.$strAdd2URL.$sByVar."=".$By."&".$sOrderVar."=desc#".$Anchor)."\">".$sImgUp."</a></nobr>";
-}?>
+}

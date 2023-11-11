@@ -59,18 +59,18 @@ class PathLangCollection
 	/**
 	 * Counts items to process.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
 	 * @return int
 	 */
-	public function countItemsToProcess(Translate\Filter $filter = null)
+	public function countItemsToProcess(Translate\Filter $filter = null): int
 	{
 		$relPath = isset($filter, $filter->path) ? $filter->path : '';
 
 		if (!empty($relPath))
 		{
 			$relPath = '/'. \trim($relPath, '/');
-			$totalItems = (int)Index\Internals\PathLangTable::getCount(array('=%PATH' => $relPath .'%'));
+			$totalItems = (int)Index\Internals\PathLangTable::getCount(['=%PATH' => $relPath .'%']);
 		}
 		else
 		{
@@ -83,13 +83,13 @@ class PathLangCollection
 	/**
 	 * Collects lang folder paths.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
-	 * @param Translate\Controller\ITimeLimit $timer Time counter.
-	 * @param Translate\Filter $seek Params to seek position.
+	 * @param Translate\Filter|null $filter Params to filter file list.
+	 * @param Translate\Controller\ITimeLimit|null $timer Time counter.
+	 * @param Translate\Filter|null $seek Params to seek position.
 	 *
 	 * @return int
 	 */
-	public function collect(Translate\Filter $filter = null, Translate\Controller\ITimeLimit $timer = null, Translate\Filter $seek = null)
+	public function collect(Translate\Filter $filter = null, Translate\Controller\ITimeLimit $timer = null, Translate\Filter $seek = null): int
 	{
 		self::configure();
 
@@ -235,9 +235,9 @@ class PathLangCollection
 
 					if ($isLang)
 					{
-						$cache[] = array(
+						$cache[] = [
 							'PATH' => $relChildPath,
-						);
+						];
 
 						if (\count($cache) >= 50)
 						{
@@ -309,7 +309,7 @@ class PathLangCollection
 	 *
 	 * @return self
 	 */
-	public function purge(Translate\Filter $filter = null)
+	public function purge(Translate\Filter $filter = null): self
 	{
 		Index\Internals\PathLangTable::purge($filter);
 

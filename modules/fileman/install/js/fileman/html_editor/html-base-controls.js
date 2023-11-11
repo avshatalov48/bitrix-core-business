@@ -2202,6 +2202,22 @@
 			}
 		},
 
+		ShowControl: function(controlName)
+		{
+			if (this.controls[controlName])
+			{
+				this.controls[controlName].pCont.style.display = '';
+			}
+		},
+
+		HideControl: function(controlName)
+		{
+			if (this.controls[controlName])
+			{
+				this.controls[controlName].pCont.style.display = 'none';
+			}
+		},
+
 		EnableWysiwygButtons: function()
 		{
 			this.DisableWysiwygButtons(false);

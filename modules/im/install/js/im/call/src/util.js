@@ -348,6 +348,16 @@ const isCallServerAllowed = () =>
 	return BX.message('call_server_enabled') === 'Y'
 }
 
+const isVoximplantCallServerAllowed = () =>
+{
+	return BX.message('voximplant_call_server_enabled') === 'Y';
+}
+
+const isBitrixCallServerAllowed = () =>
+{
+	return BX.message('bitrix_call_server_enabled') === 'Y';
+}
+
 const isFeedbackAllowed = () =>
 {
 	return BX.message('call_allow_feedback') === 'Y'
@@ -516,6 +526,8 @@ export default {
 	getFilledArea,
 	isWebRTCSupported,
 	isCallServerAllowed,
+	isVoximplantCallServerAllowed,
+	isBitrixCallServerAllowed,
 	isFeedbackAllowed,
 	shouldCollectStats,
 	shouldShowDocumentButton,

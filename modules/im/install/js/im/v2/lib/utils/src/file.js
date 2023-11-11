@@ -1,4 +1,4 @@
-import { Text, Loc, Dom } from 'main.core';
+import { Text, Loc, Dom, Event } from 'main.core';
 import { FileType } from 'im.v2.const';
 
 export const FileUtil = {
@@ -176,15 +176,29 @@ export const FileUtil = {
 			return fileName;
 		}
 
+		const DELIMITER = '...';
 		const DOT_LENGTH = 1;
-		const SYMBOLS_TO_TAKE_BEFORE_EXTENSION = 10;
+		const SYMBOLS_TO_TAKE_BEFORE_EXTENSION = 2;
 
 		const extension = this.getFileExtension(fileName);
-		const symbolsToTakeFromEnd = extension.length + DOT_LENGTH + SYMBOLS_TO_TAKE_BEFORE_EXTENSION;
-		const secondPart = fileName.slice(-symbolsToTakeFromEnd);
-		const firstPart = fileName.slice(0, maxLength - secondPart.length - DOT_LENGTH * 3);
+		const extensionLength = extension.length + DOT_LENGTH;
+		const fileNameWithoutExtension = fileName.slice(0, -extensionLength);
 
-		return `${firstPart.trim()}...${secondPart.trim()}`;
+		if (fileNameWithoutExtension.length <= maxLength)
+		{
+			return fileName;
+		}
+
+		const availableLength = maxLength - SYMBOLS_TO_TAKE_BEFORE_EXTENSION - DELIMITER.length;
+		if (availableLength <= 0)
+		{
+			return fileName;
+		}
+
+		const firstPart = fileNameWithoutExtension.slice(0, availableLength).trim();
+		const secondPart = fileNameWithoutExtension.slice(-SYMBOLS_TO_TAKE_BEFORE_EXTENSION).trim();
+
+		return `${firstPart}${DELIMITER}${secondPart}.${extension}`;
 	},
 
 	getViewerDataAttributes(viewerAttributes): Object
@@ -225,5 +239,21 @@ export const FileUtil = {
 		const fileType = FileUtil.getFileTypeByExtension(extension);
 
 		return fileType === FileType.image;
+	},
+
+	getBase64(file: File): Promise<string>
+	{
+		const reader = new FileReader();
+
+		return new Promise((resolve) => {
+			Event.bind(reader, 'load', () => {
+				const fullBase64 = reader.result;
+				const commaPosition = fullBase64.indexOf(',');
+				const cutBase64 = fullBase64.slice(commaPosition + 1);
+				resolve(cutBase64);
+			});
+
+			reader.readAsDataURL(file);
+		});
 	},
 };

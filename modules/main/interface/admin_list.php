@@ -488,12 +488,23 @@ class CAdminList
 			is_string($mode)
 			&& (in_array(
 				$mode,
-				[self::MODE_LIST, self::MODE_ACTION, self::MODE_EXPORT, self::MODE_CONFIG]
+				$this->getModeList(),
+				true
 			))
 		)
 		{
 			$this->mode = $mode;
 		}
+	}
+
+	protected function getModeList(): array
+	{
+		return [
+			self::MODE_LIST,
+			self::MODE_ACTION,
+			self::MODE_EXPORT,
+			self::MODE_CONFIG,
+		];
 	}
 
 	/**

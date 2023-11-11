@@ -3,13 +3,13 @@
 		 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1400x585/img1.jpg);">
 		<div class="container text-center u-bg-overlay__inner g-max-width-800">
 			<div class="landing-block-node-header text-uppercase">
-				<h6 class="landing-block-node-subtitle landing-semantic-subtitle-medium-primary g-font-weight-700 g-color-primary g-mb-20">Our
+				<h6 class="landing-block-node-subtitle g-font-weight-700 g-color-primary g-mb-20">Our
 					team</h6>
-				<h2 class="landing-block-node-title landing-semantic-title-image-medium u-heading-v2__title g-line-height-1 g-letter-spacing-2 g-font-weight-700 h1 g-color-white g-brd-primary g-mb-30 u-heading-v2-4--bottom">
+				<h2 class="landing-block-node-title u-heading-v2__title g-line-height-1 g-letter-spacing-2 g-font-weight-700 h1 g-color-white g-brd-primary g-mb-30 u-heading-v2-4--bottom">
 					Work with professionals</h2>
 			</div>
 
-			<div class="landing-block-node-text landing-semantic-text-image-medium g-color-white-opacity-0_5 mb-0">
+			<div class="landing-block-node-text g-color-white-opacity-0_5 mb-0">
 				<p>Praesent eu nibh malesuada, condimentum nibh hendrerit, viverra
 					sem. Nulla porttitor eget ante ullamcorper convallis. Integer dictum lorem arcu, eget tempus nulla
 					accumsan id.</p>
@@ -39,11 +39,11 @@
 					</figure>
 					<!-- End Figure -->
 					<!-- Figure Info -->
-					<div class="landing-block-node-employee-post landing-semantic-subtitle-small-primary d-block text-uppercase g-font-style-normal g-font-weight-700 g-color-primary g-mb-5">Photographer</div>
-					<h4 class="landing-block-node-employee-name landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-mb-7">
+					<div class="landing-block-node-employee-post d-block text-uppercase g-font-style-normal g-font-weight-700 g-color-primary g-mb-5">Photographer</div>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-mb-7">
 						Ralf
 						Smith</h4>
-					<div class="landing-block-node-employee-subtitle landing-semantic-text-small mb-0">head
+					<div class="landing-block-node-employee-subtitle mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>
@@ -69,11 +69,11 @@
 					<!-- End Figure -->
 
 					<!-- Figure Info -->
-					<div class="landing-block-node-employee-post landing-semantic-subtitle-small-primary d-block text-uppercase g-font-style-normal g-font-weight-700 g-color-primary g-mb-5">Designer</div>
-					<h4 class="landing-block-node-employee-name landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-mb-7">
+					<div class="landing-block-node-employee-post d-block text-uppercase g-font-style-normal g-font-weight-700 g-color-primary g-mb-5">Designer</div>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-mb-7">
 						Monica
 						Gaudy</h4>
-					<div class="landing-block-node-employee-subtitle landing-semantic-text-small mb-0">head
+					<div class="landing-block-node-employee-subtitle mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>
@@ -99,11 +99,11 @@
 					<!-- End Figure -->
 
 					<!-- Figure Info -->
-					<div class="landing-block-node-employee-post landing-semantic-subtitle-small-primary d-block text-uppercase g-font-style-normal g-font-weight-700 g-color-primary g-mb-5">Co-founder</div>
-					<h4 class="landing-block-node-employee-name landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-mb-7">
+					<div class="landing-block-node-employee-post d-block text-uppercase g-font-style-normal g-font-weight-700 g-color-primary g-mb-5">Co-founder</div>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-mb-7">
 						Julia
 						Exon</h4>
-					<div class="landing-block-node-employee-subtitle landing-semantic-text-small mb-0">head
+					<div class="landing-block-node-employee-subtitle mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>
@@ -129,11 +129,11 @@
 					<!-- End Figure -->
 
 					<!-- Figure Info -->
-					<div class="landing-block-node-employee-post landing-semantic-subtitle-small-primary d-block text-uppercase g-font-style-normal g-font-weight-700 g-color-primary g-mb-5">Co-founder</div>
-					<h4 class="landing-block-node-employee-name landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-mb-7">
+					<div class="landing-block-node-employee-post d-block text-uppercase g-font-style-normal g-font-weight-700 g-color-primary g-mb-5">Co-founder</div>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-mb-7">
 						Jacob
 						Assange</h4>
-					<div class="landing-block-node-employee-subtitle landing-semantic-text-small mb-0">head
+					<div class="landing-block-node-employee-subtitle mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>

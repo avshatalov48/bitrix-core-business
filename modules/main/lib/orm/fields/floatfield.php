@@ -21,6 +21,9 @@ class FloatField extends ScalarField
 	/** @var int|null */
 	protected $precision;
 
+	/** @var int|null */
+	protected $scale;
+
 	/**
 	 * FloatField constructor.
 	 *
@@ -35,7 +38,7 @@ class FloatField extends ScalarField
 
 		if(isset($parameters['scale']))
 		{
-			$this->precision = intval($parameters['scale']);
+			$this->scale = intval($parameters['scale']);
 		}
 
 		if(isset($parameters['precision']))
@@ -57,13 +60,12 @@ class FloatField extends ScalarField
 
 	/**
 	 * @param $scale
-	 * @deprecated
 	 *
 	 * @return $this
 	 */
 	public function configureScale($scale)
 	{
-		$this->precision = (int) $scale;
+		$this->scale = (int) $scale;
 		return $this;
 	}
 
@@ -76,12 +78,11 @@ class FloatField extends ScalarField
 	}
 
 	/**
-	 * @deprecated
 	 * @return int|null
 	 */
 	public function getScale()
 	{
-		return $this->precision;
+		return $this->scale;
 	}
 
 	/**
@@ -103,9 +104,9 @@ class FloatField extends ScalarField
 
 		$value = doubleval($value);
 
-		if ($this->precision !== null)
+		if ($this->scale !== null)
 		{
-			$value = round($value, $this->precision);
+			$value = round($value, $this->scale);
 		}
 
 		return $value;
@@ -145,7 +146,7 @@ class FloatField extends ScalarField
 	 */
 	public function getGetterTypeHint()
 	{
-		return '\\float';
+		return $this->getNullableTypeHint('\\float');
 	}
 
 	/**
@@ -153,6 +154,6 @@ class FloatField extends ScalarField
 	 */
 	public function getSetterTypeHint()
 	{
-		return '\\float';
+		return $this->getNullableTypeHint('\\float');
 	}
 }

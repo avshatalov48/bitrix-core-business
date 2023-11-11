@@ -67,7 +67,7 @@ return array(
 				'type' => 'button',
 			),
 			'.landing-block-node-card-button-container' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_44.3.FOUR_COLUMNS_TEXT_WITH_IMG_NODES_LANDINGBLOCKNODECARDBUTTON'),
+				'name' => Loc::getMessage('LANDING_BLOCK_44_3_BUTTON_AREA'),
 				'type' => 'text-align',
 			),
 		],

@@ -4,7 +4,6 @@ use Bitrix\Mail\Message;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Viewer;
 use Bitrix\Main\Web\Uri;
-use Bitrix\Disk\ZipNginx;
 
 \Bitrix\Main\UI\Extension::load("ui.icons.b24");
 
@@ -272,88 +271,32 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 	<div id="mail_msg_<?=$message['ID'] ?>_body" class="mail-msg-view-body"></div>
 </div>
 
-<? $diskFiles = array(); ?>
-<? if (!empty($message['__files'])):
-
-	\Bitrix\Main\UI\Extension::load('ui.viewer');
-
-	$viewerItemAttributes = function ($item) use (&$message)
+<?php
+$diskFiles = $message['__diskFiles'] ?? [];
+$ajaxAttachmentElementId = '';
+?>
+<?php if (!empty($message['__files']) || !empty($message['OPTIONS']['attachments'])) : ?>
+<?php \Bitrix\Main\UI\Extension::load('ui.viewer'); ?>
+<div class="mail-msg-view-file-block mail-msg-view-border-bottom">
+	<div class="mail-msg-view-file-text"><?=getMessage('MAIL_MESSAGE_ATTACHES') ?>:</div>
+	<?php
+	if (empty($message['__files']) && !empty($message['OPTIONS']['attachments']))
 	{
-		$attributes = Viewer\ItemAttributes::tryBuildByFileId($item['fileId'], $item['url'])
-			->setTitle($item['name'])
-			->setGroupBy(sprintf('mail_msg_%u_file', $message['ID']))
-			->addAction(array(
-				'type' => 'download',
-			));
-
-		if (isset($item['objectId']) && $item['objectId'] > 0)
-		{
-			$attributes->addAction(array(
-				'type' => 'copyToMe',
-				'text' => Loc::getMessage('MAIL_DISK_ACTION_SAVE_TO_OWN_FILES'),
-				'action' => 'BX.Disk.Viewer.Actions.runActionCopyToMe',
-				'params' => array(
-					'objectId' => $item['objectId'],
-				),
-				'extension' => 'disk.viewer.actions',
-				'buttonIconClass' => 'ui-btn-icon-cloud',
-			));
-		}
-
-		return $attributes;
-	};
-
-	$diskFiles = array_filter(
-		$message['__files'],
-		function ($item)
-		{
-			return isset($item['objectId']) && $item['objectId'] > 0;
-		}
-	);
-
+		\CJSCore::Init("loader");
+		$ajaxAttachmentElementId = 'bx-mail-message-ajax-attachment-'. ((int)$message['ID']);
+	}
 	?>
-	<div class="mail-msg-view-file-block mail-msg-view-border-bottom">
-		<div class="mail-msg-view-file-text"><?=getMessage('MAIL_MESSAGE_ATTACHES') ?>:</div>
-		<div class="mail-msg-view-file-inner">
-			<div id="mail_msg_<?=$message['ID'] ?>_files_images_list" class="mail-msg-view-file-inner">
-				<? foreach ($message['__files'] as $item): ?>
-					<? if (empty($item['preview'])) continue; ?>
-					<div class="mail-msg-view-file-item-image">
-						<span class="mail-msg-view-file-link-image">
-							<img class="mail-msg-view-file-item-img" src="<?=htmlspecialcharsbx($item['preview']) ?>"
-							<?=$viewerItemAttributes($item) ?>>
-						</span>
-					</div>
-				<? endforeach ?>
-			</div>
-			<div class="mail-msg-view-file-inner">
-				<? foreach ($message['__files'] as $item): ?>
-					<? if (!empty($item['preview'])) continue; ?>
-					<div class="mail-msg-view-file-item diskuf-files-entity">
-						<span class="feed-com-file-icon feed-file-icon-<?=htmlspecialcharsbx(\Bitrix\Main\IO\Path::getExtension($item['name'])) ?>"></span>
-						<a class="mail-msg-view-file-link" href="<?=htmlspecialcharsbx($item['url']) ?>" target="_blank"
-							<? if (preg_match('/^n\d+$/i', $item['id'])) echo $viewerItemAttributes($item); ?>>
-							<?=htmlspecialcharsbx($item['name']) ?>
-						</a>
-						<div class="mail-msg-view-file-link-info"><?=htmlspecialcharsbx($item['size']) ?></div>
-					</div>
-				<? endforeach ?>
-			</div>
-			<? if (\Bitrix\Main\Loader::includeModule('disk') && count($diskFiles) > 1 && ZipNginx\Configuration::isEnabled()): ?>
-				<div class="mail-msg-view-file-archive-block">
-					<? $href = \Bitrix\Disk\Driver::getInstance()->getUrlManager()->getUrlDownloadController('downloadArchive', array(
-						'fileId' => 0,
-						'objectIds' => array_column($diskFiles, 'objectId'),
-						'signature' => \Bitrix\Disk\Security\ParameterSigner::getArchiveSignature(array_column($diskFiles, 'objectId')),
-						'mail_uf_message_token' => (string)($_REQUEST['mail_uf_message_token'] ?? ''),
-					)) ?>
-					<a class="mail-msg-view-file-archive-link" href="<?=htmlspecialcharsbx($href) ?>"><?=Loc::getMessage('MAIL_DISK_FILE_DOWNLOAD_ARCHIVE') ?></a>
-					<div class="mail-msg-view-file-link-info">&nbsp;(<?=\CFile::formatSize(array_sum(array_column($diskFiles, 'bytes'))) ?>)</div>
-				</div>
-			<? endif ?>
-		</div>
+	<div class="mail-msg-view-file-inner"
+		<?php if($ajaxAttachmentElementId): ?> id="<?=htmlspecialcharsbx($ajaxAttachmentElementId)?>" <?php endif; ?>>
+		<?php
+		if (!empty($message['__files']))
+		{
+			include __DIR__ . '/__files.php';
+		}
+		?>
 	</div>
-<? endif ?>
+</div>
+<?php endif; ?>
 
 
 <? if (!$message['hideFastReplyPanel']):?>
@@ -381,6 +324,7 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 	<?
 
 	$inlineFiles = array();
+	// there is no replace, only filling $inlineFiles array
 	$quote = preg_replace_callback(
 		'#(\?|&)__bxacid=(n?\d+)#i',
 		function ($matches) use (&$inlineFiles)
@@ -561,6 +505,34 @@ BX.ready(function()
 		rcptAllSelected: <?=\Bitrix\Main\Web\Json::encode($rcptAllSelected) ?>,
 		rcptCcSelected: <?=\Bitrix\Main\Web\Json::encode($rcptCcSelected) ?>
 	});
+	<?php if ($ajaxAttachmentElementId): ?>
+		var ajaxAttachmentElementId = '<?=CUtil::JSescape($ajaxAttachmentElementId)?>';
+		var ajaxAttachmentElement = document.getElementById(ajaxAttachmentElementId);
+		var ajaxAttachmentLoader = new BX.Loader({
+			target: ajaxAttachmentElement,
+			mode: 'inline',
+			size: 20,
+			color: '#828b95',
+		});
+		ajaxAttachmentLoader.show();
+
+		BX.ajax.runComponentAction('bitrix:mail.client.message.view', 'getAttachments', {
+			mode: 'class',
+			data: {
+				id: '<?=((int)$message['ID'])?>',
+				mail_uf_message_token: '<?=CUtil::JSescape((string)($_REQUEST['mail_uf_message_token'] ?? ''))?>'
+			}
+		}).then(function (response) {
+			if (BX.type.isNotEmptyObject(response.data) && BX.type.isString(response.data.attachmentsHtml))
+			{
+				ajaxAttachmentLoader.hide();
+				ajaxAttachmentElement.innerHTML = response.data.attachmentsHtml;
+			}
+		}, function () {
+			ajaxAttachmentLoader.hide();
+			BX.hide(ajaxAttachmentElement.parentElement);
+		});
+	<?php endif; ?>
 });
 
 </script>

@@ -12,7 +12,6 @@ return [
 		'im.v2.application.core',
 		'im.v2.component.messenger',
 		'im.v2.provider.pull',
-		'im.v2.const',
 	],
 	'skip_core' => true,
 ];

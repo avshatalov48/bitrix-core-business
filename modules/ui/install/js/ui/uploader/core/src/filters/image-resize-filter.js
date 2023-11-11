@@ -87,7 +87,8 @@ export default class ImageResizeFilter extends Filter
 				.catch((error): void => {
 					if (error)
 					{
-						console.log('image resize error', error);
+						// eslint-disable-next-line no-console
+						console.warn('image resize error', error);
 					}
 
 					resolve();

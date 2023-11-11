@@ -52,7 +52,7 @@
 	--ui-icon-set__path_deal-plus: url('/bitrix/js/ui/icon-set/crm/images/deal-plus.svg');
 	--ui-icon-set__path_activity: url('/bitrix/js/ui/icon-set/crm/images/activity.svg');
 	--ui-icon-set__path_customer-card-1: url('/bitrix/js/ui/icon-set/crm/images/customer-card-1.svg');
-	--ui-icon-set__path_person-plus: url('/bitrix/js/ui/icon-set/crm/images/person-plus.svg');
+	--ui-icon-set__path_person-plus-2: url('/bitrix/js/ui/icon-set/crm/images/person-plus-2.svg');
 	--ui-icon-set__path_city-plus: url('/bitrix/js/ui/icon-set/crm/images/city-plus.svg');
 	--ui-icon-set__path_customer-card-plus: url('/bitrix/js/ui/icon-set/crm/images/customer-card-plus.svg');
 	--ui-icon-set__path_chat-1: url('/bitrix/js/ui/icon-set/crm/images/chat-1.svg');
@@ -278,8 +278,8 @@
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_customer-card-1);
 }
 
-.ui-icon-set.--person-plus {
-	--ui-icon-set__icon-path: var(--ui-icon-set__path_person-plus);
+.ui-icon-set.--person-plus-2 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_person-plus-2);
 }
 
 .ui-icon-set.--city-plus {

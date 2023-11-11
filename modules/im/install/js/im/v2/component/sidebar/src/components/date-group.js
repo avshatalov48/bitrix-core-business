@@ -6,8 +6,8 @@ export const DateGroup = {
 	props: {
 		dateText: {
 			type: String,
-			required: true
-		}
+			required: true,
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-date-group__container bx-im-sidebar-date-group__scope">
@@ -15,5 +15,5 @@ export const DateGroup = {
 				{{ dateText }}
 			</div>
 		</div>
-	`
+	`,
 };

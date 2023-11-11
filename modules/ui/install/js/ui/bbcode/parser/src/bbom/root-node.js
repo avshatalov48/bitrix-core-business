@@ -1,54 +1,44 @@
-import { Type } from 'main.core';
+import { Node, privateMap, type ContentNode } from './node';
+import { ElementNode } from './element-node';
 
-type RootNodeOptions = {
-	children?: Array<any>,
+export type RootNodeOptions = {
+	children: Array<Node>,
 };
 
-export class RootNode
+export class RootNode extends ElementNode
 {
-	children: Array<any> = [];
-
-	constructor(options: RootNodeOptions = {})
+	constructor(options: RootNodeOptions)
 	{
-		this.setChildren(options.children);
+		super(options);
+		privateMap.get(this).type = Node.ROOT_NODE;
+		RootNode.freezeProperty(this, 'name', '#root', false);
+		RootNode.makeNonEnumerableProperty(this, 'value');
+		RootNode.makeNonEnumerableProperty(this, 'void');
+		RootNode.makeNonEnumerableProperty(this, 'inline');
+		RootNode.makeNonEnumerableProperty(this, 'attributes');
 	}
 
-	setChildren(children: Array<any>)
+	getParent(): null
 	{
-		if (Type.isArray(children))
-		{
-			this.children = [...children];
-		}
+		return null;
 	}
 
-	appendChild(...children: Array<any>)
-	{
-		this.children.push(...children);
-	}
-
-	replaceChild(targetNode, ...children: Array<any>)
-	{
-		this.children = this.children.flatMap((node) => {
-			if (node === targetNode)
-			{
-				return children;
-			}
-
-			return node;
-		});
-	}
-
-	getChildren(): Array<any>
-	{
-		return [...this.children];
-	}
+	setName(name: string)
+	{}
 
 	toString(): string
 	{
 		return this.getChildren()
-			.map((child) => {
+			.map((child: ContentNode) => {
 				return child.toString();
 			})
 			.join('');
+	}
+
+	toJSON(): any
+	{
+		return this.getChildren().map((node: Node) => {
+			return node.toJSON();
+		});
 	}
 }

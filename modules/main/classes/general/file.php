@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 use Bitrix\Main;
@@ -312,7 +312,7 @@ class CFile extends CAllFile
 				$arFile["WIDTH"] = $imgInfo->getWidth();
 				$arFile["HEIGHT"] = $imgInfo->getHeight();
 
-				if($imgInfo->getFormat() == File\Image::FORMAT_JPEG && empty($arFile['no_rotate']))
+				if ($imgInfo->getFormat() == File\Image::FORMAT_JPEG && empty($arFile['no_rotate']) && !$image->exceedsMaxSize())
 				{
 					$exifData = $image->getExifData();
 					if (isset($exifData['Orientation']) && $exifData['Orientation'] > 1)
@@ -324,12 +324,9 @@ class CFile extends CAllFile
 								$quality = COption::GetOptionString('main', 'image_resize_quality');
 								if($image->save($quality))
 								{
-									//swap width and height
-									if ($exifData['Orientation'] >= 5 && $exifData['Orientation'] <= 8)
-									{
-										$arFile["WIDTH"] = $imgInfo->getHeight();
-										$arFile["HEIGHT"] = $imgInfo->getWidth();
-									}
+									// update width and height
+									$arFile['WIDTH'] = $image->getWidth();
+									$arFile['HEIGHT'] = $image->getHeight();
 									$arFile['size'] = filesize($physicalFileName);
 								}
 							}
@@ -423,7 +420,7 @@ class CFile extends CAllFile
 		if($original !== null)
 		{
 			//save information about the duplicate for future use (on deletion)
-			static::AddDuplicate($original->getFileId(), $NEW_IMAGE_ID);
+			static::AddDuplicate($original->getFileId(), $NEW_IMAGE_ID, false);
 		}
 
 		static::CleanCache($NEW_IMAGE_ID);
@@ -486,19 +483,23 @@ class CFile extends CAllFile
 
 	/**
 	 * Adds information about a duplicate file.
+	 * For internal use only.
+	 *
 	 * @param int $originalId Original file ID.
 	 * @param int|null $duplicateId Duplicate file ID (optional if the original and duplicate files are the same).
-	 * @param bool $checkOriginal Check if the desired original file is already in the table and
+	 * @param bool $resolvePossibleOriginCycle Check if the desired original file is already in the table and
 	 * if it's a duplicate of another file, then use the real original file ID from the table.
+	 *
+	 * @internal
 	 */
-	public static function AddDuplicate($originalId, $duplicateId = null, bool $checkOriginal = false)
+	public static function AddDuplicate($originalId, $duplicateId = null, bool $resolvePossibleOriginCycle = true)
 	{
 		if($duplicateId === null)
 		{
 			$duplicateId = $originalId;
 		}
 
-		if($checkOriginal || $originalId == $duplicateId)
+		if($resolvePossibleOriginCycle || $originalId == $duplicateId)
 		{
 			//possibly there is the original already for the file
 			$original = Internal\FileDuplicateTable::query()
@@ -513,7 +514,7 @@ class CFile extends CAllFile
 		}
 
 		$updateFields = [
-			"COUNTER" => new Main\DB\SqlExpression("?# + 1", "COUNTER"),
+			"COUNTER" => new Main\DB\SqlExpression("?v + 1", "COUNTER"),
 		];
 
 		$insertFields = [
@@ -588,7 +589,7 @@ class CFile extends CAllFile
 				continue;
 			}
 
-			static::AddDuplicate($originalId, $duplicate->getId());
+			static::AddDuplicate($originalId, $duplicate->getId(), false);
 
 			$update = $helper->prepareUpdate('b_file', [
 				'SUBDIR' => $original->getFile()->getSubdir(),
@@ -656,7 +657,7 @@ class CFile extends CAllFile
 
 		$cloneId = static::DoInsert($originalFile);
 
-		static::AddDuplicate($fileId, $cloneId, true);
+		static::AddDuplicate($fileId, $cloneId);
 		static::CleanCache($cloneId);
 
 		return $cloneId;
@@ -1012,7 +1013,7 @@ class CFile extends CAllFile
 			$sql = "
 				SELECT f.*, 
 					{$DB->DateToCharFunction("f.TIMESTAMP_X")} as TIMESTAMP_X, 
-					'' as VERSION_ORIGINAL_ID, '' as META
+					NULL as VERSION_ORIGINAL_ID, '' as META
 				FROM b_file f
 				WHERE f.ID >= {$minId} 
 					AND f.ID <= {$maxId} 
@@ -1507,7 +1508,7 @@ class CFile extends CAllFile
 			return GetMessage("FILE_BAD_FILE_TYPE").".<br>";
 		}
 
-		if(preg_match("#^php://filter#i", $arFile["tmp_name"]))
+		if (preg_match("#^(php://|phar://)#i", $arFile["tmp_name"]))
 		{
 			return GetMessage("FILE_BAD_FILE_TYPE").".<br>";
 		}
@@ -2040,12 +2041,12 @@ function ImgShw(ID, width, height, alt)
 			return null;
 		}
 
-		if(preg_match("#^(php://filter|phar://)#i", $path))
+		if (preg_match("#^(php://|phar://)#i", $path) && !preg_match("#^php://input$#i", $path))
 		{
 			return null;
 		}
 
-		if(preg_match("#^https?://#", $path))
+		if (preg_match("#^https?://#i", $path))
 		{
 			$temp_path = '';
 			$bExternalStorage = false;
@@ -2085,7 +2086,7 @@ function ImgShw(ID, width, height, alt)
 				$arFile = static::MakeFileArray($temp_path);
 			}
 		}
-		elseif(preg_match("#^(ftp[s]?|php)://#", $path))
+		elseif(preg_match("#^(ftp[s]?://|php://input)#i", $path))
 		{
 			if($fp = fopen($path,"rb"))
 			{
@@ -2182,15 +2183,19 @@ function ImgShw(ID, width, height, alt)
 
 	public static function ResizeImage(&$arFile, $arSize, $resizeType = BX_RESIZE_IMAGE_PROPORTIONAL)
 	{
-		$sourceFile = $arFile["tmp_name"];
-		$destinationFile = CTempFile::GetFileName(basename($sourceFile));
+		$io = CBXVirtualIo::GetInstance();
+
+		// $arFile["tmp_name"] should contain physical filename
+		$destinationFile = CTempFile::GetFileName(basename($arFile["tmp_name"]));
+		$sourceFile = $io->GetLogicalName($arFile["tmp_name"]);
 
 		CheckDirPath($destinationFile);
 
 		if (static::ResizeImageFile($sourceFile, $destinationFile, $arSize, $resizeType))
 		{
-			$arFile["tmp_name"] = $destinationFile;
-			$imageInfo = (new File\Image($destinationFile))->getInfo();
+			$arFile["tmp_name"] = $io->GetPhysicalName($destinationFile);
+
+			$imageInfo = (new File\Image($arFile["tmp_name"]))->getInfo();
 			if ($imageInfo)
 			{
 				$arFile["type"] = $imageInfo->getMime();
@@ -2847,7 +2852,7 @@ function ImgShw(ID, width, height, alt)
 			}
 		}
 
-		if($arFile["ORIGINAL_NAME"] <> '')
+		if(isset($arFile["ORIGINAL_NAME"]) && $arFile["ORIGINAL_NAME"] != '')
 			$name = $arFile["ORIGINAL_NAME"];
 		elseif($arFile["name"] <> '')
 			$name = $arFile["name"];
@@ -2917,7 +2922,7 @@ function ImgShw(ID, width, height, alt)
 		$APPLICATION->RestartBuffer();
 
 		$cur_pos = 0;
-		$filesize = ($arFile["FILE_SIZE"] > 0? $arFile["FILE_SIZE"] : ($arFile["size"] ?? 0));
+		$filesize = (isset($arFile["FILE_SIZE"]) && (int)$arFile["FILE_SIZE"] > 0 ? (int)$arFile["FILE_SIZE"] : (int)($arFile["size"] ?? 0));
 		$size = $filesize-1;
 		$p = mb_strpos($_SERVER["HTTP_RANGE"] ?? '', "=");
 		if(intval($p)>0)

@@ -1,7 +1,7 @@
-import {Dom, Reflection, Type} from "main.core";
-import type {BaseEvent} from "main.core.events";
-import {EventEmitter} from "main.core.events";
-import {ProductSelector} from 'catalog.product-selector';
+import { Dom, Reflection } from 'main.core';
+import type { BaseEvent } from 'main.core.events';
+import { EventEmitter } from 'main.core.events';
+import { ProductSelector } from 'catalog.product-selector';
 
 const instances = new Map();
 
@@ -16,7 +16,7 @@ class ProductField
 	onBeforeGridRequestHandler = this.onBeforeGridRequest.bind(this);
 	onUnsubscribeEventsHandler = this.unsubscribeEvents.bind(this);
 
-	static getById(id: string): ?ImageInput
+	static getById(id: string): ?ProductField
 	{
 		return instances.get(id) || null;
 	}
@@ -24,6 +24,7 @@ class ProductField
 	constructor(id, settings = {})
 	{
 		this.selector = new ProductSelector(id, settings);
+		this.columnName = settings.columnName || 'CATALOG_PRODUCT';
 		this.componentName = settings.componentName || '';
 		this.signedParameters = settings.signedParameters || '';
 		this.rowIdMask = settings.rowIdMask || '#ID#';
@@ -35,10 +36,16 @@ class ProductField
 
 	subscribeEvents()
 	{
+		EventEmitter.incrementMaxListeners('Grid::thereEditedRows', 1);
+		EventEmitter.incrementMaxListeners('Grid::noEditedRows', 1);
+		EventEmitter.incrementMaxListeners('Grid::beforeRequest', 1);
+		EventEmitter.incrementMaxListeners('Grid::updated', 1);
+
 		EventEmitter.subscribe('Grid::thereEditedRows', this.onSelectEditHandler);
 		EventEmitter.subscribe('Grid::noEditedRows', this.onCancelEditHandler);
 		EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 		EventEmitter.subscribe('Grid::updated', this.onUnsubscribeEventsHandler);
+		EventEmitter.subscribeOnce(this.selector, 'onBeforeChange', this.onUnsubscribeEventsHandler);
 	}
 
 	unsubscribeEvents()
@@ -129,7 +136,7 @@ class ProductField
 			return;
 		}
 
-		const cell = row.getCellById('CATALOG_PRODUCT');
+		const cell = row.getCellById(this.columnName);
 		if (cell)
 		{
 			Dom.removeClass(row.getContentContainer(cell), ProductField.EDIT_CLASS);
@@ -156,7 +163,7 @@ class ProductField
 			this.getSelector().clearLayout();
 			this.getSelector().layout();
 
-			const cell = row.getCellById('CATALOG_PRODUCT');
+			const cell = row.getCellById(this.columnName);
 			if (cell)
 			{
 				Dom.addClass(row.getContentContainer(cell), ProductField.EDIT_CLASS);

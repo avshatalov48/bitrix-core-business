@@ -67,6 +67,16 @@ final class SaveAction extends Action
 		$fields = $this->processFeatureFields($fields, $oldFields);
 		$fields = $this->processEnumFields($fields, $oldFields);
 
+		if (\CIBlock::GetArrayByID($iblockId, 'SECTION_PROPERTY') !== 'Y')
+		{
+			if (($fields['SMART_FILTER'] ?? 'N') === 'Y')
+			{
+				$iblock = new \CIBlock;
+				$iblock->Update($iblockId, ['SECTION_PROPERTY' => 'Y']);
+				unset($iblock);
+			}
+		}
+
 		$entity = new CIBlockProperty();
 		if ($propertyId > 0)
 		{
@@ -322,7 +332,7 @@ final class SaveAction extends Action
 			'MULTIPLE',
 			'IS_REQUIRED',
 			'SEARCHABLE',
-			'FILTERABLE',
+			'FILTRABLE',
 			'WITH_DESCRIPTION',
 			'MULTIPLE_CNT',
 			'HINT',

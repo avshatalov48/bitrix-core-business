@@ -743,7 +743,6 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$fields = array(
 			'LID' => $landing->getId(),
 			'CODE' => $code,
-			'CODE_ORIGINAL' => $codeOriginal,
 			'SOURCE_PARAMS' => $sourceParams,
 			'CONTENT' => $content,
 			'ACTIVE' => 'Y',
@@ -769,7 +768,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			$manifest = $block->getManifest();
 			if (!$block->getLocalAnchor())
 			{
+				$historyActivity = History::isActive();
+				History::deactivate();
 				$block->setAnchor('b' . $block->getId());
+				$historyActivity ? History::activate() : History::deactivate();
 			}
 			Assets\PreProcessing::blockAddProcessing($block);
 			if (
@@ -1629,7 +1631,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			{
 				$manifest['requiredUserAction'] = $block->getRuntimeRequiredUserAction();
 			}
-			$sections = (array)$manifest['block']['section'];
+			$sections = (array)(($manifest['block']['section']) ?? null);
 			$return = array(
 				'id' => $id,
 				'sections' => implode(',', $sections),
@@ -2837,7 +2839,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				{
 					$manifest['requiredUserAction'] = $this->runtimeRequiredUserAction;
 				}
-				$sections = (array)$manifest['block']['section'];
+				$sections = (array)($manifest['block']['section'] ?? null);
 				$designerRepository = $this->metaData['DESIGNER_MODE'] ? \Bitrix\Landing\Block\Designer::getRepository() : [];
 				$anchor = $this->anchor;
 				if (!$anchor)
@@ -4322,6 +4324,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		foreach ($manifest['nodes'] as $selector => $node)
 		{
 			$isFind = false;
+			$dataSelector = [];
 			if (isset($data[$selector]))
 			{
 				if (!is_array($data[$selector]))
@@ -4330,6 +4333,18 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						$data[$selector]
 					);
 				}
+				$dataSelector = $data[$selector];
+				$isFind = true;
+			}
+			if (($node['isWrapper'] ?? false) === true && isset($data['#wrapper']))
+			{
+				if (!is_array($data['#wrapper']))
+				{
+					$data['#wrapper'] = array(
+						$data['#wrapper']
+					);
+				}
+				$dataSelector = $data['#wrapper'];
 				$isFind = true;
 			}
 			if (!$isFind && ($node['isWrapper'] ?? false) === true)
@@ -4341,11 +4356,12 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						$data[$selector]
 					);
 				}
+				$dataSelector = $data[$selector];
 				$isFind = true;
 			}
 			if ($node['type'] === 'img')
 			{
-				$node = Img::prepareManifest($this, $node, $manifest);
+				$node = Img::changeNodeType($node, $this);
 			}
 			if ($isFind)
 			{
@@ -4356,7 +4372,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					), array(
 						$this,
 						$selector,
-						$data[$selector],
+						$dataSelector,
 						$additional
 					));
 			}
@@ -4721,6 +4737,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 
 		// detects position
 		$positions = [];
+		$position = -1;
 		foreach ((array)$data as $selector => $item)
 		{
 			if (mb_strpos($selector, '@') !== false)
@@ -4826,29 +4843,25 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 								array_merge($stylesInline, $data[$relativeSelector]['style'])
 							);
 						}
-						else
+						else if (preg_match_all('/background-image:.*;/i', $resultNode->getAttribute('style'), $matches))
 						{
-							preg_match_all("/background-image:.*;/i", $resultNode->getAttribute('style'), $matches);
-							foreach ($matches[0] as $i => $match)
-							{
-								$styleOldContent .= $match;
-							}
 							$resultNode->removeAttribute('style');
-							$resultNode->setAttribute('style', $styleOldContent);
+							$resultNode->setAttribute('style', implode('', $matches[0]));
 						}
-					}
 
-					if (History::isActive())
-					{
-						$history = new History($this->getLandingId(), History::ENTITY_TYPE_LANDING);
-						$history->push('EDIT_STYLE', [
-							'block' => $this,
-							'selector' => $selector,
-							'position' => (int)$pos,
-							'affect' => $data[$relativeSelector]['affect'],
-							'contentBefore' => $contentBefore,
-							'contentAfter' => $resultNode->getOuterHTML(),
-						]);
+						if (History::isActive())
+						{
+							$history = new History($this->getLandingId(), History::ENTITY_TYPE_LANDING);
+							$history->push('EDIT_STYLE', [
+								'block' => $this,
+								'selector' => $selector,
+								'isWrapper' => ($selector === $wrapper),
+								'position' => $position >= 0 ? (int)$pos : -1,
+								'affect' => $data[$relativeSelector]['affect'],
+								'contentBefore' => $contentBefore,
+								'contentAfter' => $resultNode->getOuterHTML(),
+							]);
+						}
 					}
 				}
 			}
@@ -5007,25 +5020,37 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 							continue;
 						}
 						// attrs new data in each selector ([data-test] => value)
-						foreach ($attrData as $key => $val)
+						foreach ($attrData as $key => $value)
 						{
 							if (!in_array($key, $allowed))
 							{
 								continue;
 							}
+							$key = \htmlspecialcharsbx($key);
+							$value = is_array($value) ? json_encode($value) : $value;
+
 							// result nodes by main selector
 							foreach ($resultList as $pos => $resultNode)
 							{
 								// if position of node that we try to find
 								if ($attrKey == -1 || $attrKey == $pos)
 								{
+									$valueBefore = $resultNode->getAttribute($key);
 									// update node
-									$resultNode->setAttribute(
-										\htmlspecialcharsbx($key),
-										is_array($val)
-											? json_encode($val)
-											: $val
-									);
+									$resultNode->setAttribute($key, $value);
+									if (History::isActive())
+									{
+										$history = new History($this->getLandingId(), History::ENTITY_TYPE_LANDING);
+										$history->push('EDIT_ATTRIBUTES', [
+											'block' => $this,
+											'selector' => $selector,
+											'isWrapper' => ($selector === $wrapper),
+											'attribute' => $key,
+											'position' => (int)$attrKey,
+											'valueBefore' => $valueBefore,
+											'valueAfter' => $value,
+										]);
+									}
 								}
 							}
 						}

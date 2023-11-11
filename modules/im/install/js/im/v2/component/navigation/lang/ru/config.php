@@ -13,5 +13,6 @@ $MESS["IM_USER_SETTINGS_LOGOUT"] = "Выйти";
 $MESS["IM_USER_SETTINGS_CHAT_SETTINGS"] = "Настройки чата";
 $MESS["IM_USER_SETTINGS_HELP"] = "Помощь";
 $MESS["IM_USER_SETTINGS_CHAT_BACKGROUND"] = "Оформление чата";
+$MESS["IM_USER_SETTINGS_CHAT_ALIGNMENT"] = "Расположение сообщений";
 $MESS["IM_USER_SETTINGS_FEEDBACK"] = "Обратная связь";
 $MESS["IM_USER_SETTINGS_OLD_CHAT"] = "Старая версия чата";

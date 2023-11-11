@@ -14,11 +14,11 @@ return [
 	'rel' => [
 		'calendar.controls',
 		'calendar.planner',
-		'intranet.control-button',
 		'ui.vue3',
 		'calendar.util',
 		'calendar.entry',
 		'main.core',
+		'viewer',
 		'main.core.events',
 		'calendar.sectionmanager',
 	],

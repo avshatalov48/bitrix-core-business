@@ -5,11 +5,11 @@ namespace Bitrix\Catalog\Document\Action\Price;
 use Bitrix\Catalog\Document\Action;
 use Bitrix\Catalog\Model\Price;
 use Bitrix\Catalog\Model\Product;
+use Bitrix\Catalog\GroupTable;
 use Bitrix\Catalog\PriceTable;
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Result;
-use CCatalogGroup;
 
 /**
  * Update product prices action.
@@ -104,7 +104,7 @@ class UpdateProductPricesAction implements Action
 	 */
 	private function getBasePriceGroupId(): ?int
 	{
-		return CCatalogGroup::GetBaseGroupId();
+		return GroupTable::getBasePriceTypeId();
 	}
 
 	/**

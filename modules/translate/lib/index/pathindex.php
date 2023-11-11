@@ -20,7 +20,7 @@ class PathIndex
 	 *
 	 * @return self|null
 	 */
-	public static function loadByPath($path)
+	public static function loadByPath($path): ?self
 	{
 		$path = '/'. \trim($path, '/');
 		$path = Translate\IO\Path::replaceLangId($path, '#LANG_ID#');
@@ -30,18 +30,18 @@ class PathIndex
 
 		// if it is lang folder when find the lang/#LANG_ID# folder
 		if (
-			$indexPath instanceof Translate\Index\PathIndex &&
-			$indexPath->getIsLang() &&
-			$indexPath->getName() === 'lang'
+			$indexPath instanceof Translate\Index\PathIndex
+			&& $indexPath->getIsLang()
+			&& $indexPath->getName() === 'lang'
 		)
 		{
-			$topPathRes = Translate\Index\Internals\PathIndexTable::getList(array(
+			$topPathRes = Translate\Index\Internals\PathIndexTable::getList([
 				'filter' => [
 					'=NAME' => '#LANG_ID#',
 					'=DEPTH_LEVEL' => $indexPath->getDepthLevel() + 1,
 					'=DESCENDANTS.PARENT_ID' => $indexPath->getId(),//ancestor
 				],
-			));
+			]);
 			$indexPath = $topPathRes->fetchObject();
 		}
 
@@ -54,7 +54,7 @@ class PathIndex
 	 *
 	 * @return string|null
 	 */
-	public function detectModuleId()
+	public function detectModuleId(): ?string
 	{
 		$arr = \explode('/', $this->getPath());
 		$pos = \array_search('modules', $arr);
@@ -74,7 +74,7 @@ class PathIndex
 	 *
 	 * @return string|null
 	 */
-	public function detectAssignment()
+	public function detectAssignment(): ?string
 	{
 		$path = $this->getPath();
 

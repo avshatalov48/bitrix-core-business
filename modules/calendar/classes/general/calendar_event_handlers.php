@@ -15,7 +15,7 @@ class CCalendarEventHandlers
 	{
 		global $USER, $DB, $CACHE_MANAGER;
 
-		if (!isset($params['USER_ID']) || intval($params['USER_ID']) <= 0)
+		if (!isset($params['USER_ID']) || (int)$params['USER_ID'] <= 0)
 		{
 			if (!is_object($USER))
 			{
@@ -41,43 +41,46 @@ class CCalendarEventHandlers
 			'EVENT_ID'
 		]);
 
-		$date_from = CCalendar::Date(time() - date('Z', time()) + CCalendar::GetCurrentOffsetUTC($userId), false);
+		$date_from = CCalendar::Date(time() - date('Z') + CCalendar::GetCurrentOffsetUTC($userId), false);
 		$ts_date_from = CCalendar::Timestamp($date_from) - CCalendar::GetCurrentOffsetUTC($userId);
 		$date_from = CCalendar::Date($ts_date_from);
 		$ts_date_to = $ts_date_from + CCalendar::GetDayLen() - 1;
 		$date_to = $date_from;
 
-		$arEvents = array();
+		$arEvents = [];
 		$eventTime = -1;
 
-		$arNewEvents = CCalendarEvent::GetList(array(
-			'arFilter' => array(
+		$arNewEvents = CCalendarEvent::GetList([
+			'arFilter' => [
 				'CAL_TYPE' => 'user',
 				'OWNER_ID' => $userId,
 				'FROM_LIMIT' => $date_from,
 				'TO_LIMIT' => $date_to,
 				'ACTIVE_SECTION' => 'Y'
-			),
-			'arOrder' => Array('DATE_FROM_TS_UTC' => 'asc'),
+			],
+			'arOrder' => ['DATE_FROM_TS_UTC' => 'asc'],
 			'parseRecursion' => true,
 			'preciseLimits' => true,
 			'userId' => $userId,
 			'skipDeclined' => true,
 			'fetchAttendees' => false,
 			'fetchMeetings' => true
-		));
+		]);
 
-		if (count($arNewEvents) > 0)
+		if (!empty($arNewEvents))
 		{
 			$now = time() + CTimeZone::GetOffset($userId);
 			$today = ConvertTimeStamp($now, 'SHORT');
 
-			$format = $DB->dateFormatToPHP(IsAmPmMode() ? 'H:MI T' : 'HH:MI');
+			$format = $DB::dateFormatToPHP(IsAmPmMode() ? 'H:MI T' : 'HH:MI');
 
 			foreach ($arNewEvents as $arEvent)
 			{
-				if ($arEvent['IS_MEETING'] && $arEvent['MEETING_STATUS'] == 'N')
+				if ($arEvent['IS_MEETING'] && $arEvent['MEETING_STATUS'] === 'N')
+				{
 					continue;
+				}
+
 				$fromTo = CCalendarEvent::GetEventFromToForUser($arEvent, $userId);
 
 				$ts_from = $fromTo['TS_FROM'];
@@ -93,10 +96,14 @@ class CCalendarEventHandlers
 				}
 
 				if ($arEvent['RRULE'] && ($ts_to_utc <= $ts_date_from || $ts_from_utc >= $ts_date_to))
+				{
 					continue;
+				}
 
 				if(($eventTime < 0 || $eventTime > $ts_from) && $ts_from >= $now)
+				{
 					$eventTime = $ts_from;
+				}
 
 				if($params['FULL'])
 				{
@@ -104,7 +111,7 @@ class CCalendarEventHandlers
 						'EVENT_ID' => $arEvent['ID'],
 						'EVENT_DATE' => $today
 					]);
-					$arEvents[] = array(
+					$arEvents[] = [
 						'ID' => $arEvent['ID'],
 						'CAL_TYPE' => 'user',
 						'OWNER_ID' => $userId,
@@ -120,7 +127,7 @@ class CCalendarEventHandlers
 						'DATE_TO_TODAY' => $today == ConvertTimeStamp($fromTo['TS_TO'], 'SHORT'),
 						'SORT' => $fromTo['TS_FROM'],
 						'EVENT_PATH' => $eventPath
-					);
+					];
 				}
 			}
 		}
@@ -135,14 +142,14 @@ class CCalendarEventHandlers
 			'rel' => array('date', 'timer')
 		));
 
-		return array(
-			'DATA' => array(
+		return [
+			'DATA' => [
 				'CALENDAR_ENABLED' => true,
 				'EVENTS' => $arEvents,
 				'EVENT_TIME' => $eventTime < 0 ? '' : (FormatDate(IsAmPmMode() ? "g:i a" : "H:i", $eventTime)),
-			),
-			'SCRIPTS' => array('calendar_planner_handler')
-		);
+			],
+			'SCRIPTS' => ['calendar_planner_handler']
+		];
 	}
 
 	public static function OnPlannerAction($action, $params)
@@ -163,7 +170,7 @@ class CCalendarEventHandlers
 			case 'calendar_show':
 
 				return self::plannerActionShow(array(
-					'ID' => intval($_REQUEST['id']),
+					'ID' => (int)$_REQUEST['id'],
 					'SITE_ID' => $params['SITE_ID']
 				));
 
@@ -199,8 +206,10 @@ class CCalendarEventHandlers
 		$arEvents = array();
 		foreach ($res as $arEvent)
 		{
-			if ($arEvent['IS_MEETING'] && $arEvent['MEETING_STATUS'] == 'N')
+			if ($arEvent['IS_MEETING'] && $arEvent['MEETING_STATUS'] === 'N')
+			{
 				continue;
+			}
 			$fromTo = CCalendarEvent::GetEventFromToForUser($arEvent, $userId);
 
 			if ($arEvent['RRULE'])
@@ -208,14 +217,16 @@ class CCalendarEventHandlers
 				$ts_from_utc = $fromTo['TS_FROM'] - CCalendar::GetCurrentOffsetUTC();
 				$ts_to_utc = $ts_from_utc + $arEvent['DT_LENGTH'];
 				if ($ts_to_utc <= $ts_date_from || $ts_from_utc >= $ts_date_to)
+				{
 					continue;
+				}
 			}
 
 			$arEvents[] = $arEvent;
 		}
 
 
-		if (is_array($arEvents) && count($arEvents) > 0)
+		if (is_array($arEvents) && !empty($arEvents))
 		{
 			$arEvent = $arEvents[0];
 
@@ -232,10 +243,10 @@ class CCalendarEventHandlers
 							'name' => $userIndex[$attendee["id"]]['DISPLAY_NAME'],
 							'status' => $attendee['status'],
 							'accessibility' => $arEvent['ACCESSIBILITY'],
-							'bHost' => $attendee['id'] == $arEvent['MEETING_HOST'],
+							'bHost' => (int)$attendee['id'] === (int)$arEvent['MEETING_HOST'],
 						);
 
-						if ($attendee['id'] == $USER->GetID())
+						if ((int)$attendee['id'] === (int)$USER->GetID())
 						{
 							$arEvent['STATUS'] = $attendee['status'];
 						}
@@ -250,7 +261,7 @@ class CCalendarEventHandlers
 
 			$fromTo = CCalendarEvent::GetEventFromToForUser($arEvent, $USER->GetID());
 
-			return array(
+			return [
 				'ID' => $arEvent['ID'],
 				'NAME' => $arEvent['NAME'],
 				'DETAIL_TEXT' => $arEvent['DESCRIPTION'],
@@ -263,7 +274,7 @@ class CCalendarEventHandlers
 				'GUESTS' => $arEvent['GUESTS'],
 				'UF_WEBDAV_CAL_EVENT' => $arEvent['UF_WEBDAV_CAL_EVENT'],
 				'URL' => $url,
-			);
+			];
 		}
 	}
 
@@ -273,9 +284,8 @@ class CCalendarEventHandlers
 
 		if (!IsAmPmMode())
 		{
-			$date_start = $date.' '.$time.':00';
 			$date_start = FormatDate(
-				$DB->DateFormatToPhp(FORMAT_DATETIME),
+				$DB::DateFormatToPhp(FORMAT_DATETIME),
 				MakeTimeStamp(
 					$date.' '.$time,
 					FORMAT_DATE.' HH:MI'
@@ -285,7 +295,7 @@ class CCalendarEventHandlers
 		else
 		{
 			$date_start = FormatDate(
-				$DB->DateFormatToPhp(FORMAT_DATETIME),
+				$DB::DateFormatToPhp(FORMAT_DATETIME),
 				MakeTimeStamp(
 					$date.' '.$time,
 					FORMAT_DATE.' H:MI T'
@@ -316,7 +326,7 @@ class CCalendarEventHandlers
 			'REMIND' => $reminderList,
 		];
 
-		if ($arParams['ABSENCE'] == 'Y')
+		if ($arParams['ABSENCE'] === 'Y')
 		{
 			$data['ACCESSIBILITY'] = 'absent';
 		}
@@ -391,12 +401,12 @@ class CCalendarEventHandlers
 				}
 				else
 				{
-					$fmt = preg_replace('/:s$/', '', $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")));
+					$fmt = preg_replace('/:s$/', '', $DB::DateFormatToPHP(CSite::GetDateFormat("FULL")));
 					$res['DATE_F'] = FormatDate($fmt, $res['DATE_FROM']);
 					$res['DATE_F_TO'] = FormatDate($fmt, $res['DATE_TO']);
 				}
 
-				if ($event['IS_MEETING'] == 'Y')
+				if ($event['IS_MEETING'] === 'Y')
 				{
 					$arGuests = array('Y' => array(), 'N' => array(), 'Q' => array());
 					foreach ($event['GUESTS'] as $key => $guest)
@@ -439,9 +449,13 @@ class CCalendarEventHandlers
 	private static function DateSort($a, $b)
 	{
 		if ($a['SORT'] == $b['SORT'])
+		{
 			return 0;
+		}
 		if ($a['SORT'] < $b['SORT'])
+		{
 			return -1;
+		}
 		return 1;
 	}
 }

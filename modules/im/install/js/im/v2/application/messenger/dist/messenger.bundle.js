@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_application_core,im_v2_component_messenger,im_v2_provider_pull,im_v2_const) {
+(function (exports,im_v2_application_core,im_v2_component_messenger,im_v2_provider_pull) {
 	'use strict';
 
 	var _applicationName = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("applicationName");
@@ -76,5 +76,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.MessengerApplication = MessengerApplication;
 
-}((this.BX.Messenger.v2.Application = this.BX.Messenger.v2.Application || {}),BX.Messenger.v2.Application,BX.Messenger.v2.Component,BX.Messenger.v2.Provider.Pull,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Application = this.BX.Messenger.v2.Application || {}),BX.Messenger.v2.Application,BX.Messenger.v2.Component,BX.Messenger.v2.Provider.Pull));
 //# sourceMappingURL=messenger.bundle.js.map

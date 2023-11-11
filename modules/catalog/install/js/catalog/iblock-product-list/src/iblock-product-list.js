@@ -1,6 +1,6 @@
-import type {BaseEvent} from 'main.core.events';
-import {EventEmitter} from 'main.core.events';
-import {Dom, Tag, Text, Type, Uri, Loc} from 'main.core';
+import type { BaseEvent } from 'main.core.events';
+import { EventEmitter } from 'main.core.events';
+import { Dom, Text, Type, Uri } from 'main.core';
 import { IblockProductListHints } from './iblock-product-list-hints';
 import './style.css';
 
@@ -25,11 +25,11 @@ export class IblockProductList
 	constructor(options = {})
 	{
 		this.gridId = options.gridId;
-		this.rowIdMask = options.rowIdMask || '#ID#';
-		this.variationFieldNames = options.variationFieldNames || [];
-		this.productVariationMap = options.productVariationMap || {};
-		this.createNewProductHref = options.createNewProductHref || '';
-		this.showCatalogWithOffers = options.showCatalogWithOffers || false;
+		this.rowIdMask = options.rowIdMask ?? '#ID#';
+		this.variationFieldNames = options.variationFieldNames ?? [];
+		this.productVariationMap = options.productVariationMap ?? {};
+		this.createNewProductHref = options.createNewProductHref ?? '';
+		this.showCatalogWithOffers = options.showCatalogWithOffers ?? false;
 
 		this.addCustomClassToGrid();
 		this.cacheSelectedVariation();
@@ -39,6 +39,7 @@ export class IblockProductList
 		EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 		EventEmitter.subscribe('BX.Main.Filter:apply', this.onFilterApplyHandler);
 		EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
+		EventEmitter.subscribe('SidePanel.Slider:onMessage', this.handlerOnSliderMessage.bind(this));
 
 		this.hints = new IblockProductListHints(options);
 	}
@@ -51,9 +52,9 @@ export class IblockProductList
 	cacheSelectedVariation()
 	{
 		this.getGrid().getRows().getBodyChild().forEach((row) => {
-			let rowId = row.getId();
-			let productId = this.getProductIdByRowId(rowId);
-			let variationId = this.getCurrentVariationIdByProduct(productId);
+			const rowId = row.getId();
+			const productId = this.getProductIdByRowId(rowId);
+			const variationId = this.getCurrentVariationIdByProduct(productId);
 
 			if (variationId)
 			{
@@ -95,7 +96,7 @@ export class IblockProductList
 	{
 		const [settingsWindow] = event.getCompatData();
 		const selectedColumns = settingsWindow.getSelectedColumns();
-		this.showCatalogWithOffers = selectedColumns.indexOf('CATALOG_PRODUCT') !== -1;
+		this.showCatalogWithOffers = selectedColumns.includes('CATALOG_PRODUCT');
 	}
 
 	handleOnChangeVariation(event: BaseEvent)
@@ -125,6 +126,7 @@ export class IblockProductList
 			productRow.editCancel();
 			productRow.edit();
 			this.productVariationMap[productId] = variationId;
+
 			return;
 		}
 
@@ -163,7 +165,7 @@ export class IblockProductList
 			}
 		});
 
-		for (let name in currentEditorValues)
+		for (const name in currentEditorValues)
 		{
 			if (!currentEditorValues.hasOwnProperty(name) || !this.variationFieldNames.includes(name))
 			{
@@ -187,12 +189,12 @@ export class IblockProductList
 	{
 		if (this.getProductRow(productId).isEdit() && this.editedVariations.has(variationId))
 		{
-			return Promise.resolve(this.editedVariations.get(variationId))
+			return Promise.resolve(this.editedVariations.get(variationId));
 		}
 
 		if (this.variations.has(variationId))
 		{
-			return Promise.resolve(this.variations.get(variationId))
+			return Promise.resolve(this.variations.get(variationId));
 		}
 
 		return new Promise((resolve) => {
@@ -202,6 +204,7 @@ export class IblockProductList
 				if (Type.isDomNode(variation))
 				{
 					this.variations.set(variationId, variation);
+
 					return variation;
 				}
 
@@ -214,10 +217,11 @@ export class IblockProductList
 		const self = this;
 		const url = '';
 		const method = 'POST';
-		const data = {productId, variationId};
+		const data = { productId, variationId };
 
 		this.getProductRow(productId).stateLoad();
 		this.getGrid().getData().request(url, method, data, 'changeVariation', function() {
+			EventEmitter.emit('Grid::updated', [self.getGrid()]);
 			const row = self.getProductRow(productId);
 			if (row)
 			{
@@ -275,10 +279,10 @@ export class IblockProductList
 
 			if (this.variationFieldNames.includes(cellName))
 			{
-				let columnCell = productRow.getCellByIndex(index);
+				const columnCell = productRow.getCellByIndex(index);
 				if (columnCell)
 				{
-					let cellHtml = productRow.getContentContainer(cell).innerHTML;
+					const cellHtml = productRow.getContentContainer(cell).innerHTML;
 					productRow.getContentContainer(columnCell).innerHTML = cellHtml;
 					fields[cellName] = cellHtml;
 				}
@@ -319,20 +323,21 @@ export class IblockProductList
 				const rowId = this.getRowIdByProductId(variationId);
 				submitData.FIELDS[rowId] = submitData.FIELDS[rowId] || {};
 				Object.keys(editFields).map((cellName) => {
-					if (cellName.indexOf('CATALOG_GROUP_') >= 0)
+					if (cellName.includes('CATALOG_GROUP_'))
 					{
 						const groupPriceId = cellName.replace('CATALOG_GROUP_', '');
-						if (!Type.isNil(editFields[cellName]['PRICE']))
+						if (!Type.isNil(editFields[cellName].PRICE))
 						{
-							submitData['CATALOG_PRICE'] = submitData['CATALOG_PRICE'] || {};
-							submitData['CATALOG_PRICE'][variationId] = submitData['CATALOG_PRICE'][variationId] || {};
-							submitData['CATALOG_PRICE'][variationId][groupPriceId] = editFields[cellName]['PRICE']['VALUE'];
+							submitData.CATALOG_PRICE = submitData.CATALOG_PRICE || {};
+							submitData.CATALOG_PRICE[variationId] = submitData.CATALOG_PRICE[variationId] || {};
+							submitData.CATALOG_PRICE[variationId][groupPriceId] = editFields[cellName].PRICE.VALUE;
 						}
-						if (!Type.isNil(editFields[cellName]['CURRENCY']))
+
+						if (!Type.isNil(editFields[cellName].CURRENCY))
 						{
-							submitData['CATALOG_CURRENCY'] = submitData['CATALOG_CURRENCY'] || {};
-							submitData['CATALOG_CURRENCY'][variationId] = submitData['CATALOG_CURRENCY'][variationId] || {};
-							submitData['CATALOG_CURRENCY'][variationId][groupPriceId] = editFields[cellName]['CURRENCY']['VALUE'];
+							submitData.CATALOG_CURRENCY = submitData.CATALOG_CURRENCY || {};
+							submitData.CATALOG_CURRENCY[variationId] = submitData.CATALOG_CURRENCY[variationId] || {};
+							submitData.CATALOG_CURRENCY[variationId][groupPriceId] = editFields[cellName].CURRENCY.VALUE;
 						}
 					}
 					else if (cellName !== 'MORE_PHOTO' && cellName !== 'MORE_PHOTO_custom')
@@ -344,7 +349,7 @@ export class IblockProductList
 				this.clearVariationCache(variationId);
 			});
 
-			for (let rowId in submitData.FIELDS)
+			for (const rowId in submitData.FIELDS)
 			{
 				if (!submitData.FIELDS.hasOwnProperty(rowId))
 				{
@@ -353,36 +358,40 @@ export class IblockProductList
 
 				const productId = this.getProductIdByRowId(rowId);
 				const variationId = this.getCurrentVariationIdByProduct(productId);
-				const newFilesRegExp = new RegExp(/([0-9A-Za-z_]+?(_n\d+)*)\[([A-Za-z_]+)\]/);
+				const newFilesRegExp = new RegExp(/(\w+?(_n\d+)*)\[([A-Z_a-z]+)]/);
 				const rowFields = submitData.FIELDS[rowId];
 				const morePhotoValues = {};
-				if (!Type.isNil(rowFields['MORE_PHOTO_custom']))
+				if (!Type.isNil(rowFields.MORE_PHOTO_custom))
 				{
-					for (let key in rowFields['MORE_PHOTO_custom'])
+					for (const key in rowFields.MORE_PHOTO_custom)
 					{
-						if (!rowFields['MORE_PHOTO_custom'].hasOwnProperty(key))
+						if (!rowFields.MORE_PHOTO_custom.hasOwnProperty(key))
 						{
 							continue;
 						}
 
-						const inputValue = rowFields['MORE_PHOTO_custom'][key];
-						if (newFilesRegExp.test(inputValue.name))
+						const inputValue = rowFields.MORE_PHOTO_custom[key];
+						if (!Type.isNil(inputValue))
 						{
-							let fileCounter, fileSetting;
-							[, fileCounter, , fileSetting] = inputValue.name.match(newFilesRegExp);
-							if (fileCounter && fileSetting)
+							if (newFilesRegExp.test(inputValue.name))
 							{
-								morePhotoValues[fileCounter] = morePhotoValues[fileCounter] || {};
-								morePhotoValues[fileCounter][fileSetting] = inputValue.value;
+								let fileCounter; let
+									fileSetting;
+								[, fileCounter, , fileSetting] = inputValue.name.match(newFilesRegExp);
+								if (fileCounter && fileSetting)
+								{
+									morePhotoValues[fileCounter] = morePhotoValues[fileCounter] || {};
+									morePhotoValues[fileCounter][fileSetting] = inputValue.value;
+								}
 							}
-						}
-						else
-						{
-							morePhotoValues[inputValue.name] = inputValue.value;
+							else
+							{
+								morePhotoValues[inputValue.name] = inputValue.value;
+							}
 						}
 					}
 				}
-				rowFields['MORE_PHOTO'] = morePhotoValues;
+				rowFields.MORE_PHOTO = morePhotoValues;
 				if (variationId && this.showCatalogWithOffers)
 				{
 					const variationRowId = this.getRowIdByProductId(variationId);
@@ -391,7 +400,7 @@ export class IblockProductList
 
 					submitData.FIELDS[variationRowId] = {};
 
-					for (let fieldName of this.variationFieldNames)
+					for (const fieldName of this.variationFieldNames)
 					{
 						if (!rowFields.hasOwnProperty(fieldName))
 						{
@@ -431,11 +440,11 @@ export class IblockProductList
 
 				if (fieldSectionId)
 				{
-					const value = fieldSectionId['VALUE'];
+					const value = fieldSectionId.VALUE;
 
 					if (Type.isObject(value))
 					{
-						sectionId = value['VALUE'];
+						sectionId = value.VALUE;
 					}
 				}
 			}
@@ -450,6 +459,22 @@ export class IblockProductList
 		this.morePhotoChangedInputs.set(id, response.data.input);
 	}
 
+	handlerOnSliderMessage(event: BaseEvent)
+	{
+		const [sliderEvent] = event.getCompatData();
+
+		if (
+			sliderEvent.getEventId() === 'Catalog.ProductCard::onCreate'
+			|| sliderEvent.getEventId() === 'Catalog.ProductCard::onUpdate'
+			// compatibility for admin forms
+			|| sliderEvent.getEventId() === 'save'
+			|| sliderEvent.getEventId() === 'apply'
+		)
+		{
+			this.getGrid().reload();
+		}
+	}
+
 	getFilterFields(filter: BX.Main.Filter)
 	{
 		const presets = filter.getParam('PRESETS');
@@ -459,13 +484,13 @@ export class IblockProductList
 		if (Type.isArray(presets))
 		{
 			tmpFilterPreset = presets.find((preset) => {
-				return preset['ID'] === 'tmp_filter';
+				return preset.ID === 'tmp_filter';
 			});
 		}
 
 		if (tmpFilterPreset)
 		{
-			return tmpFilterPreset['FIELDS'] || null;
+			return tmpFilterPreset.FIELDS || null;
 		}
 
 		return null;
@@ -474,21 +499,52 @@ export class IblockProductList
 	getFieldSectionId(fields: Array)
 	{
 		return fields.find((field) => {
-			return field['ID'] === 'field_SECTION_ID'
+			return field.ID === 'field_SECTION_ID';
 		});
 	}
 
 	setNewProductButtonHrefSectionId(sectionId: String)
 	{
-		const uri = new Uri(this.createNewProductHref);
-		uri.setQueryParams({
-			IBLOCK_SECTION_ID: sectionId,
-		});
-		const button = document.getElementById('create_new_product_button_' + this.gridId);
-
-		if (Type.isDomNode(button))
+		const nodes = document.querySelectorAll('[data-grid-create-button]');
+		if (nodes.length === 0)
 		{
-			button.href = uri.getPath() + uri.getQuery();
+			return;
+		}
+
+		const buttonContainer = Array.prototype.find.call(nodes, (item) => item.dataset.gridCreateButton === this.gridId);
+		if (Type.isDomNode(buttonContainer))
+		{
+			const buttonObject = BX.UI.ButtonManager.getByUniqid(buttonContainer.dataset.btnUniqid);
+			if (!buttonObject)
+			{
+				return;
+			}
+
+			// main
+			const mainButton = buttonObject.getMainButton();
+			if (mainButton && mainButton.getLink())
+			{
+				const uri = new Uri(mainButton.getLink());
+				uri.setQueryParams({
+					IBLOCK_SECTION_ID: sectionId,
+				});
+
+				mainButton.setLink(uri.toString());
+			}
+
+			// menu
+			buttonObject.getMenuWindow()?.getMenuItems()?.forEach((item) => {
+				const link = item.getLayout().item;
+				if (link.tagName === 'A')
+				{
+					const uri = new Uri(link.href);
+					uri.setQueryParams({
+						IBLOCK_SECTION_ID: sectionId,
+					});
+
+					link.href = uri.toString();
+				}
+			});
 		}
 	}
 }

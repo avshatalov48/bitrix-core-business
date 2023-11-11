@@ -1,0 +1,5 @@
+.bx-im-message-author-title__container {
+	align-self: flex-start;
+	cursor: pointer;
+	user-select: none;
+}

@@ -38,7 +38,10 @@ export class DeleteService
 			id: message.id,
 			fields: {
 				text: '',
-				params: { IS_DELETED: 'Y', FILE_ID: [] },
+				isDeleted: true,
+				files: [],
+				attach: [],
+				replyId: 0,
 			},
 		});
 
@@ -74,6 +77,7 @@ export class DeleteService
 				id: dialog.dialogId,
 				fields: {
 					message: updatedMessage,
+					dateUpdate: new Date(),
 				},
 			});
 

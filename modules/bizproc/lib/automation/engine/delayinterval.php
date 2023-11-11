@@ -274,6 +274,7 @@ class DelayInterval
 			$this->getBasis() === Helper::CURRENT_DATETIME_BASIS
 			&& $this->getType() === static::TYPE_AFTER
 			&& !$this->isWorkTime()
+			&& !$this->getInTime()
 		)
 		{
 			$valueType = $this->getValueType();

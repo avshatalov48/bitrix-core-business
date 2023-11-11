@@ -212,12 +212,12 @@ class LicenseManager
 		return false;
 	}
 
-	public static function isMailClientReadyToUse(): bool
+	public static function isMailClientReadyToUse($userId = null): bool
 	{
 		if (
 			self::isSyncAvailable()
-			&& count(MailboxTable::getUserMailboxes()) > 0
-			&& self::checkUserHasNotExceededTheConnectedMailboxesLimit()
+			&& count(MailboxTable::getUserMailboxes($userId)) > 0
+			&& self::checkUserHasNotExceededTheConnectedMailboxesLimit($userId)
 		)
 		{
 			return true;
@@ -307,7 +307,7 @@ class LicenseManager
 
 		return -1;
 	}
-	
+
 	/**
 	 * Returns the number of days to store messages
 	 *

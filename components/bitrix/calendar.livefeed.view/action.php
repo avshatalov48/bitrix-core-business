@@ -1,5 +1,10 @@
-<?
-define("NO_KEEP_STATISTIC", true);
+<?php
+
+if (!defined('NO_KEEP_STATISTIC'))
+{
+	define("NO_KEEP_STATISTIC", true);
+}
+
 define("BX_STATISTIC_BUFFER_USED", false);
 define("NO_LANG_FILES", true);
 define("NOT_CHECK_PERMISSIONS", true);
@@ -46,13 +51,13 @@ if (!empty($event_feed_action) && check_bitrix_sessid())
 			CCalendarEvent::SetMeetingStatusEx([
 				'attendeeId' => $userId,
 				'eventId' => $eventId,
-				'parentId' => (int)$_REQUEST['parent_id'],
+				'parentId' => (int)($_REQUEST['parent_id'] ?? null),
 				'status' => $status,
-				'reccurentMode' => in_array($_REQUEST['reccurent_mode'], ['this', 'next', 'all'])
+				'reccurentMode' => in_array($_REQUEST['reccurent_mode'] ?? null, ['this', 'next', 'all'])
 					? $_REQUEST['reccurent_mode']
 					: false
 				,
-				'currentDateFrom' => CCalendar::Date(CCalendar::Timestamp($_REQUEST['current_date_from']), false)
+				'currentDateFrom' => CCalendar::Date(CCalendar::Timestamp($_REQUEST['current_date_from'] ?? null), false)
 			]);
 
 			$events = CCalendarEvent::GetList([
@@ -74,7 +79,7 @@ if (!empty($event_feed_action) && check_bitrix_sessid())
 				{
 					$result = ['ACCEPTED_ATTENDEES_COUNT' => 0,'DECLINED_ATTENDEES_COUNT' => 0];
 
-					if (is_array($events[0]['ATTENDEE_LIST']))
+					if (!empty($events[0]['ATTENDEE_LIST']) && is_array($events[0]['ATTENDEE_LIST']))
 					{
 						foreach($events[0]['ATTENDEE_LIST'] as $i => $attendee)
 						{
@@ -107,7 +112,7 @@ if (!empty($event_feed_action) && check_bitrix_sessid())
 						'DECLIINED_PARAMS' => ["prefix" => "n"],
 					];
 
-					if (is_array($events[0]['ATTENDEE_LIST']))
+					if (!empty($events[0]['ATTENDEE_LIST']) && is_array($events[0]['ATTENDEE_LIST']))
 					{
 						$userIndex = CCalendarEvent::getUserIndex();
 						foreach($events[0]['ATTENDEE_LIST'] as $i => $attendee)

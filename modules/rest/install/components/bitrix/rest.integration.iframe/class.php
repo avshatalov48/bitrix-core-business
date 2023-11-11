@@ -58,7 +58,6 @@ class RestIntegratorsIndexComponent extends CBitrixComponent
 		$queryData = $this->getParseUrl(htmlspecialcharsback($this->arParams['~PATH']));
 		if ($this->arParams['SET_TITLE'])
 		{
-			/**@var \CAllMain */
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('REST_INTEGRATION_IFRAME_TITLE'));
 		}
 		$result['ERROR'] = false;
